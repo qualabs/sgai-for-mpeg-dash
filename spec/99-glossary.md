@@ -43,6 +43,24 @@ through `05-dash-linear-interfaces.md` (plus
     custom layout.
   - **Corner-bug**: small ad anchored to a corner; supports IAB Tile
     flexible aspect ratios.
+
+### Canonical layout vocabulary
+
+The following enum-values are canonical. The norm MUST reference
+these names; new layouts MUST be added here first.
+
+| Name | Enum-value | Visual placement | Typical usage |
+|------|------------|------------------|---------------|
+| L-shape | `l-shape` | Primary content shrunk and anchored to one corner; ad fills the remaining "L" along the other two edges | Sports score tickers, news lower-third + side scroll |
+| Banner | `banner` | Full-width strip across the bottom (or top); primary content keeps full scale | Mid-roll teasers, promo banners |
+| Skyscraper | `skyscraper` | Tall, narrow vertical strip on one side | Sidebar campaign units |
+| Sidebar | `sidebar` | Vertical strip on one side, wider than skyscraper | Companion sidebar UI |
+| Side-by-side | `side-by-side` | Primary content scaled to one half, ad on the other; no visual overlap | Hybrid linear + non-linear |
+| Squeezeback | `squeezeback` | Primary content scaled down inside a frame; ad UI surrounds it | Late-content promos, content recommendations |
+| Pause-ad | `pause-ad` | Fullscreen overlay shown only when primary content is paused | Pause-state monetisation |
+| Lower-third | `lower-third` | Small strip anchored to the lower third of the screen, typically semi-transparent | Talkshow-style branding, headlines |
+| Corner-bug | `corner-bug` | Small logo/UI element anchored to one corner of the screen | Network branding, brand awareness |
+
 - **MPEG-DASH 6th edition**: revision of ISO/IEC 23009-1 that
   introduced the `InsertPresentation` and `ReplacePresentation`
   constructs for linear SGAI.
