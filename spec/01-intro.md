@@ -41,6 +41,9 @@ This folder stays focused on the technical content.
   three-actor interfaces, walks the end-to-end message flow with
   concrete MPD and ListMPD examples, and lays out the VAST → ListMPD
   adapter mapping.
+- **[06-naming-and-namespaces.md](./06-naming-and-namespaces.md)** —
+  Naming conventions for new constructs (URN patterns, namespaces,
+  versioning) and pointer to the canonical layout vocabulary.
 - **[99-glossary.md](./99-glossary.md)** — Technical terminology used
   across the document set.
 
