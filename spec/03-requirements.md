@@ -26,26 +26,7 @@ working doc verbatim.
   "ignore-if-unknown" semantics already enable this behavior on
   conforming legacy Players. The expected behavior of a legacy
   Player encountering the new constructs is captured as **UC-07**
-  in [`04-use-cases.md`](04-use-cases.md). Compliance also includes
-  following the best practices established by the linear SGAI
-  baseline in MPEG-DASH 6th edition (see
-  [`05-dash-linear-interfaces.md`](05-dash-linear-interfaces.md)),
-  in particular:
-    - **Year-pinned event scheme URIs.** Any new event scheme
-      introduced by this proposal MUST follow the
-      `:<year>` suffix pattern used by the baseline (e.g.
-      `urn:mpeg:dash:event:alternativeMPD:insert:2025`). Reusing a
-      pre-existing URI with altered semantics across editions is
-      not permitted: a fresh URI per edition is what makes the
-      "ignore-if-unknown" guarantee for legacy Players clean and
-      auditable.
-    - **ERT randomisation.** Players resolving SGAI events SHOULD
-      randomise the dispatch time of the ADS request within the
-      window `[presentationTime − @earliestResolutionTimeOffset,
-      presentationTime)` (Earliest Resolution Time onward). This
-      spreads ADS load on live streams where many Players share the
-      same event timing and avoids a request stampede at the ERT
-      boundary.
+  in [`04-use-cases.md`](04-use-cases.md).
 - **R2. Honour the actor's responsibilities.** The design must
   enforce the separation defined in the Actors and Responsibilities
   section: the Broadcaster declares constraints, the ADS provides
