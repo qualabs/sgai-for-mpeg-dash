@@ -49,27 +49,20 @@ the Player enforces the cap (R7).
                                                        | (3) GET segments
                                                        |
    +-------------+   (1) GET main MPD     +----------+ | (5) GET ad segments
-   | Broadcaster |<-----------------------|  Player  |-+----------------------------> ad CDN
+   | Broadcaster |<-----------------------|          |-+--------------------------> ad CDN
    | (encoder +  |                        |          |
-   |  packager + |---(2) MPD (XML) ------>|          |
-   |   CDN)      |        with            |          |
-   +-------------+        SGAI event      +----+-----+
-                                               |
-                          (4a) GET <event @url>?<query>
-                                               |
-                                               v
+   |  packager + |---(2) MPD (XML) ------>|  Player  |   On ADS response, the Player:
+   |   CDN)      |        with            |          |     (6) validates vs MPD constraints
+   +-------------+        SGAI event      |          |     (7) enforces @maxDuration (R7)
+                                          |          |     (8) fires tracking beacons
+                                          +----+-----+
+                                            |    ^
+                            (4a) GET        |    |  (4b) 200 OK
+                          <event @url>?<q>  |    |  ListMPD (XML)
+                                            v    |
                                           +----------+   (4c) ad decisioning
                                           |   ADS    |<-----------------------> upstream
                                           | adapter  |   (e.g. VAST 4.x XML)    ad decisioning
-                                          +----------+
-                                               |
-                                  (4b) 200 OK  |
-                                  ListMPD (XML)|
-                                               v
-                                          +----------+
-                                          |  Player  |  (6) validate vs MPD constraints
-                                          | composes |  (7) enforce @maxDuration (R7)
-                                          | ad break |  (8) fire tracking beacons
                                           +----------+
 ```
 
@@ -222,9 +215,7 @@ What the Player does with this manifest:
 > `ReplacePresentation` share `@url`, `@maxDuration`,
 > `@earliestResolutionTimeOffset`. The attributes `@returnOffset`,
 > `@clipDuration` and `@startWithOffset` are **exclusive to
-> `ReplacePresentation`** (§5.16.4 / §5.16.5). Earlier drafts in
-> this project referred to the ADS URL as `@uri`; the spec name is
-> `@url` (validated against the 6th edition source via NotebookLM).
+> `ReplacePresentation`** (§5.16.4 / §5.16.5).
 
 ## Reference XML: ListMPD returned by the ADS
 
