@@ -3,10 +3,20 @@
 **Inputs**: `spec/` + `analysis/dash-gap-analysis.md`. Optionally:
 NotebookLM grounding if the `notebooklm` skill is installed and
 `.env.agent` defines `NOTEBOOK_NAME`.
-**Output**: `output/sgai-norm-<YYYY-MM-DD>.md`, where `<YYYY-MM-DD>`
-is today's date (e.g. `sgai-norm-2026-05-11.md`).
-**Skip if**: the most recent `output/sgai-norm-*.md` exists AND its
-mtime is newer than the newest mtime in `spec/` and `analysis/`.
+**Outputs** (two artifacts per run):
+1. `output/sgai-norm-<YYYY-MM-DD>.md` — the norm itself.
+2. `analysis/norm-validation-<YYYY-MM-DD>.md` — sidecar validation
+   document capturing gaps, edge cases, and ambiguities surfaced
+   during the build. Used as feedback into `spec/` for the next
+   iteration.
+
+Both artifacts use the same `<YYYY-MM-DD>` date stamp (today's date,
+e.g. `2026-05-11`) so the pair is auditable.
+**Skip if** (norm): the most recent `output/sgai-norm-*.md` exists
+AND its mtime is newer than the newest mtime in `spec/` and
+`analysis/`.
+**Skip if** (validation): see "Validation phase" below — its skip
+rule is decoupled from the norm's.
 
 ---
 
@@ -77,3 +87,129 @@ existing dated files — the history of builds is preserved.
 Tone: normative, RFC-style. Use MUST / SHOULD / MAY with explicit
 RFC 2119 reference at the top.
 Language: English.
+
+---
+
+## Validation phase (post-build)
+
+After producing the norm draft in `../output/sgai-norm-<YYYY-MM-DD>.md`,
+the agent MUST also produce a sidecar validation document at:
+
+  `../analysis/norm-validation-<YYYY-MM-DD>.md`
+
+(same date stamp as the norm it was built against, so the pair is
+auditable).
+
+The validation document is the **feedback loop** from norm into
+spec: its findings are used to refine `../spec/` in the next
+iteration. It is not part of the norm itself — it is intermediate
+analysis, lives under `../analysis/`, and may be discarded once its
+findings are absorbed back into `spec/`.
+
+### What to look for
+
+Walk every chapter of the norm draft you just produced and the
+spec inputs you used, and list:
+
+1. **Gaps** — things the norm has to define (because a conformant
+   implementer needs them to ship) but `../spec/` does not provide
+   enough information for. For each gap, name:
+   - The norm chapter / section that needs it.
+   - What the spec is missing (a fact, a constraint, a behavior, a
+     value range).
+   - What an implementer would do today in the absence — guess?
+     fail-closed? proprietary extension?
+
+2. **Edge cases** — boundary conditions not contemplated by the
+   use cases (`../spec/04-use-cases.md`) but that the norm must
+   handle if it is to be deployable. For each edge case:
+   - The trigger condition (what combination of inputs).
+   - Why it matters (what breaks if not handled).
+   - Which actor (Broadcaster / ADS / Player) is responsible for
+     handling it — and whether the spec is silent on this.
+
+3. **Ambiguities** — places where the norm draft you just wrote
+   could be read two or more ways because the spec language allows
+   it. For each ambiguity:
+   - The spec passage (file:line if you can pin it).
+   - The two (or more) readings.
+   - Which one the norm draft assumed, and why.
+   - Whether a tighter spec sentence would resolve it.
+
+### Validation doc structure
+
+```
+# Norm validation — <YYYY-MM-DD>
+
+Built against:
+- norm: `../output/sgai-norm-<YYYY-MM-DD>.md`
+- spec/ at git SHA: <sha>
+
+This document captures gaps, edge cases, and ambiguities surfaced
+during the norm build. Findings here feed back into `../spec/` —
+they are NOT part of the norm itself.
+
+## Gaps (N)
+
+### G-01. <short title>
+- Norm section affected: <chapter>
+- Spec gap: <what spec is missing>
+- Implementer default today: <what they'd do>
+
+### G-02. ...
+
+## Edge cases (M)
+
+### E-01. <short title>
+- Trigger: <condition>
+- Why it matters: <impact>
+- Responsible actor: <name + whether spec is silent>
+
+## Ambiguities (K)
+
+### A-01. <short title>
+- Spec passage: <file:line + quote>
+- Readings:
+  - (a) ...
+  - (b) ...
+- Norm draft assumed: (a or b) — rationale: ...
+- Spec fix that would resolve it: <suggested phrasing>
+
+## Recommended spec refinements
+
+Top 3-5 priorities for the next spec iteration, mixing G / E / A
+items, ranked by leverage (which one unblocks the most other items
+or reduces the most norm-side handwaving).
+```
+
+### Skip-if-fresh logic for the validation doc
+
+The validation doc depends on both `spec/` and the norm output. Its
+skip rule is **decoupled** from the norm's own skip rule — it is
+possible for the norm to be SKIPPED but the validation to be BUILT
+(when the spec changed without forcing a new dated norm), and
+vice versa.
+
+Skip rule:
+
+```
+Skip producing `../analysis/norm-validation-<YYYY-MM-DD>.md` if:
+  - it exists, AND
+  - its mtime is newer than the newest mtime in `../spec/`, AND
+  - its mtime is newer than the newest `../output/sgai-norm-*.md`.
+
+Otherwise, regenerate.
+```
+
+### Log header
+
+The validation doc, like the norm itself, MUST log on its first
+line one of:
+
+  `[GROUNDED_BY=notebooklm]`
+  `[GROUNDED_BY=spec-only]`
+
+depending on whether NotebookLM (via the `notebooklm` skill +
+`NOTEBOOK_NAME` from `.env.agent`) was used to ground the
+validation findings against the authoritative DASH 6th source.
+Use the same grounding mode you used for the norm build itself.

@@ -2,9 +2,15 @@
 
 **Inputs**: `spec/` (and the prompts below). Optional: NotebookLM
 grounding flows through downstream prompts (see their headers).
-**Output**: `analysis/dash-gap-analysis.md` + `output/sgai-norm-<YYYY-MM-DD>.md`.
+**Outputs**:
+- `analysis/dash-gap-analysis.md` (from Step 1).
+- `output/sgai-norm-<YYYY-MM-DD>.md` (from Step 2 — norm).
+- `analysis/norm-validation-<YYYY-MM-DD>.md` (from Step 2 — sidecar
+  validation document; see `prompts/build-norm.prompt` for details).
 **Skip if**: each downstream prompt has its own skip rule and is
-honoured here.
+honoured here. Note that the norm and its validation sidecar have
+**decoupled** skip rules — Step 2 may produce one, the other, both,
+or neither in any given run.
 
 ---
 
@@ -30,15 +36,35 @@ Inspect `analysis/dash-gap-analysis.md`:
   `prompts/analyze-dash-gap.prompt` and log
   `[BUILT] analyze-dash-gap → analysis/dash-gap-analysis.md`.
 
-### Step 2 — Norm build
+### Step 2 — Norm build (produces two artifacts)
 
-Find the newest `output/sgai-norm-*.md` file (if any). Inspect it:
+The `build-norm` prompt produces **two artifacts** per run with
+**decoupled** skip rules: the norm itself
+(`output/sgai-norm-<date>.md`) and a sidecar validation document
+(`analysis/norm-validation-<date>.md`) capturing gaps, edge cases,
+and ambiguities for feedback into `spec/`. See
+`prompts/build-norm.prompt` for the validation phase details.
 
-- If it exists AND its mtime is newer than the newest mtime in
-  `spec/` AND newer than `analysis/dash-gap-analysis.md` → log
-  `[SKIPPED] build-norm → <latest filename>` and stop.
-- Else → invoke the instructions in `prompts/build-norm.prompt`
-  and log `[BUILT] build-norm → output/sgai-norm-<today>.md`.
+Norm sub-step:
+
+- Find the newest `output/sgai-norm-*.md` file (if any). If it
+  exists AND its mtime is newer than the newest mtime in `spec/`
+  AND newer than `analysis/dash-gap-analysis.md` → log
+  `[SKIPPED] build-norm → <latest filename>`.
+- Else → invoke the norm-build instructions in
+  `prompts/build-norm.prompt` and log
+  `[BUILT] build-norm → output/sgai-norm-<today>.md`.
+
+Validation sub-step (always evaluated, regardless of whether the
+norm was BUILT or SKIPPED):
+
+- Find the newest `analysis/norm-validation-*.md` file (if any). If
+  it exists AND its mtime is newer than the newest mtime in `spec/`
+  AND newer than the newest `output/sgai-norm-*.md` → log
+  `[SKIPPED] build-norm-validation → <latest filename>`.
+- Else → invoke the validation-phase instructions in
+  `prompts/build-norm.prompt` and log
+  `[BUILT] build-norm-validation → analysis/norm-validation-<today>.md`.
 
 ### Final summary
 
@@ -46,8 +72,9 @@ Print a summary block:
 
 ```
 SGAI build summary (YYYY-MM-DD HH:MM):
-  [BUILT|SKIPPED] analyze-dash-gap → analysis/dash-gap-analysis.md (mtime: ...)
-  [BUILT|SKIPPED] build-norm        → output/sgai-norm-<date>.md (mtime: ...)
+  [BUILT|SKIPPED] analyze-dash-gap        → analysis/dash-gap-analysis.md (mtime: ...)
+  [BUILT|SKIPPED] build-norm              → output/sgai-norm-<date>.md (mtime: ...)
+  [BUILT|SKIPPED] build-norm-validation   → analysis/norm-validation-<date>.md (mtime: ...)
 ```
 
 Language: English.
