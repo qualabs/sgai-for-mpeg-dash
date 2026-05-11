@@ -1,0 +1,104 @@
+# Build UC × R coverage matrix
+
+**Inputs**: `spec/03-requirements.md` and `spec/04-use-cases.md`.
+**Output**: `analysis/uc-coverage-matrix.md` (overwrites previous).
+**Skip if**: `analysis/uc-coverage-matrix.md` exists AND its mtime
+is newer than the newest mtime in `[spec/03-requirements.md,
+spec/04-use-cases.md]`.
+
+---
+
+## Grounding mode
+
+This analysis is purely spec-internal and does not call out to
+NotebookLM. Log the first line of execution as
+`[GROUNDED_BY=spec-only]`.
+
+## Task
+
+Read `../spec/03-requirements.md` and `../spec/04-use-cases.md`.
+Build two cross-reference matrices that make explicit which
+requirements apply to which use cases.
+
+### Matrix 1 — UC × R (rows = UCs, columns = Rs)
+
+A grid with UC-01..UC-N as rows and R1..R10 (or current R-range)
+as columns. Each cell:
+
+- **A** (applies): the requirement is exercised by the use case.
+- **·** (not applicable): the requirement does not exercise the
+  use case in any meaningful way.
+
+For each row, identify the Rs that the UC's prose, scenarios, or
+expected behaviour invokes. Be conservative — only mark `A` if the
+UC text either references the R explicitly or its scenario directly
+exercises the R's obligation. When in doubt, mark `·`.
+
+### Matrix 2 — R × UC (rows = Rs, columns = UCs)
+
+Transpose of Matrix 1, but include for each R a brief tag in a
+trailing column:
+
+- **`(orphan)`** if no UC exercises the R.
+- **`(governance)`** if the R is document-level (typically R8, R9,
+  R10 in the current numbering) and not runtime-testable via UCs.
+- **`(covered)`** otherwise.
+
+### Notes section
+
+Below the matrices, list:
+
+1. **Orphan Rs** — Rs with no UC coverage that aren't governance.
+   These are signals that either (a) the R needs a use case to
+   exercise it, or (b) the R is conceptually redundant with another
+   R that covers the same ground. For each orphan, propose the
+   minimal UC that would close the gap, or flag the redundancy.
+2. **UCs with thin coverage** — UCs that map to fewer than 3 Rs.
+   These may be under-constrained, or the spec language in the UC
+   may need to be tightened to invoke more Rs explicitly. For each
+   thin UC, suggest which Rs are the most plausible candidates to
+   surface in the UC text.
+3. **Bidirectional sanity check** — if an R is marked covered by
+   N UCs in Matrix 2 but the cells in Matrix 1 only show `A` in M
+   different UCs, the two matrices are inconsistent. Catch and
+   flag every such mismatch with the exact R and the UC set that
+   differs between the two views.
+
+## Output structure
+
+```
+[GROUNDED_BY=spec-only]
+
+# UC × R coverage matrix
+
+<short 2-3 line preamble: spec versions consumed (file mtimes),
+total UC count, total R count>
+
+## Matrix 1 — UC × R
+
+<the grid>
+
+## Matrix 2 — R × UC
+
+<the transposed grid, with the trailing tag column>
+
+## Notes
+
+### Orphan Rs
+...
+
+### UCs with thin coverage
+...
+
+### Bidirectional sanity check
+...
+```
+
+Write to `../analysis/uc-coverage-matrix.md`. Overwrite if exists.
+
+Target volume: 60-150 lines. Tabular and crisp; no narrative
+filler. The norm's chapter 7 (Expected behaviour per scenario)
+absorbs the row-by-UC view directly; chapter 4 (Conformance)
+cross-checks against the orphan list.
+
+Language: English.
