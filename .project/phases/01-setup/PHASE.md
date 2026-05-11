@@ -26,7 +26,7 @@ that enable any subsequent phase (spec iteration, design, prototype).
   can invoke from the project root. Skip-if-fresh logic on each
   prompt so re-runs are cheap.
 - **Governance scaffolding**: `.project/PROJECT.md` (project hub),
-  `.project/LOG.md` (append-only bitácora), `.project/decisions/`
+  `.project/LOG.md` (append-only logbook), `.project/decisions/`
   (ADRs), `.project/phases/` (this folder).
 - **Initial spec set**: 6 files in `spec/` covering intro, actors,
   requirements, use cases, DASH linear interfaces, glossary.

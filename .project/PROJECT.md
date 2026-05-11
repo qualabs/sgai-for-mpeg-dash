@@ -2,17 +2,18 @@
 name: SGAI for MPEG-DASH
 slug: sgai-for-mpeg-dash
 description: >
-  Diseñar una norma completa de Server-Guided Ad Insertion (SGAI) para
-  MPEG-DASH que cubra **linear y non-linear ads**, extendiendo
-  MPEG-DASH 6th edition. Linear SGAI ya existe en 6th edition
-  (InsertPresentation / ReplacePresentation / ListMPD) y se absorbe
-  como baseline; el delta principal de diseño es la extensión
-  non-linear (overlays, pause ads, L-shapes, banners, side-by-side,
-  fullscreen interactive layers) que convive con el flujo linear bajo
-  la misma arquitectura. Output dual: spec (working doc compartido
-  con industria) + prototipo funcional. Colaboración con SVTA Ads WG
-  y contribuidores de MPEG-DASH (Alex Giladi de Netflix, Thasso de
-  Castlabs, Thomas Stockhammer chair de MPEG-DASH).
+  Design a complete Server-Guided Ad Insertion (SGAI) norm for
+  MPEG-DASH covering **linear and non-linear ads**, extending
+  MPEG-DASH 6th edition. Linear SGAI already exists in 6th edition
+  (InsertPresentation / ReplacePresentation / ListMPD) and is
+  absorbed as the baseline; the principal design delta is the
+  non-linear extension (overlays, pause ads, L-shapes, banners,
+  side-by-side, fullscreen interactive layers) coexisting with the
+  linear flow under the same architecture. Dual output: spec
+  (working doc shared with the industry) + working prototype.
+  Collaboration with SVTA Ads WG and MPEG-DASH contributors
+  (Alex Giladi from Netflix, Thasso from Castlabs, Thomas
+  Stockhammer chair of MPEG-DASH).
 status: ongoing
 type: research
 owner: nicolas-levy
@@ -25,117 +26,117 @@ related_wgs: [comcast-sgai, svta-ads]
 
 # SGAI for MPEG-DASH
 
-Hub del proyecto. El contenido sustantivo vive en archivos
-referenciados desde acá — este `PROJECT.md` es solo navegación + fases.
+Project hub. Substantive content lives in files referenced from
+here — this `PROJECT.md` is only navigation + phases.
 
-## Objetivo y motivación
+## Objective and motivation
 
-Diseñar una **norma completa de Server-Guided Ad Insertion (SGAI)
-para MPEG-DASH** que cubra **linear y non-linear ads** como una sola
-extensión coherente de **MPEG-DASH 6th edition**.
+Design a **complete Server-Guided Ad Insertion (SGAI) norm for
+MPEG-DASH** covering **linear and non-linear ads** as a single
+coherent extension of **MPEG-DASH 6th edition**.
 
-- **Linear** ya existe en 6th edition (`InsertPresentation` /
-  `ReplacePresentation` resolviendo un `ListMPD` devuelto por un Ad
-  Decision Server externo). La norma absorbe ese mecanismo como
-  **baseline**, lo clarifica, y puede sumar extensiones menores donde
-  el gap analysis lo justifique.
-- **Non-linear** es el **delta principal de diseño**: cubrir
-  superficies non-linear (overlays, side-by-side, pause ads,
-  L-shapes, banners, corner bugs, fullscreen interactive layers)
-  reutilizando el mismo patrón — *MPD event → resolution document →
-  Player composes the result* — sin fragmentar la arquitectura.
+- **Linear** already exists in 6th edition (`InsertPresentation` /
+  `ReplacePresentation` resolving a `ListMPD` returned by an
+  external Ad Decision Server). The norm absorbs that mechanism as
+  the **baseline**, clarifies it, and may add minor extensions
+  where the gap analysis justifies them.
+- **Non-linear** is the **principal design delta**: cover non-linear
+  surfaces (overlays, side-by-side, pause ads, L-shapes, banners,
+  corner bugs, fullscreen interactive layers) reusing the same
+  pattern — *MPD event → resolution document → Player composes the
+  result* — without fragmenting the architecture.
 
-El output final es una sola spec SGAI que un implementador puede
-seguir para cubrir ambos casos.
+The final output is a single SGAI spec that an implementer can
+follow to cover both cases.
 
-## Output esperado
+## Expected output
 
-Doble entregable:
+Two deliverables:
 
-1. **Spec técnica completa** de SGAI para MPEG-DASH (linear +
-   non-linear), escrita colaborativamente en un Google Doc compartido
-   con la industria. Destino: aterrizar en el **MPEG-DASH WG** como
-   starting point de una extensión formal del standard.
-2. **Prototipo funcional** que demuestra la propuesta end-to-end sobre
-   un DASH player real, con coexistencia de linear y non-linear ad
-   slots en la misma sesión de playback.
+1. **Complete technical spec** of SGAI for MPEG-DASH (linear +
+   non-linear), written collaboratively in a Google Doc shared
+   with the industry. Destination: land in the **MPEG-DASH WG** as
+   the starting point for a formal extension of the standard.
+2. **Working prototype** demonstrating the proposal end-to-end on
+   a real DASH player, with coexistence of linear and non-linear
+   ad slots in the same playback session.
 
 ## Stakeholders
 
-A nivel organizaciones y roles públicos (sin info personal interna —
-ver `knowledge/output-policy.md`):
+At the level of organizations and public roles (no internal
+personal info — see `knowledge/output-policy.md`):
 
-- **Qualabs Working Group** (interno) — WG semanal que avanza spec y
-  prototipo. Roles públicos relevantes: Chief Solution Architect
-  (lead técnico + representación en SVTA Ads WG), CTO Nicolás Levy
-  (customer relationship + posicionamiento estratégico en MPEG /
-  SVTA). El modelo de actores técnicos formal vive en
+- **Qualabs Working Group** (internal) — weekly WG that advances
+  spec and prototype. Relevant public roles: Chief Solution
+  Architect (technical lead + representation in SVTA Ads WG), CTO
+  Nicolás Levy (customer relationship + strategic positioning in
+  MPEG / SVTA). The formal technical actor model lives in
   `spec/02-actors.md`.
-- **Comcast** — sponsor y customer principal del WG que produjo el
-  SGAI linear de DASH 6th edition. Funda y prioriza la extensión
-  non-linear.
-- **SVTA Advertisement WG** — venue de socialización fuera de
-  Comcast. Cadence y slot por arreglar.
-- **DASH Industry Forum (DASH-IF)** — interop y guidelines sobre la
-  spec base.
-- **MPEG-DASH WG** (MPEG Systems WG que hosts DASH) — standards body
-  formal. Chair: **Thomas Stockhammer**.
-- **Contribuidores externos identificados**: Alex Giladi (Netflix,
-  reviewer probable a v0.x estable), Thasso (Castlabs, validación
-  prototype-side), Olivier Cortambert (comments detallados sobre la
-  separación timeline-triggered overlays vs action-triggered pause
-  ads).
+- **Comcast** — sponsor and primary customer of the WG that
+  produced the linear SGAI in DASH 6th edition. Funds and
+  prioritizes the non-linear extension.
+- **SVTA Advertisement WG** — socialization venue outside Comcast.
+  Cadence and slot to be arranged.
+- **DASH Industry Forum (DASH-IF)** — interop and guidelines on
+  top of the base spec.
+- **MPEG-DASH WG** (MPEG Systems WG that hosts DASH) — formal
+  standards body. Chair: **Thomas Stockhammer**.
+- **Identified external contributors**: Alex Giladi (Netflix,
+  likely reviewer at stable v0.x), Thasso (Castlabs,
+  prototype-side validation), Olivier Cortambert (detailed
+  comments on the split of timeline-triggered overlays vs
+  action-triggered pause ads).
 
-## Standards relevantes
+## Relevant standards
 
-- **MPEG-DASH 6th edition** (ISO/IEC 23009-1) — base sobre la que
-  extiende esta propuesta. `InsertPresentation`,
-  `ReplacePresentation`, `ListMPD`.
-- **IAB CTV Ad Standard** — formatos flexible-ratio (8:1, 6:1, 1:4,
-  etc.) que esta propuesta referencia en vez de redefinir su propio
-  layout system. R5 alinea explícitamente con él.
-- **SCTE-35** (ANSI/SCTE digital program insertion cueing) — markers
-  consumidos por el prototype vía Morpheus, convertidos a DASH
-  dynamic events.
+- **MPEG-DASH 6th edition** (ISO/IEC 23009-1) — base on which this
+  proposal extends. `InsertPresentation`, `ReplacePresentation`,
+  `ListMPD`.
+- **IAB CTV Ad Standard** — flexible-ratio formats (8:1, 6:1, 1:4,
+  etc.) that this proposal references instead of redefining its
+  own layout system. R5 aligns explicitly with it.
+- **SCTE-35** (ANSI/SCTE digital program insertion cueing) —
+  markers consumed by the prototype via Morpheus, converted into
+  DASH dynamic events.
 
-## Cómo está organizado el proyecto
+## How the project is organized
 
-| Archivo / carpeta | Qué tiene |
+| File / folder | Contents |
 | --- | --- |
-| `README.md` | Doc de entrada user-facing: qué hace el proyecto, layout, cómo regenerar artefactos. |
-| `CLAUDE.md` | Convenciones para subagentes que tocan este proyecto. |
-| `spec/01-intro.md` | Objetivo del cuerpo de docs e índice del set canónico. Punto de entrada técnico. |
-| `spec/02-actors.md` | Three-actor model autocontenido: Broadcaster, ADS, Player. Boundary summary y responsabilidades por actor. |
-| `spec/03-requirements.md` | Requirements R1–R7 (functional + governance), out of scope, y design characteristics que satisfacen los Rs. |
-| `spec/04-use-cases.md` | Device classes D1–D5 y los 7 escenarios (UC-01..UC-07), cada uno con expected behavior por device class. Estructura scenario-first: el broadcaster valida un escenario contra toda su fauna de devices, no casos sueltos. |
-| `spec/05-dash-linear-interfaces.md` | Reference de cómo se implementa SGAI hoy para linear ads en DASH 6th edition: inventario de las interfaces entre los tres actores, end-to-end message flow con MPDs y ListMPDs concretos, mapeo VAST → ListMPD. Foundation sobre la que extiende la propuesta non-linear. |
-| `spec/99-glossary.md` | Glosario de la terminología técnica usada en el set de docs. Entries marcados *(proposed)* son constructs que esta propuesta pone sobre la mesa. |
-| `analysis/dash-gap-analysis.md` | Artefacto generado: mapeo de cada UC contra MPEG-DASH 6th edition (ISO/IEC 23009-1) — qué construct existe hoy, cómo cubre el caso por device class, qué falta. Regenerable vía `prompts/analyze-dash-gap.prompt`. |
-| `prompts/` | Build scripts en formato `.prompt` con header Inputs / Output / Skip if. Tres prompts: `analyze-dash-gap`, `build-norm`, `build-all` (orchestrator). |
-| `output/` | Builds finales del norm document, con filename dated (`sgai-norm-YYYY-MM-DD.md`). No se sobreescriben — la historia de builds se preserva. |
-| `proposal-drafts/` | Iteraciones históricas del spec en Google Doc form, una por archivo, con fecha y versión (`YYYY-MM-DD-vN.md`). Drafts internos que NO viven en el Doc compartido. Mantenidas como referencia histórica. |
-| `.project/decisions/` | ADRs (Architecture Decision Records) numerados. Una decisión material por archivo. Inmutables — si una decisión se supersedea, se crea otro ADR que la marca como reemplazada. |
-| `.project/LOG.md` | Bitácora cronológica del proyecto. Una entry por sesión de trabajo o acción material. Append-only. |
-| `.project/phases/` | Phase folders con `PHASE.md` y `TASKS.md`. |
+| `README.md` | User-facing entry doc: what the project does, layout, how to regenerate artefacts. |
+| `CLAUDE.md` | Conventions for subagents touching this project. |
+| `spec/01-intro.md` | Objective of the docs body and index of the canonical set. Technical entry point. |
+| `spec/02-actors.md` | Self-contained three-actor model: Broadcaster, ADS, Player. Boundary summary and per-actor responsibilities. |
+| `spec/03-requirements.md` | Requirements R1–R7 (functional + governance), out of scope, and design characteristics satisfying the Rs. |
+| `spec/04-use-cases.md` | Device classes D1–D5 and the 7 scenarios (UC-01..UC-07), each with expected behavior per device class. Scenario-first structure: the broadcaster validates a scenario against its full device fauna, not isolated cases. |
+| `spec/05-dash-linear-interfaces.md` | Reference of how SGAI is implemented today for linear ads in DASH 6th edition: inventory of the interfaces between the three actors, end-to-end message flow with concrete MPDs and ListMPDs, VAST → ListMPD mapping. Foundation on which the non-linear proposal extends. |
+| `spec/99-glossary.md` | Glossary of the technical terminology used across the docs set. Entries marked *(proposed)* are constructs that this proposal puts on the table. |
+| `analysis/dash-gap-analysis.md` | Generated artefact: mapping of each UC against MPEG-DASH 6th edition (ISO/IEC 23009-1) — what construct exists today, how it covers the case per device class, what is missing. Regenerable via `prompts/analyze-dash-gap.prompt`. |
+| `prompts/` | Build scripts in `.prompt` format with Inputs / Output / Skip if header. Three prompts: `analyze-dash-gap`, `build-norm`, `build-all` (orchestrator). |
+| `output/` | Final builds of the norm document, with dated filename (`sgai-norm-YYYY-MM-DD.md`). Not overwritten — the build history is preserved. |
+| `proposal-drafts/` | Historical iterations of the spec in Google Doc form, one per file, with date and version (`YYYY-MM-DD-vN.md`). Internal drafts that do NOT live in the shared Doc. Kept as historical reference. |
+| `.project/decisions/` | Numbered ADRs (Architecture Decision Records). One material decision per file. Immutable — if a decision is superseded, another ADR is created marking it as replaced. |
+| `.project/LOG.md` | Chronological logbook of the project. One entry per work session or material action. Append-only. |
+| `.project/phases/` | Phase folders with `PHASE.md` and `TASKS.md`. |
 
-Carpetas que se crean cuando aparezca su primer archivo (no las creo
-preemptivamente): `.project/meeting-notes/`, `references/`,
+Folders created when their first file appears (not created
+preemptively): `.project/meeting-notes/`, `references/`,
 `external-collab/`, `prototype/`.
 
-## Working doc compartido en Drive
+## Shared working doc in Drive
 
 - URL: https://docs.google.com/document/d/1CWm1BP65h45iJ5RwCAQkUAZ6lz7f-w3qJRGMdH8DDdQ/edit
-- Title actual: *"Proposal for Non-Linear SGAI Ad Insertion"*.
-- Audiencia: WG Qualabs, Comcast, SVTA Ads WG, contribuidores
-  MPEG-DASH.
-- Editar el Doc usando la regla 7.0.1 de `CLAUDE.md` (Docs API
-  `documents.batchUpdate` quirúrgico, NUNCA `gws drive files update
+- Current title: *"Proposal for Non-Linear SGAI Ad Insertion"*.
+- Audience: WG Qualabs, Comcast, SVTA Ads WG, MPEG-DASH
+  contributors.
+- Edit the Doc using rule 7.0.1 in `CLAUDE.md` (Docs API
+  `documents.batchUpdate` surgical, NEVER `gws drive files update
   --upload`).
-- El repo NO refleja automáticamente cambios del Doc. Cuando el Doc
-  cambia (comments, edits de otros), el repo conserva su versión y
-  reconciliamos manualmente. Si querés un snapshot fresco del Doc en
-  el repo, generamos un nuevo archivo en `proposal-drafts/` con la
-  fecha del snapshot.
+- The repo does NOT automatically reflect changes from the Doc.
+  When the Doc changes (comments, edits by others), the repo
+  keeps its version and we reconcile manually. If you want a
+  fresh snapshot of the Doc in the repo, generate a new file in
+  `proposal-drafts/` with the snapshot date.
 
 ## Phases
 
@@ -192,24 +193,24 @@ transversal — they fire when the artifacts are mature enough to
 share, not as a dedicated phase. Each touchpoint is logged in
 `LOG.md` and feedback may inform iterations within the active phase.
 
-## Cadencia y artefactos
+## Cadence and artefacts
 
-- **WG interno Qualabs**: cadencia semanal. Las minutas las procesa
-  el proceso `cto-minutes` y quedan indexadas con tags `Comcast` /
-  `SGAI`. Para prep usar el proceso `preparacion-working-group`.
-- **Sesiones con cliente Comcast**: monthly. Decisiones de spec que
-  afecten al cliente se discuten ahí.
-- **Posteo de recap a `#wg-comcast`**: después de cada sesión interna,
-  recap aplicando `knowledge/output-policy.md` y disclaimer
-  "generated by AI" si aplica.
+- **Internal Qualabs WG**: weekly cadence. Minutes are processed
+  by the `cto-minutes` process and indexed with tags `Comcast` /
+  `SGAI`. For prep use the `preparacion-working-group` process.
+- **Sessions with Comcast customer**: monthly. Spec decisions
+  affecting the customer are discussed there.
+- **Recap posted to `#wg-comcast`**: after each internal session,
+  recap applying `knowledge/output-policy.md` and disclaimer
+  "generated by AI" if applicable.
 
-## Cómo enviarme tareas (para Nicolas)
+## How to send me tasks (for Nicolas)
 
-Cuando me mandes una tarea para este proyecto, podés referenciarla
-con prefijo "tarea SGAI:". Asumo este proyecto como contexto y
-trabajo dentro de su carpeta.
+When you send me a task for this project, you can reference it
+with the prefix "tarea SGAI:". I assume this project as context
+and work inside its folder.
 
-Patrones típicos:
+Typical patterns:
 - "tarea SGAI: armá el ADR del rename DynamicPresentation"
 - "tarea SGAI: revisá la sección de schema del working doc y dame
   3 alternativas para el atributo content_type"
@@ -218,57 +219,60 @@ Patrones típicos:
   propuesta"
 - "tarea SGAI: investigá X y proponé un draft, lo revisamos juntos"
 
-Cuando reciba una tarea de research / spec generation:
-- Si la decisión es nueva y material → ADR nuevo en `decisions/`.
-- Si toca contenido del proposal → nueva iteración en
-  `proposal-drafts/` (no edito las anteriores; quedan inmutables).
-- Si cambia algo del contexto inmutable → update de `PROJECT.md`
-  (secciones de objetivo, motivación, stakeholders, standards).
-- Siempre → entry nueva en `LOG.md`.
-- Solo mergeo al Doc compartido cuando vos digas explícitamente
-  "esta versión va".
+When I receive a research / spec generation task:
+- If the decision is new and material → new ADR in `decisions/`.
+- If it touches proposal content → new iteration in
+  `proposal-drafts/` (I do not edit prior ones; they remain
+  immutable).
+- If it changes anything in the immutable context → update of
+  `PROJECT.md` (objective, motivation, stakeholders, standards
+  sections).
+- Always → new entry in `LOG.md`.
+- I only merge into the shared Doc when you explicitly say "this
+  version ships".
 
-## Riesgos / blockers
+## Risks / blockers
 
-- **Soporte de DASH 6th edition en players reales**: el prototipo
-  necesita un player que entienda Insert/ReplacePresentation. Validar
-  contra al menos 2 players (dash.js + Shaka o Castlabs) antes de
-  cerrar el spec.
-- **Coordinación con MPEG WG** (cadencia trimestral aprox.): si la
-  propuesta no llega a un slot del WG, se pierde un trimestre.
-  Mantener sincro con Alex Giladi y Thasso para no chocar con sus
+- **DASH 6th edition support in real players**: the prototype
+  needs a player that understands Insert/ReplacePresentation.
+  Validate against at least 2 players (dash.js + Shaka or
+  Castlabs) before closing the spec.
+- **Coordination with MPEG WG** (roughly quarterly cadence): if
+  the proposal does not reach a WG slot, a quarter is lost. Keep
+  sync with Alex Giladi and Thasso to avoid clashing with their
   deliverables.
-- **Tensión "build first" vs "spec first"**: la decisión del WG
-  Comcast 2026-04-29 fue "build first, spec later". Mantener esa
-  postura cuando aparezca presión para enmendar la spec antes de
-  validar con prototipo.
-- **Brand safety guardrails** (model serving + prompt engineering +
-  content filtering): trabajo de IA significativo, no subestimar.
+- **"Build first" vs "spec first" tension**: the Comcast WG
+  decision of 2026-04-29 was "build first, spec later". Hold
+  that stance when pressure appears to amend the spec before
+  validating with the prototype.
+- **Brand safety guardrails** (model serving + prompt engineering
+  + content filtering): significant AI work, do not underestimate.
 
-## Hilos abiertos (snapshot al cierre del 2026-05-06)
+## Open threads (snapshot at close of 2026-05-06)
 
-- [ ] **Spec — sintaxis DynamicPresentation**: atributo `content_type`
-  vs sub-tipos `DynamicReplacePresentation` /
-  `DynamicInsertPresentation`. Owner: Nico + David.
-- [ ] **Spec — workflow del player**: cómo decide qué workflow usar
-  antes de fetchear el MPD dinámico.
-- [ ] **Spec — split pause-ads del flujo timeline**: separar pause-ads
-  como tipo distinto (action-triggered) de OverlayPresentation
-  (timeline-triggered). Surge del thread de Olivier.
-- [ ] **Spec — alineación con IAB CTV Ad Standard**: la sección
-  Positioning Templates debe referenciar la spec de IAB. Pendiente
-  publicación oficial de IAB.
-- [ ] **Prototipo — user parameters dinámicos** (cablear desde el
-  cliente al manifest).
-- [ ] **Prototipo — brand safety guardrails**.
-- [ ] **External — SVTA Ads WG**: confirmar slot regular.
-- [ ] **External — Alex Giladi**: oportunidad cuando el proposal
-  alcance v0.3 o v0.4.
-- [ ] **External — Thasso (Castlabs)**: contacto a identificar; pedirle
-  intro a JP.
-- [ ] **Working doc — rename del título** (todavía dice
-  "OverlayPresentation"; pendiente cuando la decisión de rename
-  esté completamente cerrada).
+- [ ] **Spec — DynamicPresentation syntax**: `content_type`
+  attribute vs `DynamicReplacePresentation` /
+  `DynamicInsertPresentation` sub-types. Owner: Nico + David.
+- [ ] **Spec — player workflow**: how the player decides which
+  workflow to use before fetching the dynamic MPD.
+- [ ] **Spec — split pause-ads from the timeline flow**: separate
+  pause-ads as a distinct type (action-triggered) from
+  OverlayPresentation (timeline-triggered). Surfaces from
+  Olivier's thread.
+- [ ] **Spec — alignment with IAB CTV Ad Standard**: the
+  Positioning Templates section must reference the IAB spec.
+  Pending official publication from IAB.
+- [ ] **Prototype — dynamic user parameters** (wire from the
+  client to the manifest).
+- [ ] **Prototype — brand safety guardrails**.
+- [ ] **External — SVTA Ads WG**: confirm regular slot.
+- [ ] **External — Alex Giladi**: opportunity when the proposal
+  reaches v0.3 or v0.4.
+- [ ] **External — Thasso (Castlabs)**: contact to be identified;
+  ask him for an intro to JP.
+- [ ] **Working doc — title rename** (still says
+  "OverlayPresentation"; pending until the rename decision is
+  fully closed).
 
-Para el detalle de cada hilo, ver el ADR correspondiente o la entry
-relevante en `LOG.md`.
+For details on each thread, see the corresponding ADR or the
+relevant entry in `LOG.md`.
