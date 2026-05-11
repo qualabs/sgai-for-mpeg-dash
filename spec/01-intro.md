@@ -46,6 +46,10 @@ This folder stays focused on the technical content.
   versioning) and pointer to the canonical layout vocabulary.
 - **[07-error-semantics.md](./07-error-semantics.md)** — Error
   conditions matrix and Player obligations, derived from R1..R7.
+- **[08-backward-compat-checklist.md](./08-backward-compat-checklist.md)** —
+  Verification checklist that the norm MUST apply to each new
+  construct it introduces, so legacy Player compatibility (R1 /
+  UC-07) is auditable per construct.
 - **[99-glossary.md](./99-glossary.md)** — Technical terminology used
   across the document set.
 
