@@ -4,12 +4,13 @@
 grounding flows through downstream prompts (see their headers).
 **Outputs**:
 - `analysis/dash-gap-analysis.md` (from Step 1).
-- `output/sgai-norm-<YYYY-MM-DD>.md` (from Step 2 — norm).
-- `analysis/norm-validation-<YYYY-MM-DD>.md` (from Step 2 — sidecar
+- `analysis/conformance-assertions.md` (from Step 2).
+- `output/sgai-norm-<YYYY-MM-DD>.md` (from Step 3 — norm).
+- `analysis/norm-validation-<YYYY-MM-DD>.md` (from Step 3 — sidecar
   validation document; see `prompts/build-norm.prompt` for details).
 **Skip if**: each downstream prompt has its own skip rule and is
 honoured here. Note that the norm and its validation sidecar have
-**decoupled** skip rules — Step 2 may produce one, the other, both,
+**decoupled** skip rules — Step 3 may produce one, the other, both,
 or neither in any given run.
 
 ---
@@ -36,7 +37,20 @@ Inspect `analysis/dash-gap-analysis.md`:
   `prompts/analyze-dash-gap.prompt` and log
   `[BUILT] analyze-dash-gap → analysis/dash-gap-analysis.md`.
 
-### Step 2 — Norm build (produces two artifacts)
+### Step 2 — Conformance assertions
+
+Inspect `analysis/conformance-assertions.md`. Skip rule is
+independent of Step 1 — this step depends only on `spec/`.
+
+- If file exists AND its mtime is newer than the newest mtime in
+  `spec/` → log
+  `[SKIPPED] extract-conformance-assertions → analysis/conformance-assertions.md`
+  and continue.
+- Else → invoke the instructions in
+  `prompts/extract-conformance-assertions.prompt` and log
+  `[BUILT] extract-conformance-assertions → analysis/conformance-assertions.md`.
+
+### Step 3 — Norm build (produces two artifacts)
 
 The `build-norm` prompt produces **two artifacts** per run with
 **decoupled** skip rules: the norm itself
@@ -72,9 +86,10 @@ Print a summary block:
 
 ```
 SGAI build summary (YYYY-MM-DD HH:MM):
-  [BUILT|SKIPPED] analyze-dash-gap        → analysis/dash-gap-analysis.md (mtime: ...)
-  [BUILT|SKIPPED] build-norm              → output/sgai-norm-<date>.md (mtime: ...)
-  [BUILT|SKIPPED] build-norm-validation   → analysis/norm-validation-<date>.md (mtime: ...)
+  [BUILT|SKIPPED] analyze-dash-gap                → analysis/dash-gap-analysis.md (mtime: ...)
+  [BUILT|SKIPPED] extract-conformance-assertions  → analysis/conformance-assertions.md (mtime: ...)
+  [BUILT|SKIPPED] build-norm                      → output/sgai-norm-<date>.md (mtime: ...)
+  [BUILT|SKIPPED] build-norm-validation           → analysis/norm-validation-<date>.md (mtime: ...)
 ```
 
 Language: English.
