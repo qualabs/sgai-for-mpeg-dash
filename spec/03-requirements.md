@@ -83,8 +83,11 @@ working doc verbatim.
   choose the best form it can render given its device, and MUST
   skip candidates with no renderable form (falling back to the
   next candidate or to primary content, depending on policy).
-  Rationale and trade-offs in
-  [`adr-004`](../decisions/adr-004-device-aware-ad-selection.md).
+  Rationale and trade-offs in the kickoff summary
+  [`00-kickoff-summary.md`](../.project/decisions/00-kickoff-summary.md)
+  (section "Device-aware ad selection"); the original ADR with the
+  full evaluation of alternatives is preserved in
+  `.project/decisions/_archive/adr-004-device-aware-ad-selection.md`.
   R8 is a concrete instance of R2 — Player owns the responsibility
   the ADS does not have — and a direct contributor to R6.
 - **R12. Ad tracking carrier.** The norm MUST specify how in-band

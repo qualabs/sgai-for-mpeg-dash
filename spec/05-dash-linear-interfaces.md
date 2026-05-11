@@ -29,7 +29,7 @@ re-definition.
 |-------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------|-------|
 | Broadcaster | Main MPD with SGAI events (`InsertPresentation`, `ReplacePresentation`) | Nothing at runtime (authoring-time only)                                | Owns the screen; declares slot constraints inside the SGAI event element (§5.16). |
 | Player      | MPD fetch request; ADS resolution request at event activation; tracking beacons | Main MPD; `ListMPD` (or single-period alt MPD) from ADS; ad media segments | Enforces R2 / R7: validates ADS response against MPD constraints; caps slot duration. |
-| ADS         | `ListMPD` (or single-period alt MPD) in response to the Player's resolution request | Player's resolution request; upstream VAST response from internal ad decisioning | Device-agnostic per [`adr-004`](../.project/decisions/adr-004-device-aware-ad-selection.md). Often acts as an adapter over a VAST-based ad decisioning backend (see §VAST → ListMPD below). |
+| ADS         | `ListMPD` (or single-period alt MPD) in response to the Player's resolution request | Player's resolution request; upstream VAST response from internal ad decisioning | Device-agnostic per the kickoff summary section "Device-aware ad selection" in [`00-kickoff-summary.md`](../.project/decisions/00-kickoff-summary.md). Often acts as an adapter over a VAST-based ad decisioning backend (see §VAST → ListMPD below). |
 
 ## Linear SGAI message flow
 
@@ -458,7 +458,8 @@ of HTTPS per DASH-IF guidelines.
   constructs cited (`InsertPresentation`, `ReplacePresentation`,
   `ListMPD`, `@maxDuration`, callback events, §I.4 vocabulary).
 - [`99-glossary.md`](99-glossary.md) — terminology.
-- [`adr-001-three-actor-model.md`](../.project/decisions/adr-001-three-actor-model.md),
-  [`adr-004-device-aware-ad-selection.md`](../.project/decisions/adr-004-device-aware-ad-selection.md)
-  — ADRs that anchor the Player ↔ ADS contract assumed by this
-  document.
+- [`00-kickoff-summary.md`](../.project/decisions/00-kickoff-summary.md)
+  — kickoff summary; the sections "Three-actor model" and
+  "Device-aware ad selection" anchor the Player ↔ ADS contract
+  assumed by this document. Original ADRs preserved under
+  `.project/decisions/_archive/`.
