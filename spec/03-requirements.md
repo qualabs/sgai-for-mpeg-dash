@@ -1,8 +1,9 @@
 # Requirements
 
 > R2 anchors on the three-actor model defined in
-> [`02-actors.md`](02-actors.md). R8 is grounded in
-> [`adr-004-device-aware-ad-selection.md`](../decisions/adr-004-device-aware-ad-selection.md).
+> [`02-actors.md`](02-actors.md). R8 is grounded in the kickoff
+> decisions consolidated in
+> [`00-kickoff-summary.md`](../.project/decisions/00-kickoff-summary.md).
 > Use cases that exercise these requirements across device classes
 > and ad opportunity types live in [`04-use-cases.md`](04-use-cases.md).
 
@@ -25,7 +26,26 @@ working doc verbatim.
   "ignore-if-unknown" semantics already enable this behavior on
   conforming legacy Players. The expected behavior of a legacy
   Player encountering the new constructs is captured as **UC-07**
-  in [`04-use-cases.md`](04-use-cases.md).
+  in [`04-use-cases.md`](04-use-cases.md). Compliance also includes
+  following the best practices established by the linear SGAI
+  baseline in MPEG-DASH 6th edition (see
+  [`05-dash-linear-interfaces.md`](05-dash-linear-interfaces.md)),
+  in particular:
+    - **Year-pinned event scheme URIs.** Any new event scheme
+      introduced by this proposal MUST follow the
+      `:<year>` suffix pattern used by the baseline (e.g.
+      `urn:mpeg:dash:event:alternativeMPD:insert:2025`). Reusing a
+      pre-existing URI with altered semantics across editions is
+      not permitted: a fresh URI per edition is what makes the
+      "ignore-if-unknown" guarantee for legacy Players clean and
+      auditable.
+    - **ERT randomisation.** Players resolving SGAI events SHOULD
+      randomise the dispatch time of the ADS request within the
+      window `[presentationTime − @earliestResolutionTimeOffset,
+      presentationTime)` (Earliest Resolution Time onward). This
+      spreads ADS load on live streams where many Players share the
+      same event timing and avoids a request stampede at the ERT
+      boundary.
 - **R2. Honour the actor's responsibilities.** The design must
   enforce the separation defined in the Actors and Responsibilities
   section: the Broadcaster declares constraints, the ADS provides
@@ -67,6 +87,31 @@ working doc verbatim.
   [`adr-004`](../decisions/adr-004-device-aware-ad-selection.md).
   R8 is a concrete instance of R2 — Player owns the responsibility
   the ADS does not have — and a direct contributor to R6.
+- **R12. Ad tracking carrier.** The norm MUST specify how in-band
+  ad tracking beacons (impression, start, quartiles, complete, etc.)
+  are carried in the resolution document. Implementations SHOULD
+  reuse the existing DASH callback event scheme
+  (`urn:mpeg:dash:event:callback:2015`, §4.7 / §5.10.4.5) as the
+  carrier — embedding tracking `<Event>` entries inside an
+  `<EventStream>` of that scheme in the ad MPD or sub-MPD. New
+  tracking carriers MAY be introduced only when the callback scheme
+  cannot express the required semantics, and only after a
+  documented gap analysis per R4. Application-level metadata that
+  has no native DASH carrier (e.g. `ClickThrough`, `AdSystem`,
+  `AdTitle`, `UniversalAdId`) MAY be conveyed via vendor-namespaced
+  extension elements; Players MUST safely ignore unknown namespaces
+  per the DASH extension rules invoked by R1.
+- **R13. Respect ADS-returned order.** When the ADS returns a
+  resolution document containing more than one ad (e.g. a `ListMPD`
+  with multiple `<Period>` entries), the Player MUST play the ads
+  in the order declared by the ADS, **as long as this is possible
+  given the other Player constraints**. Specifically, the Player
+  MAY drop a candidate that violates R6 (no renderable form for the
+  device) or that would push the cumulative duration past the slot
+  cap (R7), but it MUST NOT re-order, deduplicate, or otherwise
+  rearrange the remaining candidates. Ad selection and ordering are
+  ADS responsibilities (R2); the Player's role is to honour them
+  unless a hard constraint blocks it.
 
 ## Governance Requirements
 
