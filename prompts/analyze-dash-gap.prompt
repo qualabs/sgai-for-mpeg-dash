@@ -1,0 +1,67 @@
+# Generate the DASH 6th edition gap analysis
+
+**Inputs**: `spec/` (all files in this directory). Optionally:
+NotebookLM grounding if the `notebooklm` skill is installed and
+`.env.agent` defines `NOTEBOOK_NAME`.
+**Output**: `analysis/dash-gap-analysis.md` (overwrites previous).
+**Skip if**: `analysis/dash-gap-analysis.md` exists AND its mtime is
+newer than the newest mtime in `spec/`.
+
+---
+
+## Grounding mode
+
+Before doing the work, decide which grounding mode applies and log
+the result to stdout as the first line of execution:
+
+- If the `notebooklm` skill is installed AND a `.env.agent` file at
+  the project root defines a non-empty `NOTEBOOK_NAME` → query that
+  NotebookLM notebook (it must contain the MPEG-DASH 6th edition
+  spec and any related authoritative material). Use it as the
+  authoritative reference for DASH 6th claims and cite section
+  numbers where possible.
+  Log: `[GROUNDED_BY=notebooklm]`.
+- Else → proceed using only `../spec/` as input. The analysis is
+  less authoritative (no canonical DASH 6th reference at query time)
+  but the build still completes successfully.
+  Log: `[GROUNDED_BY=spec-only]`.
+
+In either mode, tag any unverified claim with `[inferred]`.
+
+## Task
+
+Read every file in `../spec/` to understand the target norm (SGAI
+for linear + non-linear ads in MPEG-DASH 6th edition). Pay particular
+attention to:
+
+- `spec/02-actors.md` — three-actor model (Broadcaster / ADS / Player).
+- `spec/03-requirements.md` — R1..R8 — the constraints the norm must
+  satisfy.
+- `spec/04-use-cases.md` — scenarios + device classes the design must
+  cover.
+- `spec/05-dash-linear-interfaces.md` — current SGAI mechanics in
+  DASH 6th (the baseline we extend).
+
+If the grounding mode is `notebooklm`, query the configured notebook
+to obtain authoritative DASH 6th content and ground every claim
+with a spec section reference where possible. If the grounding mode
+is `spec-only`, rely on the contents of `../spec/` and the model's
+prior knowledge of DASH 6th — be conservative and mark uncertain
+claims as `[inferred]`.
+
+Compare the spec/ requirements vs what DASH 6th provides. Produce a
+gap analysis with these sections:
+
+1. **Scope** — what's compared, what's out of scope.
+2. **Coverage matrix** — table per requirement (R1..R8) × DASH 6th
+   capability. Mark each cell: full / partial / gap / N/A.
+3. **Gaps detail** — for each gap (or partial), describe what's
+   missing and what would need to be added or extended.
+4. **Reuse opportunities** — places where existing DASH constructs
+   can be extended rather than introducing new ones (per R4).
+5. **Open questions** — items that need WG input or further research.
+
+Write to `../analysis/dash-gap-analysis.md`. Overwrite if exists.
+
+Tone: technical, direct, no fluff. Same style as the rest of `spec/`.
+Language: English.

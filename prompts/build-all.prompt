@@ -1,0 +1,53 @@
+# Build all SGAI artifacts (orchestrator)
+
+**Inputs**: `spec/` (and the prompts below). Optional: NotebookLM
+grounding flows through downstream prompts (see their headers).
+**Output**: `analysis/dash-gap-analysis.md` + `output/sgai-norm-<YYYY-MM-DD>.md`.
+**Skip if**: each downstream prompt has its own skip rule and is
+honoured here.
+
+---
+
+## Pipeline
+
+For each step, log a single line:
+`[BUILT|SKIPPED] <step> → <output>`.
+
+Each downstream prompt also logs its own
+`[GROUNDED_BY=notebooklm]` or `[GROUNDED_BY=spec-only]` line when it
+runs (skipped steps emit no grounding line). Surface those lines as
+they appear so the full run is auditable.
+
+### Step 1 — Gap analysis
+
+Inspect `analysis/dash-gap-analysis.md`:
+
+- If file exists AND its mtime is newer than the newest mtime in
+  `spec/` → log
+  `[SKIPPED] analyze-dash-gap → analysis/dash-gap-analysis.md`
+  and continue.
+- Else → invoke the instructions in
+  `prompts/analyze-dash-gap.prompt` and log
+  `[BUILT] analyze-dash-gap → analysis/dash-gap-analysis.md`.
+
+### Step 2 — Norm build
+
+Find the newest `output/sgai-norm-*.md` file (if any). Inspect it:
+
+- If it exists AND its mtime is newer than the newest mtime in
+  `spec/` AND newer than `analysis/dash-gap-analysis.md` → log
+  `[SKIPPED] build-norm → <latest filename>` and stop.
+- Else → invoke the instructions in `prompts/build-norm.prompt`
+  and log `[BUILT] build-norm → output/sgai-norm-<today>.md`.
+
+### Final summary
+
+Print a summary block:
+
+```
+SGAI build summary (YYYY-MM-DD HH:MM):
+  [BUILT|SKIPPED] analyze-dash-gap → analysis/dash-gap-analysis.md (mtime: ...)
+  [BUILT|SKIPPED] build-norm        → output/sgai-norm-<date>.md (mtime: ...)
+```
+
+Language: English.

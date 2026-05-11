@@ -1,0 +1,11 @@
+# Local agent configuration — contains user-specific notebook names
+.env.agent
+
+# Editor artifacts
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Build outputs that are heavy and re-generable (optional)
+# output/*.md      # uncomment if you want output/ excluded

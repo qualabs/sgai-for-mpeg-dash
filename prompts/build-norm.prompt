@@ -1,0 +1,79 @@
+# Build the SGAI norm document
+
+**Inputs**: `spec/` + `analysis/dash-gap-analysis.md`. Optionally:
+NotebookLM grounding if the `notebooklm` skill is installed and
+`.env.agent` defines `NOTEBOOK_NAME`.
+**Output**: `output/sgai-norm-<YYYY-MM-DD>.md`, where `<YYYY-MM-DD>`
+is today's date (e.g. `sgai-norm-2026-05-11.md`).
+**Skip if**: the most recent `output/sgai-norm-*.md` exists AND its
+mtime is newer than the newest mtime in `spec/` and `analysis/`.
+
+---
+
+## Grounding mode
+
+Before doing the work, decide which grounding mode applies and log
+the result to stdout as the first line of execution:
+
+- If the `notebooklm` skill is installed AND a `.env.agent` file at
+  the project root defines a non-empty `NOTEBOOK_NAME` → query that
+  NotebookLM notebook (it must contain the MPEG-DASH 6th edition
+  spec and ideally VAST 4.x, IAB CTV, SCTE-35 references). Use it
+  as the authoritative reference when stating normative content.
+  Log: `[GROUNDED_BY=notebooklm]`.
+- Else → proceed using only `../spec/` + `../analysis/` as input.
+  The norm is less authoritative (no canonical references resolved
+  at query time) but the build still completes successfully.
+  Log: `[GROUNDED_BY=spec-only]`.
+
+In either mode, tag any claim that could not be verified against an
+authoritative source as `[inferred]`.
+
+## Task
+
+Read every file in `../spec/` and `../analysis/dash-gap-analysis.md`.
+Use the spec as the source of truth for what the norm must define.
+Use the gap analysis as guidance on which constructs are net-new vs
+extensions of existing DASH 6th machinery.
+
+Generate the SGAI norm document. The norm covers **both linear and
+non-linear ads** in MPEG-DASH (built as an extension on top of
+6th edition).
+
+Required chapters (in this order):
+
+1. **Scope and audience** — what this norm covers, who it's for. The
+   scope statement MUST state explicitly that the norm covers SGAI for
+   **both linear and non-linear ads** in MPEG-DASH, as a complete
+   extension of MPEG-DASH 6th edition: linear SGAI is absorbed as the
+   baseline (clarifications and minor extensions allowed where the gap
+   analysis surfaces them), non-linear is the principal new content.
+2. **Normative references** — list with version pins (DASH 6th =
+   ISO/IEC 23009-1:2025(E), VAST 4.x, etc.).
+3. **Terms, definitions, abbreviations** — pull from
+   `../spec/99-glossary.md` and extend if needed.
+4. **Conformance** — what an implementation must do to claim
+   conformance (MUST/SHOULD/MAY language per RFC 2119).
+5. **Syntax** — manifest fields, event schemas, ListMPD/OverlayList
+   document shapes, attribute tables.
+6. **Interfaces between components** — Broadcaster ↔ ADS ↔ Player
+   message flows, transports, payload shapes. Pull from
+   `../spec/05-dash-linear-interfaces.md` and extend with the
+   non-linear primitives.
+7. **Expected behaviour** — per actor, per scenario (linear ad break,
+   non-linear overlay, coexisting overlay, hybrid, multi-ad break).
+   Use `../spec/04-use-cases.md` as the seed list of scenarios.
+8. **Examples** — full reference XML for each construct (MPD events,
+   ListMPD, OverlayList if introduced, sub-MPDs). Inline, not
+   sidecar.
+9. **Implementation notes** — non-normative guidance: how to handle
+   tracking-only VAST Ads, late callbacks, error recovery, etc.
+10. **Test cases / conformance criteria** — per chapter, what an
+    implementer can test against.
+
+Write to `../output/sgai-norm-<YYYY-MM-DD>.md`. **Do not overwrite**
+existing dated files — the history of builds is preserved.
+
+Tone: normative, RFC-style. Use MUST / SHOULD / MAY with explicit
+RFC 2119 reference at the top.
+Language: English.
