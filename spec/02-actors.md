@@ -22,10 +22,9 @@ The Broadcaster owns the primary content and the viewer's screen.
   in the main MPD. Each event marks where in the timeline an ad can
   be inserted and what kind of insertion is permissible.
 - Define the type and constraints of each slot. The Broadcaster
-  decides whether the slot is a `ReplacePresentation`, an
-  `InsertPresentation`, or the new non-linear event proposed here
-  (`OverlayPresentation` / `DynamicPresentation`). For overlay-style
-  slots, the Broadcaster also constrains:
+  decides whether the slot is a linear replacement, a linear
+  insertion, or a non-linear (overlay-style) opportunity. For
+  overlay-style slots, the Broadcaster also constrains:
   - which layout templates are allowed (e.g. L-shape, banner,
     skyscraper, sidebar, or unrestricted), and
   - other slot-level constraints such as maximum overlay duration,
@@ -42,8 +41,9 @@ The ADS returns ad candidates when the Player resolves the URL
 provided by an MPD event.
 
 - Resolve the event URL (the existing `ListMPD` for linear
-  opportunities, or the proposed `ListOverlay` for non-linear
-  ones) into a list of ad candidates eligible for the slot.
+  opportunities, or the equivalent resolution document for
+  non-linear ones) into a list of ad candidates eligible for the
+  slot.
 - Decide **how many** ads to return for a given opportunity, **which
   ads**, and **in what order**. The number of ads in an opportunity
   is an ADS-only decision — the Broadcaster declares the *space*

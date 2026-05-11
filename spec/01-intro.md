@@ -40,8 +40,7 @@ This folder stays focused on the technical content.
   MPEG-DASH 6th edition (FDIS ISO/IEC 23009-1:2025). Inventories the
   three-actor interfaces, walks the end-to-end message flow with
   concrete MPD and ListMPD examples, and lays out the VAST → ListMPD
-  adapter mapping. Foundation on top of which the non-linear
-  extension being designed in this project is built.
+  adapter mapping.
 - **[99-glossary.md](./99-glossary.md)** — Technical terminology used
   across the document set.
 

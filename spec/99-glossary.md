@@ -4,8 +4,6 @@ Defines the technical terminology used across this body of documents.
 Terms appear in the order they're first introduced in `01-intro.md`
 through `05-dash-linear-interfaces.md` (plus
 [`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md)).
-Entries marked *(proposed)* are constructs that this project is
-putting on the table; they are not standardised yet.
 
 - **SGAI (Server-Guided Ad Insertion)**: pattern where the ad decision
   is made server-side (by an Ad Decision Server) rather than by the
@@ -56,28 +54,12 @@ putting on the table; they are not standardised yet.
   6th edition linear SGAI flow. The `InsertPresentation` /
   `ReplacePresentation` event in the main MPD points to a URL; that
   URL returns a `ListMPD` describing the ad presentation.
-- **ListOverlay** *(proposed)*: the non-linear analogue of `ListMPD`.
-  The `OverlayPresentation` (or `DynamicPresentation`) event in the
-  main MPD points to a URL; that URL returns a `ListOverlay`
-  document with `<svta:Overlay>` elements that describe the
-  non-linear surfaces to render.
 - **InsertPresentation** *(DASH 6th ed)*: signals that an ad
   presentation is to be **inserted into** the timeline alongside the
   main content. Used for splice-style insertion.
 - **ReplacePresentation** *(DASH 6th ed)*: signals that an ad
   presentation **replaces** the primary content for the duration of
   the event. Used for traditional break-style ads.
-- **OverlayPresentation** *(proposed, original name)*: the new event
-  proposed by this project to signal a non-linear ad slot. Resolves
-  to a `ListOverlay` document.
-- **DynamicPresentation** *(proposed, current name)*: rename of
-  `OverlayPresentation` adopted by the WG on 2026-04-29. The intent
-  is to express *one* top-level MPD event whose semantics — replace,
-  insert, or overlay — are decided dynamically based on the
-  resolution document and the Player's capabilities. Whether the
-  discriminator lives in a `content_type` attribute or in sub-types
-  (`DynamicReplacePresentation`, `DynamicInsertPresentation`) is an
-  open design decision (ADR pending).
 - **ADS (Ad Decision Server)**: external server that returns the ad
   candidates eligible for a given slot. Owns targeting, frequency
   capping, brand safety filtering, fill-rate logic, and any

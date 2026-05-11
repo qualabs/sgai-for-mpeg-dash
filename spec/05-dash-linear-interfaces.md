@@ -13,16 +13,6 @@ actors, walks through the end-to-end message flow, gives concrete
 MPD and ListMPD examples grounded in the spec, and lays out the
 VAST → ListMPD adapter mapping that an ADS performs in production.
 
-This is also **the baseline** that the non-linear extension being
-designed in this project builds on top of, per the project's overall
-scope of SGAI for both linear and non-linear ads. The non-linear
-flow (`DynamicPresentation` / `OverlayPresentation` events,
-`ListOverlay`, hybrid breaks, pause-ads) reuses the same wiring —
-`MPD event → resolution document → Player composes` — and is
-covered in subsequent docs. Anything not specified here is either
-out of scope for the linear baseline (auth, DRM, Player internals)
-or part of the non-linear extension.
-
 Spec attribute notation in this document follows the standard
 DASH convention: `@attr` denotes an XML attribute, element names
 appear capitalised. Inline citations like *(§5.16.4)* refer to
@@ -438,13 +428,7 @@ of HTTPS per DASH-IF guidelines.
 
 ## Out of scope (this document)
 
-- The **non-linear** extension (`DynamicPresentation`,
-  `ListOverlay`, layout-constraint vocabulary, multi-form
-  candidates). See the gap analysis in
-  [`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md) for the
-  motivation; the interface spec for non-linear is a future doc.
-- Hybrid linear + overlay flows (UC-05) and pause-triggered ad flows
-  (UC-06).
+- Non-linear ad flows. This document is the linear-only baseline.
 - Player implementation details (ABR ladder selection, buffer
   policies, segment-level retry, decoder management).
 - Auth / DRM / encryption / token-exchange flows — assumed handled
