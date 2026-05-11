@@ -35,7 +35,7 @@ for linear + non-linear ads in MPEG-DASH 6th edition). Pay particular
 attention to:
 
 - `spec/02-actors.md` — three-actor model (Broadcaster / ADS / Player).
-- `spec/03-requirements.md` — R1..R8 — the constraints the norm must
+- `spec/03-requirements.md` — R1..R10 — the constraints the norm must
   satisfy.
 - `spec/04-use-cases.md` — scenarios + device classes the design must
   cover.
@@ -53,12 +53,12 @@ Compare the spec/ requirements vs what DASH 6th provides. Produce a
 gap analysis with these sections:
 
 1. **Scope** — what's compared, what's out of scope.
-2. **Coverage matrix** — table per requirement (R1..R8) × DASH 6th
+2. **Coverage matrix** — table per requirement (R1..R10) × DASH 6th
    capability. Mark each cell: full / partial / gap / N/A.
 3. **Gaps detail** — for each gap (or partial), describe what's
    missing and what would need to be added or extended.
 4. **Reuse opportunities** — places where existing DASH constructs
-   can be extended rather than introducing new ones (per R4).
+   can be extended rather than introducing new ones (per R9).
 5. **Open questions** — items that need WG input or further research.
 
 Write to `../analysis/dash-gap-analysis.md`. Overwrite if exists.

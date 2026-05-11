@@ -2,7 +2,7 @@
 
 > See [`02-actors.md`](02-actors.md) for the three-actor model
 > (Broadcaster / ADS / Player) and [`03-requirements.md`](03-requirements.md)
-> for R1–R7 that ground these scenarios.
+> for R1–R10 that ground these scenarios.
 
 ## Frame
 
@@ -73,7 +73,7 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-06 Multi-ad break | Verification | full sequence | full sequence | full sequence on single decoder | full sequence on single decoder | full sequence on single decoder |
 | UC-07 Legacy Player encounters new constructs | Cross-cutting | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) |
 
-Per R6, "skip the opportunity" is always a valid outcome and not a
+Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
 device, the Player declines the slot and continues with the primary
 content uninterrupted.
@@ -113,7 +113,7 @@ use case below references the industry-standard term where applicable
   video form, optionally with an image or HTML form as a fallback
   for devices that cannot render video. Each form has its own
   intrinsic duration declared by the ADS; the actual rendered
-  stream length governs R7 enforcement.
+  stream length governs R4 enforcement.
 - Optional ADS-supplied ranking hints across candidates and across
   forms within a candidate.
 
@@ -124,7 +124,7 @@ use case below references the industry-standard term where applicable
 - **Player decision:** reads the broadcaster's slot rules
   (linear-only, bounded duration). Selects the highest-ranked
   renderable candidate using ADS ranking hints and any client-side
-  ranking, and renders its video form on one of the decoders. R7 is
+  ranking, and renders its video form on one of the decoders. R4 is
   enforced at playback (the Player stops at the slot cap if the
   rendered stream length reaches it). The extra decoder and overlay
   surfaces are not exercised here because the slot is linear-only.
@@ -147,7 +147,7 @@ use case below references the industry-standard term where applicable
   form on the single decoder, then reuses the same decoder for the
   primary content. This is feasible because a linear ad and the
   primary content do not need to play concurrently — they are
-  sequential. R7 is enforced at playback.
+  sequential. R4 is enforced at playback.
 - **What the user sees:** same as D1 and D2 — a full-screen ad
   before the primary content starts.
 
@@ -183,7 +183,7 @@ primary content at (or near) the slot position.
   video form, optionally with an image or HTML form as a fallback
   for devices that cannot render video. Each form has its own
   intrinsic duration declared by the ADS; the actual rendered
-  stream length governs R7 enforcement.
+  stream length governs R4 enforcement.
 
 **Expected behavior per device class:**
 
@@ -196,7 +196,7 @@ primary content at (or near) the slot position.
   second decoder may be used to pre-buffer the ad while the first
   finishes the last frames of primary, but this is a Player
   implementation detail with no impact on the broadcaster's rules.
-  R7 is enforced at playback.
+  R4 is enforced at playback.
 - **What the user sees:** while watching the primary content,
   playback transitions to a full-screen ad of bounded duration,
   then transitions back to the primary content at (or near) the
@@ -218,7 +218,7 @@ primary content at (or near) the slot position.
 - **Player decision:** selects the highest-ranked renderable
   candidate using ADS ranking hints. Plays the candidate's video
   form on the single decoder, sequentially with the primary content
-  (primary stops, ad plays, primary resumes). R7 is enforced at
+  (primary stops, ad plays, primary resumes). R4 is enforced at
   playback.
 - **What the user sees:** same as D1 and D2.
 
@@ -239,7 +239,7 @@ runs *on top of* the primary content without interrupting it. The
 primary continues to play; an overlay is composited over it for a
 bounded duration, then disappears. This is the central scenario for
 non-linear ads and the one where the heterogeneity of devices
-matters most: per R6, the Player walks the candidate's renderable
+matters most: per R3, the Player walks the candidate's renderable
 forms in priority order and picks the highest-fidelity form it can
 render.
 
@@ -269,11 +269,11 @@ render.
   ranked candidate whose form-and-layout combinations conform to
   the allowed layouts and concurrency cap and are renderable on
   this device, using ADS ranking hints and any client-side ranking.
-  For the selected candidate, per R6, walks the forms in priority
+  For the selected candidate, per R3, walks the forms in priority
   order and picks the highest-fidelity form it can render. On D1
   every form is renderable, so the choice follows ADS priority
   hints. Composes the chosen form on top of the primary content
-  using HTML/CSS layout primitives (per R5). R7 (the duration cap)
+  using HTML/CSS layout primitives (per R10). R4 (the duration cap)
   is enforced at playback: the overlay is removed when the rendered
   display reaches the cap.
 - **What the user sees:** the primary content keeps playing
@@ -297,7 +297,7 @@ render.
   forms, those are not renderable (D2 cannot composite non-video
   surfaces on top of video); side-by-side remains an option if the
   broadcaster allows it (the video form placed in a non-overlapping
-  screen region). Per R6, "decline the opportunity" is a valid
+  screen region). Per R3, "decline the opportunity" is a valid
   graceful fallback if nothing renders.
 - **What the user sees:** the typical case is a video overlay
   composited on top of the primary content for the declared
@@ -311,7 +311,7 @@ render.
 #### D3 — Single-decoder, image and HTML capable
 
 - **Player decision:** selects the highest-ranked candidate. For the selected
-  candidate, walks forms in priority order and (per R6) skips the
+  candidate, walks forms in priority order and (per R3) skips the
   video form because rendering it concurrently with the primary
   would require a second decoder this device lacks. Picks the HTML
   form (or the image form, if HTML is unavailable for that
@@ -330,7 +330,7 @@ render.
   video form (this device has only one decoder), picks the image
   form (which it can render via the image overlay surface). If the
   only renderable form on the selected candidate is HTML or video,
-  per R6 the candidate is skipped and the Player tries the next
+  per R3 the candidate is skipped and the Player tries the next
   one; if no candidate has a renderable form, the Player declines
   the opportunity entirely.
 - **What the user sees:** the primary content plays uninterrupted.
@@ -347,7 +347,7 @@ render.
   surface, image needs an image overlay surface, video needs a
   second decoder for concurrent rendering — the device has none of
   these. Side-by-side is also unavailable on D5 because it
-  requires a second decoder. Per R6, the Player declines the
+  requires a second decoder. Per R3, the Player declines the
   opportunity entirely and continues with the primary content
   uninterrupted.
 - **What the user sees:** nothing. The primary content keeps
@@ -370,7 +370,7 @@ render.
   bandwidth trade-off the spec must resolve. The question is
   independent of the schema chosen.
 - Resolved: "No overlay shown" is an explicit, valid outcome per
-  **R6** in [`03-requirements.md`](03-requirements.md) — the Player may
+  **R3** in [`03-requirements.md`](03-requirements.md) — the Player may
   decline the opportunity gracefully without raising an error.
 
 ### UC-04 — Hybrid linear + concurrent overlay
@@ -422,7 +422,7 @@ but are independently selected.
   exactly the video-on-video case D2 supports. If the overlay
   candidate only offers HTML or image forms, those cannot be
   composited (D2 does not support non-video overlays on top of
-  video), and the overlay portion is declined per R6 while the
+  video), and the overlay portion is declined per R3 while the
   linear ad still plays. Side-by-side does not apply during a
   linear ad take-over.
 - **What the user sees:**
@@ -442,7 +442,7 @@ but are independently selected.
   via the HTML/CSS layer, but the Player has to decide whether
   rendering an overlay on top of a linear ad is supported in this
   scenario at all. The conservative interpretation, consistent
-  with R2 and R6, is to decline the overlay portion when the
+  with R2 and R3, is to decline the overlay portion when the
   primary "video underneath" is itself an ad and the device cannot
   handle the linear+overlay composition cleanly.
 - **What the user sees:** a linear ad plays full-screen, with no
@@ -507,7 +507,7 @@ primary content continues from the paused position.
   depending on the policy the spec ultimately chooses). Reads the
   pause-triggered slot rules and selects the highest-ranked
   renderable candidate using ADS ranking hints. For the selected
-  candidate, per R6, walks the forms in priority
+  candidate, per R3, walks the forms in priority
   order. Because the primary is paused (no concurrent decoding
   needed for the primary), even single-decoder devices can render
   a video form here — but on D1 the second decoder is also
@@ -529,7 +529,7 @@ primary content continues from the paused position.
   has a video form, the Player picks it and renders it as an
   overlay. If the candidate only offers HTML or image forms, those
   cannot be composited (D2 does not support non-video overlays);
-  per R6, the Player declines the pause-ad opportunity.
+  per R3, the Player declines the pause-ad opportunity.
 - **What the user sees:**
   - Candidate has video form → an ad video plays on top of the
     paused frame for the declared duration, dismissed on resume.
@@ -554,7 +554,7 @@ primary content continues from the paused position.
 
 - **Player decision:** same logic as D3, but HTML is not
   renderable on this device. Walks forms and picks the image form.
-  If the only renderable form is HTML or video, per R6 the
+  If the only renderable form is HTML or video, per R3 the
   candidate is skipped and the Player tries the next one; if no
   candidate has a renderable form, the Player declines the
   pause-ad opportunity.
@@ -563,7 +563,7 @@ primary content continues from the paused position.
 
 #### D5 — Single-decoder, no overlay (worst case)
 
-- **Player decision:** no overlay capability of any kind. Per R6,
+- **Player decision:** no overlay capability of any kind. Per R3,
   declines the pause-ad opportunity entirely.
 - **What the user sees:** nothing. The paused frame stays on
   screen until the user resumes; no ad is rendered.
@@ -614,7 +614,7 @@ primary content resumes.
 - **Player decision:** reads slot rules. Plays each candidate in
   order, switching the decoder source between ads. The second
   decoder may be used to pre-buffer ad N+1 while ad N is playing,
-  but this is a Player implementation detail. R7 is enforced at
+  but this is a Player implementation detail. R4 is enforced at
   playback: when the cumulative sequence duration reaches the break
   cap, the Player stops, even if the in-progress ad has not
   finished.
@@ -649,7 +649,7 @@ primary content resumes.
 
 **Notes:**
 - The Player's behaviour when the sequence's total duration exceeds
-  the broadcaster's declared cap is governed by **R7** in
+  the broadcaster's declared cap is governed by **R4** in
   [`03-requirements.md`](03-requirements.md): the cap is broadcaster-declared
   and the Player enforces it by cutting at the cap, even mid-ad. This
   default applies to UC-06's multi-ad break the same way it applies

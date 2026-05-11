@@ -28,7 +28,7 @@ re-definition.
 | Actor       | Emits                                                                 | Consumes                                                                 | Notes |
 |-------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------|-------|
 | Broadcaster | Main MPD with SGAI events (`InsertPresentation`, `ReplacePresentation`) | Nothing at runtime (authoring-time only)                                | Owns the screen; declares slot constraints inside the SGAI event element (§5.16). |
-| Player      | MPD fetch request; ADS resolution request at event activation; tracking beacons | Main MPD; `ListMPD` (or single-period alt MPD) from ADS; ad media segments | Enforces R2 / R7: validates ADS response against MPD constraints; caps slot duration. |
+| Player      | MPD fetch request; ADS resolution request at event activation; tracking beacons | Main MPD; `ListMPD` (or single-period alt MPD) from ADS; ad media segments | Enforces R2 / R4: validates ADS response against MPD constraints; caps slot duration. |
 | ADS         | `ListMPD` (or single-period alt MPD) in response to the Player's resolution request | Player's resolution request; upstream VAST response from internal ad decisioning | Device-agnostic per the kickoff summary section "Device-aware ad selection" in [`00-kickoff-summary.md`](../.project/decisions/00-kickoff-summary.md). Often acts as an adapter over a VAST-based ad decisioning backend (see §VAST → ListMPD below). |
 
 ## Linear SGAI message flow
@@ -41,7 +41,7 @@ Player resolves the event's `@url` against the ADS, receives back
 either a `ListMPD` or a single-period alternative MPD describing one
 or more ad MPDs, and plays them according to the event semantics
 (insert or replace). `@maxDuration` on the event bounds the slot;
-the Player enforces the cap (R7).
+the Player enforces the cap (R4).
 
 ```
                                             primary content (Broadcaster's CDN)
@@ -53,7 +53,7 @@ the Player enforces the cap (R7).
    | (encoder +  |                        |          |
    |  packager + |---(2) MPD (XML) ------>|  Player  |   On ADS response, the Player:
    |   CDN)      |        with            |          |     (6) validates vs MPD constraints
-   +-------------+        SGAI event      |          |     (7) enforces @maxDuration (R7)
+   +-------------+        SGAI event      |          |     (7) enforces @maxDuration (R4)
                                           |          |     (8) fires tracking beacons
                                           +----+-----+
                                             |    ^
@@ -94,7 +94,7 @@ Numbered steps:
    slot constraints (R2). For linear today the relevant checks are
    `@maxDuration` and, where applicable, declared codecs / DRM
    compatibility. Candidates that violate constraints are discarded.
-7. Player **enforces** the cumulative duration cap (R7): if the sum
+7. Player **enforces** the cumulative duration cap (R4): if the sum
    of the candidates it chose exceeds `@maxDuration`, the Player
    terminates the last ad at the cap (the spec mandates trim,
    §5.16.5).
@@ -303,7 +303,7 @@ What the Player does with these documents:
 - `@earliestResolutionTimeOffset` on each `ImportedMPD` lets the
   Player pre-fetch the sub-MPD ahead of its scheduled position
   inside the pod, smoothing CDN load.
-- The Player enforces R7 against the **sum** of the periods'
+- The Player enforces R4 against the **sum** of the periods'
   durations versus `@maxDuration` on the parent SGAI event:
   15 + 30 = 45 s in this example. If the sum exceeded the parent
   cap, the spec mandates that the Player terminates playback at the
@@ -379,7 +379,7 @@ Edge cases worth flagging:
   becomes one `<Period>` (with one `<ImportedMPD>`) in the
   `ListMPD`. Sequence order is preserved. The Broadcaster's
   `@maxDuration` on the parent event caps the **sum** of the pod
-  (§5.16.5, §8.14); the Player trims at the cap per R7.
+  (§5.16.5, §8.14); the Player trims at the cap per R4.
 - **Wrapper chains**: resolution happens inside the ADS adapter
   before the Player ever sees the response. The Player has no
   visibility into wrapper hops; this preserves the
@@ -453,7 +453,7 @@ of HTTPS per DASH-IF guidelines.
   next revision.
   <!-- TODO: pin exact VAST 4.x version against the IAB Tech Lab page; NotebookLM source did not specify it. -->
 - [`02-actors.md`](02-actors.md) — actor definitions.
-- [`03-requirements.md`](03-requirements.md) — R1, R2, R7 cited above.
+- [`03-requirements.md`](03-requirements.md) — R1, R2, R4 cited above.
 - [`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md) — DASH
   constructs cited (`InsertPresentation`, `ReplacePresentation`,
   `ListMPD`, `@maxDuration`, callback events, §I.4 vocabulary).

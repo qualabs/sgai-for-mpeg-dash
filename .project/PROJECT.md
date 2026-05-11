@@ -94,7 +94,7 @@ personal info — see `knowledge/output-policy.md`):
   `ListMPD`.
 - **IAB CTV Ad Standard** — flexible-ratio formats (8:1, 6:1, 1:4,
   etc.) that this proposal references instead of redefining its
-  own layout system. R5 aligns explicitly with it.
+  own layout system. R10 aligns explicitly with it.
 - **SCTE-35** (ANSI/SCTE digital program insertion cueing) —
   markers consumed by the prototype via Morpheus, converted into
   DASH dynamic events.
@@ -107,7 +107,7 @@ personal info — see `knowledge/output-policy.md`):
 | `CLAUDE.md` | Conventions for subagents touching this project. |
 | `spec/01-intro.md` | Objective of the docs body and index of the canonical set. Technical entry point. |
 | `spec/02-actors.md` | Self-contained three-actor model: Broadcaster, ADS, Player. Boundary summary and per-actor responsibilities. |
-| `spec/03-requirements.md` | Requirements R1–R7 (functional + governance), out of scope, and design characteristics satisfying the Rs. |
+| `spec/03-requirements.md` | Requirements R1–R10 (functional + governance), out of scope, and design characteristics satisfying the Rs. |
 | `spec/04-use-cases.md` | Device classes D1–D5 and the 7 scenarios (UC-01..UC-07), each with expected behavior per device class. Scenario-first structure: the broadcaster validates a scenario against its full device fauna, not isolated cases. |
 | `spec/05-dash-linear-interfaces.md` | Reference of how SGAI is implemented today for linear ads in DASH 6th edition: inventory of the interfaces between the three actors, end-to-end message flow with concrete MPDs and ListMPDs, VAST → ListMPD mapping. Foundation on which the non-linear proposal extends. |
 | `spec/99-glossary.md` | Glossary of the technical terminology used across the docs set. Entries marked *(proposed)* are constructs that this proposal puts on the table. |

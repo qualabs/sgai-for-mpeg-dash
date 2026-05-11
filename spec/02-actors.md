@@ -26,7 +26,9 @@ The Broadcaster owns the primary content and the viewer's screen.
   insertion, or a non-linear (overlay-style) opportunity. For
   overlay-style slots, the Broadcaster also constrains:
   - which layout templates are allowed (e.g. L-shape, banner,
-    skyscraper, sidebar, or unrestricted), and
+    skyscraper, sidebar, or unrestricted; additional broadcast-side
+    examples include squeezeback, lower-third, and corner-bug as
+    defined in [`99-glossary.md`](99-glossary.md)), and
   - other slot-level constraints such as maximum overlay duration,
     maximum number of concurrent overlays, or mutually exclusive
     layouts.
