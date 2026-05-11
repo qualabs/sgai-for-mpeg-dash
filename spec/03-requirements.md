@@ -1,7 +1,7 @@
 # Requirements
 
 > R2 anchors on the three-actor model defined in
-> [`02-actors.md`](02-actors.md). R8 is grounded in the kickoff
+> [`02-actors.md`](02-actors.md). R5 is grounded in the kickoff
 > decisions consolidated in
 > [`00-kickoff-summary.md`](../.project/decisions/00-kickoff-summary.md).
 > Use cases that exercise these requirements across device classes
@@ -32,7 +32,7 @@ working doc verbatim.
   section: the Broadcaster declares constraints, the ADS provides
   candidates, and the Player validates and renders. New mechanisms
   must be expressible within this contract.
-- **R6. Support a diverse range of device capabilities.** The
+- **R3. Support a diverse range of device capabilities.** The
   solution must work across the heterogeneity of target devices in
   real CTV / streaming deployments — from devices that can render
   multiple concurrent video decoders plus image and HTML overlays on
@@ -40,7 +40,7 @@ working doc verbatim.
   overlay capability at all. The supported device classes and the
   expected behaviour for each combination of device class and ad
   opportunity are enumerated in the **Use Cases** section.
-- **R7. Broadcaster-declared max slot duration, Player-enforced.**
+- **R4. Broadcaster-declared max slot duration, Player-enforced.**
   The Broadcaster declares a maximum duration for each ad slot. The
   ADS may return one or more ad candidates to fill that slot, but the
   ADS is **not** responsible for respecting the cap. The Player MUST
@@ -53,10 +53,10 @@ working doc verbatim.
   policies (e.g. skip the break entirely, trim-clean at the previous
   ad boundary, fail-closed) are explicitly out of scope for the
   default semantics; if needed, they must be expressible by the
-  Broadcaster as an opt-in policy on the slot. R7 is a concrete
+  Broadcaster as an opt-in policy on the slot. R4 is a concrete
   instance of R2 — Broadcaster declares the constraint, Player
   enforces it, ADS does not.
-- **R8. Device-aware ad selection.** The Player is the sole
+- **R5. Device-aware ad selection.** The Player is the sole
   authority on device capability — the ADS does not need a
   device-class matrix or a per-Player view. Ad candidates returned
   by the ADS carry one or more **renderable forms** (e.g. video,
@@ -69,9 +69,9 @@ working doc verbatim.
   (section "Device-aware ad selection"); the original ADR with the
   full evaluation of alternatives is preserved in
   `.project/decisions/_archive/adr-004-device-aware-ad-selection.md`.
-  R8 is a concrete instance of R2 — Player owns the responsibility
-  the ADS does not have — and a direct contributor to R6.
-- **R12. Ad tracking carrier.** The norm MUST specify how in-band
+  R5 is a concrete instance of R2 — Player owns the responsibility
+  the ADS does not have — and a direct contributor to R3.
+- **R6. Ad tracking carrier.** The norm MUST specify how in-band
   ad tracking beacons (impression, start, quartiles, complete, etc.)
   are carried in the resolution document. Implementations SHOULD
   reuse the existing DASH callback event scheme
@@ -80,37 +80,47 @@ working doc verbatim.
   `<EventStream>` of that scheme in the ad MPD or sub-MPD. New
   tracking carriers MAY be introduced only when the callback scheme
   cannot express the required semantics, and only after a
-  documented gap analysis per R4. Application-level metadata that
+  documented gap analysis per R9. Application-level metadata that
   has no native DASH carrier (e.g. `ClickThrough`, `AdSystem`,
   `AdTitle`, `UniversalAdId`) MAY be conveyed via vendor-namespaced
   extension elements; Players MUST safely ignore unknown namespaces
   per the DASH extension rules invoked by R1.
-- **R13. Respect ADS-returned order.** When the ADS returns a
+- **R7. Respect ADS-returned order.** When the ADS returns a
   resolution document containing more than one ad (e.g. a `ListMPD`
   with multiple `<Period>` entries), the Player MUST play the ads
   in the order declared by the ADS, **as long as this is possible
   given the other Player constraints**. Specifically, the Player
-  MAY drop a candidate that violates R6 (no renderable form for the
+  MAY drop a candidate that violates R3 (no renderable form for the
   device) or that would push the cumulative duration past the slot
-  cap (R7), but it MUST NOT re-order, deduplicate, or otherwise
+  cap (R4), but it MUST NOT re-order, deduplicate, or otherwise
   rearrange the remaining candidates. Ad selection and ordering are
   ADS responsibilities (R2); the Player's role is to honour them
   unless a hard constraint blocks it.
 
+  Order of evaluation when a candidate's declared duration would
+  push the cumulative slot duration past the cap (R4 / max slot
+  duration): the Player MAY skip that candidate entirely based on
+  declared duration ("drop before play"). If the Player accepts a
+  candidate and only discovers at playback that its actual rendered
+  length exceeds the cap, R4 applies and the Player trims
+  mid-rendering ("trim during play"). In summary: drop-before-play
+  based on declared duration is permitted; trim-during-play based
+  on actual length is mandatory.
+
 ## Governance Requirements
 
-- **R3. Justify any addition or omission.** Whenever the proposal
+- **R8. Justify any addition or omission.** Whenever the proposal
   introduces a new construct or chooses not to reuse a construct
   that already exists in MPEG-DASH, the document must explicitly
   state why. The default is reuse; departures are documented inline
   with the design decision.
-- **R4. Minimise net new constructs.** The proposal must reuse
+- **R9. Minimise net new constructs.** The proposal must reuse
   existing MPEG-DASH machinery (events, manifests, presentations,
   schemes) wherever possible. New constructs are introduced only
   when an existing one cannot be made to fit, and only after
   considering whether an extension to the existing construct would
   suffice.
-- **R5. Do not recreate a layout system.** The solution must defer
+- **R10. Do not recreate a layout system.** The solution must defer
   to existing layout primitives (HTML5 / CSS) for the spatial
   arrangement of overlays. Maintaining a parallel layout standard is
   out of scope and adds long-term maintenance cost. (This

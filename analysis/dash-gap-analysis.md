@@ -7,7 +7,7 @@ could not be cross-checked against the source are tagged `[inferred]`.
 
 > Companion to [`../spec/05-dash-linear-interfaces.md`](../spec/05-dash-linear-interfaces.md).
 > That document inventories the **linear baseline** that DASH 6th
-> edition already provides. This document maps **the requirements R1..R13
+> edition already provides. This document maps **the requirements R1..R10
 > in [`../spec/03-requirements.md`](../spec/03-requirements.md) against
 > that baseline** and identifies what the proposed SGAI extension must
 > add. Use cases referenced below live in
@@ -16,7 +16,7 @@ could not be cross-checked against the source are tagged `[inferred]`.
 ## 1. Scope
 
 **In scope.** Each functional and governance requirement in
-[`../spec/03-requirements.md`](../spec/03-requirements.md) (R1..R13)
+[`../spec/03-requirements.md`](../spec/03-requirements.md) (R1..R10)
 mapped against what MPEG-DASH 6th edition provides natively, with a
 verdict (full / partial / gap / N/A), a justification, and — for gaps
 and partials — the construct or extension point the proposal must
@@ -41,16 +41,16 @@ by itself).
 
 | #   | Requirement                                                  | Verdict | DASH 6th capability used / missing |
 |-----|--------------------------------------------------------------|---------|------------------------------------|
-| R1  | DASH 6th compliance and graceful degradation                 | full    | EventStream "ignore-if-unknown" semantics (§5.10.1); year-pinned scheme URIs (§5.16 `:2025`); ERT randomisation via `@earliestResolutionTimeOffset` (§5.16). The extension contract is exactly what DASH 6th already mandates. |
+| R1  | DASH 6th compliance and graceful degradation                 | full    | EventStream "ignore-if-unknown" semantics (§5.10.1); year-pinned scheme URIs (§5.16 `:2025`); ERT randomisation via `@earliestResolutionTimeOffset` (§5.16). The extension contract is exactly what DASH 6th already mandates. UC-07 (legacy Player encounters new constructs) is the cross-cutting scenario whose graceful-degradation outcome R1 directly produces. |
 | R2  | Honour the three-actor model                                 | partial | Linear flow uses `InsertPresentation` / `ReplacePresentation` (§5.16.3, §5.16.4) and `ListMPD` (§8.14) cleanly. Non-linear flow has no native event; new event types are needed for overlay / pause-triggered slots (see G1, G2). |
-| R3  | Justify any addition or omission                             | N/A     | Governance requirement — a constraint on the proposal's authoring process, not on DASH itself. |
-| R4  | Minimise net new constructs                                  | N/A     | Governance requirement — a constraint on the proposal's design choices, not on DASH itself. Drives the "Reuse opportunities" section below. |
-| R5  | Do not recreate a layout system                              | gap     | DASH 6th has no spatial layout vocabulary at all (verified — §5.16 events have no layout fields). Reuse path is HTML5 / CSS, not a DASH construct (see G4). |
-| R6  | Device-capability diversity (D1..D5)                         | gap     | `ImportedMPD` is restricted to Single-Period Static Profile (§8.15) — only standard audio/video AdaptationSets. No "multi-form" candidate (video + image + HTML) where the Player picks the renderable form. DASH 6th's only multi-stream composition primitive is the Supplementary Video Descriptor (§5.8.5.16) which targets picture-in-picture, not multi-form ad selection (see G3). |
-| R7  | Broadcaster-declared max slot duration, Player-enforced      | full    | `@maxDuration` on `InsertPresentation` / `ReplacePresentation` (§5.16); cap-trim semantics mandated in §5.16.5. The non-linear extension reuses the same attribute on the new overlay / pause events. |
-| R8  | Device-aware ad selection (multi-form ads, Player picks form)| gap     | Same root cause as R6: ImportedMPD restricted to SPS (§8.15), no carrier in the ListMPD or sub-MPD for alternate renderable forms (image, HTML) tied to one ad candidate. State vocabulary in §I.4 (Table I.5) has no device-capability keys either (see G3, G5). |
-| R12 | Ad tracking carrier                                          | full    | Callback event scheme `urn:mpeg:dash:event:callback:2015` (§4.7 / §5.10.4.5) carries impression, start, quartiles, complete as `<Event>` entries in an `<EventStream>` of that scheme inside the ad sub-MPD. Application-level metadata (ClickThrough, AdSystem, AdTitle, UniversalAdId) has no native DASH carrier — vendor-namespaced extension elements per R1's ignore-if-unknown contract (see G6). |
-| R13 | Respect ADS-returned order                                   | full    | `ListMPD` `<Period>` order is normative in §8.14 (a ListMPD is a playlist of MPDs; selection happened upstream inside the ADS). The Player plays Periods in declared order; the only legal deviations are R6 (drop unrenderable candidates) and R7 (cap-trim). No DASH 6th construct forces re-ordering — full coverage as-is. |
+| R3  | Device-capability diversity (D1..D5)                         | gap     | `ImportedMPD` is restricted to Single-Period Static Profile (§8.15) — only standard audio/video AdaptationSets. No "multi-form" candidate (video + image + HTML) where the Player picks the renderable form. DASH 6th's only multi-stream composition primitive is the Supplementary Video Descriptor (§5.8.5.16) which targets picture-in-picture, not multi-form ad selection (see G3). |
+| R4  | Broadcaster-declared max slot duration, Player-enforced      | full    | `@maxDuration` on `InsertPresentation` / `ReplacePresentation` (§5.16); cap-trim semantics mandated in §5.16.5. The non-linear extension reuses the same attribute on the new overlay / pause events. |
+| R5  | Device-aware ad selection (multi-form ads, Player picks form)| gap     | Same root cause as R3: ImportedMPD restricted to SPS (§8.15), no carrier in the ListMPD or sub-MPD for alternate renderable forms (image, HTML) tied to one ad candidate. State vocabulary in §I.4 (Table I.5) has no device-capability keys either (see G3, G5). |
+| R6  | Ad tracking carrier                                          | full    | Callback event scheme `urn:mpeg:dash:event:callback:2015` (§4.7 / §5.10.4.5) carries impression, start, quartiles, complete as `<Event>` entries in an `<EventStream>` of that scheme inside the ad sub-MPD. Application-level metadata (ClickThrough, AdSystem, AdTitle, UniversalAdId) has no native DASH carrier — vendor-namespaced extension elements per R1's ignore-if-unknown contract (see G6). |
+| R7  | Respect ADS-returned order                                   | full    | `ListMPD` `<Period>` order is normative in §8.14 (a ListMPD is a playlist of MPDs; selection happened upstream inside the ADS). The Player plays Periods in declared order; the only legal deviations are R3 (drop unrenderable candidates) and R4 (cap-trim). No DASH 6th construct forces re-ordering — full coverage as-is. |
+| R8  | Justify any addition or omission                             | N/A     | Governance requirement — a constraint on the proposal's authoring process, not on DASH itself. |
+| R9  | Minimise net new constructs                                  | N/A     | Governance requirement — a constraint on the proposal's design choices, not on DASH itself. Drives the "Reuse opportunities" section below. |
+| R10 | Do not recreate a layout system                              | gap     | DASH 6th has no spatial layout vocabulary at all (verified — §5.16 events have no layout fields). Reuse path is HTML5 / CSS, not a DASH construct (see G4). |
 
 ## 3. Gaps detail
 
@@ -69,7 +69,7 @@ content.
 **What is missing.** A new event type — call it `OverlayPresentation`
 or equivalent — that signals an ad opportunity which **does not stop
 or replace** the primary content. Required attributes on this event
-(beyond the linear baseline reused per R4):
+(beyond the linear baseline reused per R9):
 - *Allowed layouts*: a closed enumeration of overlay layouts the
   broadcaster permits for this slot (banner, L-shape, side-by-side,
   corner, …). Maps to the broadcaster intent expressed in UC-03 / UC-04.
@@ -112,11 +112,11 @@ either is compatible with R1:
    *when* to dispatch the ADS request based on local pause state. The
    ADS resolution document and tracking carriers reuse the linear
    constructs (`ListMPD`, callback events). Minimises net new DASH
-   constructs (R4-aligned) at the cost of moving "when to fire" into
+   constructs (R9-aligned) at the cost of moving "when to fire" into
    the Player application layer.
 2. **New event semantics in DASH**: extend §5.10 with an explicit
    action-triggered event class. Larger spec surface; requires WG
-   acceptance of a new event model. R4 disfavours this unless option 1
+   acceptance of a new event model. R9 disfavours this unless option 1
    proves insufficient.
 
 The proposal should default to option 1 unless WG feedback says
@@ -124,7 +124,7 @@ otherwise.
 
 **Affects.** UC-05 only.
 
-### G3 — No carrier for multi-form ad candidates (R6, R8)
+### G3 — No carrier for multi-form ad candidates (R3, R5)
 
 **Status quo.** The `ListMPD` profile (§8.14) lists ad candidates as
 `<Period>` entries that delegate to per-ad sub-MPDs via `<ImportedMPD>`.
@@ -142,8 +142,8 @@ not multi-form ad selection.
 **What is missing.** A way to attach, to each ad candidate, **a set of
 renderable forms** with optional ADS-supplied priority hints. The
 Player walks the forms in priority order and renders the
-highest-fidelity form it can support on the device (R6 device walk-down;
-R8 device-aware selection). Two extension points exist within DASH 6th:
+highest-fidelity form it can support on the device (R3 device walk-down;
+R5 device-aware selection). Two extension points exist within DASH 6th:
 
 1. **Extend the ListMPD per-Period record** with a vendor-namespaced
    `<RenderableForms>` element (or equivalent) listing image / HTML /
@@ -156,13 +156,13 @@ R8 device-aware selection). Two extension points exist within DASH 6th:
    spec footprint; touches a profile that is intentionally minimal.
 
 The proposal should default to option 1: ListMPD-level multi-form
-declaration. It is the smaller surface, fully consistent with R4
+declaration. It is the smaller surface, fully consistent with R9
 (extend rather than introduce), and the SPS profile remains untouched.
 
 **Affects.** UC-03, UC-04 (overlay portion), UC-05 across D1..D5
 where the Player must skip forms the device cannot render.
 
-### G4 — No carrier for layout / concurrency constraints (R5, R2)
+### G4 — No carrier for layout / concurrency constraints (R10, R2)
 
 **Status quo.** §5.16's `AlternativeMPDEventType` complex type carries
 only timeline / execution attributes: `@url`,
@@ -175,7 +175,7 @@ allows banner and L-shape only" or "max 2 overlays concurrently".
 
 **What is missing.** Layout vocabulary on the new non-linear event
 (G1). The proposal explicitly does not introduce a parallel layout
-standard (R5); it defers spatial detail to HTML/CSS. What the event
+standard (R10); it defers spatial detail to HTML/CSS. What the event
 must carry is:
 - *Closed layout enumeration*: `banner | l-shape-left | l-shape-right |
   side-by-side | corner | full-screen-pause`, plus an extensibility
@@ -187,14 +187,14 @@ must carry is:
 - *Concurrency cap*: integer `maxConcurrentOverlays`.
 
 The IAB CTV Ad Standard provides the canonical flexible-ratio formats
-that should anchor the layout enum (R5 alignment with IAB CTV is
+that should anchor the layout enum (R10 alignment with IAB CTV is
 explicit in [`../spec/03-requirements.md`](../spec/03-requirements.md)).
 
 **Affects.** UC-03 (layout enum), UC-04 (subset of layouts allowed
 during a linear take-over), UC-05 (full-screen-pause as a distinct
 token).
 
-### G5 — Device capability signalling has no native vocabulary (R6, R8)
+### G5 — Device capability signalling has no native vocabulary (R3, R5)
 
 **Status quo.** The `urn:mpeg:dash:state:<suffix>` vocabulary in
 Annex §I.4 (Table I.5) is restricted to playback / telemetry state:
@@ -206,21 +206,21 @@ rendering capability — whether the Player has an overlay surface,
 HTML rendering, dual video decoders, etc.
 
 **What is missing.** Whether the proposal even needs Player → ADS
-capability signalling depends on the design choice for R8. The
+capability signalling depends on the design choice for R5. The
 multi-form ad approach (G3) keeps the ADS device-agnostic: the ADS
 returns the same multi-form candidates to every viewer, and the
 Player picks locally. With multi-form ads, **no capability signalling
-is required** and §I.4 needs no extension. This is the R4-clean
+is required** and §I.4 needs no extension. This is the R9-clean
 solution and the proposal's working position. Capability signalling
 remains a fallback if multi-form turns out to be insufficient — to be
 revisited if WG feedback or implementation experience forces it.
 
-**Affects.** R6, R8, UC-03..UC-05 indirectly. Resolved by G3, not by
+**Affects.** R3, R5, UC-03..UC-05 indirectly. Resolved by G3, not by
 extending §I.4.
 
-### G6 — Application-layer ad metadata has no native carrier (R12 partial)
+### G6 — Application-layer ad metadata has no native carrier (R6 partial)
 
-**Status quo.** R12 is full for the **tracking** path: the callback
+**Status quo.** R6 is full for the **tracking** path: the callback
 event scheme (§4.7, §5.10.4.5) cleanly carries impression / start /
 quartiles / complete as `<Event>` entries in an `<EventStream>` inside
 the ad sub-MPD. But VAST application-level metadata —
@@ -230,7 +230,7 @@ source, see [`../spec/05-dash-linear-interfaces.md`](../spec/05-dash-linear-inte
 
 **What is missing.** A documented convention for carrying these
 fields via vendor-namespaced extension elements on `ImportedMPD` or
-on a sidecar payload returned alongside the `ListMPD`. R12 already
+on a sidecar payload returned alongside the `ListMPD`. R6 already
 mandates this approach in principle: "Application-level metadata that
 has no native DASH carrier (…) MAY be conveyed via vendor-namespaced
 extension elements". The gap is documenting the **specific** field
@@ -240,12 +240,12 @@ DASH-side gap), but it must be closed for production deployments.
 
 **Affects.** Production ADS adapters integrating VAST upstream.
 
-## 4. Reuse opportunities (R4)
+## 4. Reuse opportunities (R9)
 
 Listed in priority order — the proposal MUST reuse these constructs
 before introducing alternatives. Each opportunity already passes a
 "would extension suffice?" check; departures from reuse must be
-justified per R3.
+justified per R8.
 
 1. **`InsertPresentation` / `ReplacePresentation` (§5.16) for linear
    portions.** The non-linear extension does not touch linear
@@ -256,15 +256,15 @@ justified per R3.
    non-linear slots.** The same construct that today answers a
    linear ADS request answers the non-linear request: a playlist of
    `<Period>` entries, ADS-determined order, Player honours order
-   modulo R6 / R7. The G3 extension lives at the per-Period record
+   modulo R3 / R4. The G3 extension lives at the per-Period record
    layer (renderable forms), not in a new resolution document.
 3. **Callback event scheme `urn:mpeg:dash:event:callback:2015`
-   (§4.7, §5.10.4.5) for tracking.** Already mandated by R12. Covers
+   (§4.7, §5.10.4.5) for tracking.** Already mandated by R6. Covers
    impression, start, quartiles, complete, plus arbitrary VAST
    tracking events translated by the ADS adapter into callback
    events. No new tracking carrier needed.
 4. **`@maxDuration` (§5.16) for slot duration cap.** The same
-   attribute carries the cap for linear slots (R7) and for the new
+   attribute carries the cap for linear slots (R4) and for the new
    non-linear slots (per overlay, per pause-ad). Reuse is verbatim;
    semantics extend naturally.
 5. **§I.4 `UrlParamInfo` state vocabulary for ADS request
@@ -297,7 +297,7 @@ before the norm draft locks them in.
 
 1. **Action-trigger placement for UC-05 (G2).** Application-layer
    trigger with DASH carrying only the resolution contract (preferred,
-   R4-clean) vs new event semantics in §5.10 (larger spec surface).
+   R9-clean) vs new event semantics in §5.10 (larger spec surface).
    Decision blocks the UC-05 portion of the draft.
 2. **Multi-form ad carrier schema (G3).** Vendor-namespaced
    `<RenderableForms>` element on the ListMPD per-Period record vs
@@ -343,7 +343,7 @@ before the norm draft locks them in.
   §8.15 Single-Period Static Profile;
   Annex I.4 (Table I.5) state vocabulary for `UrlParamInfo`.
 - [`../spec/02-actors.md`](../spec/02-actors.md) — three-actor model.
-- [`../spec/03-requirements.md`](../spec/03-requirements.md) — R1..R13.
+- [`../spec/03-requirements.md`](../spec/03-requirements.md) — R1..R10.
 - [`../spec/04-use-cases.md`](../spec/04-use-cases.md) — UC-01..UC-07,
   device classes D1..D5.
 - [`../spec/05-dash-linear-interfaces.md`](../spec/05-dash-linear-interfaces.md)

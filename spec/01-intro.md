@@ -27,7 +27,7 @@ This folder stays focused on the technical content.
   (Broadcaster / ADS / Player). Bounded responsibilities and the
   Player as the enforcer of the Broadcaster's policy.
 - **[03-requirements.md](./03-requirements.md)** — Functional and
-  governance requirements R1–R7, out-of-scope items, and design
+  governance requirements R1–R10, out-of-scope items, and design
   characteristics that satisfy the Rs.
 - **[04-use-cases.md](./04-use-cases.md)** — Device classes D1–D5
   and the seven scenarios UC-01..UC-07 (pre-roll, mid-roll,

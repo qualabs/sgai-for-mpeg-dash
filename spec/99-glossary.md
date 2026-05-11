@@ -76,7 +76,7 @@ through `05-dash-linear-interfaces.md` (plus
 - **IAB CTV Ad Standard**: the IAB's spec for ad units in connected
   TV environments; describes flexible-ratio formats (e.g. 8:1, 6:1,
   1:4) that this proposal defers to instead of redefining its own
-  layout system. R5 of this proposal explicitly aligns with it.
+  layout system. R10 of this proposal explicitly aligns with it.
 - **SCTE-35**: ANSI/SCTE digital program insertion cueing standard;
   the markers that signal where ad opportunities exist in a stream.
   The current prototype consumes SCTE-35 markers (via Morpheus) and
