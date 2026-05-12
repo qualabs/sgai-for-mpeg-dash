@@ -25,8 +25,8 @@ projects/sgai-for-mpeg-dash/
 ├── CLAUDE.md          this file — conventions for subagents
 ├── spec/              inputs — canonical, human-authored spec
 ├── prompts/           build scripts — .prompt files for LLM agents
-├── analysis/          generated intermediates from spec/
-├── output/            generated final norm docs, dated per build
+├── analysis/          pre-norm artefacts — inputs the norm build consumes
+├── output/            norm + post-norm artefacts (validation sidecar, etc.), dated per build
 ├── proposal-drafts/   historical drafts kept for reference
 └── .project/          governance from the create-project skill
 ```
@@ -38,11 +38,18 @@ What does NOT go where:
   the spec, it does not live in `spec/`.
 - `prompts/` — only `.prompt` files. No build scripts in other
   languages, no helpers, no READMEs.
-- `analysis/` — only generated artefacts from prompts in `prompts/`.
-  No human-authored notes; those go to `.project/decisions/` or
-  inside the spec.
-- `output/` — only dated final norm builds. Never edit by hand. If
-  a build came out wrong, fix the spec/prompt and rebuild.
+- `analysis/` — only **pre-norm** generated artefacts that the norm
+  build consumes as inputs (gap analysis, UC coverage matrix, error
+  semantics, conformance assertions). No human-authored notes; those
+  go to `.project/decisions/` or inside the spec. No post-norm
+  artefacts (validation sidecar, test reports, etc.) — those go to
+  `output/`.
+- `output/` — the dated norm itself and any **post-norm** derived
+  artefacts that are built from the norm draft (validation sidecar,
+  future test reports, future version diffs). All dated per build so
+  the pair / set is auditable together. No half-built artefacts from
+  intermediate steps — those go to `analysis/`. Never edit by hand;
+  if a build came out wrong, fix the spec/prompt and rebuild.
 - `.project/decisions/` — ADRs and decision records. Architecture
   decisions live here, not in `spec/`.
 
@@ -58,8 +65,11 @@ What does NOT go where:
   declaring **Inputs / Output / Skip if** before the `---` divider.
 - **`analysis/` files**: no numeric prefix. Each artefact
   standalone, named for what it analyses (`dash-gap-analysis.md`).
-- **`output/` files**: dated, `sgai-norm-YYYY-MM-DD.md`. ISO 8601
-  date. Files are **not overwritten**; each build keeps history.
+- **`output/` files**: dated, ISO 8601. Current patterns:
+  `sgai-norm-YYYY-MM-DD.md` (the norm) and
+  `norm-validation-YYYY-MM-DD.md` (validation sidecar). New
+  post-norm artefacts follow `<artefact>-YYYY-MM-DD.md`. Files are
+  **not overwritten**; each build keeps history.
 - **General**: kebab-case for filenames. English for all content
   inside `spec/`, `prompts/`, `analysis/`, `output/`, `README.md`,
   and this `CLAUDE.md` (matching the rest of the project content).

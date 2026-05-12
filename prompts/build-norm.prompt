@@ -7,7 +7,7 @@ Optionally: NotebookLM grounding if the `notebooklm` skill is
 installed and `.env.agent` defines `NOTEBOOK_NAME`.
 **Outputs** (two artifacts per run):
 1. `output/sgai-norm-<YYYY-MM-DD>.md` — the norm itself.
-2. `analysis/norm-validation-<YYYY-MM-DD>.md` — sidecar validation
+2. `output/norm-validation-<YYYY-MM-DD>.md` — sidecar validation
    document capturing gaps, edge cases, and ambiguities surfaced
    during the build. Used as feedback into `spec/` for the next
    iteration.
@@ -104,16 +104,17 @@ Language: English.
 After producing the norm draft in `../output/sgai-norm-<YYYY-MM-DD>.md`,
 the agent MUST also produce a sidecar validation document at:
 
-  `../analysis/norm-validation-<YYYY-MM-DD>.md`
+  `../output/norm-validation-<YYYY-MM-DD>.md`
 
 (same date stamp as the norm it was built against, so the pair is
 auditable).
 
 The validation document is the **feedback loop** from norm into
 spec: its findings are used to refine `../spec/` in the next
-iteration. It is not part of the norm itself — it is intermediate
-analysis, lives under `../analysis/`, and may be discarded once its
-findings are absorbed back into `spec/`.
+iteration. It is a post-norm derived artefact (built from the norm
+draft + the spec inputs), lives next to the norm under `../output/`,
+and may be discarded once its findings are absorbed back into
+`spec/`.
 
 ### What to look for
 
@@ -202,7 +203,7 @@ vice versa.
 Skip rule:
 
 ```
-Skip producing `../analysis/norm-validation-<YYYY-MM-DD>.md` if:
+Skip producing `../output/norm-validation-<YYYY-MM-DD>.md` if:
   - it exists, AND
   - its mtime is newer than the newest mtime in `../spec/`, AND
   - its mtime is newer than the newest `../output/sgai-norm-*.md`.

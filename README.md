@@ -21,8 +21,8 @@ projects/sgai-for-mpeg-dash/
 ├── CLAUDE.md          conventions for subagents touching this project
 ├── spec/              inputs — technical specification of the target norm
 ├── prompts/           build scripts — .prompt files run by an LLM agent
-├── analysis/          intermediate builds — analyses generated from spec/
-├── output/            final builds — the SGAI norm document, dated per build
+├── analysis/          pre-norm artefacts — inputs the norm build consumes
+├── output/            norm + post-norm artefacts (validation sidecar, etc.), dated per build
 ├── proposal-drafts/   historical drafts kept for reference
 └── .project/          governance — PROJECT.md, LOG.md, phases/, decisions/
 ```
@@ -40,15 +40,18 @@ body is the substantive prompt for the LLM agent that runs it. The
 agent is expected to be invoked from the project root.
 
 ### `analysis/`
-Generated intermediate artefacts. Each file standalone — no numeric
-prefix, no required reading order. Currently:
-`dash-gap-analysis.md`, mapping `spec/` requirements against
-MPEG-DASH 6th edition.
+**Pre-norm** generated artefacts: inputs that the norm build
+consumes. Each file standalone — no numeric prefix, no required
+reading order. Currently includes the DASH gap analysis, UC coverage
+matrix, error semantics matrix, and conformance assertions.
 
 ### `output/`
-Final deliverables. Dated filenames (`sgai-norm-YYYY-MM-DD.md`)
+The norm itself plus any **post-norm** derived artefacts (validation
+sidecar, future test reports, future version diffs). Dated filenames
+(e.g. `sgai-norm-YYYY-MM-DD.md`, `norm-validation-YYYY-MM-DD.md`)
 preserve build history — files are **not** overwritten between
-runs.
+runs, and a norm and its sidecars share the same date stamp so the
+set is auditable together.
 
 ### `.project/`
 Governance scaffolding from the `create-project` skill. Phases,

@@ -3,7 +3,7 @@
 # Norm validation — 2026-05-11
 
 Built against:
-- norm: [`../output/sgai-norm-2026-05-11.md`](../output/sgai-norm-2026-05-11.md)
+- norm: [`./sgai-norm-2026-05-11.md`](./sgai-norm-2026-05-11.md)
 - spec/ at git SHA: `f7c8ffb`
 
 This document captures gaps, edge cases, and ambiguities surfaced
@@ -105,7 +105,7 @@ example 8.2 without a chapter-5 syntactic definition
 indirectly
 
 - **Norm section affected**: §5 syntax decisions, gap analysis G3.
-- **Spec gap**: the gap analysis ([`dash-gap-analysis.md`](dash-gap-analysis.md)
+- **Spec gap**: the gap analysis ([`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md)
   G3) and the working position behind §5.4 (carry alternative
   forms at the ListMPD layer, leave SPS untouched) both assume
   §8.15 SPS restricts the sub-MPD to standard audio/video
@@ -224,7 +224,7 @@ exceeds the cap
 ### A-01. "Slot window has elapsed" definition for overlay slots (E13)
 
 - **Spec passage**: [`../spec/03-requirements.md`](../spec/03-requirements.md)
-  R7 + [`../analysis/error-semantics.md`](error-semantics.md) E13.
+  R7 + [`../analysis/error-semantics.md`](../analysis/error-semantics.md) E13.
 - **Readings**:
   - **(a)** "elapsed" = the overlay's `@maxDuration` after the
     event's `presentationTime` has passed.
