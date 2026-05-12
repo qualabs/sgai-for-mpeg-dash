@@ -7,13 +7,18 @@ grounding flows through downstream prompts (see their headers).
 - `analysis/uc-coverage-matrix.md` (from Step 2).
 - `analysis/error-semantics.md` (from Step 3).
 - `analysis/conformance-assertions.md` (from Step 4).
-- `output/sgai-norm-<YYYY-MM-DD>.md` (from Step 5 — norm).
-- `output/norm-validation-<YYYY-MM-DD>.md` (from Step 5 — sidecar
+- `analysis/iab-ad-templates.md` (from Step 5 — live mirror of the
+  IAB ad-type catalogue; regenerated every run).
+- `output/sgai-norm-<YYYY-MM-DD>.md` (from Step 6 — norm).
+- `output/norm-validation-<YYYY-MM-DD>.md` (from Step 6 — sidecar
   validation document; see `prompts/build-norm.prompt` for details).
 **Skip if**: each downstream prompt has its own skip rule and is
-honoured here. Note that the norm and its validation sidecar have
-**decoupled** skip rules — Step 5 may produce one, the other, both,
-or neither in any given run.
+honoured here, with one exception: Step 5
+(`analyze-iab-ad-templates`) NEVER skips, because its source is an
+external live document that updates independently. Note also that
+the norm and its validation sidecar have **decoupled** skip rules —
+Step 6 may produce one, the other, both, or neither in any given
+run.
 
 ---
 
@@ -93,20 +98,40 @@ independent of Steps 1, 2 and 3 — this step depends only on
   `prompts/extract-conformance-assertions.prompt` and log
   `[BUILT] extract-conformance-assertions → analysis/conformance-assertions.md`.
 
-### Step 5 — Norm build (produces two artifacts)
+### Step 5 — IAB ad-template catalogue (live mirror)
+
+This step regenerates `analysis/iab-ad-templates.md` from the live
+IAB ad-template catalogue (external Google Doc; see
+`prompts/analyze-iab-ad-templates.prompt` for the source link).
+**This step NEVER skips by mtime** — the source is a live external
+document that updates independently. Always invoke the prompt; the
+output file is overwritten in place.
+
+- Always invoke the instructions in
+  `prompts/analyze-iab-ad-templates.prompt` and log
+  `[BUILT] analyze-iab-ad-templates → analysis/iab-ad-templates.md`.
+  If the fetch fails inside the prompt (paywall, network, missing
+  tool), the prompt produces a file documenting the failure with an
+  empty table — that is NOT a build error, the pipeline continues.
+  Surface the prompt's `[GROUNDED_BY=iab-live-link]` or
+  `[GROUNDED_BY=spec-only]` log line so the run is auditable.
+
+### Step 6 — Norm build (produces two artifacts)
 
 The `build-norm` prompt produces **two artifacts** per run with
 **decoupled** skip rules: the norm itself
 (`output/sgai-norm-<date>.md`) and a sidecar validation document
 (`output/norm-validation-<date>.md`) capturing gaps, edge cases,
-and ambiguities for feedback into `spec/`. See
-`prompts/build-norm.prompt` for the validation phase details.
+ambiguities, and the R1..R13 coverage map for feedback into
+`spec/`. See `prompts/build-norm.prompt` for the validation phase
+details.
 
 Norm sub-step:
 
 - Find the newest `output/sgai-norm-*.md` file (if any). If it
   exists AND its mtime is newer than the newest mtime in `spec/`
-  AND newer than `analysis/dash-gap-analysis.md` → log
+  AND newer than `analysis/dash-gap-analysis.md` AND newer than
+  `analysis/iab-ad-templates.md` → log
   `[SKIPPED] build-norm → <latest filename>`.
 - Else → invoke the norm-build instructions in
   `prompts/build-norm.prompt` and log
@@ -133,6 +158,7 @@ SGAI build summary (YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] build-uc-coverage-matrix        → analysis/uc-coverage-matrix.md (mtime: ...)
   [BUILT|SKIPPED] build-error-semantics           → analysis/error-semantics.md (mtime: ...)
   [BUILT|SKIPPED] extract-conformance-assertions  → analysis/conformance-assertions.md (mtime: ...)
+  [BUILT]         analyze-iab-ad-templates        → analysis/iab-ad-templates.md (mtime: ...)
   [BUILT|SKIPPED] build-norm                      → output/sgai-norm-<date>.md (mtime: ...)
   [BUILT|SKIPPED] build-norm-validation           → output/norm-validation-<date>.md (mtime: ...)
 ```

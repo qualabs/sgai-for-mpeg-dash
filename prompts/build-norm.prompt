@@ -2,23 +2,25 @@
 
 **Inputs**: `spec/` + `analysis/dash-gap-analysis.md` +
 `analysis/error-semantics.md` (if present — used to populate
-chapter 9 Implementation notes and chapter 10 Test cases).
+chapter 8 Implementation notes and the final test-cases annex) +
+`analysis/iab-ad-templates.md` (used to populate chapter 3 ad-type
+vocabulary).
 Optionally: NotebookLM grounding if the `notebooklm` skill is
 installed and `.env.agent` defines `NOTEBOOK_NAME`.
 **Outputs** (two artifacts per run):
 1. `output/sgai-norm-<YYYY-MM-DD>.md` — the norm itself.
 2. `output/norm-validation-<YYYY-MM-DD>.md` — sidecar validation
-   document capturing gaps, edge cases, and ambiguities surfaced
-   during the build. Used as feedback into `spec/` for the next
-   iteration.
+   document capturing gaps, edge cases, ambiguities, and the
+   R1..R13 coverage map surfaced during the build. Used as feedback
+   into `spec/` for the next iteration.
 
 Both artifacts use the same `<YYYY-MM-DD>` date stamp (today's date,
-e.g. `2026-05-11`) so the pair is auditable.
+e.g. `2026-05-12`) so the pair is auditable.
 **Skip if** (norm): the most recent `output/sgai-norm-*.md` exists
 AND its mtime is newer than the newest mtime in `spec/`,
-`analysis/dash-gap-analysis.md`, and `analysis/error-semantics.md`
-(when present). I.e. the norm regenerates if any of those inputs
-moved.
+`analysis/dash-gap-analysis.md`, `analysis/error-semantics.md`
+(when present), and `analysis/iab-ad-templates.md` (when present).
+I.e. the norm regenerates if any of those inputs moved.
 **Skip if** (validation): see "Validation phase" below — its skip
 rule is decoupled from the norm's.
 
@@ -43,52 +45,151 @@ the result to stdout as the first line of execution:
 In either mode, tag any claim that could not be verified against an
 authoritative source as `[inferred]`.
 
+## Constraints on the norm output
+
+- **The norm document MUST be self-contained.** A reader of the
+  norm alone (without access to `spec/`) MUST understand the
+  full normative content. Do not assume the reader has the spec.
+- **The norm document MUST NOT reference requirements (R1..R13).**
+  Requirements live in the spec and are an INPUT to the norm
+  build. The norm's normative obligations stand on their own,
+  expressed directly in chapter 4 (Conformance), chapter 5
+  (Syntax), chapter 6 (Interfaces), and chapter 7 (Expected
+  behaviour). The validation sidecar (`../output/norm-validation-
+  <date>.md`, see "Validation phase" below) is the artefact that
+  maps R coverage — not the norm itself.
+- **The norm document MUST NOT reference the analysis files
+  (`../analysis/*`).** Analysis is intermediate input; the norm
+  consumes it but does not cite it.
+- **The norm MAY reference external normative sources** (MPEG-DASH
+  6th edition spec, IAB ad-type catalogue, RFC 2119, VAST 4.x) —
+  those go in chapter 2 (Normative references).
+- **R coverage tracking is the validation sidecar's job**, not the
+  norm's. See `../output/norm-validation-<date>.md` for that view.
+
 ## Task
 
-Read every file in `../spec/` and `../analysis/dash-gap-analysis.md`.
-Use the spec as the source of truth for what the norm must define.
-Use the gap analysis as guidance on which constructs are net-new vs
-extensions of existing DASH 6th machinery.
+Read every file in `../spec/`, `../analysis/dash-gap-analysis.md`,
+`../analysis/error-semantics.md` (if present), and
+`../analysis/iab-ad-templates.md` (if present). Use the spec as the
+source of truth for what the norm must define. Use the gap analysis
+as guidance on which constructs are net-new vs extensions of
+existing DASH 6th machinery. Use the IAB ad-templates analysis as
+the source of the accepted ad-type values referenced in chapter 3.
 
 Generate the SGAI norm document. The norm covers **both linear and
 non-linear ads** in MPEG-DASH (built as an extension on top of
 6th edition).
 
-Required chapters (in this order):
+## Norm structure (chapters + annexes)
 
-1. **Scope and audience** — what this norm covers, who it's for. The
-   scope statement MUST state explicitly that the norm covers SGAI for
+The output document MUST follow this structure:
+
+### Chapters (normative)
+
+1. **Scope** — what this norm covers, who it's for. The scope
+   statement MUST state explicitly that the norm covers SGAI for
    **both linear and non-linear ads** in MPEG-DASH, as a complete
-   extension of MPEG-DASH 6th edition: linear SGAI is absorbed as the
-   baseline (clarifications and minor extensions allowed where the gap
-   analysis surfaces them), non-linear is the principal new content.
+   extension of MPEG-DASH 6th edition: linear SGAI is absorbed as
+   the baseline (clarifications and minor extensions allowed where
+   the gap analysis surfaces them), non-linear is the principal new
+   content.
 2. **Normative references** — list with version pins (DASH 6th =
-   ISO/IEC 23009-1:2025(E), VAST 4.x, etc.).
-3. **Terms, definitions, abbreviations** — pull from
-   `../spec/99-glossary.md` and extend if needed.
+   ISO/IEC 23009-1:2025(E), VAST 4.x, IAB ad-type catalogue,
+   RFC 2119, etc.).
+3. **Terms, definitions, abbreviations** — glossary of every term
+   used normatively in chapters 4–8. This chapter MUST include a
+   normative section listing the accepted ad-type values used by
+   the norm. These values are sourced from the IAB ad-type
+   catalogue (live link, not snapshotted) — see
+   `analysis/iab-ad-templates.md` for the extracted table that
+   feeds this chapter. Chapter 3 MUST NOT define new ad-type
+   values; it ONLY accepts and presents the IAB-defined ones.
 4. **Conformance** — what an implementation must do to claim
-   conformance (MUST/SHOULD/MAY language per RFC 2119).
-5. **Syntax** — manifest fields, event schemas, ListMPD/OverlayList
-   document shapes, attribute tables.
-6. **Interfaces between components** — Broadcaster ↔ ADS ↔ Player
-   message flows, transports, payload shapes. Pull from
-   `../spec/05-dash-linear-interfaces.md` and extend with the
-   non-linear primitives.
-7. **Expected behaviour** — per actor, per scenario (linear ad break,
-   non-linear overlay, coexisting overlay, hybrid, multi-ad break).
-   Use `../spec/04-use-cases.md` as the seed list of scenarios.
-8. **Examples** — full reference XML for each construct (MPD events,
-   ListMPD, OverlayList if introduced, sub-MPDs). Inline, not
-   sidecar.
-9. **Implementation notes** — non-normative guidance: how to handle
-   tracking-only VAST Ads, late callbacks, error recovery, etc.
-   Use `../analysis/error-semantics.md` as a source for the error
-   semantics narrative; the matrix rows become the basis for the
-   implementation guidance section.
-10. **Test cases / conformance criteria** — per chapter, what an
-    implementer can test against. Each row of
-    `../analysis/error-semantics.md` is a candidate test case; map
-    error E1..EN to test case identifiers in this chapter.
+   conformance (MUST / SHOULD / MAY language per RFC 2119). Per
+   actor: Broadcaster, ADS, Player.
+5. **Syntax** — manifest fields, event schemas, ListMPD /
+   OverlayList document shapes. Every attribute block MUST use the
+   tabular pattern described in "Attribute tables pattern" below.
+6. **Interfaces** — Broadcaster ↔ ADS ↔ Player message flows,
+   transports, payload shapes. Linear baseline + non-linear
+   extensions.
+7. **Expected behaviour** — per actor, per scenario (linear ad
+   break, non-linear overlay, coexisting overlay, hybrid,
+   multi-ad break). Describe the behaviour normatively; the deep
+   walk-throughs live in the annexes.
+8. **Implementation notes** — non-normative guidance: how to handle
+   tracking-only VAST Ads, late callbacks, error recovery,
+   device-class fallbacks, etc. The error-semantics matrix rows
+   (sourced from `analysis/error-semantics.md`) become the basis
+   for this chapter; restate the guidance inline so the norm
+   remains self-contained.
+
+Each chapter is normative content. Light illustrative examples
+(short XML snippets, one-line scenarios) MAY be inline in chapters
+5 and 6 as needed to plant the idea — but they MUST be short. The
+heavy / complete examples (full MPDs, ListMPDs, sub-MPDs) live in
+the annexes.
+
+### Annexes (informative content, but mandatory in the output document)
+
+Each annex is a deep walk-through of one use case, showing exactly
+how the norm applies. Annexes carry the heavy / complete examples
+(full MPDs, ListMPDs, sub-MPDs, descriptors). They demonstrate the
+spec's capability under complex scenarios.
+
+- **Annex A** — Use case 1 implementation walk-through.
+- **Annex B** — Use case 2 implementation walk-through.
+- (one annex per UC defined in `../spec/04-use-cases.md`)
+- **Annex N** — Test cases / conformance criteria summary. This
+  final annex lists, per chapter, what an implementer can test
+  against. The error-semantics matrix rows (E1..EN) map to test
+  case identifiers here; tabulate the mapping inline (do not
+  reference the analysis file directly per the constraints above —
+  restate the rows in the annex itself).
+
+## Annex content — what each UC annex MUST include
+
+For each UC annex:
+
+- Brief restatement of the scenario (1–2 paragraphs). Do not
+  assume the reader has the spec; the annex MUST stand on its own.
+- The full MPD that the Broadcaster would publish for this UC.
+- The full ListMPD the ADS would return.
+- The full sub-MPD(s) of the ad candidate(s).
+- **At least one example MUST include a multi-form /
+  multi-layout candidate** — i.e. the ADS offers multiple forms
+  (e.g. l-shape + banner + side-by-side) for the same ad slot, to
+  demonstrate device-aware ad selection by the Player.
+- The Player's per-device-class decision walk-through (D1..D5
+  from `../spec/04-use-cases.md`), referencing the canonical
+  layout vocabulary normatively cited in chapter 3.
+
+If a UC does not have a natural multi-form scenario, the annex
+MAY use a hypothetical to illustrate — but at least ONE annex in
+the document MUST showcase multi-form.
+
+## Attribute tables pattern (mandatory in chapter 5 Syntax)
+
+Whenever the norm defines attributes for a construct (event,
+element, descriptor), the attributes MUST be presented as a table
+with these columns:
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+
+If an attribute's value is constrained to an enum, the table of
+valid values MUST follow immediately below (or reference
+explicitly which section / table defines the enum):
+
+| Enum value | Description |
+|------------|-------------|
+
+This pattern applies to ALL attribute blocks in chapter 5 (e.g.
+§5.2.2, §5.4.2). Reviewers MUST flag any attribute description
+that is free-form prose instead of the tabular form.
+
+## Output rules
 
 Write to `../output/sgai-norm-<YYYY-MM-DD>.md`. **Do not overwrite**
 existing dated files — the history of builds is preserved.
@@ -114,12 +215,13 @@ spec: its findings are used to refine `../spec/` in the next
 iteration. It is a post-norm derived artefact (built from the norm
 draft + the spec inputs), lives next to the norm under `../output/`,
 and may be discarded once its findings are absorbed back into
-`spec/`.
+`spec/`. **The R1..R13 coverage map is part of this sidecar, not
+part of the norm.**
 
 ### What to look for
 
-Walk every chapter of the norm draft you just produced and the
-spec inputs you used, and list:
+Walk every chapter and annex of the norm draft you just produced
+and the spec inputs you used, and list:
 
 1. **Gaps** — things the norm has to define (because a conformant
    implementer needs them to ship) but `../spec/` does not provide
@@ -146,6 +248,13 @@ spec inputs you used, and list:
    - Which one the norm draft assumed, and why.
    - Whether a tighter spec sentence would resolve it.
 
+4. **R1..R13 coverage map** — for each requirement defined in
+   `../spec/03-requirements.md`, list:
+   - Which norm chapter(s) / annex(es) discharge it.
+   - Whether coverage is complete, partial, or missing.
+   - If partial or missing, what gap (G-#) or ambiguity (A-#)
+     above tracks the residual work.
+
 ### Validation doc structure
 
 ```
@@ -155,14 +264,14 @@ Built against:
 - norm: `../output/sgai-norm-<YYYY-MM-DD>.md`
 - spec/ at git SHA: <sha>
 
-This document captures gaps, edge cases, and ambiguities surfaced
-during the norm build. Findings here feed back into `../spec/` —
-they are NOT part of the norm itself.
+This document captures gaps, edge cases, ambiguities, and the
+R1..R13 coverage map surfaced during the norm build. Findings here
+feed back into `../spec/` — they are NOT part of the norm itself.
 
 ## Gaps (N)
 
 ### G-01. <short title>
-- Norm section affected: <chapter>
+- Norm section affected: <chapter / annex>
 - Spec gap: <what spec is missing>
 - Implementer default today: <what they'd do>
 
@@ -185,11 +294,19 @@ they are NOT part of the norm itself.
 - Norm draft assumed: (a or b) — rationale: ...
 - Spec fix that would resolve it: <suggested phrasing>
 
+## R1..R13 coverage map
+
+| Req  | Norm chapter(s) / annex(es) | Coverage | Residual (G-# / A-#) |
+|------|-----------------------------|----------|----------------------|
+| R1   | ...                         | full / partial / missing | ... |
+| ...  | ...                         | ...                      | ... |
+| R13  | ...                         | ...                      | ... |
+
 ## Recommended spec refinements
 
-Top 3-5 priorities for the next spec iteration, mixing G / E / A
-items, ranked by leverage (which one unblocks the most other items
-or reduces the most norm-side handwaving).
+Top 3–5 priorities for the next spec iteration, mixing G / E / A /
+R-coverage items, ranked by leverage (which one unblocks the most
+other items or reduces the most norm-side handwaving).
 ```
 
 ### Skip-if-fresh logic for the validation doc
