@@ -135,5 +135,5 @@ Common ways the ignore-if-unknown contract can be silently broken
   Player scenario the checklist's step 5 models on).
 - [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md)
   — namespace and URI versioning policy.
-- [`07-error-semantics.md`](./07-error-semantics.md) — E9
-  (unknown scheme URI handling, complementary at runtime).
+- [`../analysis/error-semantics.md`](../analysis/error-semantics.md)
+  — E9 (unknown scheme URI handling, complementary at runtime).

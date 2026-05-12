@@ -1,4 +1,6 @@
-# Error semantics
+[GROUNDED_BY=spec-only]
+
+# Error semantics matrix
 
 This document captures the exhaustive matrix of error conditions
 that can arise during an SGAI exchange (Broadcaster → Player ↔
@@ -7,11 +9,12 @@ the source-of-truth for the norm's chapter 9 (Implementation
 notes) and chapter 10 (Test cases) — it makes "what does the
 Player do when X breaks" auditable, not narrative.
 
-This is the **input** spec view: it lists what the norm must
-specify, derived from R1..R10 in
-[`03-requirements.md`](./03-requirements.md). The norm output (the
-published spec document) will instantiate these with concrete
-construct names and codes.
+This is a generated analysis derived from R1..R10 in
+[`../spec/03-requirements.md`](../spec/03-requirements.md) and the
+interface contracts in
+[`../spec/05-dash-linear-interfaces.md`](../spec/05-dash-linear-interfaces.md).
+The norm output (the published spec document) will instantiate
+these with concrete construct names and codes.
 
 This document uses RFC 2119 vocabulary (MUST / SHOULD / MAY) for
 normative statements.
@@ -33,7 +36,7 @@ Out of scope:
   concern, not SGAI-specific.
 - Failures of ADS-internal upstream calls (e.g. ADS ↔ VAST
   upstream) — those are ADS-internal per R2 and
-  [`02-actors.md`](./02-actors.md). From the Player's perspective
+  [`../spec/02-actors.md`](../spec/02-actors.md). From the Player's perspective
   any such failure surfaces as one of E1..E4 or E12.
 - Broadcaster authoring errors at MPD level (e.g. malformed primary
   `MPD`) — also a DASH baseline concern.
@@ -49,7 +52,7 @@ Out of scope:
 | E5 | The resolution document is well-formed but no candidate carries a form renderable on this device (R3, R5.3). | Skip every non-renderable candidate; if all are skipped, fall through to primary content. | Log a per-candidate skip reason. | ADS: MAY return candidates that are not all renderable on every device — this is expected (R5.4); the Player picks. |
 | E6 | A candidate's declared duration would push cumulative slot duration past the Broadcaster-declared cap (R4.1, R4.2). | Drop the candidate before playback ("drop before play", R7.3) while preserving the order of remaining candidates (R7.4). | None. | ADS: MAY return candidates whose cumulative declared duration exceeds the cap (R4.4); Broadcaster: MUST declare the cap on each slot (R4.1). |
 | E7 | A candidate's actual rendered length at playback exceeds its declared duration or pushes cumulative duration past the cap (R4.5, R7.5). | Trim the rendering at the cap boundary ("trim during play"), even mid-ad. | None. | ADS: SHOULD declare accurate durations; Broadcaster: MUST declare the cap on each slot. |
-| E8 | A candidate's form references a layout / vocabulary name not present in the canonical layout vocabulary referenced from [`99-glossary.md`](./99-glossary.md). | Treat the form as non-renderable; if the candidate has no renderable form left, skip it (R5.3). | Log the unknown layout name. | ADS: MUST only emit candidates whose forms use canonical-vocabulary names (R2.2). |
+| E8 | A candidate's form references a layout / vocabulary name not present in the canonical layout vocabulary referenced from [`../spec/99-glossary.md`](../spec/99-glossary.md). | Treat the form as non-renderable; if the candidate has no renderable form left, skip it (R5.3). | Log the unknown layout name. | ADS: MUST only emit candidates whose forms use canonical-vocabulary names (R2.2). |
 | E9 | The resolution document references a scheme URI or extension whose version the Player does not implement. | Apply R1 ignore-if-unknown: skip the unknown construct and continue. If the unknown construct was load-bearing (e.g. the wrapper of the candidate itself), skip that candidate; if it was the whole event, fall through to primary content. | None. | ADS / Broadcaster: MAY send newer schemes to older Players (R1.2); the burden of degrading is on the Player. |
 | E10 | A tracking beacon HTTP request fails (timeout, 4xx, 5xx, network error). | Continue ad playback uninterrupted — tracking failures MUST NOT abort rendering or fall through. | Retry the beacon up to an implementation-defined number of times with back-off. | None. R6 specifies the carrier; delivery reliability is implementation-defined. |
 | E11 | The resolution document contains more candidates than the slot can hold at the cap. | Apply R7.3 drop-before-play in declared order until cumulative declared duration ≤ cap; play the accepted subset in the original ADS-declared order (R7.1, R7.4). | None. | ADS: MAY return more candidates than fit — the Player selects (R4.4). |
@@ -117,14 +120,15 @@ Derived from the matrix above:
 
 ## References
 
-- [`02-actors.md`](./02-actors.md) — actor responsibilities and
-  the three-actor contract every error condition is read against.
-- [`03-requirements.md`](./03-requirements.md) — R1, R2, R4, R5,
-  R6, R7 (the obligations the matrix derives from), with their
-  conformance criteria.
-- [`05-dash-linear-interfaces.md`](./05-dash-linear-interfaces.md)
+- [`../spec/02-actors.md`](../spec/02-actors.md) — actor
+  responsibilities and the three-actor contract every error
+  condition is read against.
+- [`../spec/03-requirements.md`](../spec/03-requirements.md) — R1,
+  R2, R4, R5, R6, R7 (the obligations the matrix derives from),
+  with their conformance criteria.
+- [`../spec/05-dash-linear-interfaces.md`](../spec/05-dash-linear-interfaces.md)
   — the concrete interface contracts that surface most of these
   errors (Player → ADS HTTP exchange, `ListMPD` schema, tracking
   carrier).
-- [`99-glossary.md`](./99-glossary.md) — canonical layout
-  vocabulary referenced in E8.
+- [`../spec/99-glossary.md`](../spec/99-glossary.md) — canonical
+  layout vocabulary referenced in E8.

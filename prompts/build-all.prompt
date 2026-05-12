@@ -5,13 +5,14 @@ grounding flows through downstream prompts (see their headers).
 **Outputs**:
 - `analysis/dash-gap-analysis.md` (from Step 1).
 - `analysis/uc-coverage-matrix.md` (from Step 2).
-- `analysis/conformance-assertions.md` (from Step 3).
-- `output/sgai-norm-<YYYY-MM-DD>.md` (from Step 4 — norm).
-- `analysis/norm-validation-<YYYY-MM-DD>.md` (from Step 4 — sidecar
+- `analysis/error-semantics.md` (from Step 3).
+- `analysis/conformance-assertions.md` (from Step 4).
+- `output/sgai-norm-<YYYY-MM-DD>.md` (from Step 5 — norm).
+- `analysis/norm-validation-<YYYY-MM-DD>.md` (from Step 5 — sidecar
   validation document; see `prompts/build-norm.prompt` for details).
 **Skip if**: each downstream prompt has its own skip rule and is
 honoured here. Note that the norm and its validation sidecar have
-**decoupled** skip rules — Step 4 may produce one, the other, both,
+**decoupled** skip rules — Step 5 may produce one, the other, both,
 or neither in any given run.
 
 ---
@@ -53,14 +54,36 @@ and `spec/04-use-cases.md`.
   `[BUILT] build-uc-coverage-matrix → analysis/uc-coverage-matrix.md`.
 
 Placement rationale: this matrix surfaces orphan Rs (requirements
-with no UC coverage) before Step 3 extracts conformance
-assertions, so the assertion extractor can cross-reference the
-orphan list when scoring its own orphan-assertion section.
+with no UC coverage) before the assertion extractor runs, so the
+extractor can cross-reference the orphan list when scoring its own
+orphan-assertion section.
 
-### Step 3 — Conformance assertions
+### Step 3 — Error semantics matrix
+
+Inspect `analysis/error-semantics.md`. Skip rule is independent of
+Steps 1 and 2 — this step depends only on
+`spec/03-requirements.md` and `spec/05-dash-linear-interfaces.md`.
+
+- If file exists AND its mtime is newer than the newest mtime in
+  `[spec/03-requirements.md, spec/05-dash-linear-interfaces.md]` →
+  log
+  `[SKIPPED] build-error-semantics → analysis/error-semantics.md`
+  and continue.
+- Else → invoke the instructions in
+  `prompts/build-error-semantics.prompt` and log
+  `[BUILT] build-error-semantics → analysis/error-semantics.md`.
+
+Placement rationale: the error matrix benefits from running after
+the UC coverage matrix (which surfaces which Rs are exercised
+runtime-wise) but does not strictly depend on it; it runs before
+conformance-assertions so the assertion extractor can later read
+both intermediates side by side.
+
+### Step 4 — Conformance assertions
 
 Inspect `analysis/conformance-assertions.md`. Skip rule is
-independent of Steps 1 and 2 — this step depends only on `spec/`.
+independent of Steps 1, 2 and 3 — this step depends only on
+`spec/`.
 
 - If file exists AND its mtime is newer than the newest mtime in
   `spec/` → log
@@ -70,7 +93,7 @@ independent of Steps 1 and 2 — this step depends only on `spec/`.
   `prompts/extract-conformance-assertions.prompt` and log
   `[BUILT] extract-conformance-assertions → analysis/conformance-assertions.md`.
 
-### Step 4 — Norm build (produces two artifacts)
+### Step 5 — Norm build (produces two artifacts)
 
 The `build-norm` prompt produces **two artifacts** per run with
 **decoupled** skip rules: the norm itself
@@ -108,6 +131,7 @@ Print a summary block:
 SGAI build summary (YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] analyze-dash-gap                → analysis/dash-gap-analysis.md (mtime: ...)
   [BUILT|SKIPPED] build-uc-coverage-matrix        → analysis/uc-coverage-matrix.md (mtime: ...)
+  [BUILT|SKIPPED] build-error-semantics           → analysis/error-semantics.md (mtime: ...)
   [BUILT|SKIPPED] extract-conformance-assertions  → analysis/conformance-assertions.md (mtime: ...)
   [BUILT|SKIPPED] build-norm                      → output/sgai-norm-<date>.md (mtime: ...)
   [BUILT|SKIPPED] build-norm-validation           → analysis/norm-validation-<date>.md (mtime: ...)

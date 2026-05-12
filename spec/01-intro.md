@@ -44,17 +44,19 @@ This folder stays focused on the technical content.
 - **[06-naming-and-namespaces.md](./06-naming-and-namespaces.md)** —
   Naming conventions for new constructs (URN patterns, namespaces,
   versioning) and pointer to the canonical layout vocabulary.
-- **[07-error-semantics.md](./07-error-semantics.md)** — Error
-  conditions matrix and Player obligations, derived from R1..R7.
-- **[08-backward-compat-checklist.md](./08-backward-compat-checklist.md)** —
+- **[07-backward-compat-checklist.md](./07-backward-compat-checklist.md)** —
   Verification checklist that the norm MUST apply to each new
   construct it introduces, so legacy Player compatibility (R1 /
   UC-07) is auditable per construct.
 - **[99-glossary.md](./99-glossary.md)** — Technical terminology used
   across the document set.
 
-The gap analysis that maps each UC against MPEG-DASH 6th edition
-constructs lives outside this folder, at
-[`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md).
-It is a generated artefact derived from this spec, not part of the
-canonical reading set.
+Generated analyses derived from this spec live outside this folder,
+in `../analysis/`. Not part of the canonical reading set, but
+useful when auditing coverage or implementation behaviour:
+
+- [`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md)
+  — maps each UC against MPEG-DASH 6th edition constructs.
+- [`../analysis/error-semantics.md`](../analysis/error-semantics.md)
+  — error conditions matrix and Player obligations, derived from
+  R1..R7.
