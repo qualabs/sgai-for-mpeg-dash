@@ -1,0 +1,121 @@
+# Build error semantics matrix
+
+**Inputs**: `spec/03-requirements.md` (especially R1..R7) and
+`spec/05-dash-linear-interfaces.md` (interface contracts that
+surface most error conditions).
+**Output**: `analysis/error-semantics.md` (overwrites previous).
+**Skip if**: `analysis/error-semantics.md` exists AND its mtime is
+newer than the newest mtime in `[spec/03-requirements.md,
+spec/05-dash-linear-interfaces.md]`.
+
+---
+
+## Grounding mode
+
+This analysis is purely spec-derived and does not call out to
+NotebookLM. Log the first line of execution as
+`[GROUNDED_BY=spec-only]`. The output document MUST also start
+with that same line as its first line.
+
+## Task
+
+Read R1..R7 in `../spec/03-requirements.md` and the interface
+contracts in `../spec/05-dash-linear-interfaces.md`. Build an
+exhaustive matrix of error conditions × Player MUST / MAY responses
++ ADS / Broadcaster obligations.
+
+### Matrix structure
+
+Output a single table with these columns:
+
+| ID | Error condition | Player response (MUST) | Player response (MAY) | ADS / Broadcaster obligation |
+
+Rows MUST cover at minimum:
+
+- Transport-level failures (HTTP timeout, 4xx / 5xx, DNS
+  unreachable, TCP refused, TLS handshake failure).
+- Parse / schema failures (malformed XML, schema-invalid
+  resolution document, unknown root element).
+- No-renderable-form fall-through (R5 device-aware selection).
+- Declared-vs-actual duration mismatches (R4 max slot duration +
+  R7 drop-before-play / trim-during-play).
+- Unknown layout names (per `spec/99-glossary.md` canonical
+  vocabulary).
+- Unknown event scheme URIs (R1 ignore-if-unknown).
+- Tracking beacon failures (R6).
+- Late ADS response (after the slot window has elapsed).
+
+Target 10-15 rows. Use IDs `E1..EN`. Use abstract terms
+("resolution document", "candidate", "form") — do NOT introduce
+solution-specific construct names like `OverlayPresentation`.
+
+### Notes section
+
+Below the matrix, include the following subsections:
+
+1. **Fall-through definition** — "fall through to primary content
+   uninterrupted" means no visible artefact (no freeze, no blank
+   slate, no error overlay unless the application explicitly opted
+   in), no tracking beacon fired, playback continues.
+2. **Order of precedence** — when multiple errors arise on the
+   same exchange, the Player applies them in this order:
+   transport → resolution-document level → constraint surfacing →
+   per-candidate decode-time → per-candidate playback-time →
+   tracking failures (non-fatal).
+3. **Guarantees by actor** — summarise what Broadcaster / ADS /
+   Player each guarantee under the matrix, derived from the rows
+   above.
+4. **Surfacing to application layer** — the Player MAY expose
+   error events via implementation-defined APIs; non-normative.
+   The norm chapter 9 SHOULD include guidance but implementations
+   are free to choose the API shape.
+
+## Output structure
+
+```
+[GROUNDED_BY=spec-only]
+
+# Error semantics matrix
+
+<short 2-3 line preamble: spec versions consumed (file mtimes),
+total row count, scope statement>
+
+## Scope
+
+<in/out of scope bullets>
+
+## Error matrix
+
+<the table>
+
+## Notes
+
+### Fall-through definition
+...
+
+### Order of precedence
+...
+
+### Guarantees by actor
+...
+
+### Surfacing errors to the application layer
+...
+
+## References
+
+<links back to `../spec/02-actors.md`, `../spec/03-requirements.md`,
+`../spec/05-dash-linear-interfaces.md`, `../spec/99-glossary.md`>
+```
+
+Write to `../analysis/error-semantics.md`. Overwrite if exists.
+
+## Tone
+
+Tabular and crisp. No narrative filler. The norm's chapter 9
+(Implementation notes) absorbs this matrix directly; chapter 10
+(Test cases) uses each row as a test case template.
+
+Target volume: 100-150 lines.
+
+Language: English.
