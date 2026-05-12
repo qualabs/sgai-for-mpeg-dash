@@ -98,12 +98,14 @@ When this norm evolves to a new edition:
 
 ## Layout vocabulary
 
-The canonical enum of overlay layout templates lives in
-[`99-glossary.md`](./99-glossary.md) under "Canonical layout
-vocabulary". The norm MUST reference those enum-values without
-inventing new layout names at chapter level. To propose a new
-layout, an editor adds the entry to the glossary first, then the
-norm references it. Per **R12** in
-[`03-requirements.md`](./03-requirements.md), the layout
-vocabulary MUST map 1:1 to IAB-defined ad-type values; no
+The accepted layout names for overlay templates are defined and
+maintained by the IAB, not by this norm. The live IAB document is
+mirrored on every build into
+[`../analysis/iab-ad-templates.md`](../analysis/iab-ad-templates.md)
+by `prompts/analyze-iab-ad-templates.prompt`; the norm MUST
+reference those IAB-defined values without inventing new layout
+names at chapter level. To propose a new layout, the editor works
+with the IAB directly — this norm does not own the vocabulary.
+Per **R12** in [`03-requirements.md`](./03-requirements.md), the
+layout vocabulary MUST map 1:1 to IAB-defined ad-type values; no
 broadcaster-private or norm-private layout names are admissible.
