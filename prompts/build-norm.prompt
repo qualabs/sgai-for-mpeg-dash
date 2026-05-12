@@ -162,8 +162,9 @@ For each UC annex:
   (e.g. l-shape + banner + side-by-side) for the same ad slot, to
   demonstrate device-aware ad selection by the Player.
 - The Player's per-device-class decision walk-through (D1..D5
-  from `../spec/04-use-cases.md`), referencing the canonical
-  layout vocabulary normatively cited in chapter 3.
+  from `../spec/04-use-cases.md`), referencing the IAB-defined
+  layout vocabulary (mirrored in `../analysis/iab-ad-templates.md`)
+  as normatively cited in chapter 3.
 
 If a UC does not have a natural multi-form scenario, the annex
 MAY use a hypothetical to illustrate — but at least ONE annex in

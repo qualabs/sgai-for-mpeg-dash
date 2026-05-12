@@ -18,49 +18,19 @@ through `05-dash-linear-interfaces.md` (plus
 - **Non-linear ad**: ad that *coexists* with the primary content; it
   does not interrupt playback. Rendered as an overlay or as a
   side-by-side composition.
-- **Overlay**: umbrella term for any non-linear ad surface. Concrete
-  sub-types used in this project (mapped to `layoutMode` enums in the
-  proposal):
-  - **L-shape (left / right)**: primary content is shrunk and anchored
-    to one corner; ad fills the remaining "L" along the other two
-    edges.
-  - **Banner**: primary content keeps full scale; ad rendered as an
-    overlay strip, typically at the bottom.
-  - **Skyscraper**: tall, narrow vertical ad on one side (this label
-    appears in the broadcaster's allowed-layouts list; not an
-    explicit `layoutMode` enum in the current proposal).
-  - **Sidebar**: similar idea to skyscraper, declared by the
-    broadcaster as an allowed layout.
-  - **Side-by-side**: primary content scaled and placed on one side;
-    ad takes the other side; no visual overlap.
-  - **Squeezeback**: synonym frequently used in broadcast for the
-    "primary content shrunk to make room for ad real estate" effect
-    (it is what L-shape and side-by-side do under the hood).
-  - **Pause-ad**: ad rendered as an overlay only when the user pauses
-    playback. State-triggered, not timeline-triggered.
-  - **Lower-third**: traditional broadcast ad format anchored to the
-    lower third of the screen; can be expressed via the banner or
-    custom layout.
-  - **Corner-bug**: small ad anchored to a corner; supports IAB Tile
-    flexible aspect ratios.
-
-### Canonical layout vocabulary
-
-The following enum-values are canonical. The norm MUST reference
-these names; new layouts MUST be added here first.
-
-| Name | Enum-value | Visual placement | Typical usage |
-|------|------------|------------------|---------------|
-| L-shape | `l-shape` | Primary content shrunk and anchored to one corner; ad fills the remaining "L" along the other two edges | Sports score tickers, news lower-third + side scroll |
-| Banner | `banner` | Full-width strip across the bottom (or top); primary content keeps full scale | Mid-roll teasers, promo banners |
-| Skyscraper | `skyscraper` | Tall, narrow vertical strip on one side | Sidebar campaign units |
-| Sidebar | `sidebar` | Vertical strip on one side, wider than skyscraper | Companion sidebar UI |
-| Side-by-side | `side-by-side` | Primary content scaled to one half, ad on the other; no visual overlap | Hybrid linear + non-linear |
-| Squeezeback | `squeezeback` | Primary content scaled down inside a frame; ad UI surrounds it | Late-content promos, content recommendations |
-| Pause-ad | `pause-ad` | Fullscreen overlay shown only when primary content is paused | Pause-state monetisation |
-| Lower-third | `lower-third` | Small strip anchored to the lower third of the screen, typically semi-transparent | Talkshow-style branding, headlines |
-| Corner-bug | `corner-bug` | Small logo/UI element anchored to one corner of the screen | Network branding, brand awareness |
-
+- **Overlay**: umbrella term for any non-linear ad surface. The
+  concrete sub-types (banner, l-shape, skyscraper, side-by-side,
+  pause-ad, etc.) are defined and maintained by the IAB; this norm
+  references the IAB definitions normatively and does NOT introduce
+  new sub-types. See the IAB CTV Ad Format Guidelines live document:
+  https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
+  — the accepted values are extracted into
+  [`../analysis/iab-ad-templates.md`](../analysis/iab-ad-templates.md)
+  by `prompts/analyze-iab-ad-templates.prompt` and refreshed on every
+  build. Examples of sub-types encountered in practice include
+  l-shape, banner, skyscraper, sidebar, side-by-side, squeezeback,
+  pause-ad, lower-third, and corner-bug; these names are illustrative
+  and the authoritative list is the IAB document, not this glossary.
 - **MPEG-DASH 6th edition**: revision of ISO/IEC 23009-1 that
   introduced the `InsertPresentation` and `ReplacePresentation`
   constructs for linear SGAI.
