@@ -132,6 +132,13 @@ working doc verbatim.
   R5 is a concrete instance of R2 — Player owns the responsibility
   the ADS does not have — and a direct contributor to R3.
 
+  The ADS MAY return candidates carrying multiple forms or layouts.
+  The Player MUST select per device capabilities, the Broadcaster's
+  `@allowedLayouts`, and ADS-supplied priority hints. Skipping a
+  candidate because none of its forms is renderable on the target
+  device is acceptable; the Player then falls through to the next
+  candidate or to primary content.
+
   **Conformance criteria** (runtime):
   - **R5.1** (ADS): Each ad candidate returned by the ADS MUST
     carry one or more renderable forms (e.g. video, image, HTML);
@@ -145,6 +152,19 @@ working doc verbatim.
   - **R5.4** (ADS): The ADS MUST NOT be required to maintain a
     device-class matrix or a per-Player capability view to produce
     candidates.
+  - **R5.5** (ADS): An ad candidate MAY carry multiple forms
+    and MAY carry multiple admissible layouts; ADS-supplied
+    priority hints MAY rank both dimensions independently.
+  - **R5.6** (Player): The Player MUST resolve form/layout
+    selection by intersecting (a) device capabilities, (b) the
+    Broadcaster-declared `@allowedLayouts` on the slot, and
+    (c) ADS-supplied priority hints. A combination that fails
+    any of the three MUST NOT be rendered.
+  - **R5.7** (Player): If no form/layout combination on a
+    candidate satisfies R5.6, the Player MUST skip that
+    candidate and fall through to the next ADS-returned
+    candidate (preserving the order required by R7) or, when
+    exhausted, to primary content.
 - **R6. Ad tracking carrier.** The norm MUST specify how in-band
   ad tracking beacons (impression, start, quartiles, complete, etc.)
   are carried in the resolution document. Implementations SHOULD
@@ -216,6 +236,64 @@ working doc verbatim.
   - **R7.5** (Player): If a candidate is accepted and its actual
     rendered length exceeds the cap, the Player MUST trim
     mid-rendering ("trim during play") per R4.
+- **R11. No dependency on VAST.** The norm MUST NOT depend on any
+  specific version of VAST or on VAST as a protocol. Examples that
+  show interoperability with a specific VAST version are
+  illustrative only — conformant implementations MUST be
+  VAST-version-agnostic, and the norm MUST NOT impose VAST as a
+  precondition for any actor.
+
+  **Conformance criteria**:
+  - **R11.1** (norm document): The normative chapters of the norm
+    MUST NOT cite a specific VAST version as required.
+  - **R11.2** (Player): A Player MUST be able to operate against
+    an ADS that does not use VAST at all (the ADS-side protocol
+    is the ADS's internal concern, not the norm's contract).
+  - **R11.3** (norm document): Any reference to VAST in the norm
+    MUST be in an annex or in a non-normative note explicitly
+    flagged as illustrative.
+- **R12. Ad type definitions owned by IAB.** Ad types and their
+  visual templates are defined and maintained by the IAB. This
+  norm references IAB definitions normatively for ad-type names
+  and behavioural expectations; introducing new ad-type
+  definitions (new template categories beyond what IAB publishes)
+  is out of scope.
+
+  Reference (live link, not snapshotted):
+  https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
+
+  **Conformance criteria**:
+  - **R12.1** (norm document): The list of accepted ad-type values
+    in the norm MUST be sourced from IAB definitions. A reference
+    to the IAB source MUST be included.
+  - **R12.2** (Broadcaster): Broadcasters declaring allowed
+    layouts MUST use names that map 1:1 to IAB-defined ad-type
+    values (no broadcaster-private layout names in the
+    `@allowedLayouts` attribute).
+  - **R12.3** (ADS): The ADS MUST NOT emit form metadata for ad
+    types that are not part of the IAB-defined set used by this
+    norm's edition.
+- **R13. Non-linear ad tracking semantics.** The norm MUST reuse
+  the tracking mechanism defined for linear SGAI in MPEG-DASH
+  (do not introduce new tracking event types). The Player SHOULD
+  fire tracking beacons at overlay impression and at quartile
+  boundaries (25%, 50%, 75%, 100%) of the Broadcaster-declared
+  overlay window (R4 `@maxDuration` enforcement). Beacons fired
+  outside that window are out-of-spec.
+
+  **Conformance criteria**:
+  - **R13.1** (Player): Given a non-linear ad accepted for
+    rendering, the Player MUST fire an impression beacon at the
+    instant the overlay becomes visible to the user.
+  - **R13.2** (Player): The Player SHOULD fire quartile beacons
+    timed against the Broadcaster-declared overlay window, not
+    against the ad's internal duration.
+  - **R13.3** (Player): If R4 trims the overlay before all
+    quartiles fire, the Player MUST stop firing beacons at the
+    trim boundary.
+  - **R13.4** (norm document): The norm MUST NOT introduce a new
+    tracking event scheme; reuse of the linear baseline tracking
+    mechanism is mandatory.
 
 ## Governance Requirements
 

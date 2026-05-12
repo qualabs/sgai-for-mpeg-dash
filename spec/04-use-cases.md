@@ -480,16 +480,20 @@ but are independently selected.
 
 ### UC-05 — Pause-triggered ad
 
-**Scenario:** The broadcaster has declared an ad opportunity that
-is **not anchored to the timeline**; it is triggered when the user
-pauses playback, and the ad lives on top of the paused primary
-frame. When the user resumes playback, the ad is dismissed and the
-primary content continues from the paused position.
+**Scenario:** A window is defined during which, if the user pauses,
+an overlay ad is allowed. The window starts at a specified time and
+ends at a specified time. Outside the window, pause does not trigger
+any overlay. While the window is active and the user is paused, the
+overlay is composited on top of the paused primary frame; when the
+user resumes playback, the overlay is dismissed and the primary
+content continues from the paused position.
 
 **Broadcaster intent:**
-- A pause-triggered (action-triggered) slot, distinct from
-  timeline-triggered slots.
-- The ad appears on top of the paused primary frame.
+- Define a window of validity (start time, end time) during which
+  a pause by the user permits an overlay ad. Outside the window,
+  pause permits no overlay.
+- The overlay, when permitted, appears on top of the paused
+  primary frame.
 - Allowed layouts typically include full-screen image, HTML, and
   possibly video over the paused frame.
 - Maximum display duration before automatic dismissal is bounded.
@@ -502,17 +506,17 @@ primary content continues from the paused position.
 
 #### D1 — Top-tier (2+ video decoders, image and HTML overlays)
 
-- **Player decision:** when the user pauses, the Player resolves
-  the ADS for this slot (or uses a pre-fetched response,
-  depending on the policy the spec ultimately chooses). Reads the
-  pause-triggered slot rules and selects the highest-ranked
-  renderable candidate using ADS ranking hints. For the selected
-  candidate, per R3, walks the forms in priority
-  order. Because the primary is paused (no concurrent decoding
-  needed for the primary), even single-decoder devices can render
-  a video form here — but on D1 the second decoder is also
-  available. Renders the chosen form on top of the paused primary
-  frame. When the user resumes playback, dismisses the overlay.
+- **Player decision:** if the user pauses inside the
+  Broadcaster-declared window of validity, the Player applies the
+  slot rules and selects the highest-ranked renderable candidate
+  using ADS ranking hints. For the selected candidate, per R3,
+  walks the forms in priority order. Because the primary is paused
+  (no concurrent decoding needed for the primary), even
+  single-decoder devices can render a video form here — but on D1
+  the second decoder is also available. Renders the chosen form on
+  top of the paused primary frame. When the user resumes playback,
+  dismisses the overlay. If the user pauses outside the window of
+  validity, no overlay is shown.
 - **What the user sees:** the user pauses playback. The paused
   frame remains on screen, and an overlay ad appears on top of it
   (typically the highest-fidelity form available — HTML, image, or
