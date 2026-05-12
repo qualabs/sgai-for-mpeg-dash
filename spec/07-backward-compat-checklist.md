@@ -85,11 +85,16 @@ chapter 10 modelled on UC-07
 
 ### 6. Namespace policy
 
-Verify that C is in one of the two namespaces declared in
-[`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md):
-
-- `urn:mpeg:dash:sgai:<year>` for proposed-MPEG additions.
-- `urn:qualabs:sgai:<year>` for vendor experimental extensions.
+Verify that C is in one of the namespaces declared by the current
+namespace policy in
+[`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md).
+Constructs introduced by this norm live under the SVTA Ads WG
+namespace; vendor-private extensions live under the Qualabs vendor
+namespace. The exact URI patterns, the year-pinning rule, and the
+tracking-callback-scheme inheritance from MPEG-DASH 6th edition
+are normative in `06-naming-and-namespaces.md` — this checklist
+delegates to that document and does not restate the patterns,
+so the two files cannot drift.
 
 If C is in a different namespace, document why and obtain explicit
 review.
