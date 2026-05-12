@@ -2,114 +2,89 @@
 
 # UC × R coverage matrix
 
-Generated from [`../spec/03-requirements.md`](../spec/03-requirements.md)
-(R1..R10) and [`../spec/04-use-cases.md`](../spec/04-use-cases.md)
-(UC-01..UC-07, device classes D1..D5).
-Inputs consumed: 03-requirements.md (2026-05-11 19:58),
-04-use-cases.md (2026-05-11 19:43). 7 UCs × 10 Rs.
+Inputs: `../spec/03-requirements.md` (R1..R13, of which R8/R9/R10 are
+document-level governance, plus R11/R12/R13 newly added in this
+edition), `../spec/04-use-cases.md` (UC-01..UC-07). Total UCs: 7.
+Total Rs: 13 (R1..R10 plus R11..R13).
 
 ## Matrix 1 — UC × R
 
-Cell legend: **A** — the UC exercises the R (its prose, scenario, or
-expected behaviour invokes the R explicitly or directly tests its
-obligation). **·** — not applicable / not exercised in this UC.
+Cells: `A` = UC exercises the requirement; `·` = not applicable.
 
-| UC    | Scenario                              | R1 | R2 | R3 | R4 | R5 | R6 | R7 | R8 | R9 | R10 |
-|-------|---------------------------------------|----|----|----|----|----|----|----|----|----|-----|
-| UC-01 | Slot at start of session (pre-roll)   | A  | A  | A  | A  | A  | ·  | ·  | ·  | ·  | ·   |
-| UC-02 | Mid-content slot (mid-roll)           | A  | A  | A  | A  | A  | ·  | ·  | ·  | ·  | ·   |
-| UC-03 | Coexisting overlay                    | A  | A  | A  | A  | A  | ·  | A  | ·  | ·  | A   |
-| UC-04 | Hybrid linear + concurrent overlay    | A  | A  | A  | A  | A  | ·  | A  | ·  | ·  | A   |
-| UC-05 | Pause-triggered ad                    | A  | A  | A  | A  | A  | ·  | ·  | ·  | ·  | A   |
-| UC-06 | Multi-ad break                        | A  | A  | A  | A  | A  | ·  | A  | ·  | ·  | ·   |
-| UC-07 | Legacy Player encounters new construct| A  | A  | ·  | ·  | ·  | ·  | ·  | ·  | ·  | ·   |
+| UC | R1 | R2 | R3 | R4 | R5 | R6 | R7 | R8 | R9 | R10 | R11 | R12 | R13 |
+|----|----|----|----|----|----|----|----|----|----|-----|-----|-----|-----|
+| UC-01 (pre-roll, linear) | · | A | A | A | A | A | A | · | · | · | A | · | · |
+| UC-02 (mid-roll, linear) | · | A | A | A | A | A | A | · | · | · | A | · | · |
+| UC-03 (coexisting overlay) | · | A | A | A | A | A | A | · | · | A | A | A | A |
+| UC-04 (hybrid linear + overlay) | · | A | A | A | A | A | A | · | · | A | A | A | A |
+| UC-05 (pause-triggered ad) | · | A | A | A | A | A | A | · | · | A | A | A | A |
+| UC-06 (multi-ad break) | · | A | A | A | A | A | A | · | · | · | A | · | · |
+| UC-07 (legacy Player) | A | · | A | · | · | · | · | · | · | · | · | · | · |
 
 ## Matrix 2 — R × UC
 
-Cell legend: **A** — the UC in this column exercises the R in this
-row. **·** — not exercised. Tag column: **(covered)** if at least one
-UC exercises the R; **(orphan)** if no UC exercises the R and the R
-is a runtime obligation; **(governance)** if the R is document-level
-and not runtime-testable via UCs.
-
-| R    | Topic                                                | UC-01 | UC-02 | UC-03 | UC-04 | UC-05 | UC-06 | UC-07 | Tag           |
-|------|------------------------------------------------------|-------|-------|-------|-------|-------|-------|-------|---------------|
-| R1   | DASH 6th compliance and graceful degradation         | A     | A     | A     | A     | A     | A     | A     | (covered)     |
-| R2   | Honour the three-actor model                         | A     | A     | A     | A     | A     | A     | A     | (covered)     |
-| R3   | Device-capability diversity (D1..D5)                 | A     | A     | A     | A     | A     | A     | ·     | (covered)     |
-| R4   | Broadcaster-declared max slot duration, Player-enforced | A | A     | A     | A     | A     | A     | ·     | (covered)     |
-| R5   | Device-aware ad selection (multi-form, Player picks) | A     | A     | A     | A     | A     | A     | ·     | (covered)     |
-| R6   | Ad tracking carrier                                  | ·     | ·     | ·     | ·     | ·     | ·     | ·     | (orphan)      |
-| R7   | Respect ADS-returned order                           | ·     | ·     | A     | A     | ·     | A     | ·     | (covered)     |
-| R8   | Justify any addition or omission                     | ·     | ·     | ·     | ·     | ·     | ·     | ·     | (governance)  |
-| R9   | Minimise net new constructs                          | ·     | ·     | ·     | ·     | ·     | ·     | ·     | (governance)  |
-| R10  | Do not recreate a layout system                      | ·     | ·     | A     | A     | A     | ·     | ·     | (covered)     |
+| R | UC-01 | UC-02 | UC-03 | UC-04 | UC-05 | UC-06 | UC-07 | Tag |
+|---|-------|-------|-------|-------|-------|-------|-------|-----|
+| R1  (graceful degradation) | · | · | · | · | · | · | A | (covered) |
+| R2  (actor roles) | A | A | A | A | A | A | · | (covered) |
+| R3  (device classes) | A | A | A | A | A | A | A | (covered) |
+| R4  (max slot duration) | A | A | A | A | A | A | · | (covered) |
+| R5  (device-aware selection) | A | A | A | A | A | A | · | (covered) |
+| R6  (tracking carrier) | A | A | A | A | A | A | · | (covered) |
+| R7  (ADS-returned order) | A | A | A | A | A | A | · | (covered) |
+| R8  (justify additions) | · | · | · | · | · | · | · | (governance) |
+| R9  (minimise new constructs) | · | · | · | · | · | · | · | (governance) |
+| R10 (no layout system) | · | · | A | A | A | · | · | (covered) |
+| R11 (no VAST dependency) | A | A | A | A | A | A | · | (covered) |
+| R12 (IAB owns ad types) | · | · | A | A | A | · | · | (covered) |
+| R13 (non-linear tracking) | · | · | A | A | A | · | · | (covered) |
 
 ## Notes
 
 ### Orphan Rs
 
-Runtime Rs (R1..R7) with no UC coverage at all. Each is a signal that
-either (a) the UC list is incomplete, or (b) the R can be tested
-exclusively via test cases derived from an analysis sidecar rather
-than a UC.
+R8 and R9 are document-level governance and are intentionally not
+exercised by any UC; they bind the norm document and the proposal
+authoring process, not runtime actor behaviour. R10 has both
+dimensions: as governance (norm MUST NOT define a parallel layout
+standard) and as runtime (Player composes overlays using HTML/CSS
+primitives) — surfaced via UC-03/UC-04/UC-05. No non-governance R
+is orphan.
 
-- **R6 — Ad tracking carrier.** No UC in
-  [`../spec/04-use-cases.md`](../spec/04-use-cases.md) describes
-  tracking-beacon behaviour (impression, quartiles, complete, failure
-  modes). The UCs focus on rendering and slot logic, leaving R6 to
-  [`../spec/05-dash-linear-interfaces.md`](../spec/05-dash-linear-interfaces.md)
-  (which shows the `urn:mpeg:dash:event:callback:2015` carrier in the
-  reference ListMPD) and to
-  [`../analysis/error-semantics.md`](error-semantics.md) (E10
-  tracking-beacon failure). Proposed close: add **UC-08 — Tracking
-  beacon delivery and failure** that walks an impression → start →
-  quartiles → complete sequence across one happy path and one beacon
-  HTTP failure, per device class (where overlay vs linear ads change
-  which beacons fire). Alternative: leave R6 covered solely by the
-  interface reference + error matrix and update R6's prose to declare
-  that it is intentionally tested at the interface layer rather than
-  at the UC layer.
+R1 is exercised only by UC-07, which is the canonical legacy-Player
+scenario. This is by design — UC-07 is the cross-cutting backward-
+compat scenario any of UC-01..UC-06 may degrade to.
 
 ### UCs with thin coverage
 
-UCs that map to fewer than 3 Rs. Each is a candidate for tightening
-the UC text so it invokes more Rs explicitly.
+UC-07 maps to only R1 + R3 (2 Rs). Acceptable: UC-07 is a
+cross-cutting degradation scenario whose entire purpose is to
+exercise R1; the other Rs are bypassed by construction (legacy
+Player never reaches the ADS, never validates, never enforces). R3
+hits because the UC body explicitly states behaviour is uniform
+across D1..D5.
 
-- **UC-01 (Slot at start of session) — 5 Rs.** Not thin. R1, R2, R3,
-  R4, R5 are all exercised. The R7 ordering case does not apply
-  because UC-01 is a single-ad slot; the multi-ad-ordering check
-  surfaces in UC-06. R10 layout vocabulary does not apply because
-  UC-01 is linear-only. Coverage adequate.
-- **UC-02 (Mid-content slot) — 5 Rs.** Same as UC-01. Adequate.
-- **UC-07 (Legacy Player encounters new constructs) — 2 Rs.** Thin
-  by design: UC-07's whole point is graceful skip via R1 +
-  three-actor non-violation (R2). Adding R3..R5 to UC-07 would
-  conflate "legacy Player ignores construct" with "Player picks the
-  best renderable form" — different obligations on different code
-  paths. Suggest leaving UC-07 at R1+R2 and accepting it as
-  intentionally narrow. Reviewers SHOULD flag if a future UC-07
-  variant blurs this.
+UC-01, UC-02, UC-06 each map to 8 Rs (R2-R7, R11). They skip
+R10/R12/R13 because linear ads do not introduce overlay templates,
+IAB-defined non-linear ad types, or non-linear tracking — those are
+non-linear concerns by construction. Coverage is healthy.
+
+UC-03, UC-04, UC-05 each map to 11 Rs (R2-R7, R10-R13). These are
+the non-linear scenarios and the principal new content of the norm.
 
 ### Bidirectional sanity check
 
-A mismatch occurs if an R is marked covered by N UCs in Matrix 2 but
-the cells in Matrix 1 show `A` in M ≠ N different UCs for that same
-R.
+For every R the count of `A` cells in row R of Matrix 2 equals the
+count of `A` cells in column R of Matrix 1.
 
-Walk-through:
+- R1: column = 1 (UC-07); row = 1. OK.
+- R2: column = 6 (UC-01..UC-06); row = 6. OK.
+- R3: column = 7 (all UCs); row = 7. OK.
+- R4..R7: column = 6 (UC-01..UC-06); row = 6. OK.
+- R8..R9: column = 0; row = 0 (governance). OK.
+- R10: column = 3 (UC-03, UC-04, UC-05); row = 3. OK.
+- R11: column = 6 (UC-01..UC-06); row = 6. OK.
+- R12: column = 3 (UC-03, UC-04, UC-05); row = 3. OK.
+- R13: column = 3 (UC-03, UC-04, UC-05); row = 3. OK.
 
-| R    | Matrix 2 UC set (where `A`)              | Matrix 1 UC set (where `A` in this R column) | Match |
-|------|-------------------------------------------|----------------------------------------------|-------|
-| R1   | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06, UC-07 | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06, UC-07 | yes |
-| R2   | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06, UC-07 | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06, UC-07 | yes |
-| R3   | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06 | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06     | yes   |
-| R4   | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06 | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06     | yes   |
-| R5   | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06 | UC-01, UC-02, UC-03, UC-04, UC-05, UC-06     | yes   |
-| R6   | (none)                                    | (none)                                       | yes   |
-| R7   | UC-03, UC-04, UC-06                       | UC-03, UC-04, UC-06                          | yes   |
-| R8   | (governance — no UC cells)                | (none)                                       | yes   |
-| R9   | (governance — no UC cells)                | (none)                                       | yes   |
-| R10  | UC-03, UC-04, UC-05                       | UC-03, UC-04, UC-05                          | yes   |
-
-No mismatches.
+No mismatches between the two views.
