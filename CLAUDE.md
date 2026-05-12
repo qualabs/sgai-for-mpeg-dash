@@ -11,11 +11,11 @@ future sessions working on this project. For *what* the project is,
 how to read it, and how to regenerate artefacts, see `README.md`.
 For governance (phases, tasks, decisions), see `.project/PROJECT.md`.
 
-This project lives **untracked** inside the parent `cto-assistant`
-repo. The decision is intentional (see
-`.project/decisions/`): reversibility is preserved via the
-filesystem only — no git history, no commits, no remote. Anything
-you do here is local.
+This project lives as a **separate git repo** with its own
+`.git/` and remote at `git@github.com:qualabs/sgai-for-mpeg-dash.git`.
+It is **gitignored from the parent `cto-assistant` repo by design**
+(separate repo lifecycle — see `.project/decisions/`). The repo
+has active git history; commit + push is the standard workflow.
 
 ## Layout
 

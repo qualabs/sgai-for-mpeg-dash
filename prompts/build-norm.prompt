@@ -1,8 +1,10 @@
 # Build the SGAI norm document
 
-**Inputs**: `spec/` + `analysis/dash-gap-analysis.md`. Optionally:
-NotebookLM grounding if the `notebooklm` skill is installed and
-`.env.agent` defines `NOTEBOOK_NAME`.
+**Inputs**: `spec/` + `analysis/dash-gap-analysis.md` +
+`analysis/error-semantics.md` (if present — used to populate
+chapter 9 Implementation notes and chapter 10 Test cases).
+Optionally: NotebookLM grounding if the `notebooklm` skill is
+installed and `.env.agent` defines `NOTEBOOK_NAME`.
 **Outputs** (two artifacts per run):
 1. `output/sgai-norm-<YYYY-MM-DD>.md` — the norm itself.
 2. `analysis/norm-validation-<YYYY-MM-DD>.md` — sidecar validation
@@ -13,8 +15,10 @@ NotebookLM grounding if the `notebooklm` skill is installed and
 Both artifacts use the same `<YYYY-MM-DD>` date stamp (today's date,
 e.g. `2026-05-11`) so the pair is auditable.
 **Skip if** (norm): the most recent `output/sgai-norm-*.md` exists
-AND its mtime is newer than the newest mtime in `spec/` and
-`analysis/`.
+AND its mtime is newer than the newest mtime in `spec/`,
+`analysis/dash-gap-analysis.md`, and `analysis/error-semantics.md`
+(when present). I.e. the norm regenerates if any of those inputs
+moved.
 **Skip if** (validation): see "Validation phase" below — its skip
 rule is decoupled from the norm's.
 
@@ -78,8 +82,13 @@ Required chapters (in this order):
    sidecar.
 9. **Implementation notes** — non-normative guidance: how to handle
    tracking-only VAST Ads, late callbacks, error recovery, etc.
+   Use `../analysis/error-semantics.md` as a source for the error
+   semantics narrative; the matrix rows become the basis for the
+   implementation guidance section.
 10. **Test cases / conformance criteria** — per chapter, what an
-    implementer can test against.
+    implementer can test against. Each row of
+    `../analysis/error-semantics.md` is a candidate test case; map
+    error E1..EN to test case identifiers in this chapter.
 
 Write to `../output/sgai-norm-<YYYY-MM-DD>.md`. **Do not overwrite**
 existing dated files — the history of builds is preserved.
