@@ -4,10 +4,10 @@
 
 Built against:
 - norm: [`./sgai-norm-2026-05-11.md`](./sgai-norm-2026-05-11.md)
-- spec/ at git SHA: `f7c8ffb`
+- context/ at git SHA: `f7c8ffb`
 
 This document captures gaps, edge cases, and ambiguities surfaced
-during the norm build. Findings here feed back into `../spec/` —
+during the norm build. Findings here feed back into `../context/` —
 they are NOT part of the norm itself.
 
 ## Gaps (8)
@@ -31,7 +31,7 @@ they are NOT part of the norm itself.
 ### G-02. VAST 4.x version pin missing
 
 - **Norm section affected**: chapter 2 (Normative references).
-- **Spec gap**: [`../spec/05-dash-linear-interfaces.md`](../spec/05-dash-linear-interfaces.md)
+- **Spec gap**: [`../context/05-dash-linear-interfaces.md`](../context/05-dash-linear-interfaces.md)
   flags this explicitly: the exact 4.x version (4.0 / 4.1 / 4.2 /
   4.3) used by industry practice is unconfirmed. The NotebookLM
   source consulted in this build references VAST v3.0 in the
@@ -128,11 +128,11 @@ indirectly
 ### G-08. Cross-edition Player URI recognition has no R coverage
 
 - **Norm section affected**: chapter 2, chapter 4.
-- **Spec gap**: [`../spec/06-naming-and-namespaces.md`](../spec/06-naming-and-namespaces.md)
+- **Spec gap**: [`../context/06-naming-and-namespaces.md`](../context/06-naming-and-namespaces.md)
   line 27 says "A Player implementing edition N + 1 SHOULD
   recognise both `:N:` and `:N+1:` URIs". This obligation is on
   the *Player*, not on the norm document. No R in
-  [`../spec/03-requirements.md`](../spec/03-requirements.md)
+  [`../context/03-requirements.md`](../context/03-requirements.md)
   covers it directly. R1 is about *legacy Players ignoring new
   constructs*; this is the inverse (*new Players recognising old
   constructs*).
@@ -223,7 +223,7 @@ exceeds the cap
 
 ### A-01. "Slot window has elapsed" definition for overlay slots (E13)
 
-- **Spec passage**: [`../spec/03-requirements.md`](../spec/03-requirements.md)
+- **Spec passage**: [`../context/03-requirements.md`](../context/03-requirements.md)
   R7 + [`../analysis/error-semantics.md`](../analysis/error-semantics.md) E13.
 - **Readings**:
   - **(a)** "elapsed" = the overlay's `@maxDuration` after the
@@ -239,7 +239,7 @@ exceeds the cap
 
 ### A-02. "Best form to render" tie-breaking when ADS priorities collide
 
-- **Spec passage**: R5.2 ([`../spec/03-requirements.md`](../spec/03-requirements.md):139).
+- **Spec passage**: R5.2 ([`../context/03-requirements.md`](../context/03-requirements.md):139).
 - **Readings**:
   - **(a)** "best" = highest-priority renderable form per ADS
     hints; ties broken by document order in
@@ -256,7 +256,7 @@ exceeds the cap
 ### A-03. "Drop before play" semantics when the cap is the *running
 total* mid-pod
 
-- **Spec passage**: R7.3 ([`../spec/03-requirements.md`](../spec/03-requirements.md):210).
+- **Spec passage**: R7.3 ([`../context/03-requirements.md`](../context/03-requirements.md):210).
 - **Readings**:
   - **(a)** Drop-before-play is evaluated *before* the pod starts:
     Player walks the declared candidates, drops those whose
@@ -290,7 +290,7 @@ total* mid-pod
 
 ### A-05. Per-actor binding of R6.4 (vendor-namespaced VAST metadata)
 
-- **Spec passage**: [`../spec/03-requirements.md`](../spec/03-requirements.md):174.
+- **Spec passage**: [`../context/03-requirements.md`](../context/03-requirements.md):174.
 - **Readings**:
   - **(a)** The Broadcaster authors the vendor-namespaced
     metadata into the main MPD (rare in production).

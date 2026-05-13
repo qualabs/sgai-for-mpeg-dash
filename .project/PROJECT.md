@@ -71,7 +71,7 @@ personal info — see `knowledge/output-policy.md`):
   Architect (technical lead + representation in SVTA Ads WG), CTO
   Nicolás Levy (customer relationship + strategic positioning in
   MPEG / SVTA). The formal technical actor model lives in
-  `spec/02-actors.md`.
+  `context/02-actors.md`.
 - **Comcast** — sponsor and primary customer of the WG that
   produced the linear SGAI in DASH 6th edition. Funds and
   prioritizes the non-linear extension.
@@ -105,12 +105,12 @@ personal info — see `knowledge/output-policy.md`):
 | --- | --- |
 | `README.md` | User-facing entry doc: what the project does, layout, how to regenerate artefacts. |
 | `CLAUDE.md` | Conventions for subagents touching this project. |
-| `spec/01-intro.md` | Objective of the docs body and index of the canonical set. Technical entry point. |
-| `spec/02-actors.md` | Self-contained three-actor model: Broadcaster, ADS, Player. Boundary summary and per-actor responsibilities. |
-| `spec/03-requirements.md` | Requirements R1–R10 (functional + governance), out of scope, and design characteristics satisfying the Rs. |
-| `spec/04-use-cases.md` | Device classes D1–D5 and the 7 scenarios (UC-01..UC-07), each with expected behavior per device class. Scenario-first structure: the broadcaster validates a scenario against its full device fauna, not isolated cases. |
-| `spec/05-dash-linear-interfaces.md` | Reference of how SGAI is implemented today for linear ads in DASH 6th edition: inventory of the interfaces between the three actors, end-to-end message flow with concrete MPDs and ListMPDs, VAST → ListMPD mapping. Foundation on which the non-linear proposal extends. |
-| `spec/99-glossary.md` | Glossary of the technical terminology used across the docs set. Entries marked *(proposed)* are constructs that this proposal puts on the table. |
+| `context/01-intro.md` | Objective of the docs body and index of the canonical set. Technical entry point. |
+| `context/02-actors.md` | Self-contained three-actor model: Broadcaster, ADS, Player. Boundary summary and per-actor responsibilities. |
+| `context/03-requirements.md` | Requirements R1–R10 (functional + governance), out of scope, and design characteristics satisfying the Rs. |
+| `context/04-use-cases.md` | Device classes D1–D5 and the 7 scenarios (UC-01..UC-07), each with expected behavior per device class. Scenario-first structure: the broadcaster validates a scenario against its full device fauna, not isolated cases. |
+| `context/05-dash-linear-interfaces.md` | Reference of how SGAI is implemented today for linear ads in DASH 6th edition: inventory of the interfaces between the three actors, end-to-end message flow with concrete MPDs and ListMPDs, VAST → ListMPD mapping. Foundation on which the non-linear proposal extends. |
+| `context/99-glossary.md` | Glossary of the technical terminology used across the docs set. Entries marked *(proposed)* are constructs that this proposal puts on the table. |
 | `analysis/dash-gap-analysis.md` | Generated artefact: mapping of each UC against MPEG-DASH 6th edition (ISO/IEC 23009-1) — what construct exists today, how it covers the case per device class, what is missing. Regenerable via `prompts/analyze-dash-gap.prompt`. |
 | `prompts/` | Build scripts in `.prompt` format with Inputs / Output / Skip if header. Three prompts: `analyze-dash-gap`, `build-norm`, `build-all` (orchestrator). |
 | `output/` | Final builds of the norm document, with dated filename (`sgai-norm-YYYY-MM-DD.md`). Not overwritten — the build history is preserved. |
@@ -148,7 +148,7 @@ the long-range plan and get a folder when they open.
 
 - **`01-setup` — `closed`** (2026-05-11). Bootstrap of the project:
   repo layout, build pipeline (3 prompts), governance scaffolding
-  under `.project/`, a first iteration of the spec set in `spec/`
+  under `.project/`, a first iteration of the spec set in `context/`
   (6 files), first generated artefact
   (`analysis/dash-gap-analysis.md`), operational config (`SETUP.md`,
   `.env.agent.example`, `.gitignore`), and `git init` with an
@@ -165,7 +165,7 @@ decides to pivot).
 **Foundation / spec iteration** — validate the foundation set
 (actors, use cases, functional + non-functional requirements) with
 the internal Qualabs WG (weekly) and Comcast (monthly). Capture
-feedback as iterations on the existing `spec/` files. Close
+feedback as iterations on the existing `context/` files. Close
 foundational ADRs (actor model, rename, layout deferral, pause-ads
 split, IAB CTV alignment) and add the non-functional requirements
 doc. Suggested slug for the folder: `02-spec-iteration`.

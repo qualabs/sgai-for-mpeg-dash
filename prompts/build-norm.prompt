@@ -1,6 +1,6 @@
 # Build the SGAI norm document
 
-**Inputs**: `spec/` + `analysis/dash-gap-analysis.md` +
+**Inputs**: `context/` + `analysis/dash-gap-analysis.md` +
 `analysis/error-semantics.md` (if present — used to populate
 chapter 8 Implementation notes and the final test-cases annex) +
 `analysis/iab-ad-templates.md` (used to populate chapter 3 ad-type
@@ -12,12 +12,12 @@ installed and `.env.agent` defines `NOTEBOOK_NAME`.
 2. `output/norm-validation-<YYYY-MM-DD>.md` — sidecar validation
    document capturing gaps, edge cases, ambiguities, and the
    R1..R13 coverage map surfaced during the build. Used as feedback
-   into `spec/` for the next iteration.
+   into `context/` for the next iteration.
 
 Both artifacts use the same `<YYYY-MM-DD>` date stamp (today's date,
 e.g. `2026-05-12`) so the pair is auditable.
 **Skip if** (norm): the most recent `output/sgai-norm-*.md` exists
-AND its mtime is newer than the newest mtime in `spec/`,
+AND its mtime is newer than the newest mtime in `context/`,
 `analysis/dash-gap-analysis.md`, `analysis/error-semantics.md`
 (when present), and `analysis/iab-ad-templates.md` (when present).
 I.e. the norm regenerates if any of those inputs moved.
@@ -37,7 +37,7 @@ the result to stdout as the first line of execution:
   spec and ideally VAST 4.x, IAB CTV, SCTE-35 references). Use it
   as the authoritative reference when stating normative content.
   Log: `[GROUNDED_BY=notebooklm]`.
-- Else → proceed using only `../spec/` + `../analysis/` as input.
+- Else → proceed using only `../context/` + `../analysis/` as input.
   The norm is less authoritative (no canonical references resolved
   at query time) but the build still completes successfully.
   Log: `[GROUNDED_BY=spec-only]`.
@@ -48,7 +48,7 @@ authoritative source as `[inferred]`.
 ## Constraints on the norm output
 
 - **The norm document MUST be self-contained.** A reader of the
-  norm alone (without access to `spec/`) MUST understand the
+  norm alone (without access to `context/`) MUST understand the
   full normative content. Do not assume the reader has the spec.
 - **The norm document MUST NOT reference requirements (R1..R13).**
   Requirements live in the spec and are an INPUT to the norm
@@ -69,7 +69,7 @@ authoritative source as `[inferred]`.
 
 ## Task
 
-Read every file in `../spec/`, `../analysis/dash-gap-analysis.md`,
+Read every file in `../context/`, `../analysis/dash-gap-analysis.md`,
 `../analysis/error-semantics.md` (if present), and
 `../analysis/iab-ad-templates.md` (if present). Use the spec as the
 source of truth for what the norm must define. Use the gap analysis
@@ -140,7 +140,7 @@ spec's capability under complex scenarios.
 
 - **Annex A** — Use case 1 implementation walk-through.
 - **Annex B** — Use case 2 implementation walk-through.
-- (one annex per UC defined in `../spec/04-use-cases.md`)
+- (one annex per UC defined in `../context/04-use-cases.md`)
 - **Annex N** — Test cases / conformance criteria summary. This
   final annex lists, per chapter, what an implementer can test
   against. The error-semantics matrix rows (E1..EN) map to test
@@ -162,7 +162,7 @@ For each UC annex:
   (e.g. l-shape + banner + side-by-side) for the same ad slot, to
   demonstrate device-aware ad selection by the Player.
 - The Player's per-device-class decision walk-through (D1..D5
-  from `../spec/04-use-cases.md`), referencing the IAB-defined
+  from `../context/04-use-cases.md`), referencing the IAB-defined
   layout vocabulary (mirrored in `../analysis/iab-ad-templates.md`)
   as normatively cited in chapter 3.
 
@@ -212,11 +212,11 @@ the agent MUST also produce a sidecar validation document at:
 auditable).
 
 The validation document is the **feedback loop** from norm into
-spec: its findings are used to refine `../spec/` in the next
+spec: its findings are used to refine `../context/` in the next
 iteration. It is a post-norm derived artefact (built from the norm
 draft + the spec inputs), lives next to the norm under `../output/`,
 and may be discarded once its findings are absorbed back into
-`spec/`. **The R1..R13 coverage map is part of this sidecar, not
+`context/`. **The R1..R13 coverage map is part of this sidecar, not
 part of the norm.**
 
 ### What to look for
@@ -225,7 +225,7 @@ Walk every chapter and annex of the norm draft you just produced
 and the spec inputs you used, and list:
 
 1. **Gaps** — things the norm has to define (because a conformant
-   implementer needs them to ship) but `../spec/` does not provide
+   implementer needs them to ship) but `../context/` does not provide
    enough information for. For each gap, name:
    - The norm chapter / section that needs it.
    - What the spec is missing (a fact, a constraint, a behavior, a
@@ -234,7 +234,7 @@ and the spec inputs you used, and list:
      fail-closed? proprietary extension?
 
 2. **Edge cases** — boundary conditions not contemplated by the
-   use cases (`../spec/04-use-cases.md`) but that the norm must
+   use cases (`../context/04-use-cases.md`) but that the norm must
    handle if it is to be deployable. For each edge case:
    - The trigger condition (what combination of inputs).
    - Why it matters (what breaks if not handled).
@@ -250,7 +250,7 @@ and the spec inputs you used, and list:
    - Whether a tighter spec sentence would resolve it.
 
 4. **R1..R13 coverage map** — for each requirement defined in
-   `../spec/03-requirements.md`, list:
+   `../context/03-requirements.md`, list:
    - Which norm chapter(s) / annex(es) discharge it.
    - Whether coverage is complete, partial, or missing.
    - If partial or missing, what gap (G-#) or ambiguity (A-#)
@@ -263,11 +263,11 @@ and the spec inputs you used, and list:
 
 Built against:
 - norm: `../output/sgai-norm-<YYYY-MM-DD>.md`
-- spec/ at git SHA: <sha>
+- context/ at git SHA: <sha>
 
 This document captures gaps, edge cases, ambiguities, and the
 R1..R13 coverage map surfaced during the norm build. Findings here
-feed back into `../spec/` — they are NOT part of the norm itself.
+feed back into `../context/` — they are NOT part of the norm itself.
 
 ## Gaps (N)
 
@@ -312,7 +312,7 @@ other items or reduces the most norm-side handwaving).
 
 ### Skip-if-fresh logic for the validation doc
 
-The validation doc depends on both `spec/` and the norm output. Its
+The validation doc depends on both `context/` and the norm output. Its
 skip rule is **decoupled** from the norm's own skip rule — it is
 possible for the norm to be SKIPPED but the validation to be BUILT
 (when the spec changed without forcing a new dated norm), and
@@ -323,7 +323,7 @@ Skip rule:
 ```
 Skip producing `../output/norm-validation-<YYYY-MM-DD>.md` if:
   - it exists, AND
-  - its mtime is newer than the newest mtime in `../spec/`, AND
+  - its mtime is newer than the newest mtime in `../context/`, AND
   - its mtime is newer than the newest `../output/sgai-norm-*.md`.
 
 Otherwise, regenerate.

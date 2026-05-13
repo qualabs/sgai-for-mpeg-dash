@@ -12,7 +12,7 @@ against the canonical text before publication.
 ## 1. Scope
 
 This document compares the SGAI requirements R1..R13 in
-`../spec/03-requirements.md` against the capabilities of MPEG-DASH
+`../context/03-requirements.md` against the capabilities of MPEG-DASH
 6th edition (ISO/IEC 23009-1:2025) and identifies the gaps the norm
 must close.
 
@@ -69,7 +69,7 @@ D1..D5 (1-or-2 decoders × image/HTML/no overlay capability) and, for
 each combination of device class and non-linear ad type, the expected
 Player behaviour. This lives in chapter 7 of the norm (Expected
 behaviour per scenario) and is sourced verbatim from
-`../spec/04-use-cases.md`.
+`../context/04-use-cases.md`.
 
 ### Gap G-R4 — overlay max display duration
 

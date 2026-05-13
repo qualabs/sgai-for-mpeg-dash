@@ -2,9 +2,9 @@
 
 # UC × R coverage matrix
 
-Inputs: `../spec/03-requirements.md` (R1..R13, of which R8/R9/R10 are
+Inputs: `../context/03-requirements.md` (R1..R13, of which R8/R9/R10 are
 document-level governance, plus R11/R12/R13 newly added in this
-edition), `../spec/04-use-cases.md` (UC-01..UC-07). Total UCs: 7.
+edition), `../context/04-use-cases.md` (UC-01..UC-07). Total UCs: 7.
 Total Rs: 13 (R1..R10 plus R11..R13).
 
 ## Matrix 1 — UC × R

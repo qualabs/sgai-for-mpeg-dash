@@ -18,7 +18,7 @@ that enable any subsequent phase (spec iteration, design, prototype).
 
 ## Scope
 
-- **Repo layout**: top-level folders (`spec/`, `prompts/`, `analysis/`,
+- **Repo layout**: top-level folders (`context/`, `prompts/`, `analysis/`,
   `output/`, `proposal-drafts/`, `.project/`), with README and CLAUDE
   documenting conventions for human readers and subagents.
 - **Build pipeline**: three `.prompt` files (`analyze-dash-gap`,
@@ -28,7 +28,7 @@ that enable any subsequent phase (spec iteration, design, prototype).
 - **Governance scaffolding**: `.project/PROJECT.md` (project hub),
   `.project/LOG.md` (append-only logbook), `.project/decisions/`
   (ADRs), `.project/phases/` (this folder).
-- **Initial spec set**: 6 files in `spec/` covering intro, actors,
+- **Initial spec set**: 6 files in `context/` covering intro, actors,
   requirements, use cases, DASH linear interfaces, glossary.
 - **Operational config**: `SETUP.md` explaining setup paths,
   `.env.agent` + `.env.agent.example` for optional per-user config
@@ -53,9 +53,9 @@ that enable any subsequent phase (spec iteration, design, prototype).
 - `.gitignore` at the project root.
 - `prompts/analyze-dash-gap.prompt`, `prompts/build-norm.prompt`,
   `prompts/build-all.prompt`.
-- `spec/01-intro.md`, `spec/02-actors.md`, `spec/03-requirements.md`,
-  `spec/04-use-cases.md`, `spec/05-dash-linear-interfaces.md`,
-  `spec/99-glossary.md`.
+- `context/01-intro.md`, `context/02-actors.md`, `context/03-requirements.md`,
+  `context/04-use-cases.md`, `context/05-dash-linear-interfaces.md`,
+  `context/99-glossary.md`.
 - `analysis/dash-gap-analysis.md` (first generated artefact).
 - `.project/PROJECT.md`, `.project/LOG.md`, `.project/decisions/`,
   `.project/phases/01-setup/`.
@@ -67,7 +67,7 @@ that enable any subsequent phase (spec iteration, design, prototype).
 The natural follow-up is a **spec iteration** phase: validate the
 foundation set (actors, use cases, requirements) with the internal
 Qualabs WG and Comcast, capture feedback as iterations on the
-existing `spec/` files, and close foundational ADRs as decisions
+existing `context/` files, and close foundational ADRs as decisions
 emerge. Suggested slug: `02-spec-iteration`. Not opened by this
 phase — open it explicitly when starting that work.
 
@@ -85,7 +85,7 @@ See the closing summary below.
 Stood up the project end-to-end: repo layout, three-prompt build
 pipeline (analyze-dash-gap, build-norm, build-all), governance
 scaffolding under `.project/`, a first iteration of the spec set in
-`spec/` (6 files), the first generated artefact
+`context/` (6 files), the first generated artefact
 (`analysis/dash-gap-analysis.md`), operational config
 (`SETUP.md`, `.env.agent` + `.env.agent.example`, `.gitignore`), and
 local versioning via `git init` with an initial commit.
@@ -95,7 +95,7 @@ work with or without the `notebooklm` skill installed. With the skill
 and a populated `.env.agent`, prompts ground their output against the
 configured notebook (recommended for fidelity against MPEG-DASH 6th
 edition). Without it, prompts proceed using only the contents of
-`spec/`; outputs are less authoritative but the build completes.
+`context/`; outputs are less authoritative but the build completes.
 
 ### Decisions
 
@@ -119,7 +119,7 @@ edition). Without it, prompts proceed using only the contents of
 - **T-01 — Repo + workflow**: done. README, CLAUDE, SETUP,
   `.env.agent.example`, `.gitignore`, three prompts, governance
   files, initial git commit.
-- **T-02 — Specs iniciales**: done. Six files in `spec/` covering
+- **T-02 — Specs iniciales**: done. Six files in `context/` covering
   intro, actors, requirements, use cases, DASH linear interfaces,
   glossary.
 

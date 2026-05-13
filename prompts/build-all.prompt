@@ -1,6 +1,6 @@
 # Build all SGAI artifacts (orchestrator)
 
-**Inputs**: `spec/` (and the prompts below). Optional: NotebookLM
+**Inputs**: `context/` (and the prompts below). Optional: NotebookLM
 grounding flows through downstream prompts (see their headers).
 **Outputs**:
 - `analysis/dash-gap-analysis.md` (from Step 1).
@@ -37,7 +37,7 @@ they appear so the full run is auditable.
 Inspect `analysis/dash-gap-analysis.md`:
 
 - If file exists AND its mtime is newer than the newest mtime in
-  `spec/` → log
+  `context/` → log
   `[SKIPPED] analyze-dash-gap → analysis/dash-gap-analysis.md`
   and continue.
 - Else → invoke the instructions in
@@ -47,11 +47,11 @@ Inspect `analysis/dash-gap-analysis.md`:
 ### Step 2 — UC coverage matrix
 
 Inspect `analysis/uc-coverage-matrix.md`. Skip rule is independent
-of Step 1 — this step depends only on `spec/03-requirements.md`
-and `spec/04-use-cases.md`.
+of Step 1 — this step depends only on `context/03-requirements.md`
+and `context/04-use-cases.md`.
 
 - If file exists AND its mtime is newer than the newest mtime in
-  `[spec/03-requirements.md, spec/04-use-cases.md]` → log
+  `[context/03-requirements.md, context/04-use-cases.md]` → log
   `[SKIPPED] build-uc-coverage-matrix → analysis/uc-coverage-matrix.md`
   and continue.
 - Else → invoke the instructions in
@@ -67,10 +67,10 @@ orphan-assertion section.
 
 Inspect `analysis/error-semantics.md`. Skip rule is independent of
 Steps 1 and 2 — this step depends only on
-`spec/03-requirements.md` and `spec/05-dash-linear-interfaces.md`.
+`context/03-requirements.md` and `context/05-dash-linear-interfaces.md`.
 
 - If file exists AND its mtime is newer than the newest mtime in
-  `[spec/03-requirements.md, spec/05-dash-linear-interfaces.md]` →
+  `[context/03-requirements.md, context/05-dash-linear-interfaces.md]` →
   log
   `[SKIPPED] build-error-semantics → analysis/error-semantics.md`
   and continue.
@@ -88,10 +88,10 @@ both intermediates side by side.
 
 Inspect `analysis/conformance-assertions.md`. Skip rule is
 independent of Steps 1, 2 and 3 — this step depends only on
-`spec/`.
+`context/`.
 
 - If file exists AND its mtime is newer than the newest mtime in
-  `spec/` → log
+  `context/` → log
   `[SKIPPED] extract-conformance-assertions → analysis/conformance-assertions.md`
   and continue.
 - Else → invoke the instructions in
@@ -123,13 +123,13 @@ The `build-norm` prompt produces **two artifacts** per run with
 (`output/sgai-norm-<date>.md`) and a sidecar validation document
 (`output/norm-validation-<date>.md`) capturing gaps, edge cases,
 ambiguities, and the R1..R13 coverage map for feedback into
-`spec/`. See `prompts/build-norm.prompt` for the validation phase
+`context/`. See `prompts/build-norm.prompt` for the validation phase
 details.
 
 Norm sub-step:
 
 - Find the newest `output/sgai-norm-*.md` file (if any). If it
-  exists AND its mtime is newer than the newest mtime in `spec/`
+  exists AND its mtime is newer than the newest mtime in `context/`
   AND newer than `analysis/dash-gap-analysis.md` AND newer than
   `analysis/iab-ad-templates.md` → log
   `[SKIPPED] build-norm → <latest filename>`.
@@ -141,7 +141,7 @@ Validation sub-step (always evaluated, regardless of whether the
 norm was BUILT or SKIPPED):
 
 - Find the newest `output/norm-validation-*.md` file (if any). If
-  it exists AND its mtime is newer than the newest mtime in `spec/`
+  it exists AND its mtime is newer than the newest mtime in `context/`
   AND newer than the newest `output/sgai-norm-*.md` → log
   `[SKIPPED] build-norm-validation → <latest filename>`.
 - Else → invoke the validation-phase instructions in

@@ -1,10 +1,10 @@
 # Build UC × R coverage matrix
 
-**Inputs**: `spec/03-requirements.md` and `spec/04-use-cases.md`.
+**Inputs**: `context/03-requirements.md` and `context/04-use-cases.md`.
 **Output**: `analysis/uc-coverage-matrix.md` (overwrites previous).
 **Skip if**: `analysis/uc-coverage-matrix.md` exists AND its mtime
-is newer than the newest mtime in `[spec/03-requirements.md,
-spec/04-use-cases.md]`.
+is newer than the newest mtime in `[context/03-requirements.md,
+context/04-use-cases.md]`.
 
 ---
 
@@ -16,7 +16,7 @@ NotebookLM. Log the first line of execution as
 
 ## Task
 
-Read `../spec/03-requirements.md` and `../spec/04-use-cases.md`.
+Read `../context/03-requirements.md` and `../context/04-use-cases.md`.
 Build two cross-reference matrices that make explicit which
 requirements apply to which use cases.
 
