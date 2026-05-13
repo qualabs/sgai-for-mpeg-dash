@@ -1,0 +1,98 @@
+# Validate the norm
+
+**Inputs**:
+- The most recent `../output/sgai-norm-*.md` (the norm to validate).
+- `../context/` (the spec source of truth — used to check R coverage).
+- `../analysis/` (intermediate analyses — used to cross-check
+  conformance assertions, error semantics, etc.).
+
+**Output**: `../output/norm-validation-<DATE>.md`, where `<DATE>` is
+today's date in ISO 8601, matching (or close to) the norm's date.
+
+**Skip if**: `../output/norm-validation-<DATE>.md` exists AND its
+mtime is newer than the norm's mtime. The validation rebuilds when
+either the norm or its inputs (`context/`, `analysis/`) change.
+
+**Execution mode**: this prompt MUST run in a fresh subagent
+context, separate from the one that produced the norm. The
+agent's job is independent peer review of the norm draft — sharing
+context with the norm author defeats the purpose. The caller
+(typically `build-all.prompt` step 7) dispatches a brand-new
+subagent for this step.
+
+---
+
+## Task
+
+Read the latest `../output/sgai-norm-*.md` and walk every chapter
+plus every annex. Cross-check against `../context/` and
+`../analysis/`. Produce a sidecar document with these sections:
+
+### 1. Gaps
+
+Things the norm has to define (because a conformant implementer
+needs them to ship) but `../context/` does not provide enough
+information for. For each gap:
+- The norm chapter / section that needs it.
+- What the context is missing (a fact, a constraint, a behavior,
+  a value range).
+- What an implementer would do today in the absence — guess?
+  fail-closed? proprietary extension?
+
+### 2. Edge cases
+
+Boundary conditions not contemplated in `../context/04-use-cases.md`
+but that the norm must handle to be deployable. For each:
+- The trigger condition (what combination of inputs).
+- Why it matters (what breaks if not handled).
+- Which actor is responsible — and whether the context is silent.
+
+### 3. Ambiguities
+
+Places where the norm could be read two or more ways because the
+context language allows it. For each:
+- The context passage (file:line if pinnable).
+- The two (or more) readings.
+- Which reading the norm draft assumed, and why.
+- A tighter context sentence that would resolve it.
+
+### 4. R coverage map
+
+A table listing R1..R13 (from `../context/03-requirements.md`)
+with one row per R:
+
+| R   | Status | Norm sections that satisfy it | Notes |
+|-----|--------|-------------------------------|-------|
+
+Status values: `full`, `partial`, `gap`, `governance` (R8, R9, R10
+are governance, not runtime-testable). Notes capture residuals
+(e.g., a partial R linked to a gap above).
+
+### 5. Recommended next-iteration spec refinements
+
+Top 3-5 fixes by leverage (which one unblocks the most other items
+or reduces the most norm-side handwaving).
+
+### Validation doc structure
+
+```
+[GROUNDED_BY=spec-only]   # or notebooklm if NotebookLM was used
+
+# Norm validation — <YYYY-MM-DD>
+
+Built against:
+- norm: `../output/sgai-norm-<YYYY-MM-DD>.md`
+- context/ at git SHA: <sha>
+
+## Gaps (N)
+## Edge cases (M)
+## Ambiguities (K)
+## R coverage map
+## Recommended spec refinements
+```
+
+### Tone
+
+Direct, audit-style. Cite paths and line numbers when possible.
+The norm output is the artefact; this doc is the feedback loop
+back to `../context/`.
