@@ -1,0 +1,138 @@
+# DASH conformance audit
+
+**Inputs**:
+- The most recent `../output/sgai-norm-*.md`.
+- NotebookLM (configured via `.env.agent` — `NOTEBOOK_NAME` should
+  point at a notebook containing the MPEG-DASH 6th edition spec).
+
+**Output**: `../output/dash-conformance-audit-<DATE>.md`, with
+`<DATE>` matching the norm's date.
+
+**Skip if**: `../output/dash-conformance-audit-<DATE>.md` exists
+AND its mtime is newer than the norm. Audit re-runs whenever the
+norm rebuilds.
+
+**Execution mode**: MUST run in a fresh subagent context,
+**separate** from both the norm-build agent and the validate-norm
+agent. This is an independent third-party check against DASH 6th
+spec rules — sharing context with prior steps biases the review.
+
+---
+
+## Task
+
+The norm introduces / modifies XML constructs (events, elements,
+attributes, scheme URIs, profile usage). The goal of this audit is
+to verify each construct is **valid under MPEG-DASH 6th edition
+rules and schemas** — i.e., no construct violates:
+
+- The XML schema of the MPD.
+- Extension-point rules (ignore-if-unknown).
+- Event placement rules inside EventStream.
+- Profile restrictions (e.g., §8.14 ListMPD, §8.15 Single-Period
+  Static).
+- Attribute semantics inherited from baseline DASH.
+
+This is **NOT** a design audit (that is the validate-norm sidecar's
+job). This is **conformance to DASH 6th**.
+
+## Procedure
+
+### 1. Inventory
+
+Read the latest `../output/sgai-norm-*.md` (full document, all
+chapters + annexes). Inventory every construct that is **new or
+modified** by the norm:
+
+- New scheme URIs (e.g. `urn:svta:dash:event:*:<year>`).
+- New XML elements in `urn:svta:dash:*` (or other extension)
+  namespaces. For each: parent element placement.
+- New attributes on baseline DASH elements.
+- Presentation events (baseline `InsertPresentation` /
+  `ReplacePresentation` + new ones).
+- Compound structures (ListMPD shape, ImportedMPD usage,
+  CandidateForms, sub-MPD profile choice).
+- Reuse of the baseline callback event scheme for tracking.
+
+For each item: name / URI, placement, what the norm says it does.
+
+### 2. NotebookLM queries
+
+For each construct in the inventory, query NotebookLM to verify
+against DASH 6th. There is **no fixed maximum query count** — use
+as many as needed to ground each conformance claim. Be efficient
+(group related questions in one query when reasonable), but don't
+skip verification.
+
+Examples of useful queries:
+- Rules for adding new attributes to `Event` + ignore-if-unknown.
+- §8.14 ListMPD profile: root children restrictions / extension
+  elements?
+- §8.15 Single-Period Static: AdaptationSet @mimeType restrictions?
+- §5.10.1 timed event semantics: presentationTime window vs point?
+- Callback event scheme placement and cardinality.
+- §5.16.5 @maxDuration enforcement on new presentation events.
+
+If NotebookLM fails on a specific query (timeout / rate limit),
+log `[fetch-failed]` for that item and proceed with spec-only
+analysis where possible.
+
+### 3. Verdict per construct
+
+For each item:
+- **Conforming**: cumple las reglas DASH (NotebookLM confirmed or
+  spec text supports).
+- **Marginal**: cumple pero la lectura es ambigua o requiere
+  asunciones — flag y explicar.
+- **Non-conforming**: viola una regla DASH explícita. Cite the
+  rule + describe the conflict + suggested fix.
+
+### 4. Report structure
+
+```
+[GROUNDED_BY=notebooklm]   # or spec-only / fetch-failed
+
+# DASH conformance audit — <YYYY-MM-DD>
+
+**Audit target**: `../output/sgai-norm-<YYYY-MM-DD>.md`.
+**Reference**: MPEG-DASH 6th edition (ISO/IEC 23009-1:2025).
+**Method**: inventory + grounded queries against the DASH 6th
+notebook + per-construct verdict.
+
+## Scope
+[brief]
+
+## Method summary
+- Inventory built from sections ...
+- N NotebookLM queries against ...
+- Each construct assessed Conforming / Marginal / Non-conforming.
+
+## Inventory + verdicts
+
+| ID | Construct | Type | Placement | Verdict | Rationale |
+|----|-----------|------|-----------|---------|-----------|
+| ... | ... | ... | ... | ... | ... |
+
+## NotebookLM findings (highlights)
+[2-4 lines summarising what the source said per substantive query]
+
+## Non-conforming items detail
+[sub-section per ✗ with conflict + suggested fix]
+
+## Marginal items detail
+[sub-section per ⚠ with ambiguity + suggested clarification]
+
+## Open questions surfaced
+[things NotebookLM could not resolve]
+
+## Summary
+- Total constructs audited: N
+- Conforming: M
+- Marginal: K
+- Non-conforming: J
+```
+
+### Tone
+
+Tabular and direct. The verdict + rationale matter more than
+narrative. Cite spec sections explicitly when grounding.
