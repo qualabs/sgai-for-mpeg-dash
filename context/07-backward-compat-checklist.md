@@ -2,19 +2,19 @@
 
 R1 demands that legacy Players (those that predate this proposal)
 ignore any new construct cleanly, without crashing or producing
-visible artefacts. This document is the **checklist the norm MUST
+visible artefacts. This document is the **checklist the spec MUST
 follow** for every new construct it introduces, so the
 ignore-if-unknown guarantee is auditable per construct rather than
 left to a generic claim.
 
-The checklist is spec-side: it does not enumerate the constructs
-themselves (those live in the norm output). It defines the
-verification procedure the norm's chapter 4 (Conformance) and
+The checklist is context-side: it does not enumerate the constructs
+themselves (those live in the spec output). It defines the
+verification procedure the spec's chapter 4 (Conformance) and
 chapter 10 (Test cases) MUST apply.
 
 ## Per-construct checklist
 
-For each new construct C the norm introduces, the norm MUST
+For each new construct C the spec introduces, the spec MUST
 explicitly answer the following questions in the construct's
 specification chapter. Unanswered items SHOULD block publication.
 
@@ -88,7 +88,7 @@ chapter 10 modelled on UC-07
 Verify that C is in one of the namespaces declared by the current
 namespace policy in
 [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md).
-Constructs introduced by this norm live under the SVTA Ads WG
+Constructs introduced by this spec live under the SVTA Ads WG
 namespace; vendor-private extensions live under the Qualabs vendor
 namespace. The exact URI patterns, the year-pinning rule, and the
 tracking-callback-scheme inheritance from MPEG-DASH 6th edition
@@ -107,7 +107,7 @@ that omit the checklist confirmation.
 
 ## Aggregated audit table
 
-The norm SHOULD ship with an audit table summarising the checklist
+The spec SHOULD ship with an audit table summarising the checklist
 status for every new construct it introduces:
 
 | Construct | Placement | Extension rule | Walk-through | Sibling check | UC-07 test | Namespace | Status |

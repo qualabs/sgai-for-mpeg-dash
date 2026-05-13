@@ -31,18 +31,18 @@ hybrid additions are the focus of the 2026 update.
 | In Scene Ads | Non-linear, composited into content | Composited inside the scene as a billboard, virtual out-of-home placement, or product placement. Multiple aspect ratios: 9:16 (1080x1920), 4:3 (1280x960), 16:9 (1920x1080), Poster (840x400), Bulletin (1400x400). | Static image (jpg, png, gif); 3D/CGI by partner agreement. Minimum 3 s Brand Exposure Duration. No interactivity (brand placement). | In Scene Ads |
 | Screensaver Ad | Non-linear, OS/App-initiated | Full-screen 1920x1080, 16:9, after a period of device inactivity. | Display/Static or Video/Animated. Ends on dismiss / resume / app exit / device timeout. Some refresh; videos may autoplay. | Screen Saver Ad |
 
-## Mapping to norm chapter 3
+## Mapping to spec chapter 3
 
-Chapter 3 of the norm (Terms, definitions, abbreviations) carries a
+Chapter 3 of the spec (Terms, definitions, abbreviations) carries a
 normative list of accepted ad-type values. Each value below is the
-canonical IAB name verbatim; the norm MUST NOT invent new names
+canonical IAB name verbatim; the spec MUST NOT invent new names
 beyond this list (R12).
 
-| IAB ad-type | Norm chapter 3 identifier | Rationale (1 line) |
+| IAB ad-type | Spec chapter 3 identifier | Rationale (1 line) |
 |-------------|---------------------------|--------------------|
 | Linear Ad | `linear-ad` | Existing DASH SGAI baseline (`InsertPresentation` / `ReplacePresentation`); already covered by MPEG-DASH 6th edition. |
 | Pause Ad | `pause-ad` | Viewer-initiated overlay anchored to a Broadcaster-declared window of validity — UC-05. |
-| Menu Ad | `menu-ad` | Out of scope for the foundation phase of this norm (UI-integrated, not driven by an MPD event in the primary timeline). Listed for completeness; not addressed in chapters 4-7. |
+| Menu Ad | `menu-ad` | Out of scope for the foundation phase of this spec (UI-integrated, not driven by an MPD event in the primary timeline). Listed for completeness; not addressed in chapters 4-7. |
 | Squeezeback | `squeezeback` | Layout variants (L-Shape, Frame, Double-Box, Double-Box + Background) MUST be encoded as the layout vocabulary on `@allowedLayouts`, not as new ad-types — the type is one. |
 | Overlay | `overlay` | Compositing ad on top of content while it plays — UC-03. Sub-positions (Corner, Lower-Third) are layout values, not new types. |
 | In Scene Ads | `in-scene-ad` | Out of scope for the foundation phase (requires content-side compositing, not a Player-managed surface). Listed for completeness; not addressed in chapters 4-7. |
@@ -64,7 +64,7 @@ offsets) are delegated to HTML5/CSS per R10.
   should pin to the May 2026 release.
 - Interactivity inside an ad surface (QR codes, SIMID-based rich
   interactions) is **inside** the ad creative and **out of scope for
-  the SGAI norm**. The norm cares about *when* and *which* ad surface
+  the SGAI spec**. The spec cares about *when* and *which* ad surface
   is allowed; what the creative does inside that surface is a SIMID /
   VAST application-layer concern.
 - The IAB doc anchors VAST 4.2+ as the wire for interactive ads and

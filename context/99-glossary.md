@@ -20,7 +20,7 @@ through `05-dash-linear-interfaces.md` (plus
   side-by-side composition.
 - **Overlay**: umbrella term for any non-linear ad surface. The
   concrete sub-types (banner, l-shape, skyscraper, side-by-side,
-  pause-ad, etc.) are defined and maintained by the IAB; this norm
+  pause-ad, etc.) are defined and maintained by the IAB; this spec
   references the IAB definitions normatively and does NOT introduce
   new sub-types. See the IAB CTV Ad Format Guidelines live document:
   https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e

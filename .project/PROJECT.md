@@ -2,7 +2,7 @@
 name: SGAI for MPEG-DASH
 slug: sgai-for-mpeg-dash
 description: >
-  Design a complete Server-Guided Ad Insertion (SGAI) norm for
+  Design a complete Server-Guided Ad Insertion (SGAI) specification for
   MPEG-DASH covering **linear and non-linear ads**, extending
   MPEG-DASH 6th edition. Linear SGAI already exists in 6th edition
   (InsertPresentation / ReplacePresentation / ListMPD) and is
@@ -31,13 +31,13 @@ here — this `PROJECT.md` is only navigation + phases.
 
 ## Objective and motivation
 
-Design a **complete Server-Guided Ad Insertion (SGAI) norm for
+Design a **complete Server-Guided Ad Insertion (SGAI) specification for
 MPEG-DASH** covering **linear and non-linear ads** as a single
 coherent extension of **MPEG-DASH 6th edition**.
 
 - **Linear** already exists in 6th edition (`InsertPresentation` /
   `ReplacePresentation` resolving a `ListMPD` returned by an
-  external Ad Decision Server). The norm absorbs that mechanism as
+  external Ad Decision Server). The spec absorbs that mechanism as
   the **baseline**, clarifies it, and may add minor extensions
   where the gap analysis justifies them.
 - **Non-linear** is the **principal design delta**: cover non-linear
@@ -112,8 +112,8 @@ personal info — see `knowledge/output-policy.md`):
 | `context/05-dash-linear-interfaces.md` | Reference of how SGAI is implemented today for linear ads in DASH 6th edition: inventory of the interfaces between the three actors, end-to-end message flow with concrete MPDs and ListMPDs, VAST → ListMPD mapping. Foundation on which the non-linear proposal extends. |
 | `context/99-glossary.md` | Glossary of the technical terminology used across the docs set. Entries marked *(proposed)* are constructs that this proposal puts on the table. |
 | `analysis/dash-gap-analysis.md` | Generated artefact: mapping of each UC against MPEG-DASH 6th edition (ISO/IEC 23009-1) — what construct exists today, how it covers the case per device class, what is missing. Regenerable via `prompts/analyze-dash-gap.prompt`. |
-| `prompts/` | Build scripts in `.prompt` format with Inputs / Output / Skip if header. Three prompts: `analyze-dash-gap`, `build-norm`, `build-all` (orchestrator). |
-| `output/` | Final builds of the norm document, with dated filename (`sgai-norm-YYYY-MM-DD.md`). Not overwritten — the build history is preserved. |
+| `prompts/` | Build scripts in `.prompt` format with Inputs / Output / Skip if header. Three prompts: `analyze-dash-gap`, `build-spec`, `build-all` (orchestrator). |
+| `output/` | Final builds of the spec document, with dated filename (`sgai-spec-YYYY-MM-DD.md`). Not overwritten — the build history is preserved. |
 | `proposal-drafts/` | Historical iterations of the spec in Google Doc form, one per file, with date and version (`YYYY-MM-DD-vN.md`). Internal drafts that do NOT live in the shared Doc. Kept as historical reference. |
 | `.project/decisions/` | Numbered ADRs (Architecture Decision Records). One material decision per file. Immutable — if a decision is superseded, another ADR is created marking it as replaced. |
 | `.project/LOG.md` | Chronological logbook of the project. One entry per work session or material action. Append-only. |

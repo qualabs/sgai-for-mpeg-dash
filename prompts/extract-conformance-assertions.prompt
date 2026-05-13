@@ -45,7 +45,7 @@ Column semantics:
 - **Source**: `file:line` of the original sentence
   (e.g. `context/03-requirements.md:47`).
 - **Actor**: which of Broadcaster / ADS / Player the obligation
-  binds. Use `norm document` for governance / document-level
+  binds. Use `spec document` for governance / document-level
   assertions. Use `all` for cross-cutting assertions that bind
   more than one runtime actor at once.
 - **Condition**: the precondition under which the obligation
@@ -59,7 +59,7 @@ After the table, output the following sections in order:
 1. **Assertions per R** — count of assertions for R1..R10
    (use a small `R<N>: <count>` list).
 2. **Assertions per actor** — count for Broadcaster, ADS, Player,
-   norm document, all.
+   spec document, all.
 3. **Assertions per source doc** — count per `context/*.md` file.
 4. **Orphan assertions** — any MUST / SHOULD / MAY found outside
    `context/03-requirements.md` that does not map cleanly to one of
@@ -74,7 +74,7 @@ entire output document. If you exceed 80 assertions, you are
 probably duplicating; consolidate. If you fall below 40, you are
 probably missing ancillary sentences in the non-R files; re-scan.
 
-Tone: tabular and crisp, no narrative. Chapter 10 of the norm
+Tone: tabular and crisp, no narrative. Chapter 10 of the spec
 (Test cases) absorbs this directly, so each row must be
 actionable as a test.
 

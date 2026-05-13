@@ -1,6 +1,6 @@
 # sgai-for-mpeg-dash — conventions for subagents
 
-This project produces a complete SGAI norm for MPEG-DASH that covers
+This project produces a complete SGAI specification for MPEG-DASH that covers
 **both linear and non-linear ads**, extending MPEG-DASH 6th edition.
 Linear SGAI exists in 6th edition (`InsertPresentation` /
 `ReplacePresentation` / `ListMPD`) and is absorbed as the baseline; the
@@ -25,8 +25,8 @@ projects/sgai-for-mpeg-dash/
 ├── CLAUDE.md          this file — conventions for subagents
 ├── context/              inputs — canonical, human-authored spec
 ├── prompts/           build scripts — .prompt files for LLM agents
-├── analysis/          pre-norm artefacts — inputs the norm build consumes
-├── output/            norm + post-norm artefacts (validation sidecar, etc.), dated per build
+├── analysis/          pre-spec artefacts — inputs the spec build consumes
+├── output/            spec + post-spec artefacts (validation sidecar, etc.), dated per build
 ├── proposal-drafts/   historical drafts kept for reference
 └── .project/          governance from the create-project skill
 ```
@@ -38,14 +38,14 @@ What does NOT go where:
   the spec, it does not live in `context/`.
 - `prompts/` — only `.prompt` files. No build scripts in other
   languages, no helpers, no READMEs.
-- `analysis/` — only **pre-norm** generated artefacts that the norm
+- `analysis/` — only **pre-spec** generated artefacts that the spec
   build consumes as inputs (gap analysis, UC coverage matrix, error
   semantics, conformance assertions). No human-authored notes; those
-  go to `.project/decisions/` or inside the spec. No post-norm
+  go to `.project/decisions/` or inside the spec. No post-spec
   artefacts (validation sidecar, test reports, etc.) — those go to
   `output/`.
-- `output/` — the dated norm itself and any **post-norm** derived
-  artefacts that are built from the norm draft (validation sidecar,
+- `output/` — the dated spec itself and any **post-spec** derived
+  artefacts that are built from the spec draft (validation sidecar,
   future test reports, future version diffs). All dated per build so
   the pair / set is auditable together. No half-built artefacts from
   intermediate steps — those go to `analysis/`. Never edit by hand;
@@ -60,15 +60,15 @@ What does NOT go where:
   when adding/removing a file changes the canonical sequence — when
   it happens, update the TOC in `01-intro.md` and every cross-ref.
 - **`prompts/` files**: verb-oriented, kebab-case, `.prompt`
-  suffix (`analyze-dash-gap.prompt`, `build-norm.prompt`,
+  suffix (`analyze-dash-gap.prompt`, `build-spec.prompt`,
   `build-all.prompt`). Each prompt opens with a header block
   declaring **Inputs / Output / Skip if** before the `---` divider.
 - **`analysis/` files**: no numeric prefix. Each artefact
   standalone, named for what it analyses (`dash-gap-analysis.md`).
 - **`output/` files**: dated, ISO 8601. Current patterns:
-  `sgai-norm-YYYY-MM-DD.md` (the norm) and
-  `norm-validation-YYYY-MM-DD.md` (validation sidecar). New
-  post-norm artefacts follow `<artefact>-YYYY-MM-DD.md`. Files are
+  `sgai-spec-YYYY-MM-DD.md` (the spec) and
+  `spec-validation-YYYY-MM-DD.md` (validation sidecar). New
+  post-spec artefacts follow `<artefact>-YYYY-MM-DD.md`. Files are
   **not overwritten**; each build keeps history.
 - **General**: kebab-case for filenames. English for all content
   inside `context/`, `prompts/`, `analysis/`, `output/`, `README.md`,
@@ -137,7 +137,7 @@ verifiable), tables only when comparing something. No marketing
 language, no apologies, no filler.
 
 For artefacts that quote or extend the MPEG-DASH 6th edition (the
-norm, the gap analysis), use RFC 2119 vocabulary
+spec, the gap analysis), use RFC 2119 vocabulary
 (MUST / SHOULD / MAY) when stating requirements. Reference the RFC
 explicitly at the top of any document that uses these terms.
 

@@ -1,27 +1,27 @@
 [GROUNDED_BY=notebooklm]
 
-# Norm validation — 2026-05-11
+# Spec validation — 2026-05-11
 
 Built against:
-- norm: [`./sgai-norm-2026-05-11.md`](./sgai-norm-2026-05-11.md)
+- spec: [`./sgai-spec-2026-05-11.md`](./sgai-spec-2026-05-11.md)
 - context/ at git SHA: `f7c8ffb`
 
 This document captures gaps, edge cases, and ambiguities surfaced
-during the norm build. Findings here feed back into `../context/` —
-they are NOT part of the norm itself.
+during the spec build. Findings here feed back into `../context/` —
+they are NOT part of the spec itself.
 
 ## Gaps (8)
 
 ### G-01. Tracking carrier for non-video renderable forms is undefined
 
-- **Norm section affected**: §5.4 (`<sgai:RenderableForms>`), §6.3
+- **Spec section affected**: §5.4 (`<sgai:RenderableForms>`), §6.3
   step 7, §8.4.
 - **Spec gap**: the spec mandates the callback event scheme
   (§5.10.4.5) as the tracking carrier (R6.2), but this scheme is
   carried inside a sub-MPD's `<EventStream>` — which is natural for
   `video` forms (the sub-MPD describes the ad video) but undefined
   for `image` and `html` forms (no sub-MPD exists for them in this
-  norm). The spec does not say how non-video forms surface
+  spec). The context does not say how non-video forms surface
   impression / start / quartiles / complete tracking.
 - **Implementer default today**: silently skip tracking for
   non-video forms, OR ship a vendor-namespaced tracking list inside
@@ -30,7 +30,7 @@ they are NOT part of the norm itself.
 
 ### G-02. VAST 4.x version pin missing
 
-- **Norm section affected**: chapter 2 (Normative references).
+- **Spec section affected**: chapter 2 (Normative references).
 - **Spec gap**: [`../context/05-dash-linear-interfaces.md`](../context/05-dash-linear-interfaces.md)
   flags this explicitly: the exact 4.x version (4.0 / 4.1 / 4.2 /
   4.3) used by industry practice is unconfirmed. The NotebookLM
@@ -42,28 +42,28 @@ they are NOT part of the norm itself.
 
 ### G-03. Pause-trigger event placement vs §5.10.1 timed-event invariant
 
-- **Norm section affected**: §5.3, §6.4.
+- **Spec section affected**: §5.3, §6.4.
 - **Spec gap**: §5.10.1 says events are *strictly timed* — "Events
   are timed, i.e. each event starts at a specific media
-  presentation time and may have a duration". The norm currently
+  presentation time and may have a duration". The spec currently
   places the pause-trigger in an `<EventStream>` with a sentinel
   `presentationTime="0"` and pushes the trigger semantics to the
   Player application layer. The spec does not say whether this
   layering is normatively legal or merely tolerated. A WG reviewer
   could plausibly read §5.10.1 as forbidding the sentinel pattern.
 - **Implementer default today**: implement the application-layer
-  trigger pattern (the path the norm picks) and accept the
+  trigger pattern (the path the spec picks) and accept the
   ambiguity — but a strict reviewer's interpretation could force a
   redesign.
 
 ### G-04. `<sgai:RenderableForms>` placement when no `<ImportedMPD>` exists
 
-- **Norm section affected**: §5.4, §5.6.
-- **Spec gap**: the norm draft assumes `<ImportedMPD>` is the
+- **Spec section affected**: §5.4, §5.6.
+- **Spec gap**: the spec draft assumes `<ImportedMPD>` is the
   primary content carrier and `<sgai:RenderableForms>` augments
   it. But for non-video-only candidates (e.g. an image-only banner
   campaign that has no video sub-MPD at all), there is no
-  `<ImportedMPD>` to anchor to. The norm currently says
+  `<ImportedMPD>` to anchor to. The spec currently says
   `<ImportedMPD>` is REQUIRED on each `<Period>`. What happens to
   candidates with no video form?
 - **Implementer default today**: either (a) require the ADS to
@@ -74,7 +74,7 @@ they are NOT part of the norm itself.
 
 ### G-05. Concurrency cap semantics under hybrid breaks
 
-- **Norm section affected**: §5.2.2 (`@maxConcurrentOverlays`),
+- **Spec section affected**: §5.2.2 (`@maxConcurrentOverlays`),
   §7.4 (UC-04).
 - **Spec gap**: `@maxConcurrentOverlays` counts overlays from the
   same overlay event. UC-04 has a linear `<ReplacePresentation>`
@@ -89,14 +89,14 @@ they are NOT part of the norm itself.
 ### G-06. `<sgai:DefaultLayout>` on `<Period>` is introduced in
 example 8.2 without a chapter-5 syntactic definition
 
-- **Norm section affected**: §5 (Syntax), §8.2.
+- **Spec section affected**: §5 (Syntax), §8.2.
 - **Spec gap**: the example XML in §8.2 uses
   `<sgai:DefaultLayout value="banner"/>` inside a `<Period>` to
   let the ADS signal the candidate's nominal layout, which the
   Player checks against the parent event's `@allowedLayouts`. But
   chapter 5 never defines `<sgai:DefaultLayout>`. Either the
   syntax chapter omits it, or the example introduces an undefined
-  construct. **This is a real authoring bug in the norm draft.**
+  construct. **This is a real authoring bug in the spec draft.**
 - **Implementer default today**: parse the example tolerantly;
   ignore the unknown element. The candidate's nominal layout
   remains unsignalled.
@@ -104,7 +104,7 @@ example 8.2 without a chapter-5 syntactic definition
 ### G-07. SPS profile constraint on non-video AdaptationSets is stated
 indirectly
 
-- **Norm section affected**: §5 syntax decisions, gap analysis G3.
+- **Spec section affected**: §5 syntax decisions, gap analysis G3.
 - **Spec gap**: the gap analysis ([`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md)
   G3) and the working position behind §5.4 (carry alternative
   forms at the ListMPD layer, leave SPS untouched) both assume
@@ -127,11 +127,11 @@ indirectly
 
 ### G-08. Cross-edition Player URI recognition has no R coverage
 
-- **Norm section affected**: chapter 2, chapter 4.
+- **Spec section affected**: chapter 2, chapter 4.
 - **Spec gap**: [`../context/06-naming-and-namespaces.md`](../context/06-naming-and-namespaces.md)
   line 27 says "A Player implementing edition N + 1 SHOULD
   recognise both `:N:` and `:N+1:` URIs". This obligation is on
-  the *Player*, not on the norm document. No R in
+  the *Player*, not on the spec document. No R in
   [`../context/03-requirements.md`](../context/03-requirements.md)
   covers it directly. R1 is about *legacy Players ignoring new
   constructs*; this is the inverse (*new Players recognising old
@@ -160,7 +160,7 @@ indirectly
 - **Trigger**: ADS returns 3 overlay candidates, all renderable,
   `@maxConcurrentOverlays="2"`.
 - **Why it matters**: per R2.3 the Player rejects the third.
-  Order? The norm draft says nothing; presumed FIFO from
+  Order? The spec draft says nothing; presumed FIFO from
   declared order (per R7.1). But the spec is silent.
 - **Responsible actor**: Player. Spec is silent on the rejection
   policy.
@@ -183,7 +183,7 @@ its first frame
 
 - **Trigger**: viewer pauses, ADS responds, overlay starts
   rendering, viewer resumes within 100 ms.
-- **Why it matters**: dismissal timing. The norm draft says "When
+- **Why it matters**: dismissal timing. The spec draft says "When
   the user resumes playback, the Player MUST dismiss the overlay
   immediately" but does not address the impression-counting
   consequence. Did the impression fire? Should it?
@@ -212,7 +212,7 @@ exceeds the cap
   renderable form. Per R5.3 the Player declines. Per §9.1 ("no
   tracking beacon for the failed exchange"), no tracking fires.
 - **Why it matters**: the gap analysis Open question 4 flags this
-  as a privacy/bandwidth/ad-business trade-off. The norm currently
+  as a privacy/bandwidth/ad-business trade-off. The spec currently
   defers (§9.8) but the deferral leaves ad-buyers exposed: a
   campaign budget can leak to D5 viewers because no impression is
   counted. Some ad-business models will object.
@@ -231,7 +231,7 @@ exceeds the cap
   - **(b)** "elapsed" = the moment the Player would have started
     rendering the overlay (i.e., `presentationTime`); anything
     later is "late".
-- **Norm draft assumed**: (a) — "the overlay's @maxDuration time
+- **Spec draft assumed**: (a) — "the overlay's @maxDuration time
   after the event's presentationTime has passed" (§9.6).
   Rationale: gives the ADS the longest legitimate window.
 - **Spec fix**: add a normative sentence to R7 or to the error
@@ -247,7 +247,7 @@ exceeds the cap
   - **(b)** "best" = highest-fidelity renderable form per
     Player's own ranking (e.g., html > image even if ADS gave
     them equal priority).
-- **Norm draft assumed**: (a) — §5.4.2 "Lower value = higher
+- **Spec draft assumed**: (a) — §5.4.2 "Lower value = higher
   priority. The Player walks forms in priority order; ties broken
   by document order".
 - **Spec fix**: R5.2 conformance criterion should call out the
@@ -265,7 +265,7 @@ total* mid-pod
   - **(b)** Drop-before-play is evaluated *between* candidates:
     after ad N finishes, the Player checks whether ad N+1's
     declared duration would push past, and drops it if yes.
-- **Norm draft assumed**: (a) — pre-pod evaluation, matching how
+- **Spec draft assumed**: (a) — pre-pod evaluation, matching how
   E11 is phrased.
 - **Spec fix**: R7.3 should clarify whether the cap check happens
   once or per-candidate. (a) is simpler and matches ListMPD
@@ -274,15 +274,15 @@ total* mid-pod
 
 ### A-04. `<sgai:Form>` `@type` enum extensibility
 
-- **Spec passage**: §5.4.2 of the norm draft itself (so this
+- **Spec passage**: §5.4.2 of the spec draft itself (so this
   ambiguity is self-inflicted, not inherited from spec).
 - **Readings**:
   - **(a)** New `@type` values can be added to the canonical enum
-    only by amending the norm.
+    only by amending the spec.
   - **(b)** New `@type` values can be added by vendors via the
     vendor namespace (`urn:qualabs:sgai:2026`).
-- **Norm draft assumed**: hybrid — "extensible enum; new values
-  MUST be declared in this norm or via vendor namespace". This
+- **Spec draft assumed**: hybrid — "extensible enum; new values
+  MUST be declared in this spec or via vendor namespace". This
   is ambiguous about how a vendor-namespaced `@type` is consumed
   by a non-vendor Player.
 - **Spec fix**: pin the policy. Recommended: (a) for canonical
@@ -296,7 +296,7 @@ total* mid-pod
     metadata into the main MPD (rare in production).
   - **(b)** The ADS authors it into the ListMPD response (the
     common production case).
-- **Norm draft assumed**: (b) — §5.5 places `<qua:VastMetadata>`
+- **Spec draft assumed**: (b) — §5.5 places `<qua:VastMetadata>`
   on `<ImportedMPD>` inside the ListMPD.
 - **Spec fix**: R6.4's actor binding currently reads
   "ADS / Broadcaster" (joint). Split into two assertions —
@@ -313,7 +313,7 @@ Top 5 priorities for the next spec iteration, ranked by leverage.
    "carrier sub-MPD" wrapper that carries `<EventStream>` callback
    events tied to the form's display schedule.
 2. **Close G-06 (missing `<sgai:DefaultLayout>` definition).**
-   Real authoring bug in the norm draft. Cheap to fix; high
+   Real authoring bug in the spec draft. Cheap to fix; high
    visibility (it is in the chapter 8 example XML).
 3. **Resolve A-03 (drop-before-play cap evaluation).** Cap-trim
    semantics are central to R4 / R7; ambiguity here breaks

@@ -22,7 +22,7 @@ that enable any subsequent phase (spec iteration, design, prototype).
   `output/`, `proposal-drafts/`, `.project/`), with README and CLAUDE
   documenting conventions for human readers and subagents.
 - **Build pipeline**: three `.prompt` files (`analyze-dash-gap`,
-  `build-norm`, `build-all` orchestrator) that any LLM-driven agent
+  `build-spec`, `build-all` orchestrator) that any LLM-driven agent
   can invoke from the project root. Skip-if-fresh logic on each
   prompt so re-runs are cheap.
 - **Governance scaffolding**: `.project/PROJECT.md` (project hub),
@@ -51,7 +51,7 @@ that enable any subsequent phase (spec iteration, design, prototype).
 - `README.md`, `CLAUDE.md`, `SETUP.md` at the project root.
 - `.env.agent.example` (tracked) + `.env.agent` (gitignored).
 - `.gitignore` at the project root.
-- `prompts/analyze-dash-gap.prompt`, `prompts/build-norm.prompt`,
+- `prompts/analyze-dash-gap.prompt`, `prompts/build-spec.prompt`,
   `prompts/build-all.prompt`.
 - `context/01-intro.md`, `context/02-actors.md`, `context/03-requirements.md`,
   `context/04-use-cases.md`, `context/05-dash-linear-interfaces.md`,
@@ -83,7 +83,7 @@ See the closing summary below.
 ### Summary
 
 Stood up the project end-to-end: repo layout, three-prompt build
-pipeline (analyze-dash-gap, build-norm, build-all), governance
+pipeline (analyze-dash-gap, build-spec, build-all), governance
 scaffolding under `.project/`, a first iteration of the spec set in
 `context/` (6 files), the first generated artefact
 (`analysis/dash-gap-analysis.md`), operational config

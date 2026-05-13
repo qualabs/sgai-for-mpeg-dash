@@ -1,111 +1,111 @@
 # Naming and namespaces
 
 This document captures the naming conventions that any new construct
-introduced by the SGAI norm MUST follow. It is the policy layer the
-norm consumes when authoring chapters 5 (Syntax) and 8 (Examples),
-so the resulting norm document is internally consistent and behaves
+introduced by the SGAI spec MUST follow. It is the policy layer the
+spec consumes when authoring chapters 5 (Syntax) and 8 (Examples),
+so the resulting spec document is internally consistent and behaves
 cleanly under the R1 ignore-if-unknown contract defined in
 [`03-requirements.md`](./03-requirements.md).
 
 ## Incubation venue
 
-This norm is incubated at the **SVTA Ads WG**. The SVTA Ads WG is
+This specification is incubated at the **SVTA Ads WG**. The SVTA Ads WG is
 the working group that owns the namespace of constructs introduced
-by the norm during its incubation lifecycle. The choice of `svta`
+by the spec during its incubation lifecycle. The choice of `svta`
 in the URIs below reflects that ownership: it is the venue
 responsible for the spec text, not a vendor tag.
 
 ## Scheme URI patterns
 
-### New constructs introduced by this norm
+### New constructs introduced by this spec
 
-New event schemes introduced by this norm MUST use the year-pinned
+New event schemes introduced by this spec MUST use the year-pinned
 pattern under the SVTA Ads WG namespace:
 
   `urn:svta:dash:<construct>:<year>`
 
 Examples (illustrative — the actual URI list is finalised in the
-norm itself):
+spec itself):
 
   - `urn:svta:dash:sgai-overlay:2026`
   - `urn:svta:dash:sgai-pause-trigger:2026`
 
-The `<year>` suffix is the edition year of the norm. Reusing an
+The `<year>` suffix is the edition year of the spec. Reusing an
 existing scheme URI with altered semantics across editions is not
 permitted: a fresh URI per edition is what makes the
 "ignore-if-unknown" guarantee for legacy Players clean and
 auditable. A Player implementing edition N + 1 SHOULD recognise
 both `:N:` and `:N+1:` URIs and treat them per the
-backward-compatibility rules in that edition's norm.
+backward-compatibility rules in that edition's spec.
 
 ### Tracking callback event scheme
 
-The norm does **not** introduce a new tracking scheme. Per **R13**
+The spec does **not** introduce a new tracking scheme. Per **R13**
 in [`03-requirements.md`](./03-requirements.md), the tracking
 callback event scheme is inherited from the MPEG-DASH 6th edition
 baseline (the existing scheme URI declared there for the linear
 SGAI tracking mechanism). Implementations carrying tracking
-beacons for ads introduced by this norm MUST reuse that baseline
+beacons for ads introduced by this spec MUST reuse that baseline
 scheme; introducing a parallel tracking scheme under
 `urn:svta:dash:*` is explicitly out of scope.
 
 ### Vendor extensions (Qualabs)
 
 Qualabs-private experimental extensions that are not part of this
-norm MUST use the Qualabs vendor namespace:
+specification MUST use the Qualabs vendor namespace:
 
   `urn:qualabs:<feature>:<year>`
 
-These URIs are not normative and are not part of the SGAI norm.
+These URIs are not normative and are not part of the SGAI spec.
 They are listed here only so that examples in `analysis/` or in
 prototypes can declare them without colliding with the SVTA Ads
 WG namespace.
 
 ## Element / attribute extension namespaces
 
-New XML elements introduced by this norm live under the SVTA Ads
+New XML elements introduced by this spec live under the SVTA Ads
 WG extension namespace:
 
   - **`urn:svta:dash:sgai:<year>`** — proposed extensions to
-    MPEG-DASH authored by the SVTA Ads WG as part of this norm.
+    MPEG-DASH authored by the SVTA Ads WG as part of this spec.
 
 Vendor-private extensions developed by Qualabs that are not part
-of this norm — including VAST application-layer metadata that has
+of this spec — including VAST application-layer metadata that has
 no native DASH carrier (per R6 in
 [`03-requirements.md`](./03-requirements.md)) — live under the
 Qualabs vendor namespace:
 
   - **`urn:qualabs:sgai:<year>`** — Qualabs vendor-private
-    extensions. Not normative; not part of this norm.
+    extensions. Not normative; not part of this spec.
 
 Legacy Players MUST ignore unknown namespaces under DASH's
 extension rules (per R1).
 
 ## Versioning
 
-When this norm evolves to a new edition:
+When this specification evolves to a new edition:
 
   - Constructs whose semantics change MUST use a new
     `<year>` suffix on their scheme URI under
     `urn:svta:dash:<construct>:<year>`.
   - Constructs whose semantics are unchanged MAY keep their
     existing URI.
-  - The norm's chapter 2 (Normative references) MUST list the
+  - The spec's chapter 2 (Normative references) MUST list the
     URIs introduced by the current edition explicitly.
   - The tracking callback event scheme inherited from the
-    MPEG-DASH 6th edition baseline is unaffected by this norm's
+    MPEG-DASH 6th edition baseline is unaffected by this spec's
     versioning; it follows the baseline edition's lifecycle.
 
 ## Layout vocabulary
 
 The accepted layout names for overlay templates are defined and
-maintained by the IAB, not by this norm. The live IAB document is
+maintained by the IAB, not by this spec. The live IAB document is
 mirrored on every build into
 [`../analysis/iab-ad-templates.md`](../analysis/iab-ad-templates.md)
-by `prompts/analyze-iab-ad-templates.prompt`; the norm MUST
+by `prompts/analyze-iab-ad-templates.prompt`; the spec MUST
 reference those IAB-defined values without inventing new layout
 names at chapter level. To propose a new layout, the editor works
-with the IAB directly — this norm does not own the vocabulary.
+with the IAB directly — this specification does not own the vocabulary.
 Per **R12** in [`03-requirements.md`](./03-requirements.md), the
 layout vocabulary MUST map 1:1 to IAB-defined ad-type values; no
-broadcaster-private or norm-private layout names are admissible.
+broadcaster-private or spec-private layout names are admissible.

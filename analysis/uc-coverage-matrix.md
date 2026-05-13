@@ -44,9 +44,9 @@ Cells: `A` = UC exercises the requirement; `·` = not applicable.
 ### Orphan Rs
 
 R8 and R9 are document-level governance and are intentionally not
-exercised by any UC; they bind the norm document and the proposal
+exercised by any UC; they bind the spec document and the proposal
 authoring process, not runtime actor behaviour. R10 has both
-dimensions: as governance (norm MUST NOT define a parallel layout
+dimensions: as governance (spec MUST NOT define a parallel layout
 standard) and as runtime (Player composes overlays using HTML/CSS
 primitives) — surfaced via UC-03/UC-04/UC-05. No non-governance R
 is orphan.
@@ -70,7 +70,7 @@ IAB-defined non-linear ad types, or non-linear tracking — those are
 non-linear concerns by construction. Coverage is healthy.
 
 UC-03, UC-04, UC-05 each map to 11 Rs (R2-R7, R10-R13). These are
-the non-linear scenarios and the principal new content of the norm.
+the non-linear scenarios and the principal new content of the spec.
 
 ### Bidirectional sanity check
 

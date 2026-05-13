@@ -1,14 +1,14 @@
 [GROUNDED_BY=notebooklm]
 
-# DASH conformance audit — SGAI norm v2
+# DASH conformance audit — SGAI spec v2
 
-**Audit target**: `output/sgai-norm-2026-05-12.md` (commit 565ddb3).
+**Audit target**: `output/sgai-spec-2026-05-12.md` (commit 565ddb3).
 **Reference**: MPEG-DASH 6th edition (ISO/IEC 23009-1:2025).
 **Method**: inventory of every construct introduced or reused by the
-norm + 7 grounded queries against the "Streaming Protocols — DASH,
+spec + 7 grounded queries against the "Streaming Protocols — DASH,
 HLS, C2PA, DRM" notebook in NotebookLM (DASH-6th source loaded).
 Each construct receives a verdict (Conforming / Marginal /
-Non-conforming) against the cited DASH rule. The norm's own
+Non-conforming) against the cited DASH rule. The spec's own
 backward-compat audit table (Chapter 5 §5.10) is an internal check;
 this audit is independent.
 
@@ -21,10 +21,10 @@ scheme. Examples in annexes A through E are audited as concrete
 instances of the chapter 5 constructs.
 
 Out of scope: design-level concerns already raised in
-`norm-validation-2026-05-12.md` (gaps, edge cases) — those are about
+`spec-validation-2026-05-12.md` (gaps, edge cases) — those are about
 under-specification, not DASH-schema conformance. This audit only
-asks: *given the norm's wording, would a DASH-6th-conformant Player
-parse and execute the construct as the norm intends, or would the
+asks: *given the spec's wording, would a DASH-6th-conformant Player
+parse and execute the construct as the spec intends, or would the
 DASH rules reject it / interpret it differently?*
 
 ## Method summary
@@ -32,7 +32,7 @@ DASH rules reject it / interpret it differently?*
 - Inventory built from §5.1 (Document tree overview), §5.2 (Scheme
   URIs), §5.3 (common attributes), §5.4 (linear slot elements),
   §5.5 (non-linear slot elements), §5.6 (ListMPD shape), §5.7
-  (sub-MPD SPS profile), §5.8 (tracking callback), §5.10 (norm's
+  (sub-MPD SPS profile), §5.8 (tracking callback), §5.10 (spec's
   own backward-compat table), and annexes A through E.
 - 7 NotebookLM queries against the DASH-6th notebook (active
   notebook: "Streaming Protocols — DASH, HLS, C2PA, DRM"). 7
@@ -42,7 +42,7 @@ DASH rules reject it / interpret it differently?*
 ## Inventory and verdicts
 
 Legend: V = Conforming (verified against DASH-6th cite),
-M = Marginal (ambiguous, requires norm clarification),
+M = Marginal (ambiguous, requires spec clarification),
 N = Non-conforming (violates DASH-6th rule as written).
 
 | ID | Construct | Type | Placement | Verdict | Rationale (DASH-6th cite) |
@@ -55,24 +55,24 @@ N = Non-conforming (violates DASH-6th rule as written).
 | C-06 | `<svta:CandidateForms>` | New XML element | Child of `<Period>` in non-linear ListMPD | V | §5.2.1 — PeriodType carries `<xs:any namespace="##other" processContents="lax"/>`. §8.14 explicitly permits foreign-namespace children on Period. |
 | C-07 | `<svta:Form>` | New XML element | Child of `<svta:CandidateForms>` | V | Internal to svta-namespace subtree; ignore-if-unknown by ancestor (C-06). |
 | C-08 | `<ImportedMPD>` placed inside `<svta:Form>` (not direct child of `<Period>`) | Structural arrangement | Inside non-linear ListMPD Period | M | §5.3.2.6 — ImportedMPD is schema-defined as a child of PeriodType. Nesting it inside `<svta:Form>` is not contemplated by the schema; semantics of `@earliestResolutionTimeOffset` ("offset from PeriodStart") become ambiguous when the parent is `<svta:Form>` and not `<Period>`. Legacy parsers are unaffected (whole svta subtree is opaque); SGAI-aware Players need an explicit semantic equivalence rule. |
-| C-09 | `@maxDuration` on `<svta:OverlayPresentation>` / `<svta:PauseAdPresentation>` | New attribute on new element | N/A (whole element is svta) | V | New attribute on foreign-namespace element — not bound by the §5.16.5 AlternativeMPDEventType schema. Norm correctly restates §5.16.5 enforcement semantics (P-05). |
-| C-10 | `@earliestResolutionTimeOffset` on new svta elements | Re-use of baseline attribute name on new element | N/A (whole element is svta) | M | §5.3.2.6.1 Table 5 defines `@earliestResolutionTimeOffset` in seconds as an attribute on ImportedMPD. Norm §5.3 declares the same attribute name on svta slot elements in `EventStream@timescale` units. Different unit semantics under the same attribute name is a readability hazard; not a schema violation (different element, different namespace), but worth disambiguating. |
+| C-09 | `@maxDuration` on `<svta:OverlayPresentation>` / `<svta:PauseAdPresentation>` | New attribute on new element | N/A (whole element is svta) | V | New attribute on foreign-namespace element — not bound by the §5.16.5 AlternativeMPDEventType schema. Spec correctly restates §5.16.5 enforcement semantics (P-05). |
+| C-10 | `@earliestResolutionTimeOffset` on new svta elements | Re-use of baseline attribute name on new element | N/A (whole element is svta) | M | §5.3.2.6.1 Table 5 defines `@earliestResolutionTimeOffset` in seconds as an attribute on ImportedMPD. Spec §5.3 declares the same attribute name on svta slot elements in `EventStream@timescale` units. Different unit semantics under the same attribute name is a readability hazard; not a schema violation (different element, different namespace), but worth disambiguating. |
 | C-11 | `@allowedLayouts` on new svta elements | New attribute on new element | N/A | V | Free-form attribute on foreign-namespace element. |
 | C-12 | `@maxConcurrency` on `<svta:OverlayPresentation>` | New attribute on new element | N/A | V | Same as C-11. |
 | C-13 | `@windowStart` / `@windowEnd` / `@allowVideoForm` on `<svta:PauseAdPresentation>` | New attribute on new element | N/A | V | Same as C-11. |
 | C-14 | `@candidateId` / `@candidatePriority` on `<svta:CandidateForms>` | New attribute on new element | N/A | V | Same as C-11. |
 | C-15 | `@formId` / `@mediaType` / `@admissibleLayouts` / `@formPriority` / `@duration` on `<svta:Form>` | New attribute on new element | N/A | V | Same as C-11. |
-| C-16 | Re-use of `<InsertPresentation>` and `<ReplacePresentation>` from §5.16.3 / §5.16.4 | Baseline elements, used as-is | Child of `<Event>` (linear-scheme EventStream) | V | §5.16.3 / §5.16.4. Norm states no semantic change. |
-| C-17 | Re-use of `<ImportedMPD>` in linear ListMPD | Baseline element, used as-is | Direct child of `<Period>` | V | §5.3.2.6.1. `@uri` (not `@url`) is the canonical attribute name; norm's §5.6.1 and annex A both use `uri=` correctly. |
+| C-16 | Re-use of `<InsertPresentation>` and `<ReplacePresentation>` from §5.16.3 / §5.16.4 | Baseline elements, used as-is | Child of `<Event>` (linear-scheme EventStream) | V | §5.16.3 / §5.16.4. Spec states no semantic change. |
+| C-17 | Re-use of `<ImportedMPD>` in linear ListMPD | Baseline element, used as-is | Direct child of `<Period>` | V | §5.3.2.6.1. `@uri` (not `@url`) is the canonical attribute name; spec's §5.6.1 and annex A both use `uri=` correctly. |
 | C-18 | Re-use of `urn:mpeg:dash:event:callback:2015` for ad tracking | Baseline scheme, used as-is | `EventStream@schemeIdUri` inside per-form sub-MPD's Period | V | §5.10.4.x — callback scheme is general-purpose but VAST-aligned; Period-level placement is the spec-mandated location. |
-| C-19 | Callback `Event@presentationTime` scheduled against the Broadcaster-declared overlay window (not against the form's intrinsic asset duration) | New tracking-time-base semantics on a baseline scheme | Per-form sub-MPD `Event/@presentationTime` | M | §5.10 specifies that `@presentationTime` is measured from PeriodStart of the sub-MPD's Period. Norm states "scheduled against the parent slot's `@maxDuration` window" (§5.7). This is consistent ONLY if the sub-MPD Period@duration is set equal to the slot window (not the asset duration). Norm does not state this requirement explicitly — implementations may set Period@duration = asset duration and break the alignment. |
-| C-20 | Per-form sub-MPD `<AdaptationSet mimeType="text/html">` (Annex B §B.4) | Baseline element with new mimeType value | Inside SPS-profile sub-MPD | N | §8.15 inherits §7.3 MIME-type rules; §7.3 requires `@mimeType` per IETF RFC 4337, which limits SPS to `video/mp4`, `audio/mp4`, `application/mp4`. `text/html` is NOT a registered SPS mimeType. The norm violates SPS by directly using `text/html` for HTML forms. |
+| C-19 | Callback `Event@presentationTime` scheduled against the Broadcaster-declared overlay window (not against the form's intrinsic asset duration) | New tracking-time-base semantics on a baseline scheme | Per-form sub-MPD `Event/@presentationTime` | M | §5.10 specifies that `@presentationTime` is measured from PeriodStart of the sub-MPD's Period. Spec states "scheduled against the parent slot's `@maxDuration` window" (§5.7). This is consistent ONLY if the sub-MPD Period@duration is set equal to the slot window (not the asset duration). Spec does not state this requirement explicitly — implementations may set Period@duration = asset duration and break the alignment. |
+| C-20 | Per-form sub-MPD `<AdaptationSet mimeType="text/html">` (Annex B §B.4) | Baseline element with new mimeType value | Inside SPS-profile sub-MPD | N | §8.15 inherits §7.3 MIME-type rules; §7.3 requires `@mimeType` per IETF RFC 4337, which limits SPS to `video/mp4`, `audio/mp4`, `application/mp4`. `text/html` is NOT a registered SPS mimeType. The spec violates SPS by directly using `text/html` for HTML forms. |
 | C-21 | Per-form sub-MPD with image-form `mimeType="image/png"` (implied by §5.5 mediaType=image and annex B §B.4 prose) | Baseline element with new mimeType value | Inside SPS-profile sub-MPD | N | Same as C-20 — `image/png` is not RFC-4337-registered for SPS. Must be wrapped in `application/mp4` (e.g. as a single-sample track) to conform to §8.15. |
-| C-22 | `MPD@profiles="urn:mpeg:dash:profile:list:2024 urn:svta:dash:sgai-list:2026"` (space-separated, Annex B §B.3) | Re-use of MPD@profiles attribute | MPD root | M | §5.3.1.2 and §8.14 describe `@profiles` as a "comma-separated list of profile identifiers". Norm's annex B uses **space-separated** in the example. Real-world DASH parsers commonly accept whitespace tokenisation, but the spec language is strict. Either re-format annex B as `profiles="urn:mpeg:dash:profile:list:2024,urn:svta:dash:sgai-list:2026"` or state the delimiter intent explicitly. |
-| C-23 | Single-Period Static Profile per-form sub-MPD with exactly one Period, `MPD@type="static"`, no Xlink, no nested ImportedMPD, no Alternative MPD events | Re-use of SPS profile §8.15 | All per-ad / per-form sub-MPDs | V | §8.15 restrictions match the norm's §5.7 wording. |
-| C-24 | Carrying a vendor namespace (e.g. `urn:qualabs:sgai:2026`) on per-form sub-MPD for VAST-equivalent metadata | Foreign namespace usage | Children of `<ImportedMPD>` or `<svta:Form>` | V | §5.2.1 open content model. Norm correctly defers metadata semantics to vendor namespaces (§5.9, §8.5). |
-| C-25 | Period inside non-linear ListMPD with NO `<ImportedMPD>` direct child (ImportedMPD lives inside `<svta:Form>`) | Structural arrangement | Non-linear ListMPD Period | M | §8.14 permits both "Linked Periods" (with ImportedMPD) and "regular Periods". A non-linear Period with neither standard ImportedMPD nor any AdaptationSet is technically a "regular Period that yields nothing" to a legacy parser, which then falls through to no-fill (annex E §E.3). Schema-valid, but the norm should make this explicit: every non-linear Period is intentionally a regular Period whose ad payload is carried in foreign-namespace extension content. |
-| C-26 | `@returnOffset` / `@clipDuration` / `@startWithOffset` on `<ReplacePresentation>` re-used per §5.16.4 | Baseline attributes, used as-is | On `<ReplacePresentation>` | V | §5.16.4 / §5.16.5 — norm's §5.3 wording matches the baseline behaviour. |
+| C-22 | `MPD@profiles="urn:mpeg:dash:profile:list:2024 urn:svta:dash:sgai-list:2026"` (space-separated, Annex B §B.3) | Re-use of MPD@profiles attribute | MPD root | M | §5.3.1.2 and §8.14 describe `@profiles` as a "comma-separated list of profile identifiers". Spec's annex B uses **space-separated** in the example. Real-world DASH parsers commonly accept whitespace tokenisation, but the spec language is strict. Either re-format annex B as `profiles="urn:mpeg:dash:profile:list:2024,urn:svta:dash:sgai-list:2026"` or state the delimiter intent explicitly. |
+| C-23 | Single-Period Static Profile per-form sub-MPD with exactly one Period, `MPD@type="static"`, no Xlink, no nested ImportedMPD, no Alternative MPD events | Re-use of SPS profile §8.15 | All per-ad / per-form sub-MPDs | V | §8.15 restrictions match the spec's §5.7 wording. |
+| C-24 | Carrying a vendor namespace (e.g. `urn:qualabs:sgai:2026`) on per-form sub-MPD for VAST-equivalent metadata | Foreign namespace usage | Children of `<ImportedMPD>` or `<svta:Form>` | V | §5.2.1 open content model. Spec correctly defers metadata semantics to vendor namespaces (§5.9, §8.5). |
+| C-25 | Period inside non-linear ListMPD with NO `<ImportedMPD>` direct child (ImportedMPD lives inside `<svta:Form>`) | Structural arrangement | Non-linear ListMPD Period | M | §8.14 permits both "Linked Periods" (with ImportedMPD) and "regular Periods". A non-linear Period with neither standard ImportedMPD nor any AdaptationSet is technically a "regular Period that yields nothing" to a legacy parser, which then falls through to no-fill (annex E §E.3). Schema-valid, but the spec should make this explicit: every non-linear Period is intentionally a regular Period whose ad payload is carried in foreign-namespace extension content. |
+| C-26 | `@returnOffset` / `@clipDuration` / `@startWithOffset` on `<ReplacePresentation>` re-used per §5.16.4 | Baseline attributes, used as-is | On `<ReplacePresentation>` | V | §5.16.4 / §5.16.5 — spec's §5.3 wording matches the baseline behaviour. |
 | C-27 | `<EventStream>` carrying SGAI slots in the Broadcaster's primary MPD | Re-use of baseline element | Child of Period in primary MPD | V | §5.10.1 placement; primary MPD is not constrained by ListMPD profile (which forbids Alternative MPD events on the ListMPD itself — irrelevant for the Broadcaster's primary MPD). |
 
 ## NotebookLM findings (highlights)
@@ -122,10 +122,10 @@ N = Non-conforming (violates DASH-6th rule as written).
 **Conflict**: §8.15 → §7.3 → IETF RFC 4337. The SPS profile
 restricts Representation `@mimeType` to RFC-4337-registered
 MPEG-4-system MIME types (`video/mp4`, `audio/mp4`,
-`application/mp4`). Annex B §B.4 of the norm declares
+`application/mp4`). Annex B §B.4 of the spec declares
 `<AdaptationSet mimeType="text/html" contentType="application">`
 for an HTML form sub-MPD. This violates SPS conformance, and the
-norm's per-form sub-MPDs are explicitly required to be SPS-profile
+spec's per-form sub-MPDs are explicitly required to be SPS-profile
 (§5.7).
 
 **Suggested fix**: package HTML payload as `application/mp4` (a
@@ -139,7 +139,7 @@ chapter 5 §5.7.
 
 ### N-2: SPS sub-MPD with `mimeType="image/png"` (C-21)
 
-**Conflict**: same as N-1. The norm's `mediaType="image"` form
+**Conflict**: same as N-1. The spec's `mediaType="image"` form
 class (§5.5) implies image MIME types on the sub-MPD AdaptationSet.
 Annex B §B.4 prose says "swapping the `<AdaptationSet>` content for
 `image/png`". `image/png` is not an SPS-permitted mimeType.
@@ -156,7 +156,7 @@ than via `<ImportedMPD>` to a sub-MPD).
 ### M-1: `<ImportedMPD>` inside `<svta:Form>`, not direct child of `<Period>` (C-08, C-25)
 
 **Ambiguity**: §5.3.2.6 schema-pins `<ImportedMPD>` as a child of
-PeriodType. The norm's non-linear ListMPD places `<ImportedMPD>`
+PeriodType. The spec's non-linear ListMPD places `<ImportedMPD>`
 two levels deep inside `<svta:CandidateForms>` / `<svta:Form>`. A
 strict reading of the schema says this is foreign-namespace content
 (opaque) that happens to *contain* an element named `ImportedMPD`
@@ -178,16 +178,16 @@ semantics defined by §5.3.2.6.1."
 ### M-2: Callback `Event@presentationTime` time base in non-linear sub-MPDs (C-19)
 
 **Ambiguity**: §5.10 measures `@presentationTime` from the sub-MPD's
-PeriodStart. Norm §5.7 says non-linear tracking is "scheduled
+PeriodStart. Spec §5.7 says non-linear tracking is "scheduled
 against the parent slot's `@maxDuration` window". These are
 consistent only if `Period@duration` of the per-form sub-MPD = the
 Broadcaster-declared overlay window (not the form's intrinsic
-asset duration). The norm does not pin this; annex B §B.4 shows
+asset duration). The spec does not pin this; annex B §B.4 shows
 `Period @duration="PT20S"` and the slot is also 20 s, so it lines
 up — but only coincidentally as the form's intrinsic asset
 duration also happens to be 20 s. If the asset were 10 s and the
 overlay window 20 s, the sub-MPD Period@duration is undefined by
-the norm.
+the spec.
 
 **Suggested clarification**: in §5.7, state: "For non-linear ads,
 the per-form sub-MPD's `Period@duration` MUST equal the parent
@@ -200,7 +200,7 @@ the overlay window per §5.10."
 
 **Ambiguity**: §5.3.2.6.1 Table 5 defines
 `@earliestResolutionTimeOffset` in **seconds** as an attribute of
-`<ImportedMPD>`. The norm's §5.3 declares an attribute of the same
+`<ImportedMPD>`. The spec's §5.3 declares an attribute of the same
 name on the new svta slot elements (`<OverlayPresentation>`,
 `<PauseAdPresentation>`, etc.) in **`EventStream@timescale`
 units** (typically milliseconds). Same attribute name, different
@@ -218,7 +218,7 @@ the two."
 ### M-4: `MPD@profiles` delimiter — space vs comma (C-22)
 
 **Ambiguity**: §5.3.1.2 / §8.14 describe `@profiles` as a
-"comma-separated list of profile identifiers". Norm annex B §B.3
+"comma-separated list of profile identifiers". Spec annex B §B.3
 and annex D §D.3 use **space-separated** values
 (`profiles="urn:mpeg:dash:profile:list:2024 urn:svta:dash:sgai-list:2026"`).
 Real-world parsers commonly tolerate whitespace, but a strict
@@ -226,17 +226,17 @@ DASH-6th parser may reject or mis-tokenise.
 
 **Suggested clarification**: change all annex examples to
 comma-separated (`profiles="urn:mpeg:dash:profile:list:2024,urn:svta:dash:sgai-list:2026"`)
-to match the spec language verbatim. No norm-text change needed.
+to match the DASH language verbatim. No spec-text change needed.
 
 ## Open questions surfaced
 
-- **OQ-1**: Norm references `urn:mpeg:dash:profile:advanced-linear:2025`
+- **OQ-1**: Spec references `urn:mpeg:dash:profile:advanced-linear:2025`
   in annex A §A.2 (`profiles="urn:mpeg:dash:profile:advanced-linear:2025"`
   on the Broadcaster's primary MPD). NotebookLM was not queried on
   whether this profile URI is defined by DASH-6th; the audit
   assumes it is a real DASH-6th profile but does not verify.
   Worth a follow-up query.
-- **OQ-2**: Norm references `urn:mpeg:dash:schema:urlparam:2025` for
+- **OQ-2**: Spec references `urn:mpeg:dash:schema:urlparam:2025` for
   `<up:UrlParamInfo>` in annex A §A.2. NotebookLM was not queried
   on the exact namespace and §I.4 wording. Assumed conforming;
   worth a verification query if the annex is to be normative.
@@ -254,7 +254,7 @@ to match the spec language verbatim. No norm-text change needed.
 - **Non-conforming**: 2 (C-20 = N-1, C-21 = N-2 — both SPS-profile
   mimeType violations on HTML and image form sub-MPDs).
 
-**Priority for the next norm iteration**: resolve N-1 / N-2
+**Priority for the next spec iteration**: resolve N-1 / N-2
 (SPS mimeType for non-video forms) before publication, as these
 break the §5.7 SPS-conformance assertion of every non-video
 per-form sub-MPD. M-1 and M-2 are also high-impact for SGAI-aware

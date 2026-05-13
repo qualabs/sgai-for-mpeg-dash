@@ -30,12 +30,12 @@ In either mode, tag any unverified claim with `[inferred]`.
 
 ## Task
 
-Read every file in `../context/` to understand the target norm (SGAI
+Read every file in `../context/` to understand the target spec (SGAI
 for linear + non-linear ads in MPEG-DASH 6th edition). Pay particular
 attention to:
 
 - `context/02-actors.md` — three-actor model (Broadcaster / ADS / Player).
-- `context/03-requirements.md` — R1..R10 — the constraints the norm must
+- `context/03-requirements.md` — R1..R10 — the constraints the spec must
   satisfy.
 - `context/04-use-cases.md` — scenarios + device classes the design must
   cover.

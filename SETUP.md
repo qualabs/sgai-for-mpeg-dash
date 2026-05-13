@@ -10,7 +10,7 @@ install the optional NotebookLM skill.
 1. Read `context/01-intro.md` for an overview.
 2. Read `README.md` for the project layout.
 3. To regenerate the gap analysis: invoke `prompts/analyze-dash-gap.prompt`.
-4. To build the norm: invoke `prompts/build-norm.prompt`.
+4. To build the spec: invoke `prompts/build-spec.prompt`.
 5. To run the full pipeline with skip-if-fresh logic:
    invoke `prompts/build-all.prompt`.
 
@@ -49,7 +49,7 @@ Without NotebookLM, the prompts rely on the model's training data
 for any reference to MPEG-DASH or VAST internals. That works for
 common patterns but the model may hallucinate attribute names,
 section references, or version numbers. With NotebookLM grounded
-to the actual spec, the analysis and norm cite the canonical source.
+to the actual spec, the analysis and spec cite the canonical source.
 
 See `prompts/*.prompt` headers — each prompt logs
 `[GROUNDED_BY=notebooklm]` or `[GROUNDED_BY=spec-only]` per run so

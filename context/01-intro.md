@@ -46,7 +46,7 @@ This folder stays focused on the technical content.
   versioning) and pointer to the IAB-defined layout vocabulary
   mirrored in [`../analysis/iab-ad-templates.md`](../analysis/iab-ad-templates.md).
 - **[07-backward-compat-checklist.md](./07-backward-compat-checklist.md)** —
-  Verification checklist that the norm MUST apply to each new
+  Verification checklist that the spec MUST apply to each new
   construct it introduces, so legacy Player compatibility (R1 /
   UC-07) is auditable per construct.
 - **[99-glossary.md](./99-glossary.md)** — Technical terminology used

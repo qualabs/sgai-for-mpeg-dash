@@ -67,7 +67,7 @@ Below the matrix, include the following subsections:
    above.
 4. **Surfacing to application layer** — the Player MAY expose
    error events via implementation-defined APIs; non-normative.
-   The norm chapter 9 SHOULD include guidance but implementations
+   The spec chapter 9 SHOULD include guidance but implementations
    are free to choose the API shape.
 
 ## Output structure
@@ -112,7 +112,7 @@ Write to `../analysis/error-semantics.md`. Overwrite if exists.
 
 ## Tone
 
-Tabular and crisp. No narrative filler. The norm's chapter 9
+Tabular and crisp. No narrative filler. The spec's chapter 9
 (Implementation notes) absorbs this matrix directly; chapter 10
 (Test cases) uses each row as a test case template.
 
