@@ -1,12 +1,12 @@
 # Build error semantics matrix
 
-**Inputs**: `spec/03-requirements.md` (especially R1..R7) and
-`spec/05-dash-linear-interfaces.md` (interface contracts that
+**Inputs**: `context/03-requirements.md` (especially R1..R7) and
+`context/05-dash-linear-interfaces.md` (interface contracts that
 surface most error conditions).
 **Output**: `analysis/error-semantics.md` (overwrites previous).
 **Skip if**: `analysis/error-semantics.md` exists AND its mtime is
-newer than the newest mtime in `[spec/03-requirements.md,
-spec/05-dash-linear-interfaces.md]`.
+newer than the newest mtime in `[context/03-requirements.md,
+context/05-dash-linear-interfaces.md]`.
 
 ---
 
@@ -19,8 +19,8 @@ with that same line as its first line.
 
 ## Task
 
-Read R1..R7 in `../spec/03-requirements.md` and the interface
-contracts in `../spec/05-dash-linear-interfaces.md`. Build an
+Read R1..R7 in `../context/03-requirements.md` and the interface
+contracts in `../context/05-dash-linear-interfaces.md`. Build an
 exhaustive matrix of error conditions × Player MUST / MAY responses
 + ADS / Broadcaster obligations.
 
@@ -39,7 +39,7 @@ Rows MUST cover at minimum:
 - No-renderable-form fall-through (R5 device-aware selection).
 - Declared-vs-actual duration mismatches (R4 max slot duration +
   R7 drop-before-play / trim-during-play).
-- Unknown layout names (per `spec/99-glossary.md` canonical
+- Unknown layout names (per `context/99-glossary.md` canonical
   vocabulary).
 - Unknown event scheme URIs (R1 ignore-if-unknown).
 - Tracking beacon failures (R6).
@@ -104,8 +104,8 @@ total row count, scope statement>
 
 ## References
 
-<links back to `../spec/02-actors.md`, `../spec/03-requirements.md`,
-`../spec/05-dash-linear-interfaces.md`, `../spec/99-glossary.md`>
+<links back to `../context/02-actors.md`, `../context/03-requirements.md`,
+`../context/05-dash-linear-interfaces.md`, `../context/99-glossary.md`>
 ```
 
 Write to `../analysis/error-semantics.md`. Overwrite if exists.

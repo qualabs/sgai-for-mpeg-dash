@@ -23,7 +23,7 @@ has active git history; commit + push is the standard workflow.
 projects/sgai-for-mpeg-dash/
 ├── README.md          user-facing — what / how to read / how to build
 ├── CLAUDE.md          this file — conventions for subagents
-├── spec/              inputs — canonical, human-authored spec
+├── context/              inputs — canonical, human-authored spec
 ├── prompts/           build scripts — .prompt files for LLM agents
 ├── analysis/          pre-norm artefacts — inputs the norm build consumes
 ├── output/            norm + post-norm artefacts (validation sidecar, etc.), dated per build
@@ -33,9 +33,9 @@ projects/sgai-for-mpeg-dash/
 
 What does NOT go where:
 
-- `spec/` — no generated artefacts, no analysis, no scratch. Only
+- `context/` — no generated artefacts, no analysis, no scratch. Only
   the human-authored canonical spec files. If you generated it from
-  the spec, it does not live in `spec/`.
+  the spec, it does not live in `context/`.
 - `prompts/` — only `.prompt` files. No build scripts in other
   languages, no helpers, no READMEs.
 - `analysis/` — only **pre-norm** generated artefacts that the norm
@@ -49,13 +49,13 @@ What does NOT go where:
   future test reports, future version diffs). All dated per build so
   the pair / set is auditable together. No half-built artefacts from
   intermediate steps — those go to `analysis/`. Never edit by hand;
-  if a build came out wrong, fix the spec/prompt and rebuild.
+  if a build came out wrong, fix the context or the prompt and rebuild.
 - `.project/decisions/` — ADRs and decision records. Architecture
-  decisions live here, not in `spec/`.
+  decisions live here, not in `context/`.
 
 ## Naming conventions
 
-- **`spec/` files**: numeric prefix `NN-name.md` defining reading
+- **`context/` files**: numeric prefix `NN-name.md` defining reading
   order. `99-glossary.md` always last. Renumbering is allowed only
   when adding/removing a file changes the canonical sequence — when
   it happens, update the TOC in `01-intro.md` and every cross-ref.
@@ -71,7 +71,7 @@ What does NOT go where:
   post-norm artefacts follow `<artefact>-YYYY-MM-DD.md`. Files are
   **not overwritten**; each build keeps history.
 - **General**: kebab-case for filenames. English for all content
-  inside `spec/`, `prompts/`, `analysis/`, `output/`, `README.md`,
+  inside `context/`, `prompts/`, `analysis/`, `output/`, `README.md`,
   and this `CLAUDE.md` (matching the rest of the project content).
 
 ## How to add a new analysis
@@ -85,16 +85,16 @@ What does NOT go where:
 
 ## How to modify the spec
 
-Edit the file in `spec/` directly. Downstream artefacts
+Edit the file in `context/` directly. Downstream artefacts
 (`analysis/`, `output/`) are now stale by mtime; re-run
 `prompts/build-all.prompt` and the orchestrator regenerates only
 the steps whose inputs moved.
 
-When renumbering or renaming files in `spec/`:
+When renumbering or renaming files in `context/`:
 
-- Update the TOC in `spec/01-intro.md`.
-- Update every cross-ref in the other `spec/*.md` files.
-- Update refs from `analysis/*.md` (use `../spec/<file>` paths).
+- Update the TOC in `context/01-intro.md`.
+- Update every cross-ref in the other `context/*.md` files.
+- Update refs from `analysis/*.md` (use `../context/<file>` paths).
 - Update refs in `.project/` (`PROJECT.md`, `phases/`,
   `decisions/`). Be conservative with `LOG.md`: historical entries
   reference the old layout — preserve them verbatim; only update
@@ -102,16 +102,16 @@ When renumbering or renaming files in `spec/`:
 
 ## Cross-reference conventions
 
-- Inside `spec/`: relative refs without prefix
+- Inside `context/`: relative refs without prefix
   (`[02-actors.md](02-actors.md)` or `./02-actors.md`).
-- From `analysis/` or `output/` to `spec/`: parent-relative
-  (`../spec/02-actors.md`).
-- From `.project/` to `spec/`: parent-relative
-  (`../spec/02-actors.md`).
-- From `prompts/` to inputs: parent-relative (`../spec/`,
+- From `analysis/` or `output/` to `context/`: parent-relative
+  (`../context/02-actors.md`).
+- From `.project/` to `context/`: parent-relative
+  (`../context/02-actors.md`).
+- From `prompts/` to inputs: parent-relative (`../context/`,
   `../analysis/`, `../output/`) — the prompt-runner is expected to
   execute from the project root, so paths inside the prompt body
-  read naturally as `../spec/...`.
+  read naturally as `../context/...`.
 
 ## NotebookLM integration
 
@@ -125,13 +125,13 @@ authoritative source as `[inferred]`.
 ## ADRs and decisions
 
 Architecture and process decisions live in `.project/decisions/`,
-not in `spec/`. When a decision affects the spec (e.g. choosing a
+not in `context/`. When a decision affects the spec (e.g. choosing a
 specific syntactic construct), the ADR is the record of *why*; the
 spec carries the *what*.
 
 ## Tone for the spec and generated artefacts
 
-Technical, direct, no fluff. Match the existing style of `spec/`:
+Technical, direct, no fluff. Match the existing style of `context/`:
 short paragraphs, explicit grounding (section references where
 verifiable), tables only when comparing something. No marketing
 language, no apologies, no filler.

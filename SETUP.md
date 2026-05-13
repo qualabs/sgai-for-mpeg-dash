@@ -7,14 +7,14 @@ install the optional NotebookLM skill.
 
 ## Quick start
 
-1. Read `spec/01-intro.md` for an overview.
+1. Read `context/01-intro.md` for an overview.
 2. Read `README.md` for the project layout.
 3. To regenerate the gap analysis: invoke `prompts/analyze-dash-gap.prompt`.
 4. To build the norm: invoke `prompts/build-norm.prompt`.
 5. To run the full pipeline with skip-if-fresh logic:
    invoke `prompts/build-all.prompt`.
 
-Without NotebookLM, the prompts ground the analysis on `spec/`
+Without NotebookLM, the prompts ground the analysis on `context/`
 content alone. Outputs are less authoritative but the build
 completes successfully.
 

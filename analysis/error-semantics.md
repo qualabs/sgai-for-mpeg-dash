@@ -2,8 +2,8 @@
 
 # Error semantics matrix
 
-Inputs consumed: `../spec/03-requirements.md` (R1..R7, with extension
-to R11..R13) and `../spec/05-dash-linear-interfaces.md` (interface
+Inputs consumed: `../context/03-requirements.md` (R1..R7, with extension
+to R11..R13) and `../context/05-dash-linear-interfaces.md` (interface
 contracts and message flow). 13 rows total. Scope: runtime error
 behaviour on the Player ↔ Broadcaster, Player ↔ ADS, and Player ↔
 tracking-endpoint interfaces.
@@ -104,13 +104,13 @@ not require any specific API.
 
 ## References
 
-- `../spec/02-actors.md` — actor responsibilities.
-- `../spec/03-requirements.md` — R1 (ignore-if-unknown), R4 (cap
+- `../context/02-actors.md` — actor responsibilities.
+- `../context/03-requirements.md` — R1 (ignore-if-unknown), R4 (cap
   enforcement), R5 (device-aware selection), R6 (tracking carrier),
   R7 (ADS-returned order), R13 (non-linear tracking semantics).
-- `../spec/05-dash-linear-interfaces.md` — interface contracts and
+- `../context/05-dash-linear-interfaces.md` — interface contracts and
   message flow.
-- `../spec/06-naming-and-namespaces.md` — scheme URI patterns
+- `../context/06-naming-and-namespaces.md` — scheme URI patterns
   (E7 / E9 reference these).
-- `../spec/99-glossary.md` — definitions of resolution document,
+- `../context/99-glossary.md` — definitions of resolution document,
   candidate, form, slot.

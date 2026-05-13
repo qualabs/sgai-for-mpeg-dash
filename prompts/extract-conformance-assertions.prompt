@@ -1,13 +1,13 @@
 # Extract conformance assertions from the spec
 
-**Inputs**: `spec/` — especially `spec/03-requirements.md` for the
+**Inputs**: `context/` — especially `context/03-requirements.md` for the
 explicit `Conformance criteria` blocks per R, with ancillary
-MUST / SHOULD / MAY sentences in `spec/02-actors.md`,
-`spec/04-use-cases.md`, `spec/05-dash-linear-interfaces.md`,
-`spec/06-naming-and-namespaces.md`, and `spec/99-glossary.md`.
+MUST / SHOULD / MAY sentences in `context/02-actors.md`,
+`context/04-use-cases.md`, `context/05-dash-linear-interfaces.md`,
+`context/06-naming-and-namespaces.md`, and `context/99-glossary.md`.
 **Output**: `analysis/conformance-assertions.md` (overwrites previous).
 **Skip if**: `analysis/conformance-assertions.md` exists AND its
-mtime is newer than the newest mtime in `spec/`.
+mtime is newer than the newest mtime in `context/`.
 
 ---
 
@@ -24,7 +24,7 @@ is a tiebreaker, not a source of new obligations.
 
 ## Task
 
-Read every file in `../spec/`. For every MUST / MUST NOT / SHOULD /
+Read every file in `../context/`. For every MUST / MUST NOT / SHOULD /
 SHOULD NOT / MAY sentence in the spec, normalise it into a row in a
 single table at the top of the output document:
 
@@ -34,7 +34,7 @@ single table at the top of the output document:
 Column semantics:
 
 - **Assertion ID**: when the obligation lives inside a
-  `Conformance criteria` block in `spec/03-requirements.md`, reuse
+  `Conformance criteria` block in `context/03-requirements.md`, reuse
   the `R<N>.<n>` ID verbatim. For MUST / SHOULD / MAY sentences
   outside the R blocks (in actors, use-cases, interfaces, naming,
   glossary), generate a stable ID with a short prefix derived from
@@ -43,7 +43,7 @@ Column semantics:
   `I05.<n>` from `05-dash-linear-interfaces.md`, `N06.<n>` from
   `06-naming-and-namespaces.md`, `G99.<n>` from `99-glossary.md`.
 - **Source**: `file:line` of the original sentence
-  (e.g. `spec/03-requirements.md:47`).
+  (e.g. `context/03-requirements.md:47`).
 - **Actor**: which of Broadcaster / ADS / Player the obligation
   binds. Use `norm document` for governance / document-level
   assertions. Use `all` for cross-cutting assertions that bind
@@ -60,9 +60,9 @@ After the table, output the following sections in order:
    (use a small `R<N>: <count>` list).
 2. **Assertions per actor** — count for Broadcaster, ADS, Player,
    norm document, all.
-3. **Assertions per source doc** — count per `spec/*.md` file.
+3. **Assertions per source doc** — count per `context/*.md` file.
 4. **Orphan assertions** — any MUST / SHOULD / MAY found outside
-   `spec/03-requirements.md` that does not map cleanly to one of
+   `context/03-requirements.md` that does not map cleanly to one of
    R1..R10. For each, list the assertion ID, source, a 1-line
    summary, and a 1-line note on which R it should arguably be
    absorbed into (or whether a new R is implied). These are signals

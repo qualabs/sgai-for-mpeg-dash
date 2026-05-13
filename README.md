@@ -19,7 +19,7 @@ extensions where the gap analysis surfaces them.
 projects/sgai-for-mpeg-dash/
 ├── README.md          this file — what / how to read / how to regenerate
 ├── CLAUDE.md          conventions for subagents touching this project
-├── spec/              inputs — technical specification of the target norm
+├── context/              inputs — technical specification of the target norm
 ├── prompts/           build scripts — .prompt files run by an LLM agent
 ├── analysis/          pre-norm artefacts — inputs the norm build consumes
 ├── output/            norm + post-norm artefacts (validation sidecar, etc.), dated per build
@@ -27,7 +27,7 @@ projects/sgai-for-mpeg-dash/
 └── .project/          governance — PROJECT.md, LOG.md, phases/, decisions/
 ```
 
-### `spec/`
+### `context/`
 The canonical, self-contained statement of the proposal. Files are
 numbered for reading order (`NN-name.md`); `99-glossary.md` is always
 last. Authored by humans (Qualabs working group). Source of truth.
@@ -60,7 +60,7 @@ tasks, decisions (ADRs), chronological log. See
 
 ## How to read
 
-Start with `spec/01-intro.md` and follow the document index TOC.
+Start with `context/01-intro.md` and follow the document index TOC.
 For project status and history, jump to `.project/PROJECT.md`.
 
 ## How to regenerate artefacts
@@ -70,8 +70,8 @@ Re-running a prompt regenerates its output when the skip rule says
 the inputs are fresher than the existing output.
 
 - **Gap analysis**: invoke `prompts/analyze-dash-gap.prompt`.
-  Reads `spec/`, writes `analysis/dash-gap-analysis.md` (overwrite).
-- **Norm**: invoke `prompts/build-norm.prompt`. Reads `spec/` +
+  Reads `context/`, writes `analysis/dash-gap-analysis.md` (overwrite).
+- **Norm**: invoke `prompts/build-norm.prompt`. Reads `context/` +
   `analysis/`, writes `output/sgai-norm-<today>.md` (no overwrite).
 - **Both with skip-if-fresh logic**: invoke
   `prompts/build-all.prompt`. Orchestrator that chains the two,
@@ -79,7 +79,7 @@ the inputs are fresher than the existing output.
   `[BUILT|SKIPPED]` line.
 
 Skip rules are mtime-based: an output is considered fresh when its
-mtime is newer than the newest mtime in its inputs. Touch a `spec/`
+mtime is newer than the newest mtime in its inputs. Touch a `context/`
 file to force a rebuild of downstream artefacts.
 
 ## Status

@@ -4,11 +4,11 @@
 
 Built against:
 - norm: `../output/sgai-norm-2026-05-12.md`
-- spec/ at git SHA: `ca19271`
+- context/ at git SHA: `ca19271`
 
 This document captures gaps, edge cases, ambiguities, and the
 R1..R13 coverage map surfaced during the 2026-05-12 norm build.
-Findings here feed back into `../spec/` — they are NOT part of the
+Findings here feed back into `../context/` — they are NOT part of the
 norm itself.
 
 ---
@@ -18,7 +18,7 @@ norm itself.
 ### G-01. Layout vocabulary for Pause Ad sub-positions
 
 - **Norm section affected**: Chapter 3 §3.3; annex D §D.2.
-- **Spec gap**: `../spec/03-requirements.md` R12 mandates that the
+- **Spec gap**: `../context/03-requirements.md` R12 mandates that the
   layout vocabulary maps 1:1 to IAB-defined values. The IAB doc lists
   `Fullscreen` and `Partial Screen` as the Pause Ad creative sizes,
   but does not give them canonical lowercase identifier names. The
@@ -53,10 +53,10 @@ norm itself.
 ### G-03. `@maxConcurrency` semantics on overlay slots
 
 - **Norm section affected**: Chapter 5 §5.3, §5.5.
-- **Spec gap**: `../spec/02-actors.md` mentions "maximum number of
+- **Spec gap**: `../context/02-actors.md` mentions "maximum number of
   concurrent overlays" as a Broadcaster-declared constraint, and
   UC-03 references "concurrency cap" in the D1 walk-through, but
-  `../spec/03-requirements.md` does not state a Player-side
+  `../context/03-requirements.md` does not state a Player-side
   obligation to enforce it. The norm introduces `@maxConcurrency` on
   `<svta:OverlayPresentation>` but defines no specific Player
   behaviour for the case where two overlay slots overlap in time
@@ -72,7 +72,7 @@ norm itself.
 ### G-04. Form `@duration` declared vs actual asset duration
 
 - **Norm section affected**: Chapter 5 §5.6.2 (`<svta:Form>`).
-- **Spec gap**: `../spec/03-requirements.md` R7.5 (trim-during-play)
+- **Spec gap**: `../context/03-requirements.md` R7.5 (trim-during-play)
   presumes "the actual rendered length of an accepted candidate
   exceeds its declared duration", but does not state the canonical
   field that carries the declared length in a non-linear form. The
@@ -90,7 +90,7 @@ norm itself.
 ### G-05. ADS error responses on non-linear slots
 
 - **Norm section affected**: Chapter 8 §8.1.
-- **Spec gap**: `../spec/05-dash-linear-interfaces.md` documents the
+- **Spec gap**: `../context/05-dash-linear-interfaces.md` documents the
   linear ADS error contract (empty `ListMPD`, HTTP errors, the
   silent-skip policy for tracking-only VAST `<Ad>` entries). The
   non-linear flow is not covered; specifically, what does an "empty
@@ -120,7 +120,7 @@ norm itself.
 ### G-07. Cross-Broadcaster scheme URI versioning
 
 - **Norm section affected**: Chapter 5 §5.2.
-- **Spec gap**: `../spec/06-naming-and-namespaces.md` states that a
+- **Spec gap**: `../context/06-naming-and-namespaces.md` states that a
   Player implementing edition N+1 SHOULD recognise both `:N:` and
   `:N+1:` URIs and treat them per the backward-compatibility rules.
   The spec does not specify what those rules are when both edition
@@ -223,7 +223,7 @@ norm itself.
 
 ### A-01. "Renderable form" on D2 in overlay scenarios
 
-- **Spec passage**: `../spec/04-use-cases.md`:285-302 (UC-03 D2
+- **Spec passage**: `../context/04-use-cases.md`:285-302 (UC-03 D2
   walk-through).
 - **Readings**:
   - (a) D2 can render an overlay only if the candidate has a video
@@ -239,7 +239,7 @@ norm itself.
 
 ### A-02. "Skip the candidate" vs "skip the slot"
 
-- **Spec passage**: `../spec/03-requirements.md`:163-168 (R5.7) and
+- **Spec passage**: `../context/03-requirements.md`:163-168 (R5.7) and
   `04-use-cases.md` D5 walk-throughs.
 - **Readings**:
   - (a) "Skip the candidate" means walk past this candidate but try
@@ -252,7 +252,7 @@ norm itself.
 
 ### A-03. ERT window for `<svta:PauseAdPresentation>`
 
-- **Spec passage**: `../spec/04-use-cases.md`:507-525 (UC-05 D1).
+- **Spec passage**: `../context/04-use-cases.md`:507-525 (UC-05 D1).
 - **Readings**:
   - (a) The ERT window for a pause-triggered slot starts at
     `presentationTime − @earliestResolutionTimeOffset` and ends at
@@ -266,7 +266,7 @@ norm itself.
 
 ### A-04. "Validation" vs "discard" of a non-conforming candidate
 
-- **Spec passage**: `../spec/02-actors.md`:81-84 ("any candidate
+- **Spec passage**: `../context/02-actors.md`:81-84 ("any candidate
   that violates the constraints… is discarded").
 - **Readings**:
   - (a) Validation happens once, up-front; non-conforming candidates
