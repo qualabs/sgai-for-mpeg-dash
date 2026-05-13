@@ -9,9 +9,9 @@ grounding flows through downstream prompts (see their headers).
 - `analysis/conformance-assertions.md` (from Step 4).
 - `analysis/iab-ad-templates.md` (from Step 5 — live mirror of the
   IAB ad-type catalogue; regenerated every run).
-- `output/sgai-norm-<YYYY-MM-DD>.md` (from Step 6 — norm).
-- `output/norm-validation-<YYYY-MM-DD>.md` (from Step 7 — sidecar
-  validation document; see `prompts/validate-norm.prompt`).
+- `output/sgai-spec-<YYYY-MM-DD>.md` (from Step 6 — spec).
+- `output/spec-validation-<YYYY-MM-DD>.md` (from Step 7 — sidecar
+  validation document; see `prompts/validate-spec.prompt`).
 - `output/dash-conformance-audit-<YYYY-MM-DD>.md` (from Step 8 —
   DASH 6th conformance audit; see
   `prompts/audit-dash-conformance.prompt`).
@@ -20,7 +20,7 @@ honoured here, with one exception: Step 5
 (`analyze-iab-ad-templates`) NEVER skips, because its source is an
 external live document that updates independently. Steps 7 and 8
 (validation, conformance audit) have skip rules **decoupled** from
-the norm's — they may run independently when their own inputs move.
+the spec's — they may run independently when their own inputs move.
 
 ---
 
@@ -118,47 +118,47 @@ output file is overwritten in place.
   Surface the prompt's `[GROUNDED_BY=iab-live-link]` or
   `[GROUNDED_BY=spec-only]` log line so the run is auditable.
 
-### Step 6 — Norm build
+### Step 6 — Spec build
 
-The `build-norm` prompt produces a single artifact: the norm
-itself (`output/sgai-norm-<date>.md`). The validation sidecar and
+The `build-spec` prompt produces a single artifact: the spec
+itself (`output/sgai-spec-<date>.md`). The validation sidecar and
 the DASH conformance audit are produced by separate steps
 (7 and 8) that run in **fresh subagent** contexts.
 
-- Find the newest `output/sgai-norm-*.md` file (if any). If it
+- Find the newest `output/sgai-spec-*.md` file (if any). If it
   exists AND its mtime is newer than the newest mtime in `context/`
   AND newer than `analysis/dash-gap-analysis.md` AND newer than
   `analysis/iab-ad-templates.md` → log
-  `[SKIPPED] build-norm → <latest filename>`.
-- Else → invoke the norm-build instructions in
-  `prompts/build-norm.prompt` and log
-  `[BUILT] build-norm → output/sgai-norm-<today>.md`.
+  `[SKIPPED] build-spec → <latest filename>`.
+- Else → invoke the spec-build instructions in
+  `prompts/build-spec.prompt` and log
+  `[BUILT] build-spec → output/sgai-spec-<today>.md`.
 
-### Step 7 — Validate norm (fresh subagent)
+### Step 7 — Validate spec (fresh subagent)
 
 This step MUST dispatch a **fresh subagent** — do not run inline
 in the orchestrator's own context. The validation agent has zero
-context overlap with the norm-build agent. Independent peer review
-of the norm draft is the whole point; sharing context defeats it.
+context overlap with the spec-build agent. Independent peer review
+of the spec draft is the whole point; sharing context defeats it.
 
-- Find the newest `output/norm-validation-*.md` file (if any). If
+- Find the newest `output/spec-validation-*.md` file (if any). If
   it exists AND its mtime is newer than the newest mtime in
-  `context/` AND newer than the newest `output/sgai-norm-*.md` →
-  log `[SKIPPED] validate-norm → <latest filename>`.
+  `context/` AND newer than the newest `output/sgai-spec-*.md` →
+  log `[SKIPPED] validate-spec → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
-  `prompts/validate-norm.prompt` and log
-  `[BUILT] validate-norm → output/norm-validation-<today>.md`.
+  `prompts/validate-spec.prompt` and log
+  `[BUILT] validate-spec → output/spec-validation-<today>.md`.
 
 ### Step 8 — DASH conformance audit (fresh subagent)
 
 This step MUST also dispatch a **fresh subagent** — separate from
-both the norm-build agent (Step 6) and the validate-norm agent
+both the spec-build agent (Step 6) and the validate-spec agent
 (Step 7). Independent third-party check against DASH 6th spec
 rules; context overlap with prior steps biases the review.
 
 - Find the newest `output/dash-conformance-audit-*.md` file (if
   any). If it exists AND its mtime is newer than the newest
-  `output/sgai-norm-*.md` → log
+  `output/sgai-spec-*.md` → log
   `[SKIPPED] audit-dash-conformance → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
   `prompts/audit-dash-conformance.prompt` and log
@@ -175,8 +175,8 @@ SGAI build summary (YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] build-error-semantics           → analysis/error-semantics.md (mtime: ...)
   [BUILT|SKIPPED] extract-conformance-assertions  → analysis/conformance-assertions.md (mtime: ...)
   [BUILT]         analyze-iab-ad-templates        → analysis/iab-ad-templates.md (mtime: ...)
-  [BUILT|SKIPPED] build-norm                      → output/sgai-norm-<date>.md (mtime: ...)
-  [BUILT|SKIPPED] validate-norm                   → output/norm-validation-<date>.md (mtime: ...)
+  [BUILT|SKIPPED] build-spec                      → output/sgai-spec-<date>.md (mtime: ...)
+  [BUILT|SKIPPED] validate-spec                   → output/spec-validation-<date>.md (mtime: ...)
   [BUILT|SKIPPED] audit-dash-conformance          → output/dash-conformance-audit-<date>.md (mtime: ...)
 ```
 

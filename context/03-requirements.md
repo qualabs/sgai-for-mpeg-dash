@@ -33,11 +33,11 @@ working doc verbatim.
     introduced by this proposal that the Player does not implement,
     a conforming legacy Player MUST ignore the unknown construct
     and continue playing the primary content uninterrupted.
-  - **R1.2** (Broadcaster / norm document): Every new SGAI construct
+  - **R1.2** (Broadcaster / spec document): Every new SGAI construct
     introduced by this proposal MUST be expressed using a
     MPEG-DASH 6th edition extension point whose "ignore-if-unknown"
     semantics are already defined in DASH 6th.
-  - **R1.3** (Broadcaster / norm document): The norm MUST NOT alter
+  - **R1.3** (Broadcaster / spec document): The specification MUST NOT alter
     or override the semantics of any pre-existing MPEG-DASH 6th
     edition construct.
 - **R2. Honour the actor's responsibilities.** The design must
@@ -57,8 +57,8 @@ working doc verbatim.
   - **R2.3** (Player): The Player MUST validate ADS-returned
     candidates against Broadcaster-declared constraints and render
     only those that satisfy them.
-  - **R2.4** (norm document): Every new mechanism introduced by the
-    norm MUST be expressible within the three-actor contract; any
+  - **R2.4** (spec document): Every new mechanism introduced by the
+    specification MUST be expressible within the three-actor contract; any
     mechanism that would require an actor to take on a
     responsibility outside its role MUST be rejected or redesigned.
 - **R3. Support a diverse range of device capabilities.** The
@@ -71,12 +71,12 @@ working doc verbatim.
   opportunity are enumerated in the **Use Cases** section.
 
   **Conformance criteria** (runtime + document-level):
-  - **R3.1** (norm document): The norm MUST enumerate the supported
+  - **R3.1** (spec document): The specification MUST enumerate the supported
     device classes and, for each class, the expected behaviour for
     each ad opportunity type covered by the use cases.
   - **R3.2** (Player): A Player on any supported device class MUST
     produce a defined behaviour (render, fall back, or skip) for
-    every ad opportunity type defined in the norm; undefined
+    every ad opportunity type defined in the spec; undefined
     behaviour is non-conforming.
   - **R3.3** (Player): A Player MUST NOT attempt to render an ad
     form (video, image, HTML) that its device class cannot render.
@@ -165,7 +165,7 @@ working doc verbatim.
     candidate and fall through to the next ADS-returned
     candidate (preserving the order required by R7) or, when
     exhausted, to primary content.
-- **R6. Ad tracking carrier.** The norm MUST specify how in-band
+- **R6. Ad tracking carrier.** The specification MUST specify how in-band
   ad tracking beacons (impression, start, quartiles, complete, etc.)
   are carried in the resolution document. Implementations SHOULD
   reuse the existing DASH callback event scheme
@@ -181,13 +181,13 @@ working doc verbatim.
   per the DASH extension rules invoked by R1.
 
   **Conformance criteria** (runtime + document-level):
-  - **R6.1** (norm document): The norm MUST specify how in-band ad
+  - **R6.1** (spec document): The specification MUST specify how in-band ad
     tracking beacons are carried in the resolution document.
   - **R6.2** (Broadcaster / ADS): Implementations SHOULD carry
     tracking beacons as `<Event>` entries inside an `<EventStream>`
     of scheme `urn:mpeg:dash:event:callback:2015` in the ad `MPD`
     or sub-`MPD`.
-  - **R6.3** (norm document): A new tracking carrier MAY be
+  - **R6.3** (spec document): A new tracking carrier MAY be
     introduced only when the callback scheme cannot express the
     required semantics, and only after a documented gap analysis
     per R9.
@@ -236,25 +236,25 @@ working doc verbatim.
   - **R7.5** (Player): If a candidate is accepted and its actual
     rendered length exceeds the cap, the Player MUST trim
     mid-rendering ("trim during play") per R4.
-- **R11. No dependency on VAST.** The norm MUST NOT depend on any
+- **R11. No dependency on VAST.** The specification MUST NOT depend on any
   specific version of VAST or on VAST as a protocol. Examples that
   show interoperability with a specific VAST version are
   illustrative only — conformant implementations MUST be
-  VAST-version-agnostic, and the norm MUST NOT impose VAST as a
+  VAST-version-agnostic, and the spec MUST NOT impose VAST as a
   precondition for any actor.
 
   **Conformance criteria**:
-  - **R11.1** (norm document): The normative chapters of the norm
+  - **R11.1** (spec document): The normative chapters of the spec
     MUST NOT cite a specific VAST version as required.
   - **R11.2** (Player): A Player MUST be able to operate against
     an ADS that does not use VAST at all (the ADS-side protocol
-    is the ADS's internal concern, not the norm's contract).
-  - **R11.3** (norm document): Any reference to VAST in the norm
+    is the ADS's internal concern, not the spec's contract).
+  - **R11.3** (spec document): Any reference to VAST in the spec
     MUST be in an annex or in a non-normative note explicitly
     flagged as illustrative.
 - **R12. Ad type definitions owned by IAB.** Ad types and their
   visual templates are defined and maintained by the IAB. This
-  norm references IAB definitions normatively for ad-type names
+  specification references IAB definitions normatively for ad-type names
   and behavioural expectations; introducing new ad-type
   definitions (new template categories beyond what IAB publishes)
   is out of scope.
@@ -263,8 +263,8 @@ working doc verbatim.
   https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
 
   **Conformance criteria**:
-  - **R12.1** (norm document): The list of accepted ad-type values
-    in the norm MUST be sourced from IAB definitions. A reference
+  - **R12.1** (spec document): The list of accepted ad-type values
+    in the spec MUST be sourced from IAB definitions. A reference
     to the IAB source MUST be included.
   - **R12.2** (Broadcaster): Broadcasters declaring allowed
     layouts MUST use names that map 1:1 to IAB-defined ad-type
@@ -272,8 +272,8 @@ working doc verbatim.
     `@allowedLayouts` attribute).
   - **R12.3** (ADS): The ADS MUST NOT emit form metadata for ad
     types that are not part of the IAB-defined set used by this
-    norm's edition.
-- **R13. Non-linear ad tracking semantics.** The norm MUST reuse
+    spec's edition.
+- **R13. Non-linear ad tracking semantics.** The specification MUST reuse
   the tracking mechanism defined for linear SGAI in MPEG-DASH
   (do not introduce new tracking event types). The Player SHOULD
   fire tracking beacons at overlay impression and at quartile
@@ -291,7 +291,7 @@ working doc verbatim.
   - **R13.3** (Player): If R4 trims the overlay before all
     quartiles fire, the Player MUST stop firing beacons at the
     trim boundary.
-  - **R13.4** (norm document): The norm MUST NOT introduce a new
+  - **R13.4** (spec document): The specification MUST NOT introduce a new
     tracking event scheme; reuse of the linear baseline tracking
     mechanism is mandatory.
 
@@ -304,10 +304,10 @@ working doc verbatim.
   with the design decision.
 
   **Conformance criteria** (document-level):
-  - **R8.1** (norm document): Every new construct introduced by the
+  - **R8.1** (spec document): Every new construct introduced by the
     proposal MUST be accompanied by an inline justification stating
     why an existing MPEG-DASH construct could not be reused.
-  - **R8.2** (norm document): Every deliberate omission of an
+  - **R8.2** (spec document): Every deliberate omission of an
     existing MPEG-DASH construct that a reader might expect to see
     reused MUST be documented inline with the design decision.
 - **R9. Minimise net new constructs.** The proposal must reuse
@@ -318,12 +318,12 @@ working doc verbatim.
   suffice.
 
   **Conformance criteria** (document-level):
-  - **R9.1** (norm document): The proposal MUST reuse existing
+  - **R9.1** (spec document): The proposal MUST reuse existing
     MPEG-DASH machinery (events, manifests, presentations, schemes)
     wherever possible.
-  - **R9.2** (norm document): A new construct MUST NOT be
+  - **R9.2** (spec document): A new construct MUST NOT be
     introduced unless an existing one cannot be made to fit.
-  - **R9.3** (norm document): Before introducing a new construct,
+  - **R9.3** (spec document): Before introducing a new construct,
     the proposal MUST consider whether an extension to an existing
     construct would suffice, and document the outcome of that
     consideration.
@@ -335,12 +335,12 @@ working doc verbatim.
   during the review of earlier iterations of the proposal.)
 
   **Conformance criteria** (document-level):
-  - **R10.1** (norm document): Spatial arrangement of overlays MUST
+  - **R10.1** (spec document): Spatial arrangement of overlays MUST
     be delegated to HTML5 / CSS layout primitives.
-  - **R10.2** (norm document): The norm MUST NOT define a parallel
+  - **R10.2** (spec document): The specification MUST NOT define a parallel
     layout standard for overlay placement.
-  - **R10.3** (norm document): Position semantics inside a layout
-    (left, right, top, bottom, etc.) are out of scope for the norm
+  - **R10.3** (spec document): Position semantics inside a layout
+    (left, right, top, bottom, etc.) are out of scope for the spec
     and MUST be expressed via the Positioning Templates section
     using HTML5 / CSS primitives.
 

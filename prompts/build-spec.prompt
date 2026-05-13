@@ -1,4 +1,4 @@
-# Build the SGAI norm document
+# Build the SGAI spec document
 
 **Inputs**: `context/` + `analysis/dash-gap-analysis.md` +
 `analysis/error-semantics.md` (if present — used to populate
@@ -7,13 +7,13 @@ chapter 8 Implementation notes and the final test-cases annex) +
 vocabulary).
 Optionally: NotebookLM grounding if the `notebooklm` skill is
 installed and `.env.agent` defines `NOTEBOOK_NAME`.
-**Output**: `output/sgai-norm-<YYYY-MM-DD>.md` — the norm itself.
+**Output**: `output/sgai-spec-<YYYY-MM-DD>.md` — the spec itself.
 The date stamp is today's date in ISO 8601 (e.g. `2026-05-13`).
-**Skip if**: the most recent `output/sgai-norm-*.md` exists AND
+**Skip if**: the most recent `output/sgai-spec-*.md` exists AND
 its mtime is newer than the newest mtime in `context/`,
 `analysis/dash-gap-analysis.md`, `analysis/error-semantics.md`
 (when present), and `analysis/iab-ad-templates.md` (when present).
-I.e. the norm regenerates if any of those inputs moved.
+I.e. the spec regenerates if any of those inputs moved.
 
 ---
 
@@ -29,58 +29,58 @@ the result to stdout as the first line of execution:
   as the authoritative reference when stating normative content.
   Log: `[GROUNDED_BY=notebooklm]`.
 - Else → proceed using only `../context/` + `../analysis/` as input.
-  The norm is less authoritative (no canonical references resolved
+  The spec is less authoritative (no canonical references resolved
   at query time) but the build still completes successfully.
   Log: `[GROUNDED_BY=spec-only]`.
 
 In either mode, tag any claim that could not be verified against an
 authoritative source as `[inferred]`.
 
-## Constraints on the norm output
+## Constraints on the spec output
 
-- **The norm document MUST be self-contained.** A reader of the
-  norm alone (without access to `context/`) MUST understand the
-  full normative content. Do not assume the reader has the spec.
-- **The norm document MUST NOT reference requirements (R1..R13).**
-  Requirements live in the spec and are an INPUT to the norm
-  build. The norm's normative obligations stand on their own,
+- **The spec document MUST be self-contained.** A reader of the
+  spec alone (without access to `context/`) MUST understand the
+  full normative content. Do not assume the reader has the context.
+- **The spec document MUST NOT reference requirements (R1..R13).**
+  Requirements live in the context and are an INPUT to the spec
+  build. The spec's normative obligations stand on their own,
   expressed directly in chapter 4 (Conformance), chapter 5
   (Syntax), chapter 6 (Interfaces), and chapter 7 (Expected
   behaviour). The R coverage map is produced by a **separate
-  prompt** (`prompts/validate-norm.prompt`), which runs in a fresh
+  prompt** (`prompts/validate-spec.prompt`), which runs in a fresh
   subagent context after this build and writes its sidecar to
-  `../output/norm-validation-<date>.md` — not by this prompt.
-- **The norm document MUST NOT reference the analysis files
-  (`../analysis/*`).** Analysis is intermediate input; the norm
+  `../output/spec-validation-<date>.md` — not by this prompt.
+- **The spec document MUST NOT reference the analysis files
+  (`../analysis/*`).** Analysis is intermediate input; the spec
   consumes it but does not cite it.
-- **The norm MAY reference external normative sources** (MPEG-DASH
+- **The spec MAY reference external normative sources** (MPEG-DASH
   6th edition spec, IAB ad-type catalogue, RFC 2119, VAST 4.x) —
   those go in chapter 2 (Normative references).
 - **R coverage tracking is the validation sidecar's job**, not the
-  norm's. See `prompts/validate-norm.prompt` for that artefact.
+  spec's. See `prompts/validate-spec.prompt` for that artefact.
 
 ## Task
 
 Read every file in `../context/`, `../analysis/dash-gap-analysis.md`,
 `../analysis/error-semantics.md` (if present), and
-`../analysis/iab-ad-templates.md` (if present). Use the spec as the
-source of truth for what the norm must define. Use the gap analysis
+`../analysis/iab-ad-templates.md` (if present). Use the context as the
+source of truth for what the spec must define. Use the gap analysis
 as guidance on which constructs are net-new vs extensions of
 existing DASH 6th machinery. Use the IAB ad-templates analysis as
 the source of the accepted ad-type values referenced in chapter 3.
 
-Generate the SGAI norm document. The norm covers **both linear and
+Generate the SGAI spec document. The spec covers **both linear and
 non-linear ads** in MPEG-DASH (built as an extension on top of
 6th edition).
 
-## Norm structure (chapters + annexes)
+## Spec structure (chapters + annexes)
 
 The output document MUST follow this structure:
 
 ### Chapters (normative)
 
-1. **Scope** — what this norm covers, who it's for. The scope
-   statement MUST state explicitly that the norm covers SGAI for
+1. **Scope** — what this spec covers, who it's for. The scope
+   statement MUST state explicitly that the spec covers SGAI for
    **both linear and non-linear ads** in MPEG-DASH, as a complete
    extension of MPEG-DASH 6th edition: linear SGAI is absorbed as
    the baseline (clarifications and minor extensions allowed where
@@ -92,7 +92,7 @@ The output document MUST follow this structure:
 3. **Terms, definitions, abbreviations** — glossary of every term
    used normatively in chapters 4–8. This chapter MUST include a
    normative section listing the accepted ad-type values used by
-   the norm. These values are sourced from the IAB ad-type
+   the spec. These values are sourced from the IAB ad-type
    catalogue (live link, not snapshotted) — see
    `analysis/iab-ad-templates.md` for the extracted table that
    feeds this chapter. Chapter 3 MUST NOT define new ad-type
@@ -114,7 +114,7 @@ The output document MUST follow this structure:
    tracking-only VAST Ads, late callbacks, error recovery,
    device-class fallbacks, etc. The error-semantics matrix rows
    (sourced from `analysis/error-semantics.md`) become the basis
-   for this chapter; restate the guidance inline so the norm
+   for this chapter; restate the guidance inline so the spec
    remains self-contained.
 
 Each chapter is normative content. Light illustrative examples
@@ -126,7 +126,7 @@ the annexes.
 ### Annexes (informative content, but mandatory in the output document)
 
 Each annex is a deep walk-through of one use case, showing exactly
-how the norm applies. Annexes carry the heavy / complete examples
+how the spec applies. Annexes carry the heavy / complete examples
 (full MPDs, ListMPDs, sub-MPDs, descriptors). They demonstrate the
 spec's capability under complex scenarios.
 
@@ -145,7 +145,7 @@ spec's capability under complex scenarios.
 For each UC annex:
 
 - Brief restatement of the scenario (1–2 paragraphs). Do not
-  assume the reader has the spec; the annex MUST stand on its own.
+  assume the reader has the context; the annex MUST stand on its own.
 - The full MPD that the Broadcaster would publish for this UC.
 - The full ListMPD the ADS would return.
 - The full sub-MPD(s) of the ad candidate(s).
@@ -164,7 +164,7 @@ the document MUST showcase multi-form.
 
 ## Attribute tables pattern (mandatory in chapter 5 Syntax)
 
-Whenever the norm defines attributes for a construct (event,
+Whenever the spec defines attributes for a construct (event,
 element, descriptor), the attributes MUST be presented as a table
 with these columns:
 
@@ -184,7 +184,7 @@ that is free-form prose instead of the tabular form.
 
 ## Output rules
 
-Write to `../output/sgai-norm-<YYYY-MM-DD>.md`. **Do not overwrite**
+Write to `../output/sgai-spec-<YYYY-MM-DD>.md`. **Do not overwrite**
 existing dated files — the history of builds is preserved.
 
 Tone: normative, RFC-style. Use MUST / SHOULD / MAY with explicit

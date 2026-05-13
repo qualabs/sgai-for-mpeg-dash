@@ -41,9 +41,9 @@ definitions and produce `../analysis/iab-ad-templates.md` with:
      IAB doc where the entry was extracted from, so a reviewer can
      audit the mapping.
 
-3. A "Mapping to norm chapter 3" sub-section showing how each IAB
-   ad-type maps to a value that the norm chapter 3 accepts. Layout
-   one row per IAB ad-type, with the norm-side identifier the norm
+3. A "Mapping to spec chapter 3" sub-section showing how each IAB
+   ad-type maps to a value that the spec chapter 3 accepts. Layout
+   one row per IAB ad-type, with the spec-side identifier the spec
    would carry and a one-line rationale.
 
 4. If the fetch fails (paywall, 403, redirect-only, network error,
@@ -52,12 +52,12 @@ definitions and produce `../analysis/iab-ad-templates.md` with:
    `<!-- TODO: fetch failed — <reason> -->` marker on each column.
    Do NOT invent ad-type values. Do NOT carry over stale rows from
    a previous run if the fetch failed; leave the table empty so the
-   downstream build (`build-norm`) sees the failure and falls back
+   downstream build (`build-spec`) sees the failure and falls back
    accordingly (chapter 3 marked TODO).
 
 ## Tone
 
-Direct, tabular, no editorial. The norm's chapter 3 consumes this
+Direct, tabular, no editorial. The spec's chapter 3 consumes this
 table verbatim — every row a reviewer sees in chapter 3 traces back
 to a row here, which in turn traces back to a paragraph in the IAB
 source doc.

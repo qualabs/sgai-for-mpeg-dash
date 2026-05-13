@@ -1,15 +1,15 @@
 [GROUNDED_BY=notebooklm]
 
-# Norm validation — 2026-05-12
+# Spec validation — 2026-05-12
 
 Built against:
-- norm: `../output/sgai-norm-2026-05-12.md`
+- spec: `../output/sgai-spec-2026-05-12.md`
 - context/ at git SHA: `ca19271`
 
 This document captures gaps, edge cases, ambiguities, and the
-R1..R13 coverage map surfaced during the 2026-05-12 norm build.
+R1..R13 coverage map surfaced during the 2026-05-12 spec build.
 Findings here feed back into `../context/` — they are NOT part of the
-norm itself.
+spec itself.
 
 ---
 
@@ -17,12 +17,12 @@ norm itself.
 
 ### G-01. Layout vocabulary for Pause Ad sub-positions
 
-- **Norm section affected**: Chapter 3 §3.3; annex D §D.2.
+- **Spec section affected**: Chapter 3 §3.3; annex D §D.2.
 - **Spec gap**: `../context/03-requirements.md` R12 mandates that the
   layout vocabulary maps 1:1 to IAB-defined values. The IAB doc lists
   `Fullscreen` and `Partial Screen` as the Pause Ad creative sizes,
   but does not give them canonical lowercase identifier names. The
-  norm uses `fullscreen` and `partial-screen` as the kebab-case
+  spec uses `fullscreen` and `partial-screen` as the kebab-case
   identifiers; the IAB document does not pin these spellings.
 - **Implementer default today**: pick a kebab-case spelling and
   document it. Different implementations may drift.
@@ -32,7 +32,7 @@ norm itself.
 
 ### G-02. Side-by-side as an allowed layout
 
-- **Norm section affected**: Chapter 7 §7.2 (D2 sub-row mentions
+- **Spec section affected**: Chapter 7 §7.2 (D2 sub-row mentions
   side-by-side); Chapter 3 §3.3.
 - **Spec gap**: UC-03's D2 walk-through says side-by-side is an
   option "if the broadcaster allows it", but no spec file enumerates
@@ -41,7 +41,7 @@ norm itself.
   mapping from "side-by-side" (used in UC-03) to a specific IAB
   Squeezeback variant is not made explicit anywhere.
 - **Implementer default today**: probably `double-box` or
-  `frame` from Squeezeback. The norm chapter 7 §7.2 D2 row
+  `frame` from Squeezeback. The spec chapter 7 §7.2 D2 row
   hand-waves with "if `side-by-side` is in `@allowedLayouts`"
   without resolving which IAB identifier this maps to.
 - **Recommended spec refinement**: in `04-use-cases.md` UC-03,
@@ -52,12 +52,12 @@ norm itself.
 
 ### G-03. `@maxConcurrency` semantics on overlay slots
 
-- **Norm section affected**: Chapter 5 §5.3, §5.5.
+- **Spec section affected**: Chapter 5 §5.3, §5.5.
 - **Spec gap**: `../context/02-actors.md` mentions "maximum number of
   concurrent overlays" as a Broadcaster-declared constraint, and
   UC-03 references "concurrency cap" in the D1 walk-through, but
   `../context/03-requirements.md` does not state a Player-side
-  obligation to enforce it. The norm introduces `@maxConcurrency` on
+  obligation to enforce it. The spec introduces `@maxConcurrency` on
   `<svta:OverlayPresentation>` but defines no specific Player
   behaviour for the case where two overlay slots overlap in time
   and their combined concurrent ad count would exceed an individual
@@ -71,12 +71,12 @@ norm itself.
 
 ### G-04. Form `@duration` declared vs actual asset duration
 
-- **Norm section affected**: Chapter 5 §5.6.2 (`<svta:Form>`).
+- **Spec section affected**: Chapter 5 §5.6.2 (`<svta:Form>`).
 - **Spec gap**: `../context/03-requirements.md` R7.5 (trim-during-play)
   presumes "the actual rendered length of an accepted candidate
   exceeds its declared duration", but does not state the canonical
   field that carries the declared length in a non-linear form. The
-  norm uses `<svta:Form>` `@duration` for this, but the spec is
+  spec uses `<svta:Form>` `@duration` for this, but the context is
   silent on whether this is the form's intrinsic asset duration
   (which could be longer than the slot window) or the ADS-declared
   rendered duration for the slot (truncated to the cap).
@@ -89,7 +89,7 @@ norm itself.
 
 ### G-05. ADS error responses on non-linear slots
 
-- **Norm section affected**: Chapter 8 §8.1.
+- **Spec section affected**: Chapter 8 §8.1.
 - **Spec gap**: `../context/05-dash-linear-interfaces.md` documents the
   linear ADS error contract (empty `ListMPD`, HTTP errors, the
   silent-skip policy for tracking-only VAST `<Ad>` entries). The
@@ -104,9 +104,9 @@ norm itself.
 
 ### G-06. Pre-fetch vs on-demand for pause-triggered slots
 
-- **Norm section affected**: Chapter 6 §6.3 step 3; Chapter 8 §8.3.
+- **Spec section affected**: Chapter 6 §6.3 step 3; Chapter 8 §8.3.
 - **Spec gap**: UC-05's notes flag the pre-fetch vs on-demand choice
-  as an open spec decision; the spec does not pick. The norm leaves
+  as an open spec decision; the spec does not pick. The spec leaves
   it as "implementation choice", which is conformance-safe but
   invites deployment drift.
 - **Implementer default today**: pre-fetch is the lower-latency
@@ -119,7 +119,7 @@ norm itself.
 
 ### G-07. Cross-Broadcaster scheme URI versioning
 
-- **Norm section affected**: Chapter 5 §5.2.
+- **Spec section affected**: Chapter 5 §5.2.
 - **Spec gap**: `../context/06-naming-and-namespaces.md` states that a
   Player implementing edition N+1 SHOULD recognise both `:N:` and
   `:N+1:` URIs and treat them per the backward-compatibility rules.
@@ -136,7 +136,7 @@ norm itself.
 
 ### G-08. Tracking metadata when no quartile beacons declared
 
-- **Norm section affected**: Chapter 5 §5.8.
+- **Spec section affected**: Chapter 5 §5.8.
 - **Spec gap**: R13 says the Player **SHOULD** fire quartile beacons
   against the Broadcaster-declared window. The spec does not
   prescribe what to do if the per-form sub-MPD's tracking
@@ -164,7 +164,7 @@ norm itself.
 - **Why it matters**: P-04 says skip A, render B, skip C — but R7.4
   says the Player MUST NOT re-order. Does "skipping" violate the
   no-reorder rule, or is skipping considered a drop (not a reorder)?
-  The norm chapter 4 P-06 implies skipping is a drop, but the wording
+  The spec chapter 4 P-06 implies skipping is a drop, but the wording
   is "drops" plural — does the rule apply when multiple drops are
   non-contiguous?
 - **Responsible actor**: Player. Spec is silent on the multi-drop
@@ -176,11 +176,11 @@ norm itself.
   `@maxDuration="5000"` (5 s), but the ADS returns candidates whose
   forms all have `@duration` ≥ 20 s. Drop-before-play would drop all
   candidates; declining the slot may be the right outcome, but the
-  norm does not say whether the Player MUST drop based on declared
+  spec does not say whether the Player MUST drop based on declared
   duration or MAY accept and trim.
 - **Why it matters**: declared duration exceeding the cap by 4x is a
   signal of misconfiguration; behaviour should be predictable.
-- **Responsible actor**: Player. Spec is silent. The norm assumes
+- **Responsible actor**: Player. Spec is silent. The spec assumes
   the Player will pick one of the two behaviours per P-06.
 
 ### E-03. Pause-triggered slot fires immediately on re-entry to the window
@@ -201,7 +201,7 @@ norm itself.
 - **Why it matters**: should the Player fall through to the next
   form on the candidate (preserving the candidate), or skip the
   candidate entirely?
-- **Responsible actor**: Player. The norm Chapter 8 §8.1 says
+- **Responsible actor**: Player. The spec Chapter 8 §8.1 says
   "skips form and falls back to next form / candidate" — the form
   fallback is implicit but not pinned.
 
@@ -211,10 +211,10 @@ norm itself.
   `[TIMESTAMP]` or `[DEVICE_ID]` macros that the ADS expected the
   Player to resolve before firing.
 - **Why it matters**: macro resolution is a VAST concept that the
-  norm should explicitly disclaim (R11 — no VAST dependency). The
+  spec should explicitly disclaim (R11 — no VAST dependency). The
   Player should fire the URL verbatim, leaving macro resolution as
   an ADS-side responsibility.
-- **Responsible actor**: norm document (clarify) + ADS adapter
+- **Responsible actor**: spec document (clarify) + ADS adapter
   (resolve macros server-side).
 
 ---
@@ -230,7 +230,7 @@ norm itself.
     form AND `side-by-side` is an allowed layout.
   - (b) D2 can render an overlay if the candidate has a video form,
     regardless of layout — the layout constraint is decoupled.
-- **Norm draft assumed**: (a) — chapter 7 §7.2 D2 row states the
+- **Spec draft assumed**: (a) — chapter 7 §7.2 D2 row states the
   video-on-video composition path explicitly and treats side-by-side
   as a fallback only when allowed.
 - **Spec fix that would resolve it**: in UC-03 D2, restate the
@@ -245,7 +245,7 @@ norm itself.
   - (a) "Skip the candidate" means walk past this candidate but try
     the next one; "skip the slot" means decline the entire slot.
   - (b) The phrases are used interchangeably; both mean abandon.
-- **Norm draft assumed**: (a) — the norm chapter 4 P-04 and chapter
+- **Spec draft assumed**: (a) — the spec chapter 4 P-04 and chapter
   7 use the distinction consistently.
 - **Spec fix that would resolve it**: in `03-requirements.md` add a
   short glossary clarification at the top of the R5 / R7 sections.
@@ -259,7 +259,7 @@ norm itself.
     `@windowEnd`. The Player MAY resolve any time in this window.
   - (b) The ERT window is moot for pause-triggered slots; the
     resolution happens at the pause instant unconditionally.
-- **Norm draft assumed**: (a) — chapter 6 §6.3 step 3 describes
+- **Spec draft assumed**: (a) — chapter 6 §6.3 step 3 describes
   pre-fetch at ERT or on-demand at pause as both viable.
 - **Spec fix that would resolve it**: pick one and add an explicit
   paragraph in UC-05 notes or in a new section of `03-requirements.md`.
@@ -275,7 +275,7 @@ norm itself.
     candidate may pass slot-level validation but fail per-form
     validation (e.g. form's `@admissibleLayouts` is a subset of the
     slot's `@allowedLayouts` but the device cannot render).
-- **Norm draft assumed**: (b) — chapter 4 P-02 + P-03 + P-04
+- **Spec draft assumed**: (b) — chapter 4 P-02 + P-03 + P-04
   describe a two-stage process where slot validation and per-form
   device-fitness are sequential, and per-candidate selection can
   fail at either stage.
@@ -287,7 +287,7 @@ norm itself.
 
 ## R1..R13 coverage map
 
-| Req | Norm chapter(s) / annex(es) | Coverage | Residual |
+| Req | Spec chapter(s) / annex(es) | Coverage | Residual |
 |-----|------------------------------|----------|----------|
 | R1 (ignore-if-unknown) | Chapter 4 §4.1 B-05, §4.3 P-09; Chapter 5 §5.10 (audit table); Chapter 7 §7.5; Annex E (T-E1..T-E3) | full | — |
 | R2 (actor roles) | Chapter 4 §4.1, §4.2, §4.3; Chapter 6 §6.1, §6.4; Chapter 7 (per-actor walk-throughs) | full | — |
@@ -296,7 +296,7 @@ norm itself.
 | R5 (device-aware selection) | Chapter 4 §4.3 P-03, P-04; Chapter 5 §5.6.2 (CandidateForms / Form schema with intersection of three); Chapter 7 §7.2 / §7.4; Annex B | full | — |
 | R6 (tracking carrier) | Chapter 4 §4.4 D-02; Chapter 5 §5.8; Chapter 8 §8.5 (vendor metadata) | full | — |
 | R7 (ADS-returned order) | Chapter 4 §4.3 P-06; Chapter 8 §8.1 (precedence) | partial | E-01 (multi-drop edge case ambiguous) |
-| R8 (justify additions) | Chapter 5 §5.2 (URI rationale), §5.10 (audit table) | partial | The norm justifies each new construct inline but does not include an explicit "why couldn't existing X be reused?" paragraph per construct. |
+| R8 (justify additions) | Chapter 5 §5.2 (URI rationale), §5.10 (audit table) | partial | The spec justifies each new construct inline but does not include an explicit "why couldn't existing X be reused?" paragraph per construct. |
 | R9 (minimise net new constructs) | Chapter 4 §4.4 D-02 (reuse callback scheme); Chapter 5 §5.6.1 (linear `ListMPD` reused); Chapter 5 §5.7 (SPS reused) | full | — |
 | R10 (no layout system) | Chapter 4 §4.4 D-04; Chapter 5 §5.5 (uses HTML/CSS via overlay surface); Chapter 6 §6.3 step 7 | full | — |
 | R11 (no VAST dependency) | Chapter 4 §4.2 A-06, §4.3 P-10, §4.4 D-05; Chapter 8 §8.5 (vendor metadata is the VAST-equivalent carrier) | full | — |
@@ -308,7 +308,7 @@ norm itself.
 ## Recommended spec refinements
 
 Top 5 priorities for the next spec iteration, ranked by leverage
-(unblocks the most other items / reduces the most norm-side
+(unblocks the most other items / reduces the most spec-side
 handwaving):
 
 1. **Resolve A-04 / G-04 by pinning the two-stage validation
@@ -318,7 +318,7 @@ handwaving):
    and partially A-02.
 
 2. **Resolve G-02 by pinning the canonical IAB identifier for
-   "side-by-side"** in UC-03's D2 walk-through. The norm chapter 7
+   "side-by-side"** in UC-03's D2 walk-through. The spec chapter 7
    §7.2 currently hand-waves; pinning the IAB sub-position (probably
    `double-box` from Squeezeback) makes the D2 row crisp and
    removes the dangling "if `side-by-side` is in `@allowedLayouts`"
@@ -332,7 +332,7 @@ handwaving):
    own spelling and `@allowedLayouts` becomes ambiguous.
 
 4. **Resolve G-03 (cross-slot concurrency) by adding a Player
-   obligation under R2 or R4**. Right now the norm's chapter 5
+   obligation under R2 or R4**. Right now the spec's chapter 5
    defines `@maxConcurrency` but chapter 4 / chapter 7 do not
    define what the Player does when two overlay slots overlap. A
    one-sentence conformance criterion would close this.

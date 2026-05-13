@@ -97,7 +97,7 @@ total UC count, total R count>
 Write to `../analysis/uc-coverage-matrix.md`. Overwrite if exists.
 
 Target volume: 60-150 lines. Tabular and crisp; no narrative
-filler. The norm's chapter 7 (Expected behaviour per scenario)
+filler. The spec's chapter 7 (Expected behaviour per scenario)
 absorbs the row-by-UC view directly; chapter 4 (Conformance)
 cross-checks against the orphan list.
 

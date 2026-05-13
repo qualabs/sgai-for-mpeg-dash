@@ -1,19 +1,19 @@
 # DASH conformance audit
 
 **Inputs**:
-- The most recent `../output/sgai-norm-*.md`.
+- The most recent `../output/sgai-spec-*.md`.
 - NotebookLM (configured via `.env.agent` — `NOTEBOOK_NAME` should
   point at a notebook containing the MPEG-DASH 6th edition spec).
 
 **Output**: `../output/dash-conformance-audit-<DATE>.md`, with
-`<DATE>` matching the norm's date.
+`<DATE>` matching the spec's date.
 
 **Skip if**: `../output/dash-conformance-audit-<DATE>.md` exists
-AND its mtime is newer than the norm. Audit re-runs whenever the
-norm rebuilds.
+AND its mtime is newer than the spec. Audit re-runs whenever the
+spec rebuilds.
 
 **Execution mode**: MUST run in a fresh subagent context,
-**separate** from both the norm-build agent and the validate-norm
+**separate** from both the spec-build agent and the validate-spec
 agent. This is an independent third-party check against DASH 6th
 spec rules — sharing context with prior steps biases the review.
 
@@ -21,7 +21,7 @@ spec rules — sharing context with prior steps biases the review.
 
 ## Task
 
-The norm introduces / modifies XML constructs (events, elements,
+The spec introduces / modifies XML constructs (events, elements,
 attributes, scheme URIs, profile usage). The goal of this audit is
 to verify each construct is **valid under MPEG-DASH 6th edition
 rules and schemas** — i.e., no construct violates:
@@ -33,16 +33,16 @@ rules and schemas** — i.e., no construct violates:
   Static).
 - Attribute semantics inherited from baseline DASH.
 
-This is **NOT** a design audit (that is the validate-norm sidecar's
+This is **NOT** a design audit (that is the validate-spec sidecar's
 job). This is **conformance to DASH 6th**.
 
 ## Procedure
 
 ### 1. Inventory
 
-Read the latest `../output/sgai-norm-*.md` (full document, all
+Read the latest `../output/sgai-spec-*.md` (full document, all
 chapters + annexes). Inventory every construct that is **new or
-modified** by the norm:
+modified** by the spec:
 
 - New scheme URIs (e.g. `urn:svta:dash:event:*:<year>`).
 - New XML elements in `urn:svta:dash:*` (or other extension)
@@ -54,7 +54,7 @@ modified** by the norm:
   CandidateForms, sub-MPD profile choice).
 - Reuse of the baseline callback event scheme for tracking.
 
-For each item: name / URI, placement, what the norm says it does.
+For each item: name / URI, placement, what the spec says it does.
 
 ### 2. NotebookLM queries
 
@@ -94,7 +94,7 @@ For each item:
 
 # DASH conformance audit — <YYYY-MM-DD>
 
-**Audit target**: `../output/sgai-norm-<YYYY-MM-DD>.md`.
+**Audit target**: `../output/sgai-spec-<YYYY-MM-DD>.md`.
 **Reference**: MPEG-DASH 6th edition (ISO/IEC 23009-1:2025).
 **Method**: inventory + grounded queries against the DASH 6th
 notebook + per-construct verdict.
