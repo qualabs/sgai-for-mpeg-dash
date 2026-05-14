@@ -114,3 +114,38 @@ IAB directly — this specification does not own the vocabulary.
 Per **R12** in [`03-requirements.md`](./03-requirements.md), the
 layout vocabulary MUST map 1:1 to IAB-defined ad-type values; no
 broadcaster-private or spec-private layout names are admissible.
+
+## Naming consistency with baseline DASH
+
+When this spec introduces a new element or attribute that represents
+**the same semantic concept** as an existing MPEG-DASH 6th edition
+construct (same kind of value, same units, same role), the new
+identifier MUST reuse the baseline name verbatim. Diverging on the
+name when the semantics match is a readability hazard for implementers
+and a source of silent mapping bugs across baseline-aware and
+SGAI-aware code paths.
+
+Conversely, when this spec introduces a new attribute that **shares a
+name** with a baseline DASH attribute but **differs in semantics** (a
+different unit, a different reference frame, a different domain of
+values), the new identifier MUST be renamed so the difference is
+visible at the call site. Same name with different semantics is a
+silent-failure pattern; an explicit prefix, suffix, or full rename is
+required (for example, `@offsetSeconds` vs `@offsetTicks` when the
+unit differs, or namespace-prefixing the custom one as `svta:offset`).
+
+Two specific cases that arose from prior audits:
+
+- `@earliestResolutionTimeOffset` exists in MPEG-DASH §5.3.2.6.1 on
+  `<ImportedMPD>` in **seconds**. If SGAI-namespaced elements
+  (`<OverlayPresentation>`, `<PauseAdPresentation>`, etc.) need a
+  similarly-scoped attribute in `EventStream@timescale` units, the
+  SGAI attribute MUST NOT reuse the baseline name verbatim — the
+  unit collision otherwise is invisible to a reader scanning the
+  XML.
+- `Period@duration` of a non-linear sub-MPD is semantically the
+  same as the parent slot's overlay window; the spec MUST use
+  `@duration` (not invent `@overlayDuration` or similar) because
+  the underlying semantics match the DASH baseline meaning.
+
+This applies to elements as well as attributes.

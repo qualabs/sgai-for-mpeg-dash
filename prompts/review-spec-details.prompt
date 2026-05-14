@@ -1,0 +1,199 @@
+# Review spec details
+
+**Inputs**:
+- The most recent `../output/*-sgai-spec.md` (the spec to review and,
+  for autofix-eligible issues, to edit in place).
+- The matching `../output/*-spec-validation.md` (the Step 7 sidecar —
+  read to avoid duplicating findings already captured upstream).
+- `../context/` (the normative reference for naming, namespaces,
+  backward-compatibility, and the rest of the spec's policy layer).
+
+**Output**:
+- `../output/<DATE>-detail-review.md` (the review log), where `<DATE>`
+  is today's date in ISO 8601, matching the spec's date.
+- In-place autofixes applied to `../output/<DATE>-sgai-spec.md` for
+  deterministic, low-risk corrections. Issues that require a
+  semantic decision are flagged in the log only; the spec is not
+  touched for those.
+
+**Skip if**: `../output/<DATE>-detail-review.md` exists AND its mtime
+is newer than ALL of:
+- the most recent `../output/*-sgai-spec.md`,
+- the most recent `../output/*-spec-validation.md`,
+- `../context/06-naming-and-namespaces.md`,
+- `../context/07-backward-compat-checklist.md`,
+- this prompt (`prompts/review-spec-details.prompt`).
+
+If any of those is newer than the review log, regenerate the log
+(and re-apply autofixes against the current spec).
+
+**Execution mode**: this prompt is deterministic — it consults only
+the spec, the validation sidecar, and `../context/`. It MUST NOT
+query NotebookLM or any external authority; conformance against
+external standards is the job of `audit-dash-conformance` (Step 8).
+
+---
+
+## Task
+
+Walk the latest `../output/*-sgai-spec.md` end to end — every chapter
+and every annex — and check it against `../context/` for the
+following categories of micro-consistency issue. The mandate is
+strictly low-level: format, cross-reference, naming, and
+internal alignment. Architecture, requirements, and external
+conformance are explicitly out of scope.
+
+### Scope — what this review covers
+
+1. **Format consistency**. Lists, delimiters, whitespace, casing,
+   and quoting style. Example: `@profiles` SHOULD be
+   comma-separated; if some chapter or annex uses space-separated,
+   normalise it. Apply consistently across chapter prose and every
+   example.
+2. **Cross-reference consistency**. Internal references like
+   `R5.4`, `§5.3.1.2`, `Annex B`, `chapter 8` must resolve. Detect
+   broken refs (e.g. spec mentions `R5.4` but the highest R5.x is
+   `R5.3`), wrong section numbers, and dangling annex labels.
+3. **Naming reuse with different semantics**. Anchored to
+   `../context/06-naming-and-namespaces.md`, section "Naming
+   consistency with baseline DASH". Detect cases where an SGAI
+   construct reuses a baseline DASH name but diverges in unit,
+   reference frame, or domain — these are flag-only because they
+   require a naming decision.
+4. **Same-name same-semantics alignment**. Detect cases where the
+   spec invented a new name for a concept that already exists in
+   baseline DASH with the same semantics — these should reuse the
+   baseline name verbatim. Likewise, if a baseline name is already
+   in use with matching semantics, confirm the spec is not
+   shadowing it with a synonym elsewhere.
+5. **Annex vs chapter mismatch**. The XML examples in annexes MUST
+   use the attribute and element names declared in the corresponding
+   chapter (typically chapter 5, Syntax). If a chapter renames an
+   attribute but an annex example still uses the old name, the
+   example is wrong and the annex MUST be regenerated to match.
+6. **Editorial regression**. Chapter prose says "X" and an example
+   or table elsewhere uses "Y". Pick the chapter as the source of
+   truth and align the rest.
+7. **Schema-namespace pinning**. XML examples MUST declare every
+   non-default namespace they use. If an example uses `svta:foo`
+   without `xmlns:svta="urn:svta:dash:sgai:<year>"` on the root,
+   the example is incomplete and MUST be patched.
+8. **TODO / FIXME / placeholder leftovers**. Any `TODO`, `FIXME`,
+   `XXX`, `<!-- placeholder -->`, `TBD`, or similar drafting marker
+   left in the spec MUST be surfaced. These are flag-only —
+   resolving them is a human decision.
+
+### Out of scope
+
+This prompt MUST NOT:
+- Critique the spec's architecture or high-level design (that is
+  the validate-spec sidecar's role).
+- Audit the spec against MPEG-DASH 6th edition or any other
+  external standard (that is `audit-dash-conformance`'s role).
+- Propose new requirements, new use cases, or new constructs.
+- Rewrite prose for style or tone.
+- Touch any file under `../context/` (`context/` is read-only here
+  and MUST remain self-contained; the dependency arrow is
+  `context/` → `analysis/` → `output/`, never reverse).
+- Touch any file under `../analysis/`.
+- Modify `../output/*-spec-validation.md` (that is Step 7's
+  output, owned by the validate-spec subagent).
+
+The only file this prompt may modify in place is the latest
+`../output/*-sgai-spec.md` (and only for the autofix-eligible
+categories below).
+
+## Classification — autofix vs flag-only
+
+For every issue identified, classify it as **autofix** or
+**flag-only** using these rules:
+
+- **autofix** — deterministic, mechanical, low-risk corrections
+  where the right answer is unambiguous from `../context/` or from
+  the spec itself:
+  - Delimiter and whitespace normalisations (categories 1, 7).
+  - Cross-reference typos where the intended target is obvious
+    from surrounding text (category 2).
+  - Annex examples regenerated to match the chapter's declared
+    names (categories 5, 6).
+  - Missing `xmlns:svta=` declarations on example roots (category
+    7).
+- **flag-only** — issues that require a semantic decision a human
+  or the spec-build agent must make:
+  - Renaming an attribute because its semantics differ from a
+    baseline DASH name it currently reuses (category 3).
+  - Choosing whether to rename an SGAI construct to align with a
+    baseline DASH name with matching semantics (category 4, when
+    the alignment requires picking which name wins).
+  - Any TODO / FIXME / placeholder resolution (category 8).
+  - Any cross-reference where the intended target is genuinely
+    ambiguous.
+
+If an issue is borderline, treat it as flag-only. A false flag is
+cheaper than a wrong autofix.
+
+## Procedure
+
+1. Identify the most recent `../output/*-sgai-spec.md` and the
+   matching `../output/*-spec-validation.md`. Use the spec's date
+   as `<DATE>` for the review log.
+2. Read the spec end to end, the validation sidecar, and the full
+   `../context/` directory.
+3. For each of the eight scope categories, scan the spec and
+   collect issues. For every issue, capture: file path, line
+   number, a 1-2 line before-extract, the rule it violates (anchor
+   it to a `context/` file and section, or to a chapter of the
+   spec itself when the source of truth is internal), and the
+   classification (autofix or flag-only).
+4. For every autofix issue: apply the edit in place to the spec
+   file. Keep the edit minimal — change only the bytes that need
+   changing, preserve surrounding formatting. Record the after-
+   extract for the log.
+5. For every flag-only issue: do NOT touch the spec. Record the
+   suggested resolution and recommended decision in the log.
+6. Emit `../output/<DATE>-detail-review.md` per the structure
+   below.
+
+## Log structure
+
+```
+[GROUNDED_BY=spec-only]
+
+# Spec detail review — <YYYY-MM-DD>
+
+**Review target**: `../output/<YYYY-MM-DD>-sgai-spec.md`.
+**Reference**: `../context/` at git SHA <sha>.
+**Method**: deterministic scan across eight micro-consistency
+categories; autofixes applied in place, flags reported here.
+
+## Summary
+
+- Autofixes applied: N
+- Issues flagged for human decision: M
+- Categories with no issues: <list of categories, e.g. "schema-namespace pinning OK">
+
+## Autofixes applied
+
+| # | Category | Spec ref | Rule anchor | Before | After |
+|---|----------|----------|-------------|--------|-------|
+| 1 | format consistency | L:142 | `context/06` naming guideline | `@profiles="a b"` | `@profiles="a,b"` |
+| ... | ... | ... | ... | ... | ... |
+
+## Flagged issues
+
+| # | Category | Spec ref | Rule anchor | Description | Suggested resolution | Recommendation |
+|---|----------|----------|-------------|-------------|----------------------|----------------|
+| 1 | naming reuse with different semantics | L:317 | `context/06` Naming consistency with baseline DASH | `@earliestResolutionTimeOffset` on `<OverlayPresentation>` uses `EventStream@timescale` units, baseline uses seconds | Rename to e.g. `@earliestResolutionTimeTicks` or attach an explicit unit suffix | Rename — unit collision is invisible otherwise |
+| ... | ... | ... | ... | ... | ... | ... |
+
+## Open questions surfaced
+[Optional. Use only for issues the reviewer noticed that do not
+fit any of the eight categories but are worth a human look. Keep
+to 1-3 bullets max; if there is nothing, omit the section.]
+```
+
+## Tone
+
+Tabular, direct, line-anchored. The log is an audit artefact: a
+reader scanning the autofix and flag tables should be able to
+audit every change without re-reading the spec.
