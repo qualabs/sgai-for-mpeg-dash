@@ -339,10 +339,6 @@ concrete requirements that follow are constrained by them.
   - **R13.4** (spec document): The specification MUST NOT introduce
     a new tracking event scheme; reuse of the DASH baseline
     callback mechanism is mandatory.
-  - **R13.5** (spec document): The specification MUST NOT
-    prescribe specific beacon timing fractions (no hardcoded
-    quartiles, impression-on-visible-only, or fixed count). The
-    ADS chooses the schedule per its own decisioning logic.
 - **R14. Single concurrent non-linear ad presentation.**
   At most one non-linear ad form may be active on the screen at any
   given moment. When multiple non-linear ad opportunities overlap in
