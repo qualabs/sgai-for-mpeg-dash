@@ -32,7 +32,7 @@ For external readers familiar with industry vocabulary:
 | Pre-roll | UC-01 — Slot at start of session |
 | Mid-roll | UC-02 — Mid-content slot |
 | Post-roll | (out of scope — see "Out of scope") |
-| Linear ad | An ad whose form replaces the primary content during a slot |
+| Linear ad | An ad whose form takes over the primary content surface during a slot |
 | Non-linear ad | An ad whose form is composited on top of the primary content during a slot |
 | Ad pod / ad break | UC-06 — Multi-ad break |
 
