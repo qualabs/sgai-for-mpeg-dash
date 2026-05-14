@@ -79,12 +79,19 @@ What does NOT go where:
   declaring **Inputs / Output / Skip if** before the `---` divider.
 - **`analysis/` files**: no numeric prefix. Each artefact
   standalone, named for what it analyses (`dash-gap-analysis.md`).
-- **`output/` files**: dated **prefix**, ISO 8601, so the
-  filesystem sorts builds chronologically. Current patterns:
-  `YYYY-MM-DD-sgai-spec.md` (the spec) and
-  `YYYY-MM-DD-spec-validation.md` (validation sidecar). New
-  post-spec artefacts follow `YYYY-MM-DD-<artefact>.md`. Files are
-  **not overwritten**; each build keeps history.
+- **`output/` files**: version **prefix** `vN-`, where N is the
+  iteration number of the build that produced the artefact. The
+  filesystem sorts builds by iteration. Current patterns:
+  `v<N>-sgai-spec.md` (the spec), `v<N>-spec-validation.md`
+  (validation sidecar), `v<N>-detail-review.md` (detail review log
+  from Step 7.5), `v<N>-dash-conformance-audit.md` (DASH 6th
+  conformance audit). New post-spec artefacts follow
+  `v<N>-<artefact>.md`. N is computed by the build-all orchestrator
+  as `max(v* in output/) + 1`. Files are **not overwritten**; each
+  build keeps history.
+  Ad-hoc research and errata that are NOT outputs of a `build-all`
+  iteration use a date prefix `YYYY-MM-DD-<name>.md` instead (they
+  are timestamped events, not iterated artefacts).
 - **General**: kebab-case for filenames. English for all content
   inside `context/`, `prompts/`, `analysis/`, `output/`, `README.md`,
   and this `CLAUDE.md` (matching the rest of the project content).

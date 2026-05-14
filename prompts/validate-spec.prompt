@@ -1,15 +1,20 @@
 # Validate the spec
 
 **Inputs**:
-- The most recent `../output/*-sgai-spec.md` (the spec to validate).
+- The most recent `../output/v*-sgai-spec.md` (the spec to validate).
+- The iteration number `N` (a positive integer) passed in by the
+  orchestrator (`build-all.prompt`) — used to construct the output
+  filename. It MUST match the `v<N>` prefix of the spec being
+  validated. If invoked standalone, the runner resolves `N` from
+  the spec filename being validated.
 - `../context/` (the source of truth — used to check R coverage).
 - `../analysis/` (intermediate analyses — used to cross-check
   conformance assertions, error semantics, etc.).
 
-**Output**: `../output/<DATE>-spec-validation.md`, where `<DATE>` is
-today's date in ISO 8601, matching (or close to) the spec's date.
+**Output**: `../output/v<N>-spec-validation.md`, where `<N>` is the
+iteration version that matches the spec under validation.
 
-**Skip if**: `../output/<DATE>-spec-validation.md` exists AND its
+**Skip if**: `../output/v<N>-spec-validation.md` exists AND its
 mtime is newer than the spec's mtime. The validation rebuilds when
 either the spec or its inputs (`context/`, `analysis/`) change.
 
@@ -24,7 +29,7 @@ subagent for this step.
 
 ## Task
 
-Read the latest `../output/*-sgai-spec.md` and walk every chapter
+Read the latest `../output/v*-sgai-spec.md` and walk every chapter
 plus every annex. Cross-check against `../context/` and
 `../analysis/`. Produce a sidecar document with these sections:
 
@@ -78,15 +83,15 @@ or reduces the most spec-side handwaving).
 ```
 [GROUNDED_BY=spec-only]   # or notebooklm if NotebookLM was used
 
-# Spec validation — <YYYY-MM-DD>
+# Spec validation — v<N> (<YYYY-MM-DD>)
 
 Built against:
-- spec: `../output/<YYYY-MM-DD>-sgai-spec.md`
+- spec: `../output/v<N>-sgai-spec.md`
 - context/ at git SHA: <sha>
 
-## Gaps (N)
-## Edge cases (M)
-## Ambiguities (K)
+## Gaps (<count>)
+## Edge cases (<count>)
+## Ambiguities (<count>)
 ## R coverage map
 ## Recommended context refinements
 ```

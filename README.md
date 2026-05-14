@@ -22,7 +22,7 @@ projects/sgai-for-mpeg-dash/
 ├── context/              inputs — technical specification of the target spec
 ├── prompts/           build scripts — .prompt files run by an LLM agent
 ├── analysis/          pre-spec artefacts — inputs the spec build consumes
-├── output/            spec + post-spec artefacts (validation sidecar, etc.), dated per build
+├── output/            spec + post-spec artefacts (validation sidecar, etc.), versioned per build (vN-)
 ├── proposal-drafts/   historical drafts kept for reference
 └── .project/          governance — PROJECT.md, LOG.md, phases/, decisions/
 ```
@@ -47,11 +47,17 @@ matrix, error semantics matrix, and conformance assertions.
 
 ### `output/`
 The spec itself plus any **post-spec** derived artefacts (validation
-sidecar, future test reports, future version diffs). Dated filenames
-(e.g. `YYYY-MM-DD-sgai-spec.md`, `YYYY-MM-DD-spec-validation.md`)
-preserve build history — files are **not** overwritten between
-runs, and a spec and its sidecars share the same date stamp so the
-set is auditable together.
+sidecar, detail review log, DASH conformance audit, future test
+reports, future version diffs). Versioned filenames
+(e.g. `v<N>-sgai-spec.md`, `v<N>-spec-validation.md`,
+`v<N>-detail-review.md`, `v<N>-dash-conformance-audit.md`) preserve
+build history — files are **not** overwritten between runs, and a
+spec and its sidecars share the same `v<N>` prefix so the set is
+auditable together. The iteration number `N` is computed by the
+`build-all` orchestrator as `max(existing v* in output/) + 1` (or
+`1` for the first build). Ad-hoc research and errata that are not
+outputs of a `build-all` iteration use a date prefix
+(`YYYY-MM-DD-<name>.md`) instead.
 
 ### `.project/`
 Governance scaffolding from the `create-project` skill. Phases,
@@ -72,7 +78,9 @@ the inputs are fresher than the existing output.
 - **Gap analysis**: invoke `prompts/analyze-dash-gap.prompt`.
   Reads `context/`, writes `analysis/dash-gap-analysis.md` (overwrite).
 - **Spec**: invoke `prompts/build-spec.prompt`. Reads `context/` +
-  `analysis/`, writes `output/<today>-sgai-spec.md` (no overwrite).
+  `analysis/`, writes `output/v<N>-sgai-spec.md` (no overwrite),
+  where `N` is the iteration number resolved as
+  `max(existing v*-sgai-spec.md) + 1`.
 - **Both with skip-if-fresh logic**: invoke
   `prompts/build-all.prompt`. Orchestrator that chains the two,
   honouring each step's skip rule and logging a per-step

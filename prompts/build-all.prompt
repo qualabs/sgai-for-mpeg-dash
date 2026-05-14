@@ -9,16 +9,26 @@ grounding flows through downstream prompts (see their headers).
 - `analysis/conformance-assertions.md` (from Step 4).
 - `analysis/iab-ad-templates.md` (from Step 5 — live mirror of the
   IAB ad-type catalogue; regenerated every run).
-- `output/<YYYY-MM-DD>-sgai-spec.md` (from Step 6 — spec).
-- `output/<YYYY-MM-DD>-spec-validation.md` (from Step 7 — sidecar
+- `output/v<N>-sgai-spec.md` (from Step 6 — spec).
+- `output/v<N>-spec-validation.md` (from Step 7 — sidecar
   validation document; see `prompts/validate-spec.prompt`).
-- `output/<YYYY-MM-DD>-detail-review.md` (from Step 7.5 — micro-
+- `output/v<N>-detail-review.md` (from Step 7.5 — micro-
   consistency review log; see `prompts/review-spec-details.prompt`).
   Step 7.5 also applies in-place autofixes to the spec for
   deterministic, low-risk corrections.
-- `output/<YYYY-MM-DD>-dash-conformance-audit.md` (from Step 8 —
+- `output/v<N>-dash-conformance-audit.md` (from Step 8 —
   DASH 6th conformance audit; see
   `prompts/audit-dash-conformance.prompt`).
+**Version numbering**: each invocation of `build-all` produces a new
+iteration of the build. The orchestrator MUST resolve the iteration
+number `N` before invoking Step 6 (build-spec) and pass it to every
+downstream step (7, 7.5, 8) so all artefacts of the same iteration
+share the same `v<N>-` prefix. `N` is computed as
+`max(existing v*-sgai-spec.md in output/) + 1` (parse the integer
+after the leading `v` in each filename). If no prior build exists,
+`N` starts at 1. Research, errata, and other ad-hoc artefacts that
+are NOT outputs of a `build-all` iteration keep a date prefix
+(`YYYY-MM-DD-<name>.md`) and are not numbered.
 **Skip if**: each downstream prompt has its own skip rule and is
 honoured here, with one exception: Step 5
 (`analyze-iab-ad-templates`) NEVER skips, because its source is an
@@ -125,18 +135,24 @@ output file is overwritten in place.
 ### Step 6 — Spec build
 
 The `build-spec` prompt produces a single artifact: the spec
-itself (`output/<date>-sgai-spec.md`). The validation sidecar and
+itself (`output/v<N>-sgai-spec.md`). The validation sidecar and
 the DASH conformance audit are produced by separate steps
 (7 and 8) that run in **fresh subagent** contexts.
 
-- Find the newest `output/*-sgai-spec.md` file (if any). If it
+Before invoking the prompt, resolve the iteration number `N` as
+described in the header (Version numbering): scan
+`output/v*-sgai-spec.md`, parse the integer after the leading `v`
+in each filename, and set `N = max(found) + 1`. If no prior build
+exists, `N = 1`. Pass `N` to the `build-spec` prompt as an input.
+
+- Find the newest `output/v*-sgai-spec.md` file (if any). If it
   exists AND its mtime is newer than the newest mtime in `context/`
   AND newer than `analysis/dash-gap-analysis.md` AND newer than
   `analysis/iab-ad-templates.md` → log
   `[SKIPPED] build-spec → <latest filename>`.
 - Else → invoke the spec-build instructions in
-  `prompts/build-spec.prompt` and log
-  `[BUILT] build-spec → output/<today>-sgai-spec.md`.
+  `prompts/build-spec.prompt` with iteration number `N` and log
+  `[BUILT] build-spec → output/v<N>-sgai-spec.md`.
 
 ### Step 7 — Validate spec (fresh subagent)
 
@@ -145,13 +161,13 @@ in the orchestrator's own context. The validation agent has zero
 context overlap with the spec-build agent. Independent peer review
 of the spec draft is the whole point; sharing context defeats it.
 
-- Find the newest `output/*-spec-validation.md` file (if any). If
+- Find the newest `output/v*-spec-validation.md` file (if any). If
   it exists AND its mtime is newer than the newest mtime in
-  `context/` AND newer than the newest `output/*-sgai-spec.md` →
+  `context/` AND newer than the newest `output/v*-sgai-spec.md` →
   log `[SKIPPED] validate-spec → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
-  `prompts/validate-spec.prompt` and log
-  `[BUILT] validate-spec → output/<today>-spec-validation.md`.
+  `prompts/validate-spec.prompt` with iteration number `N` and log
+  `[BUILT] validate-spec → output/v<N>-spec-validation.md`.
 
 ### Step 7.5 — Review spec details
 
@@ -167,12 +183,12 @@ consistency → external-standard conformance. The output handed to
 Step 8 is therefore the post-detail-review spec, not the raw output
 of Step 6.
 
-**Inputs**: the most recent `output/*-sgai-spec.md` (from Step 6),
-the matching `output/*-spec-validation.md` (from Step 7), and
+**Inputs**: the most recent `output/v*-sgai-spec.md` (from Step 6),
+the matching `output/v*-spec-validation.md` (from Step 7), and
 `context/` (read-only).
 
 **Outputs**:
-- `output/<today>-detail-review.md` (the review log).
+- `output/v<N>-detail-review.md` (the review log).
 - In-place autofixes to the spec for deterministic, low-risk
   corrections (delimiters, whitespace, cross-ref typos, missing
   `xmlns:svta=` on examples, annex examples regenerated to match
@@ -184,15 +200,16 @@ the matching `output/*-spec-validation.md` (from Step 7), and
 may run inline rather than dispatching a fresh subagent. The skip
 rule is owned by the prompt itself.
 
-- Find the newest `output/*-detail-review.md` file (if any). Apply
+- Find the newest `output/v*-detail-review.md` file (if any). Apply
   the skip rule in `prompts/review-spec-details.prompt`: skip if
   the review log is newer than ALL of the matching spec, the
   matching validation sidecar, `context/06-naming-and-namespaces.md`,
   `context/07-backward-compat-checklist.md`, and the prompt itself
   → log `[SKIPPED] review-spec-details → <latest filename>`.
 - Else → invoke the instructions in
-  `prompts/review-spec-details.prompt` and log
-  `[BUILT] review-spec-details → output/<today>-detail-review.md`.
+  `prompts/review-spec-details.prompt` with iteration number `N`
+  and log
+  `[BUILT] review-spec-details → output/v<N>-detail-review.md`.
   If autofixes were applied, the spec's mtime advances — this is
   expected and does not trigger a Step 6 re-run on the same build.
 
@@ -203,29 +220,30 @@ both the spec-build agent (Step 6) and the validate-spec agent
 (Step 7). Independent third-party check against DASH 6th spec
 rules; context overlap with prior steps biases the review.
 
-- Find the newest `output/*-dash-conformance-audit.md` file (if
+- Find the newest `output/v*-dash-conformance-audit.md` file (if
   any). If it exists AND its mtime is newer than the newest
-  `output/*-sgai-spec.md` → log
+  `output/v*-sgai-spec.md` → log
   `[SKIPPED] audit-dash-conformance → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
-  `prompts/audit-dash-conformance.prompt` and log
-  `[BUILT] audit-dash-conformance → output/<today>-dash-conformance-audit.md`.
+  `prompts/audit-dash-conformance.prompt` with iteration number `N`
+  and log
+  `[BUILT] audit-dash-conformance → output/v<N>-dash-conformance-audit.md`.
 
 ### Final summary
 
 Print a summary block:
 
 ```
-SGAI build summary (YYYY-MM-DD HH:MM):
+SGAI build summary (iteration v<N>, YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] analyze-dash-gap                → analysis/dash-gap-analysis.md (mtime: ...)
   [BUILT|SKIPPED] build-uc-coverage-matrix        → analysis/uc-coverage-matrix.md (mtime: ...)
   [BUILT|SKIPPED] build-error-semantics           → analysis/error-semantics.md (mtime: ...)
   [BUILT|SKIPPED] extract-conformance-assertions  → analysis/conformance-assertions.md (mtime: ...)
   [BUILT]         analyze-iab-ad-templates        → analysis/iab-ad-templates.md (mtime: ...)
-  [BUILT|SKIPPED] build-spec                      → output/<date>-sgai-spec.md (mtime: ...)
-  [BUILT|SKIPPED] validate-spec                   → output/<date>-spec-validation.md (mtime: ...)
-  [BUILT|SKIPPED] review-spec-details             → output/<date>-detail-review.md (mtime: ...)
-  [BUILT|SKIPPED] audit-dash-conformance          → output/<date>-dash-conformance-audit.md (mtime: ...)
+  [BUILT|SKIPPED] build-spec                      → output/v<N>-sgai-spec.md (mtime: ...)
+  [BUILT|SKIPPED] validate-spec                   → output/v<N>-spec-validation.md (mtime: ...)
+  [BUILT|SKIPPED] review-spec-details             → output/v<N>-detail-review.md (mtime: ...)
+  [BUILT|SKIPPED] audit-dash-conformance          → output/v<N>-dash-conformance-audit.md (mtime: ...)
 ```
 
 Language: English.
