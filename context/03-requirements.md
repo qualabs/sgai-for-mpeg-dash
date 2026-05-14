@@ -34,9 +34,19 @@ working doc verbatim.
     a conforming legacy Player MUST ignore the unknown construct
     and continue playing the primary content uninterrupted.
   - **R1.2** (Broadcaster / spec document): Every new SGAI construct
-    introduced by this proposal MUST be expressed using a
-    MPEG-DASH 6th edition extension point whose "ignore-if-unknown"
-    semantics are already defined in DASH 6th.
+    introduced by this proposal MUST be expressed using one of the
+    extension points enumerated in
+    [`08-dash-extension-rules.md`](./08-dash-extension-rules.md):
+    foreign-namespace open content (§5.2.1, DR-2 / DR-3),
+    application-level Event Streams (§5.10), or vendor descriptor
+    schemes (§5.8.4.8 / §5.8.4.9). New constructs MUST NOT be
+    introduced by paths that violate the §5.3.2.6 / §8.15 / §7.3 /
+    RFC 4337 chain when reached via `<ImportedMPD>` (DR-1) or by
+    inline AdaptationSet / Representation under a ListMPD-level
+    Period (DR-5). Annex F (DR-4) is admissible only when (a) the
+    construct genuinely requires DASH segment-delivery semantics
+    for a non-ISO-BMFF format, and (b) the spec is willing to
+    publish a new Interoperability Point URI.
   - **R1.3** (Broadcaster / spec document): The specification MUST NOT alter
     or override the semantics of any pre-existing MPEG-DASH 6th
     edition construct.
@@ -198,6 +208,14 @@ working doc verbatim.
   - **R6.5** (Player): A Player MUST safely ignore unknown
     namespaces on tracking-related extension elements, per the DASH
     extension rules invoked by R1.
+  - **R6.6** (Broadcaster / ADS / spec document): When a non-AV ad
+    form (`mediaType ∈ {html, image, ...}`) is carried, the asset
+    URL MUST NOT be expressed as `@mimeType` on an AdaptationSet or
+    Representation reached through any path bound by RFC 4337
+    (DR-1, DR-5 in
+    [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+    It MUST be carried via one of the §5.2.1 / §5.10 / §5.8.4.x
+    carriers enumerated by DR-6, per R1.2.
 - **R7. Respect ADS-returned order.** When the ADS returns a
   resolution document containing more than one ad (e.g. a `ListMPD`
   with multiple `<Period>` entries), the Player MUST play the ads

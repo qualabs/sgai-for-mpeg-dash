@@ -78,8 +78,17 @@ Qualabs vendor namespace:
   - **`urn:qualabs:sgai:<year>`** — Qualabs vendor-private
     extensions. Not normative; not part of this spec.
 
-Legacy Players MUST ignore unknown namespaces under DASH's
-extension rules (per R1).
+Elements in the SVTA Ads WG extension namespace operate under
+DASH §5.2.1 foreign-namespace open content (DR-2 in
+[`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+Legacy DASH clients discard such elements **with their full
+subtree** (DR-3) — baseline DASH children nested inside a foreign-
+namespace element are not seen by legacy clients. This is the
+authoring lever for choosing what legacy clients see: a baseline
+element placed as a sibling of an SGAI element remains visible to
+legacy; a baseline element wrapped inside an SGAI element is
+opaque. Constructs introduced by this spec MUST honour the
+authoring rule stated in DR-3.
 
 ## Versioning
 

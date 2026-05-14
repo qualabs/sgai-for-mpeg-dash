@@ -85,3 +85,31 @@ through `05-dash-linear-interfaces.md` (plus
   with, brand safety becomes an explicit pipeline stage (prompt-level
   guardrails plus post-generation content classification) rather than
   a property of a curated ad pool.
+- **Foreign-namespace open content** *(DASH §5.2.1)*: DASH's normative
+  extension mechanism allowing XML elements and attributes from non-
+  DASH namespaces under any DASH container, via the
+  `<xs:any namespace='##other' processContents='lax'/>` declaration on
+  every container in the MPD schema. Legacy clients discard such
+  elements together with their full subtree (DR-3 in
+  [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+- **ImportedMPD** *(DASH 6th ed)*: DASH element that imports an
+  external MPD by URI from a parent (typically a ListMPD-level
+  `<Period>`). §5.3.2.6 binds the imported document to the SPS
+  profile (DR-1 in
+  [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+- **Interoperability Point URI** *(DASH Annex F)*: a profile URI
+  declared in `MPD@profiles` advertising conformance to a DASH
+  extension authored under Annex F. Required when a custom delivery
+  format is introduced for AdaptationSet / Representation carriage
+  (DR-4 in
+  [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+- **Single-Period Static (SPS) profile** *(DASH 6th ed, §8.15)*: DASH
+  profile constraining the document to a single Period and inheriting
+  §7.3 verbatim, which limits every Representation's `@mimeType` to
+  the IETF RFC 4337 registry (`video/mp4`, `audio/mp4`,
+  `application/mp4`). All MPDs reached via `<ImportedMPD>` are bound
+  to SPS (DR-1 in
+  [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+- **Sub-MPD**: an MPD reached via `<ImportedMPD>` from a parent
+  ListMPD or primary MPD. SPS-conformant by construction (DR-1 in
+  [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
