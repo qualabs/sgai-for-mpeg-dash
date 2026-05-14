@@ -9,10 +9,10 @@ grounding flows through downstream prompts (see their headers).
 - `analysis/conformance-assertions.md` (from Step 4).
 - `analysis/iab-ad-templates.md` (from Step 5 — live mirror of the
   IAB ad-type catalogue; regenerated every run).
-- `output/sgai-spec-<YYYY-MM-DD>.md` (from Step 6 — spec).
-- `output/spec-validation-<YYYY-MM-DD>.md` (from Step 7 — sidecar
+- `output/<YYYY-MM-DD>-sgai-spec.md` (from Step 6 — spec).
+- `output/<YYYY-MM-DD>-spec-validation.md` (from Step 7 — sidecar
   validation document; see `prompts/validate-spec.prompt`).
-- `output/dash-conformance-audit-<YYYY-MM-DD>.md` (from Step 8 —
+- `output/<YYYY-MM-DD>-dash-conformance-audit.md` (from Step 8 —
   DASH 6th conformance audit; see
   `prompts/audit-dash-conformance.prompt`).
 **Skip if**: each downstream prompt has its own skip rule and is
@@ -121,18 +121,18 @@ output file is overwritten in place.
 ### Step 6 — Spec build
 
 The `build-spec` prompt produces a single artifact: the spec
-itself (`output/sgai-spec-<date>.md`). The validation sidecar and
+itself (`output/<date>-sgai-spec.md`). The validation sidecar and
 the DASH conformance audit are produced by separate steps
 (7 and 8) that run in **fresh subagent** contexts.
 
-- Find the newest `output/sgai-spec-*.md` file (if any). If it
+- Find the newest `output/*-sgai-spec.md` file (if any). If it
   exists AND its mtime is newer than the newest mtime in `context/`
   AND newer than `analysis/dash-gap-analysis.md` AND newer than
   `analysis/iab-ad-templates.md` → log
   `[SKIPPED] build-spec → <latest filename>`.
 - Else → invoke the spec-build instructions in
   `prompts/build-spec.prompt` and log
-  `[BUILT] build-spec → output/sgai-spec-<today>.md`.
+  `[BUILT] build-spec → output/<today>-sgai-spec.md`.
 
 ### Step 7 — Validate spec (fresh subagent)
 
@@ -141,13 +141,13 @@ in the orchestrator's own context. The validation agent has zero
 context overlap with the spec-build agent. Independent peer review
 of the spec draft is the whole point; sharing context defeats it.
 
-- Find the newest `output/spec-validation-*.md` file (if any). If
+- Find the newest `output/*-spec-validation.md` file (if any). If
   it exists AND its mtime is newer than the newest mtime in
-  `context/` AND newer than the newest `output/sgai-spec-*.md` →
+  `context/` AND newer than the newest `output/*-sgai-spec.md` →
   log `[SKIPPED] validate-spec → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
   `prompts/validate-spec.prompt` and log
-  `[BUILT] validate-spec → output/spec-validation-<today>.md`.
+  `[BUILT] validate-spec → output/<today>-spec-validation.md`.
 
 ### Step 8 — DASH conformance audit (fresh subagent)
 
@@ -156,13 +156,13 @@ both the spec-build agent (Step 6) and the validate-spec agent
 (Step 7). Independent third-party check against DASH 6th spec
 rules; context overlap with prior steps biases the review.
 
-- Find the newest `output/dash-conformance-audit-*.md` file (if
+- Find the newest `output/*-dash-conformance-audit.md` file (if
   any). If it exists AND its mtime is newer than the newest
-  `output/sgai-spec-*.md` → log
+  `output/*-sgai-spec.md` → log
   `[SKIPPED] audit-dash-conformance → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
   `prompts/audit-dash-conformance.prompt` and log
-  `[BUILT] audit-dash-conformance → output/dash-conformance-audit-<today>.md`.
+  `[BUILT] audit-dash-conformance → output/<today>-dash-conformance-audit.md`.
 
 ### Final summary
 
@@ -175,9 +175,9 @@ SGAI build summary (YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] build-error-semantics           → analysis/error-semantics.md (mtime: ...)
   [BUILT|SKIPPED] extract-conformance-assertions  → analysis/conformance-assertions.md (mtime: ...)
   [BUILT]         analyze-iab-ad-templates        → analysis/iab-ad-templates.md (mtime: ...)
-  [BUILT|SKIPPED] build-spec                      → output/sgai-spec-<date>.md (mtime: ...)
-  [BUILT|SKIPPED] validate-spec                   → output/spec-validation-<date>.md (mtime: ...)
-  [BUILT|SKIPPED] audit-dash-conformance          → output/dash-conformance-audit-<date>.md (mtime: ...)
+  [BUILT|SKIPPED] build-spec                      → output/<date>-sgai-spec.md (mtime: ...)
+  [BUILT|SKIPPED] validate-spec                   → output/<date>-spec-validation.md (mtime: ...)
+  [BUILT|SKIPPED] audit-dash-conformance          → output/<date>-dash-conformance-audit.md (mtime: ...)
 ```
 
 Language: English.

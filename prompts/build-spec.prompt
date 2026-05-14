@@ -7,9 +7,9 @@ chapter 8 Implementation notes and the final test-cases annex) +
 vocabulary).
 Optionally: NotebookLM grounding if the `notebooklm` skill is
 installed and `.env.agent` defines `NOTEBOOK_NAME`.
-**Output**: `output/sgai-spec-<YYYY-MM-DD>.md` — the spec itself.
+**Output**: `output/<YYYY-MM-DD>-sgai-spec.md` — the spec itself.
 The date stamp is today's date in ISO 8601 (e.g. `2026-05-13`).
-**Skip if**: the most recent `output/sgai-spec-*.md` exists AND
+**Skip if**: the most recent `output/*-sgai-spec.md` exists AND
 its mtime is newer than the newest mtime in `context/`,
 `analysis/dash-gap-analysis.md`, `analysis/error-semantics.md`
 (when present), and `analysis/iab-ad-templates.md` (when present).
@@ -49,7 +49,7 @@ authoritative source as `[inferred]`.
   behaviour). The R coverage map is produced by a **separate
   prompt** (`prompts/validate-spec.prompt`), which runs in a fresh
   subagent context after this build and writes its sidecar to
-  `../output/spec-validation-<date>.md` — not by this prompt.
+  `../output/<date>-spec-validation.md` — not by this prompt.
 - **The spec document MUST NOT reference the analysis files
   (`../analysis/*`).** Analysis is intermediate input; the spec
   consumes it but does not cite it.
@@ -184,7 +184,7 @@ that is free-form prose instead of the tabular form.
 
 ## Output rules
 
-Write to `../output/sgai-spec-<YYYY-MM-DD>.md`. **Do not overwrite**
+Write to `../output/<YYYY-MM-DD>-sgai-spec.md`. **Do not overwrite**
 existing dated files — the history of builds is preserved.
 
 Tone: normative, RFC-style. Use MUST / SHOULD / MAY with explicit

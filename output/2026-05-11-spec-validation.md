@@ -3,7 +3,7 @@
 # Spec validation — 2026-05-11
 
 Built against:
-- spec: [`./sgai-spec-2026-05-11.md`](./sgai-spec-2026-05-11.md)
+- spec: [`./2026-05-11-sgai-spec.md`](./2026-05-11-sgai-spec.md)
 - context/ at git SHA: `f7c8ffb`
 
 This document captures gaps, edge cases, and ambiguities surfaced
