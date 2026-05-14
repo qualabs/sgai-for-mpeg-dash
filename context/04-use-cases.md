@@ -661,11 +661,7 @@ primary content resumes.
   entirely, trim-clean to the previous ad boundary, fail-closed) are
   not the default and would have to be opt-in policies declared by
   the broadcaster on the slot — out of scope for the foundation
-  phase. Decision recorded in the kickoff summary
-  [`00-kickoff-summary.md`](../.project/decisions/00-kickoff-summary.md)
-  (section "Max slot duration enforcement"); the original ADR with
-  the full alternatives evaluation is preserved in
-  `.project/decisions/_archive/adr-005-max-slot-duration-enforcement.md`.
+  phase.
 
 ### UC-07 — Legacy Player encounters new constructs
 

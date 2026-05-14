@@ -1,11 +1,9 @@
 # Requirements
 
 > R2 anchors on the three-actor model defined in
-> [`02-actors.md`](02-actors.md). R5 is grounded in the kickoff
-> decisions consolidated in
-> [`00-kickoff-summary.md`](../.project/decisions/00-kickoff-summary.md).
-> Use cases that exercise these requirements across device classes
-> and ad opportunity types live in [`04-use-cases.md`](04-use-cases.md).
+> [`02-actors.md`](02-actors.md). Use cases that exercise these
+> requirements across device classes and ad opportunity types live in
+> [`04-use-cases.md`](04-use-cases.md).
 
 The requirements below govern the design of the proposal. They are
 grouped into functional, governance / non-functional, and
@@ -134,17 +132,12 @@ working doc verbatim.
   choose the best form it can render given its device, and MUST
   skip candidates with no renderable form (falling back to the
   next candidate or to primary content, depending on policy).
-  Rationale and trade-offs in the kickoff summary
-  [`00-kickoff-summary.md`](../.project/decisions/00-kickoff-summary.md)
-  (section "Device-aware ad selection"); the original ADR with the
-  full evaluation of alternatives is preserved in
-  `.project/decisions/_archive/adr-004-device-aware-ad-selection.md`.
   R5 is a concrete instance of R2 — Player owns the responsibility
   the ADS does not have — and a direct contributor to R3.
 
   The ADS MAY return candidates carrying multiple forms or layouts.
   The Player MUST select per device capabilities, the Broadcaster's
-  `@allowedLayouts`, and ADS-supplied priority hints. Skipping a
+  allowed layouts, and ADS-supplied priority hints. Skipping a
   candidate because none of its forms is renderable on the target
   device is acceptable; the Player then falls through to the next
   candidate or to primary content.
@@ -167,7 +160,7 @@ working doc verbatim.
     priority hints MAY rank both dimensions independently.
   - **R5.6** (Player): The Player MUST resolve form/layout
     selection by intersecting (a) device capabilities, (b) the
-    Broadcaster-declared `@allowedLayouts` on the slot, and
+    Broadcaster-declared allowed layouts on the slot, and
     (c) ADS-supplied priority hints. A combination that fails
     any of the three MUST NOT be rendered.
   - **R5.7** (Player): If no form/layout combination on a
@@ -287,7 +280,7 @@ working doc verbatim.
   - **R12.2** (Broadcaster): Broadcasters declaring allowed
     layouts MUST use names that map 1:1 to IAB-defined ad-type
     values (no broadcaster-private layout names in the
-    `@allowedLayouts` attribute).
+    allowed-layouts declaration on the slot).
   - **R12.3** (ADS): The ADS MUST NOT emit form metadata for ad
     types that are not part of the IAB-defined set used by this
     spec's edition.
