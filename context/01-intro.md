@@ -43,8 +43,7 @@ This folder stays focused on the technical content.
   adapter mapping.
 - **[06-naming-and-namespaces.md](./06-naming-and-namespaces.md)** —
   Naming conventions for new constructs (URN patterns, namespaces,
-  versioning) and pointer to the IAB-defined layout vocabulary
-  mirrored in [`../analysis/iab-ad-templates.md`](../analysis/iab-ad-templates.md).
+  versioning) and pointer to the IAB-defined layout vocabulary.
 - **[07-backward-compat-checklist.md](./07-backward-compat-checklist.md)** —
   Verification checklist that the spec MUST apply to each new
   construct it introduces, so legacy Player compatibility (R1 /
@@ -57,13 +56,3 @@ This folder stays focused on the technical content.
   (per-construct carrier classification).
 - **[99-glossary.md](./99-glossary.md)** — Technical terminology used
   across the document set.
-
-Generated analyses derived from this spec live outside this folder,
-in `../analysis/`. Not part of the canonical reading set, but
-useful when auditing coverage or implementation behaviour:
-
-- [`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md)
-  — maps each UC against MPEG-DASH 6th edition constructs.
-- [`../analysis/error-semantics.md`](../analysis/error-semantics.md)
-  — error conditions matrix and Player obligations, derived from
-  R1..R7.

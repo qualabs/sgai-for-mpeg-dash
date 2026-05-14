@@ -57,9 +57,8 @@ specification MUST use the Qualabs vendor namespace:
   `urn:qualabs:<feature>:<year>`
 
 These URIs are not normative and are not part of the SGAI spec.
-They are listed here only so that examples in `analysis/` or in
-prototypes can declare them without colliding with the SVTA Ads
-WG namespace.
+They are listed here only so that examples and prototypes can
+declare them without colliding with the SVTA Ads WG namespace.
 
 ## Element / attribute extension namespaces
 
@@ -108,13 +107,10 @@ When this specification evolves to a new edition:
 ## Layout vocabulary
 
 The accepted layout names for overlay templates are defined and
-maintained by the IAB, not by this spec. The live IAB document is
-mirrored on every build into
-[`../analysis/iab-ad-templates.md`](../analysis/iab-ad-templates.md)
-by `prompts/analyze-iab-ad-templates.prompt`; the spec MUST
-reference those IAB-defined values without inventing new layout
-names at chapter level. To propose a new layout, the editor works
-with the IAB directly — this specification does not own the vocabulary.
+maintained by the IAB, not by this spec. The spec MUST reference
+those IAB-defined values without inventing new layout names at
+chapter level. To propose a new layout, the editor works with the
+IAB directly — this specification does not own the vocabulary.
 Per **R12** in [`03-requirements.md`](./03-requirements.md), the
 layout vocabulary MUST map 1:1 to IAB-defined ad-type values; no
 broadcaster-private or spec-private layout names are admissible.
