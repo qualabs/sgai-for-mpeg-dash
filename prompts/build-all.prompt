@@ -12,6 +12,10 @@ grounding flows through downstream prompts (see their headers).
 - `output/<YYYY-MM-DD>-sgai-spec.md` (from Step 6 — spec).
 - `output/<YYYY-MM-DD>-spec-validation.md` (from Step 7 — sidecar
   validation document; see `prompts/validate-spec.prompt`).
+- `output/<YYYY-MM-DD>-detail-review.md` (from Step 7.5 — micro-
+  consistency review log; see `prompts/review-spec-details.prompt`).
+  Step 7.5 also applies in-place autofixes to the spec for
+  deterministic, low-risk corrections.
 - `output/<YYYY-MM-DD>-dash-conformance-audit.md` (from Step 8 —
   DASH 6th conformance audit; see
   `prompts/audit-dash-conformance.prompt`).
@@ -149,6 +153,49 @@ of the spec draft is the whole point; sharing context defeats it.
   `prompts/validate-spec.prompt` and log
   `[BUILT] validate-spec → output/<today>-spec-validation.md`.
 
+### Step 7.5 — Review spec details
+
+This step catches the kind of micro-consistency issues that emerged
+as Marginal items M-3 and M-4 in the 2026-05-12 conformance audit —
+naming reuse with different semantics, format inconsistencies (e.g.
+the `@profiles` delimiter), cross-reference typos, and annex/chapter
+mismatches. It runs after `validate-spec` (which checks the spec
+against `context/` requirements) and before `audit-dash-conformance`
+(which checks the spec against the external MPEG-DASH 6th edition).
+The progression is: high-level conformance → low-level internal
+consistency → external-standard conformance. The output handed to
+Step 8 is therefore the post-detail-review spec, not the raw output
+of Step 6.
+
+**Inputs**: the most recent `output/*-sgai-spec.md` (from Step 6),
+the matching `output/*-spec-validation.md` (from Step 7), and
+`context/` (read-only).
+
+**Outputs**:
+- `output/<today>-detail-review.md` (the review log).
+- In-place autofixes to the spec for deterministic, low-risk
+  corrections (delimiters, whitespace, cross-ref typos, missing
+  `xmlns:svta=` on examples, annex examples regenerated to match
+  chapter declarations). Issues that require a semantic decision
+  (e.g. a rename driven by `context/06-naming-and-namespaces.md`)
+  are flagged in the log only; the spec is not touched for those.
+
+**Execution mode**: this step is deterministic (no NotebookLM); it
+may run inline rather than dispatching a fresh subagent. The skip
+rule is owned by the prompt itself.
+
+- Find the newest `output/*-detail-review.md` file (if any). Apply
+  the skip rule in `prompts/review-spec-details.prompt`: skip if
+  the review log is newer than ALL of the matching spec, the
+  matching validation sidecar, `context/06-naming-and-namespaces.md`,
+  `context/07-backward-compat-checklist.md`, and the prompt itself
+  → log `[SKIPPED] review-spec-details → <latest filename>`.
+- Else → invoke the instructions in
+  `prompts/review-spec-details.prompt` and log
+  `[BUILT] review-spec-details → output/<today>-detail-review.md`.
+  If autofixes were applied, the spec's mtime advances — this is
+  expected and does not trigger a Step 6 re-run on the same build.
+
 ### Step 8 — DASH conformance audit (fresh subagent)
 
 This step MUST also dispatch a **fresh subagent** — separate from
@@ -177,6 +224,7 @@ SGAI build summary (YYYY-MM-DD HH:MM):
   [BUILT]         analyze-iab-ad-templates        → analysis/iab-ad-templates.md (mtime: ...)
   [BUILT|SKIPPED] build-spec                      → output/<date>-sgai-spec.md (mtime: ...)
   [BUILT|SKIPPED] validate-spec                   → output/<date>-spec-validation.md (mtime: ...)
+  [BUILT|SKIPPED] review-spec-details             → output/<date>-detail-review.md (mtime: ...)
   [BUILT|SKIPPED] audit-dash-conformance          → output/<date>-dash-conformance-audit.md (mtime: ...)
 ```
 
