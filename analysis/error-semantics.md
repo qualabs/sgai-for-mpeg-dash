@@ -2,40 +2,52 @@
 
 # Error semantics matrix
 
-Inputs consumed: `../context/03-requirements.md` (R1..R7, with extension
-to R11..R13) and `../context/05-dash-linear-interfaces.md` (interface
-contracts and message flow). 13 rows total. Scope: runtime error
-behaviour on the Player ↔ Broadcaster, Player ↔ ADS, and Player ↔
-tracking-endpoint interfaces.
+Inputs consumed: `../context/03-requirements.md` (R1..R7, R12, R13) and
+`../context/05-dash-linear-interfaces.md` (Linear SGAI message flow and
+interface contracts). 12 error rows covering the eight categories
+required by `prompts/build-error-semantics.prompt`. Vocabulary is
+deliberately slot-agnostic ("resolution document", "candidate",
+"form", "slot") so the matrix applies to both linear and non-linear
+SGAI without re-stating the rows per chapter.
 
 ## Scope
 
-- In scope: transport / parse / semantic / behavioural failures that
-  the Player encounters during an SGAI exchange and the actors'
-  obligations in each case.
-- Out of scope: ADS-internal failures upstream of the Player (DSP /
-  SSP / ad-server timeouts); these are absorbed by the ADS adapter
-  and surface as ADS HTTP errors or empty resolution documents.
-- Out of scope: DRM, CDN authentication, codec mismatch — these are
-  orthogonal Player concerns governed by DASH-IF guidelines.
+In scope:
+
+- Error conditions on the Player ↔ Broadcaster, Player ↔ ADS, and
+  Player ↔ tracking endpoint interfaces.
+- Errors surfaced at resolution time, at decode time, and at
+  playback time.
+- Player MUST and MAY behaviours, and ADS / Broadcaster obligations
+  that prevent or recover from each condition.
+
+Out of scope:
+
+- Errors on the ADS ↔ upstream-decisioning leg (e.g. VAST
+  `<Error>` from a DSP). Those are an ADS-internal concern and are
+  flattened by the ADS adapter into one of the Player-facing rows
+  below (typically E1 or E3).
+- Application-layer error surfacing API shape (non-normative,
+  implementation-defined; see Notes §4).
+- Authentication, DRM, and token-exchange failures — out of scope
+  per `05-dash-linear-interfaces.md` §"Out of scope".
 
 ## Error matrix
 
-| ID | Error condition | Player response (MUST) | Player response (MAY) | ADS / Broadcaster obligation |
-|----|-----------------|------------------------|-----------------------|------------------------------|
-| E1 | HTTP timeout on ADS resolution request. | Treat the slot as no-fill; fall through to primary content. | Retry once within the slot window if time permits; log the failure for telemetry. | ADS SHOULD respond within a tighter-than-slot deadline so the Player has time to react. |
-| E2 | HTTP 4xx (e.g. 403, 404) on ADS resolution. | Treat the slot as no-fill; fall through to primary content. | Log the status; suppress retries for the same slot. | ADS MUST NOT emit 4xx as a soft-no-fill signal — empty resolution document is the canonical no-fill. |
-| E3 | HTTP 5xx on ADS resolution. | Treat the slot as no-fill; fall through to primary content. | Retry once with exponential backoff inside the slot window. | ADS MUST eventually emit an empty resolution document for sustained outages instead of 5xx storms. |
-| E4 | DNS / TCP / TLS failure reaching the ADS (DNS NXDOMAIN, connection refused, TLS handshake error). | Treat the slot as no-fill; fall through to primary content. | Log the network class of failure. | ADS endpoint MUST be reachable for the lifetime of the campaign. |
-| E5 | Resolution document is malformed XML (unparsable). | Treat the slot as no-fill; fall through to primary content. | Log the parse error. | ADS MUST serve XML that conforms to the resolution document schema. |
-| E6 | Resolution document is schema-invalid (e.g. missing required field, illegal attribute value). | Treat the slot as no-fill; fall through to primary content. | Log schema violations per candidate; partial recovery (drop offending candidate, keep the others) is permitted if the document is structurally salvageable. | ADS MUST validate the resolution document against the spec's schema before emitting. |
-| E7 | Resolution document root is an unknown element / unknown profile URI. | Skip the slot per R1 "ignore-if-unknown"; fall through to primary content. | Log the unknown element / scheme; emit a single warning, not per-segment. | Broadcaster MUST NOT inject manifest constructs whose root element falls outside the SGAI-known set. |
-| E8 | No candidate carries a form renderable on the Player's device (R5.3 / R5.7 — every form/layout combination violates one of device caps, allowed layouts, or hints). | Skip the candidate; if no candidate remains, decline the slot and fall through to primary content uninterrupted. | Log the no-renderable-form fall-through. | ADS SHOULD include at least one widely-renderable form (image as a long-tail fallback for non-linear; video for linear) to maximise fill. |
-| E9 | Unknown event scheme URI on a Broadcaster MPD event. | Per R1: ignore the event; continue primary content uninterrupted. | Log the unknown scheme once. | Broadcaster MUST use the year-pinned `urn:svta:dash:<construct>:<year>` URIs for SGAI constructs introduced by this spec (and reuse the DASH baseline scheme for tracking). |
-| E10 | Declared cumulative duration of accepted candidates would exceed the Broadcaster-declared cap (R4.2 / R7.3 — drop-before-play). | MAY drop the offending candidate before playback if its declared duration would push the total past the cap. | Continue with the remaining candidates in ADS-declared order (R7.4 — no reorder, no dedup). | ADS is not required to pre-respect the cap (R4.4); cap enforcement is the Player's responsibility. |
-| E11 | Actual rendered length of an accepted candidate exceeds its declared duration; cumulative actual length crosses the cap mid-rendering (R4.5 / R7.5 — trim-during-play). | Stop rendering at the cap boundary, even mid-ad; transition to next candidate or back to primary content. | Stop firing tracking beacons at the trim boundary (R13.3). | Broadcaster MUST declare a cap on every slot (R4.1). |
-| E12 | Tracking beacon HTTP failure (timeout, 4xx, 5xx) on an ad-tracking endpoint (impression, quartile, complete, etc.). | Continue playback uninterrupted — tracking is fire-and-forget. | Log the beacon failure; surface to application layer via an implementation-defined API (non-normative). | Tracking endpoints SHOULD be highly available; ADS MAY rotate dead endpoints between resolution requests. |
-| E13 | ADS resolution response arrives after the slot has elapsed (late callback). | Treat as no-fill — the slot has already been resolved as primary content; the Player MUST NOT inject the late ad post-hoc. | Drop the late response silently; log latency for telemetry. | ADS SHOULD respect the time budget implied by `@earliestResolutionTimeOffset` and the slot's `@presentationTime`. |
+| ID  | Error condition | Player response (MUST) | Player response (MAY) | ADS / Broadcaster obligation |
+|-----|-----------------|------------------------|-----------------------|------------------------------|
+| E1  | Transport failure on the resolution request to the ADS (HTTP timeout, 4xx, 5xx, DNS unreachable, TCP refused, TLS handshake failure). | Fall through to primary content uninterrupted (R1). MUST NOT block primary playback waiting for the ADS. | Apply a bounded retry inside the window between the Earliest Resolution Time and the slot's `presentationTime`; abandon retries once the window closes (E4). | ADS SHOULD bound its response latency to the slot's resolution window; Broadcaster SHOULD set `@earliestResolutionTimeOffset` large enough to leave room for one retry. |
+| E2  | Resolution document received but unparseable or schema-invalid (malformed XML, unknown root element, unsupported profile URI, missing required attributes). | Treat as if no resolution document was returned; fall through to primary content (R1). MUST NOT attempt partial recovery on a non-conforming document. | Log the failure for diagnostics (non-normative). | ADS MUST emit a resolution document that validates against the profile it declares; Broadcaster MUST NOT advertise a profile URI that the spec does not define. |
+| E3  | Resolution document is well-formed but empty (no candidates / zero `<Period>` entries). | Fall through to primary content uninterrupted (R1). No tracking beacons MUST be fired. | Surface a non-normative "no-fill" event to the application layer (Notes §4). | ADS MAY return an empty resolution document deliberately as a no-fill signal; this is conforming behaviour, not an error on the ADS side. |
+| E4  | Resolution document arrives after the slot window has elapsed (response received past the slot's `presentationTime` for linear, or past the overlay window for non-linear). | Discard the late response; fall through to primary content for the slot that just elapsed. MUST NOT delay primary playback to render a late ad. | Reuse the late response for a subsequent slot only if its `@earliestResolutionTimeOffset` / scheme allows it; otherwise discard entirely. | ADS MUST honour the slot's resolution window; if it cannot meet the deadline it SHOULD return early with an empty resolution document (E3) rather than late with content. |
+| E5  | Player does not implement the SGAI event scheme URI declared on the `<EventStream>` (legacy Player encountering a construct introduced by this proposal). | Ignore the unknown event and continue playing primary content uninterrupted (R1.1). | None. | Broadcaster MUST express every new SGAI construct via an extension point with `ignore-if-unknown` semantics (R1.2); the Broadcaster MUST NOT redefine pre-existing constructs (R1.3). |
+| E6  | An ADS-returned candidate carries no form renderable on the device (no admissible form / layout / device-capability intersection per R5.6). | Skip the candidate; fall through to the next candidate in declared order (R5.7, R7.1). If exhausted, fall through to primary content. | Surface a non-normative "candidate-skipped" event for diagnostics. | ADS SHOULD return at least one candidate with a broadly renderable form (e.g. video) so that R5.7 fall-through to primary content is the worst case, not the default case. ADS MUST NOT require a device-class matrix (R5.4). |
+| E7  | A candidate declares a form whose layout name is not in the Broadcaster's allowed-layouts set, or is not part of the IAB-defined set used by the spec edition. | Reject the form (R5.6); evaluate other forms on the same candidate. If no admissible form remains, treat as E6 and fall through. | Log the layout name and the reason for rejection. | Broadcaster MUST declare allowed layouts using names that map 1:1 to IAB-defined values (R12.2). ADS MUST NOT emit form metadata for layout names outside the IAB-defined set (R12.3). |
+| E8  | Cumulative declared duration of accepted candidates would exceed the Broadcaster-declared slot cap if the next candidate is added ("drop before play", R7.3). | Apply R7.3 / R7.4: MAY drop the offending candidate; MUST NOT re-order, deduplicate, or rearrange the remaining candidates. | Drop only the candidate that pushes the sum past the cap, or drop all subsequent candidates — both are conforming under R7.3. | Broadcaster MUST declare `@maxDuration` on every slot (R4.1). ADS is NOT required to respect the cap (R4.4); the cap is enforced Player-side. |
+| E9  | Actual rendered length of an accepted candidate exceeds its declared duration, pushing cumulative slot duration past the cap ("trim during play", R4.5 / R7.5). | Stop rendering the candidate exactly at the cap boundary, even mid-ad (R4.2, R4.5). MUST NOT extend past the cap (R4.3). MUST stop firing tracking beacons at the trim boundary (R13.3). | Surface a non-normative "slot-trimmed" event to the application layer. | ADS / Broadcaster MUST NOT rely on declared duration matching actual length for cap arithmetic; the Player is the authoritative enforcer (R2.3 / R4). |
+| E10 | Ad media segment fetch fails during playback (HTTP 4xx/5xx, timeout, decoder error, DRM key-exchange failure on an ad asset). | Abort the current candidate. Resume the slot at the next candidate in declared order (R7.1) and re-apply R4 cap arithmetic against rendered-so-far. If no candidates remain, fall through to primary content. | Surface a non-normative "candidate-failed" event. May tear down the entire slot per Player policy (`05-dash-linear-interfaces.md` §Interface contracts). | ADS SHOULD point at CDNs with availability comparable to the Broadcaster CDN; the spec does not require parity but the Player's recourse on failure is to drop the candidate, not to retry indefinitely. |
+| E11 | Tracking beacon delivery fails (HTTP error, timeout, DNS failure on a callback URL emitted under scheme `urn:mpeg:dash:event:callback:2015`). | Continue playback uninterrupted. Beacon failures are non-fatal and MUST NOT abort the candidate or the slot. | Retry the beacon with bounded backoff; log the failure for diagnostics. Surface beacon failures via an implementation-defined API (Notes §4). | ADS MUST embed tracking beacons under the callback scheme reused from linear SGAI (R6.2, R13.4); the ADS / Broadcaster MUST NOT depend on beacon delivery for state correctness. |
+| E12 | Unknown vendor namespace or unrecognised extension element on the resolution document or its sub-MPDs (e.g. vendor-specific click-through / `AdSystem` / `UniversalAdId` carriers, or unknown attributes on a tracking carrier). | Safely ignore the unknown namespace / element (R1.1, R6.5). MUST NOT abort the candidate or the slot. | Pass the ignored data verbatim to the application layer for opportunistic consumption (non-normative). | ADS / Broadcaster MAY use vendor-namespaced extensions to convey application metadata that has no native DASH carrier (R6.4); when they do, they MUST NOT rely on Players consuming them (R1.1). |
 
 ## Notes
 
@@ -43,74 +55,77 @@ tracking-endpoint interfaces.
 
 "Fall through to primary content uninterrupted" means: no visible
 artefact (no freeze, no blank slate, no error overlay unless the
-application has explicitly opted in to one via an implementation-
-defined API); no tracking beacon fired for the failed ad slot;
-playback of the primary content continues seamlessly from the
-position the playhead occupied when the failure was detected. This
-is the runtime equivalent of R1's "ignore-if-unknown" guarantee.
+application has explicitly opted in via an implementation-defined
+API); no tracking beacon fired for the failed slot; primary
+playback continues from the position it would have held had the
+SGAI event not existed. For `ReplacePresentation` slots specifically,
+"uninterrupted" means the playhead continues advancing on the main
+timeline at wall-clock pace; the Player does not pause main media
+time waiting for an ADS response that ultimately failed.
 
 ### Order of precedence
 
-When multiple errors arise on the same exchange, the Player applies
-them in this order (top wins):
+When more than one error condition is applicable to the same
+candidate or exchange, the Player MUST apply them in this order
+(short-circuit at the first match):
 
-1. **Transport** — HTTP / DNS / TCP / TLS failures (E1..E4) short-
-   circuit the exchange before any document content is consumed.
-2. **Resolution-document level** — XML parse failures (E5) and
-   schema-invalid documents (E6) short-circuit before per-candidate
-   evaluation. Unknown root element (E7) is in the same tier — ignore
-   per R1.
-3. **Constraint surfacing** — Broadcaster-declared cap or layout
-   policy violations are detected at this tier; the Player either
-   discards offending candidates (E10) or declines the slot.
-4. **Per-candidate decode-time** — no-renderable-form fall-through
-   (E8) is detected here and triggers the next-candidate walk per
-   R5.7.
-5. **Per-candidate playback-time** — trim-during-play (E11) is the
-   only error in this tier.
-6. **Tracking failures** — beacon errors (E12) are non-fatal and never
-   alter playback; they are the lowest tier.
-
-Late callbacks (E13) cross-cut — by the time the Player observes
-them, the slot has already fallen through to primary at a higher
-tier.
+1. **Transport** — E1 (resolution-request transport) before E10
+   (ad-segment transport).
+2. **Resolution-document level** — E2 (parse / schema) and E3
+   (empty) and E4 (late) before any per-candidate evaluation.
+3. **Constraint surfacing** — E5 (unknown event scheme) and E7
+   (unknown / disallowed layout) before per-candidate device
+   evaluation.
+4. **Per-candidate decode-time** — E6 (no renderable form) before
+   any duration evaluation.
+5. **Per-candidate playback-time** — E8 (drop before play) before
+   E9 (trim during play); E10 (ad-segment failure) preempts E9
+   on the affected candidate.
+6. **Tracking failures (non-fatal)** — E11 and E12 are evaluated
+   independently and MUST NOT influence the slot outcome.
 
 ### Guarantees by actor
 
-- **Broadcaster** guarantees: every SGAI slot has a `@maxDuration`
-  declared (R4.1); event scheme URIs are year-pinned per
-  `06-naming-and-namespaces.md`; constructs sit in DASH extension
-  points whose ignore-if-unknown semantics are already defined
-  (R1.2).
-- **ADS** guarantees: the response is either a well-formed,
-  schema-valid resolution document, an empty resolution document
-  (canonical no-fill), or an HTTP error. ADS does NOT guarantee that
-  the cumulative duration of returned candidates respects the cap
-  (R4.4) — that is the Player's job.
-- **Player** guarantees: every error in this matrix produces a
-  defined behaviour. Undefined behaviour is non-conforming (R3.2).
-  Specifically, no error in this matrix can cause the primary
-  content to freeze, blank, or surface an error overlay to the
-  user unless an opt-in API has been exercised.
+- **Broadcaster guarantees**: declares `@maxDuration` on every slot
+  (R4.1); declares allowed layouts using IAB-defined names (R12.2);
+  expresses every new SGAI construct via an `ignore-if-unknown`
+  extension point (R1.2 / R1.3). Together these guarantees ensure
+  E5 / E7 / E8 / E9 are decidable Player-side.
+- **ADS guarantees**: emits a resolution document that validates
+  against its declared profile (E2); honours the slot's resolution
+  window or returns early with an empty document (E3 / E4); embeds
+  tracking beacons under the callback scheme (R6.2 / R13.4);
+  populates each candidate with at least one renderable form
+  (R5.1). The ADS makes no guarantee on the duration cap (R4.4) and
+  is not required to maintain a device-class matrix (R5.4).
+- **Player guarantees**: enforces the cap on actual rendered length
+  (R4.2 / R4.5); honours ADS-declared candidate order (R7.1 / R7.4)
+  except for drops permitted by R7.2 / R7.3; selects per device
+  capabilities × Broadcaster-allowed layouts × ADS hints (R5.6);
+  falls through to primary content as the worst-case behaviour on
+  every error row (R1).
 
 ### Surfacing errors to the application layer
 
-The Player MAY expose error events via implementation-defined APIs;
-this surfacing is non-normative. The spec's implementation-notes
-chapter SHOULD include guidance (e.g. emit `adslot-error` with the
-matrix-row ID, allow the application to register listeners), but
-implementations are free to choose the API shape. Conformance does
-not require any specific API.
+The Player MAY expose any of the error events in the matrix above
+to the embedding application via an implementation-defined API
+(e.g. a JavaScript event on a web Player, a delegate callback on a
+native SDK). The API shape is non-normative and out of the spec's
+scope; spec chapter 9 (Implementation notes) SHOULD include
+guidance on the categories that benefit from application surfacing
+(at minimum: E3 no-fill, E9 trim, E10 candidate failure) but MUST
+NOT mandate a wire format or method signature.
 
 ## References
 
-- `../context/02-actors.md` — actor responsibilities.
-- `../context/03-requirements.md` — R1 (ignore-if-unknown), R4 (cap
-  enforcement), R5 (device-aware selection), R6 (tracking carrier),
-  R7 (ADS-returned order), R13 (non-linear tracking semantics).
-- `../context/05-dash-linear-interfaces.md` — interface contracts and
-  message flow.
-- `../context/06-naming-and-namespaces.md` — scheme URI patterns
-  (E7 / E9 reference these).
-- `../context/99-glossary.md` — definitions of resolution document,
-  candidate, form, slot.
+- [`../context/02-actors.md`](../context/02-actors.md) — three-actor
+  responsibility model invoked by every Guarantees-by-actor row.
+- [`../context/03-requirements.md`](../context/03-requirements.md) —
+  R1, R2, R4, R5, R6, R7, R12, R13 cited inline.
+- [`../context/05-dash-linear-interfaces.md`](../context/05-dash-linear-interfaces.md) —
+  linear SGAI message flow and Interface contracts table; the rows
+  in this matrix are the abstract / slot-agnostic generalisation of
+  the linear "Error semantics" column in that table.
+- [`../context/99-glossary.md`](../context/99-glossary.md) —
+  canonical vocabulary for "resolution document", "candidate",
+  "form", "slot", "fall through".
