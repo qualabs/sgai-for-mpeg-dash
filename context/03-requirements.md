@@ -26,6 +26,21 @@ concrete requirements that follow are constrained by them.
   construct that contains it, or another attribute on the same
   construct. Redundancy invites contradiction; contradiction invites
   silent bugs.
+- **DP-1.1. No "future flexibility" placeholders.** A construct
+  MUST NOT be introduced "just in case a future edition relaxes
+  it". Constructs whose only admissible value matches the
+  construct's default OR is fixed by another rule (e.g. R14)
+  MUST NOT exist in the spec. The argument "we might want this
+  attribute later" is explicitly rejected — good ideas for the
+  future stay in the future, they don't enter the spec "por si
+  las dudas". Less is more.
+- **DP-1.2. Single source of truth.** When the same value or
+  relationship appears in multiple places in the spec or in a
+  generated MPD, exactly ONE declaration is canonical and the
+  others MUST be derived from it (computed at runtime by the
+  implementer, not duplicated in the markup). Duplicating a
+  value across attributes invites silent drift when one is
+  modified and the other forgotten.
 
 ## Requirements
 
@@ -299,27 +314,35 @@ concrete requirements that follow are constrained by them.
   - **R12.3** (ADS): The ADS MUST NOT emit form metadata for ad
     types that are not part of the IAB-defined set used by this
     spec's edition.
-- **R13. Non-linear ad tracking semantics.** The specification MUST reuse
-  the tracking mechanism defined for linear SGAI in MPEG-DASH
-  (do not introduce new tracking event types). The Player SHOULD
-  fire tracking beacons at overlay impression and at quartile
-  boundaries (25%, 50%, 75%, 100%) of the Broadcaster-declared
-  overlay window (R4 `@maxDuration` enforcement). Beacons fired
-  outside that window are out-of-spec.
+- **R13. Non-linear ad tracking — ADS-directed callbacks.**
+  The specification MUST define a tracking mechanism that allows
+  the ADS to instruct the Player on which tracking beacons to
+  fire, and at which points relative to the ad's presentation.
+  The mechanism MUST reuse DASH callback events (or an equivalent
+  baseline DASH construct); no new tracking event scheme is
+  introduced. Beacon timings are **relative to the ad's
+  presentation time**, and the **ADS is the authority** over the
+  tracking schedule — the spec does NOT prescribe specific
+  fractions (no hardcoded quartiles), granularity, or beacon
+  count. The Player executes the schedule the ADS supplies.
 
   **Conformance criteria**:
-  - **R13.1** (Player): Given a non-linear ad accepted for
-    rendering, the Player MUST fire an impression beacon at the
-    instant the overlay becomes visible to the user.
-  - **R13.2** (Player): The Player SHOULD fire quartile beacons
-    timed against the Broadcaster-declared overlay window, not
-    against the ad's internal duration.
-  - **R13.3** (Player): If R4 trims the overlay before all
-    quartiles fire, the Player MUST stop firing beacons at the
-    trim boundary.
-  - **R13.4** (spec document): The specification MUST NOT introduce a new
-    tracking event scheme; reuse of the linear baseline tracking
-    mechanism is mandatory.
+  - **R13.1** (ADS): The ADS MUST express tracking instructions
+    using DASH callback events (or equivalent), with timings
+    expressed relative to the ad's presentation timeline.
+  - **R13.2** (Player): Given an ad accepted for rendering, the
+    Player MUST execute the tracking schedule supplied by the
+    ADS — firing each beacon at its specified relative time.
+  - **R13.3** (Player): If R4 trims the ad before a scheduled
+    beacon's time, the Player MUST stop firing remaining beacons
+    at the trim boundary.
+  - **R13.4** (spec document): The specification MUST NOT introduce
+    a new tracking event scheme; reuse of the DASH baseline
+    callback mechanism is mandatory.
+  - **R13.5** (spec document): The specification MUST NOT
+    prescribe specific beacon timing fractions (no hardcoded
+    quartiles, impression-on-visible-only, or fixed count). The
+    ADS chooses the schedule per its own decisioning logic.
 - **R14. Single concurrent non-linear ad presentation.**
   At most one non-linear ad form may be active on the screen at any
   given moment. When multiple non-linear ad opportunities overlap in
