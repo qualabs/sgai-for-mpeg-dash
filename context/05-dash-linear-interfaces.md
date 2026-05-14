@@ -322,6 +322,20 @@ What the Player does with these documents:
 > SGAI baseline, because it lets the ADS keep ad metadata sharded
 > per creative.
 
+The interfaces above are sufficient for **linear** SGAI, where the
+ad's renderable asset is an ISO-BMFF presentation by construction:
+the `<ImportedMPD>`-reached sub-MPD is SPS-conformant under §8.15
+and therefore bound by RFC 4337 on every Representation's
+`@mimeType` (DR-1 in
+[`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+Below this point in the design space, the AdaptationSet /
+Representation axis is closed for non-MP4 carriers: per DR-5,
+ListMPD-level Periods inherit the CMAF-extension profile and
+therefore inherit the same RFC 4337 restriction; per DR-1, sub-MPDs
+inherit SPS. The non-linear chapters of the spec MUST therefore
+carry non-AV asset URLs (HTML, image, other) outside the
+AdaptationSet axis, via one of the carriers enumerated in DR-6.
+
 ## VAST → ListMPD conversion
 
 The Player-facing interface in DASH 6th edition is `ListMPD`, but

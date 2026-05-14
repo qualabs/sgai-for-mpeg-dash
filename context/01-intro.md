@@ -49,6 +49,12 @@ This folder stays focused on the technical content.
   Verification checklist that the spec MUST apply to each new
   construct it introduces, so legacy Player compatibility (R1 /
   UC-07) is auditable per construct.
+- **[08-dash-extension-rules.md](./08-dash-extension-rules.md)** —
+  DASH 6th edition rules (DR-1..DR-7) that close the design space
+  for SGAI extensions. Consumed by R1.2 / R6.6 (admissible
+  extension points), by `05-dash-linear-interfaces.md` (closed
+  AdaptationSet axis), and by `07-backward-compat-checklist.md`
+  (per-construct carrier classification).
 - **[99-glossary.md](./99-glossary.md)** — Technical terminology used
   across the document set.
 

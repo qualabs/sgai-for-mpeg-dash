@@ -33,10 +33,15 @@ ignore-if-unknown.
 ### 2. Extension point and ignore-if-unknown rule
 
 Cite the DASH 6th edition (or successor) section that documents
-the ignore-if-unknown rule for C's placement.
+the ignore-if-unknown rule for C's placement. The construct's
+chapter MUST name the applicable DR-N rule from
+[`08-dash-extension-rules.md`](./08-dash-extension-rules.md).
 
-- For new XML elements under known parents: typically the
-  open-content model rule.
+- For new XML elements under known parents: §5.2.1 foreign-
+  namespace open content (DR-2). Legacy clients discard the
+  element together with its full subtree (DR-3) — verify the
+  walk-through in step 3 against this discard semantic, not
+  against a "descend and read known children" semantic.
 - For new attributes on known elements: typically the
   ignore-unknown-attribute rule.
 - For new namespaces: standard XML namespace rules apply, but
@@ -45,6 +50,10 @@ the ignore-if-unknown rule for C's placement.
 - For new event schemes: the `Event` `schemeIdUri`
   ignore-if-unknown rule (the Player skips events whose scheme
   it does not implement).
+- For constructs invoking Annex F (DR-4): the chapter MUST
+  state which new Interoperability Point URI is being published
+  in `MPD@profiles`, and justify why §5.2.1 / §5.10 / §5.8.4.x
+  (DR-6 carriers) are not sufficient.
 
 ### 3. Legacy Player behaviour walk-through
 
@@ -105,6 +114,24 @@ The construct's chapter MUST link to this checklist and confirm
 each item is satisfied. Reviewers SHOULD reject construct chapters
 that omit the checklist confirmation.
 
+### 8. Carrier classification
+
+For each new construct C, classify its carrier against DR-6 in
+[`08-dash-extension-rules.md`](./08-dash-extension-rules.md):
+
+- **(a) Foreign-namespace open content** (§5.2.1) — a new element
+  in `urn:svta:dash:sgai:<year>` carrying the asset URL as an
+  attribute.
+- **(b) Event Stream payload** (§5.10) — an `<Event>` whose
+  `text()` carries an inline payload.
+- **(c) Vendor descriptor scheme** (§5.8.4.8 / §5.8.4.9) — a
+  scheme URI with `@value` carrying the payload string.
+
+Constructs not fitting (a) / (b) / (c) MUST justify why Annex F
+(DR-4) is invoked and what new Interoperability Point URI is
+published. The classification MUST be stated explicitly in the
+construct's chapter — leaving it implicit is a checklist failure.
+
 ## Aggregated audit table
 
 The spec SHOULD ship with an audit table summarising the checklist
@@ -131,6 +158,15 @@ Common ways the ignore-if-unknown contract can be silently broken
   fallback that legacy Players can execute.
 - Using a scheme URI without a year suffix (covered in
   [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md)).
+- Placing a non-MP4 `@mimeType` on an AdaptationSet or
+  Representation reached via `<ImportedMPD>` (violates DR-1) or
+  inside a ListMPD-level Period (violates DR-5). Non-AV ad assets
+  MUST be carried via one of the DR-6 carriers.
+- Wrapping a non-MP4 payload in an `application/mp4` Representation
+  solely to satisfy the RFC 4337 registry. The wrapper does not
+  add DASH segment-delivery semantics for the underlying format
+  (those are an Annex F exercise per DR-4) — the construction is
+  a workaround that fails the spirit of R1.2 and DR-6.
 
 ## References
 
