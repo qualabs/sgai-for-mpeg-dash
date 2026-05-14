@@ -338,6 +338,28 @@ concrete requirements that follow are constrained by them.
   - **R14.2** (spec document): The specification MUST NOT introduce
     constructs that imply or require parallel non-linear form
     rendering.
+- **R15. Admissible creative carrier formats.**
+  The admissible ad-creative carrier formats for this edition are
+  exactly three: **video** (carried per the MPEG-DASH 6th edition
+  baseline mp4 constraints — see DR-1 in
+  [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)),
+  **image** (concrete formats defined by IAB ad templates), and
+  **HTML** (`text/html`, which MAY contain inline `<script>` per
+  HTML5 semantics; the script runs under the device's HTML
+  capability contract, not as a separate carrier).
+
+  **Conformance criteria**:
+  - **R15.1** (spec document): The specification MUST enumerate
+    this exact admissible set wherever creative carrier types are
+    discussed; new carrier types MUST NOT be added in annexes,
+    examples, or implementation notes.
+  - **R15.2** (ADS / Broadcaster): Ad candidates returned by the
+    ADS and forms declared by the Broadcaster MUST carry a
+    creative whose mimeType falls under one of the three
+    admissible categories defined above.
+  - **R15.3** (Player): The Player MAY skip a candidate whose
+    creative carrier mimeType is not in the admissible set; such
+    a candidate signals a non-conformant ADS or Broadcaster.
 
 ## Governance Requirements
 
@@ -400,19 +422,12 @@ concrete requirements that follow are constrained by them.
 - Specific position semantics inside a layout (left, right, top,
   bottom). Those belong to the per-layout detail covered in the
   Positioning Templates section of the proposal.
-- **Creative carrier formats outside the admissible set.** The
-  admissible ad-creative carrier formats for this edition are
-  exactly three: **video** (carried per the MPEG-DASH 6th edition
-  baseline mp4 constraints — see DR-1 in
-  [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)),
-  **image** (concrete formats defined by IAB ad templates), and
-  **HTML** (`text/html`, which MAY contain inline `<script>` per
-  HTML5 semantics). Any other creative carrier — for example raw
-  JavaScript (`application/javascript`), SVG-as-payload, PDF,
-  proprietary binary creatives — is out of scope for this edition.
-  The specification MUST NOT introduce constructs admitting carriers
-  outside this set. Senders that need scripted creatives MUST wrap
-  the script inside an HTML document and use `text/html`.
+- **Creative carrier formats outside R15.** Carriers other than the
+  admissible set defined in R15 — for example raw JavaScript
+  (`application/javascript`), SVG-as-payload, PDF, proprietary
+  binary creatives — are out of scope for this edition. Senders
+  that need scripted creatives MUST wrap the script inside an HTML
+  document and use `text/html` per R15.
 
 The remainder of the proposal — Positioning Templates, Anatomy of
 the Overlay Resolution Document, Ad Tracking, Client Execution Flow,
