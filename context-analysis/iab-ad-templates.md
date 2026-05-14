@@ -6,7 +6,7 @@
 (IAB Tech Lab — "Ad Format Guidelines for Digital Video and CTV",
 Final Release May 2026)
 
-**Fetched**: 2026-05-14T18:31:27Z
+**Fetched**: 2026-05-14T21:41:35Z
 
 **Status**: Live mirror — snapshot in time. This file is regenerated
 on every `build-all` invocation; it MAY diverge from the source
