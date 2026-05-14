@@ -57,6 +57,15 @@ provided by an MPD event.
   separation, ordering, fill-rate considerations, and any other
   business logic that selects which ads in its catalogue are
   eligible for this viewer in this slot.
+- **Tracking schedule authority.** The ADS is the authority over
+  what tracking beacons fire and when. Per **R13** in
+  [`03-requirements.md`](./03-requirements.md), the ADS supplies
+  the tracking schedule as DASH callback events (or equivalent)
+  embedded in its resolution document; the Player executes that
+  schedule, but does NOT decide which beacons to fire or at what
+  fractions of the ad presentation. The spec defines the carrier
+  and the timing space (relative to the ad presentation), not the
+  schedule itself.
 
 The ADS is **not** responsible for enforcing the constraints
 declared by the Broadcaster in the MPD event. The specification does

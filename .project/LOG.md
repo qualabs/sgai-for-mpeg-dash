@@ -21,3 +21,24 @@ Feedback de Nicolás:
   the hardcoded 25/50/75/100, makes the ADS the authority over
   beacon timing, keeps the DASH baseline callback mechanism as
   the carrier.
+
+## 2026-05-14 — R13.5 removed, ADS tracking authority moved to actors
+
+After back-and-forth feedback on whether R13.5 (the prohibition on
+hardcoded tracking fractions) should remain as a specific
+requirement or be generalised:
+
+- **R13.5 removed** from context/03-requirements.md. The specific
+  prohibition was too narrow for the requirements layer.
+- **The generalisation lives in context/02-actors.md** instead, as
+  a new responsibility bullet for the ADS: "Tracking schedule
+  authority". The actor model already separates mechanism from
+  policy by design — codifying that the ADS owns the tracking
+  schedule there is the right home, not as a forbidden-fraction
+  rule in R13.
+- DP-2 ("Mechanism over policy") proposed earlier in the
+  conversation is NOT introduced — actors already covers it.
+
+R13 itself remains as rewritten in fda6b5f (ADS-directed
+callbacks; no hardcoded quartiles in the spec text). Only R13.5
+is removed.
