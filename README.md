@@ -22,8 +22,8 @@ projects/sgai-for-mpeg-dash/
 ├── context/              inputs — technical specification of the target spec
 ├── prompts/           build scripts — .prompt files run by an LLM agent
 ├── context-analysis/  pre-spec artefacts — derived from context/ and consumed by the spec build
-├── output/            spec + per-iteration build artefacts (validation sidecar, audit, etc.), versioned per build (vN-)
-├── output-analysis/   ad-hoc research / errata about a specific output iteration (vN- prefix)
+├── output/            spec only — the principal deliverable per build iteration (vN-sgai-spec.md)
+├── output-analysis/   per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata (vN- prefix)
 ├── proposal-drafts/   historical drafts kept for reference
 └── .project/          governance — PROJECT.md, LOG.md, phases/, decisions/
 ```
@@ -48,24 +48,32 @@ DASH gap analysis, UC coverage matrix, error semantics matrix, and
 conformance assertions.
 
 ### `output/`
-The spec itself plus the per-iteration **post-spec** artefacts
-produced by `build-all` (validation sidecar, detail review log,
-DASH conformance audit, future test reports, future version
-diffs). Versioned filenames (e.g. `v<N>-sgai-spec.md`,
-`v<N>-spec-validation.md`, `v<N>-detail-review.md`,
-`v<N>-dash-conformance-audit.md`) preserve build history — files
-are **not** overwritten between runs, and a spec and its sidecars
-share the same `v<N>` prefix so the set is auditable together. The
-iteration number `N` is computed by the `build-all` orchestrator
-as `max(existing v* in output/) + 1` (or `1` for the first build).
+The spec itself, and only that. One file per iteration:
+`v<N>-sgai-spec.md`. The spec is the principal deliverable each
+build produces. Every analysis of the spec — validation sidecar,
+detail-review log, DASH conformance audit, ad-hoc studies — lives
+in `output-analysis/` instead. Files are **not** overwritten
+between runs, so build history is preserved. The iteration number
+`N` is computed by the `build-all` orchestrator as
+`max(existing v* in output/) + 1` (or `1` for the first build).
 
 ### `output-analysis/`
-**Post-spec** ad-hoc analyses that examine a specific output
-iteration: research informing the next build, errata clarifying a
-prior audit, conformance studies grounded against a particular
-`vN-sgai-spec.md`. Filename prefix `vN-` matches the iteration of
-the spec the analysis references. Not produced by `build-all` —
-created by hand when a specific output needs deeper investigation.
+Every analysis of a specific output iteration. Two flavours, same
+folder:
+- **Per-iteration analyses produced by `build-all`**:
+  `v<N>-spec-validation.md` (Step 7 — sidecar validation),
+  `v<N>-detail-review.md` (Step 7.5 — micro-consistency review
+  log), `v<N>-dash-conformance-audit.md` (Step 8 — DASH 6th
+  conformance audit). These share the spec's `v<N>` prefix so the
+  build iteration is auditable as a set.
+- **Ad-hoc analyses created by hand** when a specific output needs
+  deeper investigation: research informing the next build, errata
+  clarifying a prior audit, follow-up studies grounded against a
+  particular `vN-sgai-spec.md`.
+
+The split mirrors `context/` → `context-analysis/`: the spec is
+the artefact, everything that validates / reviews / audits it is
+analysis on top.
 
 ### `.project/`
 Governance scaffolding from the `create-project` skill. Phases,
