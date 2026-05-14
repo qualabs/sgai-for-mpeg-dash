@@ -1,16 +1,21 @@
 # DASH conformance audit
 
 **Inputs**:
-- The most recent `../output/*-sgai-spec.md`.
+- The most recent `../output/v*-sgai-spec.md`.
+- The iteration number `N` (a positive integer) passed in by the
+  orchestrator (`build-all.prompt`) — used to construct the output
+  filename. It MUST match the `v<N>` prefix of the spec being
+  audited. If invoked standalone, the runner resolves `N` from the
+  spec filename being audited.
 - NotebookLM (configured via `.env.agent` — `NOTEBOOK_NAME` should
   point at a notebook containing the MPEG-DASH 6th edition spec).
 
-**Output**: `../output/<DATE>-dash-conformance-audit.md`, with
-`<DATE>` matching the spec's date.
+**Output**: `../output/v<N>-dash-conformance-audit.md`, with `<N>`
+matching the spec's iteration version.
 
-**Skip if**: `../output/<DATE>-dash-conformance-audit.md` exists
-AND its mtime is newer than the spec. Audit re-runs whenever the
-spec rebuilds.
+**Skip if**: `../output/v<N>-dash-conformance-audit.md` exists AND
+its mtime is newer than the spec. Audit re-runs whenever the spec
+rebuilds.
 
 **Execution mode**: MUST run in a fresh subagent context,
 **separate** from both the spec-build agent and the validate-spec
@@ -40,7 +45,7 @@ job). This is **conformance to DASH 6th**.
 
 ### 1. Inventory
 
-Read the latest `../output/*-sgai-spec.md` (full document, all
+Read the latest `../output/v*-sgai-spec.md` (full document, all
 chapters + annexes). Inventory every construct that is **new or
 modified** by the spec:
 
@@ -92,9 +97,9 @@ For each item:
 ```
 [GROUNDED_BY=notebooklm]   # or spec-only / fetch-failed
 
-# DASH conformance audit — <YYYY-MM-DD>
+# DASH conformance audit — v<N> (<YYYY-MM-DD>)
 
-**Audit target**: `../output/<YYYY-MM-DD>-sgai-spec.md`.
+**Audit target**: `../output/v<N>-sgai-spec.md`.
 **Reference**: MPEG-DASH 6th edition (ISO/IEC 23009-1:2025).
 **Method**: inventory + grounded queries against the DASH 6th
 notebook + per-construct verdict.
@@ -126,10 +131,10 @@ notebook + per-construct verdict.
 [things NotebookLM could not resolve]
 
 ## Summary
-- Total constructs audited: N
-- Conforming: M
-- Marginal: K
-- Non-conforming: J
+- Total constructs audited: <count>
+- Conforming: <count>
+- Marginal: <count>
+- Non-conforming: <count>
 ```
 
 ### Tone

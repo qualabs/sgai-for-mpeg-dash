@@ -1,25 +1,31 @@
 # Review spec details
 
 **Inputs**:
-- The most recent `../output/*-sgai-spec.md` (the spec to review and,
-  for autofix-eligible issues, to edit in place).
-- The matching `../output/*-spec-validation.md` (the Step 7 sidecar —
-  read to avoid duplicating findings already captured upstream).
+- The most recent `../output/v*-sgai-spec.md` (the spec to review
+  and, for autofix-eligible issues, to edit in place).
+- The matching `../output/v*-spec-validation.md` (the Step 7
+  sidecar — read to avoid duplicating findings already captured
+  upstream).
+- The iteration number `N` (a positive integer) passed in by the
+  orchestrator (`build-all.prompt`) — used to construct the output
+  filename. It MUST match the `v<N>` prefix of the spec under
+  review. If invoked standalone, the runner resolves `N` from the
+  spec filename being reviewed.
 - `../context/` (the normative reference for naming, namespaces,
   backward-compatibility, and the rest of the spec's policy layer).
 
 **Output**:
-- `../output/<DATE>-detail-review.md` (the review log), where `<DATE>`
-  is today's date in ISO 8601, matching the spec's date.
-- In-place autofixes applied to `../output/<DATE>-sgai-spec.md` for
+- `../output/v<N>-detail-review.md` (the review log), where `<N>`
+  is the iteration version matching the spec under review.
+- In-place autofixes applied to `../output/v<N>-sgai-spec.md` for
   deterministic, low-risk corrections. Issues that require a
   semantic decision are flagged in the log only; the spec is not
   touched for those.
 
-**Skip if**: `../output/<DATE>-detail-review.md` exists AND its mtime
+**Skip if**: `../output/v<N>-detail-review.md` exists AND its mtime
 is newer than ALL of:
-- the most recent `../output/*-sgai-spec.md`,
-- the most recent `../output/*-spec-validation.md`,
+- the most recent `../output/v*-sgai-spec.md`,
+- the most recent `../output/v*-spec-validation.md`,
 - `../context/06-naming-and-namespaces.md`,
 - `../context/07-backward-compat-checklist.md`,
 - this prompt (`prompts/review-spec-details.prompt`).
@@ -36,7 +42,7 @@ external standards is the job of `audit-dash-conformance` (Step 8).
 
 ## Task
 
-Walk the latest `../output/*-sgai-spec.md` end to end — every chapter
+Walk the latest `../output/v*-sgai-spec.md` end to end — every chapter
 and every annex — and check it against `../context/` for the
 following categories of micro-consistency issue. The mandate is
 strictly low-level: format, cross-reference, naming, and
@@ -96,11 +102,11 @@ This prompt MUST NOT:
   and MUST remain self-contained; the dependency arrow is
   `context/` → `analysis/` → `output/`, never reverse).
 - Touch any file under `../analysis/`.
-- Modify `../output/*-spec-validation.md` (that is Step 7's
+- Modify `../output/v*-spec-validation.md` (that is Step 7's
   output, owned by the validate-spec subagent).
 
 The only file this prompt may modify in place is the latest
-`../output/*-sgai-spec.md` (and only for the autofix-eligible
+`../output/v*-sgai-spec.md` (and only for the autofix-eligible
 categories below).
 
 ## Classification — autofix vs flag-only
@@ -134,9 +140,9 @@ cheaper than a wrong autofix.
 
 ## Procedure
 
-1. Identify the most recent `../output/*-sgai-spec.md` and the
-   matching `../output/*-spec-validation.md`. Use the spec's date
-   as `<DATE>` for the review log.
+1. Identify the most recent `../output/v*-sgai-spec.md` and the
+   matching `../output/v*-spec-validation.md`. Use the spec's
+   iteration prefix as `v<N>` for the review log.
 2. Read the spec end to end, the validation sidecar, and the full
    `../context/` directory.
 3. For each of the eight scope categories, scan the spec and
@@ -151,7 +157,7 @@ cheaper than a wrong autofix.
    extract for the log.
 5. For every flag-only issue: do NOT touch the spec. Record the
    suggested resolution and recommended decision in the log.
-6. Emit `../output/<DATE>-detail-review.md` per the structure
+6. Emit `../output/v<N>-detail-review.md` per the structure
    below.
 
 ## Log structure
@@ -159,17 +165,17 @@ cheaper than a wrong autofix.
 ```
 [GROUNDED_BY=spec-only]
 
-# Spec detail review — <YYYY-MM-DD>
+# Spec detail review — v<N> (<YYYY-MM-DD>)
 
-**Review target**: `../output/<YYYY-MM-DD>-sgai-spec.md`.
+**Review target**: `../output/v<N>-sgai-spec.md`.
 **Reference**: `../context/` at git SHA <sha>.
 **Method**: deterministic scan across eight micro-consistency
 categories; autofixes applied in place, flags reported here.
 
 ## Summary
 
-- Autofixes applied: N
-- Issues flagged for human decision: M
+- Autofixes applied: <count>
+- Issues flagged for human decision: <count>
 - Categories with no issues: <list of categories, e.g. "schema-namespace pinning OK">
 
 ## Autofixes applied
