@@ -12,6 +12,21 @@ discussions; any design choice that conflicts with one must explicitly
 state the conflict and the justification. This section mirrors the
 working doc verbatim.
 
+## Design principles
+
+The following principles govern any decision made when authoring the
+constructs of this specification. They are intentionally generic;
+concrete requirements that follow are constrained by them.
+
+- **DP-1. Keep It Simple — information must not be redundant.**
+  Between a simple structure and a more complex one that can
+  introduce unnecessary errors, the simpler one is always preferred.
+  A construct MUST NOT carry information that is already determined
+  by its own context — its element name and namespace, the parent
+  construct that contains it, or another attribute on the same
+  construct. Redundancy invites contradiction; contradiction invites
+  silent bugs.
+
 ## Requirements
 
 - **R1. MPEG-DASH 6th edition compliance and graceful degradation.**
@@ -305,6 +320,24 @@ working doc verbatim.
   - **R13.4** (spec document): The specification MUST NOT introduce a new
     tracking event scheme; reuse of the linear baseline tracking
     mechanism is mandatory.
+- **R14. Single concurrent non-linear ad presentation.**
+  At most one non-linear ad form may be active on the screen at any
+  given moment. When multiple non-linear ad opportunities overlap in
+  time (e.g. a mid-roll l-shape window overlapping with a banner
+  window), the Player MUST serialise their presentation — show one,
+  finish it, then evaluate the next. Simultaneous presentation of two
+  or more non-linear forms is OUT OF SCOPE for this edition; a future
+  edition MAY introduce concurrency semantics with explicit conflict
+  resolution rules.
+
+  **Conformance criteria**:
+  - **R14.1** (Player): At any time t, the Player MUST be presenting
+    at most one form from a non-linear opportunity. Other
+    simultaneously-active opportunities MUST be deferred or skipped
+    per policy.
+  - **R14.2** (spec document): The specification MUST NOT introduce
+    constructs that imply or require parallel non-linear form
+    rendering.
 
 ## Governance Requirements
 
@@ -367,6 +400,19 @@ working doc verbatim.
 - Specific position semantics inside a layout (left, right, top,
   bottom). Those belong to the per-layout detail covered in the
   Positioning Templates section of the proposal.
+- **Creative carrier formats outside the admissible set.** The
+  admissible ad-creative carrier formats for this edition are
+  exactly three: **video** (carried per the MPEG-DASH 6th edition
+  baseline mp4 constraints — see DR-1 in
+  [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)),
+  **image** (concrete formats defined by IAB ad templates), and
+  **HTML** (`text/html`, which MAY contain inline `<script>` per
+  HTML5 semantics). Any other creative carrier — for example raw
+  JavaScript (`application/javascript`), SVG-as-payload, PDF,
+  proprietary binary creatives — is out of scope for this edition.
+  The specification MUST NOT introduce constructs admitting carriers
+  outside this set. Senders that need scripted creatives MUST wrap
+  the script inside an HTML document and use `text/html`.
 
 The remainder of the proposal — Positioning Templates, Anatomy of
 the Overlay Resolution Document, Ad Tracking, Client Execution Flow,

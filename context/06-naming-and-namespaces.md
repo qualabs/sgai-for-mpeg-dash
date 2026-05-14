@@ -149,3 +149,39 @@ Two specific cases that arose from prior audits:
   the underlying semantics match the DASH baseline meaning.
 
 This applies to elements as well as attributes.
+
+## Preferred encoding patterns
+
+When this spec introduces a list-shaped property whose elements are
+single-valued tokens (no per-item nested attributes, no per-item
+sub-elements), the preferred encoding is a **single attribute**
+carrying a space-separated string of tokens, NOT a nested element
+wrapper with per-item child elements.
+
+The delimiter is **space**, matching the MPEG-DASH attribute
+conventions for token lists already in use by baseline DASH
+(`@profiles`, `@codecs`, `@dependencyId`, etc.).
+
+For example, prefer:
+
+```xml
+<svta:OverlayPresentation allowedLayouts="overlay-corner overlay-lower-third"/>
+```
+
+over:
+
+```xml
+<svta:OverlayPresentation>
+  <svta:AllowedLayouts>
+    <svta:Layout name="overlay-corner"/>
+    <svta:Layout name="overlay-lower-third"/>
+  </svta:AllowedLayouts>
+</svta:OverlayPresentation>
+```
+
+Rationale: the attribute form keeps the MPD compact, matches the
+encoding style of existing baseline DASH attributes, and avoids one
+level of XML nesting for no semantic gain. The element form is
+warranted only when each list item needs to carry its own
+attributes or children — at which point the items are no longer
+single-valued tokens and this preference no longer applies.
