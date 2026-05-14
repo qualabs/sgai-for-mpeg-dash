@@ -35,7 +35,21 @@ What does NOT go where:
 
 - `context/` — no generated artefacts, no analysis, no scratch. Only
   the human-authored canonical spec files. If you generated it from
-  the spec, it does not live in `context/`.
+  the spec, it does not live in `context/`. **`context/` MUST be
+  self-contained**: files inside `context/` MUST NOT reference any
+  artefact under `analysis/` or `output/`, neither as a "see also"
+  pointer nor as a source for substantive content. The dependency
+  arrow is strictly `context/` → `analysis/` → `output/`; pointers
+  in the reverse direction invert the layering. When a `context/`
+  document needs additional information to stand on its own (a
+  concept, a baseline citation, a vocabulary anchor), that
+  information either lives directly inside `context/` or cites the
+  primary external source (an ISO spec, an IAB document, an RFC) —
+  never our own downstream derivatives. The test: someone reading
+  only `context/` MUST have everything they need to understand the
+  spec we want to generate; if they would need to open something in
+  `analysis/` or `output/` to follow along, the missing piece
+  belongs back inside `context/`.
 - `prompts/` — only `.prompt` files. No build scripts in other
   languages, no helpers, no READMEs.
 - `analysis/` — only **pre-spec** generated artefacts that the spec
