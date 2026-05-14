@@ -31,6 +31,28 @@ re-definition.
 | Player      | MPD fetch request; ADS resolution request at event activation; tracking beacons | Main MPD; `ListMPD` (or single-period alt MPD) from ADS; ad media segments | Enforces R2 / R4: validates ADS response against MPD constraints; caps slot duration. |
 | ADS         | `ListMPD` (or single-period alt MPD) in response to the Player's resolution request | Player's resolution request; upstream VAST response from internal ad decisioning | Device-agnostic: returns candidates with one or more renderable forms, and the Player picks per device capabilities (R5 in [`03-requirements.md`](03-requirements.md)). Often acts as an adapter over a VAST-based ad decisioning backend (see §VAST → ListMPD below). |
 
+## Broadcaster slot-mechanism choice — Insert vs Replace
+
+The Broadcaster declares a linear slot via one of two MPEG-DASH 6th
+edition mechanisms:
+
+- **`InsertPresentation`** introduces the ad as new content that
+  does NOT consume any of the primary timeline. After the ad,
+  primary content continues from where it was. Natural choice for
+  VOD pre-roll / mid-roll where preserving the primary timeline is
+  required.
+- **`ReplacePresentation`** substitutes a bounded span of the
+  primary timeline with the ad. The primary content under the ad
+  span is effectively skipped. Appropriate for live or linear
+  content where there is no meaningful "frame 0" of the primary
+  stream to preserve.
+
+The choice is captured in the slot's MPD declaration and is
+Broadcaster-decided per content type and intent. The Use Cases in
+[`04-use-cases.md`](04-use-cases.md) describe observable behaviour
+and are agnostic to the mechanism; both produce a linear ad from
+the user's perspective.
+
 ## Linear SGAI message flow
 
 Once the Player has fetched the main MPD and is playing primary
