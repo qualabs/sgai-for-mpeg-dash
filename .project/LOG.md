@@ -1,5 +1,20 @@
 # Project log
 
+## 2026-05-14 — actors layering fix: no forward-references to requirements
+
+`context/02-actors.md` had 2 forward-references to
+`context/03-requirements.md` (one in the file's preamble, one in
+the new "Tracking schedule authority" bullet for the ADS). Per
+the layering principle that requirements ground on actors (R2
+anchors on the three-actor model — the dependency arrow points
+from requirements to actors, not the reverse), actors must be
+self-contained.
+
+Both references were reformulated to express the same content
+without naming R-N identifiers or linking to the requirements
+file. The substantive content (the ADS's tracking-schedule
+authority, the preamble's contextual framing) is preserved.
+
 ## 2026-05-11 — Initial iteration of spec and repo
 
 Set up the repo scaffold, drafted the initial spec, and prepared
