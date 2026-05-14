@@ -25,8 +25,9 @@ projects/sgai-for-mpeg-dash/
 ├── CLAUDE.md          this file — conventions for subagents
 ├── context/              inputs — canonical, human-authored spec
 ├── prompts/           build scripts — .prompt files for LLM agents
-├── analysis/          pre-spec artefacts — inputs the spec build consumes
-├── output/            spec + post-spec artefacts (validation sidecar, etc.), dated per build
+├── context-analysis/  pre-spec artefacts — derived from context/ and consumed by the spec build
+├── output/            spec + per-iteration build artefacts (versioned per build, vN-)
+├── output-analysis/   ad-hoc research / errata about a specific output iteration
 ├── proposal-drafts/   historical drafts kept for reference
 └── .project/          governance from the create-project skill
 ```
@@ -37,33 +38,43 @@ What does NOT go where:
   the human-authored canonical spec files. If you generated it from
   the spec, it does not live in `context/`. **`context/` MUST be
   self-contained**: files inside `context/` MUST NOT reference any
-  artefact under `analysis/` or `output/`, neither as a "see also"
-  pointer nor as a source for substantive content. The dependency
-  arrow is strictly `context/` → `analysis/` → `output/`; pointers
-  in the reverse direction invert the layering. When a `context/`
-  document needs additional information to stand on its own (a
-  concept, a baseline citation, a vocabulary anchor), that
+  artefact under `context-analysis/`, `output/` or `output-analysis/`,
+  neither as a "see also" pointer nor as a source for substantive
+  content. The dependency arrow is strictly
+  `context/` → `context-analysis/` → `output/` → `output-analysis/`;
+  pointers in the reverse direction invert the layering. When a
+  `context/` document needs additional information to stand on its
+  own (a concept, a baseline citation, a vocabulary anchor), that
   information either lives directly inside `context/` or cites the
   primary external source (an ISO spec, an IAB document, an RFC) —
   never our own downstream derivatives. The test: someone reading
   only `context/` MUST have everything they need to understand the
   spec we want to generate; if they would need to open something in
-  `analysis/` or `output/` to follow along, the missing piece
-  belongs back inside `context/`.
+  `context-analysis/`, `output/` or `output-analysis/` to follow
+  along, the missing piece belongs back inside `context/`.
 - `prompts/` — only `.prompt` files. No build scripts in other
   languages, no helpers, no READMEs.
-- `analysis/` — only **pre-spec** generated artefacts that the spec
-  build consumes as inputs (gap analysis, UC coverage matrix, error
-  semantics, conformance assertions). No human-authored notes; those
-  go to `.project/decisions/` or inside the spec. No post-spec
-  artefacts (validation sidecar, test reports, etc.) — those go to
-  `output/`.
-- `output/` — the dated spec itself and any **post-spec** derived
-  artefacts that are built from the spec draft (validation sidecar,
-  future test reports, future version diffs). All dated per build so
-  the pair / set is auditable together. No half-built artefacts from
-  intermediate steps — those go to `analysis/`. Never edit by hand;
+- `context-analysis/` — only **pre-spec** generated artefacts that
+  the spec build consumes as inputs (gap analysis, UC coverage
+  matrix, error semantics, conformance assertions). Derived from
+  `context/`. No human-authored notes; those go to
+  `.project/decisions/` or inside the spec. No post-spec
+  artefacts — those go to `output/` or `output-analysis/`.
+- `output/` — the per-iteration spec itself and any **post-spec**
+  artefacts produced by `build-all` for the same iteration
+  (validation sidecar, detail review, DASH conformance audit). All
+  versioned per build with a `vN-` prefix so the iteration set is
+  auditable together. No half-built artefacts from intermediate
+  steps — those go to `context-analysis/`. No ad-hoc research or
+  errata — those go to `output-analysis/`. Never edit by hand;
   if a build came out wrong, fix the context or the prompt and rebuild.
+- `output-analysis/` — **post-spec** ad-hoc analyses that examine
+  a specific output iteration: research informing the next build,
+  errata clarifying a prior audit, conformance studies grounded
+  against a particular `vN-sgai-spec.md`. Filename prefix is
+  `vN-` where `N` is the iteration of the spec the analysis
+  references. Not part of the build pipeline — created by hand
+  when a specific output needs deeper investigation.
 - `.project/decisions/` — ADRs and decision records. Architecture
   decisions live here, not in `context/`.
 
@@ -77,8 +88,9 @@ What does NOT go where:
   suffix (`analyze-dash-gap.prompt`, `build-spec.prompt`,
   `build-all.prompt`). Each prompt opens with a header block
   declaring **Inputs / Output / Skip if** before the `---` divider.
-- **`analysis/` files**: no numeric prefix. Each artefact
-  standalone, named for what it analyses (`dash-gap-analysis.md`).
+- **`context-analysis/` files**: no numeric prefix. Each artefact
+  standalone, named for what it analyses
+  (`dash-gap-analysis.md`).
 - **`output/` files**: version **prefix** `vN-`, where N is the
   iteration number of the build that produced the artefact. The
   filesystem sorts builds by iteration. Current patterns:
@@ -89,12 +101,16 @@ What does NOT go where:
   `v<N>-<artefact>.md`. N is computed by the build-all orchestrator
   as `max(v* in output/) + 1`. Files are **not overwritten**; each
   build keeps history.
-  Ad-hoc research and errata that are NOT outputs of a `build-all`
-  iteration use a date prefix `YYYY-MM-DD-<name>.md` instead (they
-  are timestamped events, not iterated artefacts).
+- **`output-analysis/` files**: prefix `vN-` matching the
+  iteration of the spec the analysis is grounded against. Each
+  file references the spec / audit / validation under its
+  iteration directly. Not produced by `build-all`; created by
+  hand when a specific output needs deeper investigation
+  (ad-hoc research, errata, follow-up studies).
 - **General**: kebab-case for filenames. English for all content
-  inside `context/`, `prompts/`, `analysis/`, `output/`, `README.md`,
-  and this `CLAUDE.md` (matching the rest of the project content).
+  inside `context/`, `prompts/`, `context-analysis/`, `output/`,
+  `output-analysis/`, `README.md`, and this `CLAUDE.md` (matching
+  the rest of the project content).
 
 ## How to add a new analysis
 
@@ -102,13 +118,15 @@ What does NOT go where:
    (Inputs / Output / Skip if) and substantive body.
 2. Add a corresponding step to `prompts/build-all.prompt` so the
    orchestrator runs it with the same skip-if-fresh contract.
-3. Decide where the output lives: intermediate → `analysis/`,
-   final deliverable → `output/`.
+3. Decide where the output lives: pre-spec build input →
+   `context-analysis/`, per-iteration build artefact → `output/`,
+   ad-hoc post-spec study about a specific iteration →
+   `output-analysis/`.
 
 ## How to modify the spec
 
 Edit the file in `context/` directly. Downstream artefacts
-(`analysis/`, `output/`) are now stale by mtime; re-run
+(`context-analysis/`, `output/`) are now stale by mtime; re-run
 `prompts/build-all.prompt` and the orchestrator regenerates only
 the steps whose inputs moved.
 
@@ -116,7 +134,8 @@ When renumbering or renaming files in `context/`:
 
 - Update the TOC in `context/01-intro.md`.
 - Update every cross-ref in the other `context/*.md` files.
-- Update refs from `analysis/*.md` (use `../context/<file>` paths).
+- Update refs from `context-analysis/*.md` (use
+  `../context/<file>` paths).
 - Update refs in `.project/` (`PROJECT.md`, `phases/`,
   `decisions/`). Be conservative with `LOG.md`: historical entries
   reference the old layout — preserve them verbatim; only update
@@ -126,14 +145,15 @@ When renumbering or renaming files in `context/`:
 
 - Inside `context/`: relative refs without prefix
   (`[02-actors.md](02-actors.md)` or `./02-actors.md`).
-- From `analysis/` or `output/` to `context/`: parent-relative
-  (`../context/02-actors.md`).
+- From `context-analysis/`, `output/` or `output-analysis/` to
+  `context/`: parent-relative (`../context/02-actors.md`).
 - From `.project/` to `context/`: parent-relative
   (`../context/02-actors.md`).
 - From `prompts/` to inputs: parent-relative (`../context/`,
-  `../analysis/`, `../output/`) — the prompt-runner is expected to
-  execute from the project root, so paths inside the prompt body
-  read naturally as `../context/...`.
+  `../context-analysis/`, `../output/`, `../output-analysis/`) —
+  the prompt-runner is expected to execute from the project root,
+  so paths inside the prompt body read naturally as
+  `../context/...`.
 
 ## NotebookLM integration
 

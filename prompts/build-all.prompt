@@ -3,11 +3,11 @@
 **Inputs**: `context/` (and the prompts below). Optional: NotebookLM
 grounding flows through downstream prompts (see their headers).
 **Outputs**:
-- `analysis/dash-gap-analysis.md` (from Step 1).
-- `analysis/uc-coverage-matrix.md` (from Step 2).
-- `analysis/error-semantics.md` (from Step 3).
-- `analysis/conformance-assertions.md` (from Step 4).
-- `analysis/iab-ad-templates.md` (from Step 5 — live mirror of the
+- `context-analysis/dash-gap-analysis.md` (from Step 1).
+- `context-analysis/uc-coverage-matrix.md` (from Step 2).
+- `context-analysis/error-semantics.md` (from Step 3).
+- `context-analysis/conformance-assertions.md` (from Step 4).
+- `context-analysis/iab-ad-templates.md` (from Step 5 — live mirror of the
   IAB ad-type catalogue; regenerated every run).
 - `output/v<N>-sgai-spec.md` (from Step 6 — spec).
 - `output/v<N>-spec-validation.md` (from Step 7 — sidecar
@@ -50,29 +50,29 @@ they appear so the full run is auditable.
 
 ### Step 1 — Gap analysis
 
-Inspect `analysis/dash-gap-analysis.md`:
+Inspect `context-analysis/dash-gap-analysis.md`:
 
 - If file exists AND its mtime is newer than the newest mtime in
   `context/` → log
-  `[SKIPPED] analyze-dash-gap → analysis/dash-gap-analysis.md`
+  `[SKIPPED] analyze-dash-gap → context-analysis/dash-gap-analysis.md`
   and continue.
 - Else → invoke the instructions in
   `prompts/analyze-dash-gap.prompt` and log
-  `[BUILT] analyze-dash-gap → analysis/dash-gap-analysis.md`.
+  `[BUILT] analyze-dash-gap → context-analysis/dash-gap-analysis.md`.
 
 ### Step 2 — UC coverage matrix
 
-Inspect `analysis/uc-coverage-matrix.md`. Skip rule is independent
+Inspect `context-analysis/uc-coverage-matrix.md`. Skip rule is independent
 of Step 1 — this step depends only on `context/03-requirements.md`
 and `context/04-use-cases.md`.
 
 - If file exists AND its mtime is newer than the newest mtime in
   `[context/03-requirements.md, context/04-use-cases.md]` → log
-  `[SKIPPED] build-uc-coverage-matrix → analysis/uc-coverage-matrix.md`
+  `[SKIPPED] build-uc-coverage-matrix → context-analysis/uc-coverage-matrix.md`
   and continue.
 - Else → invoke the instructions in
   `prompts/build-uc-coverage-matrix.prompt` and log
-  `[BUILT] build-uc-coverage-matrix → analysis/uc-coverage-matrix.md`.
+  `[BUILT] build-uc-coverage-matrix → context-analysis/uc-coverage-matrix.md`.
 
 Placement rationale: this matrix surfaces orphan Rs (requirements
 with no UC coverage) before the assertion extractor runs, so the
@@ -81,18 +81,18 @@ orphan-assertion section.
 
 ### Step 3 — Error semantics matrix
 
-Inspect `analysis/error-semantics.md`. Skip rule is independent of
+Inspect `context-analysis/error-semantics.md`. Skip rule is independent of
 Steps 1 and 2 — this step depends only on
 `context/03-requirements.md` and `context/05-dash-linear-interfaces.md`.
 
 - If file exists AND its mtime is newer than the newest mtime in
   `[context/03-requirements.md, context/05-dash-linear-interfaces.md]` →
   log
-  `[SKIPPED] build-error-semantics → analysis/error-semantics.md`
+  `[SKIPPED] build-error-semantics → context-analysis/error-semantics.md`
   and continue.
 - Else → invoke the instructions in
   `prompts/build-error-semantics.prompt` and log
-  `[BUILT] build-error-semantics → analysis/error-semantics.md`.
+  `[BUILT] build-error-semantics → context-analysis/error-semantics.md`.
 
 Placement rationale: the error matrix benefits from running after
 the UC coverage matrix (which surfaces which Rs are exercised
@@ -102,21 +102,21 @@ both intermediates side by side.
 
 ### Step 4 — Conformance assertions
 
-Inspect `analysis/conformance-assertions.md`. Skip rule is
+Inspect `context-analysis/conformance-assertions.md`. Skip rule is
 independent of Steps 1, 2 and 3 — this step depends only on
 `context/`.
 
 - If file exists AND its mtime is newer than the newest mtime in
   `context/` → log
-  `[SKIPPED] extract-conformance-assertions → analysis/conformance-assertions.md`
+  `[SKIPPED] extract-conformance-assertions → context-analysis/conformance-assertions.md`
   and continue.
 - Else → invoke the instructions in
   `prompts/extract-conformance-assertions.prompt` and log
-  `[BUILT] extract-conformance-assertions → analysis/conformance-assertions.md`.
+  `[BUILT] extract-conformance-assertions → context-analysis/conformance-assertions.md`.
 
 ### Step 5 — IAB ad-template catalogue (live mirror)
 
-This step regenerates `analysis/iab-ad-templates.md` from the live
+This step regenerates `context-analysis/iab-ad-templates.md` from the live
 IAB ad-template catalogue (external Google Doc; see
 `prompts/analyze-iab-ad-templates.prompt` for the source link).
 **This step NEVER skips by mtime** — the source is a live external
@@ -125,7 +125,7 @@ output file is overwritten in place.
 
 - Always invoke the instructions in
   `prompts/analyze-iab-ad-templates.prompt` and log
-  `[BUILT] analyze-iab-ad-templates → analysis/iab-ad-templates.md`.
+  `[BUILT] analyze-iab-ad-templates → context-analysis/iab-ad-templates.md`.
   If the fetch fails inside the prompt (paywall, network, missing
   tool), the prompt produces a file documenting the failure with an
   empty table — that is NOT a build error, the pipeline continues.
@@ -147,8 +147,8 @@ exists, `N = 1`. Pass `N` to the `build-spec` prompt as an input.
 
 - Find the newest `output/v*-sgai-spec.md` file (if any). If it
   exists AND its mtime is newer than the newest mtime in `context/`
-  AND newer than `analysis/dash-gap-analysis.md` AND newer than
-  `analysis/iab-ad-templates.md` → log
+  AND newer than `context-analysis/dash-gap-analysis.md` AND newer than
+  `context-analysis/iab-ad-templates.md` → log
   `[SKIPPED] build-spec → <latest filename>`.
 - Else → invoke the spec-build instructions in
   `prompts/build-spec.prompt` with iteration number `N` and log
@@ -235,11 +235,11 @@ Print a summary block:
 
 ```
 SGAI build summary (iteration v<N>, YYYY-MM-DD HH:MM):
-  [BUILT|SKIPPED] analyze-dash-gap                → analysis/dash-gap-analysis.md (mtime: ...)
-  [BUILT|SKIPPED] build-uc-coverage-matrix        → analysis/uc-coverage-matrix.md (mtime: ...)
-  [BUILT|SKIPPED] build-error-semantics           → analysis/error-semantics.md (mtime: ...)
-  [BUILT|SKIPPED] extract-conformance-assertions  → analysis/conformance-assertions.md (mtime: ...)
-  [BUILT]         analyze-iab-ad-templates        → analysis/iab-ad-templates.md (mtime: ...)
+  [BUILT|SKIPPED] analyze-dash-gap                → context-analysis/dash-gap-analysis.md (mtime: ...)
+  [BUILT|SKIPPED] build-uc-coverage-matrix        → context-analysis/uc-coverage-matrix.md (mtime: ...)
+  [BUILT|SKIPPED] build-error-semantics           → context-analysis/error-semantics.md (mtime: ...)
+  [BUILT|SKIPPED] extract-conformance-assertions  → context-analysis/conformance-assertions.md (mtime: ...)
+  [BUILT]         analyze-iab-ad-templates        → context-analysis/iab-ad-templates.md (mtime: ...)
   [BUILT|SKIPPED] build-spec                      → output/v<N>-sgai-spec.md (mtime: ...)
   [BUILT|SKIPPED] validate-spec                   → output/v<N>-spec-validation.md (mtime: ...)
   [BUILT|SKIPPED] review-spec-details             → output/v<N>-detail-review.md (mtime: ...)

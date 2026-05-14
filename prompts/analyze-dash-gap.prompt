@@ -3,8 +3,8 @@
 **Inputs**: `context/` (all files in this directory). Optionally:
 NotebookLM grounding if the `notebooklm` skill is installed and
 `.env.agent` defines `NOTEBOOK_NAME`.
-**Output**: `analysis/dash-gap-analysis.md` (overwrites previous).
-**Skip if**: `analysis/dash-gap-analysis.md` exists AND its mtime is
+**Output**: `context-analysis/dash-gap-analysis.md` (overwrites previous).
+**Skip if**: `context-analysis/dash-gap-analysis.md` exists AND its mtime is
 newer than the newest mtime in `context/`.
 
 ---
@@ -61,7 +61,7 @@ gap analysis with these sections:
    can be extended rather than introducing new ones (per R9).
 5. **Open questions** — items that need WG input or further research.
 
-Write to `../analysis/dash-gap-analysis.md`. Overwrite if exists.
+Write to `../context-analysis/dash-gap-analysis.md`. Overwrite if exists.
 
 Tone: technical, direct, no fluff. Same style as the rest of `context/`.
 Language: English.

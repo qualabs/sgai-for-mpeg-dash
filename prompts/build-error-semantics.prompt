@@ -3,8 +3,8 @@
 **Inputs**: `context/03-requirements.md` (especially R1..R7) and
 `context/05-dash-linear-interfaces.md` (interface contracts that
 surface most error conditions).
-**Output**: `analysis/error-semantics.md` (overwrites previous).
-**Skip if**: `analysis/error-semantics.md` exists AND its mtime is
+**Output**: `context-analysis/error-semantics.md` (overwrites previous).
+**Skip if**: `context-analysis/error-semantics.md` exists AND its mtime is
 newer than the newest mtime in `[context/03-requirements.md,
 context/05-dash-linear-interfaces.md]`.
 
@@ -108,7 +108,7 @@ total row count, scope statement>
 `../context/05-dash-linear-interfaces.md`, `../context/99-glossary.md`>
 ```
 
-Write to `../analysis/error-semantics.md`. Overwrite if exists.
+Write to `../context-analysis/error-semantics.md`. Overwrite if exists.
 
 ## Tone
 

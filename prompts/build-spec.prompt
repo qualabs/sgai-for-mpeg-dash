@@ -1,9 +1,9 @@
 # Build the SGAI spec document
 
-**Inputs**: `context/` + `analysis/dash-gap-analysis.md` +
-`analysis/error-semantics.md` (if present — used to populate
+**Inputs**: `context/` + `context-analysis/dash-gap-analysis.md` +
+`context-analysis/error-semantics.md` (if present — used to populate
 chapter 8 Implementation notes and the final test-cases annex) +
-`analysis/iab-ad-templates.md` (used to populate chapter 3 ad-type
+`context-analysis/iab-ad-templates.md` (used to populate chapter 3 ad-type
 vocabulary). Plus the iteration number `N` (a positive integer)
 passed in by the orchestrator (`build-all.prompt`) — the prompt
 uses it to construct the output filename. If the prompt is invoked
@@ -16,8 +16,9 @@ installed and `.env.agent` defines `NOTEBOOK_NAME`.
 the 3rd build).
 **Skip if**: the most recent `output/v*-sgai-spec.md` exists AND
 its mtime is newer than the newest mtime in `context/`,
-`analysis/dash-gap-analysis.md`, `analysis/error-semantics.md`
-(when present), and `analysis/iab-ad-templates.md` (when present).
+`context-analysis/dash-gap-analysis.md`,
+`context-analysis/error-semantics.md` (when present), and
+`context-analysis/iab-ad-templates.md` (when present).
 I.e. the spec regenerates if any of those inputs moved.
 
 ---
@@ -33,7 +34,8 @@ the result to stdout as the first line of execution:
   spec and ideally VAST 4.x, IAB CTV, SCTE-35 references). Use it
   as the authoritative reference when stating normative content.
   Log: `[GROUNDED_BY=notebooklm]`.
-- Else → proceed using only `../context/` + `../analysis/` as input.
+- Else → proceed using only `../context/` + `../context-analysis/`
+  as input.
   The spec is less authoritative (no canonical references resolved
   at query time) but the build still completes successfully.
   Log: `[GROUNDED_BY=spec-only]`.
@@ -56,7 +58,7 @@ authoritative source as `[inferred]`.
   subagent context after this build and writes its sidecar to
   `../output/v<N>-spec-validation.md` — not by this prompt.
 - **The spec document MUST NOT reference the analysis files
-  (`../analysis/*`).** Analysis is intermediate input; the spec
+  (`../context-analysis/*`).** Analysis is intermediate input; the spec
   consumes it but does not cite it.
 - **The spec MAY reference external normative sources** (MPEG-DASH
   6th edition spec, IAB ad-type catalogue, RFC 2119, VAST 4.x) —
@@ -66,9 +68,10 @@ authoritative source as `[inferred]`.
 
 ## Task
 
-Read every file in `../context/`, `../analysis/dash-gap-analysis.md`,
-`../analysis/error-semantics.md` (if present), and
-`../analysis/iab-ad-templates.md` (if present). Use the context as the
+Read every file in `../context/`,
+`../context-analysis/dash-gap-analysis.md`,
+`../context-analysis/error-semantics.md` (if present), and
+`../context-analysis/iab-ad-templates.md` (if present). Use the context as the
 source of truth for what the spec must define. Use the gap analysis
 as guidance on which constructs are net-new vs extensions of
 existing DASH 6th machinery. Use the IAB ad-templates analysis as
@@ -99,7 +102,7 @@ The output document MUST follow this structure:
    normative section listing the accepted ad-type values used by
    the spec. These values are sourced from the IAB ad-type
    catalogue (live link, not snapshotted) — see
-   `analysis/iab-ad-templates.md` for the extracted table that
+   `context-analysis/iab-ad-templates.md` for the extracted table that
    feeds this chapter. Chapter 3 MUST NOT define new ad-type
    values; it ONLY accepts and presents the IAB-defined ones.
 4. **Conformance** — what an implementation must do to claim
@@ -118,7 +121,7 @@ The output document MUST follow this structure:
 8. **Implementation notes** — non-normative guidance: how to handle
    tracking-only VAST Ads, late callbacks, error recovery,
    device-class fallbacks, etc. The error-semantics matrix rows
-   (sourced from `analysis/error-semantics.md`) become the basis
+   (sourced from `context-analysis/error-semantics.md`) become the basis
    for this chapter; restate the guidance inline so the spec
    remains self-contained.
 
@@ -160,7 +163,7 @@ For each UC annex:
   demonstrate device-aware ad selection by the Player.
 - The Player's per-device-class decision walk-through (D1..D5
   from `../context/04-use-cases.md`), referencing the IAB-defined
-  layout vocabulary (mirrored in `../analysis/iab-ad-templates.md`)
+  layout vocabulary (mirrored in `../context-analysis/iab-ad-templates.md`)
   as normatively cited in chapter 3.
 
 If a UC does not have a natural multi-form scenario, the annex

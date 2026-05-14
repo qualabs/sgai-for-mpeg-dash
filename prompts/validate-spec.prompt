@@ -8,15 +8,16 @@
   validated. If invoked standalone, the runner resolves `N` from
   the spec filename being validated.
 - `../context/` (the source of truth — used to check R coverage).
-- `../analysis/` (intermediate analyses — used to cross-check
-  conformance assertions, error semantics, etc.).
+- `../context-analysis/` (intermediate analyses — used to
+  cross-check conformance assertions, error semantics, etc.).
 
 **Output**: `../output/v<N>-spec-validation.md`, where `<N>` is the
 iteration version that matches the spec under validation.
 
 **Skip if**: `../output/v<N>-spec-validation.md` exists AND its
 mtime is newer than the spec's mtime. The validation rebuilds when
-either the spec or its inputs (`context/`, `analysis/`) change.
+either the spec or its inputs (`context/`, `context-analysis/`)
+change.
 
 **Execution mode**: this prompt MUST run in a fresh subagent
 context, separate from the one that produced the spec. The
@@ -31,7 +32,8 @@ subagent for this step.
 
 Read the latest `../output/v*-sgai-spec.md` and walk every chapter
 plus every annex. Cross-check against `../context/` and
-`../analysis/`. Produce a sidecar document with these sections:
+`../context-analysis/`. Produce a sidecar document with these
+sections:
 
 ### 1. Gaps
 
