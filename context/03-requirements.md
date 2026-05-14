@@ -412,22 +412,23 @@ concrete requirements that follow are constrained by them.
 
 ## Out of Scope
 
-- Building a Qualabs-specific or SVTA-specific layout engine. Layout
-  is delegated to HTML5 and CSS, aligned with the IAB CTV Ad
-  Standard.
-- Defining the ADS's internal decisioning logic. The proposal only
-  specifies the contract between the MPD event and the ADS response.
-  Targeting, frequency capping, brand safety filtering and similar
-  concerns remain implementation-specific.
-- Specific position semantics inside a layout (left, right, top,
-  bottom). Those belong to the per-layout detail covered in the
-  Positioning Templates section of the proposal.
-- **Creative carrier formats outside R15.** Carriers other than the
-  admissible set defined in R15 — for example raw JavaScript
-  (`application/javascript`), SVG-as-payload, PDF, proprietary
-  binary creatives — are out of scope for this edition. Senders
-  that need scripted creatives MUST wrap the script inside an HTML
-  document and use `text/html` per R15.
+- **OOS-1. Building a new layout engine.** Spatial arrangement of
+  overlays is delegated to HTML5 and CSS, aligned with the IAB CTV
+  Ad Standard. The specification MUST NOT define a parallel layout
+  standard.
+- **OOS-2. Defining the ADS's internal decisioning logic.** The
+  proposal only specifies the contract between the MPD event and
+  the ADS response. Targeting, frequency capping, brand safety
+  filtering and similar concerns remain implementation-specific.
+- **OOS-3. Specific position semantics inside a layout** (left,
+  right, top, bottom). Those belong to the per-layout detail
+  covered in the Positioning Templates section of the proposal.
+- **OOS-4. Creative carrier formats outside R15.** Carriers other
+  than the admissible set defined in R15 — for example raw
+  JavaScript (`application/javascript`), SVG-as-payload, PDF,
+  proprietary binary creatives — are out of scope for this edition.
+  Senders that need scripted creatives MUST wrap the script inside
+  an HTML document and use `text/html` per R15.
 
 The remainder of the proposal — Positioning Templates, Anatomy of
 the Overlay Resolution Document, Ad Tracking, Client Execution Flow,
