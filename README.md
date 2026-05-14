@@ -48,7 +48,7 @@ matrix, error semantics matrix, and conformance assertions.
 ### `output/`
 The spec itself plus any **post-spec** derived artefacts (validation
 sidecar, future test reports, future version diffs). Dated filenames
-(e.g. `sgai-spec-YYYY-MM-DD.md`, `spec-validation-YYYY-MM-DD.md`)
+(e.g. `YYYY-MM-DD-sgai-spec.md`, `YYYY-MM-DD-spec-validation.md`)
 preserve build history — files are **not** overwritten between
 runs, and a spec and its sidecars share the same date stamp so the
 set is auditable together.
@@ -72,7 +72,7 @@ the inputs are fresher than the existing output.
 - **Gap analysis**: invoke `prompts/analyze-dash-gap.prompt`.
   Reads `context/`, writes `analysis/dash-gap-analysis.md` (overwrite).
 - **Spec**: invoke `prompts/build-spec.prompt`. Reads `context/` +
-  `analysis/`, writes `output/sgai-spec-<today>.md` (no overwrite).
+  `analysis/`, writes `output/<today>-sgai-spec.md` (no overwrite).
 - **Both with skip-if-fresh logic**: invoke
   `prompts/build-all.prompt`. Orchestrator that chains the two,
   honouring each step's skip rule and logging a per-step

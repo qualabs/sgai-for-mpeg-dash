@@ -2,7 +2,7 @@
 
 # DASH conformance audit — SGAI spec v2
 
-**Audit target**: `output/sgai-spec-2026-05-12.md` (commit 565ddb3).
+**Audit target**: `output/2026-05-12-sgai-spec.md` (commit 565ddb3).
 **Reference**: MPEG-DASH 6th edition (ISO/IEC 23009-1:2025).
 **Method**: inventory of every construct introduced or reused by the
 spec + 7 grounded queries against the "Streaming Protocols — DASH,
@@ -21,7 +21,7 @@ scheme. Examples in annexes A through E are audited as concrete
 instances of the chapter 5 constructs.
 
 Out of scope: design-level concerns already raised in
-`spec-validation-2026-05-12.md` (gaps, edge cases) — those are about
+`2026-05-12-spec-validation.md` (gaps, edge cases) — those are about
 under-specification, not DASH-schema conformance. This audit only
 asks: *given the spec's wording, would a DASH-6th-conformant Player
 parse and execute the construct as the spec intends, or would the

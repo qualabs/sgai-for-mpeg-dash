@@ -1,14 +1,14 @@
 # DASH conformance audit
 
 **Inputs**:
-- The most recent `../output/sgai-spec-*.md`.
+- The most recent `../output/*-sgai-spec.md`.
 - NotebookLM (configured via `.env.agent` — `NOTEBOOK_NAME` should
   point at a notebook containing the MPEG-DASH 6th edition spec).
 
-**Output**: `../output/dash-conformance-audit-<DATE>.md`, with
+**Output**: `../output/<DATE>-dash-conformance-audit.md`, with
 `<DATE>` matching the spec's date.
 
-**Skip if**: `../output/dash-conformance-audit-<DATE>.md` exists
+**Skip if**: `../output/<DATE>-dash-conformance-audit.md` exists
 AND its mtime is newer than the spec. Audit re-runs whenever the
 spec rebuilds.
 
@@ -40,7 +40,7 @@ job). This is **conformance to DASH 6th**.
 
 ### 1. Inventory
 
-Read the latest `../output/sgai-spec-*.md` (full document, all
+Read the latest `../output/*-sgai-spec.md` (full document, all
 chapters + annexes). Inventory every construct that is **new or
 modified** by the spec:
 
@@ -94,7 +94,7 @@ For each item:
 
 # DASH conformance audit — <YYYY-MM-DD>
 
-**Audit target**: `../output/sgai-spec-<YYYY-MM-DD>.md`.
+**Audit target**: `../output/<YYYY-MM-DD>-sgai-spec.md`.
 **Reference**: MPEG-DASH 6th edition (ISO/IEC 23009-1:2025).
 **Method**: inventory + grounded queries against the DASH 6th
 notebook + per-construct verdict.

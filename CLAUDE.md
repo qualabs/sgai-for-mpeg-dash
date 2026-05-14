@@ -65,10 +65,11 @@ What does NOT go where:
   declaring **Inputs / Output / Skip if** before the `---` divider.
 - **`analysis/` files**: no numeric prefix. Each artefact
   standalone, named for what it analyses (`dash-gap-analysis.md`).
-- **`output/` files**: dated, ISO 8601. Current patterns:
-  `sgai-spec-YYYY-MM-DD.md` (the spec) and
-  `spec-validation-YYYY-MM-DD.md` (validation sidecar). New
-  post-spec artefacts follow `<artefact>-YYYY-MM-DD.md`. Files are
+- **`output/` files**: dated **prefix**, ISO 8601, so the
+  filesystem sorts builds chronologically. Current patterns:
+  `YYYY-MM-DD-sgai-spec.md` (the spec) and
+  `YYYY-MM-DD-spec-validation.md` (validation sidecar). New
+  post-spec artefacts follow `YYYY-MM-DD-<artefact>.md`. Files are
   **not overwritten**; each build keeps history.
 - **General**: kebab-case for filenames. English for all content
   inside `context/`, `prompts/`, `analysis/`, `output/`, `README.md`,

@@ -113,7 +113,7 @@ personal info — see `knowledge/output-policy.md`):
 | `context/99-glossary.md` | Glossary of the technical terminology used across the docs set. Entries marked *(proposed)* are constructs that this proposal puts on the table. |
 | `analysis/dash-gap-analysis.md` | Generated artefact: mapping of each UC against MPEG-DASH 6th edition (ISO/IEC 23009-1) — what construct exists today, how it covers the case per device class, what is missing. Regenerable via `prompts/analyze-dash-gap.prompt`. |
 | `prompts/` | Build scripts in `.prompt` format with Inputs / Output / Skip if header. Three prompts: `analyze-dash-gap`, `build-spec`, `build-all` (orchestrator). |
-| `output/` | Final builds of the spec document, with dated filename (`sgai-spec-YYYY-MM-DD.md`). Not overwritten — the build history is preserved. |
+| `output/` | Final builds of the spec document, with dated filename (`YYYY-MM-DD-sgai-spec.md`). Not overwritten — the build history is preserved. |
 | `proposal-drafts/` | Historical iterations of the spec in Google Doc form, one per file, with date and version (`YYYY-MM-DD-vN.md`). Internal drafts that do NOT live in the shared Doc. Kept as historical reference. |
 | `.project/decisions/` | Numbered ADRs (Architecture Decision Records). One material decision per file. Immutable — if a decision is superseded, another ADR is created marking it as replaced. |
 | `.project/LOG.md` | Chronological logbook of the project. One entry per work session or material action. Append-only. |
