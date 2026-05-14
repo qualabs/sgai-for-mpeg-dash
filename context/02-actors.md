@@ -1,9 +1,7 @@
 # Actors and Responsibilities
 
-> For the requirements that this model anchors, see
-> [`03-requirements.md`](03-requirements.md). For the use cases that
-> exercise the model across device classes and ad opportunity types,
-> see [`04-use-cases.md`](04-use-cases.md).
+> For the use cases that exercise the model across device classes
+> and ad opportunity types, see [`04-use-cases.md`](04-use-cases.md).
 
 The architecture proposed by this project rests on a **three-actor
 model**. Each actor has a clearly bounded set of responsibilities, and
@@ -58,9 +56,8 @@ provided by an MPD event.
   business logic that selects which ads in its catalogue are
   eligible for this viewer in this slot.
 - **Tracking schedule authority.** The ADS is the authority over
-  what tracking beacons fire and when. Per **R13** in
-  [`03-requirements.md`](./03-requirements.md), the ADS supplies
-  the tracking schedule as DASH callback events (or equivalent)
+  what tracking beacons fire and when. The ADS supplies the
+  tracking schedule as DASH callback events (or equivalent)
   embedded in its resolution document; the Player executes that
   schedule, but does NOT decide which beacons to fire or at what
   fractions of the ad presentation. The spec defines the carrier
