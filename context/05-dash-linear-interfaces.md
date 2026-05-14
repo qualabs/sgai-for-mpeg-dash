@@ -1,9 +1,9 @@
 # DASH Linear SGAI — Interfaces and Reference Flows
 
-> Component roles are defined in [`02-actors.md`](02-actors.md); the
-> DASH constructs cited below are introduced in
-> [`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md). Terminology
-> follows [`99-glossary.md`](99-glossary.md).
+> Component roles are defined in [`02-actors.md`](02-actors.md). The
+> DASH constructs cited below are part of the MPEG-DASH 6th edition
+> baseline (ISO/IEC 23009-1, §5.16 and §8.14). Terminology follows
+> [`99-glossary.md`](99-glossary.md).
 
 This document is the **reference** for how SGAI is implemented today
 for **linear ads** in **MPEG-DASH 6th edition** (ISO/IEC 23009-1,
@@ -468,7 +468,4 @@ of HTTPS per DASH-IF guidelines.
   <!-- TODO: pin exact VAST 4.x version against the IAB Tech Lab page; NotebookLM source did not specify it. -->
 - [`02-actors.md`](02-actors.md) — actor definitions.
 - [`03-requirements.md`](03-requirements.md) — R1, R2, R4 cited above.
-- [`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md) — DASH
-  constructs cited (`InsertPresentation`, `ReplacePresentation`,
-  `ListMPD`, `@maxDuration`, callback events, §I.4 vocabulary).
 - [`99-glossary.md`](99-glossary.md) — terminology.

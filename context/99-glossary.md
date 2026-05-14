@@ -2,8 +2,7 @@
 
 Defines the technical terminology used across this body of documents.
 Terms appear in the order they're first introduced in `01-intro.md`
-through `05-dash-linear-interfaces.md` (plus
-[`../analysis/dash-gap-analysis.md`](../analysis/dash-gap-analysis.md)).
+through `08-dash-extension-rules.md`.
 
 - **SGAI (Server-Guided Ad Insertion)**: pattern where the ad decision
   is made server-side (by an Ad Decision Server) rather than by the
@@ -24,10 +23,8 @@ through `05-dash-linear-interfaces.md` (plus
   references the IAB definitions normatively and does NOT introduce
   new sub-types. See the IAB CTV Ad Format Guidelines live document:
   https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
-  — the accepted values are extracted into
-  [`../analysis/iab-ad-templates.md`](../analysis/iab-ad-templates.md)
-  by `prompts/analyze-iab-ad-templates.prompt` and refreshed on every
-  build. Examples of sub-types encountered in practice include
+  for the authoritative list. Examples of sub-types encountered in
+  practice include
   l-shape, banner, skyscraper, sidebar, side-by-side, squeezeback,
   pause-ad, lower-third, and corner-bug; these names are illustrative
   and the authoritative list is the IAB document, not this glossary.
