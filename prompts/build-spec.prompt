@@ -56,7 +56,7 @@ authoritative source as `[inferred]`.
   behaviour). The R coverage map is produced by a **separate
   prompt** (`prompts/validate-spec.prompt`), which runs in a fresh
   subagent context after this build and writes its sidecar to
-  `../output/v<N>-spec-validation.md` — not by this prompt.
+  `../output-analysis/v<N>-spec-validation.md` — not by this prompt.
 - **The spec document MUST NOT reference the analysis files
   (`../context-analysis/*`).** Analysis is intermediate input; the spec
   consumes it but does not cite it.

@@ -26,8 +26,8 @@ projects/sgai-for-mpeg-dash/
 ├── context/              inputs — canonical, human-authored spec
 ├── prompts/           build scripts — .prompt files for LLM agents
 ├── context-analysis/  pre-spec artefacts — derived from context/ and consumed by the spec build
-├── output/            spec + per-iteration build artefacts (versioned per build, vN-)
-├── output-analysis/   ad-hoc research / errata about a specific output iteration
+├── output/            spec only — the principal deliverable per build iteration (versioned, vN-sgai-spec.md)
+├── output-analysis/   per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata
 ├── proposal-drafts/   historical drafts kept for reference
 └── .project/          governance from the create-project skill
 ```
@@ -60,21 +60,26 @@ What does NOT go where:
   `context/`. No human-authored notes; those go to
   `.project/decisions/` or inside the spec. No post-spec
   artefacts — those go to `output/` or `output-analysis/`.
-- `output/` — the per-iteration spec itself and any **post-spec**
-  artefacts produced by `build-all` for the same iteration
-  (validation sidecar, detail review, DASH conformance audit). All
-  versioned per build with a `vN-` prefix so the iteration set is
-  auditable together. No half-built artefacts from intermediate
-  steps — those go to `context-analysis/`. No ad-hoc research or
-  errata — those go to `output-analysis/`. Never edit by hand;
-  if a build came out wrong, fix the context or the prompt and rebuild.
-- `output-analysis/` — **post-spec** ad-hoc analyses that examine
-  a specific output iteration: research informing the next build,
-  errata clarifying a prior audit, conformance studies grounded
-  against a particular `vN-sgai-spec.md`. Filename prefix is
-  `vN-` where `N` is the iteration of the spec the analysis
-  references. Not part of the build pipeline — created by hand
-  when a specific output needs deeper investigation.
+- `output/` — the per-iteration spec itself, and only that. One
+  file per iteration: `v<N>-sgai-spec.md`. The spec is the principal
+  deliverable each build produces. Any post-spec artefact — the
+  validation sidecar, the detail-review log, the DASH conformance
+  audit — belongs to `output-analysis/`, not here. No half-built
+  artefacts from intermediate steps — those go to `context-analysis/`.
+  Never edit by hand; if a build came out wrong, fix the context
+  or the prompt and rebuild.
+- `output-analysis/` — every analysis of a specific output
+  iteration. This includes both (a) the per-iteration analyses
+  produced by `build-all` (validation sidecar, detail review,
+  DASH conformance audit) and (b) ad-hoc analyses created by hand
+  when a specific output needs deeper investigation (research
+  informing the next build, errata clarifying a prior audit,
+  follow-up conformance studies grounded against a particular
+  `vN-sgai-spec.md`). Filename prefix is `vN-` where `N` is the
+  iteration of the spec the analysis references. The split with
+  `output/` mirrors `context/` → `context-analysis/`: the spec is
+  the artefact; everything that validates / reviews / audits it is
+  analysis on top.
 - `.project/decisions/` — ADRs and decision records. Architecture
   decisions live here, not in `context/`.
 
@@ -93,20 +98,19 @@ What does NOT go where:
   (`dash-gap-analysis.md`).
 - **`output/` files**: version **prefix** `vN-`, where N is the
   iteration number of the build that produced the artefact. The
-  filesystem sorts builds by iteration. Current patterns:
-  `v<N>-sgai-spec.md` (the spec), `v<N>-spec-validation.md`
-  (validation sidecar), `v<N>-detail-review.md` (detail review log
-  from Step 7.5), `v<N>-dash-conformance-audit.md` (DASH 6th
-  conformance audit). New post-spec artefacts follow
-  `v<N>-<artefact>.md`. N is computed by the build-all orchestrator
-  as `max(v* in output/) + 1`. Files are **not overwritten**; each
-  build keeps history.
+  filesystem sorts builds by iteration. Only one canonical pattern:
+  `v<N>-sgai-spec.md` (the spec). N is computed by the build-all
+  orchestrator as `max(v* in output/) + 1`. Files are **not
+  overwritten**; each build keeps history.
 - **`output-analysis/` files**: prefix `vN-` matching the
-  iteration of the spec the analysis is grounded against. Each
-  file references the spec / audit / validation under its
-  iteration directly. Not produced by `build-all`; created by
-  hand when a specific output needs deeper investigation
-  (ad-hoc research, errata, follow-up studies).
+  iteration of the spec the analysis is grounded against.
+  Per-iteration analyses produced by `build-all`:
+  `v<N>-spec-validation.md` (validation sidecar, Step 7),
+  `v<N>-detail-review.md` (detail review log, Step 7.5),
+  `v<N>-dash-conformance-audit.md` (DASH 6th conformance audit,
+  Step 8). Ad-hoc analyses created by hand follow
+  `v<N>-<name>.md` (e.g. `v3-non-video-carrier-research.md`,
+  `v3-non-video-carrier-research-errata-1.md`).
 - **General**: kebab-case for filenames. English for all content
   inside `context/`, `prompts/`, `context-analysis/`, `output/`,
   `output-analysis/`, `README.md`, and this `CLAUDE.md` (matching
@@ -119,16 +123,16 @@ What does NOT go where:
 2. Add a corresponding step to `prompts/build-all.prompt` so the
    orchestrator runs it with the same skip-if-fresh contract.
 3. Decide where the output lives: pre-spec build input →
-   `context-analysis/`, per-iteration build artefact → `output/`,
-   ad-hoc post-spec study about a specific iteration →
-   `output-analysis/`.
+   `context-analysis/`, the spec itself → `output/`, per-iteration
+   analysis of the spec OR ad-hoc post-spec study about a specific
+   iteration → `output-analysis/`.
 
 ## How to modify the spec
 
 Edit the file in `context/` directly. Downstream artefacts
-(`context-analysis/`, `output/`) are now stale by mtime; re-run
-`prompts/build-all.prompt` and the orchestrator regenerates only
-the steps whose inputs moved.
+(`context-analysis/`, `output/`, `output-analysis/`) are now stale
+by mtime; re-run `prompts/build-all.prompt` and the orchestrator
+regenerates only the steps whose inputs moved.
 
 When renumbering or renaming files in `context/`:
 

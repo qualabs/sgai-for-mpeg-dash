@@ -10,13 +10,13 @@ grounding flows through downstream prompts (see their headers).
 - `context-analysis/iab-ad-templates.md` (from Step 5 — live mirror of the
   IAB ad-type catalogue; regenerated every run).
 - `output/v<N>-sgai-spec.md` (from Step 6 — spec).
-- `output/v<N>-spec-validation.md` (from Step 7 — sidecar
+- `output-analysis/v<N>-spec-validation.md` (from Step 7 — sidecar
   validation document; see `prompts/validate-spec.prompt`).
-- `output/v<N>-detail-review.md` (from Step 7.5 — micro-
+- `output-analysis/v<N>-detail-review.md` (from Step 7.5 — micro-
   consistency review log; see `prompts/review-spec-details.prompt`).
   Step 7.5 also applies in-place autofixes to the spec for
   deterministic, low-risk corrections.
-- `output/v<N>-dash-conformance-audit.md` (from Step 8 —
+- `output-analysis/v<N>-dash-conformance-audit.md` (from Step 8 —
   DASH 6th conformance audit; see
   `prompts/audit-dash-conformance.prompt`).
 **Version numbering**: each invocation of `build-all` produces a new
@@ -161,13 +161,13 @@ in the orchestrator's own context. The validation agent has zero
 context overlap with the spec-build agent. Independent peer review
 of the spec draft is the whole point; sharing context defeats it.
 
-- Find the newest `output/v*-spec-validation.md` file (if any). If
+- Find the newest `output-analysis/v*-spec-validation.md` file (if any). If
   it exists AND its mtime is newer than the newest mtime in
   `context/` AND newer than the newest `output/v*-sgai-spec.md` →
   log `[SKIPPED] validate-spec → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
   `prompts/validate-spec.prompt` with iteration number `N` and log
-  `[BUILT] validate-spec → output/v<N>-spec-validation.md`.
+  `[BUILT] validate-spec → output-analysis/v<N>-spec-validation.md`.
 
 ### Step 7.5 — Review spec details
 
@@ -184,11 +184,11 @@ Step 8 is therefore the post-detail-review spec, not the raw output
 of Step 6.
 
 **Inputs**: the most recent `output/v*-sgai-spec.md` (from Step 6),
-the matching `output/v*-spec-validation.md` (from Step 7), and
-`context/` (read-only).
+the matching `output-analysis/v*-spec-validation.md` (from Step 7),
+and `context/` (read-only).
 
 **Outputs**:
-- `output/v<N>-detail-review.md` (the review log).
+- `output-analysis/v<N>-detail-review.md` (the review log).
 - In-place autofixes to the spec for deterministic, low-risk
   corrections (delimiters, whitespace, cross-ref typos, missing
   `xmlns:svta=` on examples, annex examples regenerated to match
@@ -200,7 +200,7 @@ the matching `output/v*-spec-validation.md` (from Step 7), and
 may run inline rather than dispatching a fresh subagent. The skip
 rule is owned by the prompt itself.
 
-- Find the newest `output/v*-detail-review.md` file (if any). Apply
+- Find the newest `output-analysis/v*-detail-review.md` file (if any). Apply
   the skip rule in `prompts/review-spec-details.prompt`: skip if
   the review log is newer than ALL of the matching spec, the
   matching validation sidecar, `context/06-naming-and-namespaces.md`,
@@ -209,7 +209,7 @@ rule is owned by the prompt itself.
 - Else → invoke the instructions in
   `prompts/review-spec-details.prompt` with iteration number `N`
   and log
-  `[BUILT] review-spec-details → output/v<N>-detail-review.md`.
+  `[BUILT] review-spec-details → output-analysis/v<N>-detail-review.md`.
   If autofixes were applied, the spec's mtime advances — this is
   expected and does not trigger a Step 6 re-run on the same build.
 
@@ -220,14 +220,14 @@ both the spec-build agent (Step 6) and the validate-spec agent
 (Step 7). Independent third-party check against DASH 6th spec
 rules; context overlap with prior steps biases the review.
 
-- Find the newest `output/v*-dash-conformance-audit.md` file (if
+- Find the newest `output-analysis/v*-dash-conformance-audit.md` file (if
   any). If it exists AND its mtime is newer than the newest
   `output/v*-sgai-spec.md` → log
   `[SKIPPED] audit-dash-conformance → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
   `prompts/audit-dash-conformance.prompt` with iteration number `N`
   and log
-  `[BUILT] audit-dash-conformance → output/v<N>-dash-conformance-audit.md`.
+  `[BUILT] audit-dash-conformance → output-analysis/v<N>-dash-conformance-audit.md`.
 
 ### Final summary
 
@@ -241,9 +241,9 @@ SGAI build summary (iteration v<N>, YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] extract-conformance-assertions  → context-analysis/conformance-assertions.md (mtime: ...)
   [BUILT]         analyze-iab-ad-templates        → context-analysis/iab-ad-templates.md (mtime: ...)
   [BUILT|SKIPPED] build-spec                      → output/v<N>-sgai-spec.md (mtime: ...)
-  [BUILT|SKIPPED] validate-spec                   → output/v<N>-spec-validation.md (mtime: ...)
-  [BUILT|SKIPPED] review-spec-details             → output/v<N>-detail-review.md (mtime: ...)
-  [BUILT|SKIPPED] audit-dash-conformance          → output/v<N>-dash-conformance-audit.md (mtime: ...)
+  [BUILT|SKIPPED] validate-spec                   → output-analysis/v<N>-spec-validation.md (mtime: ...)
+  [BUILT|SKIPPED] review-spec-details             → output-analysis/v<N>-detail-review.md (mtime: ...)
+  [BUILT|SKIPPED] audit-dash-conformance          → output-analysis/v<N>-dash-conformance-audit.md (mtime: ...)
 ```
 
 Language: English.

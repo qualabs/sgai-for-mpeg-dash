@@ -3,7 +3,7 @@
 **Inputs**:
 - The most recent `../output/v*-sgai-spec.md` (the spec to review
   and, for autofix-eligible issues, to edit in place).
-- The matching `../output/v*-spec-validation.md` (the Step 7
+- The matching `../output-analysis/v*-spec-validation.md` (the Step 7
   sidecar — read to avoid duplicating findings already captured
   upstream).
 - The iteration number `N` (a positive integer) passed in by the
@@ -15,17 +15,17 @@
   backward-compatibility, and the rest of the spec's policy layer).
 
 **Output**:
-- `../output/v<N>-detail-review.md` (the review log), where `<N>`
+- `../output-analysis/v<N>-detail-review.md` (the review log), where `<N>`
   is the iteration version matching the spec under review.
 - In-place autofixes applied to `../output/v<N>-sgai-spec.md` for
   deterministic, low-risk corrections. Issues that require a
   semantic decision are flagged in the log only; the spec is not
   touched for those.
 
-**Skip if**: `../output/v<N>-detail-review.md` exists AND its mtime
+**Skip if**: `../output-analysis/v<N>-detail-review.md` exists AND its mtime
 is newer than ALL of:
 - the most recent `../output/v*-sgai-spec.md`,
-- the most recent `../output/v*-spec-validation.md`,
+- the most recent `../output-analysis/v*-spec-validation.md`,
 - `../context/06-naming-and-namespaces.md`,
 - `../context/07-backward-compat-checklist.md`,
 - this prompt (`prompts/review-spec-details.prompt`).
@@ -102,7 +102,7 @@ This prompt MUST NOT:
   and MUST remain self-contained; the dependency arrow is
   `context/` → `context-analysis/` → `output/`, never reverse).
 - Touch any file under `../context-analysis/`.
-- Modify `../output/v*-spec-validation.md` (that is Step 7's
+- Modify `../output-analysis/v*-spec-validation.md` (that is Step 7's
   output, owned by the validate-spec subagent).
 
 The only file this prompt may modify in place is the latest
@@ -141,7 +141,7 @@ cheaper than a wrong autofix.
 ## Procedure
 
 1. Identify the most recent `../output/v*-sgai-spec.md` and the
-   matching `../output/v*-spec-validation.md`. Use the spec's
+   matching `../output-analysis/v*-spec-validation.md`. Use the spec's
    iteration prefix as `v<N>` for the review log.
 2. Read the spec end to end, the validation sidecar, and the full
    `../context/` directory.
@@ -157,7 +157,7 @@ cheaper than a wrong autofix.
    extract for the log.
 5. For every flag-only issue: do NOT touch the spec. Record the
    suggested resolution and recommended decision in the log.
-6. Emit `../output/v<N>-detail-review.md` per the structure
+6. Emit `../output-analysis/v<N>-detail-review.md` per the structure
    below.
 
 ## Log structure

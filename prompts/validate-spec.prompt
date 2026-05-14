@@ -11,10 +11,10 @@
 - `../context-analysis/` (intermediate analyses — used to
   cross-check conformance assertions, error semantics, etc.).
 
-**Output**: `../output/v<N>-spec-validation.md`, where `<N>` is the
+**Output**: `../output-analysis/v<N>-spec-validation.md`, where `<N>` is the
 iteration version that matches the spec under validation.
 
-**Skip if**: `../output/v<N>-spec-validation.md` exists AND its
+**Skip if**: `../output-analysis/v<N>-spec-validation.md` exists AND its
 mtime is newer than the spec's mtime. The validation rebuilds when
 either the spec or its inputs (`context/`, `context-analysis/`)
 change.

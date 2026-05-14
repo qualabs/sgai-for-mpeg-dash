@@ -10,10 +10,10 @@
 - NotebookLM (configured via `.env.agent` — `NOTEBOOK_NAME` should
   point at a notebook containing the MPEG-DASH 6th edition spec).
 
-**Output**: `../output/v<N>-dash-conformance-audit.md`, with `<N>`
+**Output**: `../output-analysis/v<N>-dash-conformance-audit.md`, with `<N>`
 matching the spec's iteration version.
 
-**Skip if**: `../output/v<N>-dash-conformance-audit.md` exists AND
+**Skip if**: `../output-analysis/v<N>-dash-conformance-audit.md` exists AND
 its mtime is newer than the spec. Audit re-runs whenever the spec
 rebuilds.
 
