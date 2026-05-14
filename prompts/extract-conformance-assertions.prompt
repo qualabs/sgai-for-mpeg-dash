@@ -5,8 +5,8 @@ explicit `Conformance criteria` blocks per R, with ancillary
 MUST / SHOULD / MAY sentences in `context/02-actors.md`,
 `context/04-use-cases.md`, `context/05-dash-linear-interfaces.md`,
 `context/06-naming-and-namespaces.md`, and `context/99-glossary.md`.
-**Output**: `analysis/conformance-assertions.md` (overwrites previous).
-**Skip if**: `analysis/conformance-assertions.md` exists AND its
+**Output**: `context-analysis/conformance-assertions.md` (overwrites previous).
+**Skip if**: `context-analysis/conformance-assertions.md` exists AND its
 mtime is newer than the newest mtime in `context/`.
 
 ---
@@ -78,7 +78,7 @@ Tone: tabular and crisp, no narrative. Chapter 10 of the spec
 (Test cases) absorbs this directly, so each row must be
 actionable as a test.
 
-Write to `../analysis/conformance-assertions.md`. Overwrite if
-exists.
+Write to `../context-analysis/conformance-assertions.md`. Overwrite
+if exists.
 
 Language: English.

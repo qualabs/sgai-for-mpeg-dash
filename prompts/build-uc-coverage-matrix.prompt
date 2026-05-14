@@ -1,8 +1,8 @@
 # Build UC × R coverage matrix
 
 **Inputs**: `context/03-requirements.md` and `context/04-use-cases.md`.
-**Output**: `analysis/uc-coverage-matrix.md` (overwrites previous).
-**Skip if**: `analysis/uc-coverage-matrix.md` exists AND its mtime
+**Output**: `context-analysis/uc-coverage-matrix.md` (overwrites previous).
+**Skip if**: `context-analysis/uc-coverage-matrix.md` exists AND its mtime
 is newer than the newest mtime in `[context/03-requirements.md,
 context/04-use-cases.md]`.
 
@@ -94,7 +94,7 @@ total UC count, total R count>
 ...
 ```
 
-Write to `../analysis/uc-coverage-matrix.md`. Overwrite if exists.
+Write to `../context-analysis/uc-coverage-matrix.md`. Overwrite if exists.
 
 Target volume: 60-150 lines. Tabular and crisp; no narrative
 filler. The spec's chapter 7 (Expected behaviour per scenario)

@@ -100,8 +100,8 @@ This prompt MUST NOT:
 - Rewrite prose for style or tone.
 - Touch any file under `../context/` (`context/` is read-only here
   and MUST remain self-contained; the dependency arrow is
-  `context/` → `analysis/` → `output/`, never reverse).
-- Touch any file under `../analysis/`.
+  `context/` → `context-analysis/` → `output/`, never reverse).
+- Touch any file under `../context-analysis/`.
 - Modify `../output/v*-spec-validation.md` (that is Step 7's
   output, owned by the validate-spec subagent).
 

@@ -4,7 +4,7 @@
 not snapshotted):
 https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
 
-**Output**: `analysis/iab-ad-templates.md`.
+**Output**: `context-analysis/iab-ad-templates.md`.
 
 **Skip if**: NEVER skip via mtime — this prompt operates against an
 external live document that updates independently. Re-run on every
@@ -20,7 +20,7 @@ Fetch the IAB ad template catalogue from the live link above using
 the `WebFetch` tool, or — if accessible — the
 `mcp__claude_ai_Google_Drive__read_file_content` MCP tool against
 the same Google Doc ID. Extract the list of ad-type templates /
-definitions and produce `../analysis/iab-ad-templates.md` with:
+definitions and produce `../context-analysis/iab-ad-templates.md` with:
 
 1. A header citing the source link, the fetch timestamp (ISO 8601,
    UTC), and a note that this file is a live mirror — a snapshot in
