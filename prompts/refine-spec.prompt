@@ -1,0 +1,252 @@
+# Refine the SGAI spec (minor version refinement, vN.M → vN.M+1)
+
+**Inputs**:
+- The most recent `../output/v*-sgai-spec.md` (the spec to refine,
+  NOT regenerate). The filename version may be a major (`vN`) or
+  a minor (`vN.M`); the new minor version is computed by
+  incrementing the rightmost component (see "Versioning" below).
+- The matching `../output-analysis/v*-spec-validation.md` (gaps,
+  ambiguities, edge cases — Step 7 sidecar).
+- The matching `../output-analysis/v*-detail-review.md` (autofixes
+  already applied + flagged items requiring semantic decisions —
+  Step 7.5 log).
+- The matching `../output-analysis/v*-dash-conformance-audit.md`
+  (V / M / N verdicts per construct + remedy sequence — Step 8
+  audit).
+- `../context/` (read-only here; used only for grounding existing
+  claims, NEVER for regeneration). The refinement does not consume
+  new context — by definition requirements stay fixed across a
+  minor refinement.
+
+**Output**: `../output/v<N.M+1>-sgai-spec.md`. The refined spec,
+delta-only against the input spec. Sections without any issue in
+the analysis inputs MUST be carried over byte-identical.
+
+**Skip if**: `../output/v<N.M+1>-sgai-spec.md` already exists AND
+its mtime is newer than ALL of:
+- the input spec `../output/v<N.M>-sgai-spec.md`,
+- `../output-analysis/v<N.M>-spec-validation.md`,
+- `../output-analysis/v<N.M>-detail-review.md`,
+- `../output-analysis/v<N.M>-dash-conformance-audit.md`,
+- this prompt (`prompts/refine-spec.prompt`).
+
+**Execution mode**: fresh subagent context. The agent reads only
+the spec, the three analysis sidecars, and `../context/` for
+grounding. It MUST NOT query NotebookLM or any external authority —
+grounding happened in the major build, and a minor refinement
+operates strictly inside that grounding envelope.
+
+---
+
+## What this prompt is for
+
+A minor refinement (vN.M+1) addresses issues surfaced by the
+validation sidecar, the detail-review log, and the DASH conformance
+audit, WITHOUT changing requirements and WITHOUT changing
+architectural choices. It is delta-only: untouched sections of the
+spec carry over byte-identical from the input.
+
+Two iteration scales coexist in the project:
+
+- **Major (vN+1)** — requirements changed, architecture changed,
+  new constructs introduced, or a construct retired. Triggered by
+  edits inside `../context/`. Built from scratch by
+  `build-all.prompt` (which calls `build-spec.prompt`).
+- **Minor (vN.M+1)** — requirements unchanged, only wording /
+  internal consistency / cross-reference accuracy / DASH conformance
+  remedies for issues documented in the analyses. Built by this
+  prompt.
+
+The intent is to converge a single major version through a few
+small iterations before promoting to the next major, instead of
+re-grounding the whole spec on every fix.
+
+## Constraints on the refined spec output
+
+- **No new requirements.** A minor refinement MUST NOT introduce
+  new normative obligations, new actor responsibilities, new use
+  cases, or new architectural choices. If an issue in the inputs
+  requires any of those, do NOT apply it — record it under
+  "Refinement gaps" (see below) and leave the rest of the spec
+  alone.
+- **Delta-only edits.** Sections of the spec that have NO issue in
+  the validation sidecar, the detail-review log, or the conformance
+  audit MUST be carried over byte-identical. The refinement is not
+  a rewrite.
+- **Same header, same edition.** The refined spec MUST start with
+  the same `# SGAI for MPEG-DASH ...` title and the same edition /
+  base-spec reference as the input. Only the version line at the
+  top advances (`v<N.M>` → `v<N.M+1>`).
+- **Traceable deltas.** Every applied edit MUST be annotated with
+  an HTML comment `<!-- refine: <issue-id> -->` placed at the
+  nearest line above the edited content. The `<issue-id>` is the
+  identifier of the issue in the source analysis (e.g.
+  `v4-detail-review.md#flag-3`, `v4-dash-conformance-audit.md#N1`,
+  `v4-spec-validation.md#gap-2`). Markdown ignores HTML comments,
+  so this does not affect rendering — but a downstream auditor can
+  grep them to audit which changes came from which input.
+- **No external grounding.** Do NOT call NotebookLM. Do NOT cite
+  new external sources. If a remedy in the conformance audit
+  references a DASH 6th rule, the audit already grounded that rule;
+  this prompt only applies the remedy.
+- **History preserved.** The input spec `v<N.M>-sgai-spec.md`
+  MUST remain untouched. Never overwrite it.
+
+## Versioning rule
+
+Resolve the new version from the input spec filename:
+
+| Input filename            | Output filename             |
+|---------------------------|-----------------------------|
+| `v3-sgai-spec.md`         | `v3.1-sgai-spec.md`         |
+| `v3.1-sgai-spec.md`       | `v3.2-sgai-spec.md`         |
+| `v3.7-sgai-spec.md`       | `v3.8-sgai-spec.md`         |
+| `v4-sgai-spec.md`         | `v4.1-sgai-spec.md`         |
+| `v4.1-sgai-spec.md`       | `v4.2-sgai-spec.md`         |
+
+Rule: if the version has no minor component, append `.1`. If it
+already has a minor component, increment that minor component by 1
+and keep the major component unchanged.
+
+The version label at the top of the spec body advances accordingly
+(any inline reference such as "this is v4" must be updated to "this
+is v4.1", etc.).
+
+## Task
+
+### 1. Locate inputs
+
+Identify the most recent `../output/v*-sgai-spec.md` (call its
+version `v<N.M>`; the major case is `M=∅`, treat as `M=0` for the
+arithmetic above). Identify the three matching analysis sidecars in
+`../output-analysis/` using the same `v<N.M>` prefix.
+
+If any of the three sidecars is missing, abort with a message:
+
+```
+ABORT: refine-spec requires all three sidecars for v<N.M>:
+  - spec-validation.md
+  - detail-review.md
+  - dash-conformance-audit.md
+Run the corresponding prompts first.
+```
+
+### 2. Collect the issue list
+
+Read the three sidecars end to end and collect every issue that
+proposes a change to the spec:
+
+- From `v<N.M>-spec-validation.md`:
+  - **Gaps**: missing definitions, missing constraints, missing
+    behavioural rules. Most gaps are requirement-level → record as
+    Refinement gaps (see step 4) UNLESS the spec already states the
+    rule elsewhere and just needs the cross-reference made
+    explicit.
+  - **Edge cases**: boundary conditions the spec does not handle.
+    Same triage: if handling requires a new construct, defer to
+    Refinement gaps; if it requires only tightening an existing
+    sentence, apply.
+  - **Ambiguities**: a passage that can be read two ways. Almost
+    always applicable — apply the tightening that the sidecar
+    recommends.
+
+- From `v<N.M>-detail-review.md`:
+  - **Autofixes** are already applied to the spec by Step 7.5 —
+    skip them.
+  - **Flagged issues** are the deltas this prompt OWNS. Apply each
+    one using the suggested resolution from the log; if the log
+    recommends "rename X to Y", do the rename consistently across
+    the whole spec.
+
+- From `v<N.M>-dash-conformance-audit.md`:
+  - **Non-conforming (N)** items: apply the suggested fix.
+  - **Marginal (M)** items: apply the clarification the audit
+    proposes (typically a tightening sentence, a unit suffix, or
+    an explicit cross-reference).
+  - **Conforming (V)** items: nothing to do.
+  - If the audit has a final "remedy sequence", treat it as the
+    canonical ordered list of edits — apply in that order.
+
+### 3. Apply edits
+
+For each collected issue:
+
+1. Locate the section / line in the input spec.
+2. Determine the minimal change. If multiple changes would satisfy
+   the issue, choose the one closest to the surrounding wording.
+3. Apply the change in the output spec.
+4. Annotate with `<!-- refine: <issue-id> -->` on the line above
+   the edit. The `<issue-id>` references the analysis file and a
+   stable handle: e.g. `v4-detail-review.md#flag-3`,
+   `v4-dash-conformance-audit.md#N1`, `v4-spec-validation.md#amb-7`.
+5. If the change requires updating multiple places (e.g. renaming
+   an attribute affects chapter 5, the annex examples, and the
+   syntax tables), apply consistently across all sites. Annotate
+   each site.
+
+### 4. Refinement gaps section
+
+If an issue cannot be resolved by a minimal change because it
+requires a new requirement, a new construct, or an architectural
+decision, do NOT apply it. Instead, append a section at the very
+end of the refined spec (after the last annex):
+
+```markdown
+## Refinement gaps
+
+The following items from the v<N.M> analyses could not be resolved
+within a minor refinement (they require requirement-level changes
+or architectural decisions). They are carried forward for the next
+major build to address.
+
+| # | Source | Issue ID | Summary | Why minor refinement is insufficient |
+|---|--------|----------|---------|--------------------------------------|
+| 1 | validation | gap-2 | `<one-line summary>` | `<one-line why>` |
+| ... | ... | ... | ... | ... |
+```
+
+If there are no such items, omit the section entirely.
+
+### 5. Write the output
+
+Write the refined spec to `../output/v<N.M+1>-sgai-spec.md`. Do
+NOT overwrite the input spec. Carry over byte-identical the
+sections that had no issues. Apply the deltas with their inline
+`<!-- refine: ... -->` annotations. Append the Refinement gaps
+section if any.
+
+## Reporting (stdout)
+
+After writing the output spec, emit a single summary line to stdout
+so the orchestrator (or the operator) can audit the run:
+
+```
+wrote ../output/v<N.M+1>-sgai-spec.md, <NN> lines, <X> deltas applied, <Y> deltas deferred (Refinement gaps), <Z> sections unchanged
+```
+
+Where:
+- `<NN>` — line count of the refined spec.
+- `<X>` — count of `<!-- refine: ... -->` annotations applied.
+- `<Y>` — count of rows in the Refinement gaps table (0 if section
+  omitted).
+- `<Z>` — count of top-level sections in the spec that the refine
+  did not modify (rough estimate is fine — count by `^##`).
+
+## What this prompt explicitly does NOT do
+
+- Does NOT re-run NotebookLM or query any external source.
+- Does NOT regenerate sections without issues in the analyses.
+- Does NOT introduce new requirements, design principles,
+  constructs, namespaces, or actor responsibilities.
+- Does NOT modify anything in `../context/`,
+  `../context-analysis/`, `../prompts/`, the input spec
+  `../output/v<N.M>-sgai-spec.md`, or the three input sidecars in
+  `../output-analysis/`.
+- Does NOT collapse build history — every prior `v*-sgai-spec.md`
+  stays on disk.
+
+## Tone
+
+Match the input spec verbatim: same RFC 2119 vocabulary, same
+attribute table pattern, same tone. The refinement is invisible at
+the prose level — only the surgical deltas carry new bytes.

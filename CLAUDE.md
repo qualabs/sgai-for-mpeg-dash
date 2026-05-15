@@ -145,6 +145,52 @@ When renumbering or renaming files in `context/`:
   reference the old layout — preserve them verbatim; only update
   live navigational references.
 
+## Minor refinement (vN.M+1)
+
+Two iteration scales coexist in this project:
+
+- **Major (vN+1)** — `context/` changed: new / modified / dropped
+  requirements, new constructs, or a new architectural decision.
+  Re-run `prompts/build-all.prompt`; the orchestrator regenerates
+  the spec and the analyses from scratch.
+- **Minor (vN.M+1)** — `context/` unchanged. The latest analyses
+  (`v<N.M>-spec-validation.md`, `v<N.M>-detail-review.md`,
+  `v<N.M>-dash-conformance-audit.md`) surfaced issues that can be
+  fixed without altering requirements. Use the minor-refinement
+  path:
+
+  ```bash
+  claude -p "$(cat prompts/refine-spec.prompt)" \
+    > /dev/shm/refine.out 2> /dev/shm/refine.err
+  ```
+
+  This produces `output/v<N.M+1>-sgai-spec.md` from
+  `output/v<N.M>-sgai-spec.md` plus the three analysis sidecars
+  matching `v<N.M>`. The refinement is delta-only: sections without
+  issues are carried over byte-identical, and every applied edit is
+  annotated with an inline HTML comment
+  `<!-- refine: <issue-id> -->` for audit.
+
+  After the refine, optionally re-run `validate-spec`,
+  `review-spec-details`, and `audit-dash-conformance` against the
+  new minor version to check whether the refinement converged
+  (i.e., the new analyses surface fewer or no remaining issues).
+
+**When to choose minor vs major**:
+
+| Trigger                                                      | Path  |
+|--------------------------------------------------------------|-------|
+| Requirement added / changed / dropped                        | Major |
+| New architectural decision (new construct, retired construct)| Major |
+| Wording precision / cross-reference fixes                    | Minor |
+| DASH conformance remedy for a Marginal or Non-conforming item| Minor |
+| Renaming an attribute when an existing flagged issue says so | Minor |
+
+Note: there is no orchestrator auto-detection yet — minor
+refinement is dispatched manually. Future work: have `build-all`
+auto-detect mtime conditions and choose major vs minor. For now,
+the operator decides.
+
 ## Cross-reference conventions
 
 - Inside `context/`: relative refs without prefix

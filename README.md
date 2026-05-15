@@ -107,6 +107,30 @@ Skip rules are mtime-based: an output is considered fresh when its
 mtime is newer than the newest mtime in its inputs. Touch a `context/`
 file to force a rebuild of downstream artefacts.
 
+### Minor refinement (v\<N.M+1\>)
+
+When `context/` has NOT changed but the most recent analyses
+(validation sidecar, detail-review log, DASH conformance audit)
+surface issues that can be fixed without changing requirements,
+use `prompts/refine-spec.prompt` to produce a delta-only refinement:
+
+- **Input**: the latest `output/v<N.M>-sgai-spec.md` plus the
+  three matching analysis sidecars in `output-analysis/`.
+- **Output**: `output/v<N.M+1>-sgai-spec.md`. Sections without
+  issues are carried over byte-identical; every applied edit is
+  annotated with an inline HTML comment `<!-- refine: <issue-id> -->`
+  so the refinement is auditable.
+- **Constraint**: requirements stay fixed. Issues that require a
+  new requirement or a new architectural decision are deferred to
+  the next major build under a "Refinement gaps" section appended
+  to the refined spec.
+
+After a refine, re-running `validate-spec`,
+`review-spec-details`, and `audit-dash-conformance` against the
+new minor version checks whether the refinement converged. Major
+vs minor is currently a manual call — see `CLAUDE.md` for the
+decision rule.
+
 ## Status
 
 See `.project/PROJECT.md` for the current phase, open threads, and
