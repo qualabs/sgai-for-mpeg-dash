@@ -10,10 +10,10 @@ through `08-dash-extension-rules.md`.
   one, the Player resolves a URL that returns a document describing
   the ad(s) to render. Reduces client-side stitching fragmentation and
   centralises inventory control.
-- **Linear ad**: ad that *replaces* the primary content for the
-  duration of a break (pre-roll, mid-roll, post-roll). The Player
-  switches its source from the main timeline to the ad timeline and
-  back.
+- **Linear ad**: ad whose form takes over the primary content
+  surface during a slot (pre-roll, mid-roll, post-roll). The Player
+  switches its rendering source from the main timeline to the ad
+  timeline and back.
 - **Non-linear ad**: ad that *coexists* with the primary content; it
   does not interrupt playback. Rendered as an overlay or as a
   side-by-side composition.
