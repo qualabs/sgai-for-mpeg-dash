@@ -72,6 +72,7 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-05 Pause-triggered ad | Action-triggered | rich pause overlay | video pause overlay (if video form available) or skip | HTML or image pause overlay | image pause overlay | skip (graceful) |
 | UC-06 Multi-ad break | Verification | full sequence | full sequence | full sequence on single decoder | full sequence on single decoder | full sequence on single decoder |
 | UC-07 Legacy Player encounters new constructs | Cross-cutting | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) |
+| UC-08 Overlay window crosses a pause-ad window | Composition | overlay swaps to pause-ad on pause, restores on resume | overlay swaps to video pause-ad if available, else pause-ad declined; overlay restores on resume | overlay swaps to HTML or image pause-ad, restores on resume | overlay swaps to image pause-ad, restores on resume | both opportunities declined gracefully |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -358,44 +359,6 @@ render.
   uninterrupted.
 - **What the user sees:** nothing. The primary content keeps
   playing without interruption. No overlay is rendered.
-
-#### UC-03.x — Viewer pauses during overlay
-
-**Scenario:** while the overlay is being shown (per UC-03 normal
-flow), the viewer pauses primary content.
-
-**Expected behaviour:**
-- The primary content stops advancing.
-- The overlay is hidden (or visually suppressed) — the screen now
-  shows the still frame plus the pause-ad surface.
-- A pause-ad opportunity (per UC-05) fires; the Player resolves the
-  ADS and renders the chosen pause-ad form.
-- The viewer eventually resumes primary playback.
-- Upon resume, the Player dismisses the pause-ad and the overlay
-  reappears, continuing where it was suppressed. The Broadcaster's
-  slot window clock follows the primary content timeline (it pauses
-  when primary pauses), so the overlay continues at the same
-  fractional progress when resume occurs.
-
-**Notes / open questions:**
-- How the ADS expresses form-level priority (ranked list vs single
-  priority field per form) is an open spec decision; it should be
-  expressible without coupling the cases to a specific schema.
-- Whether the Player can pick a layout different from the
-  candidate's nominal layout (e.g. promote a "banner" candidate to
-  "side-by-side" because the device cannot do banner) or whether
-  the broadcaster must declare side-by-side as an allowed layout
-  for the swap to be legal. The R2-clean answer is the latter: the
-  Player never violates the broadcaster's declared rules.
-- Whether the Player still issues the ADS request on D5 (and any
-  other device that will inevitably skip the opportunity) to
-  support impression accounting and frequency-capping signals, or
-  whether it can skip the request entirely, is a privacy and
-  bandwidth trade-off the spec must resolve. The question is
-  independent of the schema chosen.
-- Resolved: "No overlay shown" is an explicit, valid outcome per
-  **R3** in [`03-requirements.md`](03-requirements.md) — the Player may
-  decline the opportunity gracefully without raising an error.
 
 ### UC-04 — Hybrid linear + concurrent overlay
 
@@ -735,3 +698,98 @@ unmodified.
   Player is legacy or current. Thus the Broadcaster must treat ad
   opportunities that fall through to UC-07 as expected losses, not
   as errors.
+
+### UC-08 — Overlay window crosses a pause-ad window
+
+**Scenario:** An overlay (per UC-03) is being shown to the viewer
+when the viewer pauses primary playback, and the pause occurs
+inside a Broadcaster-declared pause-ad window (per UC-05). Both
+non-linear opportunities are eligible at the same instant; the
+Player serialises their presentation per R14 — show one, finish
+it, then evaluate the next — and dismisses the pause-ad on resume
+per R16.
+
+**Broadcaster intent:**
+- An overlay slot (per UC-03) is active at some moment.
+- A pause-ad window (per UC-05) overlaps in time with the overlay
+  slot.
+- The viewer pauses primary playback while the overlay is on
+  screen, inside the pause-ad window.
+
+**ADS response:**
+- The ADS already supplied the overlay candidate (per UC-03 flow).
+- On pause-ad trigger, the Player resolves the ADS again for the
+  pause-ad slot (per UC-05 flow), unless the Broadcaster's MPD
+  signals that the overlay candidate doubles as the pause-ad
+  candidate. The ADS contract is the same as UC-05.
+
+**Expected behavior per device class:**
+
+#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+
+- **Player decision:** the overlay is currently rendered (per
+  UC-03 / D1). When the viewer pauses inside the pause-ad window,
+  the Player suspends the overlay (its slot window clock follows
+  the primary timeline and freezes at the pause point) and
+  resolves the pause-ad opportunity per UC-05 / D1. The pause-ad
+  form is composed on top of the paused primary frame, replacing
+  the overlay surface. On resume, the Player dismisses the
+  pause-ad (per R16), restores the overlay at its previous
+  fractional progress, and continues primary playback.
+- **What the user sees:** the overlay is visible while playback
+  advances. The viewer pauses; the overlay disappears and a
+  pause-ad form (typically the highest-fidelity available: HTML,
+  image, or video over the paused frame) replaces it. On resume,
+  the pause-ad disappears and the original overlay reappears at
+  the same fractional progress, continuing until its declared
+  duration cap.
+
+#### D2 — Dual-decoder, video-on-video only
+
+- **Player decision:** identical to D1 in the pause/resume
+  sequencing. The pause-ad rendering follows UC-05 / D2 rules: if
+  the pause-ad candidate offers a video form, the second decoder
+  composites it on top of the paused frame; if the candidate
+  offers only HTML or image forms, per R3 the Player declines the
+  pause-ad gracefully and the paused frame stays on screen until
+  resume. Overlay restoration on resume follows UC-03 / D2.
+- **What the user sees:** overlay (video, side-by-side, or other
+  D2-renderable form) is visible during play. The viewer pauses;
+  if a video pause-ad is available, it replaces the overlay on
+  the paused frame; otherwise the paused frame stays clean until
+  resume. On resume, the overlay reappears.
+
+#### D3 — Single-decoder, image and HTML capable
+
+- **Player decision:** the overlay is rendered via the HTML/CSS
+  layer (per UC-03 / D3). On pause, the Player suspends the
+  overlay and resolves the pause-ad per UC-05 / D3: HTML or image
+  form, composited on top of the paused frame. The Player
+  swaps the rendered surface from the overlay to the pause-ad. On
+  resume, the pause-ad is dismissed and the overlay re-renders on
+  the HTML/CSS layer at the same fractional progress.
+- **What the user sees:** overlay (HTML or image) is visible
+  during play. The viewer pauses; the pause-ad replaces the
+  overlay. On resume, the original overlay reappears.
+
+#### D4 — Single-decoder, image only
+
+- **Player decision:** the overlay was an image (per UC-03 / D4).
+  On pause, the Player suspends the image overlay and resolves
+  the pause-ad per UC-05 / D4: only image forms are renderable.
+  The image pause-ad replaces the overlay. On resume, the pause-
+  ad is dismissed and the image overlay reappears.
+- **What the user sees:** image overlay is visible during play.
+  On pause, the pause-ad image replaces it. On resume, the
+  original image overlay reappears.
+
+#### D5 — Single-decoder, no overlay (worst case)
+
+- **Player decision:** the overlay was declined per UC-03 / D5
+  (the device has no overlay surface, no second decoder). The
+  pause-ad is also declined per UC-05 / D5 for the same reasons.
+  The viewer's pause and resume have no ad-related effect. Per
+  R3, both opportunities are declined gracefully.
+- **What the user sees:** primary content plays uninterrupted; on
+  pause, the paused frame stays clean; on resume, primary
+  continues. No ad is rendered at any point.
