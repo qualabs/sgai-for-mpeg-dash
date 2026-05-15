@@ -31,6 +31,31 @@ re-definition.
 | Player      | MPD fetch request; ADS resolution request at event activation; tracking beacons | Main MPD; `ListMPD` (or single-period alt MPD) from ADS; ad media segments | Enforces R2 / R4: validates ADS response against MPD constraints; caps slot duration. |
 | ADS         | `ListMPD` (or single-period alt MPD) in response to the Player's resolution request | Player's resolution request; upstream VAST response from internal ad decisioning | Device-agnostic: returns candidates with one or more renderable forms, and the Player picks per device capabilities (R5 in [`03-requirements.md`](03-requirements.md)). Often acts as an adapter over a VAST-based ad decisioning backend (see §VAST → ListMPD below). |
 
+## Broadcaster slot-mechanism choice — Insert vs Replace
+
+The Broadcaster declares a linear slot via one of two MPEG-DASH 6th
+edition mechanisms:
+
+- **`InsertPresentation`** introduces the ad as new content that
+  does NOT consume any of the primary timeline. After the ad,
+  primary content continues from where it was. **ONLY applicable to
+  VOD content** — per MPEG-DASH 6th edition §5.16.3, the event
+  "shall not appear if the MPD type is `dynamic`". It is intended
+  for an operation where the playhead can be stopped for an
+  indefinite period, which can typically only happen in an
+  on-demand or pre-recorded operation.
+- **`ReplacePresentation`** substitutes a bounded span of the
+  primary timeline with the ad. The primary content under the ad
+  span is effectively skipped. Appropriate for live or linear
+  content where there is no meaningful "frame 0" of the primary
+  stream to preserve.
+
+The choice is captured in the slot's MPD declaration and is
+Broadcaster-decided per content type and intent. The Use Cases in
+[`04-use-cases.md`](04-use-cases.md) describe observable behaviour
+and are agnostic to the mechanism; both produce a linear ad from
+the user's perspective.
+
 ## Linear SGAI message flow
 
 Once the Player has fetched the main MPD and is playing primary

@@ -32,7 +32,7 @@ For external readers familiar with industry vocabulary:
 | Pre-roll | UC-01 — Slot at start of session |
 | Mid-roll | UC-02 — Mid-content slot |
 | Post-roll | (out of scope — see "Out of scope") |
-| Linear ad | An ad whose form replaces the primary content during a slot |
+| Linear ad | An ad whose form takes over the primary content surface during a slot |
 | Non-linear ad | An ad whose form is composited on top of the primary content during a slot |
 | Ad pod / ad break | UC-06 — Multi-ad break |
 
@@ -95,9 +95,12 @@ The following scenarios are deliberately not covered by this document:
 
 **Scenario:** The user starts playback of a piece of content. The
 broadcaster has declared an ad opportunity at the beginning of the
-playback session, before the primary content begins. The chosen ad
-replaces the first frames of the session and, when it completes,
-playback hands off to the primary content from its first frame. Each
+playback session, before the primary content begins. A linear ad is
+presented; when it completes, the primary content starts playing.
+The underlying DASH mechanism — `InsertPresentation` or
+`ReplacePresentation` — is a Broadcaster decision per content type
+(VOD vs live) captured in
+[`05-dash-linear-interfaces.md`](05-dash-linear-interfaces.md). Each
 use case below references the industry-standard term where applicable
 (pre-roll, mid-roll, etc.) so external readers find their bearings.
 
@@ -167,9 +170,12 @@ use case below references the industry-standard term where applicable
 
 **Scenario:** While the user is watching the primary content, the
 broadcaster has declared an ad opportunity at a chosen point inside
-the primary timeline. The slot replaces a bounded span of primary
-content with the ad and, on completion, transitions back to the
-primary content at (or near) the slot position.
+the primary timeline. A linear ad is presented at the slot position;
+on completion, primary content resumes. Whether the slot consumes a
+bounded span of the primary timeline (`ReplacePresentation`) or
+leaves it intact and resumes at the same point
+(`InsertPresentation`) is a Broadcaster decision captured in
+[`05-dash-linear-interfaces.md`](05-dash-linear-interfaces.md).
 
 **Broadcaster intent:**
 - Linear forms allowed: the ad takes over the screen, replacing a
