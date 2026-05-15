@@ -38,9 +38,12 @@ edition mechanisms:
 
 - **`InsertPresentation`** introduces the ad as new content that
   does NOT consume any of the primary timeline. After the ad,
-  primary content continues from where it was. Natural choice for
-  VOD pre-roll / mid-roll where preserving the primary timeline is
-  required.
+  primary content continues from where it was. **ONLY applicable to
+  VOD content** — per MPEG-DASH 6th edition §5.16.3, the event
+  "shall not appear if the MPD type is `dynamic`". It is intended
+  for an operation where the playhead can be stopped for an
+  indefinite period, which can typically only happen in an
+  on-demand or pre-recorded operation.
 - **`ReplacePresentation`** substitutes a bounded span of the
   primary timeline with the ad. The primary content under the ad
   span is effectively skipped. Appropriate for live or linear

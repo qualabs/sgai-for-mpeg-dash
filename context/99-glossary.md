@@ -13,9 +13,7 @@ through `08-dash-extension-rules.md`.
 - **Linear ad**: ad whose form takes over the primary content
   surface during a slot (pre-roll, mid-roll, post-roll). The Player
   switches its rendering source from the main timeline to the ad
-  timeline and back. The underlying DASH mechanism —
-  `InsertPresentation` or `ReplacePresentation` — is a Broadcaster
-  decision; both produce a linear ad from the user's perspective.
+  timeline and back.
 - **Non-linear ad**: ad that *coexists* with the primary content; it
   does not interrupt playback. Rendered as an overlay or as a
   side-by-side composition.
