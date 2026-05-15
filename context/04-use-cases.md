@@ -359,6 +359,24 @@ render.
 - **What the user sees:** nothing. The primary content keeps
   playing without interruption. No overlay is rendered.
 
+#### UC-03.x — Viewer pauses during overlay
+
+**Scenario:** while the overlay is being shown (per UC-03 normal
+flow), the viewer pauses primary content.
+
+**Expected behaviour:**
+- The primary content stops advancing.
+- The overlay is hidden (or visually suppressed) — the screen now
+  shows the still frame plus the pause-ad surface.
+- A pause-ad opportunity (per UC-05) fires; the Player resolves the
+  ADS and renders the chosen pause-ad form.
+- The viewer eventually resumes primary playback.
+- Upon resume, the Player dismisses the pause-ad and the overlay
+  reappears, continuing where it was suppressed. The Broadcaster's
+  slot window clock follows the primary content timeline (it pauses
+  when primary pauses), so the overlay continues at the same
+  fractional progress when resume occurs.
+
 **Notes / open questions:**
 - How the ADS expresses form-level priority (ranked list vs single
   priority field per form) is an open spec decision; it should be

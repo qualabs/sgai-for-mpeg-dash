@@ -41,6 +41,17 @@ concrete requirements that follow are constrained by them.
   implementer, not duplicated in the markup). Duplicating a
   value across attributes invites silent drift when one is
   modified and the other forgotten.
+- **DP-2. Obligations are positive.** When the spec states what an
+  actor MUST do, it states the positive obligation — the action,
+  the construct, the value. The spec does NOT enumerate
+  prohibitions. The space of "what is forbidden" is unbounded;
+  declaring it exhaustively is impossible and a long list of
+  "MUST NOT" items invites confusion and silent gaps. Instead,
+  the positive obligation defines the contract; anything outside
+  the positive obligation is implicitly out of scope. (For
+  example: instead of saying "the Player MUST NOT fire tracking
+  beacons after the slot end," say "the Player fires tracking
+  beacons within the slot window.")
 
 ## Requirements
 
@@ -379,6 +390,23 @@ concrete requirements that follow are constrained by them.
   - **R15.3** (Player): The Player MAY skip a candidate whose
     creative carrier mimeType is not in the admissible set; such
     a candidate signals a non-conformant ADS or Broadcaster.
+- **R16. Pause-ad lifecycle bound to pause state.**
+  A pause-ad form, by definition, is admissible only while the
+  primary content is paused. When the viewer resumes primary
+  playback, the Player dismisses any active pause-ad form
+  immediately and ceases firing further tracking beacons
+  associated with that pause-ad. The pause-ad's lifecycle is
+  bounded by the pause-state interval.
+
+  **Conformance criteria** (runtime):
+  - **R16.1** (Player): Upon a pause-to-play transition by the
+    viewer, the Player MUST remove any rendered pause-ad form
+    from the screen within one rendering frame.
+  - **R16.2** (Player): Upon the same transition, the Player MUST
+    cease firing tracking beacons scheduled for the dismissed
+    pause-ad; beacons scheduled at relative times after the
+    transition fall outside the pause-ad's active window and are
+    therefore out of scope.
 
 ## Governance Requirements
 

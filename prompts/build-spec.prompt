@@ -190,6 +190,20 @@ This pattern applies to ALL attribute blocks in chapter 5 (e.g.
 §5.2.2, §5.4.2). Reviewers MUST flag any attribute description
 that is free-form prose instead of the tabular form.
 
+## Style rule for obligations
+
+When writing requirements, conformance criteria, MUST/SHOULD/MAY
+statements, or obligation-bearing prose for any actor, state the
+positive obligation only — what the actor does. Do NOT enumerate
+prohibitions ("MUST NOT", "shall not", "is forbidden"). Per DP-2
+in `context/03-requirements.md`, the positive obligation defines
+the contract; what is outside the positive obligation is
+implicitly out of scope.
+
+If a current spec section contains a list of prohibitions (e.g.
+"obligations" sections in chapter B of v4.x), refactor to express
+the equivalent positive statement.
+
 ## Output rules
 
 Write to `../output/v<N>-sgai-spec.md`, where `<N>` is the
