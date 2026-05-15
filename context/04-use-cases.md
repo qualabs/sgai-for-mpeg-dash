@@ -96,8 +96,8 @@ The following scenarios are deliberately not covered by this document:
 **Scenario:** The user starts playback of a piece of content. The
 broadcaster has declared an ad opportunity at the beginning of the
 playback session, before the primary content begins. A linear ad is
-presented; when it completes, the primary content begins at its
-first frame. The underlying DASH mechanism — `InsertPresentation` or
+presented; when it completes, the primary content starts playing.
+The underlying DASH mechanism — `InsertPresentation` or
 `ReplacePresentation` — is a Broadcaster decision per content type
 (VOD vs live) captured in
 [`05-dash-linear-interfaces.md`](05-dash-linear-interfaces.md). Each
