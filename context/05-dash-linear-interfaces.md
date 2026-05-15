@@ -139,6 +139,18 @@ R1 graceful degradation applies throughout: a legacy Player that
 does not understand the SGAI event scheme ignores the event and
 plays the primary content uninterrupted (UC-07).
 
+## Resolution document timing baseline
+
+All `<Event @presentationTime>` values authored by the ADS within
+its resolution document (`ListMPD` or single-period alt MPD) are
+expressed **relative to the start of the ad break** (slot start),
+not relative to wall-clock or to the primary content timeline. A
+callback event scheduled for the very start of the break declares
+`@presentationTime="0"`. Quartile beacons for a 30-second slot are
+authored at 7500ms, 15000ms, 22500ms (per the ADS's chosen
+schedule). The Player applies these relative timings against the
+slot window the Broadcaster declared in the MPD event.
+
 ## Reference XML: main MPD with SGAI events
 
 The main MPD below is the **broadcaster's side** of the contract. It

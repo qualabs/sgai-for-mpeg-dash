@@ -63,6 +63,19 @@ provided by an MPD event.
   fractions of the ad presentation. The spec defines the carrier
   and the timing space (relative to the ad presentation), not the
   schedule itself.
+- **ADS URL is opaque to the spec.** The ADS exposes its endpoint as
+  a URL referenced by the Broadcaster in the MPD (per `<EventStream>`
+  callback semantics inherited from MPEG-DASH 6th edition). The
+  Broadcaster can encode slot constraints as query parameters on
+  that URL (for example, `https://ads.example.com/decision?slot=30`
+  to communicate a 30-second slot budget), but the URL syntax,
+  parameter names, and ADS-side API contract are NOT defined by
+  this specification. The spec assumes such an API exists and is
+  agreed between the Broadcaster and the ADS out-of-band. The
+  Broadcaster also declares slot duration explicitly via
+  `@maxDuration` on the MPD event, which the Player enforces — the
+  URL parameter is the ADS's input, `@maxDuration` is the Player's
+  enforcement target.
 
 The ADS is **not** responsible for enforcing the constraints
 declared by the Broadcaster in the MPD event. The specification does
