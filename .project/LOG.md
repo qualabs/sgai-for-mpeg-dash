@@ -1,5 +1,25 @@
 # Project log
 
+## 2026-05-15 — UC-03/UC-05 restructure: UC-08 nuevo para overlap
+
+Removed the wrongly-placed `#### UC-03.x — Viewer pauses during
+overlay` subsection from inside UC-03 (it mixed heading levels —
+`####` was already used for device classes — and contained
+out-of-scope notes/open questions).
+
+The pause-during-overlay scenario is now formalised as UC-08, a
+top-level Use Case dedicated to the overlap between UC-03
+(coexisting overlay, no pause involved) and UC-05 (pause-ad
+window). UC-08 follows the canonical UC template: Scenario,
+Broadcaster intent, ADS response, Per-device behaviour D1..D5.
+
+Coverage table updated with a new row for UC-08.
+
+This keeps UC-03 strictly about overlays without pause involvement,
+UC-05 strictly about pause-ads without overlay context, and UC-08
+about the composition rule that R14 + R16 enforce when both
+opportunities apply at the same instant.
+
 ## 2026-05-15 — feedback round: 5 edits to context + build prompt
 
 Five changes from a single feedback round, all touching context/
