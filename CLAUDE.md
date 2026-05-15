@@ -176,6 +176,19 @@ Two iteration scales coexist in this project:
   new minor version to check whether the refinement converged
   (i.e., the new analyses surface fewer or no remaining issues).
 
+  Then run `compare-spec-versions` to emit the convergence table:
+
+  ```bash
+  claude -p "$(cat prompts/compare-spec-versions.prompt)" \
+    > /dev/shm/compare.out 2> /dev/shm/compare.err
+  ```
+
+  This produces `output-analysis/v<N.M+1>-comparison.md` with a
+  per-category issue-count table (vN.M vs vN.M+1, Δ, Trend) and a
+  verdict line (`ON TRACK` / `STALLED` / `REGRESSION`). Use it to
+  decide whether to keep refining (`vN.M+2`) or escalate to a major
+  build (`vN+1`).
+
 **When to choose minor vs major**:
 
 | Trigger                                                      | Path  |

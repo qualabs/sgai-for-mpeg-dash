@@ -127,9 +127,13 @@ use `prompts/refine-spec.prompt` to produce a delta-only refinement:
 
 After a refine, re-running `validate-spec`,
 `review-spec-details`, and `audit-dash-conformance` against the
-new minor version checks whether the refinement converged. Major
-vs minor is currently a manual call — see `CLAUDE.md` for the
-decision rule.
+new minor version checks whether the refinement converged. Then
+run `prompts/compare-spec-versions.prompt` to emit
+`output-analysis/v<N.M+1>-comparison.md`: a per-category
+issue-count table (vN.M vs vN.M+1, Δ, Trend) and a verdict line
+(`ON TRACK` / `STALLED` / `REGRESSION`) summarising whether the
+refinement actually reduced issues. Major vs minor is currently a
+manual call — see `CLAUDE.md` for the decision rule.
 
 ## Status
 
