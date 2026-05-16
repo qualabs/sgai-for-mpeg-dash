@@ -1,5 +1,20 @@
 # Project log
 
+## 2026-05-16 — R17 pause-ad priority + UC-08 scenario refinement
+
+Nicolas approved the proposed pause-ad priority rule:
+
+- R17 added: pause-ad always renders on top of the overlay during
+  the pause window. Not Broadcaster-configurable. Player suspends
+  overlay rendering during pause, restores it on resume if the
+  overlay slot window is still active, and lets the overlay
+  terminate naturally when its declared window expires per R4.
+  All R17 conformance criteria are written in positive obligation
+  style per DP-2.
+- UC-08 scenario and per-device behaviour rewritten to align with
+  R17 — the overlay continues after resume until its window
+  expires, not because the pause-ad ended.
+
 ## 2026-05-15 — UC-03/UC-05 restructure: UC-08 nuevo para overlap
 
 Removed the wrongly-placed `#### UC-03.x — Viewer pauses during

@@ -407,6 +407,32 @@ concrete requirements that follow are constrained by them.
     pause-ad; beacons scheduled at relative times after the
     transition fall outside the pause-ad's active window and are
     therefore out of scope.
+- **R17. Pause-ad priority over overlay.**
+  When a pause-ad opportunity and an overlay opportunity are
+  active at the same instant, the pause-ad is rendered on top of
+  the overlay. The Player serializes the two: while the viewer
+  is paused inside a pause-ad window, the pause-ad form is the
+  only ad surface visible (the overlay is suspended). When the
+  viewer resumes primary playback, the pause-ad is dismissed
+  (per R16) and the overlay reappears if its slot window is
+  still active; the overlay continues until its window expires.
+  This priority is not Broadcaster-configurable — pause-ad above
+  overlay during pause is the only admissible composition.
+
+  **Conformance criteria** (runtime):
+  - **R17.1** (Player): While the viewer is paused inside a
+    pause-ad window AND an overlay is active, the Player
+    renders the pause-ad form and suspends the overlay
+    rendering.
+  - **R17.2** (Player): On resume from pause, the Player
+    dismisses the pause-ad (per R16) and restores the overlay
+    rendering if the overlay slot window is still active.
+  - **R17.3** (Player): If the overlay slot window expired
+    during the pause, the Player keeps the overlay surface clear
+    on resume; the overlay is over.
+  - **R17.4** (spec document): The specification carries no
+    construct that lets the Broadcaster or ADS invert this
+    priority.
 
 ## Governance Requirements
 
