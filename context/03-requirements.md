@@ -433,6 +433,24 @@ concrete requirements that follow are constrained by them.
   - **R17.4** (spec document): The specification carries no
     construct that lets the Broadcaster or ADS invert this
     priority.
+- **R18. ADS API contract is not defined by this spec.**
+  This specification does NOT define the URL syntax, parameter
+  names, request payload, response payload, or any other aspect
+  of the ADS-side API. The specification documents the
+  Player-visible interface — the MPD event URL referenced by the
+  Broadcaster, and the resolution document the ADS returns
+  (`ListMPD` or single-period alternative MPD) — and treats the
+  ADS internal contract (invocation parameters, decisioning
+  inputs, frequency-cap signals) as opaque, agreed bilaterally
+  between the Broadcaster and the ADS out-of-band.
+
+  **Conformance criteria** (document-level):
+  - **R18.1** (spec document): The specification documents the
+    MPD event URL pattern (Player-visible input) and the
+    resolution document format (Player-visible output).
+  - **R18.2** (Broadcaster / ADS): The bilateral contract for ADS
+    invocation parameters is established and maintained by the
+    Broadcaster and the ADS directly, outside this specification.
 
 ## Governance Requirements
 

@@ -1,5 +1,28 @@
 # Project log
 
+## 2026-05-16 — refactor: separate ADS responsibility from R18 (API scope)
+
+The bullet about the ADS URL in context/02-actors.md was mixing
+two distinct concerns:
+
+- Behavioural responsibility (what the ADS, Broadcaster, and
+  Player do at runtime around the URL).
+- Spec-scope decision (which parts of the ADS API the
+  specification documents and which it leaves opaque).
+
+The responsibility part stays in actors as a shorter bullet
+("ADS endpoint as a URL"), and the spec-scope part moves to
+context/03-requirements.md as a new R18 "ADS API contract is
+not defined by this spec". R18 uses explicit "does NOT define"
+wording because it is a scope statement, not an actor obligation
+— DP-2 (positive obligations) governs obligations to actors, not
+decisions of what the spec itself documents.
+
+R18.1 and R18.2 are positive: they describe what the spec
+documents (the Player-visible interface) and who maintains the
+bilateral contract outside the spec (the Broadcaster and the ADS
+directly).
+
 ## 2026-05-16 — R17 pause-ad priority + UC-08 scenario refinement
 
 Nicolas approved the proposed pause-ad priority rule:
