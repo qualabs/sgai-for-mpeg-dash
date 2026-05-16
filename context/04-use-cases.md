@@ -703,11 +703,12 @@ unmodified.
 
 **Scenario:** An overlay (per UC-03) is being shown to the viewer
 when the viewer pauses primary playback, and the pause occurs
-inside a Broadcaster-declared pause-ad window (per UC-05). Both
-non-linear opportunities are eligible at the same instant; the
-Player serialises their presentation per R14 — show one, finish
-it, then evaluate the next — and dismisses the pause-ad on resume
-per R16.
+inside a Broadcaster-declared pause-ad window (per UC-05). The
+pause-ad takes priority over the overlay (per R17): while the
+viewer is paused, the pause-ad form is rendered and the overlay
+is suspended. On resume, the pause-ad is dismissed (per R16) and
+the overlay continues if its slot window is still active; the
+overlay terminates naturally when its window expires (per R4).
 
 **Broadcaster intent:**
 - An overlay slot (per UC-03) is active at some moment.
@@ -729,67 +730,94 @@ per R16.
 
 - **Player decision:** the overlay is currently rendered (per
   UC-03 / D1). When the viewer pauses inside the pause-ad window,
-  the Player suspends the overlay (its slot window clock follows
-  the primary timeline and freezes at the pause point) and
+  the Player suspends the overlay rendering (per R17.1) and
   resolves the pause-ad opportunity per UC-05 / D1. The pause-ad
-  form is composed on top of the paused primary frame, replacing
-  the overlay surface. On resume, the Player dismisses the
-  pause-ad (per R16), restores the overlay at its previous
-  fractional progress, and continues primary playback.
+  form is composed on top of the paused primary frame, taking
+  priority over the overlay surface. On resume the Player
+  dismisses the pause-ad (per R16) and restores the overlay if
+  its slot window is still active (per R17.2). The overlay
+  continues from where it was suspended — its slot window clock
+  followed the primary timeline and froze during the pause. The
+  overlay terminates when its declared window expires (per R4),
+  not because of the pause.
 - **What the user sees:** the overlay is visible while playback
   advances. The viewer pauses; the overlay disappears and a
   pause-ad form (typically the highest-fidelity available: HTML,
-  image, or video over the paused frame) replaces it. On resume,
-  the pause-ad disappears and the original overlay reappears at
-  the same fractional progress, continuing until its declared
-  duration cap.
+  image, or video over the paused frame) takes its place. On
+  resume, the pause-ad disappears and, if the overlay slot window
+  is still active, the original overlay reappears and continues
+  until its declared window expires.
 
 #### D2 — Dual-decoder, video-on-video only
 
 - **Player decision:** identical to D1 in the pause/resume
-  sequencing. The pause-ad rendering follows UC-05 / D2 rules: if
-  the pause-ad candidate offers a video form, the second decoder
-  composites it on top of the paused frame; if the candidate
-  offers only HTML or image forms, per R3 the Player declines the
-  pause-ad gracefully and the paused frame stays on screen until
-  resume. Overlay restoration on resume follows UC-03 / D2.
+  sequencing per R17. The pause-ad rendering follows UC-05 / D2
+  rules: if the pause-ad candidate offers a video form, the
+  second decoder composites it on top of the paused frame; if the
+  candidate offers only HTML or image forms, per R3 the Player
+  declines the pause-ad gracefully and the paused frame stays on
+  screen until resume. In either case the overlay is suspended
+  during the pause (per R17.1). On resume the Player dismisses
+  the pause-ad (per R16) and restores the overlay if its slot
+  window is still active (per R17.2). The overlay continues from
+  where it was suspended — its slot window clock followed the
+  primary timeline and froze during the pause. The overlay
+  terminates when its declared window expires (per R4), not
+  because of the pause.
 - **What the user sees:** overlay (video, side-by-side, or other
   D2-renderable form) is visible during play. The viewer pauses;
   if a video pause-ad is available, it replaces the overlay on
   the paused frame; otherwise the paused frame stays clean until
-  resume. On resume, the overlay reappears.
+  resume. On resume, if the overlay slot window is still active,
+  the overlay reappears and continues until its declared window
+  expires.
 
 #### D3 — Single-decoder, image and HTML capable
 
 - **Player decision:** the overlay is rendered via the HTML/CSS
   layer (per UC-03 / D3). On pause, the Player suspends the
-  overlay and resolves the pause-ad per UC-05 / D3: HTML or image
-  form, composited on top of the paused frame. The Player
-  swaps the rendered surface from the overlay to the pause-ad. On
-  resume, the pause-ad is dismissed and the overlay re-renders on
-  the HTML/CSS layer at the same fractional progress.
+  overlay rendering (per R17.1) and resolves the pause-ad per
+  UC-05 / D3: HTML or image form, composited on top of the
+  paused frame. The pause-ad takes priority over the overlay
+  surface. On resume the Player dismisses the pause-ad (per R16)
+  and restores the overlay if its slot window is still active
+  (per R17.2). The overlay re-renders on the HTML/CSS layer from
+  where it was suspended — its slot window clock followed the
+  primary timeline and froze during the pause. The overlay
+  terminates when its declared window expires (per R4), not
+  because of the pause.
 - **What the user sees:** overlay (HTML or image) is visible
-  during play. The viewer pauses; the pause-ad replaces the
-  overlay. On resume, the original overlay reappears.
+  during play. The viewer pauses; the pause-ad takes its place.
+  On resume, if the overlay slot window is still active, the
+  original overlay reappears and continues until its declared
+  window expires.
 
 #### D4 — Single-decoder, image only
 
 - **Player decision:** the overlay was an image (per UC-03 / D4).
-  On pause, the Player suspends the image overlay and resolves
-  the pause-ad per UC-05 / D4: only image forms are renderable.
-  The image pause-ad replaces the overlay. On resume, the pause-
-  ad is dismissed and the image overlay reappears.
+  On pause, the Player suspends the image overlay (per R17.1) and
+  resolves the pause-ad per UC-05 / D4: only image forms are
+  renderable. The image pause-ad takes priority over the overlay
+  surface. On resume the Player dismisses the pause-ad (per R16)
+  and restores the image overlay if its slot window is still
+  active (per R17.2). The overlay continues from where it was
+  suspended — its slot window clock followed the primary timeline
+  and froze during the pause. The overlay terminates when its
+  declared window expires (per R4), not because of the pause.
 - **What the user sees:** image overlay is visible during play.
-  On pause, the pause-ad image replaces it. On resume, the
-  original image overlay reappears.
+  On pause, the pause-ad image takes its place. On resume, if the
+  overlay slot window is still active, the original image overlay
+  reappears and continues until its declared window expires.
 
 #### D5 — Single-decoder, no overlay (worst case)
 
 - **Player decision:** the overlay was declined per UC-03 / D5
   (the device has no overlay surface, no second decoder). The
   pause-ad is also declined per UC-05 / D5 for the same reasons.
-  The viewer's pause and resume have no ad-related effect. Per
-  R3, both opportunities are declined gracefully.
+  Since neither surface renders, the R17 priority is moot: there
+  is no overlay to suspend and no pause-ad to take priority. The
+  viewer's pause and resume have no ad-related effect. Per R3,
+  both opportunities are declined gracefully.
 - **What the user sees:** primary content plays uninterrupted; on
   pause, the paused frame stays clean; on resume, primary
   continues. No ad is rendered at any point.
