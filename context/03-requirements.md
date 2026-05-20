@@ -150,6 +150,24 @@ concrete requirements that follow are constrained by them.
   - **R4.1** (Broadcaster): The Broadcaster MUST declare a maximum
     duration on every ad slot (linear or non-linear) defined in the
     `MPD`.
+
+    > **Note — listen-mode slots (UC-09):** Listen-mode slots are
+    > declared WITHOUT `@maxDuration` at activation; R4.1's MUST does
+    > not apply to them. The Broadcaster terminates the slot by sending
+    > a `status=update` that introduces or revises `@maxDuration` to
+    > the desired cut point; the Player enforces that cap per R4.2 when
+    > it arrives. `status=update` is a generic lifecycle update — the
+    > Player MUST NOT terminate on a `status=update` that does not set
+    > or revise `@maxDuration`. Whether to recommend a safety-fallback
+    > `@maxDuration` at activation is an open question left to WG
+    > resolution (DASH 6th does not mandate it). R4.2 and R4.3 apply
+    > whenever `@maxDuration` is present, regardless of whether it was
+    > declared at activation or introduced via a subsequent
+    > `status=update`. See **UC-09** in
+    > [`04-use-cases.md`](04-use-cases.md) and the listen-mode
+    > section in
+    > [`05-dash-linear-interfaces.md`](05-dash-linear-interfaces.md).
+
   - **R4.2** (Player): When the cumulative duration of accepted ad
     candidates would exceed the Broadcaster-declared cap, the
     Player MUST stop rendering at the cap boundary, even if the
