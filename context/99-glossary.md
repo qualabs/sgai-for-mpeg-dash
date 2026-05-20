@@ -110,3 +110,22 @@ through `08-dash-extension-rules.md`.
 - **Sub-MPD**: an MPD reached via `<ImportedMPD>` from a parent
   ListMPD or primary MPD. SPS-conformant by construction (DR-1 in
   [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+- **Open-ended slot**: an ad slot declared WITHOUT `@maxDuration`
+  at activation time; its end is not fixed when the slot opens.
+  The Broadcaster terminates it by sending a `status=update` that
+  introduces or revises `@maxDuration` to the desired cut point;
+  the Player enforces the cap when it arrives. Covered by **UC-09**
+  in [`04-use-cases.md`](04-use-cases.md).
+- **Listen mode**: the Player state entered after activating an
+  open-ended slot. The Player renders the selected candidate and
+  monitors the event stream for `status=update`; on each update it
+  checks whether `@maxDuration` has been set or revised, and
+  terminates the slot when the declared cap is reached. A
+  `status=update` that does not introduce or revise `@maxDuration`
+  does NOT trigger termination.
+- **status=update** *(DASH 6th §5.16.4)*: a generic in-band
+  lifecycle update for an `AlternativeMPD` event, used to modify
+  fields of an already-active event (e.g. introduce `@maxDuration`,
+  update other properties). It is NOT inherently a termination
+  signal; termination occurs only when the update introduces or
+  revises `@maxDuration` to a value that caps the slot.

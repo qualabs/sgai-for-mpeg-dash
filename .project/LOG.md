@@ -1,5 +1,34 @@
 # Project log
 
+## 2026-05-20 — UC-09: open-ended slot (listen mode)
+
+Added UC-09 to the spec context, covering the listen-mode pattern
+where the Broadcaster signals the start of a slot without
+`@maxDuration` and later terminates it via a `status=update` that
+introduces or revises `@maxDuration` to the desired cut point.
+The pattern applies to both linear and non-linear slots.
+
+Key design decisions captured:
+- `status=update` is a generic lifecycle update, NOT inherently a
+  termination signal. Termination occurs only when the update
+  sets or revises `@maxDuration`. The Player MUST NOT terminate on
+  any other `status=update`.
+- Whether to recommend a safety-fallback `@maxDuration` at
+  activation is left as an open question for WG resolution (DASH
+  6th does not mandate it; a too-narrow cap creates ambiguity).
+- The linear variant reuses baseline DASH 6th §5.16.4. The
+  non-linear analog is net-new and TBD in the syntax chapter.
+
+Files changed: `context/03-requirements.md` (R4.1 note),
+`context/04-use-cases.md` (coverage table row + UC-09 body),
+`context/05-dash-linear-interfaces.md` (new listen-mode subsection),
+`context/99-glossary.md` (3 new entries: open-ended slot, listen
+mode, status=update), `context/07-backward-compat-checklist.md`
+(audit table row + anti-pattern note).
+
+Two open threads added to PROJECT.md: safety-cap WG policy and
+non-linear listen-mode construct definition.
+
 ## 2026-05-16 — refactor: separate ADS responsibility from R18 (API scope)
 
 The bullet about the ADS URL in context/02-actors.md was mixing

@@ -139,6 +139,51 @@ R1 graceful degradation applies throughout: a legacy Player that
 does not understand the SGAI event scheme ignores the event and
 plays the primary content uninterrupted (UC-07).
 
+### Listen mode: ReplacePresentation with status=update
+
+MPEG-DASH 6th edition (§5.16.4) defines a `status=update` mechanism
+on `ReplacePresentation` events. **Defining characteristic:** the
+event is initially declared WITHOUT `@maxDuration` — the slot has no
+fixed end at activation time. The Broadcaster terminates the slot
+later by emitting an in-band event update.
+
+`status=update` is a **generic lifecycle update** used to modify
+fields of an already-active event. It does NOT by itself signal
+slot termination. Termination occurs specifically when a
+`status=update` introduces or revises `@maxDuration` to the desired
+cut point; the Player then enforces that cap per R4. A
+`status=update` that does not set or revise `@maxDuration` MUST NOT
+cause the Player to terminate the slot.
+
+**Player behavior in listen mode:**
+
+1. Event activates — no `@maxDuration` present. Player begins
+   rendering the selected ad candidate and registers a listener on
+   the event stream for `status=update` on the activating event's
+   identity.
+2. On each `status=update`: Player inspects whether `@maxDuration`
+   has been introduced or revised.
+3. When a `status=update` sets `@maxDuration`, the Player enforces
+   the cap per R4.2 — terminating immediately if the cap is ≤ the
+   elapsed slot time, or at the declared boundary otherwise.
+4. Player resumes the main timeline per the `@returnOffset`
+   semantics (§5.16.4) — same as for a bounded
+   `ReplacePresentation`.
+
+Whether a safety-fallback `@maxDuration` declared at activation
+time is good spec practice is an **open question** left to WG
+resolution. DASH 6th does not mandate it; recommending it as a
+SHOULD would need a concrete justification given that a too-wide
+cap may create ambiguity.
+
+**Non-linear analog:** for non-linear SGAI slots the same listen-mode
+pattern MUST be defined in the non-linear spec chapter. The linear
+`status=update` on `ReplacePresentation` is baseline DASH 6th and
+requires no new construct. The non-linear equivalent is a net-new
+mechanism. **UC-09** in [`04-use-cases.md`](04-use-cases.md)
+exercises the listen-mode pattern across both linear and non-linear
+slot types.
+
 ## Resolution document timing baseline
 
 All `<Event @presentationTime>` values authored by the ADS within
