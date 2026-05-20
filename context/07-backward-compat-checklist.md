@@ -140,6 +140,7 @@ status for every new construct it introduces:
 | Construct | Placement | Extension rule | Walk-through | Sibling check | UC-07 test | Namespace | Status |
 |-----------|-----------|----------------|--------------|---------------|------------|-----------|--------|
 | (per construct) | ... | ... | ... | ... | ... | ... | OK / FAIL |
+| Non-linear listen-mode termination signal (`status=update` analog for non-linear slots) | `EventStream` child in non-linear slot event | §5.10 application-level Event Streams (DR-6b) | Legacy Player ignores unknown `schemeIdUri`; skips event silently; primary continues. Linear `status=update` on `ReplacePresentation` is baseline DASH — no new construct there. | `@maxDuration` (if declared at activation) remains valid for legacy use; removing the new non-linear scheme leaves a valid document | UC-07 equivalent: legacy Player encounters listen-mode non-linear slot; slot has no fixed end for legacy Player; primary continues uninterrupted | `urn:svta:dash:sgai:<year>` or reuse of baseline `urn:mpeg:dash:event:alternativeMPD:*` — TBD at syntax chapter | PENDING |
 
 A `FAIL` in any column blocks publication.
 
@@ -167,6 +168,17 @@ Common ways the ignore-if-unknown contract can be silently broken
   add DASH segment-delivery semantics for the underlying format
   (those are an Annex F exercise per DR-4) — the construction is
   a workaround that fails the spirit of R1.2 and DR-6.
+- **Listen-mode slot with no termination mechanism.** A slot
+  declared without `@maxDuration` AND without a guaranteed
+  `status=update` delivery path leaves the Player in an unbounded
+  state. Legacy Players encountering the activation event will
+  not enter listen mode — they will either play indefinitely (if
+  no cap is present) or apply a cap (if one is set at activation).
+  The spec MUST NOT define listen-mode slots where the absence of
+  both termination mechanisms leaves the slot open-ended with no
+  defined exit. At minimum, the Broadcaster MUST have a delivery
+  path for the terminating `status=update`; a safety cap at
+  activation is an open WG question (see R4.1 note and UC-09).
 
 ## References
 
