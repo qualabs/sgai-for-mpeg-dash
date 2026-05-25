@@ -2,7 +2,7 @@
 
 **Inputs**: `context/` (all files in this directory). Optionally:
 NotebookLM grounding if the `notebooklm` skill is installed and
-`.env.agent` defines `NOTEBOOK_NAME`.
+`.env.agent` defines `NOTEBOOK_ID`.
 **Output**: `context-analysis/dash-gap-analysis.md` (overwrites previous).
 **Skip if**: `context-analysis/dash-gap-analysis.md` exists AND its mtime is
 newer than the newest mtime in `context/`.
@@ -15,7 +15,7 @@ Before doing the work, decide which grounding mode applies and log
 the result to stdout as the first line of execution:
 
 - If the `notebooklm` skill is installed AND a `.env.agent` file at
-  the project root defines a non-empty `NOTEBOOK_NAME` → query that
+  the project root defines a non-empty `NOTEBOOK_ID` → query that
   NotebookLM notebook (it must contain the MPEG-DASH 6th edition
   spec and any related authoritative material). Use it as the
   authoritative reference for DASH 6th claims and cite section
