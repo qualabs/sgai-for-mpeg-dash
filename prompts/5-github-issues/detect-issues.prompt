@@ -1,0 +1,80 @@
+# Detect GitHub issues that need processing
+
+**Inputs**:
+- The GitHub repo resolved by the orchestrator (`<owner>/<repo>`),
+  passed in as context.
+- Authenticated `gh` CLI on the host. The runner relies on the
+  operator's existing `gh auth login`; this prompt does not handle
+  authentication.
+
+**Output**: a structured list of issue records (in memory — no
+file is written) containing for each issue:
+- `number` (integer)
+- `title` (string)
+- `body` (string, full markdown body)
+- `author` (GitHub login)
+- `created_at` (ISO-8601 timestamp)
+- `labels` (array of label name strings)
+- `raw_lang_hint` (first ~200 chars of the body, used by
+  `triage-issue` to detect language; the detection itself is NOT
+  done here)
+
+**Skip if**: never. The orchestrator decides when to invoke this;
+detection itself is always run when called.
+
+---
+
+## Task
+
+Query GitHub for open issues that the pipeline has not yet
+processed. The filter is **label-based** (D2/D5): an issue is
+considered "already handled" if its label set contains any of:
+
+- `ai-triaged`
+- `ai-responded`
+- `ai-skipped`
+- `ai-needs-review`
+- `ai-conversation-cap-hit`
+
+Use `gh` with structured JSON output so the field names are stable:
+
+```bash
+gh issue list \
+  --repo <owner>/<repo> \
+  --state open \
+  --limit 100 \
+  --json number,title,body,author,createdAt,labels
+```
+
+The above returns a JSON array. For each element:
+
+1. Read `labels[].name` and check if any of the five blocking
+   labels above is present. If yes → drop this issue from the
+   result set.
+2. If the orchestrator invocation passed an explicit `--issue <N>`
+   list, restrict the result to those numbers ONLY (and skip the
+   label filter — the operator is forcing a re-run).
+3. Otherwise, emit the issue as `{number, title, body, author:
+   author.login, created_at: createdAt, labels: [name, …],
+   raw_lang_hint: body.substring(0, 200)}`.
+
+## Edge cases
+
+- **Empty repo / no open issues** → return an empty array. Log
+  `[STAGE-5 detect] 0 open issue(s) matching filter`.
+- **`gh` returns an error** (auth, rate limit, network) → abort
+  the orchestrator with a clear error message. Do NOT silently
+  proceed with an empty list — that would create the appearance
+  of "nothing to do" when really we could not see GitHub.
+- **Pagination**: `--limit 100` is a soft cap. If a repo ever
+  grows past that, raise the limit or add pagination — but flag
+  it as a follow-up rather than silently truncating.
+- **Closed issues** are not surfaced (`--state open`). The pipeline
+  only deals with live conversations.
+
+## Note on rate-limited fields
+
+`gh issue list` already returns `body` inline; there is no need to
+fan out to `gh issue view <N>` per issue. The single list call is
+one API request regardless of issue count (up to the page limit),
+which keeps the orchestrator cheap to run.
