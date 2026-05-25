@@ -5,7 +5,7 @@
 Inputs consumed: `../context/03-requirements.md` (R1..R7, R12, R13, R15)
 and `../context/05-dash-linear-interfaces.md` (Linear SGAI message flow
 and Interface contracts). 13 error rows covering the eight categories
-required by `prompts/build-error-semantics.prompt`. Vocabulary is
+required by `prompts/1-pre-spec/build-error-semantics.prompt`. Vocabulary is
 deliberately slot-agnostic ("resolution document", "candidate",
 "form", "slot") so the matrix applies to both linear and non-linear
 SGAI without re-stating the rows per chapter.

@@ -1,40 +1,32 @@
 # Build all SGAI artifacts (orchestrator)
 
-**Inputs**: `context/` (and the prompts below). Optional: NotebookLM
-grounding flows through downstream prompts (see their headers).
-**Outputs**:
-- `context-analysis/dash-gap-analysis.md` (from Step 1).
-- `context-analysis/uc-coverage-matrix.md` (from Step 2).
-- `context-analysis/error-semantics.md` (from Step 3).
-- `context-analysis/conformance-assertions.md` (from Step 4).
-- `context-analysis/iab-ad-templates.md` (from Step 5 — live mirror of the
-  IAB ad-type catalogue; regenerated every run).
-- `output/v<N>-sgai-spec.md` (from Step 6 — spec).
-- `output-analysis/v<N>-spec-validation.md` (from Step 7 — sidecar
-  validation document; see `prompts/validate-spec.prompt`).
-- `output-analysis/v<N>-detail-review.md` (from Step 7.5 — micro-
-  consistency review log; see `prompts/review-spec-details.prompt`).
-  Step 7.5 also applies in-place autofixes to the spec for
-  deterministic, low-risk corrections.
-- `output-analysis/v<N>-dash-conformance-audit.md` (from Step 8 —
-  DASH 6th conformance audit; see
-  `prompts/audit-dash-conformance.prompt`).
-**Version numbering**: each invocation of `build-all` produces a new
-iteration of the build. The orchestrator MUST resolve the iteration
-number `N` before invoking Step 6 (build-spec) and pass it to every
-downstream step (7, 7.5, 8) so all artefacts of the same iteration
-share the same `v<N>-` prefix. `N` is computed as
-`max(existing v*-sgai-spec.md in output/) + 1` (parse the integer
-after the leading `v` in each filename). If no prior build exists,
-`N` starts at 1. Research, errata, and other ad-hoc artefacts that
-are NOT outputs of a `build-all` iteration keep a date prefix
-(`YYYY-MM-DD-<name>.md`) and are not numbered.
-**Skip if**: each downstream prompt has its own skip rule and is
-honoured here, with one exception: Step 5
-(`analyze-iab-ad-templates`) NEVER skips, because its source is an
-external live document that updates independently. Steps 7 and 8
-(validation, conformance audit) have skip rules **decoupled** from
-the spec's — they may run independently when their own inputs move.
+**Inputs**: `context/` (canonical, human-authored spec files). Per-step
+inputs are declared in each individual prompt's header — this orchestrator
+does not duplicate them.
+
+**Outputs** (per major iteration `v<N>` and optional minor iterations
+`v<N>.<M>` from Step 9):
+- `context-analysis/` — pre-spec generated artefacts (5 files, one per
+  Step 1-5 prompt). See `1-pre-spec/*.prompt` for individual contracts.
+- `output/v<N>-sgai-spec.md` — the spec itself (Step 6,
+  `2-build/build-spec.prompt`).
+- `output-analysis/v<N>-*.md` — 3 sidecars per major iteration (Steps 7,
+  7.5, 8, see `3-post-spec/`). Auto-refine iterations (Step 9) produce
+  the same 3 sidecars + a `vN.M-comparison.md` (see `4-auto-refine/`).
+- Versioning: `N` = major (computed once per build-all invocation),
+  `M` = minor (incremented by Step 9 for each accepted refinement).
+  `N` is computed as `max(existing v*-sgai-spec.md in output/) + 1`
+  (parse the integer after the leading `v` and BEFORE any `.` in
+  each filename). If no prior build exists, `N` starts at 1. `M`
+  starts at 0 (the major output is `v<N>-...`, treated as `M=0` for
+  the arithmetic) and is incremented by Step 9 for each accepted
+  refinement.
+
+**Skip-if**: each prompt declares its own skip rule and is honoured here.
+Exceptions: Step 5 (`analyze-iab-ad-templates`) NEVER skips (external live
+source). Step 9 (auto-refine) is gated by `BUILD_ALL_AUTO_REFINE` env
+var (default `true`) and capped at `MAX_REFINEMENTS` iterations
+(default `5`); see Step 9 configuration below for details.
 
 ---
 
@@ -48,7 +40,14 @@ Each downstream prompt also logs its own
 runs (skipped steps emit no grounding line). Surface those lines as
 they appear so the full run is auditable.
 
-### Step 1 — Gap analysis
+The orchestrator runs the following stages in order. Each stage maps
+1:1 to a subfolder of `prompts/`.
+
+### Stage 1 — Pre-spec (`1-pre-spec/`)
+
+Generate the inputs that the spec build consumes.
+
+#### Step 1 — Gap analysis
 
 Inspect `context-analysis/dash-gap-analysis.md`:
 
@@ -57,10 +56,10 @@ Inspect `context-analysis/dash-gap-analysis.md`:
   `[SKIPPED] analyze-dash-gap → context-analysis/dash-gap-analysis.md`
   and continue.
 - Else → invoke the instructions in
-  `prompts/analyze-dash-gap.prompt` and log
+  `prompts/1-pre-spec/analyze-dash-gap.prompt` and log
   `[BUILT] analyze-dash-gap → context-analysis/dash-gap-analysis.md`.
 
-### Step 2 — UC coverage matrix
+#### Step 2 — UC coverage matrix
 
 Inspect `context-analysis/uc-coverage-matrix.md`. Skip rule is independent
 of Step 1 — this step depends only on `context/03-requirements.md`
@@ -71,7 +70,7 @@ and `context/04-use-cases.md`.
   `[SKIPPED] build-uc-coverage-matrix → context-analysis/uc-coverage-matrix.md`
   and continue.
 - Else → invoke the instructions in
-  `prompts/build-uc-coverage-matrix.prompt` and log
+  `prompts/1-pre-spec/build-uc-coverage-matrix.prompt` and log
   `[BUILT] build-uc-coverage-matrix → context-analysis/uc-coverage-matrix.md`.
 
 Placement rationale: this matrix surfaces orphan Rs (requirements
@@ -79,7 +78,7 @@ with no UC coverage) before the assertion extractor runs, so the
 extractor can cross-reference the orphan list when scoring its own
 orphan-assertion section.
 
-### Step 3 — Error semantics matrix
+#### Step 3 — Error semantics matrix
 
 Inspect `context-analysis/error-semantics.md`. Skip rule is independent of
 Steps 1 and 2 — this step depends only on
@@ -91,7 +90,7 @@ Steps 1 and 2 — this step depends only on
   `[SKIPPED] build-error-semantics → context-analysis/error-semantics.md`
   and continue.
 - Else → invoke the instructions in
-  `prompts/build-error-semantics.prompt` and log
+  `prompts/1-pre-spec/build-error-semantics.prompt` and log
   `[BUILT] build-error-semantics → context-analysis/error-semantics.md`.
 
 Placement rationale: the error matrix benefits from running after
@@ -100,7 +99,7 @@ runtime-wise) but does not strictly depend on it; it runs before
 conformance-assertions so the assertion extractor can later read
 both intermediates side by side.
 
-### Step 4 — Conformance assertions
+#### Step 4 — Conformance assertions
 
 Inspect `context-analysis/conformance-assertions.md`. Skip rule is
 independent of Steps 1, 2 and 3 — this step depends only on
@@ -111,20 +110,20 @@ independent of Steps 1, 2 and 3 — this step depends only on
   `[SKIPPED] extract-conformance-assertions → context-analysis/conformance-assertions.md`
   and continue.
 - Else → invoke the instructions in
-  `prompts/extract-conformance-assertions.prompt` and log
+  `prompts/1-pre-spec/extract-conformance-assertions.prompt` and log
   `[BUILT] extract-conformance-assertions → context-analysis/conformance-assertions.md`.
 
-### Step 5 — IAB ad-template catalogue (live mirror)
+#### Step 5 — IAB ad-template catalogue (live mirror)
 
 This step regenerates `context-analysis/iab-ad-templates.md` from the live
 IAB ad-template catalogue (external Google Doc; see
-`prompts/analyze-iab-ad-templates.prompt` for the source link).
+`prompts/1-pre-spec/analyze-iab-ad-templates.prompt` for the source link).
 **This step NEVER skips by mtime** — the source is a live external
 document that updates independently. Always invoke the prompt; the
 output file is overwritten in place.
 
 - Always invoke the instructions in
-  `prompts/analyze-iab-ad-templates.prompt` and log
+  `prompts/1-pre-spec/analyze-iab-ad-templates.prompt` and log
   `[BUILT] analyze-iab-ad-templates → context-analysis/iab-ad-templates.md`.
   If the fetch fails inside the prompt (paywall, network, missing
   tool), the prompt produces a file documenting the failure with an
@@ -132,7 +131,9 @@ output file is overwritten in place.
   Surface the prompt's `[GROUNDED_BY=iab-live-link]` or
   `[GROUNDED_BY=spec-only]` log line so the run is auditable.
 
-### Step 6 — Spec build
+### Stage 2 — Build (`2-build/`)
+
+#### Step 6 — Spec build
 
 The `build-spec` prompt produces a single artifact: the spec
 itself (`output/v<N>-sgai-spec.md`). The validation sidecar and
@@ -151,10 +152,14 @@ exists, `N = 1`. Pass `N` to the `build-spec` prompt as an input.
   `context-analysis/iab-ad-templates.md` → log
   `[SKIPPED] build-spec → <latest filename>`.
 - Else → invoke the spec-build instructions in
-  `prompts/build-spec.prompt` with iteration number `N` and log
+  `prompts/2-build/build-spec.prompt` with iteration number `N` and log
   `[BUILT] build-spec → output/v<N>-sgai-spec.md`.
 
-### Step 7 — Validate spec (fresh subagent)
+### Stage 3 — Post-spec analysis (`3-post-spec/`)
+
+Run after each major or minor spec iteration to produce the 3 sidecars.
+
+#### Step 7 — Validate spec (fresh subagent)
 
 This step MUST dispatch a **fresh subagent** — do not run inline
 in the orchestrator's own context. The validation agent has zero
@@ -166,10 +171,10 @@ of the spec draft is the whole point; sharing context defeats it.
   `context/` AND newer than the newest `output/v*-sgai-spec.md` →
   log `[SKIPPED] validate-spec → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
-  `prompts/validate-spec.prompt` with iteration number `N` and log
+  `prompts/3-post-spec/validate-spec.prompt` with iteration number `N` and log
   `[BUILT] validate-spec → output-analysis/v<N>-spec-validation.md`.
 
-### Step 7.5 — Review spec details
+#### Step 7.5 — Review spec details
 
 This step catches the kind of micro-consistency issues that emerged
 as Marginal items M-3 and M-4 in the 2026-05-12 conformance audit —
@@ -201,19 +206,19 @@ may run inline rather than dispatching a fresh subagent. The skip
 rule is owned by the prompt itself.
 
 - Find the newest `output-analysis/v*-detail-review.md` file (if any). Apply
-  the skip rule in `prompts/review-spec-details.prompt`: skip if
+  the skip rule in `prompts/3-post-spec/review-spec-details.prompt`: skip if
   the review log is newer than ALL of the matching spec, the
   matching validation sidecar, `context/06-naming-and-namespaces.md`,
   `context/07-backward-compat-checklist.md`, and the prompt itself
   → log `[SKIPPED] review-spec-details → <latest filename>`.
 - Else → invoke the instructions in
-  `prompts/review-spec-details.prompt` with iteration number `N`
+  `prompts/3-post-spec/review-spec-details.prompt` with iteration number `N`
   and log
   `[BUILT] review-spec-details → output-analysis/v<N>-detail-review.md`.
   If autofixes were applied, the spec's mtime advances — this is
   expected and does not trigger a Step 6 re-run on the same build.
 
-### Step 8 — DASH conformance audit (fresh subagent)
+#### Step 8 — DASH conformance audit (fresh subagent)
 
 This step MUST also dispatch a **fresh subagent** — separate from
 both the spec-build agent (Step 6) and the validate-spec agent
@@ -225,16 +230,125 @@ rules; context overlap with prior steps biases the review.
   `output/v*-sgai-spec.md` → log
   `[SKIPPED] audit-dash-conformance → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
-  `prompts/audit-dash-conformance.prompt` with iteration number `N`
+  `prompts/3-post-spec/audit-dash-conformance.prompt` with iteration number `N`
   and log
   `[BUILT] audit-dash-conformance → output-analysis/v<N>-dash-conformance-audit.md`.
+
+### Stage 4 — Auto-refine (`4-auto-refine/`)
+
+Loop until convergence (or `MAX_REFINEMENTS`, or regression).
+
+#### Step 9 — Auto-refine until convergence
+
+After the major build (steps 1-8) produces `v<N>-sgai-spec.md` plus
+its three sidecars, the orchestrator enters a minor-refinement loop
+that drives the spec toward convergence without changing
+requirements. The loop is gated by `BUILD_ALL_AUTO_REFINE` (default
+`true`) and capped at `MAX_REFINEMENTS` iterations (default `5`);
+both are configurable via `.env.agent` — see "Step 9 configuration"
+below.
+
+If `BUILD_ALL_AUTO_REFINE=false`, skip the loop entirely and log
+`[SKIPPED] auto-refine → BUILD_ALL_AUTO_REFINE=false`. The major
+build artefacts (`v<N>-...`) are the final outputs of this run.
+
+Otherwise, let `M := 0` (the major spec is the implicit `v<N>.0`
+baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
+
+  9.1 Run `prompts/4-auto-refine/refine-spec.prompt`.
+      - Input: the latest `output/v<N>.<M>-sgai-spec.md` (the
+        major `v<N>-sgai-spec.md` on iteration K=1, then the
+        previously accepted minor on subsequent iterations) and the
+        three sidecars matching `v<N>.<M>`.
+      - Output: `output/v<N>.<M+1>-sgai-spec.md`.
+      - Log `[BUILT] refine-spec → output/v<N>.<M+1>-sgai-spec.md`.
+
+  9.2 Run `prompts/3-post-spec/validate-spec.prompt` against
+      `v<N>.<M+1>`.
+      - Output: `output-analysis/v<N>.<M+1>-spec-validation.md`.
+
+  9.3 Run `prompts/3-post-spec/review-spec-details.prompt` against
+      `v<N>.<M+1>`.
+      - Output: `output-analysis/v<N>.<M+1>-detail-review.md`.
+      - May apply in-place autofixes per its semantics.
+
+  9.4 Run `prompts/3-post-spec/audit-dash-conformance.prompt`
+      against `v<N>.<M+1>`.
+      - Output:
+        `output-analysis/v<N>.<M+1>-dash-conformance-audit.md`.
+
+  9.5 Run `prompts/4-auto-refine/compare-spec-versions.prompt`
+      against `v<N>.<M>` ↔ `v<N>.<M+1>`.
+      - Output: `output-analysis/v<N>.<M+1>-comparison.md` with a
+        verdict line.
+
+  9.6 Read the verdict line from the comparison file:
+
+      - **ON TRACK** (net reduction in total issue count across
+        all categories, weighted equally — see "Step 9
+        configuration" below for the criterion):
+          keep `v<N>.<M+1>` plus its four sidecars.
+          Log `[ITER K] ON TRACK, <X> issues fixed, <Y> remaining`.
+          Set `M := M+1`, continue the loop.
+
+      - **STALLED** (issue count unchanged, or no actionable items
+        remain):
+          keep `v<N>.<M+1>` as the converged head.
+          Log `[CONVERGED] at v<N>.<M+1> after K iterations`.
+          Break the loop and proceed to Final summary.
+
+      - **REGRESSION** (net increase in issue count vs
+        `v<N>.<M>`):
+          rollback — delete the five artefacts produced in this
+          iteration:
+            `output/v<N>.<M+1>-sgai-spec.md`,
+            `output-analysis/v<N>.<M+1>-spec-validation.md`,
+            `output-analysis/v<N>.<M+1>-detail-review.md`,
+            `output-analysis/v<N>.<M+1>-dash-conformance-audit.md`,
+            `output-analysis/v<N>.<M+1>-comparison.md`.
+          Log `[REGRESSION] at iter K, introduced <N> net issues,
+          kept v<N>.<M> as final`.
+          Break the loop and proceed to Final summary.
+
+  9.7 If `K == MAX_REFINEMENTS` was reached without STALLED or
+      REGRESSION exit:
+          log `[MAX_ITER] cap reached at v<N>.<M>, last successful`.
+          Break the loop and proceed to Final summary.
+
+On runtime errors during any sub-step (model failure, timeout,
+sidecar generation exception): break the loop, keep the last
+successful `v<N>.<M>`, log
+`[ERROR] iter K: <one-line reason>, kept v<N>.<M> as final` and
+proceed to Final summary. Do NOT attempt to clean up partial
+artefacts on error — surface them so the operator can inspect.
+
+##### Step 9 configuration
+
+- `MAX_REFINEMENTS` (default `5`): maximum number of iterations of
+  the auto-refine loop. Configurable via `.env.agent`.
+- `BUILD_ALL_AUTO_REFINE` (default `true`): set to `false` to skip
+  Step 9 entirely. Use this for validation-only major builds where
+  the operator wants to inspect `v<N>` before committing to the
+  refine loop.
+- **ON TRACK criterion**: any net reduction in total issue count,
+  where the total is the sum of all three categories — spec
+  validation issues, detail-review flagged items, and DASH
+  conformance issues — weighted equally. Cross-category trades are
+  accepted as long as the net is negative (e.g. -5 conformance,
+  +2 validation, +1 detail-review = -2 net → ON TRACK).
+- **REGRESSION criterion**: strict. A net increase of `+1` or more
+  triggers rollback. No tolerance for "fixed 5, broke 6 → ok".
+- The total issue count is computed by
+  `prompts/4-auto-refine/compare-spec-versions.prompt`; the
+  verdict line in the comparison file is the canonical signal
+  this loop reads.
 
 ### Final summary
 
 Print a summary block:
 
 ```
-SGAI build summary (iteration v<N>, YYYY-MM-DD HH:MM):
+SGAI build summary (iteration v<N>, head v<N>.<M_final>, YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] analyze-dash-gap                → context-analysis/dash-gap-analysis.md (mtime: ...)
   [BUILT|SKIPPED] build-uc-coverage-matrix        → context-analysis/uc-coverage-matrix.md (mtime: ...)
   [BUILT|SKIPPED] build-error-semantics           → context-analysis/error-semantics.md (mtime: ...)
@@ -244,6 +358,21 @@ SGAI build summary (iteration v<N>, YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] validate-spec                   → output-analysis/v<N>-spec-validation.md (mtime: ...)
   [BUILT|SKIPPED] review-spec-details             → output-analysis/v<N>-detail-review.md (mtime: ...)
   [BUILT|SKIPPED] audit-dash-conformance          → output-analysis/v<N>-dash-conformance-audit.md (mtime: ...)
+  [SKIPPED|CONVERGED|REGRESSION|MAX_ITER|ERROR] auto-refine → head=v<N>.<M_final> after <K> iterations
 ```
+
+The auto-refine line summarises the Step 9 outcome:
+- `SKIPPED` — `BUILD_ALL_AUTO_REFINE=false`, no iterations ran.
+- `CONVERGED` — a STALLED verdict ended the loop at `v<N>.<M_final>`.
+- `REGRESSION` — a REGRESSION verdict rolled back; head is the last
+  accepted iteration.
+- `MAX_ITER` — `MAX_REFINEMENTS` cap reached without natural exit.
+- `ERROR` — a sub-step failed; head is the last successful
+  iteration.
+
+Where `M_final == 0` means the auto-refine never accepted a minor
+iteration (either skipped, regressed on the first attempt, or
+errored before the first acceptance) and the major spec is the
+final head.
 
 Language: English.

@@ -34,11 +34,15 @@ numbered for reading order (`NN-name.md`); `99-glossary.md` is always
 last. Authored by humans (Qualabs working group). Source of truth.
 
 ### `prompts/`
-Verb-oriented build scripts (`analyze-dash-gap.prompt`,
-`build-spec.prompt`, `build-all.prompt`). Each file declares its
-**Inputs**, **Output**, and **Skip if** rule at the top, then the
-body is the substantive prompt for the LLM agent that runs it. The
-agent is expected to be invoked from the project root.
+Verb-oriented build scripts grouped by pipeline stage. The
+orchestrator (`build-all.prompt`) lives at the root of `prompts/`;
+the other prompts live in stage subfolders: `1-pre-spec/`,
+`2-build/`, `3-post-spec/`, `4-auto-refine/`. Each file declares
+its **Inputs**, **Output**, and **Skip if** rule at the top, then
+the body is the substantive prompt for the LLM agent that runs it.
+The agent is expected to be invoked from the project root. See
+`prompts/README.md` for the folder layout, the pipeline flow
+diagram, and the "When to use which prompt" table.
 
 ### `context-analysis/`
 **Pre-spec** generated artefacts: inputs that the spec build
@@ -91,17 +95,21 @@ Each prompt declares Inputs / Output / Skip rule at the top.
 Re-running a prompt regenerates its output when the skip rule says
 the inputs are fresher than the existing output.
 
-- **Gap analysis**: invoke `prompts/analyze-dash-gap.prompt`.
-  Reads `context/`, writes `context-analysis/dash-gap-analysis.md`
-  (overwrite).
-- **Spec**: invoke `prompts/build-spec.prompt`. Reads `context/` +
-  `context-analysis/`, writes `output/v<N>-sgai-spec.md` (no
-  overwrite), where `N` is the iteration number resolved as
+- **Gap analysis**: invoke
+  `prompts/1-pre-spec/analyze-dash-gap.prompt`. Reads `context/`,
+  writes `context-analysis/dash-gap-analysis.md` (overwrite).
+- **Spec**: invoke `prompts/2-build/build-spec.prompt`. Reads
+  `context/` + `context-analysis/`, writes
+  `output/v<N>-sgai-spec.md` (no overwrite), where `N` is the
+  iteration number resolved as
   `max(existing v*-sgai-spec.md) + 1`.
-- **Both with skip-if-fresh logic**: invoke
-  `prompts/build-all.prompt`. Orchestrator that chains the two,
-  honouring each step's skip rule and logging a per-step
-  `[BUILT|SKIPPED]` line.
+- **Full pipeline (orchestrator)**: invoke
+  `prompts/build-all.prompt`. Chains every step (1-pre-spec,
+  2-build, 3-post-spec, and the 4-auto-refine convergence loop),
+  honouring each prompt's skip rule and logging a per-step
+  `[BUILT|SKIPPED]` line. See `prompts/README.md` for the folder
+  layout, the pipeline diagram, and the "When to use which prompt"
+  table.
 
 Skip rules are mtime-based: an output is considered fresh when its
 mtime is newer than the newest mtime in its inputs. Touch a `context/`
@@ -112,7 +120,7 @@ file to force a rebuild of downstream artefacts.
 When `context/` has NOT changed but the most recent analyses
 (validation sidecar, detail-review log, DASH conformance audit)
 surface issues that can be fixed without changing requirements,
-use `prompts/refine-spec.prompt` to produce a delta-only refinement:
+use `prompts/4-auto-refine/refine-spec.prompt` to produce a delta-only refinement:
 
 - **Input**: the latest `output/v<N.M>-sgai-spec.md` plus the
   three matching analysis sidecars in `output-analysis/`.
@@ -128,7 +136,7 @@ use `prompts/refine-spec.prompt` to produce a delta-only refinement:
 After a refine, re-running `validate-spec`,
 `review-spec-details`, and `audit-dash-conformance` against the
 new minor version checks whether the refinement converged. Then
-run `prompts/compare-spec-versions.prompt` to emit
+run `prompts/4-auto-refine/compare-spec-versions.prompt` to emit
 `output-analysis/v<N.M+1>-comparison.md`: a per-category
 issue-count table (vN.M vs vN.M+1, Δ, Trend) and a verdict line
 (`ON TRACK` / `STALLED` / `REGRESSION`) summarising whether the

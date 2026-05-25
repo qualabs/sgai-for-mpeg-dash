@@ -9,10 +9,14 @@ install the optional NotebookLM skill.
 
 1. Read `context/01-intro.md` for an overview.
 2. Read `README.md` for the project layout.
-3. To regenerate the gap analysis: invoke `prompts/analyze-dash-gap.prompt`.
-4. To build the spec: invoke `prompts/build-spec.prompt`.
-5. To run the full pipeline with skip-if-fresh logic:
-   invoke `prompts/build-all.prompt`.
+3. To regenerate the gap analysis: invoke
+   `prompts/1-pre-spec/analyze-dash-gap.prompt`.
+4. To build the spec: invoke `prompts/2-build/build-spec.prompt`.
+5. To run the full pipeline with skip-if-fresh logic (orchestrator
+   over `1-pre-spec/`, `2-build/`, `3-post-spec/`, and the
+   `4-auto-refine/` convergence loop): invoke
+   `prompts/build-all.prompt`. See `prompts/README.md` for the
+   folder layout and a per-prompt usage guide.
 
 Without NotebookLM, the prompts ground the analysis on `context/`
 content alone. Outputs are less authoritative but the build
