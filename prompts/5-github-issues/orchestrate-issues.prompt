@@ -7,7 +7,7 @@
 - `.env.agent` at the project root. Required keys:
   - `TRUSTED_GH_USERS` — comma-separated GitHub logins that allow the
     full auto cycle (D2).
-  - Optional `NOTEBOOK_NAME` — passed through to `analyze-impact`
+  - Optional `NOTEBOOK_ID` — passed through to `analyze-impact`
     when a Flow B issue trips the keyword detector.
 - The repo working tree (`context/`, `context-analysis/`, `output/`,
   `output-analysis/`) — used by `propose-response` for grounding.

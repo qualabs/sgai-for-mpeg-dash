@@ -39,13 +39,18 @@ Once the skill is installed, copy the env example and point it at
 your notebook:
 
     cp .env.agent.example .env.agent
-    # Edit .env.agent and set NOTEBOOK_NAME to the name of your
-    # NotebookLM notebook (case-sensitive, must match the notebook
-    # name in your NotebookLM library).
+    # Edit .env.agent and set NOTEBOOK_ID to the UUID of your
+    # NotebookLM notebook. Get the UUID from the URL of your
+    # notebook in notebooklm.google.com — it is the last path
+    # segment, e.g. for
+    # https://notebooklm.google.com/notebook/bb67e20c-9ad1-4a1d-a641-7c7d901f93cb
+    # the UUID is `bb67e20c-9ad1-4a1d-a641-7c7d901f93cb`.
 
-The prompts read `NOTEBOOK_NAME` from `.env.agent` and resolve it via
-the skill at runtime. `.env.agent` is gitignored so your personal
-notebook name does not leak into the repo.
+The prompts read `NOTEBOOK_ID` from `.env.agent` and resolve it via
+the skill at runtime. Using the UUID (instead of the notebook's
+display name) gives an exact, robust match that does not break when
+the notebook is renamed. `.env.agent` is gitignored so your personal
+notebook UUID does not leak into the repo.
 
 ## Why this matters
 

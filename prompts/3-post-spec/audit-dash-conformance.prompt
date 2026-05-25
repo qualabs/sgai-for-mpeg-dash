@@ -7,7 +7,7 @@
   filename. It MUST match the `v<N>` prefix of the spec being
   audited. If invoked standalone, the runner resolves `N` from the
   spec filename being audited.
-- NotebookLM (configured via `.env.agent` — `NOTEBOOK_NAME` should
+- NotebookLM (configured via `.env.agent` — `NOTEBOOK_ID` should
   point at a notebook containing the MPEG-DASH 6th edition spec).
 
 **Output**: `../output-analysis/v<N>-dash-conformance-audit.md`, with `<N>`

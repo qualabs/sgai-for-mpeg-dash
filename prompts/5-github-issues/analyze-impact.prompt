@@ -48,7 +48,7 @@ these technical keywords:
 - `HLS`
 
 If at least one keyword matches AND the `notebooklm` skill is
-installed AND `.env.agent` defines a non-empty `NOTEBOOK_NAME` →
+installed AND `.env.agent` defines a non-empty `NOTEBOOK_ID` →
 query the configured notebook for authoritative content relevant
 to the issue's claim. Use the matched keyword(s) to shape the
 NotebookLM query (e.g. an issue mentioning "DASH" + "CMAF" should

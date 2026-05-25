@@ -16,7 +16,7 @@ mtime is newer than the newest mtime in `context/`.
 This prompt operates on the spec only — no external authoritative
 source is required. Log the first line of execution as
 `[GROUNDED_BY=spec-only]`. If `notebooklm` is installed and the
-`.env.agent` `NOTEBOOK_NAME` is set, you MAY consult the notebook
+`.env.agent` `NOTEBOOK_ID` is set, you MAY consult the notebook
 to disambiguate the meaning of a MUST / SHOULD / MAY sentence whose
 intent is unclear, in which case log `[GROUNDED_BY=notebooklm]`
 instead. Cross-spec consistency is the primary goal; the notebook

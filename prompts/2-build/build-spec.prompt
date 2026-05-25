@@ -10,7 +10,7 @@ uses it to construct the output filename. If the prompt is invoked
 standalone (no orchestrator), the runner MUST resolve `N` itself as
 `max(existing v*-sgai-spec.md in output/) + 1` (or `1` if none).
 Optionally: NotebookLM grounding if the `notebooklm` skill is
-installed and `.env.agent` defines `NOTEBOOK_NAME`.
+installed and `.env.agent` defines `NOTEBOOK_ID`.
 **Output**: `output/v<N>-sgai-spec.md` — the spec itself. The
 `v<N>` prefix is the iteration version (e.g. `v3-sgai-spec.md` for
 the 3rd build).
@@ -29,7 +29,7 @@ Before doing the work, decide which grounding mode applies and log
 the result to stdout as the first line of execution:
 
 - If the `notebooklm` skill is installed AND a `.env.agent` file at
-  the project root defines a non-empty `NOTEBOOK_NAME` → query that
+  the project root defines a non-empty `NOTEBOOK_ID` → query that
   NotebookLM notebook (it must contain the MPEG-DASH 6th edition
   spec and ideally VAST 4.x, IAB CTV, SCTE-35 references). Use it
   as the authoritative reference when stating normative content.
