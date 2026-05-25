@@ -1,0 +1,143 @@
+# Post a drafted response to GitHub
+
+**Inputs**:
+- The issue record (passed in by the orchestrator).
+- The triage verdict at
+  `../output-github-issues/<issue-N>/triage.md` (provides `flow`
+  and `severity`, needed for label application).
+- The drafted response at
+  `../output-github-issues/<issue-N>/response.md`.
+- Authenticated `gh` CLI on the host (relies on `gh auth login`).
+
+**Output**: side effects on GitHub:
+- One new issue comment containing the body of
+  `response.md`, posted via `gh issue comment <N> --body-file`.
+- Three labels applied to the issue via
+  `gh issue edit <N> --add-label`:
+  - `ai-responded`
+  - `severity:<severity>` (one of
+    `severity:cosmetic`, `severity:spec-detail`,
+    `severity:requirements`, `severity:architectural`)
+  - `flow:<flow>` (one of `flow:A`, `flow:B`, `flow:C`)
+
+No file is written by this prompt.
+
+**Skip if**: never. This prompt is only invoked by the
+orchestrator when ALL of the following hold:
+
+- The orchestrator is running in `--live` mode (D1).
+- The issue's author is in `TRUSTED_GH_USERS` (D2).
+- The triage verdict is NOT `SKIP` and `cycle_count < 3` (D5).
+
+If any condition fails, the orchestrator does NOT invoke this
+prompt at all. There is no internal re-check here.
+
+---
+
+## Task
+
+### 1. Sanity-check the inputs
+
+Before touching `gh`:
+
+- Verify the response file exists and is non-empty.
+- Verify it ends with the marker `<!-- sgai-issues: ai-cycle -->`
+  (without this marker, the next run's anti-loop cap will not
+  count the comment correctly — abort with an error).
+- Verify the triage file exists and parses (the orchestrator
+  has already parsed it, but re-read to be defensive).
+- Confirm the issue is still **open** via
+  `gh issue view <N> --json state`. If it has been closed in the
+  meantime, abort posting (the conversation moved without us) and
+  log a clear line.
+
+### 2. Post the comment
+
+```bash
+gh issue comment <N> \
+  --repo <owner>/<repo> \
+  --body-file output-github-issues/<issue-N>/response.md
+```
+
+Capture the URL of the created comment from `gh`'s output (the
+CLI prints it on success). Log:
+
+```
+[STAGE-5 post issue=<N>] posted: <comment-url>
+```
+
+### 3. Apply labels
+
+Apply the three labels in a single call (one network round-trip):
+
+```bash
+gh issue edit <N> \
+  --repo <owner>/<repo> \
+  --add-label "ai-responded,severity:<severity>,flow:<flow>"
+```
+
+If any of the three labels does NOT yet exist in the repo
+(common on the first live run), `gh` will fail with a clear
+error. In that case:
+
+1. Create the missing label(s) via:
+   ```bash
+   gh label create "<name>" \
+     --repo <owner>/<repo> \
+     --color <hex> \
+     --description "<short>"
+   ```
+   Suggested colours (for consistency, not enforcement):
+   - `ai-responded` → `#0e8a16` (green)
+   - `ai-needs-review` → `#fbca04` (yellow) — applied by the
+     orchestrator, not by this prompt
+   - `ai-skipped` → `#cccccc` (grey) — applied by the orchestrator
+   - `ai-conversation-cap-hit` → `#d93f0b` (orange) — applied by
+     the orchestrator
+   - `ai-triaged` → `#5319e7` (purple) — reserved, not used yet
+   - `severity:cosmetic` → `#c2e0c6`
+   - `severity:spec-detail` → `#bfdadc`
+   - `severity:requirements` → `#f9d0c4`
+   - `severity:architectural` → `#e99695`
+   - `flow:A` → `#bfd4f2`
+   - `flow:B` → `#d4c5f9`
+   - `flow:C` → `#fef2c0`
+2. Retry the `gh issue edit --add-label` call.
+
+Log:
+
+```
+[STAGE-5 post issue=<N>] labels: ai-responded, severity:<S>, flow:<F>
+```
+
+### 4. Edge cases
+
+- **`gh` returns a non-zero exit code on `issue comment`** → abort
+  before applying labels. The orchestrator should record the
+  failure in the summary block under a `failed:` section so
+  Nicolas knows the response stayed local.
+- **Comment succeeded, label edit failed** → log the partial
+  success. Do NOT retry the comment (it would double-post). The
+  orchestrator's summary block must call this out so Nicolas can
+  apply the labels by hand.
+- **`gh` rate limit hit mid-run** → abort the orchestrator,
+  report which issues had been posted vs not. The dry-run /
+  live-run separation makes recovery cheap: a follow-up `--live`
+  call with `--issue <N>` for the un-posted ones picks up where
+  the run left off.
+
+## What this prompt deliberately does NOT do
+
+- It does not edit labels on issues that the orchestrator has
+  classified as `SKIP`, `needs-review`, or `cap-hit`. Those
+  labels (`ai-skipped`, `ai-needs-review`,
+  `ai-conversation-cap-hit`) are applied by the orchestrator
+  directly, not by this prompt. The split keeps the "post" path
+  narrow and auditable: this prompt only fires when a response
+  is actually being posted.
+- It does not edit the response body. If the response needs a
+  fix, the operator edits `output-github-issues/<issue-N>/
+  response.md` and re-runs the orchestrator with
+  `--issue <N> --live`.
+- It does not close the issue. Closure is always a human decision
+  (or the author's own).

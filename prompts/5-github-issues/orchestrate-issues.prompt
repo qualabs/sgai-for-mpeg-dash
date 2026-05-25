@@ -1,0 +1,189 @@
+# Orchestrate GitHub issues pipeline (Stage 5)
+
+**Inputs**:
+- The GitHub repo (currently `qualabs/sgai-for-mpeg-dash`) at run time
+  via `gh issue list/view`. The orchestrator does not read a local
+  cache of issues — it always queries GitHub fresh.
+- `.env.agent` at the project root. Required keys:
+  - `TRUSTED_GH_USERS` — comma-separated GitHub logins that allow the
+    full auto cycle (D2).
+  - Optional `NOTEBOOK_NAME` — passed through to `analyze-impact`
+    when a Flow B issue trips the keyword detector.
+- The repo working tree (`context/`, `context-analysis/`, `output/`,
+  `output-analysis/`) — used by `propose-response` for grounding.
+- Invocation flags (parsed from the command line):
+  - `--dry-run` (default) — produce all artefacts under
+    `output-github-issues/<issue-N>/` but do NOT call `gh issue
+    comment` and do NOT apply any labels on GitHub.
+  - `--live` — same as `--dry-run` PLUS post the drafted response
+    and apply labels via `gh` (see `post-response.prompt`).
+  - `--issue <N>` (optional, repeatable) — restrict the run to one or
+    more explicit issue numbers (useful for re-runs / smoke tests).
+    When absent, the orchestrator processes every issue surfaced by
+    `detect-issues`.
+
+**Output**:
+- One `output-github-issues/<issue-N>/` subfolder per processed
+  issue, containing `triage.md`, optionally `impact.md` (Flow B
+  only), and `response.md`. See the per-step prompts for the
+  shape of each file.
+- A single end-of-run **summary block on stdout** (delimited by
+  `=== SGAI-ISSUES RUN SUMMARY ===` / `=== END SUMMARY ===`) listing
+  counts, per-issue verdicts, labels applied, and the outsider
+  attention list. The parent agent picks this block up and relays
+  it to Nicolas on Telegram — the orchestrator itself never sends
+  Telegram messages.
+
+**Skip if**: never. The orchestrator is always invoked manually
+(D7); it decides per-issue whether work is needed by reading the
+issue's label set (see Step 1).
+
+**Execution mode**: foreground, single subagent. NO nested
+subagents (the parent agent that invokes this prompt is the only
+delegation boundary). The orchestrator itself reads the per-step
+prompts inline and applies them — there is no `claude -p` recursion.
+
+**Default policy**: dry-run (D1). The orchestrator never posts to
+GitHub unless `--live` is explicitly passed.
+
+---
+
+## Setup
+
+1. Parse the invocation flags. If neither `--dry-run` nor `--live`
+   appears, assume `--dry-run`. If both appear, abort with an error
+   to stdout — the operator must pick one.
+2. Source `.env.agent` at the project root. Parse
+   `TRUSTED_GH_USERS` into a set. If the file is missing or the
+   variable is empty, log a warning and treat the trusted set as
+   empty (every author will be treated as an outsider).
+3. Resolve the GitHub repo from `git remote get-url origin`
+   (normalise to `<owner>/<repo>`). Log it as
+   `[REPO=<owner>/<repo>]`.
+4. Log a single mode line:
+   `[MODE=<dry-run|live>] [TRUSTED=<comma-list>]`.
+
+## Pipeline
+
+For each step below, log:
+`[STAGE-5 <step> issue=<N>] <one-line status>`.
+
+### Step 1 — Detect issues to process
+
+Apply the body of `prompts/5-github-issues/detect-issues.prompt`.
+Result: an array of `{number, title, body, author, created_at,
+labels, raw_lang_hint}` records, filtered to **open** issues whose
+label set contains NONE of:
+
+- `ai-triaged`
+- `ai-responded`
+- `ai-skipped`
+- `ai-needs-review`
+- `ai-conversation-cap-hit`
+
+If the invocation passed `--issue <N>` one or more times, restrict
+the result to those numbers regardless of label state (the operator
+is explicitly re-targeting).
+
+Log: `[STAGE-5 detect] <count> issue(s) to process: [<N1>, <N2>, ...]`.
+If `count == 0`, jump straight to the summary block.
+
+### Step 2 — Per-issue loop
+
+For each issue record from Step 1, in numerical order:
+
+#### 2.1 — Triage
+
+Apply `prompts/5-github-issues/triage-issue.prompt` against the
+issue. Write the verdict to
+`output-github-issues/<issue-N>/triage.md`. Capture the structured
+fields:
+- `flow`: `A` | `B` | `C` | `SKIP`
+- `severity`: `cosmetic` | `spec-detail` | `requirements` |
+  `architectural`
+- `lang`: ISO-639-1 (`en`, `es`, `pt`, `fr`, `it`, `de`, …) with
+  `en` as fallback if detection is inconclusive (D4)
+- `trusted`: boolean (`author ∈ TRUSTED_GH_USERS`?)
+- `cycle_count`: number of prior AI cycles on this issue, derived
+  by counting comments authored by the bot account or, if no bot
+  account marker exists, comments whose body starts with the AI
+  disclaimer string. Used for the anti-loop cap (D5).
+
+If `flow == SKIP`, the issue does not get a response. In `--live`
+mode, apply the `ai-skipped` label and stop processing this issue.
+Continue with the next.
+
+If `cycle_count >= 3`, do NOT generate a new response. In `--live`
+mode, apply the `ai-conversation-cap-hit` label (D5). Continue.
+
+#### 2.2 — Impact analysis (Flow B only)
+
+If `flow == B`, apply `prompts/5-github-issues/analyze-impact.prompt`
+against the issue. The keyword detector runs inside that prompt
+(D6); the orchestrator does not pre-filter. Write the result to
+`output-github-issues/<issue-N>/impact.md`.
+
+For `flow ∈ {A, C}` skip this step.
+
+#### 2.3 — Propose response
+
+Apply `prompts/5-github-issues/propose-response.prompt`. The prompt
+adapts the draft shape to the flow (A / B / C). It injects the
+auto-draft disclaimer at the top if `severity == requirements` (D3).
+Write the draft to `output-github-issues/<issue-N>/response.md`.
+
+#### 2.4 — Post or hold
+
+Decide whether to post:
+
+- If `trusted == true` AND `--live` is set → apply
+  `prompts/5-github-issues/post-response.prompt`. It posts the
+  comment via `gh issue comment` and applies the labels
+  `ai-responded`, `severity:<severity>`, `flow:<flow>`. On
+  success, mark this issue as `posted`.
+- If `trusted == false` (outsider) → do NOT post regardless of
+  mode. In `--live` mode, apply the `ai-needs-review` label so
+  Nicolas can see at a glance which issues are waiting on his
+  approval (D2). The response draft is still saved under
+  `output-github-issues/<issue-N>/response.md`. Mark the issue as
+  `needs-review`.
+- If `--dry-run` → do not post and do not apply labels; mark the
+  issue as `dry-drafted`.
+
+### Step 3 — Summary block
+
+After the loop, emit to stdout:
+
+```
+=== SGAI-ISSUES RUN SUMMARY ===
+mode: <dry-run|live>
+repo: <owner>/<repo>
+processed: <count>
+  - <N>: flow=<F> severity=<S> lang=<L> trusted=<bool> state=<posted|needs-review|dry-drafted|skipped|cap-hit>
+  - ...
+needs-review (outsiders awaiting Nicolas decision):
+  - <N>: <title> by <author>
+  - ...
+labels applied (live mode only):
+  - <N>: [ai-responded, severity:<S>, flow:<F>]
+  - ...
+=== END SUMMARY ===
+```
+
+If counts are zero in any subsection, emit `(none)` rather than
+omitting the heading — the parent agent's regex relies on the
+section being present.
+
+## Notes for future cron integration (D7)
+
+Manual invocation today. When the trigger flips to cron:
+
+- The cron job should pass `--dry-run` first, save the summary block
+  to a fresh log, and only escalate to `--live` if the operator
+  reviewed the dry run.
+- Or skip the dry-run gating and run `--live` directly — but only
+  after `TRUSTED_GH_USERS` is wide enough that the
+  `ai-needs-review` queue stays manageable.
+- Either way, the cron driver writes the summary block to a file
+  that the Telegram-notify hook tails — same parent-agent contract
+  as today.

@@ -17,15 +17,16 @@ extensions where the gap analysis surfaces them.
 
 ```
 projects/sgai-for-mpeg-dash/
-├── README.md          this file — what / how to read / how to regenerate
-├── CLAUDE.md          conventions for subagents touching this project
+├── README.md             this file — what / how to read / how to regenerate
+├── CLAUDE.md             conventions for subagents touching this project
 ├── context/              inputs — technical specification of the target spec
-├── prompts/           build scripts — .prompt files run by an LLM agent
-├── context-analysis/  pre-spec artefacts — derived from context/ and consumed by the spec build
-├── output/            spec only — the principal deliverable per build iteration (vN-sgai-spec.md)
-├── output-analysis/   per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata (vN- prefix)
-├── proposal-drafts/   historical drafts kept for reference
-└── .project/          governance — PROJECT.md, LOG.md, phases/, decisions/
+├── prompts/              build scripts — .prompt files run by an LLM agent
+├── context-analysis/     pre-spec artefacts — derived from context/ and consumed by the spec build
+├── output/               spec only — the principal deliverable per build iteration (vN-sgai-spec.md)
+├── output-analysis/      per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata (vN- prefix)
+├── output-github-issues/ Stage 5 scratch (gitignored) — per-issue triage / impact / response drafts
+├── proposal-drafts/      historical drafts kept for reference
+└── .project/             governance — PROJECT.md, LOG.md, phases/, decisions/
 ```
 
 ### `context/`
@@ -142,6 +143,31 @@ issue-count table (vN.M vs vN.M+1, Δ, Trend) and a verdict line
 (`ON TRACK` / `STALLED` / `REGRESSION`) summarising whether the
 refinement actually reduced issues. Major vs minor is currently a
 manual call — see `CLAUDE.md` for the decision rule.
+
+## GitHub issues pipeline (Stage 5)
+
+A separate pipeline triages and drafts responses to open GitHub
+issues on the repo. It runs manually today (cron deferred):
+
+```bash
+# Dry-run (default) — drafts artefacts under output-github-issues/
+# without posting anything to GitHub.
+claude -p "$(cat prompts/5-github-issues/orchestrate-issues.prompt)"
+
+# Live — posts comments and applies labels for trusted authors.
+claude -p "$(cat prompts/5-github-issues/orchestrate-issues.prompt)" -- --live
+```
+
+The pipeline classifies each open issue (Flow A meta / Flow B
+substantive feedback / Flow C generated-artefact pointer / SKIP),
+detects severity and language, runs an impact analysis against
+`context/` for Flow B (optionally grounded by NotebookLM), and
+drafts a flow-appropriate response. Issues from authors listed in
+`TRUSTED_GH_USERS` (see `.env.agent.example`) get the full auto
+cycle in live mode; outsiders' drafts are held with
+`ai-needs-review` for manual sign-off. See `CLAUDE.md` →
+"GitHub issues pipeline (Stage 5)" for the full contract and
+decisions log.
 
 ## Status
 

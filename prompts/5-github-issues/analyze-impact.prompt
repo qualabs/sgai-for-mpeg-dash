@@ -1,0 +1,177 @@
+# Analyze impact of a Flow B issue on the project
+
+**Inputs**:
+- The issue record (from `detect-issues.prompt`) — `{number, title,
+  body, author, ...}`.
+- The triage verdict at
+  `../output-github-issues/<issue-N>/triage.md` (the orchestrator
+  has already written this; this prompt re-reads `flow`, `severity`,
+  and the "Notes for downstream prompts" section to focus the
+  analysis).
+- The full `../context/` directory — the analysis grounds its
+  claims here.
+- The most recent `../output/v<N>-sgai-spec.md` and matching
+  `../output-analysis/v<N>-*.md` sidecars — used to check whether
+  the issue's argument has already been addressed.
+- Optionally NotebookLM grounding — see "Keyword detector" below.
+
+**Output**: `../output-github-issues/<issue-N>/impact.md`.
+
+**Skip if**: `../output-github-issues/<issue-N>/impact.md` exists
+AND its mtime is newer than the issue's last comment timestamp
+AND newer than the newest mtime under `../context/`. (Context
+moved → the impact analysis is stale and must be redone.)
+
+**Execution mode**: this prompt runs ONLY when the triage verdict
+sets `flow == B`. The orchestrator gates it; this prompt does
+not need to re-validate the flow itself.
+
+---
+
+## Grounding mode
+
+Decide which grounding mode applies and log it as the first line of
+execution:
+
+### Keyword detector (D6)
+
+Scan the issue body (case-insensitive, whole words) for any of
+these technical keywords:
+
+- `DASH`
+- `ISO 23009`
+- `IAB`
+- `SCTE-35`
+- `SCTE`
+- `MPEG`
+- `CMAF`
+- `HLS`
+
+If at least one keyword matches AND the `notebooklm` skill is
+installed AND `.env.agent` defines a non-empty `NOTEBOOK_NAME` →
+query the configured notebook for authoritative content relevant
+to the issue's claim. Use the matched keyword(s) to shape the
+NotebookLM query (e.g. an issue mentioning "DASH" + "CMAF" should
+search for both). Log:
+
+```
+[GROUNDED_BY=notebooklm] [KEYWORDS_MATCHED=DASH,CMAF]
+```
+
+If no keyword matches OR NotebookLM is unavailable → ground only
+against `../context/` and the model's prior knowledge. Tag every
+unverified claim as `[inferred]`. Log:
+
+```
+[GROUNDED_BY=spec-only] [KEYWORDS_MATCHED=]
+```
+
+## Task
+
+Read the issue body in full. Then walk through three sub-analyses
+in order.
+
+### 1. Validate the issue's claims
+
+For each substantive claim the author makes (a factual statement
+about the spec, a paraphrase of a requirement, a citation of a
+standard), classify it:
+
+- **`verified`** — matches the canonical source. Cite the source
+  inline (`context/03-requirements.md §R7`, or `DASH 6th §5.10.3`
+  if NotebookLM is grounded).
+- **`refuted-by-spec`** — the canonical source contradicts the
+  claim. Cite where. Quote the contradicting passage briefly.
+- **`partially-verified`** — partially correct; usually the
+  author paraphrases something that exists but bends a detail.
+  Cite both what's right and what's off.
+- **`unverifiable`** — cannot be checked against the available
+  sources (the claim is about something the spec does not yet
+  cover, or about an external standard that NotebookLM did not
+  surface). Mark it as such; do NOT invent verification.
+
+Skip claims that are subjective ("I think this is confusing") —
+those are addressed in the response draft, not here.
+
+### 2. Impact on the project
+
+Identify, concretely, which artefacts the issue would touch if
+the recommendation were accepted. Each row in this section maps
+one of:
+
+- A specific `context/` file (and section / requirement / UC).
+- A requirement ID (`R7`, `R10.3`).
+- A use case ID (`UC-04`).
+- An actor responsibility (Broadcaster / ADS / Player).
+- A construct in the spec (e.g. `OverlayPresentation`,
+  `allowedLayouts`).
+
+For each affected artefact, note whether the change is **purely
+additive** (a new attribute, a new requirement) or **mutates**
+existing definitions (renames, changes semantics, drops a
+construct). Additive changes are cheaper; mutations carry higher
+risk and a longer review cycle.
+
+If the issue does NOT actually require any change to `context/`
+(e.g. the author misunderstood and the spec already covers it),
+say so explicitly here — the response will then be a Flow-B
+"clarify, no change" message.
+
+### 3. Recommended action
+
+Pick ONE recommendation and justify it:
+
+- **`incorporate`** — adopt the change in the next major build.
+  Optionally list a starter sketch of what the requirement /
+  attribute / wording would look like. Do NOT actually edit
+  `context/` — the response will surface the change for human
+  decision.
+- **`partial-incorporate`** — adopt part of the proposal, defer
+  or decline the rest. List which parts and why.
+- **`reject`** — the proposal does not fit the project's scope
+  or contradicts an established decision (cite the ADR if
+  applicable). Be specific about *why* — not just "out of scope".
+- **`defer`** — the proposal might fit but needs further input
+  (WG discussion, dependency on an external standard, etc.).
+  State who or what would unblock it.
+
+## Output format
+
+Write `output-github-issues/<issue-N>/impact.md` with this exact
+shape:
+
+```markdown
+# Impact analysis — issue #<N>
+
+Grounding: <notebooklm | spec-only>
+Keywords matched: <comma-list or "(none)">
+
+## 1. Claims validation
+
+| Claim (paraphrased) | Status | Source / refutation |
+| --- | --- | --- |
+| <…> | verified | context/03-requirements.md §R7 |
+| <…> | refuted-by-spec | context/02-actors.md states: "<quote>" |
+| ... | ... | ... |
+
+## 2. Project impact
+
+Affected artefacts:
+- `<path / requirement / UC / construct>` — <additive | mutation> — <one-line rationale>
+- ...
+
+If no change required, say: "No change to context/ required. The
+issue can be answered by pointing the author at <…>."
+
+## 3. Recommended action
+
+**Verdict**: <incorporate | partial-incorporate | reject | defer>
+
+<3-6 sentences justifying. If `incorporate` or
+`partial-incorporate`, sketch what the change would look like —
+just enough that the response draft can summarise it. If `reject`,
+cite the established constraint (ADR, requirement, decision).>
+```
+
+Keep the file focused. The impact analysis exists to guide the
+response draft, not to replace it.

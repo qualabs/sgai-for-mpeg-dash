@@ -9,3 +9,10 @@
 
 # Build outputs that are heavy and re-generable (optional)
 # output/*.md      # uncomment if you want output/ excluded
+
+# Stage 5 — GitHub issues pipeline scratch (per-issue triage / impact /
+# response drafts). The repo never commits these; the canonical place
+# for posted responses is GitHub itself. The .gitkeep is whitelisted so
+# the empty directory is preserved.
+/output-github-issues/*
+!/output-github-issues/.gitkeep

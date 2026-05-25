@@ -10,7 +10,7 @@ prompt by relative path.
 ```
 prompts/
 ├── README.md                       this file
-├── build-all.prompt                orchestrator (root)
+├── build-all.prompt                orchestrator (root) — Stages 1..4
 ├── 1-pre-spec/                     pre-spec generated inputs
 │   ├── analyze-dash-gap.prompt
 │   ├── build-uc-coverage-matrix.prompt
@@ -23,10 +23,24 @@ prompts/
 │   ├── validate-spec.prompt
 │   ├── review-spec-details.prompt
 │   └── audit-dash-conformance.prompt
-└── 4-auto-refine/                  minor-refinement convergence loop
-    ├── refine-spec.prompt
-    └── compare-spec-versions.prompt
+├── 4-auto-refine/                  minor-refinement convergence loop
+│   ├── refine-spec.prompt
+│   └── compare-spec-versions.prompt
+└── 5-github-issues/                GitHub issues triage + auto-response pipeline
+    ├── orchestrate-issues.prompt   stage-5 orchestrator (separate from build-all)
+    ├── detect-issues.prompt
+    ├── triage-issue.prompt
+    ├── analyze-impact.prompt
+    ├── propose-response.prompt
+    └── post-response.prompt
 ```
+
+Stage 5 is **not** chained into `build-all` — it has a separate
+orchestrator (`5-github-issues/orchestrate-issues.prompt`) that
+runs manually today (D7) and writes its scratch artefacts to
+`output-github-issues/<issue-N>/` (gitignored). See the
+"GitHub issues pipeline" section of `../CLAUDE.md` for the full
+flow and the D-decisions that shape it.
 
 ## Pipeline flow
 
@@ -69,6 +83,32 @@ prompts/
    └──────────────────────────────────────────────────────────┘
 ```
 
+Stage 5 runs as a **separate orchestrator** (not chained into the
+build-all flow above):
+
+```
+                 orchestrate-issues (manual; --dry-run | --live)
+                                 │
+                                 ▼
+   ┌──────────────────────────────────────────────────────────┐
+   │                    5-github-issues/                      │
+   │  detect-issues  → list open issues w/o handling labels   │
+   │  for each:                                               │
+   │    triage-issue → output-github-issues/<N>/triage.md     │
+   │    analyze-impact (Flow B only)                          │
+   │                 → output-github-issues/<N>/impact.md     │
+   │    propose-response                                      │
+   │                 → output-github-issues/<N>/response.md   │
+   │    post-response (only if trusted author + --live)       │
+   │                 → comment + labels on GitHub             │
+   │  summary block → stdout (parent agent relays to Telegram)│
+   └──────────────────────────────────────────────────────────┘
+```
+
+`output-github-issues/` is gitignored — issue artefacts are
+local-only scratch. The canonical record of posted responses
+lives on GitHub itself.
+
 ## When to use which prompt
 
 | Prompt                              | When to invoke                                                          | Lives in            |
@@ -85,6 +125,12 @@ prompts/
 | `audit-dash-conformance`            | New spec exists without matching `v<N>-dash-conformance-audit.md`       | `3-post-spec/`      |
 | `refine-spec`                       | Minor refinement on existing spec; called by Step 9 (or by hand)        | `4-auto-refine/`    |
 | `compare-spec-versions`             | Compare two consecutive minor versions; emits the convergence verdict   | `4-auto-refine/`    |
+| `orchestrate-issues`                | Process open GitHub issues end-to-end (triage → response). Dry-run default; `--live` to post | `5-github-issues/` |
+| `detect-issues`                     | Fetch open issues missing any handling label; sub-step of orchestrator  | `5-github-issues/`  |
+| `triage-issue`                      | Classify one issue: flow / severity / lang / trust / cycle count        | `5-github-issues/`  |
+| `analyze-impact`                    | Flow B only: validate claims against `context/`, surface affected files | `5-github-issues/`  |
+| `propose-response`                  | Draft a flow-appropriate reply in the detected language                 | `5-github-issues/`  |
+| `post-response`                     | Live mode + trusted author: post comment + apply labels                 | `5-github-issues/`  |
 
 Each prompt declares its full **Inputs / Output / Skip if** contract
 in its own header — this table is a quick-pick index, not the spec.

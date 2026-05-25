@@ -1,0 +1,202 @@
+# Propose a draft response to a GitHub issue
+
+**Inputs**:
+- The issue record (from `detect-issues.prompt`).
+- The triage verdict at
+  `../output-github-issues/<issue-N>/triage.md`.
+- For Flow B issues, the impact analysis at
+  `../output-github-issues/<issue-N>/impact.md`.
+- The full project tree (`../context/`, `../output/`,
+  `../output-analysis/`, `../README.md`, `../CLAUDE.md`,
+  `../.project/`) — used to ground the response and to ensure the
+  draft does NOT contradict an existing requirement, ADR, or
+  active design decision.
+
+**Output**: `../output-github-issues/<issue-N>/response.md`. Plain
+markdown, ready to paste into `gh issue comment --body-file`.
+
+**Skip if**: `../output-github-issues/<issue-N>/response.md`
+exists AND its mtime is newer than the triage file's mtime AND
+(if Flow B) newer than the impact file's mtime. If any upstream
+artefact moved, the response is stale and must be rewritten.
+
+**Execution mode**: never invoked when `triage.flow == SKIP` or
+when the orchestrator detects `cycle_count >= 3`. The orchestrator
+gates both.
+
+---
+
+## Output language
+
+The draft MUST be written in the language stored as `lang` in the
+triage verdict (D4 fallback: `en`). All headings, prose, code
+comments inside fenced blocks, and the closing line stay in the
+detected language. Technical terms (`OverlayPresentation`,
+`ListMPD`, `DASH 6th`, `SCTE-35`) are kept verbatim regardless of
+the language — they are proper nouns of the spec.
+
+## Mandatory marker
+
+Every response, regardless of flow or severity, MUST end with the
+following hidden HTML comment on its own final line:
+
+```html
+<!-- sgai-issues: ai-cycle -->
+```
+
+This marker is what the triage step (`triage-issue.prompt`) uses
+to count AI cycles for the anti-loop cap (D5). The marker is
+invisible in GitHub's rendered view but readable when the body is
+fetched via the API.
+
+## Severity-driven disclaimer (D3)
+
+If `triage.severity == "requirements"` OR
+`triage.severity == "architectural"`, the draft MUST open with
+this exact disclaimer line (translated into `triage.lang`):
+
+- **`en`**: *"This response was auto-drafted by the project's AI
+  agent — please cross-check with project owner before relying on
+  it."*
+- **`es`**: *"Esta respuesta fue auto-redactada por el agente AI
+  del proyecto — por favor, cruzar referencias con el dueño del
+  proyecto antes de basarse en ella."*
+- **`pt`**: *"Esta resposta foi rascunhada automaticamente pelo
+  agente IA do projeto — por favor, valide com o dono do projeto
+  antes de confiar nela."*
+- **`fr`**: *"Cette réponse a été rédigée automatiquement par
+  l'agent IA du projet — merci de vérifier auprès du responsable
+  du projet avant de vous y fier."*
+- **`it`**: *"Questa risposta è stata redatta automaticamente
+  dall'agente IA del progetto — vi preghiamo di verificare con il
+  proprietario del progetto prima di affidarvi a essa."*
+- **`de`**: *"Diese Antwort wurde automatisch vom KI-Agenten des
+  Projekts entworfen — bitte vor der Verwendung mit dem
+  Projektverantwortlichen abgleichen."*
+
+Format the disclaimer as a blockquote (`> …`) so it stands out
+visually.
+
+For `severity ∈ {cosmetic, spec-detail}` the disclaimer is NOT
+added — those responses don't carry decision weight, and front-
+loading a disclaimer on every minor reply would dilute its signal.
+
+## Flow-specific draft shape
+
+### Flow A — Meta about the project
+
+Goal: explain how the project / repo / pipeline works, in the
+author's language, with concrete pointers.
+
+Structure:
+
+1. **Acknowledge** the question in one short sentence.
+2. **Answer** the question directly with 1–3 paragraphs. Cite
+   specific files using their repo path (e.g. `prompts/README.md`,
+   `CLAUDE.md`, `.project/PROJECT.md`). Use markdown links of the
+   form `[name](path)` so GitHub renders them.
+3. **3 propose-context suggestions** (mandatory for Flow A): list
+   3 short ideas of what the project could clarify or document
+   better, framed as offers the maintainer can adopt or ignore.
+   These are NOT decisions — they exist to give Nicolas raw
+   material when he reviews the draft. Use a bulleted list.
+4. **Anti-contradiction check** (mandatory): re-read the draft
+   against `context/03-requirements.md`, the open ADRs in
+   `.project/decisions/`, and the "Open threads" list at the
+   bottom of `.project/PROJECT.md`. If anything in the draft
+   contradicts an established requirement / ADR / open thread,
+   FIX the draft before saving. Log the check as the last line
+   of the response file:
+   `<!-- anti-contradiction: ok -->` (or `... : conflict-with-<id>`
+   when the contradiction was unresolvable and the operator must
+   review).
+
+### Flow B — Substantive feedback on `context/`
+
+Goal: answer the author on the merits, grounded in the impact
+analysis.
+
+Structure:
+
+1. **Acknowledge** the proposal in one short sentence —
+   summarise what the author is asking for.
+2. **Engage with the claims**: walk through the validated claims
+   from `impact.md`. Confirm what's correct, gently correct what's
+   refuted (cite the spec section / requirement). Avoid combative
+   tone — the author is contributing.
+3. **State the recommended action** (mirroring `impact.md`):
+   - For `incorporate`: "We will bring this to the next build /
+     WG session. Concretely, this would look like: <sketch from
+     impact.md>." Mention that the change requires Nicolas's sign-
+     off (the author should NOT assume the change is committed).
+   - For `partial-incorporate`: explicitly list which parts are
+     in and which are out, with reasons.
+   - For `reject`: cite the constraint (ADR, requirement,
+     existing decision) and explain why. Offer an alternative
+     framing if one exists.
+   - For `defer`: say what would unblock the decision (a WG
+     session, an external standard's resolution, etc.) and a
+     rough timeframe if known.
+4. **Close** by inviting follow-up. If the issue should remain
+   open for discussion, say so. If the response effectively
+   closes it (e.g. clarification was all that was needed),
+   suggest the author may close.
+
+### Flow C — Meta about a generated artefact
+
+Goal: orient the author toward the right doc and clarify the
+specific discrepancy / question, without modifying anything.
+
+Structure:
+
+1. **Acknowledge** the question.
+2. **Point to the doc that answers it** — use the repo path. If
+   the question is about a discrepancy between a spec version
+   and a sidecar (e.g. spec says X, validation says Y), explain
+   which one is canonical and why. The spec (`output/v<N>-…`) is
+   the artefact; the sidecars (`output-analysis/v<N>-…`) are
+   analyses *of* the artefact and may surface issues that the
+   spec has not yet absorbed.
+3. **Opt-out** if the issue is completely off-scope ("this is a
+   project-level question; please open a discussion at … or close
+   this issue"). Use sparingly — only when there's no way to
+   answer constructively.
+
+## Output format
+
+Write `output-github-issues/<issue-N>/response.md` exactly as it
+should appear when posted. The orchestrator will pass this file
+to `gh issue comment --body-file` verbatim in `--live` mode.
+
+Concretely:
+
+```markdown
+> <disclaimer line if severity ∈ {requirements, architectural}>
+
+<flow-appropriate body — see structures above>
+
+<!-- anti-contradiction: ok -->   (Flow A only; other flows may
+                                   omit this line)
+<!-- sgai-issues: ai-cycle -->
+```
+
+Aim for **concise, decision-friendly drafts**: 200–400 words for
+most replies. Longer is fine for `requirements`/`architectural`
+issues that warrant more careful framing, but resist padding —
+the response is the start of a conversation, not a position
+paper. Match the style guidance in `../CLAUDE.md` ("Tone for the
+spec and generated artefacts": technical, direct, no fluff).
+
+## Critical do-NOTs
+
+- Do NOT claim that a change has been merged / accepted / shipped.
+  The pipeline only drafts; Nicolas is the only one who can
+  commit a decision.
+- Do NOT promise a timeline beyond what the impact analysis
+  supports.
+- Do NOT invent ADRs, requirement IDs, or use case IDs. If you
+  reference one, verify it exists in `.project/decisions/` or
+  `context/`.
+- Do NOT translate proper nouns of the spec.
+- Do NOT @-mention anyone. The draft addresses the issue
+  publicly; pings are for human follow-ups, not auto-drafts.

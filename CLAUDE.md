@@ -21,15 +21,16 @@ has active git history; commit + push is the standard workflow.
 
 ```
 projects/sgai-for-mpeg-dash/
-├── README.md          user-facing — what / how to read / how to build
-├── CLAUDE.md          this file — conventions for subagents
+├── README.md             user-facing — what / how to read / how to build
+├── CLAUDE.md             this file — conventions for subagents
 ├── context/              inputs — canonical, human-authored spec
-├── prompts/           build scripts — .prompt files for LLM agents
-├── context-analysis/  pre-spec artefacts — derived from context/ and consumed by the spec build
-├── output/            spec only — the principal deliverable per build iteration (versioned, vN-sgai-spec.md)
-├── output-analysis/   per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata
-├── proposal-drafts/   historical drafts kept for reference
-└── .project/          governance from the create-project skill
+├── prompts/              build scripts — .prompt files for LLM agents
+├── context-analysis/     pre-spec artefacts — derived from context/ and consumed by the spec build
+├── output/               spec only — the principal deliverable per build iteration (versioned, vN-sgai-spec.md)
+├── output-analysis/      per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata
+├── output-github-issues/ Stage 5 scratch (gitignored) — per-issue triage / impact / response drafts
+├── proposal-drafts/      historical drafts kept for reference
+└── .project/             governance from the create-project skill
 ```
 
 What does NOT go where:
@@ -215,6 +216,101 @@ Note: there is no orchestrator auto-detection yet — minor
 refinement is dispatched manually. Future work: have `build-all`
 auto-detect mtime conditions and choose major vs minor. For now,
 the operator decides.
+
+## GitHub issues pipeline (Stage 5)
+
+A separate stage handles inbound GitHub issues on
+`qualabs/sgai-for-mpeg-dash`. The build pipeline (Stages 1..4)
+produces the spec; Stage 5 reacts to external feedback on it.
+
+### Entry point
+
+Manual invocation (D7 — cron deferred):
+
+```bash
+# Default — dry-run, never posts to GitHub.
+claude -p "$(cat prompts/5-github-issues/orchestrate-issues.prompt)"
+
+# Explicit live mode — drafts AND posts comments + applies labels.
+claude -p "$(cat prompts/5-github-issues/orchestrate-issues.prompt)" -- --live
+```
+
+The six prompts live under `prompts/5-github-issues/`:
+
+- `orchestrate-issues.prompt` — the Stage-5 orchestrator. Reads
+  `.env.agent`, queries GitHub, drives the per-issue loop, emits
+  the end-of-run summary block.
+- `detect-issues.prompt` — lists open issues whose label set does
+  not contain `ai-triaged`, `ai-responded`, `ai-skipped`,
+  `ai-needs-review`, or `ai-conversation-cap-hit`.
+- `triage-issue.prompt` — classifies each issue: `flow` (A / B /
+  C / SKIP), `severity` (cosmetic / spec-detail / requirements /
+  architectural), `lang` (ISO-639-1 with `en` fallback per D4),
+  `trusted` boolean, and `cycle_count` (anti-loop, D5).
+- `analyze-impact.prompt` — Flow B only. Validates the issue's
+  claims against `context/`, identifies affected artefacts, picks
+  a recommended action. Queries NotebookLM only if specific
+  keywords appear in the issue body (D6): `DASH`, `ISO 23009`,
+  `IAB`, `SCTE-35`, `SCTE`, `MPEG`, `CMAF`, `HLS`.
+- `propose-response.prompt` — drafts a flow-appropriate reply in
+  the detected language. Adds the auto-draft disclaimer at the
+  top when `severity ∈ {requirements, architectural}` (D3).
+  Every draft ends with the hidden marker
+  `<!-- sgai-issues: ai-cycle -->` used by future runs to count
+  cycles.
+- `post-response.prompt` — only fires in `--live` mode for
+  **trusted** authors. Posts the comment via `gh issue comment`
+  and applies the labels `ai-responded`, `severity:<X>`,
+  `flow:<A|B|C>`.
+
+### Decisions encoded in the pipeline
+
+| ID | Decision |
+| --- | --- |
+| D1 | Default mode is `--dry-run`. `--live` posts to GitHub. |
+| D2 | Trusted authors (`TRUSTED_GH_USERS` in `.env.agent`) get the full auto cycle. Outsiders' drafts are held with `ai-needs-review` and surfaced to Nicolas via Telegram for manual decision. He may optionally promote them into `TRUSTED_GH_USERS` afterwards. |
+| D3 | `severity:requirements` (and `severity:architectural` by extension) carry an explicit AI-disclaimer blockquote at the top of the response. |
+| D4 | Language detection falls back to English when inconclusive. |
+| D5 | Anti-loop cap of 3 AI cycles per issue. After that, label `ai-conversation-cap-hit` and stop responding. |
+| D6 | NotebookLM is queried only when the keyword detector trips. |
+| D7 | Trigger is manual today. Cron is future work. |
+
+### Scratch directory
+
+Per-issue artefacts go to `output-github-issues/<issue-N>/`:
+
+- `triage.md` — always written.
+- `impact.md` — only for Flow B issues.
+- `response.md` — the drafted reply (the actual payload posted
+  by `post-response`).
+
+The whole directory is **gitignored** (see project `.gitignore`).
+Posted responses live on GitHub; the repo never commits them.
+The `.gitkeep` is whitelisted so the empty directory survives
+checkouts.
+
+### Reporting to Nicolas
+
+The Stage-5 orchestrator never sends Telegram messages directly.
+At the end of each run it emits a fenced summary block to stdout
+between `=== SGAI-ISSUES RUN SUMMARY ===` and `=== END SUMMARY ===`.
+The parent agent (whichever session invoked the orchestrator)
+relays that block to Nicolas — with special attention to the
+`needs-review` subsection (outsiders waiting on Nicolas's call).
+
+### When NOT to invoke Stage 5
+
+- During an active major build (`build-all`). The two
+  orchestrators run independently and never share state, but it
+  is clearer to run them sequentially.
+- When `context/` is being edited interactively. The triage
+  classification uses the current state of `context/`; running
+  Stage 5 mid-edit produces classifications against a half-edited
+  baseline.
+- When the operator has not reviewed the prior run's
+  `ai-needs-review` queue. Re-running before clearing the queue
+  is fine — it just inflates the outsider backlog without
+  Nicolas's attention.
 
 ## Cross-reference conventions
 

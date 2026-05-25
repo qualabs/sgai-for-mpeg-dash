@@ -1,0 +1,169 @@
+# Triage a single GitHub issue
+
+**Inputs**:
+- An issue record from `detect-issues.prompt`: `{number, title,
+  body, author, created_at, labels, raw_lang_hint}`.
+- `TRUSTED_GH_USERS` (parsed by the orchestrator from `.env.agent`).
+- The project tree (`context/`, `output/`, `output-analysis/`,
+  `.project/`, `README.md`, `CLAUDE.md`) — used to decide whether
+  the issue targets the spec, the context, or project meta.
+- The issue's existing comments (via
+  `gh issue view <N> --json comments` or `gh api`) — only the
+  count is consumed here, for the anti-loop cap (D5).
+
+**Output**: `../output-github-issues/<issue-N>/triage.md`. Single
+markdown file. The orchestrator MUST create the issue's parent
+folder if absent.
+
+**Skip if**: `../output-github-issues/<issue-N>/triage.md` exists
+AND its mtime is newer than the issue's `created_at` AND newer
+than the timestamp of the issue's most recent comment. Otherwise
+re-triage (the issue may have grown new comments that change the
+classification — especially the cycle count).
+
+---
+
+## What this prompt decides
+
+For every issue, produce the following structured verdict:
+
+### 1. Flow
+
+Classify the issue into one of four flows based on what it
+targets:
+
+- **Flow A — Meta about the project itself**: how to read the
+  repo, how the pipeline works, where a file lives, repo layout,
+  process questions, "what is this project". Does NOT touch spec
+  content or context.
+- **Flow B — Substantive feedback on `context/`**: the issue
+  references a `context/` file by name, paraphrases a requirement
+  / use case / actor definition, or argues for adding / removing /
+  changing requirements. This is the path that triggers
+  `analyze-impact` and potentially a `[refine: <issue-N>]`-style
+  follow-up in a future build. Anything that, if accepted, would
+  edit a file under `context/`.
+- **Flow C — Meta about a generated artefact**: the issue
+  references `output/v<N>-sgai-spec.md`, an `output-analysis/v<N>-*`
+  sidecar, or a `context-analysis/*` file. Typical: "in v3 spec
+  section X you wrote Y but the validation sidecar says Z, which
+  is it?". The answer is generally a pointer + clarification, NOT
+  a context change.
+- **Flow SKIP**: the issue is off-scope (spam, irrelevant question,
+  duplicate of an already-closed thread, vendor pitch). The
+  orchestrator labels it `ai-skipped` and moves on.
+
+**Heuristic** (apply in order, first match wins):
+
+1. If body or title contains a path under `context/` (e.g.
+   `context/03-requirements.md`, `R7`, `UC-04`) and the framing
+   is "this should be changed / I disagree / consider adding" →
+   **Flow B**.
+2. If body or title references `output/`, `output-analysis/`,
+   `context-analysis/`, a spec version like `v3-sgai-spec.md`, or
+   asks about the result of a build → **Flow C**.
+3. If body or title is about "how does this project work", "where
+   do I find X", "what is SGAI", or repo layout / governance /
+   prompts → **Flow A**.
+4. If the issue is unrelated to SGAI / DASH / ads (spam,
+   off-topic), or duplicates an already-closed thread → **SKIP**.
+
+When in genuine doubt between A and C, default to **C**. When in
+doubt between B and C, default to **B** (the impact analyser will
+filter false positives at low cost).
+
+### 2. Severity
+
+A small ladder. Used for the auto-draft disclaimer (D3) and to
+make the summary block scannable.
+
+- **`cosmetic`**: typo, broken link, terminology nit, wording
+  preference that does not change meaning. Flow A or C usually.
+- **`spec-detail`**: clarification about a specific construct,
+  attribute, or example. Affects the spec body but not the
+  requirements / actor model / use cases. Flow B or C.
+- **`requirements`**: would add / change / drop a requirement
+  (R1..R10+) or a use case (UC-01..UC-07). Always Flow B. The
+  disclaimer at the top of the draft response is mandatory (D3):
+  > *This response was auto-drafted by the project's AI agent —
+  > please cross-check with project owner before relying on it.*
+- **`architectural`**: would introduce a new construct, retire an
+  existing one, or change the three-actor model. Always Flow B.
+  Same disclaimer applies AND the response should be especially
+  conservative ("we will discuss this at the next WG").
+
+### 3. Language
+
+Detect the body's natural language. Output an ISO-639-1 code:
+
+- `en` (English)
+- `es` (Spanish)
+- `pt` (Portuguese)
+- `fr` (French)
+- `it` (Italian)
+- `de` (German)
+
+If detection is inconclusive, ambiguous, or the body is too short
+to call (e.g. just a title and one sentence), default to `en`
+(D4). The response will then be drafted in English.
+
+Mixed-language bodies (common when someone quotes the spec in
+English but writes their question in Spanish): pick whatever the
+question/argument is in, not the quoted spec.
+
+### 4. Author trust
+
+`trusted = (author ∈ TRUSTED_GH_USERS)`. The orchestrator reads the
+env var once; this prompt just looks up the boolean.
+
+### 5. Cycle count (anti-loop cap)
+
+Count the number of comments on the issue authored by the AI
+pipeline. A comment is "AI-authored" if any of:
+
+- The comment author is a bot account that the operator
+  configured for this purpose (none today — placeholder for
+  future setup).
+- The comment body starts with the auto-draft disclaimer
+  (`This response was auto-drafted by the project's AI agent`).
+- The comment body contains the marker line `<!-- sgai-issues:
+  ai-cycle -->` (the pipeline injects this in every posted
+  comment — see `propose-response.prompt`).
+
+Emit `cycle_count` as an integer. The orchestrator enforces the
+cap (>= 3 → label `ai-conversation-cap-hit`, no new draft).
+
+## Output format
+
+Write `output-github-issues/<issue-N>/triage.md` with this exact
+shape so the orchestrator can parse the structured fields:
+
+```markdown
+# Triage — issue #<N>
+
+- title: <verbatim issue title>
+- author: <login>
+- created_at: <ISO-8601>
+- flow: <A | B | C | SKIP>
+- severity: <cosmetic | spec-detail | requirements | architectural>
+- lang: <en | es | pt | fr | it | de>
+- trusted: <true | false>
+- cycle_count: <int>
+
+## Reasoning
+
+<2-4 sentences explaining the classification. Cite the specific
+phrase or path in the issue body that drove the flow / severity
+decision. If language detection was a close call, say so.>
+
+## Notes for downstream prompts
+
+<Optional — anything analyze-impact or propose-response should
+know. E.g. "issue references R7 and R10 specifically — impact
+analyser should anchor on those two requirements", or "author is
+proposing Option C but mentions Olivier's prior thread; the
+response should acknowledge that context".>
+```
+
+Keep the file short — this is a routing decision, not an essay.
+Two screens max.
