@@ -54,7 +54,7 @@ authoritative source as `[inferred]`.
   expressed directly in chapter 4 (Conformance), chapter 5
   (Syntax), chapter 6 (Interfaces), and chapter 7 (Expected
   behaviour). The R coverage map is produced by a **separate
-  prompt** (`prompts/validate-spec.prompt`), which runs in a fresh
+  prompt** (`prompts/3-post-spec/validate-spec.prompt`), which runs in a fresh
   subagent context after this build and writes its sidecar to
   `../output-analysis/v<N>-spec-validation.md` — not by this prompt.
 - **The spec document MUST NOT reference the analysis files
@@ -64,7 +64,7 @@ authoritative source as `[inferred]`.
   6th edition spec, IAB ad-type catalogue, RFC 2119, VAST 4.x) —
   those go in chapter 2 (Normative references).
 - **R coverage tracking is the validation sidecar's job**, not the
-  spec's. See `prompts/validate-spec.prompt` for that artefact.
+  spec's. See `prompts/3-post-spec/validate-spec.prompt` for that artefact.
 
 ## Task
 

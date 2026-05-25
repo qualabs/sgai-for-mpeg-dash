@@ -28,7 +28,7 @@ its mtime is newer than ALL of:
 - `../output-analysis/v<N.M>-spec-validation.md`,
 - `../output-analysis/v<N.M>-detail-review.md`,
 - `../output-analysis/v<N.M>-dash-conformance-audit.md`,
-- this prompt (`prompts/refine-spec.prompt`).
+- this prompt (`prompts/4-auto-refine/refine-spec.prompt`).
 
 **Execution mode**: fresh subagent context. The agent reads only
 the spec, the three analysis sidecars, and `../context/` for

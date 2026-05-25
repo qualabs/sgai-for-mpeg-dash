@@ -118,14 +118,26 @@ What does NOT go where:
 
 ## How to add a new analysis
 
-1. Create `prompts/<verb>-<noun>.prompt` with the standard header
-   (Inputs / Output / Skip if) and substantive body.
-2. Add a corresponding step to `prompts/build-all.prompt` so the
-   orchestrator runs it with the same skip-if-fresh contract.
-3. Decide where the output lives: pre-spec build input →
+1. Pick the pipeline stage and matching subfolder under `prompts/`:
+   pre-spec generated input → `prompts/1-pre-spec/`, spec build
+   itself → `prompts/2-build/`, per-iteration analysis of the spec
+   → `prompts/3-post-spec/`, minor-refinement step
+   → `prompts/4-auto-refine/`. The `build-all.prompt` orchestrator
+   stays at the root of `prompts/`.
+2. Create `prompts/<stage-folder>/<verb>-<noun>.prompt` with the
+   standard header (Inputs / Output / Skip if) and substantive
+   body.
+3. Add a corresponding step to `prompts/build-all.prompt` so the
+   orchestrator runs it with the same skip-if-fresh contract; the
+   reference inside `build-all.prompt` uses the full path
+   `prompts/<stage-folder>/<file>.prompt`.
+4. Decide where the output lives: pre-spec build input →
    `context-analysis/`, the spec itself → `output/`, per-iteration
    analysis of the spec OR ad-hoc post-spec study about a specific
    iteration → `output-analysis/`.
+5. Update `prompts/README.md`: the folder layout if a new
+   subfolder appears, the "When to use which prompt" table, and
+   the pipeline diagram if the new prompt changes the flow.
 
 ## How to modify the spec
 
@@ -160,7 +172,7 @@ Two iteration scales coexist in this project:
   path:
 
   ```bash
-  claude -p "$(cat prompts/refine-spec.prompt)" \
+  claude -p "$(cat prompts/4-auto-refine/refine-spec.prompt)" \
     > /dev/shm/refine.out 2> /dev/shm/refine.err
   ```
 
@@ -179,7 +191,7 @@ Two iteration scales coexist in this project:
   Then run `compare-spec-versions` to emit the convergence table:
 
   ```bash
-  claude -p "$(cat prompts/compare-spec-versions.prompt)" \
+  claude -p "$(cat prompts/4-auto-refine/compare-spec-versions.prompt)" \
     > /dev/shm/compare.out 2> /dev/shm/compare.err
   ```
 

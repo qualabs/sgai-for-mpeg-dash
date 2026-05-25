@@ -28,7 +28,7 @@ is newer than ALL of:
 - the most recent `../output-analysis/v*-spec-validation.md`,
 - `../context/06-naming-and-namespaces.md`,
 - `../context/07-backward-compat-checklist.md`,
-- this prompt (`prompts/review-spec-details.prompt`).
+- this prompt (`prompts/3-post-spec/review-spec-details.prompt`).
 
 If any of those is newer than the review log, regenerate the log
 (and re-apply autofixes against the current spec).
