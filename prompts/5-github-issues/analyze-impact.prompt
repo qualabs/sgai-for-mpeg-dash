@@ -2,25 +2,35 @@
 
 **Inputs**:
 - The issue record (from `detect-issues.prompt`) — `{number, title,
-  body, author, ...}`.
+  body, author, ..., cycle_count}`.
+- `cycle_count` (integer ≥ 1) — passed in by the orchestrator and
+  used to locate the current cycle's triage verdict and output path.
 - The triage verdict at
-  `../output-github-issues/<issue-N>/triage.md` (the orchestrator
-  has already written this; this prompt re-reads `flow`, `severity`,
-  and the "Notes for downstream prompts" section to focus the
-  analysis).
+  `../output-github-issues/issue-<N>/cycle-<C>/triage.md` (the
+  orchestrator has already written this for the current cycle;
+  this prompt re-reads `flow`, `severity`, and the "Notes for
+  downstream prompts" section to focus the analysis).
 - The full `../context/` directory — the analysis grounds its
   claims here.
 - The most recent `../output/v<N>-sgai-spec.md` and matching
   `../output-analysis/v<N>-*.md` sidecars — used to check whether
   the issue's argument has already been addressed.
+- Optionally, the prior cycle's impact at
+  `../output-github-issues/issue-<N>/cycle-<C-1>/impact.md` when
+  `cycle_count > 1` — used to avoid re-litigating claims that
+  were already validated and to anchor on the OP's new feedback.
 - Optionally NotebookLM grounding — see "Keyword detector" below.
 
-**Output**: `../output-github-issues/<issue-N>/impact.md`.
+**Output**:
+`../output-github-issues/issue-<N>/cycle-<C>/impact.md`.
 
-**Skip if**: `../output-github-issues/<issue-N>/impact.md` exists
-AND its mtime is newer than the issue's last comment timestamp
-AND newer than the newest mtime under `../context/`. (Context
-moved → the impact analysis is stale and must be redone.)
+**Skip if**:
+`../output-github-issues/issue-<N>/cycle-<C>/impact.md` exists AND
+its mtime is newer than the issue's last comment timestamp AND
+newer than the newest mtime under `../context/`. (Context moved
+→ the impact analysis is stale and must be redone.) A new cycle
+folder is always empty when first created, so this skip naturally
+applies only when the same cycle is being re-run.
 
 **Execution mode**: this prompt runs ONLY when the triage verdict
 sets `flow == B`. The orchestrator gates it; this prompt does
@@ -137,11 +147,11 @@ Pick ONE recommendation and justify it:
 
 ## Output format
 
-Write `output-github-issues/<issue-N>/impact.md` with this exact
-shape:
+Write `output-github-issues/issue-<N>/cycle-<C>/impact.md` with
+this exact shape:
 
 ```markdown
-# Impact analysis — issue #<N>
+# Impact analysis — issue #<N> (cycle <C>)
 
 Grounding: <notebooklm | spec-only>
 Keywords matched: <comma-list or "(none)">

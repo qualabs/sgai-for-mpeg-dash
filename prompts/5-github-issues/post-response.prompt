@@ -1,12 +1,15 @@
 # Post a drafted response to GitHub
 
 **Inputs**:
-- The issue record (passed in by the orchestrator).
+- The issue record (passed in by the orchestrator), including
+  `cycle_count`.
+- `cycle_count` (integer ≥ 1) — passed in by the orchestrator and
+  used to locate the current cycle's triage + response files.
 - The triage verdict at
-  `../output-github-issues/<issue-N>/triage.md` (provides `flow`
-  and `severity`, needed for label application).
+  `../output-github-issues/issue-<N>/cycle-<C>/triage.md` (provides
+  `flow` and `severity`, needed for label application).
 - The drafted response at
-  `../output-github-issues/<issue-N>/response.md`.
+  `../output-github-issues/issue-<N>/cycle-<C>/response.md`.
 - Authenticated `gh` CLI on the host (relies on `gh auth login`).
 
 **Output**: side effects on GitHub:
@@ -27,7 +30,10 @@ orchestrator when ALL of the following hold:
 
 - The orchestrator is running in `--live` mode (D1).
 - The issue's author is in `TRUSTED_GH_USERS` (D2).
-- The triage verdict is NOT `SKIP` and `cycle_count < 3` (D5).
+- The triage verdict is NOT `SKIP`. (The anti-loop cap D5 is
+  enforced upstream by `detect-issues`, which drops any issue at
+  `cycle_count >= 4` before the orchestrator's per-issue loop —
+  so any issue reaching this prompt is implicitly within the cap.)
 
 If any condition fails, the orchestrator does NOT invoke this
 prompt at all. There is no internal re-check here.
@@ -56,7 +62,7 @@ Before touching `gh`:
 ```bash
 gh issue comment <N> \
   --repo <owner>/<repo> \
-  --body-file output-github-issues/<issue-N>/response.md
+  --body-file output-github-issues/issue-<N>/cycle-<C>/response.md
 ```
 
 Capture the URL of the created comment from `gh`'s output (the
@@ -136,8 +142,7 @@ Log:
   narrow and auditable: this prompt only fires when a response
   is actually being posted.
 - It does not edit the response body. If the response needs a
-  fix, the operator edits `output-github-issues/<issue-N>/
-  response.md` and re-runs the orchestrator with
-  `--issue <N> --live`.
+  fix, the operator edits `output-github-issues/issue-<N>/cycle-<C>/response.md`
+  and re-runs the orchestrator with `--issue <N> --live`.
 - It does not close the issue. Closure is always a human decision
   (or the author's own).

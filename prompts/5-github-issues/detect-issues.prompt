@@ -18,6 +18,9 @@ file is written) containing for each issue:
 - `raw_lang_hint` (first ~200 chars of the body, used by
   `triage-issue` to detect language; the detection itself is NOT
   done here)
+- `cycle_count` (integer ≥ 1) — see "Cycle counter" below. This
+  is the cycle index the orchestrator will use for the upcoming
+  run on this issue (1 = first time the AI processes it).
 
 **Skip if**: never. The orchestrator decides when to invoke this;
 detection itself is always run when called.
@@ -54,9 +57,56 @@ The above returns a JSON array. For each element:
 2. If the orchestrator invocation passed an explicit `--issue <N>`
    list, restrict the result to those numbers ONLY (and skip the
    label filter — the operator is forcing a re-run).
-3. Otherwise, emit the issue as `{number, title, body, author:
+3. For every surviving issue, compute the **cycle counter** (see
+   the dedicated section below). If the counter resolves to a value
+   `>= 4`, the issue has hit the anti-loop cap (D5):
+   - In `--live` mode, apply the label `ai-conversation-cap-hit`
+     via `gh issue edit <N> --add-label ai-conversation-cap-hit`.
+     If the label does not yet exist in the repo, create it first
+     (suggested colour `#d93f0b`, description "AI auto-response
+     cap (D5) reached — pipeline will not respond again on this
+     issue").
+   - In `--dry-run` mode, do NOT apply the label; just log the
+     skip.
+   - In both modes, **drop the issue from the result set** — the
+     downstream steps (triage / impact / response) are not
+     invoked.
+   - Log: `[STAGE-5 detect] issue=<N> cycle=<C> cap-hit, skipping`.
+4. Otherwise, emit the issue as `{number, title, body, author:
    author.login, created_at: createdAt, labels: [name, …],
-   raw_lang_hint: body.substring(0, 200)}`.
+   raw_lang_hint: body.substring(0, 200), cycle_count: <C>}`.
+
+## Cycle counter
+
+For every candidate issue, count how many prior AI responses are
+already attached as comments. This determines the **cycle index**
+that the orchestrator will use for the upcoming run on this
+issue, and enforces the anti-loop cap (D5).
+
+Fetch the comments list once per issue:
+
+```bash
+gh issue view <N> \
+  --repo <owner>/<repo> \
+  --json comments \
+  --jq '[.comments[] | select(.body | contains("<!-- sgai-issues: ai-cycle -->"))] | length'
+```
+
+Let `ai_marker_count` be the integer returned (`0` when no AI
+response has been posted yet).
+
+- `cycle_count = ai_marker_count + 1`
+  - First-time processing (no marker present) → `cycle_count = 1`.
+  - After one posted AI response with the OP having replied since
+    → `cycle_count = 2`.
+  - And so on.
+- If `cycle_count >= 4` → cap hit (D5). Apply the label and drop
+  per step 3 above.
+
+The marker line `<!-- sgai-issues: ai-cycle -->` is injected at
+the end of every posted comment by `propose-response.prompt`. It
+is the only authoritative way to count AI cycles (the pipeline
+does not use a dedicated bot account today).
 
 ## Edge cases
 
@@ -75,6 +125,7 @@ The above returns a JSON array. For each element:
 ## Note on rate-limited fields
 
 `gh issue list` already returns `body` inline; there is no need to
-fan out to `gh issue view <N>` per issue. The single list call is
-one API request regardless of issue count (up to the page limit),
-which keeps the orchestrator cheap to run.
+fan out to `gh issue view <N>` for the body itself. The cycle
+counter does require one extra `gh issue view <N> --json comments`
+call per surviving issue (after the label filter), but the cost is
+bounded by the number of open un-handled issues, which is small.

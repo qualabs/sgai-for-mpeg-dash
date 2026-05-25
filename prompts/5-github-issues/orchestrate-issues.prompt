@@ -24,15 +24,24 @@
 
 **Output**:
 - One `output-github-issues/<issue-N>/` subfolder per processed
-  issue, containing `triage.md`, optionally `impact.md` (Flow B
-  only), and `response.md`. See the per-step prompts for the
-  shape of each file.
+  issue, containing:
+  - `meta.md` — **regenerated every run** with a fresh snapshot of
+    the issue (title, body verbatim, labels, comments timeline). No
+    history; the file mirrors the issue's current state.
+  - `cycle-<C>/triage.md` — always written for the current cycle.
+  - `cycle-<C>/impact.md` — only for Flow B issues.
+  - `cycle-<C>/response.md` — the drafted reply for the current
+    cycle.
+  Where `<C>` is the cycle index (`1` on first run, `2` after the
+  OP has replied to a prior AI response, etc.) computed by
+  `detect-issues.prompt`. Each cycle's artefacts live in their own
+  subfolder, preserving the audit trail across re-runs.
 - A single end-of-run **summary block on stdout** (delimited by
   `=== SGAI-ISSUES RUN SUMMARY ===` / `=== END SUMMARY ===`) listing
-  counts, per-issue verdicts, labels applied, and the outsider
-  attention list. The parent agent picks this block up and relays
-  it to Nicolas on Telegram — the orchestrator itself never sends
-  Telegram messages.
+  counts, per-issue verdicts, cycle indices, labels applied, and the
+  outsider attention list. The parent agent picks this block up and
+  relays it to Nicolas on Telegram — the orchestrator itself never
+  sends Telegram messages.
 
 **Skip if**: never. The orchestrator is always invoked manually
 (D7); it decides per-issue whether work is needed by reading the
@@ -72,8 +81,8 @@ For each step below, log:
 
 Apply the body of `prompts/5-github-issues/detect-issues.prompt`.
 Result: an array of `{number, title, body, author, created_at,
-labels, raw_lang_hint}` records, filtered to **open** issues whose
-label set contains NONE of:
+labels, raw_lang_hint, cycle_count}` records, filtered to **open**
+issues whose label set contains NONE of:
 
 - `ai-triaged`
 - `ai-responded`
@@ -81,72 +90,136 @@ label set contains NONE of:
 - `ai-needs-review`
 - `ai-conversation-cap-hit`
 
+`detect-issues` ALSO drops issues that have reached the anti-loop
+cap (D5 — `cycle_count >= 4`): it applies the
+`ai-conversation-cap-hit` label in `--live` mode and excludes the
+issue from the returned set. The orchestrator never sees those
+issues in the loop below.
+
 If the invocation passed `--issue <N>` one or more times, restrict
 the result to those numbers regardless of label state (the operator
-is explicitly re-targeting).
+is explicitly re-targeting). The cap (D5) still applies on a
+forced re-run — `detect-issues` will refuse to return an issue at
+`cycle_count >= 4` even when explicitly listed.
 
-Log: `[STAGE-5 detect] <count> issue(s) to process: [<N1>, <N2>, ...]`.
+Log: `[STAGE-5 detect] <count> issue(s) to process: [<N1>@cycle<C1>, <N2>@cycle<C2>, ...]`.
 If `count == 0`, jump straight to the summary block.
 
 ### Step 2 — Per-issue loop
 
-For each issue record from Step 1, in numerical order:
+For each issue record from Step 1, in numerical order. Let `C =
+issue.cycle_count` (computed by `detect-issues`; always `>= 1` and
+`<= 3` for any issue that survived Step 1).
+
+#### 2.0 — Regenerate `meta.md`
+
+BEFORE invoking any of the per-step prompts, regenerate the issue's
+`meta.md` snapshot so the cycle subfolders sit alongside an
+up-to-date context anchor. Fetch the issue with comments:
+
+```bash
+gh issue view <N> \
+  --repo <owner>/<repo> \
+  --json number,title,body,author,createdAt,updatedAt,state,labels,comments
+```
+
+Write `output-github-issues/issue-<N>/meta.md` (create the parent
+folder if absent) using this exact shape:
+
+````markdown
+# Issue #<N> — <title>
+
+- **Number**: #<N>
+- **URL**: https://github.com/<owner>/<repo>/issues/<N>
+- **Author**: <login> (https://github.com/<login>)
+- **Author trust**: trusted | outsider
+- **Created**: <ISO timestamp>
+- **Updated**: <ISO timestamp>
+- **State**: open | closed
+- **Labels (current)**: <comma-separated list, or "(none)">
+
+## Original body (verbatim)
+
+> <body line by line, blockquoted — preserve markdown / fenced
+> blocks as-is inside the blockquote prefix>
+
+## Comments timeline
+
+| # | Author | Date | Snippet (first 80 chars) |
+|---|--------|------|--------------------------|
+| 1 | <login> | <ISO> | "<first 80 chars of body>…" |
+| ... | ... | ... | ... |
+
+(If there are no comments, write "(no comments yet)" instead of
+the table.)
+
+Last refreshed: <orchestrator run timestamp, ISO-8601>
+````
+
+`meta.md` is **always overwritten** on every run — there is no
+history. It is the up-to-date snapshot the cycle subfolders point
+back to. Author trust is resolved as `trusted` if `login ∈
+TRUSTED_GH_USERS`, else `outsider`.
+
+Log: `[STAGE-5 meta issue=<N>] regenerated meta.md (cycle=<C>)`.
 
 #### 2.1 — Triage
 
 Apply `prompts/5-github-issues/triage-issue.prompt` against the
-issue. Write the verdict to
-`output-github-issues/<issue-N>/triage.md`. Capture the structured
-fields:
+issue, passing `cycle_count = C` as an input. Write the verdict to
+`output-github-issues/issue-<N>/cycle-<C>/triage.md` (create the
+cycle subfolder if absent). Capture the structured fields:
 - `flow`: `A` | `B` | `C` | `SKIP`
 - `severity`: `cosmetic` | `spec-detail` | `requirements` |
   `architectural`
 - `lang`: ISO-639-1 (`en`, `es`, `pt`, `fr`, `it`, `de`, …) with
   `en` as fallback if detection is inconclusive (D4)
 - `trusted`: boolean (`author ∈ TRUSTED_GH_USERS`?)
-- `cycle_count`: number of prior AI cycles on this issue, derived
-  by counting comments authored by the bot account or, if no bot
-  account marker exists, comments whose body starts with the AI
-  disclaimer string. Used for the anti-loop cap (D5).
+- `cycle_count`: echo of `C` from `detect-issues` (no recomputation
+  inside the triage prompt — `detect-issues` is the single source
+  of truth for the cycle index, and applies the anti-loop cap D5
+  before this step is reached).
 
 If `flow == SKIP`, the issue does not get a response. In `--live`
 mode, apply the `ai-skipped` label and stop processing this issue.
 Continue with the next.
-
-If `cycle_count >= 3`, do NOT generate a new response. In `--live`
-mode, apply the `ai-conversation-cap-hit` label (D5). Continue.
 
 #### 2.2 — Impact analysis (Flow B only)
 
 If `flow == B`, apply `prompts/5-github-issues/analyze-impact.prompt`
 against the issue. The keyword detector runs inside that prompt
 (D6); the orchestrator does not pre-filter. Write the result to
-`output-github-issues/<issue-N>/impact.md`.
+`output-github-issues/issue-<N>/cycle-<C>/impact.md`.
 
 For `flow ∈ {A, C}` skip this step.
 
 #### 2.3 — Propose response
 
-Apply `prompts/5-github-issues/propose-response.prompt`. The prompt
-adapts the draft shape to the flow (A / B / C). It injects the
-auto-draft disclaimer at the top if `severity == requirements` (D3).
-Write the draft to `output-github-issues/<issue-N>/response.md`.
+Apply `prompts/5-github-issues/propose-response.prompt`, passing
+`cycle_count = C` so the draft can adapt its tone for follow-up
+cycles (`C > 1` ⇒ acknowledge the prior AI response and address
+the OP's new feedback). The prompt also adapts the draft shape to
+the flow (A / B / C) and injects the auto-draft disclaimer at the
+top if `severity ∈ {requirements, architectural}` (D3). Write the
+draft to `output-github-issues/issue-<N>/cycle-<C>/response.md`.
 
 #### 2.4 — Post or hold
 
 Decide whether to post:
 
 - If `trusted == true` AND `--live` is set → apply
-  `prompts/5-github-issues/post-response.prompt`. It posts the
-  comment via `gh issue comment` and applies the labels
+  `prompts/5-github-issues/post-response.prompt`. It reads the
+  current cycle's draft at
+  `output-github-issues/issue-<N>/cycle-<C>/response.md`, posts
+  the comment via `gh issue comment`, and applies the labels
   `ai-responded`, `severity:<severity>`, `flow:<flow>`. On
   success, mark this issue as `posted`.
 - If `trusted == false` (outsider) → do NOT post regardless of
   mode. In `--live` mode, apply the `ai-needs-review` label so
   Nicolas can see at a glance which issues are waiting on his
   approval (D2). The response draft is still saved under
-  `output-github-issues/<issue-N>/response.md`. Mark the issue as
-  `needs-review`.
+  `output-github-issues/issue-<N>/cycle-<C>/response.md`. Mark the
+  issue as `needs-review`.
 - If `--dry-run` → do not post and do not apply labels; mark the
   issue as `dry-drafted`.
 
@@ -159,10 +232,13 @@ After the loop, emit to stdout:
 mode: <dry-run|live>
 repo: <owner>/<repo>
 processed: <count>
-  - <N>: flow=<F> severity=<S> lang=<L> trusted=<bool> state=<posted|needs-review|dry-drafted|skipped|cap-hit>
+  - <N>: cycle=<C> flow=<F> severity=<S> lang=<L> trusted=<bool> state=<posted|needs-review|dry-drafted|skipped>
+  - ...
+cap-hit (D5 anti-loop, dropped before triage):
+  - <N>: <title> by <author> (cycle_count=<C>)
   - ...
 needs-review (outsiders awaiting Nicolas decision):
-  - <N>: <title> by <author>
+  - <N>: cycle=<C> <title> by <author>
   - ...
 labels applied (live mode only):
   - <N>: [ai-responded, severity:<S>, flow:<F>]

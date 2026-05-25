@@ -271,23 +271,70 @@ The six prompts live under `prompts/5-github-issues/`:
 | D2 | Trusted authors (`TRUSTED_GH_USERS` in `.env.agent`) get the full auto cycle. Outsiders' drafts are held with `ai-needs-review` and surfaced to Nicolas via Telegram for manual decision. He may optionally promote them into `TRUSTED_GH_USERS` afterwards. |
 | D3 | `severity:requirements` (and `severity:architectural` by extension) carry an explicit AI-disclaimer blockquote at the top of the response. |
 | D4 | Language detection falls back to English when inconclusive. |
-| D5 | Anti-loop cap of 3 AI cycles per issue. After that, label `ai-conversation-cap-hit` and stop responding. |
+| D5 | Anti-loop cap of 3 AI cycles per issue. Enforced by `detect-issues`: when `cycle_count >= 4`, apply label `ai-conversation-cap-hit` and drop the issue before triage. |
 | D6 | NotebookLM is queried only when the keyword detector trips. |
 | D7 | Trigger is manual today. Cron is future work. |
 
 ### Scratch directory
 
-Per-issue artefacts go to `output-github-issues/<issue-N>/`:
+Per-issue artefacts go to `output-github-issues/issue-<N>/` with a
+**meta + per-cycle** layout:
 
-- `triage.md` — always written.
-- `impact.md` — only for Flow B issues.
-- `response.md` — the drafted reply (the actual payload posted
-  by `post-response`).
+```
+output-github-issues/issue-<N>/
+├── meta.md            ← regenerated every orchestrator run
+├── cycle-1/
+│   ├── triage.md      ← always written
+│   ├── impact.md      ← only for Flow B issues
+│   └── response.md    ← the drafted reply (payload posted by post-response)
+├── cycle-2/           ← created when the OP has replied to the cycle-1 reply
+│   └── ...
+└── cycle-3/           ← capped at 3 by D5 (anti-loop)
+```
+
+- `meta.md` — a snapshot of the issue at the moment of this
+  orchestrator run: title, URL, author + trust, created /
+  updated / state, current labels, full original body
+  (blockquoted verbatim), and a comments timeline table. It is
+  **always overwritten** on every run — no history. The cycle
+  subfolders point back to it as the up-to-date context anchor.
+- `cycle-<C>/` — one subfolder per AI cycle. Cycle 1 is the first
+  time the AI processes the issue. A new cycle is started when
+  `detect-issues` observes that the OP has commented after the
+  most recent AI response (each posted AI comment carries the
+  marker `<!-- sgai-issues: ai-cycle -->` so the counter is
+  unambiguous). Cycle 4+ is **blocked** by D5: `detect-issues`
+  applies the `ai-conversation-cap-hit` label and the issue never
+  reaches the per-issue loop.
 
 The whole directory is **gitignored** (see project `.gitignore`).
 Posted responses live on GitHub; the repo never commits them.
 The `.gitkeep` is whitelisted so the empty directory survives
 checkouts.
+
+### Cycle counting (D5 enforcement)
+
+`detect-issues.prompt` is the single source of truth for the cycle
+index. For each open un-handled issue it runs:
+
+```bash
+gh issue view <N> --json comments \
+  --jq '[.comments[] | select(.body | contains("<!-- sgai-issues: ai-cycle -->"))] | length'
+```
+
+Let `ai_marker_count` be the returned integer. Then
+`cycle_count = ai_marker_count + 1`. If `cycle_count >= 4` the
+issue hits the anti-loop cap (D5): `detect-issues` applies
+`ai-conversation-cap-hit` (in `--live` mode) and excludes the
+issue from the orchestrator's loop. Downstream prompts
+(`triage-issue`, `analyze-impact`, `propose-response`,
+`post-response`) simply echo the cycle index passed in by the
+orchestrator and use it to:
+
+- pick the output path (`cycle-<C>/...`),
+- adjust tone when `cycle_count > 1` (the response acknowledges
+  the prior AI cycle and addresses the OP's new feedback, without
+  re-litigating already-validated claims).
 
 ### Reporting to Nicolas
 
