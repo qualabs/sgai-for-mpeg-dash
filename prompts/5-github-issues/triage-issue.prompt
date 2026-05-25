@@ -2,24 +2,32 @@
 
 **Inputs**:
 - An issue record from `detect-issues.prompt`: `{number, title,
-  body, author, created_at, labels, raw_lang_hint}`.
+  body, author, created_at, labels, raw_lang_hint, cycle_count}`.
 - `TRUSTED_GH_USERS` (parsed by the orchestrator from `.env.agent`).
 - The project tree (`context/`, `output/`, `output-analysis/`,
   `.project/`, `README.md`, `CLAUDE.md`) — used to decide whether
   the issue targets the spec, the context, or project meta.
-- The issue's existing comments (via
-  `gh issue view <N> --json comments` or `gh api`) — only the
-  count is consumed here, for the anti-loop cap (D5).
+- `cycle_count` — passed in by the orchestrator (originally
+  computed by `detect-issues`). This prompt does NOT recompute it;
+  it just echoes the value into the verdict and uses it to choose
+  language nuances downstream (e.g. when `cycle_count > 1`, hint
+  that the triage notes can mention "this is a follow-up cycle").
 
-**Output**: `../output-github-issues/<issue-N>/triage.md`. Single
-markdown file. The orchestrator MUST create the issue's parent
-folder if absent.
+**Output**:
+`../output-github-issues/issue-<N>/cycle-<C>/triage.md`, where
+`<C>` is the cycle index passed in by the orchestrator. Single
+markdown file. The orchestrator MUST create the cycle subfolder
+(`cycle-<C>/`) and any missing parents before invoking this
+prompt.
 
-**Skip if**: `../output-github-issues/<issue-N>/triage.md` exists
-AND its mtime is newer than the issue's `created_at` AND newer
-than the timestamp of the issue's most recent comment. Otherwise
-re-triage (the issue may have grown new comments that change the
-classification — especially the cycle count).
+**Skip if**:
+`../output-github-issues/issue-<N>/cycle-<C>/triage.md` exists AND
+its mtime is newer than the issue's `created_at` AND newer than
+the timestamp of the issue's most recent comment. Otherwise
+re-triage. Note: a new cycle (`C` bumped by `detect-issues`)
+always corresponds to a fresh, empty cycle subfolder, so the skip
+condition naturally fires only when the same cycle is being
+re-run on a stale-free issue.
 
 ---
 
@@ -116,30 +124,38 @@ question/argument is in, not the quoted spec.
 `trusted = (author ∈ TRUSTED_GH_USERS)`. The orchestrator reads the
 env var once; this prompt just looks up the boolean.
 
-### 5. Cycle count (anti-loop cap)
+### 5. Cycle index
 
-Count the number of comments on the issue authored by the AI
-pipeline. A comment is "AI-authored" if any of:
+Echo the `cycle_count` integer passed in by the orchestrator
+(originally computed by `detect-issues` — see its "Cycle counter"
+section). `1` means this is the first AI cycle on the issue; `2+`
+means the OP has replied to a prior AI response and the pipeline
+is preparing a follow-up.
 
-- The comment author is a bot account that the operator
-  configured for this purpose (none today — placeholder for
-  future setup).
-- The comment body starts with the auto-draft disclaimer
-  (`This response was auto-drafted by the project's AI agent`).
-- The comment body contains the marker line `<!-- sgai-issues:
-  ai-cycle -->` (the pipeline injects this in every posted
-  comment — see `propose-response.prompt`).
+Do NOT recompute the count here. The cycle index is the single
+source of truth that `detect-issues` produces; recomputing inside
+the triage prompt would risk drift if the comments list changes
+between the two steps.
 
-Emit `cycle_count` as an integer. The orchestrator enforces the
-cap (>= 3 → label `ai-conversation-cap-hit`, no new draft).
+The anti-loop cap (D5) is enforced upstream: `detect-issues` drops
+issues at `cycle_count >= 4` before they reach this prompt and
+applies the `ai-conversation-cap-hit` label itself in `--live`
+mode. By the time `triage-issue.prompt` is invoked, the cycle
+index is guaranteed to be in `{1, 2, 3}`.
+
+When `cycle_count > 1`, mention in the **Notes for downstream
+prompts** section that the response draft must acknowledge the
+prior AI response and address the OP's new feedback (see
+`propose-response.prompt`).
 
 ## Output format
 
-Write `output-github-issues/<issue-N>/triage.md` with this exact
-shape so the orchestrator can parse the structured fields:
+Write `output-github-issues/issue-<N>/cycle-<C>/triage.md` with
+this exact shape so the orchestrator can parse the structured
+fields:
 
 ```markdown
-# Triage — issue #<N>
+# Triage — issue #<N> (cycle <C>)
 
 - title: <verbatim issue title>
 - author: <login>
@@ -148,7 +164,7 @@ shape so the orchestrator can parse the structured fields:
 - severity: <cosmetic | spec-detail | requirements | architectural>
 - lang: <en | es | pt | fr | it | de>
 - trusted: <true | false>
-- cycle_count: <int>
+- cycle_count: <C>  (1 = first AI cycle on this issue; 2..3 = follow-up)
 
 ## Reasoning
 

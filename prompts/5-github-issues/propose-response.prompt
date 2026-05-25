@@ -1,28 +1,44 @@
 # Propose a draft response to a GitHub issue
 
 **Inputs**:
-- The issue record (from `detect-issues.prompt`).
+- The issue record (from `detect-issues.prompt`), including
+  `cycle_count`.
+- `cycle_count` (integer ≥ 1) — passed in by the orchestrator and
+  used to locate the current cycle's upstream artefacts and to
+  shape the draft's tone (see "Cycle-aware tone" below).
 - The triage verdict at
-  `../output-github-issues/<issue-N>/triage.md`.
+  `../output-github-issues/issue-<N>/cycle-<C>/triage.md`.
 - For Flow B issues, the impact analysis at
-  `../output-github-issues/<issue-N>/impact.md`.
+  `../output-github-issues/issue-<N>/cycle-<C>/impact.md`.
+- When `cycle_count > 1`, the prior cycle's response at
+  `../output-github-issues/issue-<N>/cycle-<C-1>/response.md` —
+  the draft must acknowledge it (and the OP's reply to it)
+  without restating it verbatim.
+- The issue's `meta.md` at
+  `../output-github-issues/issue-<N>/meta.md` — gives the current
+  comments timeline; useful when the response needs to reference
+  what the OP said in their last reply.
 - The full project tree (`../context/`, `../output/`,
   `../output-analysis/`, `../README.md`, `../CLAUDE.md`,
   `../.project/`) — used to ground the response and to ensure the
   draft does NOT contradict an existing requirement, ADR, or
   active design decision.
 
-**Output**: `../output-github-issues/<issue-N>/response.md`. Plain
-markdown, ready to paste into `gh issue comment --body-file`.
+**Output**: `../output-github-issues/issue-<N>/cycle-<C>/response.md`.
+Plain markdown, ready to paste into `gh issue comment --body-file`.
 
-**Skip if**: `../output-github-issues/<issue-N>/response.md`
-exists AND its mtime is newer than the triage file's mtime AND
-(if Flow B) newer than the impact file's mtime. If any upstream
-artefact moved, the response is stale and must be rewritten.
+**Skip if**:
+`../output-github-issues/issue-<N>/cycle-<C>/response.md` exists
+AND its mtime is newer than the triage file's mtime AND (if Flow
+B) newer than the impact file's mtime. If any upstream artefact
+moved, the response is stale and must be rewritten. A new cycle
+folder is always empty when first created, so this skip naturally
+applies only when the same cycle is being re-run.
 
-**Execution mode**: never invoked when `triage.flow == SKIP` or
-when the orchestrator detects `cycle_count >= 3`. The orchestrator
-gates both.
+**Execution mode**: never invoked when `triage.flow == SKIP`. The
+anti-loop cap (D5, `cycle_count >= 4`) is enforced upstream by
+`detect-issues` — by the time this prompt runs, the cycle index
+is guaranteed to be in `{1, 2, 3}`.
 
 ---
 
@@ -80,6 +96,30 @@ visually.
 For `severity ∈ {cosmetic, spec-detail}` the disclaimer is NOT
 added — those responses don't carry decision weight, and front-
 loading a disclaimer on every minor reply would dilute its signal.
+
+## Cycle-aware tone
+
+`cycle_count == 1` is the default case: the AI is responding to
+the issue for the first time. No special framing.
+
+When `cycle_count > 1`, the OP has replied to a previous AI
+response and the pipeline is preparing a follow-up. The draft
+MUST:
+
+1. Open with a brief acknowledgement of the prior cycle. Example
+   phrasings (in the detected language; English here):
+   - "Thanks for the follow-up — to the new points raised:"
+   - "Following up on the previous reply: addressing the new
+     feedback below."
+   The acknowledgement is one sentence at most; do NOT recap what
+   was said before — the OP and the maintainer can scroll up.
+2. Focus the body on the **new** material from the OP. Do NOT
+   re-litigate claims that were already validated in
+   `cycle-<C-1>/impact.md`; treat them as settled unless the OP
+   explicitly contests them in their reply.
+3. Keep the severity-driven disclaimer (D3) and the closing marker
+   `<!-- sgai-issues: ai-cycle -->` exactly as on cycle 1. The
+   marker is what `detect-issues` counts on the next run.
 
 ## Flow-specific draft shape
 
@@ -164,9 +204,10 @@ Structure:
 
 ## Output format
 
-Write `output-github-issues/<issue-N>/response.md` exactly as it
-should appear when posted. The orchestrator will pass this file
-to `gh issue comment --body-file` verbatim in `--live` mode.
+Write `output-github-issues/issue-<N>/cycle-<C>/response.md`
+exactly as it should appear when posted. The orchestrator will
+pass this file to `gh issue comment --body-file` verbatim in
+`--live` mode.
 
 Concretely:
 

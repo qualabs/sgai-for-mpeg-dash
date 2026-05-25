@@ -90,19 +90,36 @@ build-all flow above):
                  orchestrate-issues (manual; --dry-run | --live)
                                  │
                                  ▼
-   ┌──────────────────────────────────────────────────────────┐
-   │                    5-github-issues/                      │
-   │  detect-issues  → list open issues w/o handling labels   │
-   │  for each:                                               │
-   │    triage-issue → output-github-issues/<N>/triage.md     │
-   │    analyze-impact (Flow B only)                          │
-   │                 → output-github-issues/<N>/impact.md     │
-   │    propose-response                                      │
-   │                 → output-github-issues/<N>/response.md   │
-   │    post-response (only if trusted author + --live)       │
-   │                 → comment + labels on GitHub             │
-   │  summary block → stdout (parent agent relays to Telegram)│
-   └──────────────────────────────────────────────────────────┘
+   ┌──────────────────────────────────────────────────────────────┐
+   │                    5-github-issues/                          │
+   │  detect-issues  → list open issues w/o handling labels       │
+   │                   AND compute cycle_count per issue;         │
+   │                   drop cycle_count >= 4 (D5 cap hit, label)  │
+   │  for each surviving issue (cycle C in {1,2,3}):              │
+   │    regenerate meta.md → issue-<N>/meta.md (fresh each run)   │
+   │    triage-issue → issue-<N>/cycle-<C>/triage.md              │
+   │    analyze-impact (Flow B only)                              │
+   │                 → issue-<N>/cycle-<C>/impact.md              │
+   │    propose-response                                          │
+   │                 → issue-<N>/cycle-<C>/response.md            │
+   │    post-response (only if trusted author + --live)           │
+   │                 → comment + labels on GitHub                 │
+   │  summary block → stdout (parent agent relays to Telegram)    │
+   └──────────────────────────────────────────────────────────────┘
+```
+
+Per-issue artefact layout under `output-github-issues/`:
+
+```
+output-github-issues/issue-<N>/
+├── meta.md            regenerated every run (no history)
+├── cycle-1/           first AI cycle on the issue
+│   ├── triage.md
+│   ├── impact.md      (Flow B only)
+│   └── response.md
+├── cycle-2/           created when OP replied to cycle-1
+│   └── ...
+└── cycle-3/           capped at 3 by D5 (anti-loop)
 ```
 
 `output-github-issues/` is gitignored — issue artefacts are
@@ -125,12 +142,12 @@ lives on GitHub itself.
 | `audit-dash-conformance`            | New spec exists without matching `v<N>-dash-conformance-audit.md`       | `3-post-spec/`      |
 | `refine-spec`                       | Minor refinement on existing spec; called by Step 9 (or by hand)        | `4-auto-refine/`    |
 | `compare-spec-versions`             | Compare two consecutive minor versions; emits the convergence verdict   | `4-auto-refine/`    |
-| `orchestrate-issues`                | Process open GitHub issues end-to-end (triage → response). Dry-run default; `--live` to post | `5-github-issues/` |
-| `detect-issues`                     | Fetch open issues missing any handling label; sub-step of orchestrator  | `5-github-issues/`  |
-| `triage-issue`                      | Classify one issue: flow / severity / lang / trust / cycle count        | `5-github-issues/`  |
-| `analyze-impact`                    | Flow B only: validate claims against `context/`, surface affected files | `5-github-issues/`  |
-| `propose-response`                  | Draft a flow-appropriate reply in the detected language                 | `5-github-issues/`  |
-| `post-response`                     | Live mode + trusted author: post comment + apply labels                 | `5-github-issues/`  |
+| `orchestrate-issues`                | Process open GitHub issues end-to-end (regenerate `meta.md` + per-cycle triage/impact/response). Dry-run default; `--live` to post | `5-github-issues/` |
+| `detect-issues`                     | Fetch open issues missing any handling label; computes `cycle_count` and drops issues at the D5 cap (`>= 4`, label `ai-conversation-cap-hit`) | `5-github-issues/`  |
+| `triage-issue`                      | Classify one issue for cycle `C`: flow / severity / lang / trust; echoes `cycle_count` from `detect-issues` | `5-github-issues/`  |
+| `analyze-impact`                    | Flow B only, cycle `C`: validate claims against `context/`, surface affected files | `5-github-issues/`  |
+| `propose-response`                  | Draft a flow-appropriate reply in the detected language for cycle `C`; acknowledges prior cycle when `C > 1` | `5-github-issues/`  |
+| `post-response`                     | Live mode + trusted author: post `cycle-<C>/response.md` and apply labels | `5-github-issues/`  |
 
 Each prompt declares its full **Inputs / Output / Skip if** contract
 in its own header — this table is a quick-pick index, not the spec.
