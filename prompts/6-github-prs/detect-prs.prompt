@@ -1,0 +1,170 @@
+# Detect GitHub PRs that need reviewing
+
+**Inputs**:
+- The GitHub repo resolved by the orchestrator (`<owner>/<repo>`),
+  passed in as context.
+- Authenticated `gh` CLI on the host. The runner relies on the
+  operator's existing `gh auth login`; this prompt does not handle
+  authentication.
+
+**Output**: a structured list of PR records (in memory — no file is
+written) containing for each PR:
+- `number` (integer)
+- `title` (string)
+- `body` (string, full markdown body)
+- `author` (GitHub login)
+- `created_at` (ISO-8601 timestamp)
+- `updated_at` (ISO-8601 timestamp)
+- `labels` (array of label name strings)
+- `base_ref` (string — the target branch, usually `main`)
+- `head_ref` (string — the source branch)
+- `additions` (integer)
+- `deletions` (integer)
+- `changed_files` (integer)
+- `is_draft` (boolean)
+- `mergeable` (string — `MERGEABLE` / `CONFLICTING` / `UNKNOWN`)
+- `raw_lang_hint` (first ~200 chars of the body, used by
+  `triage-pr` to detect language; the detection itself is NOT done
+  here)
+- `cycle_count` (integer ≥ 1) — see "Cycle counter" below. This is
+  the cycle index the orchestrator will use for the upcoming run
+  on this PR (1 = first time the AI processes it).
+
+**Skip if**: never. The orchestrator decides when to invoke this;
+detection itself is always run when called.
+
+---
+
+## Task
+
+Query GitHub for open, non-draft PRs that the pipeline has not yet
+processed. The filter is **label-based** (D2/D5): a PR is
+considered "already handled" if its label set contains any of:
+
+- `pr:ai-reviewed`
+- `pr:ai-needs-review`
+- `pr:ai-conversation-cap-hit`
+
+(There is intentionally no `pr:ai-skipped` analog. PR triage does
+not classify PRs as off-topic in the way the Stage-5 issue flow
+does — every open non-draft PR gets the four-axis review.)
+
+Use `gh` with structured JSON output so the field names are stable:
+
+```bash
+gh pr list \
+  --repo <owner>/<repo> \
+  --state open \
+  --limit 100 \
+  --json number,title,body,author,labels,createdAt,updatedAt,baseRefName,headRefName,additions,deletions,changedFiles,isDraft,mergeable
+```
+
+The above returns a JSON array. For each element:
+
+1. Drop the PR if `isDraft == true`. The pipeline does not review
+   drafts — the author has not yet signalled it is ready.
+2. Read `labels[].name` and check if any of the three blocking
+   labels above is present. If yes → drop this PR from the result
+   set.
+3. If the orchestrator invocation passed an explicit `--pr <N>`
+   list, restrict the result to those numbers ONLY (and skip the
+   label filter — the operator is forcing a re-run). Drafts are
+   still dropped: a forced re-run on a draft is a no-op.
+4. For every surviving PR, compute the **cycle counter** (see the
+   dedicated section below). If the counter resolves to a value
+   `>= 4`, the PR has hit the anti-loop cap (D5):
+   - In `--live` mode, apply the label
+     `pr:ai-conversation-cap-hit` via
+     `gh pr edit <N> --add-label pr:ai-conversation-cap-hit`. The
+     label is expected to exist already (the project's Stage-6
+     bootstrap creates it). If it does not, create it first:
+     ```bash
+     gh label create "pr:ai-conversation-cap-hit" \
+       --repo <owner>/<repo> \
+       --color "8B949E" \
+       --description "Stage 6 anti-loop cap reached (D5)"
+     ```
+   - In `--dry-run` mode, do NOT apply the label; just log the
+     skip.
+   - In both modes, **drop the PR from the result set** — the
+     downstream steps (triage / analyze / review) are not invoked.
+   - Log: `[STAGE-6 detect] pr=<N> cycle=<C> cap-hit, skipping`.
+5. Otherwise, emit the PR as `{number, title, body, author:
+   author.login, created_at: createdAt, updated_at: updatedAt,
+   labels: [name, …], base_ref: baseRefName, head_ref: headRefName,
+   additions, deletions, changed_files: changedFiles, is_draft:
+   isDraft, mergeable, raw_lang_hint: body.substring(0, 200),
+   cycle_count: <C>}`.
+
+## Cycle counter
+
+For every candidate PR, count how many prior AI reviews are
+already attached as comments or as `gh pr review --comment`
+entries. This determines the **cycle index** that the orchestrator
+will use for the upcoming run on this PR, and enforces the
+anti-loop cap (D5).
+
+Fetch the comments + reviews list once per PR. The marker
+`<!-- sgai-prs: ai-cycle -->` may appear in either an issue-style
+comment on the PR (posted via `gh pr comment`) or a review body
+(posted via `gh pr review --comment`), depending on the routing
+chosen for that cycle. Both must be counted:
+
+```bash
+ai_marker_count=$(\
+  gh pr view <N> \
+    --repo <owner>/<repo> \
+    --json comments,reviews \
+    --jq '([.comments[]?,.reviews[]?] | map(select(.body | contains("<!-- sgai-prs: ai-cycle -->"))) | length)'\
+)
+```
+
+Let `ai_marker_count` be the integer returned (`0` when no AI
+review has been posted yet).
+
+- `cycle_count = ai_marker_count + 1`
+  - First-time processing (no marker present) → `cycle_count = 1`.
+  - After one posted AI review with the author having pushed new
+    commits or replied since → `cycle_count = 2`.
+  - And so on.
+- If `cycle_count >= 4` → cap hit (D5). Apply the label and drop
+  per step 4 above.
+
+The marker line `<!-- sgai-prs: ai-cycle -->` is injected at the
+end of every posted review body by `propose-review.prompt`. It is
+the only authoritative way to count AI cycles (the pipeline does
+not use a dedicated bot account today, so we cannot filter by
+author login).
+
+### Inline review comments are not counted
+
+`gh pr review --comment` posts a *summary* body plus optional
+inline comments anchored to specific diff lines. Only the summary
+body carries the marker; the inline comments do NOT, because their
+bodies are short, line-specific, and would clutter the diff if
+each carried an HTML comment. The cycle count is unambiguously
+driven by the summary marker — one summary per AI cycle.
+
+## Edge cases
+
+- **Empty repo / no open PRs** → return an empty array. Log
+  `[STAGE-6 detect] 0 open PR(s) matching filter`.
+- **`gh` returns an error** (auth, rate limit, network) → abort the
+  orchestrator with a clear error message. Do NOT silently proceed
+  with an empty list — that would create the appearance of "nothing
+  to do" when really we could not see GitHub.
+- **Pagination**: `--limit 100` is a soft cap. If a repo ever
+  grows past that, raise the limit or add pagination — but flag it
+  as a follow-up rather than silently truncating.
+- **Closed / merged PRs** are not surfaced (`--state open`). The
+  pipeline only deals with live PRs awaiting review.
+- **Drafts** are dropped at step 1, regardless of label state. A
+  draft PR that flips to ready will be picked up on the next run.
+
+## Note on rate-limited fields
+
+`gh pr list` already returns `body` inline; there is no need to
+fan out to `gh pr view <N>` for the body itself. The cycle counter
+does require one extra `gh pr view <N> --json comments,reviews`
+call per surviving PR (after the label filter), but the cost is
+bounded by the number of open un-handled PRs, which is small.

@@ -29,6 +29,7 @@ projects/sgai-for-mpeg-dash/
 ├── output/               spec only — the principal deliverable per build iteration (versioned, vN-sgai-spec.md)
 ├── output-analysis/      per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata
 ├── output-github-issues/ Stage 5 scratch (gitignored) — per-issue triage / impact / response drafts
+├── output-github-prs/    Stage 6 scratch (gitignored) — per-PR triage / analyze / review drafts
 ├── proposal-drafts/      historical drafts kept for reference
 └── .project/             governance from the create-project skill
 ```
@@ -356,6 +357,186 @@ relays that block to the project lead — with special attention to the
   baseline.
 - When the operator has not reviewed the prior run's
   `ai-needs-review` queue. Re-running before clearing the queue
+  is fine — it just inflates the outsider backlog without
+  The project lead's attention.
+
+## GitHub PRs pipeline (Stage 6)
+
+A separate stage handles inbound GitHub pull requests on
+`qualabs/sgai-for-mpeg-dash`. The build pipeline (Stages 1..4)
+produces the spec; Stage 5 reacts to external feedback on it via
+issues; Stage 6 reacts to external feedback via PRs — i.e. diffs
+that the author wants merged.
+
+### Entry point
+
+Manual invocation (D7 — cron deferred):
+
+```bash
+# Default — dry-run, never posts to GitHub.
+claude -p "$(cat prompts/6-github-prs/orchestrate-prs.prompt)"
+
+# Explicit live mode — drafts AND posts comment / --comment review +
+# applies labels.
+claude -p "$(cat prompts/6-github-prs/orchestrate-prs.prompt)" -- --live
+```
+
+The six prompts live under `prompts/6-github-prs/`:
+
+- `orchestrate-prs.prompt` — the Stage-6 orchestrator. Reads
+  `.env.agent`, queries GitHub, drives the per-PR loop, emits the
+  end-of-run summary block.
+- `detect-prs.prompt` — lists open non-draft PRs whose label set
+  does not contain `pr:ai-reviewed`, `pr:ai-needs-review`, or
+  `pr:ai-conversation-cap-hit`.
+- `triage-pr.prompt` — classifies each PR: `trusted` boolean,
+  `severity` (cosmetic / spec-detail / requirements /
+  architectural), `lang` (ISO-639-1 with `en` fallback per D4),
+  `files_touched` (grouped by root), `claim_summary`, and
+  `cycle_count` (anti-loop, D5).
+- `analyze-pr.prompt` — walks the four axes (D13): content
+  validation (claims vs `context/` + DASH 6th via NotebookLM when
+  keywords trip D6), convention compliance (`CLAUDE.md` rules:
+  naming, file placement, cross-refs), scope coherence (PR body
+  vs actual diff), downstream impact (stale `output/`,
+  `output-analysis/`, `context-analysis/` per the dependency
+  arrow). Emits findings categorised by axis, severity (blocker /
+  suggestion / info), and granularity (generic / line-specific).
+- `propose-review.prompt` — drafts a verdict-appropriate review
+  in the detected language. Adds the auto-draft disclaimer at the
+  top when `severity ∈ {requirements, architectural}` (D3).
+  Picks the verdict (`LGTM` / `SUGGESTIONS` / `BLOCKERS` /
+  `SCOPE-MISMATCH`, D11), the binary **mergeable conclusion**
+  (`MERGEABLE` / `NEEDS-WORK`, D11) and the routing (`comment` vs
+  `review`, D8) based on findings. Appends a mandatory `##
+  Mergeable decision` section with either a rationale paragraph
+  (MERGEABLE) or a `Path to merge` action list (NEEDS-WORK).
+  Embeds a machine-readable metadata header
+  (`<!-- sgai-prs-meta: ... -->`, now including `mergeable` +
+  `mergeable_reason`) so `post-review` does not re-parse the
+  analysis. Every draft ends with the hidden marker
+  `<!-- sgai-prs: ai-cycle -->` used by future runs to count
+  cycles.
+- `post-review.prompt` — only fires in `--live` mode for
+  **trusted** authors. Posts either a top-level comment (`gh pr
+  comment`) or a `--comment` review (`gh pr review --comment`,
+  state=COMMENT only — D12 forbids approve / request-changes /
+  merge) with optional inline comments for line-specific findings
+  (D9). Applies labels: `pr:ai-reviewed` always, plus
+  `pr:has-blockers` (verdict=BLOCKERS) or `pr:scope-mismatch`
+  (verdict=SCOPE-MISMATCH), plus `pr:needs-work` when
+  `mergeable: false` and the verdict is not BLOCKERS /
+  SCOPE-MISMATCH.
+
+### Decisions encoded in the pipeline
+
+| ID | Decision |
+| --- | --- |
+| D1 | Default mode is `--dry-run`. `--live` posts to GitHub. |
+| D2 | Trusted authors (`TRUSTED_GH_USERS` in `.env.agent`, reused from Stage 5) get the full auto cycle. Outsiders' drafts are held with `pr:ai-needs-review` and surfaced to the project lead via Telegram for manual decision. |
+| D3 | `severity:requirements` (and `severity:architectural` by extension) carry an explicit AI-disclaimer blockquote at the top of the review. |
+| D4 | Language detection falls back to English when inconclusive. |
+| D5 | Anti-loop cap of 3 AI cycles per PR. Enforced by `detect-prs`: when `cycle_count >= 4`, apply label `pr:ai-conversation-cap-hit` and drop the PR before triage. |
+| D6 | NotebookLM is queried only when the keyword detector trips (against PR body **and** diff text). |
+| D7 | Trigger is manual today. Cron is future work. |
+| D8 | Routing is conditional. `comment` (top-level) when verdict is `LGTM` with no line-specific findings or `SUGGESTIONS` with no line-specific findings. `review` (formal `gh pr review --comment`, state=COMMENT) when the review carries line-specific findings (hybrid: summary + inline), or when verdict is `BLOCKERS` / `SCOPE-MISMATCH` (registered as a review for visibility). |
+| D9 | Inline vs generic comments are conditional on finding granularity. A `generic` finding lives in the summary body with a `path:line` text ref. A `line-specific` finding becomes an inline comment via the Pulls API (`event=COMMENT`) anchored to `path` + `line` on the `RIGHT` side of the diff. Hybrid is allowed: line-specific inline + summary body. |
+| D11 | Four verdicts (`LGTM` / `SUGGESTIONS` / `BLOCKERS` / `SCOPE-MISMATCH`) **plus** a binary mergeable conclusion: **MERGEABLE** (`mergeable: true`) or **NEEDS-WORK** (`mergeable: false`). The verdict characterises what the review found; the mergeable conclusion characterises what the author should do next — they are orthogonal. Mergeable defaults to `true` when verdict ∈ {`LGTM`, `SUGGESTIONS`} AND no open points TBD identified AND no unverifiable load-bearing claims AND no broken cross-refs. Else `false`. Labels mapped: `pr:ai-reviewed` always; `pr:has-blockers` if `BLOCKERS`; `pr:scope-mismatch` if `SCOPE-MISMATCH`; `pr:needs-work` if `mergeable: false` AND verdict ∉ {`BLOCKERS`, `SCOPE-MISMATCH`} (the mergeable signal is additive only when neither verdict-driven label already conveys "not ready to merge"). |
+| D12 | The AI MUST NEVER `gh pr review --approve`, `gh pr review --request-changes`, or `gh pr merge`. Approval and merge are exclusively human decisions. `post-review.prompt` enforces this as a hard guard — any draft / routing that requests those actions aborts the post and surfaces in the failed section of the summary. |
+| D13 | Analysis walks four axes: (1) **Content validation** — claims vs `context/` + DASH 6th (NotebookLM if D6 trips). **Sub-step**: identify open points TBD declared by the author (TBD / TODO / FIXME / "open questions" / "deferred" markers in the PR body, in diffed `context/` files, in `.project/decisions/`, in `.project/PROJECT.md` threads; `[?]` placeholders; ADRs left in `Status: proposed`). Each open point becomes a finding with `axis=content`, `severity=info`, `granularity=generic`, and `blocks_merge: true` — flagged for the mergeable decision (D11) even when not a verdict-level blocker. (2) **Convention compliance** — naming, file placement, cross-refs vs `CLAUDE.md`; broken internal cross-refs introduced or modified by the PR are flagged with `blocks_merge: true`. (3) **Scope coherence** — PR body / title vs actual diff (scope creep detection). (4) **Downstream impact** — which artefacts go stale on merge given the dependency arrow `context/ → context-analysis/ → output/ → output-analysis/`. |
+
+### Scratch directory
+
+Per-PR artefacts go to `output-github-prs/pr-<N>/` with a **meta +
+per-cycle** layout:
+
+```
+output-github-prs/pr-<N>/
+├── meta.md            ← regenerated every orchestrator run
+├── cycle-1/
+│   ├── triage.md      ← always written
+│   ├── analyze.md     ← always written (the four axes)
+│   └── review.md      ← the drafted review (carries machine-readable
+│                         meta header; payload posted by post-review)
+├── cycle-2/           ← created when the author pushed new commits or
+│                         replied to the cycle-1 review
+│   └── ...
+└── cycle-3/           ← capped at 3 by D5 (anti-loop)
+```
+
+- `meta.md` — a snapshot of the PR at the moment of this
+  orchestrator run: title, URL, author + trust, created / updated /
+  state, draft flag, base / head refs, diff size, files touched
+  (with per-file +/- and change type), current labels, full
+  original body (blockquoted verbatim), and a comments timeline
+  (issue-style comments + review summaries, merged
+  chronologically). It is **always overwritten** on every run — no
+  history. The cycle subfolders point back to it as the up-to-date
+  context anchor.
+- `cycle-<C>/` — one subfolder per AI cycle. Cycle 1 is the first
+  time the AI processes the PR. A new cycle is started when
+  `detect-prs` observes that the author has pushed new commits or
+  replied to the most recent AI review (each posted AI review
+  carries the marker `<!-- sgai-prs: ai-cycle -->` so the counter
+  is unambiguous). Cycle 4+ is **blocked** by D5: `detect-prs`
+  applies the `pr:ai-conversation-cap-hit` label and the PR never
+  reaches the per-PR loop.
+
+The whole directory is **gitignored** (see project `.gitignore`).
+Posted reviews live on GitHub; the repo never commits them. The
+`.gitkeep` is whitelisted so the empty directory survives
+checkouts.
+
+### Cycle counting (D5 enforcement)
+
+`detect-prs.prompt` is the single source of truth for the cycle
+index. For each open un-handled non-draft PR it runs:
+
+```bash
+gh pr view <N> --json comments,reviews \
+  --jq '([.comments[]?,.reviews[]?] | map(select(.body | contains("<!-- sgai-prs: ai-cycle -->"))) | length)'
+```
+
+Let `ai_marker_count` be the returned integer. Then `cycle_count =
+ai_marker_count + 1`. If `cycle_count >= 4` the PR hits the anti-
+loop cap (D5): `detect-prs` applies `pr:ai-conversation-cap-hit`
+(in `--live` mode) and excludes the PR from the orchestrator's
+loop. Downstream prompts (`triage-pr`, `analyze-pr`,
+`propose-review`, `post-review`) simply echo the cycle index
+passed in by the orchestrator and use it to:
+
+- pick the output path (`cycle-<C>/...`),
+- adjust tone when `cycle_count > 1` (the review acknowledges the
+  prior AI cycle and addresses the author's new commits or replies,
+  without re-litigating findings that were already settled).
+
+Inline review comments are NOT counted toward the cycle — only the
+summary body of a `gh pr review --comment` (or a top-level `gh pr
+comment`) carries the marker. See `detect-prs.prompt §"Inline
+review comments are not counted"`.
+
+### Reporting to the project lead
+
+The Stage-6 orchestrator never sends Telegram messages directly.
+At the end of each run it emits a fenced summary block to stdout
+between `=== SGAI-PRS RUN SUMMARY ===` and `=== END SUMMARY ===`.
+The parent agent (whichever session invoked the orchestrator)
+relays that block to the project lead — with special attention to the
+`needs-review` subsection (outsiders waiting on the project lead's call)
+and to any verdict of `BLOCKERS` / `SCOPE-MISMATCH` (where the
+author should likely revise before the maintainer merges).
+
+### When NOT to invoke Stage 6
+
+- During an active major build (`build-all`). The orchestrators
+  run independently and never share state, but it is clearer to
+  run them sequentially.
+- When `context/` is being edited interactively. The analysis
+  cross-checks claims against the current state of `context/`;
+  running Stage 6 mid-edit produces a content-axis verdict against
+  a half-edited baseline.
+- When the operator has not reviewed the prior run's
+  `pr:ai-needs-review` queue. Re-running before clearing the queue
   is fine — it just inflates the outsider backlog without
   The project lead's attention.
 

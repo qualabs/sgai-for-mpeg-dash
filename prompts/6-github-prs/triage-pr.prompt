@@ -1,0 +1,210 @@
+# Triage a single GitHub PR
+
+**Inputs**:
+- A PR record from `detect-prs.prompt`: `{number, title, body,
+  author, created_at, updated_at, labels, base_ref, head_ref,
+  additions, deletions, changed_files, is_draft, mergeable,
+  raw_lang_hint, cycle_count}`.
+- `TRUSTED_GH_USERS` (parsed by the orchestrator from `.env.agent`).
+- The project tree (`context/`, `output/`, `output-analysis/`,
+  `.project/`, `README.md`, `CLAUDE.md`) — used to interpret which
+  area of the project the PR touches.
+- `cycle_count` — passed in by the orchestrator (originally
+  computed by `detect-prs`). This prompt does NOT recompute it; it
+  just echoes the value into the verdict and uses it to choose
+  language nuances downstream (e.g. when `cycle_count > 1`, hint
+  that the triage notes can mention "this is a follow-up cycle").
+
+**Output**:
+`../output-github-prs/pr-<N>/cycle-<C>/triage.md`, where `<C>` is
+the cycle index passed in by the orchestrator. Single markdown
+file. The orchestrator MUST create the cycle subfolder
+(`cycle-<C>/`) and any missing parents before invoking this
+prompt.
+
+**Skip if**:
+`../output-github-prs/pr-<N>/cycle-<C>/triage.md` exists AND its
+mtime is newer than the PR's `updated_at` AND newer than the
+timestamp of the PR's most recent comment or review. Otherwise
+re-triage. Note: a new cycle (`C` bumped by `detect-prs`) always
+corresponds to a fresh, empty cycle subfolder, so the skip
+condition naturally fires only when the same cycle is being re-run
+on a stale-free PR.
+
+---
+
+## What this prompt decides
+
+For every PR, produce the following structured verdict:
+
+### 1. Trust
+
+`trusted = (author ∈ TRUSTED_GH_USERS)`. The orchestrator reads the
+env var once; this prompt just looks up the boolean.
+
+### 2. Severity
+
+A small ladder. Used for the auto-draft disclaimer (D3) and to
+make the summary block scannable. The severity is driven by the
+deepest layer of the project the PR touches:
+
+- **`cosmetic`**: only prose / typo / link fixes in non-canonical
+  files (e.g. `README.md`, prompt header text, comment-only edits
+  to `.project/PROJECT.md`). No semantic change.
+- **`spec-detail`**: touches `context-analysis/`, `output/`, or
+  `output-analysis/`, OR touches a `context/` file but only at the
+  prose / wording / cross-reference level (no requirement / UC /
+  actor change). Typical: clarification of an attribute, fix a
+  cross-ref, glossary entry.
+- **`requirements`**: would add / change / drop a requirement
+  (`R1..R10+`) or a use case (`UC-01..UC-09+`). Touches
+  `context/03-requirements.md` or `context/04-use-cases.md` in a
+  way that affects the canonical list. The disclaimer at the top
+  of the draft review is mandatory (D3):
+  > *This review was auto-drafted by the project's AI agent —
+  > please cross-check with project owner before relying on it.*
+- **`architectural`**: introduces a new construct, retires an
+  existing one, changes the three-actor model, OR touches
+  `.project/decisions/` (an ADR). Same disclaimer applies AND the
+  review should be especially conservative ("we will discuss this
+  at the next WG before merging").
+
+**Heuristic** (apply in order, first match wins):
+
+1. If any file under `.project/decisions/` is added or modified
+   → **architectural**.
+2. If `context/03-requirements.md` or `context/04-use-cases.md` is
+   modified AND the diff adds / removes / changes a requirement or
+   UC entry (not just a cross-ref tweak) → **requirements**. A
+   purely additive UC like UC-09 still counts here.
+3. If any other `context/*.md` is modified, OR
+   `context-analysis/`, `output/`, `output-analysis/` is modified
+   → **spec-detail**.
+4. Otherwise → **cosmetic**.
+
+When the diff straddles two tiers (e.g. modifies
+`context/03-requirements.md` AND `context/99-glossary.md`), pick
+the higher tier — severity is the max across files.
+
+### 3. Language
+
+Detect the PR body's natural language. Output an ISO-639-1 code:
+
+- `en` (English)
+- `es` (Spanish)
+- `pt` (Portuguese)
+- `fr` (French)
+- `it` (Italian)
+- `de` (German)
+
+If detection is inconclusive, ambiguous, or the body is too short
+to call (e.g. just a title and one sentence), default to `en` (D4).
+The review will then be drafted in English.
+
+Mixed-language bodies (common when the body quotes the spec in
+English but the prose around it is Spanish): pick whatever the
+PR's own narrative is in, not the quoted spec content.
+
+### 4. Cycle index
+
+Echo the `cycle_count` integer passed in by the orchestrator
+(originally computed by `detect-prs` — see its "Cycle counter"
+section). `1` means this is the first AI cycle on the PR; `2+`
+means the author has pushed new commits or replied to a prior AI
+review and the pipeline is preparing a follow-up.
+
+Do NOT recompute the count here. The cycle index is the single
+source of truth that `detect-prs` produces; recomputing inside the
+triage prompt would risk drift if the comments / reviews list
+changes between the two steps.
+
+The anti-loop cap (D5) is enforced upstream: `detect-prs` drops
+PRs at `cycle_count >= 4` before they reach this prompt and
+applies the `pr:ai-conversation-cap-hit` label itself in `--live`
+mode. By the time `triage-pr.prompt` is invoked, the cycle index
+is guaranteed to be in `{1, 2, 3}`.
+
+When `cycle_count > 1`, mention in the **Notes for downstream
+prompts** section that the review draft must acknowledge the
+prior AI review and address the author's new commits or replies
+(see `propose-review.prompt`).
+
+### 5. Files touched (grouped by root)
+
+Read the PR's file list and group the paths by their first
+directory:
+
+- `context/` — canonical spec content
+- `context-analysis/` — pre-spec generated artefacts
+- `prompts/` — build scripts
+- `output/` — the spec itself
+- `output-analysis/` — per-iteration analyses
+- `.project/` — governance (PROJECT.md, phases/, decisions/, LOG.md)
+- `other` — anything that does not match the above (e.g.
+  `README.md`, `CLAUDE.md`, `.gitignore`)
+
+Used downstream by `analyze-pr` to focus the four axes (e.g. if
+`prompts/` is touched, the convention axis pays attention to the
+prompt header format).
+
+### 6. Claim summary
+
+One or two sentences paraphrasing what the PR is trying to do.
+Lift from the PR body's first paragraph or "## Changes" section
+when present. Used by `analyze-pr` and `propose-review` to anchor
+their reasoning on the author's own stated intent (which the
+scope axis will compare against the actual diff).
+
+## Output format
+
+Write `output-github-prs/pr-<N>/cycle-<C>/triage.md` with this
+exact shape so the orchestrator can parse the structured fields:
+
+```markdown
+# Triage — PR #<N> (cycle <C>)
+
+- title: <verbatim PR title>
+- author: <login>
+- base_ref: <baseRefName>
+- head_ref: <headRefName>
+- created_at: <ISO-8601>
+- updated_at: <ISO-8601>
+- trusted: <true | false>
+- severity: <cosmetic | spec-detail | requirements | architectural>
+- lang: <en | es | pt | fr | it | de>
+- cycle_count: <C>  (1 = first AI cycle on this PR; 2..3 = follow-up)
+
+## Files touched (grouped)
+
+- context/: <comma-separated paths, or "(none)">
+- context-analysis/: ...
+- prompts/: ...
+- output/: ...
+- output-analysis/: ...
+- .project/: ...
+- other: ...
+
+## Claim summary
+
+<1–2 sentences paraphrasing what the PR is trying to do, lifted
+from the PR body. Verbatim quotes are fine when they capture the
+intent cleanly.>
+
+## Reasoning
+
+<2–4 sentences explaining the severity classification. Cite the
+specific files / paths in the diff that drove the decision. If
+language detection was a close call, say so.>
+
+## Notes for downstream prompts
+
+<Optional — anything analyze-pr or propose-review should know.
+E.g. "diff touches R4.1 as a Note appendix, not a rewrite —
+severity stayed at requirements but the change is additive; the
+analysis should anchor on the listen-mode termination semantics",
+or "author mentions an open thread in PROJECT.md; the review
+should cross-check that the thread reference is still live".>
+```
+
+Keep the file short — this is a routing decision, not an essay.
+Two screens max.
