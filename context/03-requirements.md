@@ -325,6 +325,14 @@ concrete requirements that follow are constrained by them.
   - **R12.3** (ADS): The ADS MUST NOT emit form metadata for ad
     types that are not part of the IAB-defined set used by this
     spec's edition.
+  - **R12.4** (spec document): Each layout token defined under R12
+    implies the spatial bound declared by the IAB CTV Ad Format
+    Guidelines for that layout (e.g. Corner Overlay no more than 25%
+    of the frame, Squeezeback L-Shape primary content 60% of the
+    frame). The spec inherits these bounds by normative reference
+    rather than re-declaring them MPD-side; no dimensional attribute
+    is introduced on the slot declaration. See
+    `../.project/decisions/0001-defer-to-iab-ctv-for-spatial-caps.md`.
 - **R13. Non-linear ad tracking — ADS-directed callbacks.**
   The specification MUST define a tracking mechanism that allows
   the ADS to instruct the Player on which tracking beacons to
