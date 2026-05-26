@@ -15,13 +15,21 @@
 **Output**: side effects on GitHub:
 - One new issue comment containing the body of
   `response.md`, posted via `gh issue comment <N> --body-file`.
-- Three labels applied to the issue via
+- Labels applied to the issue via
   `gh issue edit <N> --add-label`:
-  - `ai-responded`
+  - `ai-responded` — always.
   - `severity:<severity>` (one of
     `severity:cosmetic`, `severity:spec-detail`,
-    `severity:requirements`, `severity:architectural`)
-  - `flow:<flow>` (one of `flow:A`, `flow:B`, `flow:C`)
+    `severity:requirements`, `severity:architectural`).
+  - `flow:<flow>` (one of `flow:A`, `flow:B`, `flow:C`).
+  - `issue:can-close` — when the response's machine-readable
+    meta header carries `conclusion: resolved` (D14
+    RESOLVED-BY-RESPONSE).
+  - `issue:needs-next-step` — when the meta header carries
+    `conclusion: needs-next-step` (D14 NEEDS-NEXT-STEP).
+
+  `issue:can-close` and `issue:needs-next-step` are mutually
+  exclusive — exactly one of the two is applied per response.
 
 No file is written by this prompt.
 
@@ -42,7 +50,36 @@ prompt at all. There is no internal re-check here.
 
 ## Task
 
-### 1. Sanity-check the inputs
+### 1. Parse the meta header
+
+Read the first lines of
+`output-github-issues/issue-<N>/cycle-<C>/response.md` and
+extract the `<!-- sgai-issues-meta: ... -->` block. Required
+keys: `flow`, `severity`, `lang`, `cycle`, `trusted`,
+`conclusion`, `conclusion_reason`.
+
+If the header is missing, malformed, or any required key
+(including `conclusion` and `conclusion_reason`) is absent,
+abort the post step with a clear error
+(`[STAGE-5 post issue=<N>] aborted: malformed meta header`).
+The operator must fix `response.md` and re-run.
+
+```bash
+# Example regex extraction (illustrative; adapt as needed):
+conclusion=$(awk '/<!-- sgai-issues-meta:/,/-->/' \
+  output-github-issues/issue-<N>/cycle-<C>/response.md \
+  | grep -E '^conclusion:' | head -1 \
+  | sed -E 's/^conclusion:[[:space:]]*//')
+conclusion_reason=$(awk '/<!-- sgai-issues-meta:/,/-->/' \
+  output-github-issues/issue-<N>/cycle-<C>/response.md \
+  | grep -E '^conclusion_reason:' | head -1 \
+  | sed -E 's/^conclusion_reason:[[:space:]]*//')
+```
+
+Validate that `conclusion ∈ {resolved, needs-next-step}`. Any
+other value aborts the post step.
+
+### 2. Sanity-check the inputs
 
 Before touching `gh`:
 
@@ -52,12 +89,17 @@ Before touching `gh`:
   count the comment correctly — abort with an error).
 - Verify the triage file exists and parses (the orchestrator
   has already parsed it, but re-read to be defensive).
+- Verify the response carries a `## Issue conclusion` section
+  whose binary token (`RESOLVED-BY-RESPONSE` /
+  `NEEDS-NEXT-STEP`) matches the `conclusion` value from the
+  meta header (drift between the two would be a soft bug —
+  abort and surface it).
 - Confirm the issue is still **open** via
   `gh issue view <N> --json state`. If it has been closed in the
   meantime, abort posting (the conversation moved without us) and
   log a clear line.
 
-### 2. Post the comment
+### 3. Post the comment
 
 ```bash
 gh issue comment <N> \
@@ -72,19 +114,36 @@ CLI prints it on success). Log:
 [STAGE-5 post issue=<N>] posted: <comment-url>
 ```
 
-### 3. Apply labels
+### 4. Apply labels
 
-Apply the three labels in a single call (one network round-trip):
+Build the label set from the meta header parsed in §1:
+
+```bash
+labels="ai-responded,severity:<severity>,flow:<flow>"
+
+# Conclusion-driven label (D14) — exactly one of the two:
+if [ "$conclusion" = "resolved" ]; then
+  labels="$labels,issue:can-close"
+elif [ "$conclusion" = "needs-next-step" ]; then
+  labels="$labels,issue:needs-next-step"
+else
+  # Defensive — §1 validation should have already aborted.
+  echo "[STAGE-5 post issue=<N>] aborted: invalid conclusion=$conclusion"
+  exit 1
+fi
+```
+
+Apply the labels in a single call (one network round-trip):
 
 ```bash
 gh issue edit <N> \
   --repo <owner>/<repo> \
-  --add-label "ai-responded,severity:<severity>,flow:<flow>"
+  --add-label "$labels"
 ```
 
-If any of the three labels does NOT yet exist in the repo
-(common on the first live run), `gh` will fail with a clear
-error. In that case:
+If any of the labels does NOT yet exist in the repo (common on
+the first live run), `gh` will fail with a clear error. In that
+case:
 
 1. Create the missing label(s) via:
    ```bash
@@ -108,15 +167,21 @@ error. In that case:
    - `flow:A` → `#bfd4f2`
    - `flow:B` → `#d4c5f9`
    - `flow:C` → `#fef2c0`
+   - `issue:can-close` → `#0E8A16` (green) — applied by this
+     prompt when `conclusion: resolved` (D14
+     RESOLVED-BY-RESPONSE)
+   - `issue:needs-next-step` → `#FBCA04` (yellow) — applied by
+     this prompt when `conclusion: needs-next-step` (D14
+     NEEDS-NEXT-STEP)
 2. Retry the `gh issue edit --add-label` call.
 
 Log:
 
 ```
-[STAGE-5 post issue=<N>] labels: ai-responded, severity:<S>, flow:<F>
+[STAGE-5 post issue=<N>] labels: ai-responded, severity:<S>, flow:<F>, issue:<can-close|needs-next-step> (conclusion=<resolved|needs-next-step>, reason=<token>)
 ```
 
-### 4. Edge cases
+### 5. Edge cases
 
 - **`gh` returns a non-zero exit code on `issue comment`** → abort
   before applying labels. The orchestrator should record the

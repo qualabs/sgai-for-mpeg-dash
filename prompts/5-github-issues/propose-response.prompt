@@ -9,7 +9,10 @@
 - The triage verdict at
   `../output-github-issues/issue-<N>/cycle-<C>/triage.md`.
 - For Flow B issues, the impact analysis at
-  `../output-github-issues/issue-<N>/cycle-<C>/impact.md`.
+  `../output-github-issues/issue-<N>/cycle-<C>/impact.md` — in
+  particular its `## Issue disposition` block, which is the
+  source of truth for the binary conclusion the response MUST
+  carry (see "Issue conclusion" below).
 - When `cycle_count > 1`, the prior cycle's response at
   `../output-github-issues/issue-<N>/cycle-<C-1>/response.md` —
   the draft must acknowledge it (and the OP's reply to it)
@@ -120,6 +123,179 @@ MUST:
 3. Keep the severity-driven disclaimer (D3) and the closing marker
    `<!-- sgai-issues: ai-cycle -->` exactly as on cycle 1. The
    marker is what `detect-issues` counts on the next run.
+4. **Issue-conclusion continuity**: when `cycle_count > 1` AND the
+   prior cycle's conclusion was `NEEDS-NEXT-STEP`, the draft MUST
+   explicitly state whether the OP's new reply flipped the
+   conclusion to `RESOLVED-BY-RESPONSE` (and why — which action
+   items got cleared by the OP's clarification, or which pointer
+   the OP now accepts), OR kept it `NEEDS-NEXT-STEP` (and which
+   action items remain unresolved, plus any new ones the OP's
+   reply surfaced). This is the load-bearing info for the
+   maintainer — without it they cannot tell whether the issue can
+   now be closed or still needs follow-up. Mirror the pattern
+   Stage 6 applies to its mergeable conclusion across cycles.
+
+## Issue conclusion (D14)
+
+Orthogonal to the four-way flow above, every response MUST end
+with a **binary conclusion** about what the maintainer should do
+with the issue after reading the reply:
+
+- **`RESOLVED-BY-RESPONSE`** (`conclusion: resolved`) — the AI's
+  response already covers what the issue raiser asked for. The
+  maintainer may close the issue.
+- **`NEEDS-NEXT-STEP`** (`conclusion: needs-next-step`) — the
+  issue requires action that the response itself does not provide
+  (a future spec change, an ADR, WG input, a clarification from
+  the raiser, etc.). The maintainer should keep the issue open
+  and act on the listed next steps.
+
+The flow (`A` / `B` / `C`) characterises **what the AI did**; the
+conclusion characterises **what the maintainer / WG / raiser does
+next**. They are orthogonal — a Flow A "pointer-style" reply is
+typically `RESOLVED-BY-RESPONSE`, but a Flow A question that
+exposes a documentation gap can be `NEEDS-NEXT-STEP` (the action
+item is "open a docs PR"); a Flow B "incorporate" recommendation
+is virtually always `NEEDS-NEXT-STEP` (the action item is "open
+a context/ PR"); a Flow B "no change required, the spec already
+covers it" is `RESOLVED-BY-RESPONSE`.
+
+### Decision rules
+
+Set `conclusion: resolved` (RESOLVED-BY-RESPONSE) when **ALL** of
+the following hold:
+
+1. The response itself covers what the issue raiser asked for —
+   examples:
+   - Missing context the raiser was unaware of (Flow A pointer to
+     `README.md` / `CLAUDE.md` / `.project/PROJECT.md`).
+   - A clarification of an existing decision already recorded in
+     `.project/decisions/` or `context/` (Flow B "no change
+     required").
+   - A link to an external authoritative document (a published
+     standard section, a working-group decision) that answers the
+     raiser's question.
+2. The issue is a duplicate of something already documented or
+   decided. Cite the source (existing ADR, existing issue,
+   existing requirement / UC ID).
+3. OR the issue is out-of-scope for this project and clarifiably
+   archivable (point the raiser at the right venue, e.g. an
+   upstream repo or a WG mailing list).
+4. **AND** no change is required to the spec or to any downstream
+   artefact — no follow-up PR, no ADR, no WG discussion, no
+   clarification from the raiser.
+
+Set `conclusion: needs-next-step` (NEEDS-NEXT-STEP) when **ANY**
+of:
+
+- The issue requires a future change to the spec — a new
+  requirement, a modified UC, a new construct, a renamed
+  attribute, a corrected wording — i.e. a PR against `context/`.
+- The issue requires a new architectural decision — an ADR in
+  `.project/decisions/`.
+- The issue requires WG discussion or external input that is not
+  available locally (e.g. a contested DASH 6th interpretation
+  that needs to be resolved with the WG).
+- The issue requires a clarification from the issue raiser
+  before the AI can respond on the merits (the raiser's question
+  is ambiguous and the AI's response asks them to refine it).
+- The AI's response is only a partial answer — the spec
+  maintainer, the WG, or the raiser still has work to do.
+
+For Flow B issues, the disposition is **already declared** by
+`analyze-impact.prompt` in `impact.md` under
+`## Issue disposition`. The draft MUST adopt that disposition
+verbatim (mapping `RESOLVED-BY-RESPONSE` ↔ `resolved` and
+`NEEDS-NEXT-STEP` ↔ `needs-next-step`). If the impact analysis
+and the draft disagree, the analysis wins — fix the draft. If
+the disagreement is load-bearing (the draft writer has a strong
+reason to believe the analysis got the disposition wrong), log
+the discrepancy in the draft body and surface it for human
+review rather than overriding silently.
+
+For Flow A and Flow C issues, no `impact.md` exists; the draft
+writer decides the conclusion directly from the response
+content, against the rules above.
+
+### Section placement and content
+
+Append a new `## Issue conclusion` section to the response draft
+**after** the flow-appropriate body and **before** the closing
+`<!-- anti-contradiction: ok -->` (Flow A) and the closing
+`<!-- sgai-issues: ai-cycle -->` marker. The section MUST start
+with the binary verdict on its own line:
+
+```markdown
+## Issue conclusion
+
+**RESOLVED-BY-RESPONSE** — <one-line reason>
+```
+
+OR
+
+```markdown
+## Issue conclusion
+
+**NEEDS-NEXT-STEP** — <one-line reason>
+```
+
+Translate the heading and the inline reason into `triage.lang`.
+The binary token (`RESOLVED-BY-RESPONSE` / `NEEDS-NEXT-STEP`)
+stays in English regardless — it is a status token, not prose.
+
+#### When `RESOLVED-BY-RESPONSE`
+
+Close with a short **closing rationale** paragraph (2–4
+sentences) explaining:
+
+- Why the response covers what the raiser asked (cite the
+  pointer used: file path, decision ID, requirement ID, external
+  source).
+- A direct suggestion to the maintainer that the issue may be
+  closed.
+
+Tone: direct, not condescending toward the raiser. Phrasing like
+"this can be closed" is fine; do NOT lecture the raiser on why
+they should have known.
+
+#### When `NEEDS-NEXT-STEP`
+
+Close with a `### Next steps` block listing **concrete action
+items**. Use a bulleted list, one action per bullet. Each action
+MUST identify:
+
+- **Actor** — who should act: `Nicolas` (project owner),
+  `WG` (working group / external standards body), `emilsas`
+  (collaborator) or `<github-handle>`, `the issue raiser` (when
+  clarification is what's needed), or `maintainer` (catch-all
+  when the actor depends on who picks it up first).
+- **Artefact type** — what kind of artefact the action produces:
+  `PR` (a pull request, typically against `context/`), `ADR` (a
+  decision record under `.project/decisions/`), `follow-up issue`
+  (a new GitHub issue tracking the work), `clarification` (a
+  reply from the raiser asking for more detail), `WG discussion`
+  (escalation to a working group venue), `docs update` (a
+  non-spec doc tweak — README, CLAUDE.md, .project/PROJECT.md).
+- **Brief** — one-line description of what the artefact must
+  contain or resolve.
+
+If multiple options exist (e.g. "could be a PR OR an ADR"), the
+AI MUST mark its recommendation explicitly:
+
+```markdown
+### Next steps
+
+- **Nicolas** — `ADR` — Decide whether `ListMPD` should mandate
+  `@id` uniqueness across nested lists. **Recommended**: ADR
+  rather than a context/ tweak, because the question is
+  architectural (touches the construct's invariants).
+- **WG** — `WG discussion` — Bring the construct's invariants
+  to the next DASH-IF SAI call for cross-vendor validation.
+```
+
+Tone: actionable, not vague. "Discuss this further" is NOT a
+next step; "Bring construct X invariants to the next DASH-IF SAI
+call" is.
 
 ## Flow-specific draft shape
 
@@ -202,6 +378,67 @@ Structure:
    this issue"). Use sparingly — only when there's no way to
    answer constructively.
 
+## Machine-readable meta header
+
+Every response MUST open with a machine-readable HTML comment
+block carrying the structured verdict, so `post-response.prompt`
+does not have to re-parse the body to decide labels. The block
+appears **before** any visible content (before the disclaimer,
+before the prose) and has the exact shape:
+
+```html
+<!-- sgai-issues-meta:
+flow: <A | B | C>
+severity: <cosmetic | spec-detail | requirements | architectural>
+lang: <en | es | pt | fr | it | de>
+cycle: <C>
+trusted: <true | false>
+conclusion: <resolved | needs-next-step>
+conclusion_reason: <short token — see vocabulary below>
+-->
+```
+
+`conclusion` is the binary token from the "Issue conclusion"
+section above, normalised to lowercase-kebab.
+
+`conclusion_reason` is a short text token (one line, no embedded
+newlines, no quotes) describing **why** the conclusion went the
+way it did. Use a controlled vocabulary so `post-response.prompt`
+can log it consistently:
+
+- When `conclusion: resolved`:
+  - `resolved-by-pointer` — the response points the raiser at an
+    existing file (`context/`, `README.md`, ADR) that answers the
+    question.
+  - `resolved-by-clarification` — the response clarifies an
+    existing decision already on record (`.project/decisions/`).
+  - `duplicate` — the issue duplicates a prior issue, ADR, or
+    requirement; the response cites it.
+  - `out-of-scope` — the issue is out-of-scope for the project;
+    the response redirects to the right venue.
+
+- When `conclusion: needs-next-step`:
+  - `requires-pr` — the issue requires a future PR against
+    `context/` (new requirement, modified UC, new construct,
+    wording fix beyond a typo).
+  - `requires-adr` — the issue requires a new architectural
+    decision; the response sketches the trade-off but the ADR
+    must be authored.
+  - `requires-wg` — the issue requires working-group input or an
+    external standards-body resolution.
+  - `requires-clarification` — the AI cannot answer on the merits
+    until the raiser clarifies the question; the response asks
+    for what's missing.
+  - `partial-incorporate` — Flow B with `partial-incorporate`
+    recommendation; some parts will land via PR, others are
+    deferred / declined.
+  - `defer` — Flow B with `defer` recommendation; the response
+    explains what would unblock the decision.
+
+The marker is invisible in GitHub's rendered view but readable
+when the body is fetched via the API — `post-response.prompt`
+parses it (regex on the seven keys) before applying labels.
+
 ## Output format
 
 Write `output-github-issues/issue-<N>/cycle-<C>/response.md`
@@ -212,9 +449,27 @@ pass this file to `gh issue comment --body-file` verbatim in
 Concretely:
 
 ```markdown
+<!-- sgai-issues-meta:
+flow: B
+severity: requirements
+lang: en
+cycle: 1
+trusted: true
+conclusion: needs-next-step
+conclusion_reason: requires-pr
+-->
+
 > <disclaimer line if severity ∈ {requirements, architectural}>
 
 <flow-appropriate body — see structures above>
+
+## Issue conclusion
+
+**NEEDS-NEXT-STEP** — <one-line reason>
+
+<closing rationale paragraph if RESOLVED-BY-RESPONSE, OR
+`### Next steps` block if NEEDS-NEXT-STEP — see "Issue
+conclusion" section above>
 
 <!-- anti-contradiction: ok -->   (Flow A only; other flows may
                                    omit this line)

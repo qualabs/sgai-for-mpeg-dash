@@ -78,8 +78,10 @@ unverified claim as `[inferred]`. Log:
 
 ## Task
 
-Read the issue body in full. Then walk through three sub-analyses
-in order.
+Read the issue body in full. Then walk through four sub-analyses
+in order — the first three classify the issue's content; the
+fourth turns the verdict into a forward-looking disposition that
+the response draft will surface to the maintainer (D14).
 
 ### 1. Validate the issue's claims
 
@@ -145,6 +147,62 @@ Pick ONE recommendation and justify it:
   (WG discussion, dependency on an external standard, etc.).
   State who or what would unblock it.
 
+### 4. Issue disposition (D14)
+
+Project the recommended action into a **binary disposition** that
+tells the maintainer what to do with the issue after the AI
+response is posted. This field is the single source of truth for
+the `conclusion` value that `propose-response.prompt` will embed
+in the response's machine-readable header — keep them in sync.
+
+Two possible values:
+
+- **`RESOLVED-BY-RESPONSE`** — the AI's response alone resolves
+  the issue. Pick this when the recommended action above is
+  effectively "no change required" — concretely:
+  - Sub-analysis 2 concluded *"No change to `context/` required.
+    The issue can be answered by pointing the author at <…>"* —
+    the response is a Flow-B "clarify, no change" message.
+  - The issue is a duplicate of something already documented or
+    decided in `context/` / `.project/decisions/`.
+  - The issue is out-of-scope for the project and the response
+    redirects to the right venue.
+
+- **`NEEDS-NEXT-STEP`** — the AI's response is a starting point
+  but downstream work must happen for the issue to be resolved.
+  Pick this when the recommended action above is `incorporate`,
+  `partial-incorporate`, or `defer`, OR when `reject` requires a
+  follow-up (ADR recording the rejection, WG escalation).
+  Concretely:
+  - `incorporate` → at least one PR against `context/` is owed.
+  - `partial-incorporate` → at least one PR plus possibly an ADR
+    or a follow-up issue for the deferred parts.
+  - `defer` → a WG discussion, a clarification from the raiser,
+    or an external dependency must resolve before the project
+    can act.
+  - `reject` with architectural weight → an ADR recording the
+    rejection (so the same proposal does not re-surface).
+
+When `NEEDS-NEXT-STEP`, enumerate the concrete next steps. Each
+step MUST identify an **actor** (`Nicolas`, `WG`, `emilsas` or
+another GitHub handle, `the issue raiser`, `maintainer`), an
+**artefact type** (`PR`, `ADR`, `follow-up issue`,
+`clarification`, `WG discussion`, `docs update`), and a one-line
+**brief** describing what the artefact must contain. If multiple
+options exist (e.g. PR or ADR), mark the recommended one.
+
+When `RESOLVED-BY-RESPONSE`, write 2–3 sentences of rationale —
+which pointer the response uses, why it suffices, and an
+explicit "maintainer may close" suggestion.
+
+This disposition is consumed by `propose-response.prompt` to
+build the response's `## Issue conclusion` section and to fill
+the `conclusion` / `conclusion_reason` fields of the
+machine-readable meta header. The response MUST adopt the
+disposition verbatim; if the draft writer believes the analysis
+got it wrong, the discrepancy must be surfaced in the draft
+body for human review rather than overridden silently.
+
 ## Output format
 
 Write `output-github-issues/issue-<N>/cycle-<C>/impact.md` with
@@ -181,7 +239,23 @@ issue can be answered by pointing the author at <…>."
 `partial-incorporate`, sketch what the change would look like —
 just enough that the response draft can summarise it. If `reject`,
 cite the established constraint (ADR, requirement, decision).>
+
+## Issue disposition
+
+- **disposition**: <RESOLVED-BY-RESPONSE | NEEDS-NEXT-STEP>
+- **rationale**: <2-3 sentences explaining why the disposition
+  follows from the recommended action above.>
+- **next-steps** (only when `NEEDS-NEXT-STEP`):
+  - <actor> — <artefact type> — <one-line brief>
+  - <actor> — <artefact type> — <one-line brief> [**Recommended**
+    if a choice between multiple paths]
+  - ...
 ```
 
 Keep the file focused. The impact analysis exists to guide the
-response draft, not to replace it.
+response draft, not to replace it. The `Issue disposition`
+section is consumed verbatim by `propose-response.prompt` to
+build the response's `## Issue conclusion` and the
+`conclusion` / `conclusion_reason` keys of the response's
+machine-readable meta header — keep the wording terse and
+machine-friendly.
