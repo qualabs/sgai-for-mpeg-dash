@@ -1,5 +1,22 @@
 # Project log
 
+## 2026-05-26 — decision: defer spatial caps to IAB CTV per @layout token
+
+ADR 0001 closes the spatial-caps question raised by issue #4
+(emilsas): rather than introduce a new MPD-side dimensional
+attribute, the spec defers broadcaster-declared spatial
+constraints to the per-layout caps already defined by the IAB
+CTV Ad Format Guidelines, inherited by normative reference via
+the `@layout` token. `R12.4` lifts this into a normative
+requirement in `context/03-requirements.md`. This avoids a new
+MPD construct (per R9.2 / R9.3 / R10) and keeps the layout
+system anchored on the external IAB spec instead of redefining
+caps locally. Captured as ADR
+`.project/decisions/0001-defer-to-iab-ctv-for-spatial-caps.md`
+and shipped in PR #6 (resolves issue #4). The
+"alignment with IAB CTV Ad Standard" open thread in
+`PROJECT.md` is closed by this decision.
+
 ## 2026-05-16 — refactor: separate ADS responsibility from R18 (API scope)
 
 The bullet about the ADS URL in context/02-actors.md was mixing
