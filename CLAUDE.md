@@ -250,19 +250,34 @@ The six prompts live under `prompts/5-github-issues/`:
   `trusted` boolean, and `cycle_count` (anti-loop, D5).
 - `analyze-impact.prompt` — Flow B only. Validates the issue's
   claims against `context/`, identifies affected artefacts, picks
-  a recommended action. Queries NotebookLM only if specific
-  keywords appear in the issue body (D6): `DASH`, `ISO 23009`,
-  `IAB`, `SCTE-35`, `SCTE`, `MPEG`, `CMAF`, `HLS`.
+  a recommended action, and projects the verdict into a binary
+  **issue disposition** (`RESOLVED-BY-RESPONSE` /
+  `NEEDS-NEXT-STEP`, D14) that `propose-response` adopts verbatim
+  for the response's `## Issue conclusion` section. Queries
+  NotebookLM only if specific keywords appear in the issue body
+  (D6): `DASH`, `ISO 23009`, `IAB`, `SCTE-35`, `SCTE`, `MPEG`,
+  `CMAF`, `HLS`.
 - `propose-response.prompt` — drafts a flow-appropriate reply in
   the detected language. Adds the auto-draft disclaimer at the
   top when `severity ∈ {requirements, architectural}` (D3).
-  Every draft ends with the hidden marker
+  Picks the binary **issue conclusion**
+  (`RESOLVED-BY-RESPONSE` / `NEEDS-NEXT-STEP`, D14) and appends
+  a mandatory `## Issue conclusion` section with either a
+  closing rationale paragraph (RESOLVED-BY-RESPONSE) or a
+  `### Next steps` action list (NEEDS-NEXT-STEP). Embeds a
+  machine-readable metadata header
+  (`<!-- sgai-issues-meta: ... -->`, including `conclusion` +
+  `conclusion_reason`) so `post-response` does not re-parse the
+  body. Every draft ends with the hidden marker
   `<!-- sgai-issues: ai-cycle -->` used by future runs to count
   cycles.
 - `post-response.prompt` — only fires in `--live` mode for
-  **trusted** authors. Posts the comment via `gh issue comment`
-  and applies the labels `ai-responded`, `severity:<X>`,
-  `flow:<A|B|C>`.
+  **trusted** authors. Parses the meta header, posts the comment
+  via `gh issue comment`, and applies labels: `ai-responded`,
+  `severity:<X>`, `flow:<A|B|C>`, plus exactly one of
+  `issue:can-close` (`conclusion: resolved`) or
+  `issue:needs-next-step` (`conclusion: needs-next-step`) per
+  D14.
 
 ### Decisions encoded in the pipeline
 
@@ -275,6 +290,7 @@ The six prompts live under `prompts/5-github-issues/`:
 | D5 | Anti-loop cap of 3 AI cycles per issue. Enforced by `detect-issues`: when `cycle_count >= 4`, apply label `ai-conversation-cap-hit` and drop the issue before triage. |
 | D6 | NotebookLM is queried only when the keyword detector trips. |
 | D7 | Trigger is manual today. Cron is future work. |
+| D14 | Each Stage 5 response ends with a binary **issue conclusion**: **RESOLVED-BY-RESPONSE** (`conclusion: resolved`) or **NEEDS-NEXT-STEP** (`conclusion: needs-next-step`). Resolved when the AI's response covers what the issue raiser asked (context pointer, decision clarification, duplicate, out-of-scope) AND no change is required to spec / ADRs / docs. Needs-next-step when the issue requires future action (PR against `context/`, ADR under `.project/decisions/`, WG input, follow-up issue, clarification from the raiser, partial-incorporate, defer). For Flow B issues, `analyze-impact.prompt` declares the disposition in `impact.md` under `## Issue disposition`; `propose-response.prompt` adopts it verbatim and writes it into the response's `## Issue conclusion` section plus the machine-readable header `<!-- sgai-issues-meta: ... conclusion: ... conclusion_reason: ... -->`. Flow A and Flow C draftees decide the conclusion directly from the response content. Labels mapped: `issue:can-close` if resolved; `issue:needs-next-step` if needs-next-step — applied by `post-response.prompt` (mutually exclusive). Orthogonal to `flow` (A/B/C) and `severity` — flow and severity characterise what the AI did; the conclusion characterises what the maintainer / WG / raiser does next. Mirrors Stage 6 D11 (MERGEABLE / NEEDS-WORK). |
 
 ### Scratch directory
 
