@@ -1,0 +1,390 @@
+# Analyse a GitHub PR across four review axes
+
+**Inputs**:
+- The PR record (from `detect-prs.prompt`) — `{number, title, body,
+  author, ..., cycle_count, base_ref, head_ref, ...}`.
+- `cycle_count` (integer ≥ 1) — passed in by the orchestrator and
+  used to locate the current cycle's triage verdict and output
+  path.
+- The triage verdict at
+  `../output-github-prs/pr-<N>/cycle-<C>/triage.md` (the
+  orchestrator has already written this for the current cycle;
+  this prompt re-reads `trusted`, `severity`, `files_touched`,
+  `claim_summary`, and the "Notes for downstream prompts" section
+  to focus the analysis).
+- The PR's full diff. Fetch on demand:
+  ```bash
+  gh pr diff <N> --repo <owner>/<repo>
+  ```
+  Read it once into memory; reference specific hunks by `path:line`
+  when emitting line-specific findings.
+- The full `../context/` directory — primary grounding source for
+  the content axis.
+- The most recent `../output/v<N>-sgai-spec.md` and matching
+  `../output-analysis/v<N>-*.md` sidecars — used for content
+  cross-check and to assess downstream impact.
+- `../CLAUDE.md` — primary grounding source for the convention
+  axis (naming conventions, file placement, cross-reference rules,
+  "what does NOT go where").
+- `../.project/decisions/` — ADRs; used to test whether the PR
+  contradicts an established architectural decision.
+- Optionally, the prior cycle's analysis at
+  `../output-github-prs/pr-<N>/cycle-<C-1>/analyze.md` when
+  `cycle_count > 1` — used to avoid re-litigating findings that
+  were already raised and to anchor on the author's new commits.
+- Optionally NotebookLM grounding — see "Keyword detector" below.
+
+**Output**:
+`../output-github-prs/pr-<N>/cycle-<C>/analyze.md`.
+
+**Skip if**:
+`../output-github-prs/pr-<N>/cycle-<C>/analyze.md` exists AND its
+mtime is newer than the PR's `updated_at` AND newer than the
+newest mtime under `../context/` AND newer than the triage file's
+mtime. (Context moved or triage changed → the analysis is stale
+and must be redone.) A new cycle folder is always empty when first
+created, so this skip naturally applies only when the same cycle
+is being re-run.
+
+**Execution mode**: this prompt runs for **every** PR that
+survived `detect-prs` (no flow gating like Stage 5). Every PR
+review needs the four axes regardless of severity.
+
+---
+
+## Grounding mode
+
+Decide which grounding mode applies and log it as the first line
+of execution:
+
+### Keyword detector (D6)
+
+Scan the PR body AND the diff text (case-insensitive, whole words)
+for any of these technical keywords:
+
+- `DASH`
+- `ISO 23009`
+- `IAB`
+- `SCTE-35`
+- `SCTE`
+- `MPEG`
+- `CMAF`
+- `HLS`
+
+If at least one keyword matches AND the `notebooklm` skill is
+installed AND `.env.agent` defines a non-empty `NOTEBOOK_ID` →
+query the configured notebook for authoritative content relevant
+to the PR's claims. Use the matched keyword(s) to shape the
+NotebookLM query (e.g. a PR mentioning `DASH` + `ReplacePresentation`
+should search the DASH 6th edition for the latter). Log:
+
+```
+[GROUNDED_BY=notebooklm] [KEYWORDS_MATCHED=DASH,CMAF]
+```
+
+If no keyword matches OR NotebookLM is unavailable → ground only
+against `../context/` and the model's prior knowledge. Tag every
+unverified claim as `[inferred]`. Log:
+
+```
+[GROUNDED_BY=spec-only] [KEYWORDS_MATCHED=]
+```
+
+## The four axes (D13)
+
+Walk through the four axes in order. Each axis produces zero or
+more **findings**. A finding is a concrete observation about the
+diff that the reviewer should know.
+
+### Axis 1 — Content validation
+
+For each substantive claim the PR makes in its body (a factual
+statement about the spec, a citation of an external standard, a
+description of what the diff does), AND for each addition or
+modification in the diff that asserts a fact (a UC, a requirement
+note, a glossary entry, a procedural description), classify:
+
+- **`verified`** — matches the canonical source. Cite the source
+  inline (`context/03-requirements.md §R7`, `DASH 6th §5.16.4`
+  when NotebookLM is grounded).
+- **`refuted-by-spec`** — the canonical source contradicts the
+  claim. Cite where. Quote the contradicting passage briefly.
+- **`partially-verified`** — partially correct; usually a
+  paraphrase that bends a detail. Cite both what's right and
+  what's off.
+- **`unverifiable`** — cannot be checked against the available
+  sources (the claim is about something the spec does not yet
+  cover, or about an external standard that NotebookLM did not
+  surface). Mark it as such; do NOT invent verification.
+
+For Stage 6 specifically, the content axis pays special attention
+to:
+- Cross-references to external standards (`DASH 6th §X`, `RFC
+  ABC`, `IAB Open Measurement v1.5 §Y`) — verify the section
+  number exists.
+- Cross-references to internal artefacts (`R4.1`, `UC-09`) —
+  verify the ID exists or is being introduced consistently.
+- Numeric values, namespace URIs, scheme URIs — verify they match
+  the canonical source.
+
+#### Sub-step — Identify open points TBD declared by the author
+
+Beyond verifying claims, the content axis MUST also surface **open
+points the author has explicitly left unresolved**. An open point
+is anything the author signals as "to be decided later" inside the
+diff or the PR's surrounding context:
+
+- A `TBD` / `TODO` / `FIXME` / `XXX` marker in a diffed `context/`
+  file, in `.project/decisions/`, or in `.project/PROJECT.md`.
+- An "Open questions", "Open points", "Deferred", or "To-be-
+  decided" section in the PR body.
+- A `[?]` / `(?)` annotation on a requirement, UC, or attribute in
+  the diff.
+- An ADR draft under `.project/decisions/` left in `Status:
+  proposed` or `Status: draft` rather than `Status: accepted`.
+- A `?` placeholder in a numeric value, namespace URI, or scheme
+  URI in the diff.
+- A new thread opened in `.project/PROJECT.md` that the diff does
+  not close.
+
+For each open point identified, emit a finding with:
+
+- `axis = content`
+- `severity = info`
+- `granularity = generic`
+- `blocks_merge = true` (the new flag — see "Finding fields"
+  below)
+- `claim`: a one-sentence description of the open point.
+- `evidence`: the verbatim quote of the TBD line + `file:line` +
+  the author's stated resolution direction (if any — quote it; if
+  the author did not state one, write `"none"`).
+
+These findings are NOT blockers in the verdict sense (they are
+`info`); they are flagged via `blocks_merge: true` so that
+`propose-review.prompt` knows the PR is `NEEDS-WORK` even when the
+verdict is `LGTM` or `SUGGESTIONS`. See the "Open points
+identified (block merge)" section in the output template below.
+
+### Axis 2 — Convention compliance
+
+Read `../CLAUDE.md` and apply its rules. For each rule that the
+diff potentially violates, emit a finding:
+
+- **Naming conventions**: `context/` files use `NN-name.md`;
+  `output/` files use `v<N>-`; cross-refs follow the parent-
+  relative pattern.
+- **File placement** ("What does NOT go where"): no generated
+  artefacts in `context/`; no human notes in `context-analysis/`;
+  no half-built artefacts in `output/`; no analyses outside
+  `output-analysis/`; only `.prompt` files in `prompts/`.
+- **Cross-reference rules**: `context/` files MUST NOT reference
+  anything under `context-analysis/`, `output/`, or
+  `output-analysis/` (the dependency arrow is strictly one
+  direction).
+- **Header format**: prompts open with `Inputs / Output / Skip if`
+  before the `---` divider.
+- **Language**: English for content inside `context/`, `prompts/`,
+  `context-analysis/`, `output/`, `output-analysis/`, `README.md`,
+  `CLAUDE.md`. (PR body / commit messages have no language rule
+  per project conventions.)
+- **RFC 2119 vocabulary**: when the diff uses MUST / SHOULD / MAY
+  in a `context/` file or in the spec, the document should
+  reference RFC 2119 at the top.
+
+A finding here cites the exact rule from CLAUDE.md (`§"How to
+modify the spec"`, `§"Naming conventions"`, …) and the line in
+the diff that violates it.
+
+### Axis 3 — Scope coherence
+
+Compare what the PR **says** it does (its body, especially the
+"## Changes" / "## Summary" section, and the `claim_summary` from
+triage) against what it **actually** does (the file list, the
+diff hunks).
+
+Emit a finding when:
+- The diff touches files NOT mentioned in the body (e.g. body
+  says "adds UC-09" but the diff also rewrites
+  `.project/PROJECT.md` in a non-trivial way).
+- The body claims a change that is missing from the diff (e.g.
+  body says "updates the glossary" but no glossary file is
+  touched).
+- The diff touches multiple unrelated concerns (e.g. UC addition
+  AND prompt refactor in the same PR).
+- Title vs body vs diff disagree on what the PR is.
+
+A clean PR has zero scope findings. The verdict
+`SCOPE-MISMATCH` (D11) is triggered when scope findings are
+significant — typically when the body and the diff disagree on
+**what** the PR is, not just on **whether** every change is
+mentioned.
+
+### Axis 4 — Downstream impact
+
+The project's dependency arrow is `context/ → context-analysis/ →
+output/ → output-analysis/` (see `CLAUDE.md §"What does NOT go
+where"`). When the PR touches an upstream layer, downstream
+artefacts become stale by mtime.
+
+Emit a finding for each downstream artefact that will go stale on
+merge:
+- If `context/` is touched → ALL of `context-analysis/`,
+  `output/v<N>-*`, and `output-analysis/v<N>-*` are stale.
+- If `context-analysis/` is touched (rare in a human-authored PR;
+  more often regenerated) → `output/v<N>-*` and
+  `output-analysis/v<N>-*` are stale.
+- If `output/v<N>-sgai-spec.md` is touched by hand (against
+  CLAUDE.md guidance) → flag it as a violation in axis 2 AND list
+  `output-analysis/v<N>-*` as stale.
+
+The downstream finding is `info` severity by default — the
+project's workflow is to merge then re-run `build-all`. The
+finding exists so the reviewer remembers to schedule the rebuild,
+not to block the PR.
+
+Special case: if the PR's body explicitly acknowledges the stale
+downstream (e.g. "no analysis/ artefacts modified — all generated;
+will be rebuilt by `build-all` after this merges"), the finding
+goes from `info` to `noted-by-author` and is mentioned as a
+"sanity-check, already acknowledged" — no action needed.
+
+## Finding fields
+
+For each finding produced by any of the four axes, capture:
+
+- `axis`: `content` | `convention` | `scope` | `downstream`
+- `severity`: `blocker` | `suggestion` | `info`
+  - `blocker` — the PR should NOT merge as-is. Used for: a
+    refuted claim that is load-bearing; a convention violation
+    that breaks the layering (e.g. a `context/` file referencing
+    `output-analysis/`); a scope mismatch where the diff actively
+    contradicts the title.
+  - `suggestion` — non-bloquant improvement. The PR can merge;
+    the suggestion is a quality nudge.
+  - `info` — neutral observation, no action requested.
+- `granularity`: `generic` | `line-specific` (D9)
+  - `generic` — the finding is about the PR as a whole or a
+    concept that does not anchor to a single line.
+  - `line-specific` — the finding points at a specific file +
+    line (or a hunk range) in the diff.
+- `path` (only when `granularity == line-specific`) — the file
+  path as it appears in the diff (e.g. `context/04-use-cases.md`).
+- `line` (only when `granularity == line-specific`) — the line
+  number in the **new** version of the file (the right side of
+  the diff). For added lines, this is the line as it will appear
+  post-merge.
+- `claim`: a one-sentence description of the finding.
+- `evidence`:
+  - For `content` findings: the verbatim PR / diff line + the
+    canonical source citation (with quote when short).
+  - For `convention` findings: the CLAUDE.md rule reference + the
+    diff line that violates it.
+  - For `scope` findings: the PR-body claim vs the diff fact.
+  - For `downstream` findings: the affected artefact path(s) and
+    whether the body acknowledges the staleness.
+- `blocks_merge` (optional, default `false`): set to `true` when
+  this finding alone is enough to flip the mergeable decision to
+  `NEEDS-WORK`, regardless of severity. Used for: open points TBD
+  identified in the Axis-1 sub-step, broken internal cross-refs
+  in Axis 2, and load-bearing unverifiable claims tagged
+  `[inferred]` at severity ≥ suggestion. `propose-review.prompt`
+  aggregates this flag across all findings to set the
+  `mergeable` field in the meta header.
+
+## Output format
+
+Write `output-github-prs/pr-<N>/cycle-<C>/analyze.md` with this
+exact shape:
+
+```markdown
+# Analysis — PR #<N> (cycle <C>)
+
+Grounding: <notebooklm | spec-only>
+Keywords matched: <comma-list or "(none)">
+
+## Axis 1 — Content validation
+
+### Findings
+
+- **[F1.1]** severity=<S> granularity=<G> path=<…> line=<…> blocks_merge=<true|false>
+  Claim: <…>
+  Evidence: <verbatim quote + source citation>
+- **[F1.2]** ...
+
+(If no findings: "No content findings on this axis.")
+
+### Open points identified (block merge)
+
+(Populated by the Axis-1 sub-step. Every entry here is ALSO listed
+as an axis-1 finding above with `blocks_merge: true`. This section
+is a flat shortlist so `propose-review.prompt` can lift it
+verbatim into the `Path to merge` block when the PR is
+`NEEDS-WORK`.)
+
+- **[OP-1]** <one-line title>. `<file>:<line>`. Verbatim TBD:
+  "<quote>". Author's stated resolution direction: <quote or
+  "none">.
+- **[OP-2]** ...
+
+(If no open points: "No open points identified — the diff does not
+defer any decision.")
+
+## Axis 2 — Convention compliance
+
+### Findings
+
+- **[F2.1]** severity=<S> granularity=<G> path=<…> line=<…>
+  Claim: <…>
+  Evidence: <CLAUDE.md §rule> — diff line: <…>
+- ...
+
+(If no findings: "No convention findings on this axis.")
+
+## Axis 3 — Scope coherence
+
+### Findings
+
+- **[F3.1]** severity=<S> granularity=<G>
+  Claim: <…>
+  Evidence: PR body says "<paraphrase>"; diff actually <fact>.
+- ...
+
+(If no findings: "Scope is coherent — body and diff agree on what
+the PR does.")
+
+## Axis 4 — Downstream impact
+
+### Stale artefacts on merge
+
+- `<path>` — <stale | noted-by-author>
+- ...
+
+### Findings
+
+- **[F4.1]** severity=info granularity=generic
+  Claim: <…>
+  Evidence: <…>
+- ...
+
+(If no stale artefacts: "No downstream artefacts go stale — the
+PR touches only layers below the dependency arrow.")
+
+## Aggregate
+
+- Total findings: <N>
+- By severity: blocker=<n>, suggestion=<n>, info=<n>
+- Line-specific findings: <n>
+- Generic findings: <n>
+- Findings with `blocks_merge: true`: <n>
+- Open points identified: <n>
+
+(The aggregate is consumed by `propose-review.prompt` to pick the
+verdict and the mergeable decision. `blocks_merge` is the
+authoritative input for `mergeable: false` outside of the
+`BLOCKERS` / `SCOPE-MISMATCH` verdicts.)
+```
+
+Keep the file focused. The analysis exists to guide the review
+draft, not to replace it. Every finding listed here should appear
+in the draft in some form; every finding excluded from the draft
+should be missing here for a reason.

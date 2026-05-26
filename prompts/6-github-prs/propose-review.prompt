@@ -1,0 +1,562 @@
+# Propose a draft review for a GitHub PR
+
+**Inputs**:
+- The PR record (from `detect-prs.prompt`), including `cycle_count`.
+- `cycle_count` (integer ≥ 1) — passed in by the orchestrator and
+  used to locate the current cycle's upstream artefacts and to
+  shape the draft's tone (see "Cycle-aware tone" below).
+- The triage verdict at
+  `../output-github-prs/pr-<N>/cycle-<C>/triage.md`.
+- The analysis at
+  `../output-github-prs/pr-<N>/cycle-<C>/analyze.md` (the source
+  of all findings the draft will surface).
+- When `cycle_count > 1`, the prior cycle's review at
+  `../output-github-prs/pr-<N>/cycle-<C-1>/review.md` — the draft
+  must acknowledge it (and the author's reply or new commits)
+  without restating it verbatim.
+- The PR's `meta.md` at `../output-github-prs/pr-<N>/meta.md` —
+  gives the current comments / review timeline; useful when the
+  draft needs to reference what the author said in their last
+  reply.
+- The full project tree (`../context/`, `../output/`,
+  `../output-analysis/`, `../README.md`, `../CLAUDE.md`,
+  `../.project/`) — used to anchor citations in the draft.
+
+**Output**: `../output-github-prs/pr-<N>/cycle-<C>/review.md`.
+Plain markdown, ready to paste into `gh pr comment --body-file`
+OR `gh pr review --comment --body-file` (routing decided below).
+
+**Skip if**:
+`../output-github-prs/pr-<N>/cycle-<C>/review.md` exists AND its
+mtime is newer than the triage file's mtime AND newer than the
+analysis file's mtime. If any upstream artefact moved, the review
+is stale and must be rewritten. A new cycle folder is always empty
+when first created, so this skip naturally applies only when the
+same cycle is being re-run.
+
+**Execution mode**: invoked for every PR that reached this stage.
+The anti-loop cap (D5, `cycle_count >= 4`) is enforced upstream by
+`detect-prs` — by the time this prompt runs, the cycle index is
+guaranteed to be in `{1, 2, 3}`.
+
+---
+
+## Verdict (D11)
+
+Pick exactly one of:
+
+- **`LGTM`** — no blockers, no suggestions OR only `info`
+  findings. The PR is clean.
+- **`SUGGESTIONS`** — at least one `suggestion` finding, but no
+  `blocker` findings. The PR can merge; the suggestions are
+  quality nudges.
+- **`BLOCKERS`** — at least one `blocker` finding. The PR should
+  NOT merge as-is. The review states the blockers explicitly with
+  reasoning grounded in the analysis.
+- **`SCOPE-MISMATCH`** — at least one `blocker` finding on the
+  scope axis AND the body / diff disagree on **what** the PR is
+  (not just on whether every change is mentioned). This is a
+  special-case of `BLOCKERS` that gets its own verdict because the
+  remediation is structural (split the PR, retitle, rewrite the
+  body) rather than fix-a-line.
+
+When both `BLOCKERS` and `SCOPE-MISMATCH` apply, prefer
+`SCOPE-MISMATCH` — the scope issue is the dominant signal and the
+remediation cascades.
+
+## Mergeable decision (D11)
+
+Orthogonal to the four-way verdict above, every review MUST end
+with a **binary conclusion** about whether the PR is ready for the
+maintainer to merge:
+
+- **`MERGEABLE`** (`mergeable: true`) — the PR is a good addition
+  and can land as-is from the AI review pass's standpoint.
+- **`NEEDS-WORK`** (`mergeable: false`) — the PR needs changes
+  before merge.
+
+The verdict (`LGTM` / `SUGGESTIONS` / `BLOCKERS` / `SCOPE-MISMATCH`)
+characterises **what the review found**; the mergeable conclusion
+characterises **what the author should do next**. They are
+orthogonal because a `SUGGESTIONS` verdict can still be NEEDS-WORK
+(e.g. open points TBD declared by the author remain unresolved),
+and a clean `LGTM` is almost always MERGEABLE.
+
+### Decision rules
+
+Set `mergeable: true` when **ALL** of the following hold:
+
+1. `verdict ∈ {LGTM, SUGGESTIONS}` (no blockers, no scope mismatch).
+2. **No open points TBD** declared by the author remain unresolved.
+   Open points are findings raised by `analyze-pr` in Axis 1 with
+   the flag `blocks_merge: true` (TBDs, "open questions",
+   "deferred", "to-be-decided" markers in the PR body, in
+   `context/` files diffed, in `.project/decisions/`, in PROJECT.md
+   threads).
+3. **No unverifiable load-bearing claims** — every substantive
+   claim in the PR has evidence grounded in `context/` or, when
+   the D6 keyword detector tripped, in NotebookLM. A claim tagged
+   `[inferred]` on an axis-1 finding with severity ≥ suggestion is
+   a blocker for mergeable.
+4. **No broken cross-references** — the convention axis (Axis 2)
+   confirms internal cross-refs introduced or modified by the PR
+   resolve correctly. A finding pointing at a broken cross-ref
+   blocks mergeable regardless of its severity.
+
+Set `mergeable: false` when **ANY** of:
+
+- `verdict ∈ {BLOCKERS, SCOPE-MISMATCH}`.
+- At least one open point TBD remains unresolved (axis 1 finding
+  with `blocks_merge: true`).
+- At least one load-bearing claim cannot be verified without more
+  info from the author.
+- At least one internal cross-reference introduced or modified by
+  the PR is broken.
+
+When a `BLOCKERS` / `SCOPE-MISMATCH` verdict applies, mergeable is
+trivially `false` — no need to re-check the four sub-conditions.
+
+### Section placement and content
+
+Append a new `## Mergeable decision` section to the review draft
+**after** the verdict-specific body (findings / blockers / scope
+narrative) and **before** the closing `<!-- sgai-prs: ai-cycle -->`
+marker. The section MUST start with the binary verdict on its own
+line:
+
+```markdown
+## Mergeable decision
+
+**MERGEABLE** — <one-line reason>
+```
+
+OR
+
+```markdown
+## Mergeable decision
+
+**NEEDS-WORK** — <one-line reason>
+```
+
+Translate the heading and the inline reason into `triage.lang`.
+The binary token (`MERGEABLE` / `NEEDS-WORK`) stays in English
+regardless — it is a status token, not prose.
+
+#### When `MERGEABLE`
+
+Close with a short **rationale paragraph** (2–5 sentences)
+explaining:
+
+- Why the PR is a good addition (what it improves / fixes /
+  clarifies).
+- Why the findings, if any, are quality nudges that do NOT block
+  merge — they can be folded into a follow-up PR or addressed by
+  the maintainer post-merge.
+
+The rationale's tone matches the rest of the draft: technical,
+direct, no fluff, no @-mentions. It is the AI review pass's
+explicit endorsement of the merge path — the maintainer reads it
+and decides.
+
+#### When `NEEDS-WORK`
+
+Close with a **`Path to merge` block** listing the concrete
+actions the author must complete before the PR is mergeable. Use
+a bulleted list, one action per bullet. Each action MUST be:
+
+- **Concrete** — name the file, the line, the open point ID, the
+  blocker ID, the convention reference. The author should not
+  have to re-read the analysis to know what to do.
+- **Resolvable** — name the acceptable resolution. For open points
+  specifically, the resolution is one of three paths:
+  - **(a)** Commit the resolution directly into `context/` (or
+    the relevant diffed file), removing the TBD marker.
+  - **(b)** Move the open point to an ADR under
+    `.project/decisions/` (when the resolution is an
+    architectural decision worth recording).
+  - **(c)** Reference a follow-up PR or GitHub issue tracking the
+    open point (when resolution is out of scope for this PR but
+    the author commits to handling it elsewhere).
+
+Template:
+
+```markdown
+### Path to merge
+
+- **[OP-1]** Resolve the open point on `<file>:<line>` ("<short
+  TBD quote>"). Options: (a) commit the resolution to
+  `context/<file>`, (b) move to a new ADR under
+  `.project/decisions/`, or (c) reference a follow-up issue.
+- **[F2.3]** Fix the broken cross-reference at `<file>:<line>` —
+  the link to `<target>` does not resolve.
+- **[F1.2]** Provide the source for the claim "<verbatim>" — the
+  AI review pass could not verify it against `context/` or DASH
+  6th. Either cite the canonical source in the PR body, or
+  rephrase the claim to remove the unverifiable specificity.
+- **[B1]** Address blocker: <one-line summary>. See blockers
+  section above for the full reasoning.
+```
+
+After the bullets, add a one-line closer:
+
+> *Once these are addressed, the AI review pass expects the PR
+> to flip to MERGEABLE on the next cycle.*
+
+(Translated into `triage.lang`.)
+
+## Routing (D8)
+
+Decide whether the review is posted as a top-level comment (`gh pr
+comment`) or as a formal `--comment` review (`gh pr review
+--comment`, which may include inline line-anchored comments).
+
+Read the `## Aggregate` section of `analyze.md` to get
+`line_specific_findings`. Then:
+
+| Verdict | line_specific_findings | Routing |
+|---|---|---|
+| `LGTM` | 0 | `comment` |
+| `LGTM` | ≥ 1 | `review` |
+| `SUGGESTIONS` | 0 | `comment` |
+| `SUGGESTIONS` | ≥ 1 | `review` (hybrid: inline + summary) |
+| `BLOCKERS` | any | `review` (formal, registered as a review) |
+| `SCOPE-MISMATCH` | any | `review` (formal, registered as a review) |
+
+The `review` routing for blockers / scope-mismatch is intentional:
+formal `gh pr review --comment` shows up in the PR's "Reviews"
+section, not just inline with the comment thread — Nicolas sees
+at a glance the AI raised a review (without it counting as approve
+/ request-changes per D12).
+
+## Hard guard against approve / request-changes (D12)
+
+The verdict and routing produced by this prompt MUST NEVER
+correspond to `gh pr review --approve` or
+`gh pr review --request-changes`. The pipeline only posts:
+
+- `gh pr comment <N> --body-file ...` (when routing = `comment`),
+  or
+- `gh pr review <N> --comment --body-file ...` (when routing =
+  `review`), optionally accompanied by inline comments via the
+  Pulls API (see `post-review.prompt`).
+
+If you find yourself drafting language that asks for approval or
+explicit change requests at the GitHub-review-state level (vs.
+asking the author to revise), STOP and reframe — the pipeline does
+not have permission to gate merges. It only contributes review
+comments. Nicolas merges by hand.
+
+## Output language
+
+The draft MUST be written in the language stored as `lang` in the
+triage verdict (D4 fallback: `en`). All headings, prose, code
+comments inside fenced blocks, and the closing line stay in the
+detected language. Technical terms (`OverlayPresentation`,
+`ListMPD`, `DASH 6th`, `SCTE-35`, `ReplacePresentation`,
+`status=update`, etc.) are kept verbatim regardless of the
+language — they are proper nouns of the spec.
+
+## Mandatory marker
+
+Every review draft, regardless of verdict or routing, MUST end
+with the following hidden HTML comment on its own final line:
+
+```html
+<!-- sgai-prs: ai-cycle -->
+```
+
+This marker is what `detect-prs.prompt` uses to count AI cycles
+for the anti-loop cap (D5). The marker is invisible in GitHub's
+rendered view but readable when the body is fetched via the API.
+
+When routing is `review` + the review carries inline comments, the
+marker MUST live in the **summary body** (the one passed to
+`gh pr review --comment --body-file`). The inline comments do NOT
+carry the marker — see `detect-prs.prompt §"Inline review comments
+are not counted"`.
+
+## Severity-driven disclaimer (D3)
+
+If `triage.severity == "requirements"` OR
+`triage.severity == "architectural"`, the draft MUST open with
+this exact disclaimer line (translated into `triage.lang`):
+
+- **`en`**: *"This review was auto-drafted by the project's AI
+  agent — please cross-check with project owner before relying on
+  it."*
+- **`es`**: *"Esta revisión fue auto-redactada por el agente AI
+  del proyecto — por favor, cruzar referencias con el dueño del
+  proyecto antes de basarse en ella."*
+- **`pt`**: *"Esta revisão foi rascunhada automaticamente pelo
+  agente IA do projeto — por favor, valide com o dono do projeto
+  antes de confiar nela."*
+- **`fr`**: *"Cette revue a été rédigée automatiquement par
+  l'agent IA du projet — merci de vérifier auprès du responsable
+  du projet avant de vous y fier."*
+- **`it`**: *"Questa revisione è stata redatta automaticamente
+  dall'agente IA del progetto — vi preghiamo di verificare con il
+  proprietario del progetto prima di affidarvi a essa."*
+- **`de`**: *"Diese Review wurde automatisch vom KI-Agenten des
+  Projekts entworfen — bitte vor der Verwendung mit dem
+  Projektverantwortlichen abgleichen."*
+
+Format the disclaimer as a blockquote (`> …`) so it stands out
+visually.
+
+For `severity ∈ {cosmetic, spec-detail}` the disclaimer is NOT
+added — those reviews don't carry decision weight, and front-
+loading a disclaimer on every minor reply would dilute its signal.
+
+## Cycle-aware tone
+
+`cycle_count == 1` is the default case: the AI is reviewing the PR
+for the first time. No special framing.
+
+When `cycle_count > 1`, the author has pushed new commits and/or
+replied to a prior AI review, and the pipeline is preparing a
+follow-up. The draft MUST:
+
+1. Open with a brief acknowledgement of the prior cycle. Example
+   phrasings (in the detected language; English here):
+   - "Thanks for the follow-up — to the new points raised:"
+   - "Re-reviewing after the latest push: addressing the new
+     diff below."
+   The acknowledgement is one sentence at most; do NOT recap what
+   was said before — the author and the maintainer can scroll up.
+2. Focus the body on the **new** material — the latest commits
+   and the author's reply. Do NOT re-litigate findings that were
+   already settled in `cycle-<C-1>/analyze.md` unless the new diff
+   reintroduces them.
+3. Keep the severity-driven disclaimer (D3) and the closing marker
+   `<!-- sgai-prs: ai-cycle -->` exactly as on cycle 1. The marker
+   is what `detect-prs` counts on the next run.
+4. **Mergeable decision continuity**: when `cycle_count > 1` AND
+   the prior cycle's decision was `mergeable: false`, the response
+   MUST explicitly state whether the author's new commits flipped
+   the decision to `mergeable: true` (and why — which OPs got
+   resolved, which blockers got fixed), OR kept it `mergeable:
+   false` (and which OPs / blockers remain unresolved). This is
+   the load-bearing info for the author — without it they cannot
+   tell if they need to keep iterating. State this near the top of
+   the body, ideally right after the acknowledgement of point 1.
+
+## Verdict-specific draft shape
+
+Each shape below describes the **verdict-specific body** that
+precedes the mandatory `## Mergeable decision` section. The
+"close" bullet in each shape is the lead-in to the mergeable
+section — keep it short, do NOT duplicate the rationale or the
+`Path to merge` block (those live in the mergeable section).
+
+### `LGTM`
+
+Goal: confirm the PR is clean and signal the author the review
+pass found no blockers.
+
+Structure:
+
+1. **Acknowledge** what the PR does (one sentence, lift from
+   `triage.claim_summary`).
+2. **Confirm** the four axes were checked and came back clean (or
+   only `info`). One short bullet per axis is enough:
+   - Content: verified against `context/...` / DASH 6th §X (if
+     grounded).
+   - Convention: no `CLAUDE.md` violations.
+   - Scope: title / body / diff coherent.
+   - Downstream: <stale artefacts to rebuild after merge, or "no
+     downstream effects">.
+3. **Close** with a brief "no blockers found from the AI review
+   pass; awaiting human merge decision". Explicitly NOT an
+   approval (D12).
+
+### `SUGGESTIONS`
+
+Goal: surface the non-bloquant findings, organised so they are
+easy to triage.
+
+Structure:
+
+1. **Acknowledge** what the PR does (one sentence).
+2. **Note** the review found no blockers; the items below are
+   suggestions / info only.
+3. **List the findings** grouped by axis. For each finding:
+   - Use the `[F1.1]` IDs from `analyze.md` so the reviewer can
+     cross-reference.
+   - When `granularity == line-specific`, include the
+     `path:line` ref inline in the draft body. The same finding
+     will also appear as an inline comment if routing is
+     `review` (post-review handles the inline emission).
+   - Quote the verbatim evidence briefly.
+4. **Close** with a brief "the suggestions are quality nudges; the
+   PR can merge as-is from the AI review pass's standpoint".
+
+### `BLOCKERS`
+
+Goal: surface the blockers explicitly, with reasoning, and
+recommend the author revise before the maintainer merges.
+
+Structure:
+
+1. **Acknowledge** what the PR is trying to do.
+2. **State the headline**: this AI review pass identified
+   `<n>` blocker(s) that warrant revision before merge. Frame this
+   as a recommendation to the maintainer, NOT as a formal change-
+   request (D12).
+3. **List the blockers** in order of severity, each with:
+   - The `[FX.Y]` ID.
+   - One-paragraph explanation of why it is a blocker (not a
+     suggestion) — usually: "this contradicts canonical source
+     X", "this breaks convention Y which CLAUDE.md describes as
+     'MUST NOT'", or "this would break the layering arrow".
+   - The verbatim evidence + citation.
+   - When line-specific, the `path:line` ref.
+4. **List any suggestions** (lower severity) underneath, so they
+   are not lost.
+5. **Close** with a brief "blockers raised for the maintainer's
+   review; no automatic gating applied". The author may push fixes
+   and a follow-up cycle will be triggered (subject to the D5 cap).
+
+### `SCOPE-MISMATCH`
+
+Goal: surface that the PR's body / title and its actual diff
+disagree on **what** the PR is, and recommend a structural fix
+(split / retitle / rewrite the body).
+
+Structure:
+
+1. **Acknowledge** what the PR says it does (lift from
+   `triage.claim_summary`) AND what the diff actually does (lift
+   from the scope-axis findings).
+2. **State the headline**: the AI review pass found a scope
+   mismatch that should be resolved before merge — either by
+   splitting the PR, retitling, or rewriting the body to match
+   the diff.
+3. **Walk through the scope findings** with verbatim evidence
+   ("body says X, diff actually does Y").
+4. **List any other findings** (content / convention /
+   downstream) underneath — they may still apply but are
+   secondary to the scope issue.
+5. **Close** with a concrete recommendation: split, retitle, or
+   rewrite the body. Frame as a recommendation, not a directive
+   (D12).
+
+## Machine-readable metadata header
+
+Above the visible draft body, write a hidden HTML comment with the
+fields `post-review.prompt` needs to route without re-parsing the
+analysis. The block MUST be exactly this shape (white-space
+tolerated, but the keys are stable):
+
+```html
+<!-- sgai-prs-meta:
+verdict: <LGTM | SUGGESTIONS | BLOCKERS | SCOPE-MISMATCH>
+routing: <comment | review>
+line_specific_findings: <integer>
+severity: <cosmetic | spec-detail | requirements | architectural>
+lang: <en | es | pt | fr | it | de>
+cycle: <C>
+mergeable: <true | false>
+mergeable_reason: <short text — see below>
+-->
+```
+
+`mergeable` is a boolean (`true` / `false`) per the "Mergeable
+decision" section above.
+
+`mergeable_reason` is a short text token (one line, no embedded
+newlines, no quotes) describing **why** the decision went the way
+it did. Use a controlled vocabulary so `post-review.prompt` can
+log it consistently:
+
+- When `mergeable: true`:
+  - `pristine` — `LGTM`, no findings at all.
+  - `clean-with-suggestions` — `SUGGESTIONS`, all suggestions
+    optional, no open points, no broken refs.
+  - `info-only` — only `info` findings (e.g. downstream-stale
+    notes already acknowledged by the author).
+- When `mergeable: false`:
+  - `open-points` — at least one open point TBD remains
+    unresolved.
+  - `unverifiable-claims` — at least one load-bearing claim could
+    not be grounded.
+  - `broken-refs` — at least one internal cross-ref does not
+    resolve.
+  - `blockers` — verdict is `BLOCKERS`.
+  - `scope-mismatch` — verdict is `SCOPE-MISMATCH`.
+  - `multiple` — more than one of the above applies; the visible
+    body breaks down which.
+
+This block lives at the very top of the file, before the
+disclaimer / body. It is not visible when the body is rendered on
+GitHub (HTML comments are stripped from the rendered output) but
+it is readable when the file is read from disk by
+`post-review.prompt`.
+
+## Output format
+
+Write `output-github-prs/pr-<N>/cycle-<C>/review.md` exactly as it
+should appear when posted, with the machine-readable header on top.
+
+Concretely:
+
+```markdown
+<!-- sgai-prs-meta:
+verdict: SUGGESTIONS
+routing: review
+line_specific_findings: 2
+severity: requirements
+lang: en
+cycle: 1
+mergeable: false
+mergeable_reason: open-points
+-->
+
+> <disclaimer line if severity ∈ {requirements, architectural}>
+
+<verdict-appropriate body — see structures above>
+
+## Mergeable decision
+
+**NEEDS-WORK** — <one-line reason>
+
+<rationale paragraph if MERGEABLE, OR `### Path to merge` block
+if NEEDS-WORK — see "Mergeable decision" section above>
+
+<!-- sgai-prs: ai-cycle -->
+```
+
+Aim for **concise, decision-friendly drafts**: 250–500 words for
+most reviews. Longer is fine for `BLOCKERS` / `SCOPE-MISMATCH` /
+`requirements` / `architectural` PRs that warrant more careful
+framing, but resist padding — the review is the start of a
+conversation, not a position paper. Match the style guidance in
+`../CLAUDE.md §"Tone for the spec and generated artefacts"`:
+technical, direct, no fluff.
+
+## Critical do-NOTs
+
+- Do NOT use the verbs "approve" / "approved" / "approving" in any
+  draft language that could be read as a GitHub-state approval.
+  The AI does not approve PRs (D12). Phrase clean reviews as "no
+  blockers found from the AI review pass" — not "looks good to
+  me, approving".
+- Do NOT use the verbs "request changes" / "block merge" in any
+  draft language that could be read as a GitHub-state change-
+  request. Phrase blockers as "the AI pass identified the following
+  blockers — recommending revision before merge".
+- Do NOT claim a finding is verified against an external standard
+  unless NotebookLM grounding produced the citation (or the spec
+  itself is the source). When in doubt, tag the finding with
+  `[inferred]` and lower the severity.
+- Do NOT invent ADR IDs, requirement IDs, or use case IDs. If you
+  reference one, verify it exists in `.project/decisions/` or
+  `context/`.
+- Do NOT translate proper nouns of the spec.
+- Do NOT @-mention anyone. The draft addresses the PR publicly;
+  pings are for human follow-ups, not auto-drafts.
+- Do NOT include the inline comment bodies in the summary draft
+  when routing is `review` + line-specific findings — those bodies
+  are emitted separately by `post-review.prompt` via the Pulls
+  API. The summary should reference the line-specific findings
+  generically (e.g. "see the inline comment on `<path>:<line>`")
+  to avoid double-posting the same text.

@@ -1,0 +1,324 @@
+# Post a drafted PR review to GitHub
+
+**Inputs**:
+- The PR record (passed in by the orchestrator), including
+  `cycle_count`.
+- `cycle_count` (integer ≥ 1) — used to locate the current cycle's
+  triage / analyze / review files.
+- The triage verdict at
+  `../output-github-prs/pr-<N>/cycle-<C>/triage.md` (provides
+  `severity`, needed for label application).
+- The analysis at
+  `../output-github-prs/pr-<N>/cycle-<C>/analyze.md` (source of
+  the line-specific findings, needed when routing is `review` +
+  hybrid).
+- The drafted review at
+  `../output-github-prs/pr-<N>/cycle-<C>/review.md` (carries the
+  machine-readable metadata header that drives this prompt's
+  routing).
+- Authenticated `gh` CLI on the host (relies on `gh auth login`).
+
+**Output**: side effects on GitHub. Depending on routing:
+- **`comment` routing**: one new top-level PR comment containing
+  the body of `review.md`, posted via `gh pr comment`.
+- **`review` routing**: one new review (state = `COMMENTED`) with
+  the summary body from `review.md`, posted via
+  `gh pr review --comment --body-file`. Optionally accompanied by
+  inline comments anchored to specific diff lines, one per
+  line-specific finding in `analyze.md`, posted via the Pulls API
+  (`gh api repos/.../pulls/<N>/comments` for each).
+- Labels applied to the PR via `gh pr edit <N> --add-label`:
+  - `pr:ai-reviewed` (always)
+  - `pr:has-blockers` (only when verdict = `BLOCKERS`)
+  - `pr:scope-mismatch` (only when verdict = `SCOPE-MISMATCH`)
+  - `pr:needs-work` (only when `mergeable: false` AND verdict ∉
+    {`BLOCKERS`, `SCOPE-MISMATCH`} — i.e. the mergeable signal is
+    additive only when neither of the verdict-driven labels
+    already conveys "not ready to merge")
+
+No file is written by this prompt.
+
+**Skip if**: never. This prompt is only invoked by the
+orchestrator when ALL of the following hold:
+
+- The orchestrator is running in `--live` mode (D1).
+- The PR's author is in `TRUSTED_GH_USERS` (D2).
+- The PR is not a draft (already enforced upstream by
+  `detect-prs`).
+- The anti-loop cap D5 is enforced upstream by `detect-prs`,
+  which drops any PR at `cycle_count >= 4` before the
+  orchestrator's per-PR loop — so any PR reaching this prompt is
+  implicitly within the cap.
+
+If any condition fails, the orchestrator does NOT invoke this
+prompt at all. There is no internal re-check here.
+
+---
+
+## Hard safety rail (D12)
+
+This prompt MUST NEVER invoke any of:
+
+- `gh pr review --approve`
+- `gh pr review --request-changes`
+- `gh pr merge`
+- `gh api ... PUT|POST ...` against `/pulls/<N>/merge` or
+  `/pulls/<N>/reviews` with an `event` of `APPROVE` /
+  `REQUEST_CHANGES`.
+
+If this prompt ever observes such a flag / payload in the routing
+plan or in the operator's environment, it MUST abort the post
+step for this PR, emit a `[STAGE-6 post pr=<N>] aborted: D12
+violation` log line, and surface the failure in the summary
+block's `failed:` section. There is no override.
+
+The pipeline only posts:
+- A top-level comment (no review state change), OR
+- A review with `state = COMMENTED` (this is what `gh pr review
+  --comment` emits) — explicitly NOT an approval / change-request.
+
+Approval and merge are exclusively human decisions.
+
+## Task
+
+### 1. Parse the review draft's metadata header
+
+Read the first hidden HTML comment block at the top of
+`output-github-prs/pr-<N>/cycle-<C>/review.md`. It must match the
+shape declared in `propose-review.prompt`:
+
+```html
+<!-- sgai-prs-meta:
+verdict: <LGTM | SUGGESTIONS | BLOCKERS | SCOPE-MISMATCH>
+routing: <comment | review>
+line_specific_findings: <integer>
+severity: <cosmetic | spec-detail | requirements | architectural>
+lang: <en | es | pt | fr | it | de>
+cycle: <C>
+mergeable: <true | false>
+mergeable_reason: <short token — see propose-review.prompt>
+-->
+```
+
+If the header is missing, malformed, or any required key
+(including `mergeable` and `mergeable_reason`) is absent, abort
+the post step with a clear error
+(`[STAGE-6 post pr=<N>] aborted: malformed meta header`). The
+operator must fix `review.md` and re-run.
+
+### 2. Sanity-check the inputs
+
+Before touching `gh`:
+
+- Verify the review file exists and is non-empty.
+- Verify it ends with the marker `<!-- sgai-prs: ai-cycle -->`
+  (without this marker, the next run's anti-loop cap will not
+  count the comment correctly — abort with an error).
+- Verify the triage file exists and parses (the orchestrator has
+  already parsed it, but re-read to be defensive).
+- Verify the analysis file exists when the routing is `review` +
+  `line_specific_findings >= 1` (we will read it to build the
+  inline comments).
+- Confirm the PR is still **open** and not draft via
+  `gh pr view <N> --json state,isDraft`. If it has been closed /
+  merged / re-marked draft in the meantime, abort posting (the
+  conversation moved without us) and log a clear line.
+- Confirm the verdict is one of the four allowed values. Anything
+  else (e.g. `APPROVE`, `REQUEST_CHANGES`, `MERGE`) is a D12
+  violation — abort per the safety rail above.
+
+### 3. Strip the metadata header before posting
+
+The metadata block is internal only. Before passing `review.md` to
+`gh`, strip the entire leading `<!-- sgai-prs-meta: ... -->`
+comment so it does not appear in the posted body. The closing
+`<!-- sgai-prs: ai-cycle -->` marker at the end is kept — it is
+the anti-loop signal.
+
+The cleanest way is to write the stripped body to a tempfile in
+RAM (`/dev/shm/sgai-prs-post-<N>-<C>-<random>/body.md`) and pass
+that path to `--body-file`. Do NOT modify `review.md` in place.
+
+Clean up the tempfile (`rm -rf` the per-call subfolder) when the
+post step finishes — success or failure.
+
+### 4. Post — `routing == comment`
+
+```bash
+gh pr comment <N> \
+  --repo <owner>/<repo> \
+  --body-file /dev/shm/sgai-prs-post-<N>-<C>-<random>/body.md
+```
+
+Capture the URL of the created comment from `gh`'s output (the
+CLI prints it on success). Log:
+
+```
+[STAGE-6 post pr=<N>] comment posted: <comment-url>
+```
+
+### 5. Post — `routing == review`
+
+If `line_specific_findings == 0`, post a summary-only review:
+
+```bash
+gh pr review <N> \
+  --repo <owner>/<repo> \
+  --comment \
+  --body-file /dev/shm/sgai-prs-post-<N>-<C>-<random>/body.md
+```
+
+If `line_specific_findings >= 1`, post a hybrid review (summary +
+inline comments). The Pulls API for inline comments is
+`POST /repos/<owner>/<repo>/pulls/<N>/comments` with body
+`{commit_id, path, line, side, body}` — but the cleanest cross-
+version path is to bundle inline comments into the review payload
+itself:
+
+```bash
+# Build the JSON payload with inline comments.
+# Read line-specific findings from analyze.md (Findings sections
+# where granularity=line-specific) and emit one entry per finding.
+cat > /dev/shm/sgai-prs-post-<N>-<C>-<random>/review-payload.json <<'JSON'
+{
+  "body": "<stripped review.md body>",
+  "event": "COMMENT",
+  "comments": [
+    {
+      "path": "<finding.path>",
+      "line": <finding.line>,
+      "side": "RIGHT",
+      "body": "<finding.claim + verbatim evidence>"
+    },
+    ...
+  ]
+}
+JSON
+
+gh api \
+  --method POST \
+  -H "Accept: application/vnd.github+json" \
+  /repos/<owner>/<repo>/pulls/<N>/reviews \
+  --input /dev/shm/sgai-prs-post-<N>-<C>-<random>/review-payload.json
+```
+
+Notes:
+- `"event": "COMMENT"` is the only acceptable value (D12). NEVER
+  `"APPROVE"` or `"REQUEST_CHANGES"`.
+- `side: "RIGHT"` anchors the comment to the new (post-merge)
+  version of the file. This matches the `line` field that
+  `analyze-pr.prompt` records.
+- For an added line in the diff, `line` is the line number in the
+  new file. For an unchanged context line referenced by a
+  convention finding, `side: "RIGHT"` + `line` still works
+  because GitHub maps it to the right pane of the diff view.
+- If the API call fails (e.g. line not in the diff because of a
+  mid-flight force-push), capture the error, downgrade the inline
+  comments to text snippets in the summary body, and re-post via
+  the plain `gh pr review --comment --body-file` path. Log the
+  degradation: `[STAGE-6 post pr=<N>] inline-degraded: <reason>`.
+
+Capture the review URL from the API response (`html_url` in the
+returned JSON). Log:
+
+```
+[STAGE-6 post pr=<N>] review posted: <review-url> (inline_comments=<n>)
+```
+
+### 6. Apply labels
+
+Apply the verdict-driven labels (D11) in a single call where
+possible (one network round-trip):
+
+```bash
+# Always:
+labels="pr:ai-reviewed"
+# Plus, when applicable:
+[ "$verdict" = "BLOCKERS" ]        && labels="$labels,pr:has-blockers"
+[ "$verdict" = "SCOPE-MISMATCH" ]  && labels="$labels,pr:scope-mismatch"
+
+# Mergeable signal — only add pr:needs-work when neither
+# verdict-driven label above already conveys "not ready to merge".
+# Rationale: avoid double-tagging BLOCKERS / SCOPE-MISMATCH PRs
+# (the verdict label already signals NEEDS-WORK). pr:needs-work
+# is reserved for the case where the verdict is LGTM or
+# SUGGESTIONS but mergeable is false (e.g. open points TBD).
+if [ "$mergeable" = "false" ] \
+   && [ "$verdict" != "BLOCKERS" ] \
+   && [ "$verdict" != "SCOPE-MISMATCH" ]; then
+  labels="$labels,pr:needs-work"
+fi
+
+gh pr edit <N> \
+  --repo <owner>/<repo> \
+  --add-label "$labels"
+```
+
+If any of the labels does NOT yet exist in the repo (the project
+bootstrap is expected to create them, but be defensive), `gh`
+will fail with a clear error. In that case:
+
+1. Create the missing label(s) via:
+   ```bash
+   gh label create "<name>" \
+     --repo <owner>/<repo> \
+     --color <hex> \
+     --description "<short>"
+   ```
+   Suggested colours (for consistency, not enforcement):
+   - `pr:ai-reviewed` → `#0E8A16` (green)
+   - `pr:has-blockers` → `#D73A4A` (red)
+   - `pr:scope-mismatch` → `#D93F0B` (orange)
+   - `pr:needs-work` → `#FBCA04` (yellow) — applied by this
+     prompt when `mergeable: false` and the verdict is not
+     `BLOCKERS` / `SCOPE-MISMATCH`
+   - `pr:ai-needs-review` → `#FBCA04` (yellow) — applied by the
+     orchestrator, not by this prompt
+   - `pr:ai-conversation-cap-hit` → `#8B949E` (grey) — applied by
+     `detect-prs`, not by this prompt
+2. Retry the `gh pr edit --add-label` call.
+
+Log:
+
+```
+[STAGE-6 post pr=<N>] labels: pr:ai-reviewed, pr:has-blockers?, pr:scope-mismatch?, pr:needs-work? (mergeable=<true|false>, reason=<token>)
+```
+
+### 7. Edge cases
+
+- **`gh pr comment` or `gh pr review` returns non-zero** → abort
+  before applying labels. The orchestrator should record the
+  failure in the summary block under a `failed:` section so
+  Nicolas knows the review stayed local.
+- **Comment / review succeeded, label edit failed** → log the
+  partial success. Do NOT retry the post (it would double-post).
+  The orchestrator's summary block must call this out so Nicolas
+  can apply the labels by hand.
+- **`gh` rate limit hit mid-run** → abort the orchestrator,
+  report which PRs had been posted vs not. The dry-run / live-run
+  separation makes recovery cheap: a follow-up `--live` call with
+  `--pr <N>` for the un-posted ones picks up where the run left
+  off.
+- **The PR has been force-pushed between `detect-prs` and the
+  post** → `gh pr view` may surface a different `headRefName` SHA
+  than the one the analysis was anchored to. Inline comments
+  pointing at lines that no longer exist will fail to attach.
+  Downgrade to text snippets in the summary body per step 5 and
+  log the degradation.
+
+## What this prompt deliberately does NOT do
+
+- It does not edit labels on PRs that the orchestrator has
+  classified as `needs-review` or `cap-hit`. Those labels
+  (`pr:ai-needs-review`, `pr:ai-conversation-cap-hit`) are
+  applied by the orchestrator and `detect-prs` directly, not by
+  this prompt. The split keeps the "post" path narrow and
+  auditable: this prompt only fires when a review is actually
+  being posted.
+- It does not edit the review body. If the review needs a fix,
+  the operator edits
+  `output-github-prs/pr-<N>/cycle-<C>/review.md` and re-runs the
+  orchestrator with `--pr <N> --live`.
+- It does not approve or request-changes (D12). It does not
+  merge. It does not close the PR. Closure is always a human
+  decision (or the author's own).

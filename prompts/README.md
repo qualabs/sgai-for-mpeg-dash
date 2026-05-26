@@ -26,21 +26,29 @@ prompts/
 ├── 4-auto-refine/                  minor-refinement convergence loop
 │   ├── refine-spec.prompt
 │   └── compare-spec-versions.prompt
-└── 5-github-issues/                GitHub issues triage + auto-response pipeline
-    ├── orchestrate-issues.prompt   stage-5 orchestrator (separate from build-all)
-    ├── detect-issues.prompt
-    ├── triage-issue.prompt
-    ├── analyze-impact.prompt
-    ├── propose-response.prompt
-    └── post-response.prompt
+├── 5-github-issues/                GitHub issues triage + auto-response pipeline
+│   ├── orchestrate-issues.prompt   stage-5 orchestrator (separate from build-all)
+│   ├── detect-issues.prompt
+│   ├── triage-issue.prompt
+│   ├── analyze-impact.prompt
+│   ├── propose-response.prompt
+│   └── post-response.prompt
+└── 6-github-prs/                   GitHub PRs review pipeline
+    ├── orchestrate-prs.prompt      stage-6 orchestrator (separate from build-all)
+    ├── detect-prs.prompt
+    ├── triage-pr.prompt
+    ├── analyze-pr.prompt
+    ├── propose-review.prompt
+    └── post-review.prompt
 ```
 
-Stage 5 is **not** chained into `build-all` — it has a separate
-orchestrator (`5-github-issues/orchestrate-issues.prompt`) that
-runs manually today (D7) and writes its scratch artefacts to
-`output-github-issues/<issue-N>/` (gitignored). See the
-"GitHub issues pipeline" section of `../CLAUDE.md` for the full
-flow and the D-decisions that shape it.
+Stages 5 and 6 are **not** chained into `build-all` — each has a
+separate orchestrator that runs manually today (D7) and writes its
+scratch artefacts to its own gitignored folder
+(`output-github-issues/` for Stage 5,
+`output-github-prs/` for Stage 6). See the "GitHub issues pipeline"
+and "GitHub PRs pipeline" sections of `../CLAUDE.md` for the full
+flows and the D-decisions that shape each.
 
 ## Pipeline flow
 
@@ -126,6 +134,53 @@ output-github-issues/issue-<N>/
 local-only scratch. The canonical record of posted responses
 lives on GitHub itself.
 
+Stage 6 mirrors the same shape against pull requests:
+
+```
+                 orchestrate-prs (manual; --dry-run | --live)
+                                 │
+                                 ▼
+   ┌──────────────────────────────────────────────────────────────┐
+   │                     6-github-prs/                            │
+   │  detect-prs    → list open non-draft PRs w/o handling labels │
+   │                  AND compute cycle_count per PR;             │
+   │                  drop cycle_count >= 4 (D5 cap hit, label)   │
+   │  for each surviving PR (cycle C in {1,2,3}):                 │
+   │    regenerate meta.md → pr-<N>/meta.md (fresh each run)      │
+   │    triage-pr   → pr-<N>/cycle-<C>/triage.md                  │
+   │    analyze-pr  → pr-<N>/cycle-<C>/analyze.md                 │
+   │                  (four axes: content / convention /          │
+   │                   scope / downstream)                        │
+   │    propose-review → pr-<N>/cycle-<C>/review.md               │
+   │                     (verdict: LGTM | SUGGESTIONS |           │
+   │                      BLOCKERS | SCOPE-MISMATCH)              │
+   │                     (routing: comment | review)              │
+   │    post-review (only if trusted author + --live)             │
+   │                 → comment OR review (event=COMMENT only,     │
+   │                   D12: never approve / request-changes /     │
+   │                   merge) + labels on GitHub                  │
+   │  summary block → stdout (parent agent relays to Telegram)    │
+   └──────────────────────────────────────────────────────────────┘
+```
+
+Per-PR artefact layout under `output-github-prs/`:
+
+```
+output-github-prs/pr-<N>/
+├── meta.md            regenerated every run (no history)
+├── cycle-1/           first AI cycle on the PR
+│   ├── triage.md
+│   ├── analyze.md     (always — the four axes per D13)
+│   └── review.md      (carries machine-readable meta header)
+├── cycle-2/           created when author pushed new commits / replied
+│   └── ...
+└── cycle-3/           capped at 3 by D5 (anti-loop)
+```
+
+`output-github-prs/` is gitignored — PR artefacts are local-only
+scratch. The canonical record of posted reviews lives on GitHub
+itself.
+
 ## When to use which prompt
 
 | Prompt                              | When to invoke                                                          | Lives in            |
@@ -148,6 +203,12 @@ lives on GitHub itself.
 | `analyze-impact`                    | Flow B only, cycle `C`: validate claims against `context/`, surface affected files | `5-github-issues/`  |
 | `propose-response`                  | Draft a flow-appropriate reply in the detected language for cycle `C`; acknowledges prior cycle when `C > 1` | `5-github-issues/`  |
 | `post-response`                     | Live mode + trusted author: post `cycle-<C>/response.md` and apply labels | `5-github-issues/`  |
+| `orchestrate-prs`                   | Process open GitHub PRs end-to-end (regenerate `meta.md` + per-cycle triage/analyze/review). Dry-run default; `--live` to post comment / `--comment` review | `6-github-prs/`     |
+| `detect-prs`                        | Fetch open non-draft PRs missing any handling label; computes `cycle_count` and drops PRs at the D5 cap (`>= 4`, label `pr:ai-conversation-cap-hit`) | `6-github-prs/`     |
+| `triage-pr`                         | Classify one PR for cycle `C`: trust / severity / lang / files-touched / claim-summary; echoes `cycle_count` from `detect-prs` | `6-github-prs/`     |
+| `analyze-pr`                        | Walk the four axes (content / convention / scope / downstream) and emit findings categorised by axis, severity, and granularity (generic vs line-specific) | `6-github-prs/`     |
+| `propose-review`                    | Draft a verdict-appropriate review in the detected language for cycle `C`; pick verdict (LGTM / SUGGESTIONS / BLOCKERS / SCOPE-MISMATCH) and routing (comment vs review); acknowledges prior cycle when `C > 1` | `6-github-prs/`     |
+| `post-review`                       | Live mode + trusted author: post `cycle-<C>/review.md` as comment OR review (event=COMMENT) with optional inline comments, and apply verdict-driven labels. NEVER approve / request-changes / merge (D12) | `6-github-prs/`     |
 
 Each prompt declares its full **Inputs / Output / Skip if** contract
 in its own header — this table is a quick-pick index, not the spec.
