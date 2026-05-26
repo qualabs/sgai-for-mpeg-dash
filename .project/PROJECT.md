@@ -256,6 +256,18 @@ When I receive a research / spec generation task:
   `DynamicInsertPresentation` sub-types. Owner: Nico + David.
 - [ ] **Spec — player workflow**: how the player decides which
   workflow to use before fetching the dynamic MPD.
+- [ ] **Spec — UC-09 listen-mode safety cap policy**: whether to
+  recommend a safety-fallback `@maxDuration` at activation for
+  open-ended slots. DASH 6th does not mandate it; the trade-off
+  (robustness vs. ambiguity from a too-narrow cap) needs WG input.
+  See R4.1 note in `context/03-requirements.md` and UC-09 in
+  `context/04-use-cases.md`.
+- [ ] **Spec — UC-09 non-linear listen-mode construct**: define the
+  `status=update` analog for non-linear slots. The linear side
+  reuses baseline DASH 6th (`ReplacePresentation` §5.16.4); the
+  non-linear equivalent is net-new. Schema, namespace, and scheme
+  URI TBD in the syntax chapter. See backward-compat checklist row
+  in `context/07-backward-compat-checklist.md`.
 - [ ] **Spec — split pause-ads from the timeline flow**: separate
   pause-ads as a distinct type (action-triggered) from
   OverlayPresentation (timeline-triggered). Surfaces from
