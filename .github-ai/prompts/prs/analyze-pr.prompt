@@ -7,7 +7,7 @@
   used to locate the current cycle's triage verdict and output
   path.
 - The triage verdict at
-  `../output-github-prs/pr-<N>/cycle-<C>/triage.md` (the
+  `.github-ai/output-prs/pr-<N>/cycle-<C>/triage.md` (the
   orchestrator has already written this for the current cycle;
   this prompt re-reads `trusted`, `severity`, `files_touched`,
   `claim_summary`, and the "Notes for downstream prompts" section
@@ -29,16 +29,16 @@
 - `../.project/decisions/` — ADRs; used to test whether the PR
   contradicts an established architectural decision.
 - Optionally, the prior cycle's analysis at
-  `../output-github-prs/pr-<N>/cycle-<C-1>/analyze.md` when
+  `.github-ai/output-prs/pr-<N>/cycle-<C-1>/analyze.md` when
   `cycle_count > 1` — used to avoid re-litigating findings that
   were already raised and to anchor on the author's new commits.
 - Optionally NotebookLM grounding — see "Keyword detector" below.
 
 **Output**:
-`../output-github-prs/pr-<N>/cycle-<C>/analyze.md`.
+`.github-ai/output-prs/pr-<N>/cycle-<C>/analyze.md`.
 
 **Skip if**:
-`../output-github-prs/pr-<N>/cycle-<C>/analyze.md` exists AND its
+`.github-ai/output-prs/pr-<N>/cycle-<C>/analyze.md` exists AND its
 mtime is newer than the PR's `updated_at` AND newer than the
 newest mtime under `../context/` AND newer than the triage file's
 mtime. (Context moved or triage changed → the analysis is stale
@@ -293,7 +293,7 @@ For each finding produced by any of the four axes, capture:
 
 ## Output format
 
-Write `output-github-prs/pr-<N>/cycle-<C>/analyze.md` with this
+Write `.github-ai/output-prs/pr-<N>/cycle-<C>/analyze.md` with this
 exact shape:
 
 ```markdown

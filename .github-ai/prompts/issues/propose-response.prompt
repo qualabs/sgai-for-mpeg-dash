@@ -7,18 +7,18 @@
   used to locate the current cycle's upstream artefacts and to
   shape the draft's tone (see "Cycle-aware tone" below).
 - The triage verdict at
-  `../output-github-issues/issue-<N>/cycle-<C>/triage.md`.
+  `.github-ai/output-issues/issue-<N>/cycle-<C>/triage.md`.
 - For Flow B issues, the impact analysis at
-  `../output-github-issues/issue-<N>/cycle-<C>/impact.md` — in
+  `.github-ai/output-issues/issue-<N>/cycle-<C>/impact.md` — in
   particular its `## Issue disposition` block, which is the
   source of truth for the binary conclusion the response MUST
   carry (see "Issue conclusion" below).
 - When `cycle_count > 1`, the prior cycle's response at
-  `../output-github-issues/issue-<N>/cycle-<C-1>/response.md` —
+  `.github-ai/output-issues/issue-<N>/cycle-<C-1>/response.md` —
   the draft must acknowledge it (and the OP's reply to it)
   without restating it verbatim.
 - The issue's `meta.md` at
-  `../output-github-issues/issue-<N>/meta.md` — gives the current
+  `.github-ai/output-issues/issue-<N>/meta.md` — gives the current
   comments timeline; useful when the response needs to reference
   what the OP said in their last reply.
 - The full project tree (`../context/`, `../output/`,
@@ -27,11 +27,11 @@
   draft does NOT contradict an existing requirement, ADR, or
   active design decision.
 
-**Output**: `../output-github-issues/issue-<N>/cycle-<C>/response.md`.
+**Output**: `.github-ai/output-issues/issue-<N>/cycle-<C>/response.md`.
 Plain markdown, ready to paste into `gh issue comment --body-file`.
 
 **Skip if**:
-`../output-github-issues/issue-<N>/cycle-<C>/response.md` exists
+`.github-ai/output-issues/issue-<N>/cycle-<C>/response.md` exists
 AND its mtime is newer than the triage file's mtime AND (if Flow
 B) newer than the impact file's mtime. If any upstream artefact
 moved, the response is stale and must be rewritten. A new cycle
@@ -441,7 +441,7 @@ parses it (regex on the seven keys) before applying labels.
 
 ## Output format
 
-Write `output-github-issues/issue-<N>/cycle-<C>/response.md`
+Write `.github-ai/output-issues/issue-<N>/cycle-<C>/response.md`
 exactly as it should appear when posted. The orchestrator will
 pass this file to `gh issue comment --body-file` verbatim in
 `--live` mode.

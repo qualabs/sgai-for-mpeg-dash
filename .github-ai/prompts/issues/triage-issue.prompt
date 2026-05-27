@@ -14,14 +14,14 @@
   that the triage notes can mention "this is a follow-up cycle").
 
 **Output**:
-`../output-github-issues/issue-<N>/cycle-<C>/triage.md`, where
+`.github-ai/output-issues/issue-<N>/cycle-<C>/triage.md`, where
 `<C>` is the cycle index passed in by the orchestrator. Single
 markdown file. The orchestrator MUST create the cycle subfolder
 (`cycle-<C>/`) and any missing parents before invoking this
 prompt.
 
 **Skip if**:
-`../output-github-issues/issue-<N>/cycle-<C>/triage.md` exists AND
+`.github-ai/output-issues/issue-<N>/cycle-<C>/triage.md` exists AND
 its mtime is newer than the issue's `created_at` AND newer than
 the timestamp of the issue's most recent comment. Otherwise
 re-triage. Note: a new cycle (`C` bumped by `detect-issues`)
@@ -150,7 +150,7 @@ prior AI response and address the OP's new feedback (see
 
 ## Output format
 
-Write `output-github-issues/issue-<N>/cycle-<C>/triage.md` with
+Write `.github-ai/output-issues/issue-<N>/cycle-<C>/triage.md` with
 this exact shape so the orchestrator can parse the structured
 fields:
 
