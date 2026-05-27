@@ -7,9 +7,10 @@ through `08-dash-extension-rules.md`.
 - **SGAI (Server-Guided Ad Insertion)**: pattern where the ad decision
   is made server-side (by an Ad Decision Server) rather than by the
   client. The MPD carries event references; when the playhead reaches
-  one, the Player resolves a URL that returns a document describing
-  the ad(s) to render. Reduces client-side stitching fragmentation and
-  centralises inventory control.
+  one, the Player resolves a URL (served by the Ad Presentation
+  Server) that returns a document describing the ad(s) to render.
+  Reduces client-side stitching fragmentation and centralises
+  inventory control.
 - **Linear ad**: ad whose form takes over the primary content
   surface during a slot (pre-roll, mid-roll, post-roll). The Player
   switches its rendering source from the main timeline to the ad
@@ -35,29 +36,50 @@ through `08-dash-extension-rules.md`.
   document a DASH player consumes to play media. It describes
   Periods, AdaptationSets, Representations and (with 6th edition)
   ad-related events.
-- **ListMPD**: the resolution document returned by the ADS in the
+- **ListMPD**: the resolution document returned by the APS in the
   6th edition linear SGAI flow. The `InsertPresentation` /
   `ReplacePresentation` event in the main MPD points to a URL; that
-  URL returns a `ListMPD` describing the ad presentation.
+  URL (served by the APS) returns a `ListMPD` describing the ad
+  presentation. The APS derives the `ListMPD` from the VAST the ADS
+  produced.
 - **InsertPresentation** *(DASH 6th ed)*: signals that an ad
   presentation is to be **inserted into** the timeline alongside the
   main content. Used for splice-style insertion.
 - **ReplacePresentation** *(DASH 6th ed)*: signals that an ad
   presentation **replaces** the primary content for the duration of
   the event. Used for traditional break-style ads.
-- **ADS (Ad Decision Server)**: external server that returns the ad
-  candidates eligible for a given slot. Owns targeting, frequency
-  capping, brand safety filtering, fill-rate logic, and any
-  business-side decisioning. Not responsible for enforcing the
-  broadcaster's MPD-level constraints.
+- **ADS (Ad Decision Server)**: external server that decides which
+  ads to serve for a given slot and responds with a **decision
+  document** — typically VAST (IAB), though the ADS is not bound to
+  VAST and MAY emit another format. Owns targeting, frequency
+  capping, brand safety filtering, fill-rate logic, ordering, and any
+  business-side decisioning, plus authority over the tracking
+  schedule. Does NOT convert its output into the MPD-native / SGAI
+  resolution document (that is the APS), and is not responsible for
+  enforcing the Publisher's MPD-level constraints.
+- **APS (Ad Presentation Server)**: external server that sits between
+  the Player and the ADS. Exposes the endpoint the Player resolves
+  (referenced by the Publisher in the MPD event `@url`), calls the
+  ADS, and **converts whatever the ADS emits — VAST (IAB) or any
+  other decision format — into the MPD-native / SGAI resolution
+  document** the Player understands (`ListMPD` or single-period
+  alternative MPD for linear, the overlay resolution document for
+  non-linear). Translating any ADS output into the resolution
+  document this spec defines is the APS's responsibility; the
+  conversion itself is not defined by this spec. Translates the
+  ADS-declared tracking events into DASH callback events. Not the
+  ad-decisioning authority and not the constraint enforcer — a
+  translation / presentation layer (decision document in, resolution
+  document out).
 - **Player (Video Player)**: client-side component that reads the
-  MPD, queries the ADS, validates the response against the MPD
+  MPD, queries the APS, validates the response against the MPD
   constraints, selects the ad, and composes it on screen. It is the
-  enforcer of the broadcaster's policy.
-- **Broadcaster / Content Owner**: the entity that owns the primary
-  content and the viewer's screen. Declares ad opportunities in the
-  MPD (where in the timeline, what kind of slot, what layouts are
-  allowed, what duration / concurrency constraints apply).
+  enforcer of the Publisher's policy.
+- **Publisher**: the entity that owns the primary content and the
+  viewer's screen. Declares ad opportunities in the MPD (where in
+  the timeline, what kind of slot, what layouts are allowed, what
+  duration / concurrency constraints apply). (Previously named
+  "Broadcaster / Content Owner".)
 - **IAB CTV Ad Standard**: the IAB's spec for ad units in connected
   TV environments; describes flexible-ratio formats (e.g. 8:1, 6:1,
   1:4) that this proposal defers to instead of redefining its own
@@ -77,7 +99,7 @@ through `08-dash-extension-rules.md`.
   the formal standards body where MPEG-DASH itself is maintained.
   Chair: Thomas Stockhammer.
 - **Brand safety**: the requirement that the actual creative shown to
-  a viewer satisfies the broadcaster's policy on prohibited content.
+  a viewer satisfies the Publisher's policy on prohibited content.
   In the AI-generated-ads pipeline that the prototype experiments
   with, brand safety becomes an explicit pipeline stage (prompt-level
   guardrails plus post-generation content classification) rather than
