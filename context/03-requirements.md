@@ -1,6 +1,6 @@
 # Requirements
 
-> R2 anchors on the three-actor model defined in
+> R2 anchors on the four-actor model defined in
 > [`02-actors.md`](02-actors.md). Use cases that exercise these
 > requirements across device classes and ad opportunity types live in
 > [`04-use-cases.md`](04-use-cases.md).
@@ -55,8 +55,23 @@ concrete requirements that follow are constrained by them.
 
 ## Requirements
 
+Requirement numbers are **stable identifiers, not positional ones**:
+a requirement's number never changes once assigned. The requirements
+below are grouped into thematic sub-sections for navigation; within
+each sub-section they appear in ascending numeric order, so numbers
+are deliberately non-contiguous within a section. Cross-references
+throughout the spec are by number ("per R13", "see R20"), never by
+position, so a requirement keeps its meaning regardless of where it
+sits.
+
+### Contract foundations
+
+Requirements that fix what the proposal extends and the contract it
+must respect — the MPEG-DASH baseline, the actor responsibilities,
+and the boundaries of what this spec does and does not define.
+
 - **R1. MPEG-DASH 6th edition compliance and graceful degradation.**
-  The solution must extend MPEG-DASH 6th edition without breaking
+  The solution MUST extend MPEG-DASH 6th edition without breaking
   existing semantics. Backward compatibility is mandatory: a Player
   that does not implement the new mechanisms introduced by this
   proposal MUST skip them and continue playing the primary content
@@ -72,7 +87,7 @@ concrete requirements that follow are constrained by them.
     introduced by this proposal that the Player does not implement,
     a conforming legacy Player MUST ignore the unknown construct
     and continue playing the primary content uninterrupted.
-  - **R1.2** (Broadcaster / spec document): Every new SGAI construct
+  - **R1.2** (Publisher / spec document): Every new SGAI construct
     introduced by this proposal MUST be expressed using one of the
     extension points enumerated in
     [`08-dash-extension-rules.md`](./08-dash-extension-rules.md):
@@ -86,30 +101,326 @@ concrete requirements that follow are constrained by them.
     construct genuinely requires DASH segment-delivery semantics
     for a non-ISO-BMFF format, and (b) the spec is willing to
     publish a new Interoperability Point URI.
-  - **R1.3** (Broadcaster / spec document): The specification MUST NOT alter
+  - **R1.3** (Publisher / spec document): The specification MUST NOT alter
     or override the semantics of any pre-existing MPEG-DASH 6th
     edition construct.
 - **R2. Honour the actor's responsibilities.** The design must
   enforce the separation defined in the Actors and Responsibilities
-  section: the Broadcaster declares constraints, the ADS provides
-  candidates, and the Player validates and renders. New mechanisms
-  must be expressible within this contract.
+  section: the Publisher declares constraints, the ADS decides which
+  ads to serve (output as VAST), the APS converts that VAST into the
+  resolution document the Player reads, and the Player validates and
+  renders. New mechanisms must be expressible within this contract.
 
   **Conformance criteria** (runtime + document-level):
-  - **R2.1** (Broadcaster): Constraints applicable to an ad slot
+  - **R2.1** (Publisher): Constraints applicable to an ad slot
     (max duration, opt-in policies, layout templates) MUST be
-    declared by the Broadcaster in the `MPD`, not inferred at
-    runtime by the ADS or the Player.
-  - **R2.2** (ADS): The ADS MUST produce ad candidates as a
-    resolution document; it MUST NOT be expected to enforce
-    Broadcaster-declared constraints (e.g. slot duration cap).
-  - **R2.3** (Player): The Player MUST validate ADS-returned
-    candidates against Broadcaster-declared constraints and render
-    only those that satisfy them.
+    declared by the Publisher in the `MPD`, not inferred at
+    runtime by the ADS, the APS, or the Player.
+  - **R2.2** (ADS + APS): The ADS MUST decide which ads to serve and
+    output them as its decision document (typically VAST); the APS
+    MUST convert that output into the resolution document carrying
+    the ad candidates. Neither MUST be expected to enforce
+    Publisher-declared constraints (e.g. slot duration cap).
+  - **R2.3** (Player): The Player MUST validate the candidates in
+    the resolution document against Publisher-declared constraints
+    and render only those that satisfy them.
   - **R2.4** (spec document): Every new mechanism introduced by the
-    specification MUST be expressible within the three-actor contract; any
+    specification MUST be expressible within the four-actor contract; any
     mechanism that would require an actor to take on a
     responsibility outside its role MUST be rejected or redesigned.
+- **R11. No dependency on VAST.** The specification MUST NOT depend on any
+  specific version of VAST or on VAST as a protocol. Examples that
+  show interoperability with a specific VAST version are
+  illustrative only — conformant implementations MUST be
+  VAST-version-agnostic, and the spec MUST NOT impose VAST as a
+  precondition for any actor.
+
+  **Conformance criteria**:
+  - **R11.1** (spec document): The normative chapters of the spec
+    MUST NOT cite a specific VAST version as required.
+  - **R11.2** (Player): A Player MUST be able to operate regardless
+    of whether the ADS uses VAST. The Player never talks to the ADS
+    directly; it reads only the resolution document the APS produces.
+    This spec starts from the resolution document — the conversion
+    from the ADS's decision format (VAST or otherwise) into the
+    resolution document is performed by the APS and is NOT defined by
+    this spec. The ADS-side protocol (VAST or otherwise) is internal
+    to the ADS / APS pair, not the spec's Player-facing contract.
+  - **R11.3** (spec document): Any reference to VAST in the spec
+    MUST be in an annex or in a non-normative note explicitly
+    flagged as illustrative.
+- **R18. ADS / APS API contracts are not defined by this spec.**
+  This specification does NOT define the URL syntax, parameter
+  names, request payload, response payload, or any other aspect
+  of the APS-to-ADS API, nor of the ADS-side API. The specification
+  documents only the **Player-visible interface** — the MPD event
+  URL referenced by the Publisher (which resolves to the APS), and
+  the resolution document the APS returns (`ListMPD` or
+  single-period alternative MPD). It does NOT define (a) the
+  request/GET used to obtain the ADS's decision document, nor (b)
+  the format of that decision document (VAST or otherwise). It
+  treats the APS internal contract (how the APS invokes the ADS,
+  obtains its decision document, and converts it, the decisioning
+  inputs, frequency-cap signals) as opaque, agreed bilaterally
+  out-of-band.
+
+  **Conformance criteria** (document-level):
+  - **R18.1** (spec document): The specification documents the
+    MPD event URL pattern (Player-visible input, served by the APS)
+    and the resolution document format (Player-visible output,
+    produced by the APS).
+  - **R18.2** (Publisher / APS / ADS): The bilateral contracts —
+    Publisher-to-APS for the event URL and APS-to-ADS for ad
+    decisioning invocation — are established and maintained by those
+    parties directly, outside this specification.
+
+### Opportunity declaration
+
+Requirements that define what the Publisher and the IAB declare about
+an ad opportunity before any ad is selected — the slot cap, the
+admissible ad-type vocabulary, and the admissible creative carriers.
+
+- **R4. Publisher-declared max slot duration, Player-enforced.**
+  The Publisher declares a maximum duration for each ad slot. The
+  ADS may return one or more ad candidates to fill that slot, but the
+  ADS is **not** responsible for respecting the cap. The Player MUST
+  enforce the cap: if the cumulative duration of the candidates the
+  Player chose to render exceeds the declared maximum, the Player
+  MUST stop at the cap, even if that means cutting an ad in
+  mid-playback. This default applies to both linear ad slots
+  (start-of-session, mid-content, multi-ad break) and non-linear
+  overlay slots (overlay max display duration). Alternative overflow
+  policies (e.g. skip the break entirely, trim-clean at the previous
+  ad boundary, fail-closed) are explicitly out of scope for the
+  default semantics; if needed, they must be expressible by the
+  Publisher as an opt-in policy on the slot. R4 is a concrete
+  instance of R2 — Publisher declares the constraint, Player
+  enforces it, ADS does not.
+
+  **Conformance criteria** (runtime):
+  - **R4.1** (Publisher): The Publisher MUST declare a maximum
+    duration on every ad slot (linear or non-linear) defined in the
+    `MPD`.
+  - **R4.2** (Player): When the cumulative duration of accepted ad
+    candidates would exceed the Publisher-declared cap, the
+    Player MUST stop rendering at the cap boundary, even if the
+    stop falls mid-ad.
+  - **R4.3** (Player): The Player MUST NOT extend a slot beyond
+    the Publisher-declared cap regardless of ADS metadata or
+    candidate count.
+  - **R4.4** (ADS): The ADS is NOT required to respect the cap when
+    selecting candidates; a conformance check on the ADS MUST NOT
+    fail solely because the cumulative duration of its returned
+    candidates exceeds the cap.
+  - **R4.5** (Player): When the actual rendered length of an
+    accepted candidate exceeds its declared duration, the Player
+    MUST enforce the cap against actual length, not declared
+    length ("trim during play").
+- **R12. Ad type definitions owned by IAB.** Ad types and their
+  visual templates are defined and maintained by the IAB. This
+  specification references IAB definitions normatively for ad-type names
+  and behavioural expectations; introducing new ad-type
+  definitions (new template categories beyond what IAB publishes)
+  is out of scope.
+
+  Reference (live link, not snapshotted):
+  https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
+
+  **Conformance criteria**:
+  - **R12.1** (spec document): The list of accepted ad-type values
+    in the spec MUST be sourced from IAB definitions. A reference
+    to the IAB source MUST be included.
+  - **R12.2** (Publisher): Publishers declaring allowed
+    layouts MUST use names that map 1:1 to IAB-defined ad-type
+    values (no publisher-private layout names in the
+    allowed-layouts declaration on the slot).
+  - **R12.3** (APS): The ad-type set originates in the ADS's
+    decision; the APS transcribes it. The normative obligation is the
+    APS's: the APS MUST NOT emit, in the resolution document, form
+    metadata for ad types that are not part of the IAB-defined set
+    used by this spec's edition. Conformance is checked against the
+    APS's resolution document, not against the ADS's internal
+    decision document.
+- **R15. Admissible creative carrier formats.**
+  The admissible ad-creative carrier formats for this edition are
+  exactly three: **video** (carried per the MPEG-DASH 6th edition
+  baseline mp4 constraints — see DR-1 in
+  [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)),
+  **image** (concrete formats defined by IAB ad templates), and
+  **HTML** (`text/html`, which MAY contain inline `<script>` per
+  HTML5 semantics; the script runs under the device's HTML
+  capability contract, not as a separate carrier).
+
+  **Conformance criteria**:
+  - **R15.1** (spec document): The specification MUST enumerate
+    this exact admissible set wherever creative carrier types are
+    discussed; new carrier types MUST NOT be added in annexes,
+    examples, or implementation notes.
+  - **R15.2** (APS + Publisher): Ad candidates in the resolution
+    document the APS produces (carrying the creatives the ADS
+    selected) and forms declared by the Publisher MUST carry a
+    creative whose mimeType falls under one of the three admissible
+    categories defined above. The admissible set originates in the
+    ADS's decision; the APS transcribes it, so conformance is checked
+    against the APS's resolution document and the Publisher's
+    declaration, not against the ADS's internal decision document.
+  - **R15.3** (Player): The Player MAY skip a candidate whose
+    creative carrier mimeType is not in the admissible set; such
+    a candidate signals a non-conformant ADS, APS, or Publisher.
+
+### Selection and ordering
+
+Requirements that govern how the Player chooses among candidates and
+in what order it presents them — device-aware selection, honouring
+the ADS-declared order, and resolving overlapping opportunity windows.
+
+- **R5. Device-aware ad selection.** The Player is the sole
+  authority on device capability — neither the ADS nor the APS needs
+  a device-class matrix or a per-Player view. Ad candidates in the
+  resolution document the Player reads carry one or more
+  **renderable forms** (e.g. video, image, HTML), optionally ranked
+  by ADS hints. The Player MUST choose the best form it can render
+  given its device, and MUST skip candidates with no renderable form
+  (falling back to the next candidate or to primary content,
+  depending on policy). R5 is a concrete instance of R2 — Player owns
+  the responsibility the ADS and APS do not have — and a direct
+  contributor to R3.
+
+  The resolution document MAY carry candidates with multiple forms
+  or layouts. The Player MUST select per device capabilities, the
+  Publisher's allowed layouts, and ADS-supplied priority hints.
+  Skipping a candidate because none of its forms is renderable on
+  the target device is acceptable; the Player then falls through to
+  the next candidate or to primary content.
+
+  **Conformance criteria** (runtime):
+  - **R5.1** (APS): Each ad candidate in the resolution document the
+    Player reads MUST carry one or more renderable forms (e.g. video,
+    image, HTML), optionally ranked by ADS hints. The form set
+    originates in the ADS's decision (which media files / forms
+    exist, and their ranking); the APS carries that set through into
+    the resolution document. The normative carry obligation is the
+    APS's: the APS produces the resolution document the Player reads,
+    so conformance is checked against the APS's resolution document,
+    not against the ADS's internal decision document. The ADS defines
+    the set; the APS transcribes it.
+  - **R5.2** (Player): The Player MUST choose, among the renderable
+    forms of an accepted candidate, the best form it can render on
+    its device.
+  - **R5.3** (Player): The Player MUST skip any candidate that
+    carries no form renderable on its device, falling back to the
+    next candidate or to primary content per the configured policy.
+  - **R5.4** (ADS + APS): Neither the ADS nor the APS MUST be
+    required to maintain a device-class matrix or a per-Player
+    capability view to produce candidates.
+  - **R5.5** (ADS): An ad candidate MAY carry multiple forms
+    and MAY carry multiple admissible layouts; ADS-supplied
+    priority hints MAY rank both dimensions independently.
+  - **R5.6** (Player): The Player MUST resolve form/layout
+    selection by intersecting (a) device capabilities, (b) the
+    Publisher-declared allowed layouts on the slot, and
+    (c) ADS-supplied priority hints. A combination that fails
+    any of the three MUST NOT be rendered.
+  - **R5.7** (Player): If no form/layout combination on a
+    candidate satisfies R5.6, the Player MUST skip that
+    candidate and fall through to the next candidate in the
+    resolution document (preserving the order required by R7) or,
+    when exhausted, to primary content.
+- **R7. Respect ADS-declared order.** When the resolution document
+  the APS returns contains more than one ad (e.g. a `ListMPD`
+  with multiple `<Period>` entries), the Player MUST play the ads
+  in the order declared by the ADS and preserved by the APS,
+  **as long as this is possible given the other Player constraints**.
+  Specifically, the Player MAY drop a candidate that violates R3 (no
+  renderable form for the device) or that would push the cumulative
+  duration past the slot cap (R4), but it MUST NOT re-order,
+  deduplicate, or otherwise rearrange the remaining candidates. Ad
+  selection and ordering are ADS responsibilities (R2); the APS MUST
+  preserve that order when building the resolution document, and the
+  Player's role is to honour it unless a hard constraint blocks it.
+
+  Order of evaluation when a candidate's declared duration would
+  push the cumulative slot duration past the cap (R4 / max slot
+  duration): the Player MAY skip that candidate entirely based on
+  declared duration ("drop before play"). If the Player accepts a
+  candidate and only discovers at playback that its actual rendered
+  length exceeds the cap, R4 applies and the Player trims
+  mid-rendering ("trim during play"). In summary: drop-before-play
+  based on declared duration is permitted; trim-during-play based
+  on actual length is mandatory.
+
+  **Conformance criteria** (runtime):
+  - **R7.1** (Player): Given a resolution document with more
+    than one ad candidate, the Player MUST play the candidates in
+    the order declared by the ADS (and preserved by the APS), except
+    for candidates dropped under R7.2 or R7.3.
+  - **R7.2** (Player): The Player MAY drop a candidate that has no
+    form renderable on its device (R3 / R5).
+  - **R7.3** (Player): The Player MAY drop a candidate before
+    playback ("drop before play") when its declared duration would
+    push the cumulative slot duration past the cap (R4).
+  - **R7.4** (Player): The Player MUST NOT re-order, deduplicate,
+    or otherwise rearrange the remaining candidates after applying
+    R7.2 / R7.3.
+  - **R7.5** (Player): If a candidate is accepted and its actual
+    rendered length exceeds the cap, the Player MUST trim
+    mid-rendering ("trim during play") per R4.
+- **R20. Overlapping same-family opportunity windows: first-window-wins with fallback.**
+  How the Player handles **multiple overlapping opportunity windows of
+  the same family in the primary `MPD`** (the families are linear,
+  overlays, and pause ads — each family is a category of ad). When two
+  or more windows of the same family overlap in time in the primary
+  `MPD`, the Player takes the FIRST overlapping window it encounters and
+  resolves its resolution document; that one resolution document may
+  itself carry a sequence of forms governed by the in-slot rule of R14.
+  The remaining overlapping windows (the second and any subsequent ones)
+  are FALLBACK: the Player resorts to them only when it cannot access
+  the resolution document of the first window — for example the APS does
+  not respond, or the event URL that resolves to the APS fails. The two
+  levels are independent: this requirement (R20) selects which window is
+  served; R14 governs the sequence of forms inside the selected window's
+  resolution document.
+
+  The rationale for resolving overlapping same-family windows as
+  first-window-wins-with-fallback — rather than serving them
+  concurrently — parallels the device-resource rationale behind the
+  single-active-form constraint (R22.1). If two opportunity windows of
+  the same family were allowed to be active at the same instant, the
+  Player would have to decide which of two simultaneously resolvable ad
+  presentations to render, and rendering both would mean two concurrent
+  non-linear presentations — the same pressure on the device's decoder
+  and resource budget that the one-form-at-a-time rule exists to avoid.
+  Concurrency of windows is concurrency of presentation. By selecting
+  the first window and treating the rest as fallback, the form we define
+  never asks the device to present more than one ad at a time, and it
+  never asks the Player to resolve a runtime conflict between two equally
+  valid windows. Instead, the overlap is reinterpreted: it is not two
+  things to play at once (which would complicate resource selection on
+  the device), but a Publisher-declared chain of one primary window plus
+  robust backups. When the first window fails to resolve its resolution
+  document (the APS is unreachable, the event URL fails), the Player
+  falls through to the next overlapping window as a backup. Overlap
+  therefore stops being a concurrency case to arbitrate at runtime and
+  becomes a simple, declared fallback chain.
+
+  **Conformance criteria** (runtime):
+  - **R20.1** (Player): When ad opportunity windows of the same family
+    overlap in time within the primary `MPD`, the Player MUST select
+    the first overlapping window it encounters and attempt to resolve
+    its resolution document. The remaining overlapping windows of the
+    same family are fallback only: the Player MUST resort to a
+    subsequent overlapping window ONLY when it cannot access the
+    resolution document of the first window (e.g. the APS does not
+    respond or the event URL fails); when the first window's resolution
+    document is accessible, the Player MUST NOT fall through to the
+    others.
+
+### Presentation
+
+Requirements that govern how ad forms appear on screen — device-class
+support, in-slot sequencing, pause-ad lifecycle, priority and
+fullscreen rules, playback speed, and the single-active-form bound.
+
 - **R3. Support a diverse range of device capabilities.** The
   solution must work across the heterogeneity of target devices in
   real CTV / streaming deployments — from devices that can render
@@ -129,267 +440,48 @@ concrete requirements that follow are constrained by them.
     behaviour is non-conforming.
   - **R3.3** (Player): A Player MUST NOT attempt to render an ad
     form (video, image, HTML) that its device class cannot render.
-- **R4. Broadcaster-declared max slot duration, Player-enforced.**
-  The Broadcaster declares a maximum duration for each ad slot. The
-  ADS may return one or more ad candidates to fill that slot, but the
-  ADS is **not** responsible for respecting the cap. The Player MUST
-  enforce the cap: if the cumulative duration of the candidates the
-  Player chose to render exceeds the declared maximum, the Player
-  MUST stop at the cap, even if that means cutting an ad in
-  mid-playback. This default applies to both linear ad slots
-  (start-of-session, mid-content, multi-ad break) and non-linear
-  overlay slots (overlay max display duration). Alternative overflow
-  policies (e.g. skip the break entirely, trim-clean at the previous
-  ad boundary, fail-closed) are explicitly out of scope for the
-  default semantics; if needed, they must be expressible by the
-  Broadcaster as an opt-in policy on the slot. R4 is a concrete
-  instance of R2 — Broadcaster declares the constraint, Player
-  enforces it, ADS does not.
+- **R14. Sequential non-linear ad forms within a slot.**
+  A non-linear ad slot MAY be filled by more than one ad form played
+  in **sequence**, exactly as a linear ad break plays its candidate
+  ads one after another (R7). When the resolution document the APS
+  produces declares several non-linear forms for one slot, the Player
+  presents them **one after another, in the order the forms appear in
+  the resolution document** — the same ordering contract R7 imposes on
+  linear candidates. For example, a 30 s overlay slot whose resolution
+  document declares Overlay A (10 s), then Overlay B (10 s), then
+  Overlay C (10 s) is presented as A, then B, then C, each starting
+  when the previous one ends. The cumulative duration of the forms is
+  expected to match the opportunity window the Publisher declared for
+  the slot (here, 30 s), and the Player enforces the slot cap against
+  that cumulative duration per R4. That the forms play one at a time
+  rather than concurrently — and the rationale for it — is governed
+  separately by R22.
 
-  **Conformance criteria** (runtime):
-  - **R4.1** (Broadcaster): The Broadcaster MUST declare a maximum
-    duration on every ad slot (linear or non-linear) defined in the
-    `MPD`.
-  - **R4.2** (Player): When the cumulative duration of accepted ad
-    candidates would exceed the Broadcaster-declared cap, the
-    Player MUST stop rendering at the cap boundary, even if the
-    stop falls mid-ad.
-  - **R4.3** (Player): The Player MUST NOT extend a slot beyond
-    the Broadcaster-declared cap regardless of ADS metadata or
-    candidate count.
-  - **R4.4** (ADS): The ADS is NOT required to respect the cap when
-    selecting candidates; a conformance check on the ADS MUST NOT
-    fail solely because the cumulative duration of its returned
-    candidates exceeds the cap.
-  - **R4.5** (Player): When the actual rendered length of an
-    accepted candidate exceeds its declared duration, the Player
-    MUST enforce the cap against actual length, not declared
-    length ("trim during play").
-- **R5. Device-aware ad selection.** The Player is the sole
-  authority on device capability — the ADS does not need a
-  device-class matrix or a per-Player view. Ad candidates returned
-  by the ADS carry one or more **renderable forms** (e.g. video,
-  image, HTML), optionally ranked by ADS hints. The Player MUST
-  choose the best form it can render given its device, and MUST
-  skip candidates with no renderable form (falling back to the
-  next candidate or to primary content, depending on policy).
-  R5 is a concrete instance of R2 — Player owns the responsibility
-  the ADS does not have — and a direct contributor to R3.
-
-  The ADS MAY return candidates carrying multiple forms or layouts.
-  The Player MUST select per device capabilities, the Broadcaster's
-  allowed layouts, and ADS-supplied priority hints. Skipping a
-  candidate because none of its forms is renderable on the target
-  device is acceptable; the Player then falls through to the next
-  candidate or to primary content.
-
-  **Conformance criteria** (runtime):
-  - **R5.1** (ADS): Each ad candidate returned by the ADS MUST
-    carry one or more renderable forms (e.g. video, image, HTML);
-    the ADS MAY rank them via ADS hints.
-  - **R5.2** (Player): The Player MUST choose, among the renderable
-    forms of an accepted candidate, the best form it can render on
-    its device.
-  - **R5.3** (Player): The Player MUST skip any candidate that
-    carries no form renderable on its device, falling back to the
-    next candidate or to primary content per the configured policy.
-  - **R5.4** (ADS): The ADS MUST NOT be required to maintain a
-    device-class matrix or a per-Player capability view to produce
-    candidates.
-  - **R5.5** (ADS): An ad candidate MAY carry multiple forms
-    and MAY carry multiple admissible layouts; ADS-supplied
-    priority hints MAY rank both dimensions independently.
-  - **R5.6** (Player): The Player MUST resolve form/layout
-    selection by intersecting (a) device capabilities, (b) the
-    Broadcaster-declared allowed layouts on the slot, and
-    (c) ADS-supplied priority hints. A combination that fails
-    any of the three MUST NOT be rendered.
-  - **R5.7** (Player): If no form/layout combination on a
-    candidate satisfies R5.6, the Player MUST skip that
-    candidate and fall through to the next ADS-returned
-    candidate (preserving the order required by R7) or, when
-    exhausted, to primary content.
-- **R6. Ad tracking carrier.** The specification MUST specify how in-band
-  ad tracking beacons (impression, start, quartiles, complete, etc.)
-  are carried in the resolution document. Implementations SHOULD
-  reuse the existing DASH callback event scheme
-  (`urn:mpeg:dash:event:callback:2015`, §4.7 / §5.10.4.5) as the
-  carrier — embedding tracking `<Event>` entries inside an
-  `<EventStream>` of that scheme in the ad MPD or sub-MPD. New
-  tracking carriers MAY be introduced only when the callback scheme
-  cannot express the required semantics, and only after a
-  documented gap analysis per R9. Application-level metadata that
-  has no native DASH carrier (e.g. `ClickThrough`, `AdSystem`,
-  `AdTitle`, `UniversalAdId`) MAY be conveyed via vendor-namespaced
-  extension elements; Players MUST safely ignore unknown namespaces
-  per the DASH extension rules invoked by R1.
-
-  **Conformance criteria** (runtime + document-level):
-  - **R6.1** (spec document): The specification MUST specify how in-band ad
-    tracking beacons are carried in the resolution document.
-  - **R6.2** (Broadcaster / ADS): Implementations SHOULD carry
-    tracking beacons as `<Event>` entries inside an `<EventStream>`
-    of scheme `urn:mpeg:dash:event:callback:2015` in the ad `MPD`
-    or sub-`MPD`.
-  - **R6.3** (spec document): A new tracking carrier MAY be
-    introduced only when the callback scheme cannot express the
-    required semantics, and only after a documented gap analysis
-    per R9.
-  - **R6.4** (ADS / Broadcaster): Application-level metadata with
-    no native DASH carrier (`ClickThrough`, `AdSystem`, `AdTitle`,
-    `UniversalAdId`, etc.) MAY be conveyed via vendor-namespaced
-    extension elements.
-  - **R6.5** (Player): A Player MUST safely ignore unknown
-    namespaces on tracking-related extension elements, per the DASH
-    extension rules invoked by R1.
-  - **R6.6** (Broadcaster / ADS / spec document): When a non-AV ad
-    form (`mediaType ∈ {html, image, ...}`) is carried, the asset
-    URL MUST NOT be expressed as `@mimeType` on an AdaptationSet or
-    Representation reached through any path bound by RFC 4337
-    (DR-1, DR-5 in
-    [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
-    It MUST be carried via one of the §5.2.1 / §5.10 / §5.8.4.x
-    carriers enumerated by DR-6, per R1.2.
-- **R7. Respect ADS-returned order.** When the ADS returns a
-  resolution document containing more than one ad (e.g. a `ListMPD`
-  with multiple `<Period>` entries), the Player MUST play the ads
-  in the order declared by the ADS, **as long as this is possible
-  given the other Player constraints**. Specifically, the Player
-  MAY drop a candidate that violates R3 (no renderable form for the
-  device) or that would push the cumulative duration past the slot
-  cap (R4), but it MUST NOT re-order, deduplicate, or otherwise
-  rearrange the remaining candidates. Ad selection and ordering are
-  ADS responsibilities (R2); the Player's role is to honour them
-  unless a hard constraint blocks it.
-
-  Order of evaluation when a candidate's declared duration would
-  push the cumulative slot duration past the cap (R4 / max slot
-  duration): the Player MAY skip that candidate entirely based on
-  declared duration ("drop before play"). If the Player accepts a
-  candidate and only discovers at playback that its actual rendered
-  length exceeds the cap, R4 applies and the Player trims
-  mid-rendering ("trim during play"). In summary: drop-before-play
-  based on declared duration is permitted; trim-during-play based
-  on actual length is mandatory.
-
-  **Conformance criteria** (runtime):
-  - **R7.1** (Player): Given an ADS resolution document with more
-    than one ad candidate, the Player MUST play the candidates in
-    the order declared by the ADS, except for candidates dropped
-    under R7.2 or R7.3.
-  - **R7.2** (Player): The Player MAY drop a candidate that has no
-    form renderable on its device (R3 / R5).
-  - **R7.3** (Player): The Player MAY drop a candidate before
-    playback ("drop before play") when its declared duration would
-    push the cumulative slot duration past the cap (R4).
-  - **R7.4** (Player): The Player MUST NOT re-order, deduplicate,
-    or otherwise rearrange the remaining candidates after applying
-    R7.2 / R7.3.
-  - **R7.5** (Player): If a candidate is accepted and its actual
-    rendered length exceeds the cap, the Player MUST trim
-    mid-rendering ("trim during play") per R4.
-- **R11. No dependency on VAST.** The specification MUST NOT depend on any
-  specific version of VAST or on VAST as a protocol. Examples that
-  show interoperability with a specific VAST version are
-  illustrative only — conformant implementations MUST be
-  VAST-version-agnostic, and the spec MUST NOT impose VAST as a
-  precondition for any actor.
+  This in-slot sequencing rule (forms played in declared order) is
+  distinct from how the Player handles **multiple overlapping
+  opportunity windows of the same family in the primary `MPD`**, which
+  is governed separately by R20. The two levels are independent: R20
+  selects which opportunity window is served; this requirement (R14)
+  governs the sequence of forms inside the selected window's resolution
+  document.
 
   **Conformance criteria**:
-  - **R11.1** (spec document): The normative chapters of the spec
-    MUST NOT cite a specific VAST version as required.
-  - **R11.2** (Player): A Player MUST be able to operate against
-    an ADS that does not use VAST at all (the ADS-side protocol
-    is the ADS's internal concern, not the spec's contract).
-  - **R11.3** (spec document): Any reference to VAST in the spec
-    MUST be in an annex or in a non-normative note explicitly
-    flagged as illustrative.
-- **R12. Ad type definitions owned by IAB.** Ad types and their
-  visual templates are defined and maintained by the IAB. This
-  specification references IAB definitions normatively for ad-type names
-  and behavioural expectations; introducing new ad-type
-  definitions (new template categories beyond what IAB publishes)
-  is out of scope.
-
-  Reference (live link, not snapshotted):
-  https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
-
-  **Conformance criteria**:
-  - **R12.1** (spec document): The list of accepted ad-type values
-    in the spec MUST be sourced from IAB definitions. A reference
-    to the IAB source MUST be included.
-  - **R12.2** (Broadcaster): Broadcasters declaring allowed
-    layouts MUST use names that map 1:1 to IAB-defined ad-type
-    values (no broadcaster-private layout names in the
-    allowed-layouts declaration on the slot).
-  - **R12.3** (ADS): The ADS MUST NOT emit form metadata for ad
-    types that are not part of the IAB-defined set used by this
-    spec's edition.
-- **R13. Non-linear ad tracking — ADS-directed callbacks.**
-  The specification MUST define a tracking mechanism that allows
-  the ADS to instruct the Player on which tracking beacons to
-  fire, and at which points relative to the ad's presentation.
-  The mechanism MUST reuse DASH callback events (or an equivalent
-  baseline DASH construct); no new tracking event scheme is
-  introduced. Beacon timings are **relative to the ad's
-  presentation time**, and the **ADS is the authority** over the
-  tracking schedule — the spec does NOT prescribe specific
-  fractions (no hardcoded quartiles), granularity, or beacon
-  count. The Player executes the schedule the ADS supplies.
-
-  **Conformance criteria**:
-  - **R13.1** (ADS): The ADS MUST express tracking instructions
-    using DASH callback events (or equivalent), with timings
-    expressed relative to the ad's presentation timeline.
-  - **R13.2** (Player): Given an ad accepted for rendering, the
-    Player MUST execute the tracking schedule supplied by the
-    ADS — firing each beacon at its specified relative time.
-  - **R13.3** (Player): If R4 trims the ad before a scheduled
-    beacon's time, the Player MUST stop firing remaining beacons
-    at the trim boundary.
-  - **R13.4** (spec document): The specification MUST NOT introduce
-    a new tracking event scheme; reuse of the DASH baseline
-    callback mechanism is mandatory.
-- **R14. Single concurrent non-linear ad presentation.**
-  At most one non-linear ad form may be active on the screen at any
-  given moment. When multiple non-linear ad opportunities overlap in
-  time (e.g. a mid-roll l-shape window overlapping with a banner
-  window), the Player MUST serialise their presentation — show one,
-  finish it, then evaluate the next. Simultaneous presentation of two
-  or more non-linear forms is OUT OF SCOPE for this edition; a future
-  edition MAY introduce concurrency semantics with explicit conflict
-  resolution rules.
-
-  **Conformance criteria**:
-  - **R14.1** (Player): At any time t, the Player MUST be presenting
-    at most one form from a non-linear opportunity. Other
-    simultaneously-active opportunities MUST be deferred or skipped
-    per policy.
-  - **R14.2** (spec document): The specification MUST NOT introduce
-    constructs that imply or require parallel non-linear form
-    rendering.
-- **R15. Admissible creative carrier formats.**
-  The admissible ad-creative carrier formats for this edition are
-  exactly three: **video** (carried per the MPEG-DASH 6th edition
-  baseline mp4 constraints — see DR-1 in
-  [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)),
-  **image** (concrete formats defined by IAB ad templates), and
-  **HTML** (`text/html`, which MAY contain inline `<script>` per
-  HTML5 semantics; the script runs under the device's HTML
-  capability contract, not as a separate carrier).
-
-  **Conformance criteria**:
-  - **R15.1** (spec document): The specification MUST enumerate
-    this exact admissible set wherever creative carrier types are
-    discussed; new carrier types MUST NOT be added in annexes,
-    examples, or implementation notes.
-  - **R15.2** (ADS / Broadcaster): Ad candidates returned by the
-    ADS and forms declared by the Broadcaster MUST carry a
-    creative whose mimeType falls under one of the three
-    admissible categories defined above.
-  - **R15.3** (Player): The Player MAY skip a candidate whose
-    creative carrier mimeType is not in the admissible set; such
-    a candidate signals a non-conformant ADS or Broadcaster.
+  - **R14.1** (Player): When the resolution document for a non-linear
+    slot declares more than one ad form, the Player MUST present the
+    forms in sequence, in the order the forms appear in the resolution
+    document (the same ordering contract R7 applies to linear
+    candidates), each form starting when the previous one ends.
+  - **R14.2** (Player): The Player MUST enforce the Publisher-declared
+    slot cap (R4) against the cumulative duration of the sequence of
+    non-linear forms it presents, trimming or dropping per R4 / R7 when
+    the cumulative duration would exceed the slot's opportunity window.
+  - **R14.3** (spec document): The specification MUST NOT introduce a
+    construct that implies or requires the parallel (simultaneous)
+    rendering of two or more non-linear ad forms. Sequencing of forms
+    within a slot is governed by the resolution document's declared
+    form order (R14.1) and carries no separate "render-then" primitive
+    beyond that order. The single-active-form runtime constraint itself
+    lives in R22.
 - **R16. Pause-ad lifecycle bound to pause state.**
   A pause-ad form, by definition, is admissible only while the
   primary content is paused. When the viewer resumes primary
@@ -397,6 +489,11 @@ concrete requirements that follow are constrained by them.
   immediately and ceases firing further tracking beacons
   associated with that pause-ad. The pause-ad's lifecycle is
   bounded by the pause-state interval.
+
+  The fullscreen presentation of a pause-ad form is governed separately
+  by R21. The presentation-time freeze that keeps a pause-ad admissible
+  in live content is governed separately by R25; R16 governs the generic
+  pause-ad lifecycle (admissible only in pause, dismissed on resume).
 
   **Conformance criteria** (runtime):
   - **R16.1** (Player): Upon a pause-to-play transition by the
@@ -408,15 +505,25 @@ concrete requirements that follow are constrained by them.
     transition fall outside the pause-ad's active window and are
     therefore out of scope.
 - **R17. Pause-ad priority over overlay.**
+  This priority mechanism applies BETWEEN different ad families (a
+  pause-ad over an overlay); it is distinct from the single-family
+  overlap handling of R20. Suspending the overlay during a pause and
+  restoring it on resume is a cross-family layering rule, not an
+  in-slot sequencing of two forms within one family (R14). The
+  fullscreen presentation of a pause-ad form (R21) reinforces this
+  priority: a fullscreen pause-ad necessarily covers and suspends any
+  active overlay, so there is no simultaneous partial composition of a
+  pause-ad and an overlay during the pause.
+
   When a pause-ad opportunity and an overlay opportunity are
   active at the same instant, the pause-ad is rendered on top of
-  the overlay. The Player serializes the two: while the viewer
+  the overlay. The Player layers the two by priority: while the viewer
   is paused inside a pause-ad window, the pause-ad form is the
   only ad surface visible (the overlay is suspended). When the
   viewer resumes primary playback, the pause-ad is dismissed
   (per R16) and the overlay reappears if its slot window is
   still active; the overlay continues until its window expires.
-  This priority is not Broadcaster-configurable — pause-ad above
+  This priority is not Publisher-configurable — pause-ad above
   overlay during pause is the only admissible composition.
 
   **Conformance criteria** (runtime):
@@ -431,28 +538,232 @@ concrete requirements that follow are constrained by them.
     during the pause, the Player keeps the overlay surface clear
     on resume; the overlay is over.
   - **R17.4** (spec document): The specification carries no
-    construct that lets the Broadcaster or ADS invert this
-    priority.
-- **R18. ADS API contract is not defined by this spec.**
-  This specification does NOT define the URL syntax, parameter
-  names, request payload, response payload, or any other aspect
-  of the ADS-side API. The specification documents the
-  Player-visible interface — the MPD event URL referenced by the
-  Broadcaster, and the resolution document the ADS returns
-  (`ListMPD` or single-period alternative MPD) — and treats the
-  ADS internal contract (invocation parameters, decisioning
-  inputs, frequency-cap signals) as opaque, agreed bilaterally
-  between the Broadcaster and the ADS out-of-band.
+    construct that lets the Publisher, the ADS, or the APS invert
+    this priority.
+- **R19. Ad playback speed follows primary content.**
+  All ad content, linear or non-linear, MUST be rendered at the same
+  playback speed as the primary content. A presentation window
+  (presentation time + duration) does NOT define the wall-clock time
+  the ad stays on screen: the effective on-screen duration is given by
+  `duration / playback_speed`, governed by the primary content's
+  playback speed at the time the ad is presented. For example, an ad
+  with presentation time = 0 and duration = 10s, played while the
+  primary content runs at 2x, is shown on screen for 5 seconds of
+  wall-clock time. `duration` remains expressed on the presentation
+  timeline (the single source of truth per DP-1.2); the wall-clock
+  on-screen length is derived from it, never duplicated.
 
-  **Conformance criteria** (document-level):
-  - **R18.1** (spec document): The specification documents the
-    MPD event URL pattern (Player-visible input) and the
-    resolution document format (Player-visible output).
-  - **R18.2** (Broadcaster / ADS): The bilateral contract for ADS
-    invocation parameters is established and maintained by the
-    Broadcaster and the ADS directly, outside this specification.
+  **Conformance criteria** (runtime):
+  - **R19.1** (Player): The Player MUST render every ad form (linear
+    or non-linear) at the same playback speed as the primary content
+    at the moment the ad is presented.
+  - **R19.2** (Player): The Player MUST NOT force an ad to 1x
+    playback speed when the primary content is playing at a different
+    speed; the ad follows the primary content's speed.
+  - **R19.3** (Player): The Player MUST compute an ad form's
+    effective on-screen (wall-clock) duration as
+    `duration / playback_speed`, not as the raw `duration` value;
+    cap enforcement (R4) and beacon scheduling (R13) operate on the
+    presentation-timeline `duration`, while wall-clock on-screen
+    behaviour follows the derived value.
+- **R21. Pause-ad forms are fullscreen.**
+  A pause-ad form MUST be presented fullscreen, occupying the entire
+  screen surface; partial-overlay pause-ads are not supported. Because
+  the pause-ad replaces the whole visual surface for the duration of
+  the pause, the Player MAY release all resources held by the primary
+  content and by any pre-existing overlay in order to present a
+  fullscreen video, image, or web page.
 
-## Governance Requirements
+  This fullscreen constraint reinforces R17: a fullscreen pause-ad
+  necessarily covers and suspends any active overlay, so there is no
+  simultaneous partial composition of a pause-ad and an overlay during
+  the pause. R16 governs the pause-ad lifecycle (bound to the pause
+  state); the live-content presentation-time freeze is governed by R25;
+  this requirement (R21) is about the fullscreen presentation surface.
+
+  **Conformance criteria** (runtime):
+  - **R21.1** (Player): The Player MUST present a pause-ad form
+    fullscreen, occupying the entire screen surface, and MUST NOT
+    render a pause-ad as a partial overlay. While the pause-ad is
+    fullscreen, the Player MAY release the resources held by the
+    primary content and by any pre-existing overlay to present a
+    fullscreen video, image, or web page.
+- **R22. Single active non-linear form; no concurrent presentation.**
+  Although a slot MAY carry a sequence of non-linear ad forms (R14),
+  what this edition does **not** permit is the **simultaneous**
+  presentation of two or more non-linear ad forms: at any instant `t`,
+  at most ONE non-linear ad form is active on the screen. Sequential
+  forms (one ending, the next beginning) are in scope; overlapping two
+  forms on screen at the same time is not.
+
+  The rationale for the single-active-form constraint is **device
+  resource simplicity**, specifically concurrent video-decoder budget.
+  If two non-linear forms were both video overlays and were required to
+  be shown at the same instant, the device would need to decode main
+  content (1 video decoder) plus overlay A (1 decoder) plus overlay B
+  (1 decoder) — three concurrent video decoders. Many target devices
+  support only a small number of concurrent decoders (sometimes only
+  two). By bounding the slot to one active non-linear form at a time,
+  the device never needs more than main content plus one ad form — a
+  budget that is always feasible across the device classes in R3.
+  Hence the expectation of a single non-linear ad form on screen at a
+  time.
+
+  R14 permits the sequence of forms within a slot; this requirement
+  imposes that the sequence is played one form at a time, never
+  overlapping.
+
+  Simultaneous presentation of two or more non-linear forms is OUT OF
+  SCOPE for this edition; a future edition MAY relax the single-active-
+  form constraint and introduce concurrency semantics with explicit
+  conflict-resolution and decoder-budget rules.
+
+  **Conformance criteria** (runtime):
+  - **R22.1** (Player): At any instant `t`, the Player MUST keep at
+    most ONE non-linear ad form active on the screen. The Player MUST
+    NOT present two or more non-linear ad forms simultaneously. This
+    bound exists so the device never needs more than main content plus
+    one ad form's video decoder concurrently (R3).
+- **R25. Pause-ad presentation-time freeze in live content.**
+  In live content, when the viewer pauses inside the pause-ad's
+  temporal window, the Player's presentation time MUST freeze inside
+  that window for as long as the viewer remains paused — even though
+  the live edge keeps advancing in wall-clock time. The pause-ad
+  window is anchored to the Player's (frozen) presentation time, not
+  to the still-advancing live timeline, so the pause-ad stays
+  admissible until the viewer resumes. If the Player subsequently
+  decides to resume at the live edge of the event, that jump is a
+  Player action that occurs AFTER the resume from pause — it is not
+  part of the pause-ad window. The guarantee is: once paused, the
+  Player's presentation time stays frozen inside the pause-ad window
+  regardless of the live content continuing to be produced.
+
+  R16 governs the generic pause-ad lifecycle (admissible only in pause,
+  dismissed on resume); this requirement (R25) governs the specific
+  presentation-time freeze guarantee in live content.
+
+  **Conformance criteria** (runtime):
+  - **R25.1** (Player): In live content, while the viewer is paused
+    inside a pause-ad window, the Player MUST keep its presentation
+    time frozen inside that window for the full duration of the
+    pause, regardless of the live edge advancing in wall-clock time.
+    Any decision to resume at the live edge MUST be treated as a
+    Player action occurring after the resume from pause, outside the
+    pause-ad window.
+
+### Tracking
+
+Requirements governing what is reported back and through which carrier
+— the tracking-beacon scheme, ADS-directed beacon schedules, and the
+carriers for creative metadata and non-AV assets.
+
+- **R6. Ad tracking beacon carrier.** The specification MUST specify how in-band
+  ad tracking beacons (impression, start, quartiles, complete, etc.)
+  are carried in the resolution document. Implementations SHOULD
+  reuse the existing DASH callback event scheme
+  (`urn:mpeg:dash:event:callback:2015`, §4.7 / §5.10.4.5) as the
+  carrier — embedding tracking `<Event>` entries inside an
+  `<EventStream>` of that scheme in the ad MPD or sub-MPD. New
+  tracking carriers MAY be introduced only when the callback scheme
+  cannot express the required semantics, and only after a
+  documented gap analysis per R9. Players MUST safely ignore unknown
+  namespaces on tracking-related extension elements per the DASH
+  extension rules invoked by R1.
+
+  Application-level creative metadata that has no native DASH carrier
+  is governed separately by R23, and the carrier for non-AV creative
+  assets is governed separately by R24; both are distinct from this
+  requirement (R6 covers tracking beacons, not creative metadata or
+  asset URLs).
+
+  **Conformance criteria** (runtime + document-level):
+  - **R6.1** (spec document): The specification MUST specify how in-band ad
+    tracking beacons are carried in the resolution document.
+  - **R6.2** (APS): Implementations SHOULD carry tracking beacons
+    as `<Event>` entries inside an `<EventStream>` of scheme
+    `urn:mpeg:dash:event:callback:2015` in the ad `MPD` or sub-`MPD`.
+    The APS produces these entries by translating the tracking events
+    the ADS declared in its VAST.
+  - **R6.3** (spec document): A new tracking carrier MAY be
+    introduced only when the callback scheme cannot express the
+    required semantics, and only after a documented gap analysis
+    per R9.
+  - **R6.4** (Player): A Player MUST safely ignore unknown
+    namespaces on tracking-related extension elements, per the DASH
+    extension rules invoked by R1.
+- **R13. Non-linear ad tracking — ADS-directed callbacks.**
+  The specification MUST define a tracking mechanism that allows
+  the ADS to instruct the Player on which tracking beacons to
+  fire, and at which points relative to the ad's presentation. The
+  ADS declares the schedule in its VAST; the APS expresses it in the
+  resolution document using DASH callback events (or an equivalent
+  baseline DASH construct); no new tracking event scheme is
+  introduced. Beacon timings are **relative to the ad's
+  presentation time**, and the **ADS is the authority** over the
+  tracking schedule — the spec does NOT prescribe specific
+  fractions (no hardcoded quartiles), granularity, or beacon
+  count. The Player executes the schedule it reads from the
+  resolution document.
+
+  **Conformance criteria**:
+  - **R13.1** (ADS + APS): The ADS MUST declare the tracking
+    schedule (which beacons, at which relative times) as the sole
+    authority; the APS MUST transcribe those instructions verbatim
+    into the resolution document using DASH callback events (or
+    equivalent), with timings expressed relative to the ad's
+    presentation timeline. The APS exercises no discretion over the
+    schedule — it neither adds, removes, nor reorders beacons; it
+    only re-expresses the ADS-declared schedule in the DASH callback
+    form.
+  - **R13.2** (Player): Given an ad accepted for rendering, the
+    Player MUST execute the tracking schedule it reads from the
+    resolution document — firing each beacon at its specified
+    relative time, preserving the ADS's authority over the
+    schedule.
+  - **R13.3** (Player): If R4 trims the ad before a scheduled
+    beacon's time, the Player MUST stop firing remaining beacons
+    at the trim boundary.
+  - **R13.4** (spec document): The specification MUST NOT introduce
+    a new tracking event scheme; reuse of the DASH baseline
+    callback mechanism is mandatory.
+- **R23. Application-level ad metadata carrier.** Application-level
+  metadata that has no native DASH carrier (e.g. `ClickThrough`,
+  `AdSystem`, `AdTitle`, `UniversalAdId`) MAY be conveyed via
+  vendor-namespaced extension elements; Players MUST safely ignore
+  unknown namespaces per the DASH extension rules invoked by R1. This
+  requirement governs creative metadata, distinct from the tracking
+  beacon carrier of R6 (both are "carriers", but R6 carries tracking
+  beacons while R23 carries creative metadata).
+
+  **Conformance criteria** (runtime + document-level):
+  - **R23.1** (APS): Application-level metadata with no native DASH
+    carrier (`ClickThrough`, `AdSystem`, `AdTitle`, `UniversalAdId`,
+    etc.) declared in the ADS's VAST MAY be conveyed by the APS via
+    vendor-namespaced extension elements in the resolution document.
+- **R24. Non-AV creative asset carrier (RFC 4337 avoidance).** When a
+  non-AV ad form (`mediaType ∈ {html, image, ...}`) is carried in the
+  resolution document, the asset URL MUST NOT be expressed as
+  `@mimeType` on an AdaptationSet or Representation reached through any
+  path bound by RFC 4337. It MUST be carried via one of the DASH-
+  conformant carriers enumerated by DR-6. This requirement governs the
+  carrier for non-AV creative assets, distinct from the tracking beacon
+  carrier of R6.
+
+  **Conformance criteria** (runtime + document-level):
+  - **R24.1** (APS / spec document): When a non-AV ad
+    form (`mediaType ∈ {html, image, ...}`) is carried in the
+    resolution document, the asset URL MUST NOT be expressed as
+    `@mimeType` on an AdaptationSet or Representation reached through
+    any path bound by RFC 4337 (DR-1, DR-5 in
+    [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+    It MUST be carried via one of the §5.2.1 / §5.10 / §5.8.4.x
+    carriers enumerated by DR-6, per R1.2.
+
+### Governance
+
+Requirements that constrain how the proposal itself is authored —
+justifying every addition or omission, minimising net new constructs,
+and deferring layout to existing primitives.
 
 - **R8. Justify any addition or omission.** Whenever the proposal
   introduces a new construct or chooses not to reuse a construct
@@ -509,8 +820,10 @@ concrete requirements that follow are constrained by them.
   standard.
 - **OOS-2. Defining the ADS's internal decisioning logic.** The
   proposal only specifies the contract between the MPD event and
-  the ADS response. Targeting, frequency capping, brand safety
-  filtering and similar concerns remain implementation-specific.
+  the resolution document the APS returns. Targeting, frequency
+  capping, brand safety filtering and similar ADS concerns — and
+  the APS-to-ADS exchange that conveys them — remain
+  implementation-specific.
 - **OOS-3. Specific position semantics inside a layout** (left,
   right, top, bottom). Those belong to the per-layout detail
   covered in the Positioning Templates section of the proposal.
