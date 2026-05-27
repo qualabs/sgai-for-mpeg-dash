@@ -6,14 +6,14 @@
 - `cycle_count` (integer ≥ 1) — used to locate the current cycle's
   triage / analyze / review files.
 - The triage verdict at
-  `../output-github-prs/pr-<N>/cycle-<C>/triage.md` (provides
+  `.github-ai/output-prs/pr-<N>/cycle-<C>/triage.md` (provides
   `severity`, needed for label application).
 - The analysis at
-  `../output-github-prs/pr-<N>/cycle-<C>/analyze.md` (source of
+  `.github-ai/output-prs/pr-<N>/cycle-<C>/analyze.md` (source of
   the line-specific findings, needed when routing is `review` +
   hybrid).
 - The drafted review at
-  `../output-github-prs/pr-<N>/cycle-<C>/review.md` (carries the
+  `.github-ai/output-prs/pr-<N>/cycle-<C>/review.md` (carries the
   machine-readable metadata header that drives this prompt's
   routing).
 - Authenticated `gh` CLI on the host (relies on `gh auth login`).
@@ -84,7 +84,7 @@ Approval and merge are exclusively human decisions.
 ### 1. Parse the review draft's metadata header
 
 Read the first hidden HTML comment block at the top of
-`output-github-prs/pr-<N>/cycle-<C>/review.md`. It must match the
+`.github-ai/output-prs/pr-<N>/cycle-<C>/review.md`. It must match the
 shape declared in `propose-review.prompt`:
 
 ```html
@@ -317,7 +317,7 @@ Log:
   being posted.
 - It does not edit the review body. If the review needs a fix,
   the operator edits
-  `output-github-prs/pr-<N>/cycle-<C>/review.md` and re-runs the
+  `.github-ai/output-prs/pr-<N>/cycle-<C>/review.md` and re-runs the
   orchestrator with `--pr <N> --live`.
 - It does not approve or request-changes (D12). It does not
   merge. It does not close the PR. Closure is always a human

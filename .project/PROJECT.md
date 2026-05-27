@@ -18,7 +18,7 @@ status: ongoing
 type: research
 owner: nicolas-levy
 started: 2026-05-06
-last_update: 2026-05-11
+last_update: 2026-05-27
 tags: [dash, sgai, non-linear-ads, mpeg, comcast, svta, overlays, dynamic-presentation, prototype, spec, server-guided-ads]
 related_processes: [preparacion-working-group]
 related_wgs: [comcast-sgai, svta-ads]
@@ -112,9 +112,9 @@ personal info — see `knowledge/output-policy.md`):
 | `context/05-dash-linear-interfaces.md` | Reference of how SGAI is implemented today for linear ads in DASH 6th edition: inventory of the interfaces between the three actors, end-to-end message flow with concrete MPDs and ListMPDs, VAST → ListMPD mapping. Foundation on which the non-linear proposal extends. |
 | `context/99-glossary.md` | Glossary of the technical terminology used across the docs set. Entries marked *(proposed)* are constructs that this proposal puts on the table. |
 | `analysis/dash-gap-analysis.md` | Generated artefact: mapping of each UC against MPEG-DASH 6th edition (ISO/IEC 23009-1) — what construct exists today, how it covers the case per device class, what is missing. Regenerable via `prompts/1-pre-spec/analyze-dash-gap.prompt`. |
-| `prompts/` | Build scripts in `.prompt` format with Inputs / Output / Skip if header, grouped by pipeline stage: `1-pre-spec/` (gap, UC coverage, error semantics, conformance assertions, IAB ad templates), `2-build/` (build-spec), `3-post-spec/` (validate-spec, review-spec-details, audit-dash-conformance), `4-auto-refine/` (refine-spec, compare-spec-versions), `5-github-issues/` (orchestrate-issues, detect-issues, triage-issue, analyze-impact, propose-response, post-response). The `build-all` orchestrator (Stages 1..4) lives at the root of `prompts/`; Stage 5 has its own orchestrator at `prompts/5-github-issues/orchestrate-issues.prompt`. See `prompts/README.md` for the full layout and a "when to use which prompt" table. |
+| `prompts/` | Build scripts in `.prompt` format with Inputs / Output / Skip if header, grouped by pipeline stage: `1-pre-spec/` (gap, UC coverage, error semantics, conformance assertions, IAB ad templates), `2-build/` (build-spec), `3-post-spec/` (validate-spec, review-spec-details, audit-dash-conformance), `4-auto-refine/` (refine-spec, compare-spec-versions). The `build-all` orchestrator (Stages 1..4) lives at the root of `prompts/`. Stages 5 (GitHub issues) and 6 (GitHub PRs) live outside `prompts/`, under `.github-ai/` (see below). See `prompts/README.md` for the full layout and a "when to use which prompt" table. |
 | `output/` | Final builds of the spec document, with dated filename (`YYYY-MM-DD-sgai-spec.md`). Not overwritten — the build history is preserved. |
-| `output-github-issues/` | Stage 5 scratch directory (gitignored). One subfolder per processed GitHub issue (`output-github-issues/<issue-N>/`) containing `triage.md`, optionally `impact.md` (Flow B only), and `response.md`. Posted responses live on GitHub; the repo never commits these drafts. |
+| `.github-ai/` | GitHub-feedback pipelines kept separate from the spec build. `prompts/issues/` holds the six Stage-5 prompts (orchestrate-issues, detect-issues, triage-issue, analyze-impact, propose-response, post-response) and `prompts/prs/` the six Stage-6 prompts (orchestrate-prs, detect-prs, triage-pr, analyze-pr, propose-review, post-review). Each stage has its own orchestrator at `.github-ai/prompts/issues/orchestrate-issues.prompt` and `.github-ai/prompts/prs/orchestrate-prs.prompt`. Scratch goes to the gitignored `.github-ai/output-issues/<issue-N>/` (per-issue triage / impact / response) and `.github-ai/output-prs/<pr-N>/` (per-PR triage / analyze / review); posted responses and reviews live on GitHub, never committed here. |
 | `proposal-drafts/` | Historical iterations of the spec in Google Doc form, one per file, with date and version (`YYYY-MM-DD-vN.md`). Internal drafts that do NOT live in the shared Doc. Kept as historical reference. |
 | `.project/decisions/` | Numbered ADRs (Architecture Decision Records). One material decision per file. Immutable — if a decision is superseded, another ADR is created marking it as replaced. |
 | `.project/LOG.md` | Chronological logbook of the project. One entry per work session or material action. Append-only. |
@@ -155,6 +155,16 @@ the long-range plan and get a folder when they open.
   `.env.agent.example`, `.gitignore`), and `git init` with an
   initial commit. See `phases/01-setup/` for PHASE.md and TASKS.md
   (the close report is embedded in PHASE.md).
+- **`02-wg-feedback-round-1` — `in-progress`** (opened 2026-05-27).
+  Process working-group feedback round 1 on the SGAI spec, starting
+  with **David Hassoun's** review (the 3 `context/` files he edited and
+  commented during the 2026-05-20 WG session). Each of his 10 feedback
+  items is classified as already-addressed (✅) / change-needed (🔧) /
+  open-for-discussion (❓) against the current spec (post `fb30314`),
+  and the resolutions are driven from there. The phase's primary work
+  product is the cross-reference report
+  (`phases/02-wg-feedback-round-1/hassoun-feedback-crossref.md`). See
+  `phases/02-wg-feedback-round-1/` for PHASE.md and TASKS.md.
 
 ### Long-range plan
 

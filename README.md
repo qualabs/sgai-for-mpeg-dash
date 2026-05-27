@@ -24,7 +24,7 @@ projects/sgai-for-mpeg-dash/
 ├── context-analysis/     pre-spec artefacts — derived from context/ and consumed by the spec build
 ├── output/               spec only — the principal deliverable per build iteration (vN-sgai-spec.md)
 ├── output-analysis/      per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata (vN- prefix)
-├── output-github-issues/ Stage 5 scratch (gitignored) — per-issue triage / impact / response drafts
+├── .github-ai/           GitHub-feedback pipelines (Stages 5 & 6) — issues/ + prs/ prompts + output-issues/ + output-prs/ scratch (gitignored)
 ├── proposal-drafts/      historical drafts kept for reference
 └── .project/             governance — PROJECT.md, LOG.md, phases/, decisions/
 ```
@@ -150,12 +150,12 @@ A separate pipeline triages and drafts responses to open GitHub
 issues on the repo. It runs manually today (cron deferred):
 
 ```bash
-# Dry-run (default) — drafts artefacts under output-github-issues/
+# Dry-run (default) — drafts artefacts under .github-ai/output-issues/
 # without posting anything to GitHub.
-claude -p "$(cat prompts/5-github-issues/orchestrate-issues.prompt)"
+claude -p "$(cat .github-ai/prompts/issues/orchestrate-issues.prompt)"
 
 # Live — posts comments and applies labels for trusted authors.
-claude -p "$(cat prompts/5-github-issues/orchestrate-issues.prompt)" -- --live
+claude -p "$(cat .github-ai/prompts/issues/orchestrate-issues.prompt)" -- --live
 ```
 
 The pipeline classifies each open issue (Flow A meta / Flow B

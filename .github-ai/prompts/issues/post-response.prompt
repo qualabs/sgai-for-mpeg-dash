@@ -6,10 +6,10 @@
 - `cycle_count` (integer ≥ 1) — passed in by the orchestrator and
   used to locate the current cycle's triage + response files.
 - The triage verdict at
-  `../output-github-issues/issue-<N>/cycle-<C>/triage.md` (provides
+  `.github-ai/output-issues/issue-<N>/cycle-<C>/triage.md` (provides
   `flow` and `severity`, needed for label application).
 - The drafted response at
-  `../output-github-issues/issue-<N>/cycle-<C>/response.md`.
+  `.github-ai/output-issues/issue-<N>/cycle-<C>/response.md`.
 - Authenticated `gh` CLI on the host (relies on `gh auth login`).
 
 **Output**: side effects on GitHub:
@@ -53,7 +53,7 @@ prompt at all. There is no internal re-check here.
 ### 1. Parse the meta header
 
 Read the first lines of
-`output-github-issues/issue-<N>/cycle-<C>/response.md` and
+`.github-ai/output-issues/issue-<N>/cycle-<C>/response.md` and
 extract the `<!-- sgai-issues-meta: ... -->` block. Required
 keys: `flow`, `severity`, `lang`, `cycle`, `trusted`,
 `conclusion`, `conclusion_reason`.
@@ -67,11 +67,11 @@ The operator must fix `response.md` and re-run.
 ```bash
 # Example regex extraction (illustrative; adapt as needed):
 conclusion=$(awk '/<!-- sgai-issues-meta:/,/-->/' \
-  output-github-issues/issue-<N>/cycle-<C>/response.md \
+  .github-ai/output-issues/issue-<N>/cycle-<C>/response.md \
   | grep -E '^conclusion:' | head -1 \
   | sed -E 's/^conclusion:[[:space:]]*//')
 conclusion_reason=$(awk '/<!-- sgai-issues-meta:/,/-->/' \
-  output-github-issues/issue-<N>/cycle-<C>/response.md \
+  .github-ai/output-issues/issue-<N>/cycle-<C>/response.md \
   | grep -E '^conclusion_reason:' | head -1 \
   | sed -E 's/^conclusion_reason:[[:space:]]*//')
 ```
@@ -104,7 +104,7 @@ Before touching `gh`:
 ```bash
 gh issue comment <N> \
   --repo <owner>/<repo> \
-  --body-file output-github-issues/issue-<N>/cycle-<C>/response.md
+  --body-file .github-ai/output-issues/issue-<N>/cycle-<C>/response.md
 ```
 
 Capture the URL of the created comment from `gh`'s output (the
@@ -207,7 +207,7 @@ Log:
   narrow and auditable: this prompt only fires when a response
   is actually being posted.
 - It does not edit the response body. If the response needs a
-  fix, the operator edits `output-github-issues/issue-<N>/cycle-<C>/response.md`
+  fix, the operator edits `.github-ai/output-issues/issue-<N>/cycle-<C>/response.md`
   and re-runs the orchestrator with `--issue <N> --live`.
 - It does not close the issue. Closure is always a human decision
   (or the author's own).

@@ -14,12 +14,12 @@
 # response drafts). The repo never commits these; the canonical place
 # for posted responses is GitHub itself. The .gitkeep is whitelisted so
 # the empty directory is preserved.
-/output-github-issues/*
-!/output-github-issues/.gitkeep
+/.github-ai/output-issues/*
+!/.github-ai/output-issues/.gitkeep
 
 # Stage 6 — GitHub PRs pipeline scratch (per-PR triage / analyze /
 # review drafts). Same pattern as Stage 5: posted reviews live on
 # GitHub; the local scratch is never committed. The .gitkeep is
 # whitelisted so the empty directory survives checkouts.
-/output-github-prs/*
-!/output-github-prs/.gitkeep
+/.github-ai/output-prs/*
+!/.github-ai/output-prs/.gitkeep

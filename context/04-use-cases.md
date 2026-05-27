@@ -1,17 +1,18 @@
 # Use Cases
 
-> See [`02-actors.md`](02-actors.md) for the three-actor model
-> (Broadcaster / ADS / Player) and [`03-requirements.md`](03-requirements.md)
+> See [`02-actors.md`](02-actors.md) for the four-actor model
+> (Publisher / ADS / APS / Player) and [`03-requirements.md`](03-requirements.md)
 > for R1–R10 that ground these scenarios.
 
 ## Frame
 
 Each use case describes a **scenario** (what happens in the playback
 session) and the **expected behavior on each device class D1–D5**.
-The broadcaster's intent (rules) and the ADS response are declared
-once per scenario; the per-device sub-sections describe how the
-Player decides and what the user sees on each device class. This
-structure mirrors how broadcasters actually validate compliance:
+The Publisher's intent (rules) and the ad response (decided by the
+ADS, presented to the Player by the APS as the resolution document)
+are declared once per scenario; the per-device sub-sections describe
+how the Player decides and what the user sees on each device class.
+This structure mirrors how Publishers actually validate compliance:
 they don't pick one device — they need a single scenario to be
 deterministic across the heterogeneity of their viewer population.
 
@@ -95,23 +96,23 @@ The following scenarios are deliberately not covered by this document:
 ### UC-01 — Slot at start of session (pre-roll)
 
 **Scenario:** The user starts playback of a piece of content. The
-broadcaster has declared an ad opportunity at the beginning of the
+Publisher has declared an ad opportunity at the beginning of the
 playback session, before the primary content begins. A linear ad is
 presented; when it completes, the primary content starts playing.
 The underlying DASH mechanism — `InsertPresentation` or
-`ReplacePresentation` — is a Broadcaster decision per content type
+`ReplacePresentation` — is a Publisher decision per content type
 (VOD vs live) captured in
 [`05-dash-linear-interfaces.md`](05-dash-linear-interfaces.md). Each
 use case below references the industry-standard term where applicable
 (pre-roll, mid-roll, etc.) so external readers find their bearings.
 
-**Broadcaster intent:**
+**Publisher intent:**
 - Linear forms allowed (the ad takes over the screen).
-- Non-linear forms not allowed for this slot — the broadcaster
+- Non-linear forms not allowed for this slot — the Publisher
   wants a clean handoff from ad to primary content.
 - Maximum slot duration is bounded.
 
-**ADS response:**
+**Ad response:**
 - One or more candidates eligible for this slot.
 - Each candidate carries one or more renderable forms — typically a
   video form, optionally with an image or HTML form as a fallback
@@ -125,7 +126,7 @@ use case below references the industry-standard term where applicable
 
 #### D1 — Top-tier (2+ video decoders, image and HTML overlays)
 
-- **Player decision:** reads the broadcaster's slot rules
+- **Player decision:** reads the Publisher's slot rules
   (linear-only, bounded duration). Selects the highest-ranked
   renderable candidate using ADS ranking hints and any client-side
   ranking, and renders its video form on one of the decoders. R4 is
@@ -170,21 +171,21 @@ use case below references the industry-standard term where applicable
 ### UC-02 — Mid-content slot (mid-roll)
 
 **Scenario:** While the user is watching the primary content, the
-broadcaster has declared an ad opportunity at a chosen point inside
+Publisher has declared an ad opportunity at a chosen point inside
 the primary timeline. A linear ad is presented at the slot position;
 on completion, primary content resumes. Whether the slot consumes a
 bounded span of the primary timeline (`ReplacePresentation`) or
 leaves it intact and resumes at the same point
-(`InsertPresentation`) is a Broadcaster decision captured in
+(`InsertPresentation`) is a Publisher decision captured in
 [`05-dash-linear-interfaces.md`](05-dash-linear-interfaces.md).
 
-**Broadcaster intent:**
+**Publisher intent:**
 - Linear forms allowed: the ad takes over the screen, replacing a
   bounded span of primary content.
 - Non-linear forms not allowed for this slot.
 - Maximum slot duration is bounded.
 
-**ADS response:**
+**Ad response:**
 - One or more candidates eligible for this slot.
 - Each candidate carries one or more renderable forms — typically a
   video form, optionally with an image or HTML form as a fallback
@@ -196,13 +197,13 @@ leaves it intact and resumes at the same point
 
 #### D1 — Top-tier (2+ video decoders, image and HTML overlays)
 
-- **Player decision:** reads the broadcaster's slot rules at the
+- **Player decision:** reads the Publisher's slot rules at the
   slot position. Selects the highest-ranked renderable candidate
   using ADS ranking hints, and renders its video form on one of the
   decoders. Transitions playback from primary to ad and back. The
   second decoder may be used to pre-buffer the ad while the first
   finishes the last frames of primary, but this is a Player
-  implementation detail with no impact on the broadcaster's rules.
+  implementation detail with no impact on the Publisher's rules.
   R4 is enforced at playback.
 - **What the user sees:** while watching the primary content,
   playback transitions to a full-screen ad of bounded duration,
@@ -212,7 +213,7 @@ leaves it intact and resumes at the same point
 #### D2 — Dual-decoder, video-on-video only
 
 - **Player decision:** same as D1. Slot rules are device-agnostic;
-  the broadcaster does not declare different rules for D2 than for
+  the Publisher does not declare different rules for D2 than for
   D1. The second decoder may be used to pre-buffer the ad, same as
   on D1.
 - **What the user sees:** same as D1 — a clean mid-content slot.
@@ -241,7 +242,7 @@ leaves it intact and resumes at the same point
 
 ### UC-03 — Coexisting overlay
 
-**Scenario:** The broadcaster has declared an ad opportunity that
+**Scenario:** The Publisher has declared an ad opportunity that
 runs *on top of* the primary content without interrupting it. The
 primary continues to play; an overlay is composited over it for a
 bounded duration, then disappears. This is the central scenario for
@@ -250,16 +251,16 @@ matters most: per R3, the Player walks the candidate's renderable
 forms in priority order and picks the highest-fidelity form it can
 render.
 
-**Broadcaster intent:**
+**Publisher intent:**
 - Non-linear forms allowed.
 - Allowed layouts for this slot are restricted to a subset
-  declared by the broadcaster (e.g. banner, corner, L-shape,
+  declared by the Publisher (e.g. banner, corner, L-shape,
   side-by-side, sidebar). Side-by-side may or may not be in the
   allowed set; this matters for the D2 sub-section.
 - Maximum overlay duration is bounded.
 - Maximum number of concurrent overlays for this slot is bounded.
 
-**ADS response:**
+**Ad response:**
 - One or more candidates eligible for this slot.
 - Each candidate carries multiple renderable forms — typically a
   video form, an image form, and an HTML form — with optional
@@ -271,7 +272,7 @@ render.
 
 #### D1 — Top-tier (2+ video decoders, image and HTML overlays)
 
-- **Player decision:** reads broadcaster slot rules (allowed
+- **Player decision:** reads Publisher slot rules (allowed
   layouts, duration cap, concurrency cap). Selects the highest-
   ranked candidate whose form-and-layout combinations conform to
   the allowed layouts and concurrency cap and are renderable on
@@ -303,7 +304,7 @@ render.
   the second decoder. If the candidate offers only HTML or image
   forms, those are not renderable (D2 cannot composite non-video
   surfaces on top of video); side-by-side remains an option if the
-  broadcaster allows it (the video form placed in a non-overlapping
+  Publisher allows it (the video form placed in a non-overlapping
   screen region). Per R3, "decline the opportunity" is a valid
   graceful fallback if nothing renders.
 - **What the user sees:** the typical case is a video overlay
@@ -345,7 +346,7 @@ render.
   of the primary content for the declared duration, then
   disappears. The user does not see the HTML version even though
   the ADS returned one — that is invisible to the user and to the
-  broadcaster's rules.
+  Publisher's rules.
 
 #### D5 — Single-decoder, no overlay (worst case)
 
@@ -362,20 +363,20 @@ render.
 
 ### UC-04 — Hybrid linear + concurrent overlay
 
-**Scenario:** The broadcaster has declared a mid-content slot
+**Scenario:** The Publisher has declared a mid-content slot
 where the ad experience is hybrid: a linear ad takes over the
 screen *and* a non-linear overlay is composited on top of it
 during the same break. The two portions belong to the same break
 but are independently selected.
 
-**Broadcaster intent:**
+**Publisher intent:**
 - Linear forms allowed for the take-over portion.
 - Non-linear forms allowed concurrently with the linear ad, with
   a restricted layout set (e.g. banner only — no L-shape on top
   of a linear ad).
 - Maximum break duration is bounded.
 
-**ADS response:**
+**Ad response:**
 - A linear candidate (or several, with ranking) for the take-over
   portion of the break.
 - A non-linear candidate (or several, with ranking) for the
@@ -451,16 +452,16 @@ but are independently selected.
   top.
 
 **Notes / open questions:**
-- Whether the broadcaster can express constraints linking the two
+- Whether the Publisher can express constraints linking the two
   portions of the break (e.g. "if the linear ad is from advertiser
   X, suppress the overlay") or whether such cross-portion linkage
   is out of scope. Either answer is compatible with the
-  three-actor model; the spec must pick one.
+  four-actor model; the spec must pick one.
 - Whether D3 / D4 must always decline the overlay portion of a
   hybrid break, or whether the Player is allowed to composite an
   HTML / image overlay on top of a linear ad video on
   single-decoder devices that have HTML/image overlay surfaces.
-  The R2-clean answer depends on whether the broadcaster considers
+  The R2-clean answer depends on whether the Publisher considers
   "overlay on top of linear ad" a renderable layout the Player can
   satisfy with a single decoder; the spec must declare it
   explicitly.
@@ -475,7 +476,7 @@ overlay is composited on top of the paused primary frame; when the
 user resumes playback, the overlay is dismissed and the primary
 content continues from the paused position.
 
-**Broadcaster intent:**
+**Publisher intent:**
 - Define a window of validity (start time, end time) during which
   a pause by the user permits an overlay ad. Outside the window,
   pause permits no overlay.
@@ -485,7 +486,7 @@ content continues from the paused position.
   possibly video over the paused frame.
 - Maximum display duration before automatic dismissal is bounded.
 
-**ADS response:**
+**Ad response:**
 - Candidates with one or more renderable forms (image, HTML;
   optionally video) for the pause-triggered slot.
 
@@ -494,7 +495,7 @@ content continues from the paused position.
 #### D1 — Top-tier (2+ video decoders, image and HTML overlays)
 
 - **Player decision:** if the user pauses inside the
-  Broadcaster-declared window of validity, the Player applies the
+  Publisher-declared window of validity, the Player applies the
   slot rules and selects the highest-ranked renderable candidate
   using ADS ranking hints. For the selected candidate, per R3,
   walks the forms in priority order. Because the primary is paused
@@ -562,9 +563,9 @@ content continues from the paused position.
 **Notes / open questions:**
 - Whether the Player is allowed to pre-fetch pause-triggered
   candidates speculatively when the manifest loads, or must defer
-  the ADS call to the moment of pause, is an open design decision
-  with latency vs targeting-freshness trade-offs. Both options are
-  compatible with the three-actor model.
+  the APS resolution call to the moment of pause, is an open design
+  decision with latency vs targeting-freshness trade-offs. Both
+  options are compatible with the four-actor model.
 - Whether single-decoder devices (D3, D4) can re-task the decoder
   to play a video form on top of a paused primary frame — and the
   precise semantics of "pause" while doing so — is an open device
@@ -578,20 +579,20 @@ content continues from the paused position.
 
 ### UC-06 — Multi-ad break
 
-**Scenario:** The broadcaster has declared a mid-content slot that
+**Scenario:** The Publisher has declared a mid-content slot that
 is filled by several ads played back-to-back, with no primary
 content between them. After the last ad in the sequence, the
 primary content resumes.
 
-**Broadcaster intent:**
+**Publisher intent:**
 - Linear forms allowed.
-- Maximum total break duration is bounded; the broadcaster does
+- Maximum total break duration is bounded; the Publisher does
   not prescribe how many ads fit inside, only that the sum cannot
   exceed the cap.
 
-**ADS response:**
-- The broadcaster declares the break with a duration cap. How many
-  ads run inside is an ADS-only decision — the broadcaster does not
+**Ad response:**
+- The Publisher declares the break with a duration cap. How many
+  ads run inside is an ADS-only decision — the Publisher does not
   express a preference on N. The ADS optimises for revenue across
   the slot by applying its competitive separation, frequency
   capping, and ordering logic.
@@ -640,14 +641,14 @@ primary content resumes.
 
 **Notes:**
 - The Player's behaviour when the sequence's total duration exceeds
-  the broadcaster's declared cap is governed by **R4** in
-  [`03-requirements.md`](03-requirements.md): the cap is broadcaster-declared
+  the Publisher's declared cap is governed by **R4** in
+  [`03-requirements.md`](03-requirements.md): the cap is Publisher-declared
   and the Player enforces it by cutting at the cap, even mid-ad. This
   default applies to UC-06's multi-ad break the same way it applies
   to single-ad slots. Alternative overflow policies (skip the break
   entirely, trim-clean to the previous ad boundary, fail-closed) are
   not the default and would have to be opt-in policies declared by
-  the broadcaster on the slot — out of scope for the foundation
+  the Publisher on the slot — out of scope for the foundation
   phase.
 
 ### UC-07 — Legacy Player encounters new constructs
@@ -660,13 +661,14 @@ of the new semantics. This is the cross-cutting backward-
 compatibility scenario that any of UC-01..UC-06 may degrade to when
 the viewer's Player predates the proposal.
 
-**Broadcaster intent:** the broadcaster has declared an ad
+**Publisher intent:** the Publisher has declared an ad
 opportunity (any of UC-01..UC-06) intending it to be honored where
 possible. The legacy Player cannot honor it.
 
-**ADS response:** not exercised in this scenario. The legacy Player
-never reaches the ADS resolution step because it does not recognize
-the construct that would trigger the request.
+**Ad response:** not exercised in this scenario. The legacy Player
+never reaches the APS resolution step (and the ADS is never
+consulted) because it does not recognize the construct that would
+trigger the request.
 
 **Expected behavior (uniform across device classes D1..D5):**
 
@@ -694,8 +696,8 @@ unmodified.
   legacy Players. New mechanisms that would require a fork of
   MPEG-DASH semantics, or that would error on legacy Players, are
   out of scope (R1).
-- The Broadcaster cannot detect from the manifest whether a viewer's
-  Player is legacy or current. Thus the Broadcaster must treat ad
+- The Publisher cannot detect from the manifest whether a viewer's
+  Player is legacy or current. Thus the Publisher must treat ad
   opportunities that fall through to UC-07 as expected losses, not
   as errors.
 
@@ -703,26 +705,28 @@ unmodified.
 
 **Scenario:** An overlay (per UC-03) is being shown to the viewer
 when the viewer pauses primary playback, and the pause occurs
-inside a Broadcaster-declared pause-ad window (per UC-05). The
+inside a Publisher-declared pause-ad window (per UC-05). The
 pause-ad takes priority over the overlay (per R17): while the
 viewer is paused, the pause-ad form is rendered and the overlay
 is suspended. On resume, the pause-ad is dismissed (per R16) and
 the overlay continues if its slot window is still active; the
 overlay terminates naturally when its window expires (per R4).
 
-**Broadcaster intent:**
+**Publisher intent:**
 - An overlay slot (per UC-03) is active at some moment.
 - A pause-ad window (per UC-05) overlaps in time with the overlay
   slot.
 - The viewer pauses primary playback while the overlay is on
   screen, inside the pause-ad window.
 
-**ADS response:**
-- The ADS already supplied the overlay candidate (per UC-03 flow).
-- On pause-ad trigger, the Player resolves the ADS again for the
-  pause-ad slot (per UC-05 flow), unless the Broadcaster's MPD
-  signals that the overlay candidate doubles as the pause-ad
-  candidate. The ADS contract is the same as UC-05.
+**Ad response:**
+- The overlay candidate was already supplied (the ADS decided it
+  and the APS presented it) per the UC-03 flow.
+- On pause-ad trigger, the Player resolves the APS again for the
+  pause-ad slot (which consults the ADS) per the UC-05 flow, unless
+  the Publisher's MPD signals that the overlay candidate doubles as
+  the pause-ad candidate. The resolution contract is the same as
+  UC-05.
 
 **Expected behavior per device class:**
 
