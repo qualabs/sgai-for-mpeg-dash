@@ -6,15 +6,15 @@
   used to locate the current cycle's upstream artefacts and to
   shape the draft's tone (see "Cycle-aware tone" below).
 - The triage verdict at
-  `../output-github-prs/pr-<N>/cycle-<C>/triage.md`.
+  `.github-ai/output-prs/pr-<N>/cycle-<C>/triage.md`.
 - The analysis at
-  `../output-github-prs/pr-<N>/cycle-<C>/analyze.md` (the source
+  `.github-ai/output-prs/pr-<N>/cycle-<C>/analyze.md` (the source
   of all findings the draft will surface).
 - When `cycle_count > 1`, the prior cycle's review at
-  `../output-github-prs/pr-<N>/cycle-<C-1>/review.md` — the draft
+  `.github-ai/output-prs/pr-<N>/cycle-<C-1>/review.md` — the draft
   must acknowledge it (and the author's reply or new commits)
   without restating it verbatim.
-- The PR's `meta.md` at `../output-github-prs/pr-<N>/meta.md` —
+- The PR's `meta.md` at `.github-ai/output-prs/pr-<N>/meta.md` —
   gives the current comments / review timeline; useful when the
   draft needs to reference what the author said in their last
   reply.
@@ -22,12 +22,12 @@
   `../output-analysis/`, `../README.md`, `../CLAUDE.md`,
   `../.project/`) — used to anchor citations in the draft.
 
-**Output**: `../output-github-prs/pr-<N>/cycle-<C>/review.md`.
+**Output**: `.github-ai/output-prs/pr-<N>/cycle-<C>/review.md`.
 Plain markdown, ready to paste into `gh pr comment --body-file`
 OR `gh pr review --comment --body-file` (routing decided below).
 
 **Skip if**:
-`../output-github-prs/pr-<N>/cycle-<C>/review.md` exists AND its
+`.github-ai/output-prs/pr-<N>/cycle-<C>/review.md` exists AND its
 mtime is newer than the triage file's mtime AND newer than the
 analysis file's mtime. If any upstream artefact moved, the review
 is stale and must be rewritten. A new cycle folder is always empty
@@ -494,7 +494,7 @@ it is readable when the file is read from disk by
 
 ## Output format
 
-Write `output-github-prs/pr-<N>/cycle-<C>/review.md` exactly as it
+Write `.github-ai/output-prs/pr-<N>/cycle-<C>/review.md` exactly as it
 should appear when posted, with the machine-readable header on top.
 
 Concretely:

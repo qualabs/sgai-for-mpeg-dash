@@ -28,8 +28,12 @@ projects/sgai-for-mpeg-dash/
 ├── context-analysis/     pre-spec artefacts — derived from context/ and consumed by the spec build
 ├── output/               spec only — the principal deliverable per build iteration (versioned, vN-sgai-spec.md)
 ├── output-analysis/      per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata
-├── output-github-issues/ Stage 5 scratch (gitignored) — per-issue triage / impact / response drafts
-├── output-github-prs/    Stage 6 scratch (gitignored) — per-PR triage / analyze / review drafts
+├── .github-ai/           GitHub-feedback pipelines (Stages 5 & 6) — prompts + scratch
+│   ├── prompts/
+│   │   ├── issues/       Stage 5 prompts — GitHub issues triage + auto-response
+│   │   └── prs/          Stage 6 prompts — GitHub PRs review
+│   ├── output-issues/    Stage 5 scratch (gitignored) — per-issue triage / impact / response drafts
+│   └── output-prs/       Stage 6 scratch (gitignored) — per-PR triage / analyze / review drafts
 ├── proposal-drafts/      historical drafts kept for reference
 └── .project/             governance from the create-project skill
 ```
@@ -230,13 +234,13 @@ Manual invocation (D7 — cron deferred):
 
 ```bash
 # Default — dry-run, never posts to GitHub.
-claude -p "$(cat prompts/5-github-issues/orchestrate-issues.prompt)"
+claude -p "$(cat .github-ai/prompts/issues/orchestrate-issues.prompt)"
 
 # Explicit live mode — drafts AND posts comments + applies labels.
-claude -p "$(cat prompts/5-github-issues/orchestrate-issues.prompt)" -- --live
+claude -p "$(cat .github-ai/prompts/issues/orchestrate-issues.prompt)" -- --live
 ```
 
-The six prompts live under `prompts/5-github-issues/`:
+The six prompts live under `.github-ai/prompts/issues/`:
 
 - `orchestrate-issues.prompt` — the Stage-5 orchestrator. Reads
   `.env.agent`, queries GitHub, drives the per-issue loop, emits
@@ -294,11 +298,11 @@ The six prompts live under `prompts/5-github-issues/`:
 
 ### Scratch directory
 
-Per-issue artefacts go to `output-github-issues/issue-<N>/` with a
+Per-issue artefacts go to `.github-ai/output-issues/issue-<N>/` with a
 **meta + per-cycle** layout:
 
 ```
-output-github-issues/issue-<N>/
+.github-ai/output-issues/issue-<N>/
 ├── meta.md            ← regenerated every orchestrator run
 ├── cycle-1/
 │   ├── triage.md      ← always written
@@ -390,14 +394,14 @@ Manual invocation (D7 — cron deferred):
 
 ```bash
 # Default — dry-run, never posts to GitHub.
-claude -p "$(cat prompts/6-github-prs/orchestrate-prs.prompt)"
+claude -p "$(cat .github-ai/prompts/prs/orchestrate-prs.prompt)"
 
 # Explicit live mode — drafts AND posts comment / --comment review +
 # applies labels.
-claude -p "$(cat prompts/6-github-prs/orchestrate-prs.prompt)" -- --live
+claude -p "$(cat .github-ai/prompts/prs/orchestrate-prs.prompt)" -- --live
 ```
 
-The six prompts live under `prompts/6-github-prs/`:
+The six prompts live under `.github-ai/prompts/prs/`:
 
 - `orchestrate-prs.prompt` — the Stage-6 orchestrator. Reads
   `.env.agent`, queries GitHub, drives the per-PR loop, emits the
@@ -463,11 +467,11 @@ The six prompts live under `prompts/6-github-prs/`:
 
 ### Scratch directory
 
-Per-PR artefacts go to `output-github-prs/pr-<N>/` with a **meta +
+Per-PR artefacts go to `.github-ai/output-prs/pr-<N>/` with a **meta +
 per-cycle** layout:
 
 ```
-output-github-prs/pr-<N>/
+.github-ai/output-prs/pr-<N>/
 ├── meta.md            ← regenerated every orchestrator run
 ├── cycle-1/
 │   ├── triage.md      ← always written
