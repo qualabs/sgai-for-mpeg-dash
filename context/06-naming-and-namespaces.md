@@ -70,7 +70,7 @@ WG extension namespace:
 
 Vendor-private extensions developed by Qualabs that are not part
 of this spec — including VAST application-layer metadata that has
-no native DASH carrier (per R6 in
+no native DASH carrier (per R23 in
 [`03-requirements.md`](./03-requirements.md)) — live under the
 Qualabs vendor namespace:
 
@@ -113,7 +113,7 @@ chapter level. To propose a new layout, the editor works with the
 IAB directly — this specification does not own the vocabulary.
 Per **R12** in [`03-requirements.md`](./03-requirements.md), the
 layout vocabulary MUST map 1:1 to IAB-defined ad-type values; no
-broadcaster-private or spec-private layout names are admissible.
+publisher-private or spec-private layout names are admissible.
 
 ## Naming consistency with baseline DASH
 

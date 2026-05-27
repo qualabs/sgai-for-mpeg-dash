@@ -6,7 +6,7 @@
 - `cycle_count` (integer ≥ 1) — passed in by the orchestrator and
   used to locate the current cycle's triage verdict and output path.
 - The triage verdict at
-  `../output-github-issues/issue-<N>/cycle-<C>/triage.md` (the
+  `.github-ai/output-issues/issue-<N>/cycle-<C>/triage.md` (the
   orchestrator has already written this for the current cycle;
   this prompt re-reads `flow`, `severity`, and the "Notes for
   downstream prompts" section to focus the analysis).
@@ -16,16 +16,16 @@
   `../output-analysis/v<N>-*.md` sidecars — used to check whether
   the issue's argument has already been addressed.
 - Optionally, the prior cycle's impact at
-  `../output-github-issues/issue-<N>/cycle-<C-1>/impact.md` when
+  `.github-ai/output-issues/issue-<N>/cycle-<C-1>/impact.md` when
   `cycle_count > 1` — used to avoid re-litigating claims that
   were already validated and to anchor on the OP's new feedback.
 - Optionally NotebookLM grounding — see "Keyword detector" below.
 
 **Output**:
-`../output-github-issues/issue-<N>/cycle-<C>/impact.md`.
+`.github-ai/output-issues/issue-<N>/cycle-<C>/impact.md`.
 
 **Skip if**:
-`../output-github-issues/issue-<N>/cycle-<C>/impact.md` exists AND
+`.github-ai/output-issues/issue-<N>/cycle-<C>/impact.md` exists AND
 its mtime is newer than the issue's last comment timestamp AND
 newer than the newest mtime under `../context/`. (Context moved
 → the impact analysis is stale and must be redone.) A new cycle
@@ -205,7 +205,7 @@ body for human review rather than overridden silently.
 
 ## Output format
 
-Write `output-github-issues/issue-<N>/cycle-<C>/impact.md` with
+Write `.github-ai/output-issues/issue-<N>/cycle-<C>/impact.md` with
 this exact shape:
 
 ```markdown

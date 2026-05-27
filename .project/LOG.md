@@ -1,5 +1,32 @@
 # Project log
 
+## 2026-05-27 — phase opened: 02-wg-feedback-round-1
+
+Opened phase `02-wg-feedback-round-1` to formally process working-group
+feedback round 1 on the SGAI spec, starting with the WG chair's review.
+The WG chair returned 3 `context/` files (`02-actors.md`, `04-use-cases.md`,
+`03-requirements.md`) marked with inline `//ISSUE` / `//` comments during
+the 2026-05-20 industry WG session — 10 feedback pieces total (plus 2 text
+renames in `02-actors`).
+
+The phase's primary work product is the cross-reference report
+(`phases/02-wg-feedback-round-1/wg-chair-feedback-crossref.md`, English),
+which maps the WG chair's feedback — captured against the spec state he received
+(commit `c983ff7`, three-actor model) — against the current spec state
+(post `fb30314`, four-actor Publisher / ADS / APS / Player). Classification:
+4 ✅ already addressed, 3 🔧 change-needed (background-image-below-video
+L-box, UC-08 partial pause-ad overlay, UC-04 D2 wording), 3 ❓ open for
+discussion (UC-07 legacy-player fallback objection, UC-02 vs UC-06 conflict,
+layout-per-device-class).
+
+T-01 (the cross-reference) is `done`; T-02..T-08 (the 3 ❓ decisions, the
+3 🔧 edits, and the 1 ✅ follow-up with the WG chair) are `pending` and require
+The project lead's input. No change was applied to `context/` — this phase holds the
+analysis and audit trail; spec edits land as separate iterations.
+
+Scope: round 1 = the WG chair only. Other reviewers / future passes become
+follow-on phases.
+
 ## 2026-05-26 — decision: defer spatial caps to IAB CTV per @layout token
 
 ADR 0001 closes the spatial-caps question raised by issue #4

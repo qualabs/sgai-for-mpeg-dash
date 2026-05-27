@@ -153,8 +153,8 @@ defines as non-zero-duration.
 
 ## Cross-refs
 
-- [`03-requirements.md`](./03-requirements.md) — R1, R6, R8, R9
-  (R1.2 enumerates the admissible extension points; R6.6 binds non-
+- [`03-requirements.md`](./03-requirements.md) — R1, R8, R9, R24
+  (R1.2 enumerates the admissible extension points; R24.1 binds non-
   AV asset URLs to the DR-6 carrier enumeration).
 - [`05-dash-linear-interfaces.md`](./05-dash-linear-interfaces.md)
   — references DR-1 / DR-5 when stating the closed AdaptationSet

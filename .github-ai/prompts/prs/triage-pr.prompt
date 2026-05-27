@@ -16,14 +16,14 @@
   that the triage notes can mention "this is a follow-up cycle").
 
 **Output**:
-`../output-github-prs/pr-<N>/cycle-<C>/triage.md`, where `<C>` is
+`.github-ai/output-prs/pr-<N>/cycle-<C>/triage.md`, where `<C>` is
 the cycle index passed in by the orchestrator. Single markdown
 file. The orchestrator MUST create the cycle subfolder
 (`cycle-<C>/`) and any missing parents before invoking this
 prompt.
 
 **Skip if**:
-`../output-github-prs/pr-<N>/cycle-<C>/triage.md` exists AND its
+`.github-ai/output-prs/pr-<N>/cycle-<C>/triage.md` exists AND its
 mtime is newer than the PR's `updated_at` AND newer than the
 timestamp of the PR's most recent comment or review. Otherwise
 re-triage. Note: a new cycle (`C` bumped by `detect-prs`) always
@@ -157,7 +157,7 @@ scope axis will compare against the actual diff).
 
 ## Output format
 
-Write `output-github-prs/pr-<N>/cycle-<C>/triage.md` with this
+Write `.github-ai/output-prs/pr-<N>/cycle-<C>/triage.md` with this
 exact shape so the orchestrator can parse the structured fields:
 
 ```markdown

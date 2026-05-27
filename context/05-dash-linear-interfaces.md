@@ -8,10 +8,12 @@
 This document is the **reference** for how SGAI is implemented today
 for **linear ads** in **MPEG-DASH 6th edition** (ISO/IEC 23009-1,
 §5.16 *Alternative MPD Insertion / Replacement Events* and §8.14
-*List MPD profile*). It inventories the interfaces between the three
+*List MPD profile*). It inventories the interfaces between the
 actors, walks through the end-to-end message flow, gives concrete
 MPD and ListMPD examples grounded in the spec, and lays out the
-VAST → ListMPD adapter mapping that an ADS performs in production.
+VAST → ListMPD adapter mapping that an APS performs in production
+(converting the VAST the ADS emits into the ListMPD the Player
+reads).
 
 Spec attribute notation in this document follows the standard
 DASH convention: `@attr` denotes an XML attribute, element names
@@ -25,15 +27,16 @@ interface. Responsibilities are pulled verbatim from
 [`02-actors.md`](02-actors.md); this is a wiring view, not a
 re-definition.
 
-| Actor       | Emits                                                                 | Consumes                                                                 | Notes |
-|-------------|-----------------------------------------------------------------------|--------------------------------------------------------------------------|-------|
-| Broadcaster | Main MPD with SGAI events (`InsertPresentation`, `ReplacePresentation`) | Nothing at runtime (authoring-time only)                                | Owns the screen; declares slot constraints inside the SGAI event element (§5.16). |
-| Player      | MPD fetch request; ADS resolution request at event activation; tracking beacons | Main MPD; `ListMPD` (or single-period alt MPD) from ADS; ad media segments | Enforces R2 / R4: validates ADS response against MPD constraints; caps slot duration. |
-| ADS         | `ListMPD` (or single-period alt MPD) in response to the Player's resolution request | Player's resolution request; upstream VAST response from internal ad decisioning | Device-agnostic: returns candidates with one or more renderable forms, and the Player picks per device capabilities (R5 in [`03-requirements.md`](03-requirements.md)). Often acts as an adapter over a VAST-based ad decisioning backend (see §VAST → ListMPD below). |
+| Actor     | Emits                                                                 | Consumes                                                                 | Notes |
+|-----------|-----------------------------------------------------------------------|--------------------------------------------------------------------------|-------|
+| Publisher | Main MPD with SGAI events (`InsertPresentation`, `ReplacePresentation`) | Nothing at runtime (authoring-time only)                                | Owns the screen; declares slot constraints inside the SGAI event element (§5.16). The event `@url` resolves to the APS. |
+| Player    | MPD fetch request; APS resolution request at event activation; tracking beacons | Main MPD; `ListMPD` (or single-period alt MPD) from APS; ad media segments | Enforces R2 / R4: validates the APS-returned resolution document against MPD constraints; caps slot duration. Talks only to the APS, never to the ADS directly. |
+| APS       | `ListMPD` (or single-period alt MPD) in response to the Player's resolution request | Player's resolution request; VAST response from the ADS | The Player-facing adapter: device-agnostic, returns candidates with one or more renderable forms, and the Player picks per device capabilities (R5 in [`03-requirements.md`](03-requirements.md)). Converts the ADS's VAST into the resolution document (see §VAST → ListMPD below). |
+| ADS       | VAST 4.x (the ad decision) in response to the APS's request | The APS's ad request | The ad-decisioning authority: selects which ads, how many, in what order; owns the tracking schedule. Outputs VAST; does NOT produce the DASH-native resolution document (that is the APS). |
 
-## Broadcaster slot-mechanism choice — Insert vs Replace
+## Publisher slot-mechanism choice — Insert vs Replace
 
-The Broadcaster declares a linear slot via one of two MPEG-DASH 6th
+The Publisher declares a linear slot via one of two MPEG-DASH 6th
 edition mechanisms:
 
 - **`InsertPresentation`** introduces the ad as new content that
@@ -51,7 +54,7 @@ edition mechanisms:
   stream to preserve.
 
 The choice is captured in the slot's MPD declaration and is
-Broadcaster-decided per content type and intent. The Use Cases in
+Publisher-decided per content type and intent. The Use Cases in
 [`04-use-cases.md`](04-use-cases.md) describe observable behaviour
 and are agnostic to the mechanism; both produce a linear ad from
 the user's perspective.
@@ -62,21 +65,23 @@ Once the Player has fetched the main MPD and is playing primary
 content, the SGAI linear flow is timeline-triggered: an
 `InsertPresentation` or `ReplacePresentation` event scheduled at a
 `presentationTime` activates as the playhead approaches it. The
-Player resolves the event's `@url` against the ADS, receives back
+Player resolves the event's `@url` against the APS, receives back
 either a `ListMPD` or a single-period alternative MPD describing one
 or more ad MPDs, and plays them according to the event semantics
-(insert or replace). `@maxDuration` on the event bounds the slot;
-the Player enforces the cap (R4).
+(insert or replace). Behind the APS, the ADS performs the ad
+decisioning and returns VAST; the APS converts that VAST into the
+resolution document the Player reads. `@maxDuration` on the event
+bounds the slot; the Player enforces the cap (R4).
 
 ```
-                                            primary content (Broadcaster's CDN)
+                                            primary content (Publisher's CDN)
                                                        ^
                                                        | (3) GET segments
                                                        |
    +-------------+   (1) GET main MPD     +----------+ | (5) GET ad segments
-   | Broadcaster |<-----------------------|          |-+--------------------------> ad CDN
+   | Publisher   |<-----------------------|          |-+--------------------------> ad CDN
    | (encoder +  |                        |          |
-   |  packager + |---(2) MPD (XML) ------>|  Player  |   On ADS response, the Player:
+   |  packager + |---(2) MPD (XML) ------>|  Player  |   On APS response, the Player:
    |   CDN)      |        with            |          |     (6) validates vs MPD constraints
    +-------------+        SGAI event      |          |     (7) enforces @maxDuration (R4)
                                           |          |     (8) fires tracking beacons
@@ -86,34 +91,35 @@ the Player enforces the cap (R4).
                           <event @url>?<q>  |    |  ListMPD (XML)
                                             v    |
                                           +----------+   (4c) ad decisioning
-                                          |   ADS    |<-----------------------> upstream
-                                          | adapter  |   (e.g. VAST 4.x XML)    ad decisioning
+                                          |   APS    |<-----------------------> ADS
+                                          | (adapter)|   (e.g. VAST 4.x XML)
                                           +----------+
 ```
 
 Numbered steps:
 
 1. Player issues `GET` for the main MPD (HTTP, response = DASH XML).
-2. Broadcaster serves the MPD, including one or more SGAI events
+2. Publisher serves the MPD, including one or more SGAI events
    inside an `EventStream`. Each `<Event>` carries a child element —
    `<InsertPresentation>` or `<ReplacePresentation>` — that holds
    the SGAI attributes (`@url`, `@maxDuration`,
    `@earliestResolutionTimeOffset`; plus `@returnOffset`,
    `@clipDuration`, `@startWithOffset` on `ReplacePresentation`
-   only).
+   only). The `@url` resolves to the APS.
 3. Player fetches primary segments and plays the main timeline.
 4. As the playhead approaches an event's `presentationTime` minus
    `@earliestResolutionTimeOffset` (the *Earliest Resolution Time*,
    ERT), the Player picks a randomised instant between the ERT and
-   the event's `presentationTime` and resolves the ADS:
+   the event's `presentationTime` and resolves the APS:
    (4a) `GET <event @url>` augmented with the query parameters
    declared by the `UrlParamInfo` descriptor on the MPD (§I.4) — see
    the example below for the wiring.
-   (4b) ADS replies `200 OK` with a `ListMPD` body (or a single-period
+   (4b) APS replies `200 OK` with a `ListMPD` body (or a single-period
    alt MPD for single-ad slots). The response is the **resolution
    document**.
-   (4c) Internally, the ADS adapter typically talks to an upstream
-   ad-decisioning system in **VAST**; see VAST → ListMPD section.
+   (4c) Internally, the APS typically talks to the ADS — an upstream
+   ad-decisioning system that responds in **VAST**; see
+   VAST → ListMPD section.
 5. Player fetches the ad MPDs' segments from the ad CDN(s).
 6. Player **validates** each ad candidate against the MPD-declared
    slot constraints (R2). For linear today the relevant checks are
@@ -125,8 +131,8 @@ Numbered steps:
    §5.16.5).
 8. Player fires tracking beacons via callback events
    (`urn:mpeg:dash:event:callback:2015`) embedded inside the ad MPD,
-   and/or VAST tracking events translated into callback events by
-   the ADS — see VAST → ListMPD section.
+   i.e. the ADS's VAST tracking events translated into callback
+   events by the APS — see VAST → ListMPD section.
 
 At the end of the alternative presentation the Player resumes the
 main timeline per the event's semantics: `InsertPresentation`
@@ -141,25 +147,26 @@ plays the primary content uninterrupted (UC-07).
 
 ## Resolution document timing baseline
 
-All `<Event @presentationTime>` values authored by the ADS within
-its resolution document (`ListMPD` or single-period alt MPD) are
+All `<Event @presentationTime>` values authored by the APS within
+the resolution document (`ListMPD` or single-period alt MPD) are
 expressed **relative to the start of the ad break** (slot start),
 not relative to wall-clock or to the primary content timeline. A
 callback event scheduled for the very start of the break declares
 `@presentationTime="0"`. Quartile beacons for a 30-second slot are
 authored at 7500ms, 15000ms, 22500ms (per the ADS's chosen
-schedule). The Player applies these relative timings against the
-slot window the Broadcaster declared in the MPD event.
+schedule, which the APS transcribes into the resolution document).
+The Player applies these relative timings against the
+slot window the Publisher declared in the MPD event.
 
 ## Reference XML: main MPD with SGAI events
 
-The main MPD below is the **broadcaster's side** of the contract. It
+The main MPD below is the **Publisher's side** of the contract. It
 contains one primary content Period with one AdaptationSet, one
 `InsertPresentation` event (pre-roll style, `presentationTime=0`)
 and one `ReplacePresentation` event (live mid-roll style,
 `presentationTime=PT6M`). At the MPD level, a `UrlParamInfo`
 descriptor (§I.4) wires up the query parameters the Player will
-append to the ADS resolution request.
+append to the APS resolution request.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -173,7 +180,7 @@ append to the ADS resolution request.
      minBufferTime="PT2S"
      profiles="urn:mpeg:dash:profile:advanced-linear:2025">
 
-  <!-- §I.4: Extended URL parameterisation for ADS requests -->
+  <!-- §I.4: Extended URL parameterisation for APS resolution requests -->
   <EssentialProperty schemeIdUri="urn:mpeg:dash:urlparam:2025">
     <up:UrlParamInfo includeInRequests="altmpd"
                      queryTemplate="video_profile=$urn:mpeg:dash:state:video$&amp;session_id=$urn:mpeg:dash:state:cmcd#sid$"/>
@@ -227,12 +234,12 @@ What the Player does with this manifest:
   them, a Player that does not will ignore them (R1).
 - For event `101` (`InsertPresentation`), the Player stops the main
   timeline at `presentationTime=0` and switches to the alternative
-  presentation returned by the ADS. When the alternative ends, the
+  presentation returned by the APS. When the alternative ends, the
   main timeline resumes from the position where it paused (§5.16.3).
 - For event `102` (`ReplacePresentation`), the Player computes the
   Earliest Resolution Time as `presentationTime − earliestResolutionTimeOffset`
   = `360000 − 60000 = 300000 ms`. At a randomised instant between the
-  ERT and the event's `presentationTime`, the Player issues the ADS
+  ERT and the event's `presentationTime`, the Player issues the APS
   request. When the ad plays, main media time keeps advancing in
   the background, and at the end the Player resumes at the playhead
   position determined by `@returnOffset` (§5.16.4).
@@ -246,7 +253,7 @@ What the Player does with this manifest:
   variables (`$urn:mpeg:dash:state:video$`,
   `$urn:mpeg:dash:state:cmcd#sid$`) with live values and appends the
   resulting query string to the `@url`. `@includeInRequests="altmpd"`
-  is what scopes this descriptor to the ADS request.
+  is what scopes this descriptor to the APS resolution request.
 
 > **Spec attribute pin**: `InsertPresentation` and
 > `ReplacePresentation` share `@url`, `@maxDuration`,
@@ -254,14 +261,16 @@ What the Player does with this manifest:
 > `@clipDuration` and `@startWithOffset` are **exclusive to
 > `ReplacePresentation`** (§5.16.4 / §5.16.5).
 
-## Reference XML: ListMPD returned by the ADS
+## Reference XML: ListMPD returned by the APS
 
-The ListMPD below is the **ADS's side** of the contract for a pod of
-two ads. It uses the `urn:mpeg:dash:profile:list:2024` profile and
-`MPD@type="list"` (§8.14). Each `Period` references a per-ad
-sub-MPD via `<ImportedMPD>`. The Player plays the periods
-back-to-back in declared order (a ListMPD is a *playlist of MPDs*,
-not a candidate set — selection happens upstream, inside the ADS).
+The ListMPD below is the **APS's side** of the contract for a pod of
+two ads (the APS produced it from the ADS's VAST). It uses the
+`urn:mpeg:dash:profile:list:2024` profile and `MPD@type="list"`
+(§8.14). Each `Period` references a per-ad sub-MPD via
+`<ImportedMPD>`. The Player plays the periods back-to-back in
+declared order (a ListMPD is a *playlist of MPDs*, not a candidate
+set — the ad selection and ordering happened upstream, inside the
+ADS, and the APS transcribed them into this document).
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -356,7 +365,7 @@ What the Player does with these documents:
 > regular Periods inline (validated against the 6th edition source
 > via NotebookLM). The pattern shown above — Periods that delegate to
 > per-ad sub-MPDs — is the one this project targets for the linear
-> SGAI baseline, because it lets the ADS keep ad metadata sharded
+> SGAI baseline, because it lets the APS keep ad metadata sharded
 > per creative.
 
 The interfaces above are sufficient for **linear** SGAI, where the
@@ -377,21 +386,21 @@ AdaptationSet axis, via one of the carriers enumerated in DR-6.
 
 The Player-facing interface in DASH 6th edition is `ListMPD`, but
 the de-facto industry ad-decisioning protocol on the upstream side
-is **IAB VAST 4.x** (Video Ad Serving Template, XML). Most ADSs in
-production today receive ad responses as VAST from one or more
-upstream sources (DSPs, ad servers, exchanges). To plug into a DASH
-6th edition Player, the ADS must **transform** the upstream VAST
-response into a `ListMPD`. This transformation is the central
-responsibility of the ADS adapter on linear SGAI integrations.
+is **IAB VAST 4.x** (Video Ad Serving Template, XML). The ADS
+decides which ads to serve and responds in VAST; it may itself
+front one or more upstream sources (DSPs, ad servers, exchanges). To
+plug into a DASH 6th edition Player, the **APS** must **transform**
+the ADS's VAST response into a `ListMPD`. This transformation is the
+central responsibility of the APS on linear SGAI integrations.
 
 ```
    +----------+   VAST request (HTTP, query params + macros)   +-----------------+
-   |   ADS    |----------------------------------------------->|    Upstream     |
-   | adapter  |                                                | ad decisioning  |
-   |          |<-----------------------------------------------|   (DSP / SSP /  |
-   |          |   VAST response (XML, VAST 4.x):               |   ad server)    |
-   |          |     - <Ad> (Inline | Wrapper)                  +-----------------+
-   |          |     - <Creatives>/<Linear>/<MediaFiles>
+   |   APS    |----------------------------------------------->|      ADS        |
+   | (adapter)|                                                | ad decisioning  |
+   |          |<-----------------------------------------------|   (may front    |
+   |          |   VAST response (XML, VAST 4.x):               |   DSP / SSP /   |
+   |          |     - <Ad> (Inline | Wrapper)                  |   ad server)    |
+   |          |     - <Creatives>/<Linear>/<MediaFiles>        +-----------------+
    |          |     - <Duration>
    |          |     - <TrackingEvents>, <Impression>,
    |          |       <ClickThrough>
@@ -414,42 +423,42 @@ VAST 4.x is out of scope of this document):
 | VAST 4.x element                          | ListMPD / ad MPD target                                | Notes |
 |-------------------------------------------|--------------------------------------------------------|-------|
 | `<Ad>` (Inline)                           | one `<Period>` containing one `<ImportedMPD>` entry in the ListMPD | One Period per Inline ad in the pod. |
-| `<Ad>` (Wrapper)                          | resolved recursively; not directly mapped              | Wrapper chains terminate when an Inline is reached or the wrapper limit is hit; depth handling is an ADS adapter concern. |
+| `<Ad>` (Wrapper)                          | resolved recursively; not directly mapped              | Wrapper chains terminate when an Inline is reached or the wrapper limit is hit; depth handling is an APS concern. |
 | `<Creatives>/<Linear>/<Duration>`         | `Period@duration` on the ListMPD-level Period, and `Period@duration` on the sub-MPD | Drives the Player's pre-validation against `@maxDuration` on the parent event. |
 | `<MediaFile>` (one per encoding profile)  | one `Representation` inside an `AdaptationSet` of the sub-MPD | `@type`, `@bitrate`, `@width`, `@height`, `@codec` map onto `Representation` attributes. Multiple `<MediaFile>` entries collapse to an ABR ladder. |
 | `<TrackingEvents>/<Tracking event="X">`   | inline `EventStream` of scheme `urn:mpeg:dash:event:callback:2015` inside the sub-MPD | Standard VAST event names (`start`, `firstQuartile`, `midpoint`, `thirdQuartile`, `complete`, `pause`, `mute`, …) map to callback events scheduled at the matching media times (§4.7, §5.10.4.5). |
 | `<Impression>`                            | callback event at offset `0` inside the sub-MPD        | Fires when ad playback starts. |
-| `<ClickThrough>`, `<ClickTracking>`       | no native carrier — sidecar or vendor namespace        | DASH 6th edition defines **no native field** inside ListMPD or the ad MPD for click-through metadata. Validated against the 6th edition source: "The MPEG-DASH 6th edition standard does not define any carrier fields within the MPD for application-level VAST metadata such as Click-through URLs." Production ADS adapters convey clicks via a vendor-namespaced extension element or a sidecar JSON returned alongside the ListMPD; DASH clients are instructed to safely ignore unknown namespaces. |
+| `<ClickThrough>`, `<ClickTracking>`       | no native carrier — sidecar or vendor namespace        | DASH 6th edition defines **no native field** inside ListMPD or the ad MPD for click-through metadata. Validated against the 6th edition source: "The MPEG-DASH 6th edition standard does not define any carrier fields within the MPD for application-level VAST metadata such as Click-through URLs." In production the APS conveys clicks via a vendor-namespaced extension element or a sidecar JSON returned alongside the ListMPD; DASH clients are instructed to safely ignore unknown namespaces. |
 | `<AdSystem>`, `<AdTitle>`, `<Advertiser>` | no native carrier — sidecar or vendor namespace        | Same conclusion as `<ClickThrough>`: §8.14 confines the spec's tracking footprint to the callback event scheme; AdSystem / AdTitle / Advertiser have no normative slot. Carried as vendor-namespaced attributes / elements or sidecar data. |
-| `<UniversalAdId>`                         | no native carrier — sidecar or vendor namespace        | Same conclusion as above: DASH 6th edition defines no `UniversalAdId` carrier on `ImportedMPD` or anywhere else in the ListMPD; in practice ADS adapters carry it as a vendor attribute or sidecar entry. |
-| `<Error>`                                 | translated by ADS into an error response               | If the ADS cannot produce a valid `ListMPD`, it returns an HTTP error and/or an empty `ListMPD`; the Player falls through to primary content (R1). |
+| `<UniversalAdId>`                         | no native carrier — sidecar or vendor namespace        | Same conclusion as above: DASH 6th edition defines no `UniversalAdId` carrier on `ImportedMPD` or anywhere else in the ListMPD; in practice the APS carries it as a vendor attribute or sidecar entry. |
+| `<Error>`                                 | translated by the APS into an error response           | When the ADS's VAST signals an error (or the APS cannot produce a valid `ListMPD` from it), the APS returns an HTTP error and/or an empty `ListMPD`; the Player falls through to primary content (R1). |
 
 Edge cases worth flagging:
 
 - **Ad pods (multiple `<Ad>` in one VAST response)**: each Inline
   becomes one `<Period>` (with one `<ImportedMPD>`) in the
-  `ListMPD`. Sequence order is preserved. The Broadcaster's
+  `ListMPD`. Sequence order is preserved. The Publisher's
   `@maxDuration` on the parent event caps the **sum** of the pod
   (§5.16.5, §8.14); the Player trims at the cap per R4.
-- **Wrapper chains**: resolution happens inside the ADS adapter
-  before the Player ever sees the response. The Player has no
-  visibility into wrapper hops; this preserves the
-  one-request-per-slot contract on the Player ↔ ADS interface.
-- **Tracking-only VAST `<Ad>` (no `<MediaFile>`)**: the ADS adapter
-  cannot synthesise an ad MPD with no media. The
-  industry-convention question — *skip silently vs emit VAST Error
-  code 403* — could not be resolved against the 6th edition source
-  consulted via NotebookLM (the sources do not cover this). Treat
-  this as an ADS-internal policy until a normative reference
-  emerges; the resulting `ListMPD` simply omits the entry under the
-  silent-skip policy.
-- **Empty / no-fill response**: the ADS returns either an empty
-  `ListMPD` or an HTTP error; either way the Player falls through to
-  primary content (R1 graceful degradation; UC-07-adjacent behaviour
-  applies).
+- **Wrapper chains**: resolution happens inside the APS before the
+  Player ever sees the response. The Player has no visibility into
+  wrapper hops; this preserves the one-request-per-slot contract on
+  the Player ↔ APS interface.
+- **Tracking-only VAST `<Ad>` (no `<MediaFile>`)**: the APS cannot
+  synthesise an ad MPD with no media. The industry-convention
+  question — *skip silently vs emit VAST Error code 403* — could not
+  be resolved against the 6th edition source consulted via
+  NotebookLM (the sources do not cover this). Treat this as an
+  APS-internal policy until a normative reference emerges; the
+  resulting `ListMPD` simply omits the entry under the silent-skip
+  policy.
+- **Empty / no-fill response**: the APS returns either an empty
+  `ListMPD` or an HTTP error (e.g. when the ADS returns no fill);
+  either way the Player falls through to primary content (R1
+  graceful degradation; UC-07-adjacent behaviour applies).
 - **VAST `<UniversalAdId>`**: lost in translation as far as DASH
-  6th edition is concerned (see the field mapping above). ADS
-  adapters that need to carry it preserve it on a vendor-namespaced
+  6th edition is concerned (see the field mapping above). An APS
+  that needs to carry it preserves it on a vendor-namespaced
   attribute / element on the corresponding `ImportedMPD` (or on a
   sidecar payload).
 
@@ -457,12 +466,12 @@ Edge cases worth flagging:
 
 | Source           | Target              | Transport      | Format                            | Direction         | Error semantics |
 |------------------|---------------------|----------------|-----------------------------------|-------------------|-----------------|
-| Player           | Broadcaster CDN     | HTTP/HTTPS     | DASH MPD (XML)                    | request / response (pull) | HTTP status codes; on 4xx/5xx Player retries or aborts session. |
-| Player           | Broadcaster CDN     | HTTP/HTTPS     | media segments (ISOBMFF, CMAF, …) | request / response (pull) | HTTP status codes; segment-level retry per DASH-IF guidelines. |
-| Player           | ADS                 | HTTP/HTTPS     | request: query params (§I.4); response: `ListMPD` (XML) | request / response (pull, sync) | HTTP status codes; empty `ListMPD` or 4xx/5xx -> Player falls through to primary content. |
-| Player           | Ad CDN              | HTTP/HTTPS     | media segments                    | request / response (pull) | Same as Broadcaster CDN; failure of an ad segment skips that ad or aborts the break per Player policy. |
+| Player           | Publisher CDN     | HTTP/HTTPS     | DASH MPD (XML)                    | request / response (pull) | HTTP status codes; on 4xx/5xx Player retries or aborts session. |
+| Player           | Publisher CDN     | HTTP/HTTPS     | media segments (ISOBMFF, CMAF, …) | request / response (pull) | HTTP status codes; segment-level retry per DASH-IF guidelines. |
+| Player           | APS                 | HTTP/HTTPS     | request: query params (§I.4); response: `ListMPD` (XML) | request / response (pull, sync) | HTTP status codes; empty `ListMPD` or 4xx/5xx -> Player falls through to primary content. |
+| Player           | Ad CDN              | HTTP/HTTPS     | media segments                    | request / response (pull) | Same as Publisher CDN; failure of an ad segment skips that ad or aborts the break per Player policy. |
 | Player           | Tracking endpoints  | HTTP/HTTPS     | callback beacons (HTTP GET, body-less) | fire-and-forget (push) | Errors are best-effort logged by the Player; not surfaced to viewer. |
-| ADS              | Upstream ad decisioning | HTTP/HTTPS | VAST 4.x (XML) request / response | request / response (pull) | VAST `<Error>` element + HTTP status; ADS adapter translates errors into HTTP errors or empty `ListMPD` toward the Player. |
+| APS              | ADS                 | HTTP/HTTPS     | VAST 4.x (XML) request / response | request / response (pull) | VAST `<Error>` element + HTTP status; the APS translates errors into HTTP errors or empty `ListMPD` toward the Player. |
 
 All transport is over HTTPS in production. Authentication, DRM, and
 token exchange are out of scope of this document; they layer on top
@@ -502,7 +511,6 @@ of HTTPS per DASH-IF guidelines.
   directly and only mentions 4.2 / 4.3 as placeholders inside the
   CMCD v2 draft. Pin against the IAB Tech Lab spec page on the
   next revision.
-  <!-- TODO: pin exact VAST 4.x version against the IAB Tech Lab page; NotebookLM source did not specify it. -->
 - [`02-actors.md`](02-actors.md) — actor definitions.
 - [`03-requirements.md`](03-requirements.md) — R1, R2, R4 cited above.
 - [`99-glossary.md`](99-glossary.md) — terminology.
