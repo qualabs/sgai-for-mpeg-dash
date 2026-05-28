@@ -35,8 +35,8 @@ behaviour explicit for the WG, built on the corrected positional-ordering
 
 Coverage table updated with rows for UC-09 and UC-10. This is a `context/`
 change → next major build is **v6** (implied; `build-all` regenerates the spec
-and analyses when the operator runs it). Staged in the working tree **pending
-Nicolás's validation before push** — not committed. Addresses Hassoun A3 + U2 /
+and analyses when the operator runs it). Validated by Nicolás and **committed
++ pushed** to `main` (2026-05-27). Addresses Hassoun A3 + U2 /
 U4 by illustrating the per-device-class layout outcome and the L-shape vs
 side-by-side distinction concretely.
 
@@ -51,8 +51,7 @@ option" entry) following Nicolás's wording review (R5.5 trimmed; R26 in
 English; R26 placed in the Presentation section; platform fallback kept as an
 opt-in MAY with no normative default). R14 was deliberately left unchanged
 (intra-slot sequence axis, distinct from R5's ordered fallback). The changes
-are staged in the working tree **pending Nicolás's final validation before
-push** — not yet committed.
+were validated by Nicolás and **committed + pushed** to `main` (2026-05-27).
 
 **Decision 1 — Ordered fallback is normative and positional.** The
 presentation options an ad offers (a form plus its layout) are modelled as an

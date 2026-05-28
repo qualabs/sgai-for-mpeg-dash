@@ -1,8 +1,8 @@
 # Cross-reference: David Hassoun's feedback ↔ state of the SGAI spec
 
 **Date:** 2026-05-27 (v3 — refreshed after the ordered-fallback / R26 edits + UC-09 / UC-10)
-**Author:** CTO assistant (report — the `context/` edits are staged, NOT committed / NOT pushed)
-**Scope:** cross-reference David Hassoun's **actual** feedback (the 3 files he edited / commented and uploaded to `#wg-comcast` on 2026-05-20) against the current state of the SGAI spec (`projects/sgai-for-mpeg-dash/context/`) after the 2026-05-27 revisions: the positional ordered-fallback rewrite (R5 + R5.1/R5.2/R5.5/R5.6/R5.7), the R26 side-by-side background-fill requirement (R26 + R26.1/.2/.3), the UC-03 L-shape-as-layout + UC-04 D2 / D3 wording rewrites, and the two new use cases **UC-09** (worked ordered-fallback example across device classes) and **UC-10** (side-by-side three-element R26 illustration). All these `context/` changes are staged in the working tree pending owner validation before push.
+**Author:** CTO assistant (report — the `context/` edits are committed + pushed to `main`, 2026-05-27)
+**Scope:** cross-reference David Hassoun's **actual** feedback (the 3 files he edited / commented and uploaded to `#wg-comcast` on 2026-05-20) against the current state of the SGAI spec (`projects/sgai-for-mpeg-dash/context/`) after the 2026-05-27 revisions: the positional ordered-fallback rewrite (R5 + R5.1/R5.2/R5.5/R5.6/R5.7), the R26 side-by-side background-fill requirement (R26 + R26.1/.2/.3), the UC-03 L-shape-as-layout + UC-04 D2 / D3 wording rewrites, and the two new use cases **UC-09** (worked ordered-fallback example across device classes) and **UC-10** (side-by-side three-element R26 illustration). All these `context/` changes were validated by the owner and committed + pushed to `main` on 2026-05-27.
 
 ---
 
