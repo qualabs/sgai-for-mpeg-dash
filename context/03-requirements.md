@@ -241,6 +241,14 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     used by this spec's edition. Conformance is checked against the
     APS's resolution document, not against the ADS's internal
     decision document.
+  - **R12.4** (spec document): Each layout token defined under R12
+    implies the spatial bound declared by the IAB CTV Ad Format
+    Guidelines for that layout (e.g. Corner Overlay no more than 25%
+    of the frame, Squeezeback L-Shape primary content 60% of the
+    frame). The spec inherits these bounds by normative reference
+    rather than re-declaring them MPD-side; no dimensional attribute
+    is introduced on the slot declaration. See
+    `../.project/decisions/0001-defer-to-iab-ctv-for-spatial-caps.md`.
 - **R15. Admissible creative carrier formats.**
   The admissible ad-creative carrier formats for this edition are
   exactly three: **video** (carried per the MPEG-DASH 6th edition
