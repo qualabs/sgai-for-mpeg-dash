@@ -137,18 +137,53 @@ Read the three sidecars end to end and collect every issue that
 proposes a change to the spec:
 
 - From `v<N.M>-spec-validation.md`:
-  - **Gaps**: missing definitions, missing constraints, missing
-    behavioural rules. Most gaps are requirement-level → record as
-    Refinement gaps (see step 4) UNLESS the spec already states the
-    rule elsewhere and just needs the cross-reference made
-    explicit.
-  - **Edge cases**: boundary conditions the spec does not handle.
-    Same triage: if handling requires a new construct, defer to
-    Refinement gaps; if it requires only tightening an existing
-    sentence, apply.
-  - **Ambiguities**: a passage that can be read two ways. Almost
-    always applicable — apply the tightening that the sidecar
-    recommends.
+  - **Gaps**: only address those NOT already routed into §5.a,
+    §5.b or §5.c by the validator. Each gap in §1 of the sidecar
+    must carry a `See Actionable TODO Tk`, `See Flagged f-k`, or
+    `See Deferred d-k` back-reference; if no back-reference is
+    present, the validator left it unrouted — treat as Flagged
+    (apply the §5.d tie-breaker). Historic behaviour for unrouted
+    gaps: most are requirement-level → record as Refinement gaps
+    (see step 4) UNLESS the spec already states the rule
+    elsewhere and just needs the cross-reference made explicit.
+  - **Edge cases**: only address those NOT already routed into
+    §5.a, §5.b or §5.c by the validator. Each edge case in §2 of
+    the sidecar must carry a `See Actionable TODO Tk`, `See
+    Flagged f-k`, or `See Deferred d-k` back-reference; if no
+    back-reference is present, the validator left it unrouted —
+    treat as Flagged (apply the §5.d tie-breaker). Historic
+    behaviour for unrouted edge cases: if handling requires a new
+    construct, defer to Refinement gaps; if it requires only
+    tightening an existing sentence, apply.
+  - **Ambiguities**: only address those NOT already routed into
+    §5.a, §5.b or §5.c by the validator. Each ambiguity in §3 of
+    the sidecar must carry a `See Actionable TODO Tk`, `See
+    Flagged f-k`, or `See Deferred d-k` back-reference; if no
+    back-reference is present, the validator left it unrouted —
+    treat as Flagged (apply the §5.d tie-breaker).
+
+- From `v<N.M>-spec-validation.md` §5 (Disposition of findings):
+  - **§5.a Actionable TODOs**: MUST apply every row, in table
+    order. Each row carries a concrete edit description and a
+    finding-ref (`A-2`, `G-3`, etc.). For each TODO Tk: locate
+    the spec section, apply the edit, annotate with
+    `<!-- refine: v<N.M>-spec-validation.md#T<k> -->`. No
+    triage, no judgement — if the validator emitted it as a
+    TODO, the refine agent executes it. If applying a TODO is
+    mechanically impossible (the spec section it points to no
+    longer exists after a previous refine pass), record it in
+    Refinement gaps with the reason "TODO target missing" and
+    move on.
+  - **§5.b Flagged for review**: MUST NOT touch. These belong to
+    the human review pass. Carrying them forward to Refinement
+    gaps is OK; editing the spec around them is NOT.
+  - **§5.c Deferred to context/**: MUST NOT touch (same as
+    today's "Refinement gaps" outcome). Carry forward in the
+    trailing table.
+  - **Conflict resolution**: if a row in §5.a points at the
+    same spec section as a flag from `v<N.M>-detail-review.md`
+    with a different remedy, **§5.a takes precedence** —
+    validation is the strategic pass; detail-review is tactical.
 
 - From `v<N.M>-detail-review.md`:
   - **Autofixes** are already applied to the spec by Step 7.5 —

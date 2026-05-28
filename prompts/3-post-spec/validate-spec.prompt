@@ -75,10 +75,107 @@ Status values: `full`, `partial`, `gap`, `governance` (R8, R9, R10
 are governance, not runtime-testable). Notes capture residuals
 (e.g., a partial R linked to a gap above).
 
-### 5. Recommended next-iteration context refinements
+### 5. Disposition of findings
 
-Top 3-5 fixes by leverage (which one unblocks the most other items
-or reduces the most spec-side handwaving).
+Every Gap, Edge case, and Ambiguity above MUST be routed to exactly
+one of three buckets. The bucket determines what refine-spec
+(`prompts/4-auto-refine/refine-spec.prompt`) does with it on the
+next minor iteration.
+
+#### 5.a Actionable TODOs (high-certainty, refine-spec MUST apply)
+
+Findings where the fix-direction is unambiguous and lies entirely
+inside the spec (no `context/` edit required). Refine-spec applies
+these unconditionally — no human in the loop. A finding qualifies
+ONLY if it meets at least one of the four criteria below AND the
+remedy can be expressed as a concrete byte-level edit to
+`../output/v<N>-sgai-spec.md`:
+
+1. **DP-X violation cited by ID**: the finding cites an explicit
+   design principle / rule in `context/03-requirements.md` (DP-1.1,
+   DP-2, R-X.Y) AND the spec text violates it AND the fix is "make
+   the spec stop violating the rule" (drop the offending
+   construct, change the offending wording, add the missing
+   constraint).
+2. **Self-flagged by the spec**: the spec carries a `[inferred]`
+   tag, a `TODO`, a `FIXME`, an `[?]`, or a placeholder that the
+   spec itself marks as not load-bearing. The remedy is to remove
+   the marker by stating the implied claim or by deleting the
+   unverifiable line.
+3. **Internal contradiction between two spec sites**: two chapters
+   of the spec disagree, AND exactly one of the two readings
+   matches `context/`. The remedy is to align the other site with
+   the context-grounded one.
+4. **Detail-level inconsistency that the detail-review prompt
+   would autofix**: the finding falls inside one of the eight
+   categories listed in `review-spec-details.prompt` (format,
+   cross-ref, naming, annex-vs-chapter, schema-namespace pinning,
+   etc.) but escaped detection. Refine-spec applies the autofix
+   per that prompt's rules.
+
+Hard cap: at most **5 Actionable TODOs per sidecar**. If more
+findings qualify, prioritise by leverage and route the rest to
+§5.b. The cap prevents destructive cascades where one TODO
+removes the anchor another TODO targets.
+
+Format — one row per TODO:
+
+| #  | Finding ref | Criterion | Spec section | Concrete edit | Citation |
+|----|-------------|-----------|--------------|---------------|----------|
+
+The **Citation** column is MANDATORY for every row and MUST cite
+a real rule (DP-X / R-X.Y / IETF RFC reference / IAB document
+section). A row without a verifiable citation is invalid and
+MUST be moved to §5.b instead.
+
+If a finding from §1 / §2 / §3 above qualifies for §5.a, it
+appears here AND a back-reference appears in its original section
+(`See Actionable TODO T1`).
+
+#### 5.b Flagged for review (uncertain, refine-spec MUST NOT touch)
+
+Findings where the remedy is not unique, the fix would change the
+meaning of a requirement, or multiple resolutions have material
+trade-offs. Refine-spec leaves these alone; they surface on the
+owner's next review pass.
+
+Format — one row per flag:
+
+| #  | Finding ref | Spec section | Why uncertain | Resolutions considered |
+|----|-------------|--------------|---------------|------------------------|
+
+#### 5.c Deferred to `context/` (requirement-level changes)
+
+Findings that genuinely require editing `context/` — a gap in the
+requirements doc, a missing use case, a new architectural choice.
+Refine-spec defers these; they wait for a major build (vN+1).
+
+Format — one row per deferral, ordered by leverage (top 3-5):
+
+| #  | Finding ref | `context/` file to edit | Suggested edit | Leverage rationale |
+|----|-------------|-------------------------|----------------|--------------------|
+
+#### 5.d Routing rules (decision tree)
+
+For each Gap / Edge case / Ambiguity, walk this tree IN ORDER:
+
+1. Does the finding cite a DP-X / R-X.Y / IAB rule AND can the
+   spec be edited to stop violating it without changing the rule
+   itself? → **5.a** (Actionable TODO, criterion 1).
+2. Is the finding a self-flagged marker the spec already
+   acknowledges? → **5.a** (criterion 2).
+3. Is the finding two spec sites disagreeing with one reading
+   matching `context/`? → **5.a** (criterion 3).
+4. Is the finding a micro-consistency item from the
+   `review-spec-details` taxonomy that slipped through? → **5.a**
+   (criterion 4).
+5. Does the remedy require choosing between two or more
+   defensible interpretations? → **5.b**.
+6. Does the remedy require editing `context/`? → **5.c**.
+
+If a finding is borderline between 5.a and 5.b, route to **5.b**.
+A false 5.b is cheaper than a wrong 5.a (mirrors the
+`review-spec-details` tie-breaker).
 
 ### Validation doc structure
 
@@ -95,7 +192,10 @@ Built against:
 ## Edge cases (<count>)
 ## Ambiguities (<count>)
 ## R coverage map
-## Recommended context refinements
+## Disposition of findings
+### 5.a Actionable TODOs (<count>)
+### 5.b Flagged for review (<count>)
+### 5.c Deferred to context/ (<count>)
 ```
 
 ### Tone
