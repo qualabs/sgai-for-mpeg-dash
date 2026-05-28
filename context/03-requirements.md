@@ -278,50 +278,60 @@ the ADS-declared order, and resolving overlapping opportunity windows.
   authority on device capability — neither the ADS nor the APS needs
   a device-class matrix or a per-Player view. Ad candidates in the
   resolution document the Player reads carry one or more
-  **renderable forms** (e.g. video, image, HTML), optionally ranked
-  by ADS hints. The Player MUST choose the best form it can render
-  given its device, and MUST skip candidates with no renderable form
+  **renderable presentation options**, each a **form (video, image,
+  HTML) together with its layout**. The options appear as an
+  **ordered list — document order IS the preference order; there is
+  no separate priority or ranking attribute**. The Player MUST render
+  the **first presentation option whose form and layout its device
+  can satisfy**, and MUST skip candidates with no satisfiable option
   (falling back to the next candidate or to primary content,
   depending on policy). R5 is a concrete instance of R2 — Player owns
   the responsibility the ADS and APS do not have — and a direct
   contributor to R3.
 
-  The resolution document MAY carry candidates with multiple forms
-  or layouts. The Player MUST select per device capabilities, the
-  Publisher's allowed layouts, and ADS-supplied priority hints.
-  Skipping a candidate because none of its forms is renderable on
-  the target device is acceptable; the Player then falls through to
-  the next candidate or to primary content.
+  The resolution document MAY carry candidates with multiple
+  presentation options. The Player MUST select per device
+  capabilities and the Publisher's allowed layouts, taking options
+  **in document order and rendering the first that passes**. Skipping
+  a candidate when none of its options is satisfiable is acceptable;
+  the Player then falls through to the next candidate or to primary
+  content.
 
   **Conformance criteria** (runtime):
   - **R5.1** (APS): Each ad candidate in the resolution document the
-    Player reads MUST carry one or more renderable forms (e.g. video,
-    image, HTML), optionally ranked by ADS hints. The form set
-    originates in the ADS's decision (which media files / forms
-    exist, and their ranking); the APS carries that set through into
-    the resolution document. The normative carry obligation is the
-    APS's: the APS produces the resolution document the Player reads,
-    so conformance is checked against the APS's resolution document,
+    Player reads MUST carry one or more **renderable presentation
+    options (each a form plus its layout) as an ordered list, where
+    document order is the preference order**. The set and its order
+    originate in the ADS's decision (which media files / forms exist,
+    and their order); the APS carries that **ordered** set into the
+    resolution document, **preserving document order**, **without
+    reordering**. The normative carry obligation is the APS's: the
+    APS produces the resolution document the Player reads, so
+    conformance is checked against the APS's resolution document,
     not against the ADS's internal decision document. The ADS defines
     the set; the APS transcribes it.
-  - **R5.2** (Player): The Player MUST choose, among the renderable
-    forms of an accepted candidate, the best form it can render on
-    its device.
+  - **R5.2** (Player): The Player MUST evaluate the presentation
+    options of an accepted candidate **in document order** and render
+    the **first option** whose form and layout it can satisfy on its
+    device.
   - **R5.3** (Player): The Player MUST skip any candidate that
     carries no form renderable on its device, falling back to the
     next candidate or to primary content per the configured policy.
   - **R5.4** (ADS + APS): Neither the ADS nor the APS MUST be
     required to maintain a device-class matrix or a per-Player
     capability view to produce candidates.
-  - **R5.5** (ADS): An ad candidate MAY carry multiple forms
-    and MAY carry multiple admissible layouts; ADS-supplied
-    priority hints MAY rank both dimensions independently.
-  - **R5.6** (Player): The Player MUST resolve form/layout
-    selection by intersecting (a) device capabilities, (b) the
-    Publisher-declared allowed layouts on the slot, and
-    (c) ADS-supplied priority hints. A combination that fails
-    any of the three MUST NOT be rendered.
-  - **R5.7** (Player): If no form/layout combination on a
+  - **R5.5** (ADS): An ad candidate MAY carry multiple presentation
+    options, each pairing a form with an admissible layout. The
+    options form a single ordered list; their document order
+    expresses the ADS's preference.
+  - **R5.6** (Player): The Player MUST resolve presentation-option
+    selection by walking the options in document order and, for each,
+    checking it against (a) device capabilities and (b) the
+    Publisher-declared allowed layouts on the slot. The Player renders
+    the first option that satisfies both; an option that fails either
+    MUST NOT be rendered and the Player moves to the next option in
+    document order.
+  - **R5.7** (Player): If no presentation option on a
     candidate satisfies R5.6, the Player MUST skip that
     candidate and fall through to the next candidate in the
     resolution document (preserving the order required by R7) or,
@@ -650,6 +660,76 @@ fullscreen rules, playback speed, and the single-active-form bound.
     Any decision to resume at the live edge MUST be treated as a
     Player action occurring after the resume from pause, outside the
     pause-ad window.
+- **R26. Layouts that leave the screen partially uncovered MAY define
+  a background fill.** Some non-linear layouts compose the primary
+  content and the ad as **separate on-screen elements that together do
+  not cover the full screen**. The canonical case is the
+  **side-by-side / double-box**: the shrunk primary content sits next
+  to the ad on a 16:9 screen and leaves bands / margins uncovered.
+  Without intervention those uncovered regions render as black. So a
+  **third element — a background image — MAY be defined to fill the
+  uncovered region**. A side-by-side therefore puts **three elements**
+  on screen: the primary content, the ad, and the background image.
+
+  By default the background is the **advertiser's creative**, mirroring
+  the IAB **"Double Box Video + Background"** model — the double-box IS
+  the side-by-side, and the "+ Background" is exactly this third
+  element (the advertiser brands / takes over the background between
+  the double boxes of video). The specification MAY define a platform /
+  publisher fallback background only for the case where the advertiser
+  supplies none — this is an opt-in MAY with no normative default. IAB
+  is silent on that case, so a fallback there does not contradict the
+  IAB vocabulary. The background is an attribute of the slot / layout
+  composition, NOT one of the candidate's alternative presentation
+  options (R5).
+
+  **The number and type of concurrent elements determine which device
+  class can composite the layout** — the same admissible creative
+  carriers as R15 (video, image, HTML) apply to the ad element:
+  - **Side-by-side with a video ad** → two video decoders (the primary
+    content plus the ad video) plus an image surface for the
+    background. This requires two decoders; a single-decoder device
+    cannot satisfy it.
+  - **Side-by-side with an image (or HTML) ad** → one video decoder
+    (the primary content) plus image / HTML surfaces for the ad and
+    the background. A single-decoder device that can put image / HTML
+    surfaces over video (e.g. D3, or D4 for the image case) satisfies
+    this; no second decoder is required.
+
+  **Distinction — the L-shape / squeezeback is a different layout, not
+  an R26 case.** In an L-shape / squeezeback the ad is rendered
+  full-frame with a cutout into which the shrunk primary content is
+  composited, so the ad already covers the whole screen and there is no
+  uncovered region to fill — it needs NO background. The L-shape is a
+  valid layout / presentation option (R5); it is simply not a case of
+  R26.
+
+  Reference: IAB Tech Lab — "Ad Format Guidelines for Digital Video
+  and CTV" (public comment, Dec 2025). "Double Box Video + Background",
+  pp.12-13.
+  https://iabtechlab.com/standards/ctv-ad-portfolio/
+
+  **Conformance criteria** (runtime + document-level):
+  - **R26.1** (APS + Publisher): The background fill of a layout that
+    leaves the screen partially uncovered MUST be carried as a
+    composition attribute of the slot / layout, not as a separate
+    presentation option (R5).
+  - **R26.2** (Player): The Player MUST composite the three elements —
+    primary content, ad, and background fill — for a layout that leaves
+    the screen partially uncovered, placing the advertiser-supplied
+    background in the uncovered region. If no advertiser background is
+    supplied and the Publisher declared a platform fallback, the Player
+    MAY composite the fallback; absent both, the uncovered-region
+    behaviour is the Publisher's declared default.
+  - **R26.3** (Player): The number and type of concurrent elements
+    determine the device classes that can composite the layout. A
+    side-by-side with a **video** ad requires two concurrent video
+    decoders (the primary content plus the ad video) plus an image
+    surface for the background, and MUST NOT be selected on a
+    single-decoder device (R3 / R5). A side-by-side with an **image** or
+    **HTML** ad needs one decoder (the primary content) plus image /
+    HTML surfaces for the ad and the background, and a single-decoder
+    image/HTML-capable device can render it.
 
 ### Tracking
 

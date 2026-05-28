@@ -41,7 +41,13 @@ through `08-dash-extension-rules.md`.
   `ReplacePresentation` event in the main MPD points to a URL; that
   URL (served by the APS) returns a `ListMPD` describing the ad
   presentation. The APS derives the `ListMPD` from the VAST the ADS
-  produced.
+  produced. The presentation options an ad offers appear in the
+  ListMPD as an ordered list; document order is the Player's
+  preference order (R5).
+- **Presentation option**: a (form + layout) pairing offered for an
+  ad candidate. The resolution document lists the options in an
+  ordered list; document order is the preference order the Player
+  follows (R5).
 - **InsertPresentation** *(DASH 6th ed)*: signals that an ad
   presentation is to be **inserted into** the timeline alongside the
   main content. Used for splice-style insertion.
