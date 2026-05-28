@@ -1,0 +1,2891 @@
+# SGAI for Linear and Non-Linear Ads in MPEG-DASH
+
+> Build metadata
+> - Iteration: v6 (major build — context updated 2026-05-27 with
+>   the four-actor split and the R20 / R21 / R22 / R25 / R26
+>   requirement additions).
+> - Generated against MPEG-DASH 6th edition (ISO/IEC 23009-1:2025,
+>   FDIS).
+> - RFC 2119 keywords (MUST, SHOULD, MAY) appear throughout the
+>   normative chapters. Their meaning is inherited from RFC 2119
+>   and RFC 8174. Normative obligations are stated as positive
+>   requirements — the action the actor takes. The space outside
+>   the positive obligation is implicitly out of scope.
+> - Grounding: spec-only against the canonical context at build
+>   time. Claims that could not be verified against the
+>   authoritative MPEG-DASH 6th edition source are tagged
+>   `[inferred]`.
+
+## 1. Scope
+
+This specification defines **Server-Guided Ad Insertion (SGAI)** in
+MPEG-DASH for **both linear and non-linear ads**. It is a complete
+extension of MPEG-DASH 6th edition: the linear SGAI mechanism
+defined in ISO/IEC 23009-1:2025 §5.16 (`<InsertPresentation>`,
+`<ReplacePresentation>`) and §8.14 (`ListMPD` profile) is absorbed
+as the baseline, and a non-linear extension is layered on top
+using DASH 6th's normative extension points without altering any
+baseline semantics.
+
+Linear SGAI is carried forward with clarifications only. The
+non-linear extension introduces constructs for overlays (corner /
+lower-third / banner), content-resize compositions (squeezeback /
+L-shape / frame / double-box), pause-triggered ads, and the
+hybrid case of a linear ad with a concurrent overlay on top.
+
+A conformant implementation of this specification:
+
+- Plays primary content uninterrupted on a Player that does not
+  implement the constructs introduced here (graceful degradation
+  on legacy Players).
+- Preserves the semantics of every pre-existing MPEG-DASH 6th
+  edition construct.
+- Implements every new construct via DASH 6th edition extension
+  points whose ignore-if-unknown semantics make backward
+  compatibility auditable per construct.
+
+Audience: Player implementers, ad-server vendors, publisher
+authoring teams, and DASH-aware tooling authors. Reading
+prerequisite is familiarity with MPEG-DASH 6th edition Sections
+5.2.1, 5.10, 5.16, 8.14, 8.15, and Annex F.
+
+### 1.1 What this specification covers
+
+- Linear ad slots (pre-roll, mid-roll, multi-ad break) carried by
+  the MPEG-DASH 6th edition `<InsertPresentation>` and
+  `<ReplacePresentation>` events.
+- Non-linear ad slots (overlay) carried by the new
+  `<svta:OverlayPresentation>` event element.
+- Pause-triggered ad windows carried by the new
+  `<svta:PauseAdPresentation>` event element.
+- Hybrid slots — a linear slot and a non-linear overlay slot
+  declared at the same `presentationTime` so the Player composes
+  the two during the same break.
+- Composition of an overlay window that crosses a pause-ad
+  window (see Annex H).
+- A worked example of one ad with multiple ordered presentation
+  options resolved differently across the five device classes
+  (Annex I).
+- A worked example of the three-element side-by-side / double-box
+  layout (Annex J).
+
+### 1.2 What this specification leaves out of scope
+
+- Server-side ad insertion / stitching (SSAI / SSR).
+- Post-roll slots at the very end of a playback session.
+- Companion / multi-screen ads beyond what IAB defines as CTV end
+  cards.
+- Native ads rendered in the Player chrome rather than the video
+  pane.
+- A parallel spatial-layout system. Spatial arrangement of
+  overlays is delegated to HTML5 / CSS layout primitives;
+  positions inside a layout (left, right, top, bottom, etc.) are
+  not expressible in spec-level attributes.
+- The ADS's internal decisioning logic (targeting, frequency
+  capping, brand-safety filtering, competitive separation,
+  ordering).
+- The ADS-side and APS-internal API contracts. This
+  specification documents only the **Player-visible** interface:
+  the MPD event URL the Publisher references (which resolves to
+  the APS) and the resolution document the APS returns. The
+  Publisher↔APS event-URL contract and the APS↔ADS decisioning
+  contract are agreed bilaterally between the parties, outside
+  this specification.
+- Creative carriers outside the admissible set defined in §3.2.
+  Senders that need scripted creatives wrap the script inside an
+  HTML document and use `text/html`.
+- Parallel non-linear ad rendering. At most one non-linear ad
+  form is active on the screen at any given moment (§4.6.6).
+- Enhancement-layer video overlays (LCVC / scalable-codec
+  enhancement layer composited as an overlay over the primary's
+  base layer). A future edition MAY address this.
+- Multi-view editorial concurrent content (non-ad concurrent
+  content). The carriers defined here cover ad use cases only.
+- Audio composition policy between an overlay's audio track and
+  the primary's audio track. Players treat overlay audio
+  per-implementation; a future edition MAY introduce a normative
+  policy.
+- Authentication, DRM, encryption, and token-exchange transport
+  flows. They layer on top of HTTPS per DASH-IF guidance and are
+  orthogonal to SGAI.
+
+## 2. Normative references
+
+The following documents, in whole or in part, are normatively
+referenced in this specification and are indispensable for its
+application. For dated references, only the cited edition
+applies. For undated references, the latest edition (including
+amendments) applies.
+
+- **ISO/IEC 23009-1:2025(E)** — *Information technology — Dynamic
+  adaptive streaming over HTTP (DASH) — Part 1: Media
+  presentation description and segment formats* (MPEG-DASH 6th
+  edition; FDIS stage). Canonical:
+  <https://standards.iso.org/iso-iec/23009/-1/ed-6/en>. Sections
+  referenced normatively in this specification:
+  §5.2.1 (foreign-namespace open content);
+  §5.3.2.6 (`<ImportedMPD>` and the SPS profile binding);
+  §5.8.4.8, §5.8.4.9 (`<EssentialProperty>` and
+  `<SupplementalProperty>` vendor descriptors);
+  §5.10 (`<EventStream>` and event scheme
+  `urn:mpeg:dash:event:callback:2015`);
+  §5.16 (Alternative MPD Insertion / Replacement Events;
+  `<InsertPresentation>`, `<ReplacePresentation>`);
+  §7.3 (Single-Period MPD MIME type restrictions);
+  §8.12 (CMAF on-demand profile);
+  §8.14 (`ListMPD` profile, URI
+  `urn:mpeg:dash:profile:list:2024`);
+  §8.15 (Single-Period Static profile, SPS);
+  Annex F (non-ISO-BMFF delivery, Interoperability Point URIs);
+  Annex I.3.1 / I.4 (URL parameterisation, scheme
+  `urn:mpeg:dash:urlparam:2025`; the `<UrlParamInfo>` element is
+  defined in the core MPD namespace
+  `urn:mpeg:dash:schema:mpd:2011`).
+
+  NOTE: Two known schema-vs-prose splits inside DASH 6th are
+  inherited here. (i) §5.16.3 and §5.16.4 name the URL attribute
+  on `<InsertPresentation>` / `<ReplacePresentation>` as `@url`
+  in the prose, while the normative `AlternativeMPDEventType`
+  XML schema declares `<xs:attribute name="uri">`. This
+  specification uses the prose name `@url` throughout.
+  (ii) The URL-parameterisation child element is named
+  `<UrlParamInfo>` in §I.3.1 prose (type `ExtendedUrlInfoType`,
+  Table I.3) and `<RequestParam>` in the semantic tables of §5.3.
+  This specification follows the §I.3.1 prose name
+  `<UrlParamInfo>`. Implementers using a strict schema validator
+  should expect the alternate names in DASH-6th-conformant
+  tooling.
+
+- **IETF RFC 2119** — *Key words for use in RFCs to Indicate
+  Requirement Levels*. <https://www.rfc-editor.org/rfc/rfc2119>.
+- **IETF RFC 8174** — *Ambiguity of Uppercase vs Lowercase in
+  RFC 2119 Key Words*. <https://www.rfc-editor.org/rfc/rfc8174>.
+- **IETF RFC 4337** — *MIME Type Registration for MPEG-4*. Pins
+  the admissible `@mimeType` values on `<AdaptationSet>` /
+  `<Representation>` reached via `<ImportedMPD>` to `video/mp4`,
+  `audio/mp4`, `application/mp4`.
+  <https://www.rfc-editor.org/rfc/rfc4337>.
+- **IAB Tech Lab — Ad Format Guidelines for Digital Video and
+  CTV** (Final Release, May 2026). Live source:
+  <https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e>.
+  Authoritative source for the accepted ad-type vocabulary used
+  by §3.2. The reference is to the live document, not to a
+  snapshot, because the IAB owns the vocabulary's lifecycle.
+- **W3C HTML Living Standard** — <https://html.spec.whatwg.org/>.
+  Defines `text/html` semantics, including inline `<script>`
+  execution.
+- **W3C CSS Layout Modules** — relevant W3C CSS specifications
+  for the spatial arrangement of overlays. The binding is *use
+  the standard, do not invent a parallel one*.
+
+### 2.1 Scheme URIs and namespaces introduced by this edition
+
+The following URIs are introduced normatively by this edition. A
+Player implementing this edition recognises them. Year pinning
+ensures that any future edition that changes the semantics of a
+construct publishes under a new URI, so a legacy Player that
+recognises only the older URI continues to apply the older
+semantics (or, if it predates this edition entirely, silently
+ignores the construct).
+
+| URI | Used as | Construct |
+|-----|---------|-----------|
+| `urn:svta:dash:event:sgai-overlay:2026` | `<EventStream>@schemeIdUri` | The Publisher's non-linear overlay opportunity declaration. The carrying `<Event>` element's `presentationTime` and `duration` define the overlay window. |
+| `urn:svta:dash:event:sgai-pause-trigger:2026` | `<EventStream>@schemeIdUri` | The Publisher's pause-trigger window declaration. The `<Event>` `presentationTime` and `duration` define the window during which a viewer pause permits an overlay. |
+| `urn:svta:dash:profile:sgai-overlay-list:2026` | `MPD@profiles` (on the non-linear resolution document) | Declares the resolution document conforming to the non-linear extension defined in §5.2.2. |
+| `urn:svta:dash:sgai:2026` | XML namespace | The SVTA Ads WG extension namespace. Container for every SGAI element and attribute introduced by this edition. |
+
+URIs inherited unchanged from MPEG-DASH 6th edition are
+referenced in §5.1.1, §5.1.2, and §5.5; this section does not
+restate them.
+
+## 3. Terms, definitions, abbreviations
+
+### 3.1 Core terms
+
+- **Ad opportunity (or slot).** A position on the primary content
+  timeline at which the Publisher permits an ad to be rendered.
+  Declared by the Publisher as an `<Event>` inside an
+  `<EventStream>` whose `schemeIdUri` corresponds to the
+  opportunity type (linear insert, linear replace, non-linear
+  overlay, pause-trigger). The opportunity carries the slot's
+  constraints (allowed layouts, maximum duration, etc.) as
+  attributes on its scheme-specific child element.
+- **Linear ad.** An ad whose form replaces the primary content
+  for the duration of the slot. The Player switches its source
+  from the main timeline to the ad timeline and back.
+- **Non-linear ad.** An ad whose form is composited on top of, or
+  alongside, the primary content during the slot, while primary
+  playback continues.
+- **Resolution document.** The XML document the APS returns when
+  the Player resolves the slot's `@url`. For linear slots, the
+  resolution document is a `ListMPD` (§8.14 of the base
+  specification). For non-linear slots, the resolution document
+  is an Overlay Resolution Document (§5.2.2) conforming to
+  `urn:svta:dash:profile:sgai-overlay-list:2026`.
+- **Candidate.** An entry in a non-linear resolution document
+  representing one ad eligible for the slot. A candidate carries
+  one or more renderable *presentation options* (see below).
+  Linear `ListMPD` Periods are not candidates in the selection
+  sense; the Player plays them in declared order without
+  picking.
+- **Form.** The media-carrier dimension of a presentation option:
+  a single media type drawn from the admissible set defined in
+  §3.2 (`video`, `image`, or `html`). A candidate may expose
+  several forms (e.g. one video form, one image form, one HTML
+  form) so the Player can pick the highest-fidelity form its
+  device can render.
+- **Layout.** The spatial-arrangement dimension of a presentation
+  option, identified by a token defined by the IAB Ad Format
+  Guidelines (§3.2). Spatial positioning inside a layout is
+  delegated to HTML5 / CSS and is out of scope here.
+- **Presentation option.** A `(form + layout)` pairing carried
+  on an ad candidate. A candidate carries one or more
+  presentation options as an ordered list whose document order
+  expresses the APS's (and upstream, the ADS's) preference order.
+- **Publisher.** The party that owns the primary content and the
+  viewer's screen. Declares ad opportunities and their
+  constraints in the main MPD. Authority for *when* ads appear,
+  *what kind* of slot they fill, and *what constraints* bind the
+  slot.
+- **Ad Decision Server (ADS).** The server that decides which
+  ads to serve, in what number, and in what order, and that
+  declares the tracking schedule. Authority for ad selection,
+  ordering, and the tracking schedule. Outputs a decision
+  document (typically VAST, though not bound to VAST). Does not
+  produce the MPD-native resolution document the Player reads,
+  and is not normatively bound by the Publisher's slot
+  constraints.
+- **Ad Presentation Server (APS).** The server that sits between
+  the Player and the ADS. Exposes the endpoint the Player
+  resolves (referenced by the Publisher in the MPD event `@url`),
+  calls the ADS, and converts whatever the ADS emits into the
+  resolution document the Player understands (`ListMPD` for
+  linear, Overlay Resolution Document for non-linear). Translates
+  the ADS-declared tracking events into DASH callback events.
+  Translation and presentation layer — not the ad-decisioning
+  authority and not the constraint enforcer.
+
+  In real-world deployments the APS is often a module of the
+  ADS rather than a separately deployed service. This
+  specification presents it as a distinct actor to describe its
+  responsibilities clearly, independent of how it is ultimately
+  implemented.
+- **Player.** The client that reads the main MPD, resolves the
+  slot URL against the APS, validates the resolution document
+  against Publisher-declared constraints, selects and composes
+  the ad, and executes the tracking schedule. Enforcer of the
+  Publisher's policy.
+- **Slot cap.** A maximum total duration the Publisher declares
+  on each ad opportunity (linear or non-linear), expressed as
+  `@maxDuration` on the slot's scheme-specific child element. The
+  Player enforces the cap against actual rendered length,
+  trimming mid-ad if necessary.
+- **Tracking carrier.** The construct used to convey impression
+  and quartile beacons. This specification reuses the baseline
+  DASH callback event scheme `urn:mpeg:dash:event:callback:2015`
+  (§5.10 of the base specification) for both linear and
+  non-linear ads.
+- **Fall through.** A Player behaviour in which the slot is
+  declined and primary content continues uninterrupted. Triggered
+  when no candidate is renderable, when the resolution document
+  is empty, when the APS request fails, or when no admissible
+  form / layout combination satisfies the slot's constraints.
+- **Sub-MPD.** An MPD reached via `<ImportedMPD>` from a parent
+  document (a `ListMPD` Period for linear, or a video-form
+  `<svta:RenderableAsset>`'s `<ImportedMPD>` child for
+  non-linear). Bound by §5.3.2.6 of the base specification to
+  the SPS profile (§8.15) and therefore to `video/mp4` /
+  `audio/mp4` / `application/mp4` on every Representation's
+  `@mimeType`.
+- **`@mediaType` vs `@mimeType`.** Two distinct attributes with
+  non-overlapping domains used by this specification.
+  `@mediaType` (on `<svta:RenderableAsset>`, §5.3.1) is the
+  spec-side creative-carrier enum whose admissible values are
+  `video`, `image`, `html` (§3.2). `@mimeType` (on
+  `<AdaptationSet>` / `<Representation>` reached via
+  `<ImportedMPD>`, §5.3.4) is the baseline DASH IANA MIME type
+  bound by RFC 4337 to `video/mp4` / `audio/mp4` /
+  `application/mp4`. The two attributes carry distinct semantics
+  and serve different axes; this spec keeps them strictly
+  separate.
+- **Background fill.** A third on-screen element rendered by the
+  Player when the chosen layout leaves part of the screen
+  uncovered (canonical case: side-by-side / double-box). The
+  background fill is a composition attribute of the slot /
+  layout, not a separate presentation option on the candidate.
+  The default fill is the advertiser's creative carried in the
+  resolution document; the Publisher MAY declare a platform /
+  publisher fallback for the case where the advertiser supplies
+  none.
+
+### 3.2 Accepted ad-type / layout vocabulary
+
+The accepted ad-type and layout vocabulary is sourced from the
+IAB Tech Lab *Ad Format Guidelines for Digital Video and CTV*
+(see Chapter 2 for the live source). This specification reuses
+IAB-defined ad-type values verbatim; the table below enumerates
+the spec-side identifiers that map 1:1 to IAB-defined names.
+Updates to the IAB vocabulary update the admissible token set
+for this spec without a new edition, subject to the cross-edition
+URI policy in §4.5.
+
+The token in column *Spec-side identifier* is the value that
+appears in `@allowedLayouts` on a slot declaration and in
+`@layout` on a renderable form (see §5.3.3 for the enum
+constraint per slot type).
+
+| Spec-side identifier | IAB ad type | Category | Notes |
+|----------------------|-------------|----------|-------|
+| `linear` | Linear Ad | Linear / in-stream | Baseline. Carried by `<InsertPresentation>` / `<ReplacePresentation>` and `ListMPD` (§5.1.1, §5.1.2, §5.2.1). |
+| `pause-ad` | Pause Ad | Non-linear / viewer-initiated overlay | Display or video. Persists while the viewer is paused inside a Publisher-declared pause-trigger window. Presented fullscreen (§7.5). Carried by `<svta:PauseAdPresentation>` (§5.1.4). |
+| `menu-ad` | Menu Ad | Non-linear / UI-embedded | Inside the smart-TV or streaming-app UI. CTV-only. |
+| `squeezeback` | Squeezeback | Non-linear / content-resized | Primary content is shrunk; ad occupies the freed area. Sub-tokens: `squeezeback-l-shape`, `squeezeback-frame`, `squeezeback-double-box`, `squeezeback-double-box-with-background`. The last sub-token triggers the three-element composition with a background fill (§5.3.7). |
+| `overlay` | Overlay | Non-linear / over-content | Primary content is preserved at full size; ad is composited on top. Sub-tokens: `overlay-corner`, `overlay-lower-third`. |
+| `in-scene` | In Scene Ad | Non-linear / composited-into-content | Branded element inside the programming (virtual signage). Non-interactive by IAB definition. |
+| `screen-saver-ad` | Screen Saver Ad | Non-linear / device-initiated overlay | Begins after a device-initiated inactivity timeout. |
+| `companion-ad` | Companion Ad | Companion / wrap-around | Display only. Not generally available on CTV except as end card. |
+
+A Publisher declaring `@allowedLayouts` on a non-linear slot
+uses tokens drawn from this enumeration (including documented
+sub-tokens). An APS emitting a candidate form's `@layout` uses
+tokens drawn from the same enumeration. The matching rule
+applied by the Player is **exact-token enumeration**: an
+`@allowedLayouts` declaration admits only the tokens it lists
+literally; a parent token (e.g. `overlay`) does not implicitly
+admit its sub-tokens (e.g. `overlay-corner`). A Publisher who
+wants both `overlay-corner` and `overlay-lower-third` lists
+both explicitly.
+
+Interactivity envelopes (e.g. SIMID) and direct-response
+overlays (e.g. composited QR codes) are referenced informatively
+by the IAB document; this spec carries them at the per-creative
+payload level (inside the form's asset), not at the slot or
+form metadata level.
+
+The admissible creative carrier set is exactly the following
+three values, paired with the `@mediaType` enum on
+`<svta:RenderableAsset>`:
+
+| `@mediaType` value | Carrier | Concrete MIME types |
+|--------------------|---------|---------------------|
+| `video` | ISO-BMFF video carried as a sub-MPD via `<ImportedMPD>` | `video/mp4` (RFC 4337). Audio track optional inside the same sub-MPD. |
+| `image` | Static image at a flat HTTP URL | `image/jpeg`, `image/png`, `image/webp` (driven by the IAB ad-template subsection on image asset specs). |
+| `html` | HTML document at a flat HTTP URL | `text/html`. Inline `<script>` runs under the device's HTML capability contract per the HTML Living Standard; the script is not a separate carrier. |
+
+New carriers (e.g. raw `application/javascript`, SVG-as-payload,
+PDF, proprietary binary creatives) are out of scope for this
+edition. Senders that need a scripted creative wrap the script
+inside an HTML document and use `@mediaType="html"`.
+
+### 3.3 Abbreviations
+
+- **ADS** — Ad Decision Server (§3.1).
+- **APS** — Ad Presentation Server (§3.1).
+- **CMAF** — Common Media Application Format (ISO/IEC 23000-19).
+- **DASH** — Dynamic Adaptive Streaming over HTTP.
+- **ERT** — Earliest Resolution Time (defined in §5.16 of the
+  base specification; reused here; see §5.1.1).
+- **IAB** — Interactive Advertising Bureau (Tech Lab).
+- **IOP URI** — Interoperability Point URI (DASH Annex F).
+- **MPD** — Media Presentation Description (the DASH manifest).
+- **SGAI** — Server-Guided Ad Insertion.
+- **SPS** — Single-Period Static profile (§8.15 of the base
+  specification).
+- **SVTA** — Streaming Video Technology Alliance.
+- **VAST** — Video Ad Serving Template (IAB Tech Lab).
+  Referenced illustratively only (§6.6 and the annexes); this
+  spec does not depend on any specific VAST version.
+
+### 3.4 Device classes
+
+This specification enumerates five device classes in order of
+decreasing rendering capability. The classes capture only the
+rendering features relevant to SGAI; they do not address codec
+support, DRM, or network conditions, which are orthogonal.
+
+| Device class | Video decoders | Image overlay on top of video | HTML overlay on top of video |
+|--------------|----------------|-------------------------------|------------------------------|
+| **D1** (top-tier) | 2 or more | Yes | Yes |
+| **D2** | 2 | No | No (video-on-video composition only) |
+| **D3** | 1 | Yes | Yes |
+| **D4** | 1 | Yes | No |
+| **D5** (worst case) | 1 | No | No |
+
+The Player is the sole authority on its device class. The ADS
+returns the same multi-option candidates to every viewer; the
+APS transcribes them verbatim; the Player picks per device
+capability and per the Publisher's `@allowedLayouts` (§4.4).
+
+## 4. Conformance
+
+The key words **MUST**, **MUST NOT**, **REQUIRED**, **SHALL**,
+**SHALL NOT**, **SHOULD**, **SHOULD NOT**, **RECOMMENDED**, **MAY**,
+and **OPTIONAL** in this specification are to be interpreted as
+described in RFC 2119 and RFC 8174, when, and only when, they appear
+in all capitals.
+
+Normative obligations in this chapter are stated as positive
+obligations: the action an actor takes, the construct an authoring
+party produces, or the value a Player computes. The space outside
+the positive obligation is implicitly out of scope.
+
+### 4.1 Conformance scope
+
+A conformant implementation of this specification implements one or
+more of the actor roles defined in §3.1 (Publisher, ADS, APS,
+Player). An implementation that claims conformance MUST satisfy the
+positive obligations of every role it implements. An implementation
+MAY combine multiple roles in a single deployment (a common case
+being an APS module integrated inside the same process as the ADS);
+the role-specific obligations apply per role regardless of the
+deployment topology.
+
+### 4.2 Four-actor contract
+
+The Publisher declares the slot. The ADS decides which ads fill it.
+The APS converts the ADS's decision into the resolution document the
+Player reads. The Player validates, selects, and renders.
+
+| Authority on … | Held by |
+|----------------|---------|
+| When ad opportunities appear in the timeline | Publisher |
+| Which slot types are admissible per opportunity (linear, overlay, pause-ad, hybrid) | Publisher |
+| Allowed forms, allowed layouts, maximum slot duration, concurrency cap | Publisher |
+| Which ads fill an opportunity, how many, in what order | ADS |
+| Targeting, frequency capping, brand safety, competitive separation | ADS |
+| The ADS-declared tracking schedule (which beacons, at which relative offsets) | ADS |
+| Converting the ADS's decision document into the resolution document the Player reads | APS |
+| Carrying the tracking schedule verbatim in DASH callback events | APS |
+| Validating each candidate against the Publisher-declared constraints | Player |
+| Selecting one renderable presentation option per accepted candidate | Player |
+| Compositing the chosen option(s) on screen and firing the tracking schedule | Player |
+
+### 4.3 Publisher obligations
+
+A conformant Publisher:
+
+- Declares each linear ad opportunity in the main MPD via the
+  baseline MPEG-DASH 6th edition events
+  `<InsertPresentation>` (VOD content) or `<ReplacePresentation>`
+  (VOD or live content), per §5.1.1 and §5.1.2.
+- Declares each non-linear overlay opportunity in the main MPD as
+  an `<Event>` inside an `<EventStream>` of scheme
+  `urn:svta:dash:event:sgai-overlay:2026`, carrying a
+  `<svta:OverlayPresentation>` child that defines the slot
+  constraints (§5.1.3).
+- Declares each pause-trigger window in the main MPD as an
+  `<Event>` inside an `<EventStream>` of scheme
+  `urn:svta:dash:event:sgai-pause-trigger:2026`, carrying a
+  `<svta:PauseAdPresentation>` child that defines the window
+  constraints (§5.1.4).
+- Sets `@maxDuration` on every slot-bearing construct it declares,
+  expressing the maximum cumulative duration the Player enforces
+  against the slot's rendered length.
+- Lists the admissible layouts for non-linear slots in
+  `@allowedLayouts` on the slot's scheme-specific child element,
+  using only tokens drawn from §3.2 (the IAB-sourced enumeration).
+- Sets `@maxConcurrency="1"` on every overlay slot it declares (a
+  derived single-source-of-truth declaration that mirrors the
+  one-active-form runtime contract; §5.1.3.2).
+- Authors the MPD such that, when each foreign-namespace element
+  and attribute introduced by this specification is removed, the
+  remaining document is a valid MPEG-DASH 6th edition MPD.
+- Encodes the slot's APS endpoint as the `@url` attribute on the
+  slot's scheme-specific child element. The endpoint resolves to
+  the APS; the request shape is established bilaterally between
+  Publisher and APS via the baseline `<UrlParamInfo>` descriptor
+  on the main MPD (§5.7).
+
+### 4.4 ADS obligations
+
+A conformant ADS:
+
+- Receives an ad request from the APS and selects the ads to
+  return for the requested opportunity, including the count, the
+  order, and the per-creative metadata.
+- Emits its selection in a decision document. This specification
+  is agnostic to the decision-document format the ADS emits; the
+  APS performs the conversion (§6.6).
+- Declares each selected candidate's renderable presentation
+  options (form + layout) as an ordered set whose order is the
+  ADS's preference order. The APS preserves that order verbatim
+  in the resolution document (§5.2).
+- Declares the tracking schedule (which beacons, at which times
+  relative to the ad's presentation timeline). The APS transcribes
+  that schedule verbatim into DASH callback events in the
+  resolution document (§5.5). The ADS is the sole authority on
+  the schedule.
+- Selects creatives whose codecs fall within the Publisher-declared
+  codec set agreed bilaterally between Publisher and the APS / ADS
+  pair; the bilateral codec agreement is outside the scope of this
+  specification.
+
+The ADS is not normatively bound by the Publisher's slot
+constraints (`@maxDuration`, `@allowedLayouts`,
+`@maxConcurrency`); a conformance check on the ADS does not fail
+solely because its returned candidates exceed those limits.
+Enforcement is the Player's role (§4.6).
+
+### 4.5 APS obligations
+
+A conformant APS:
+
+- Exposes an HTTPS endpoint that the Publisher references in the
+  slot's `@url` attribute and that the Player resolves at the
+  Earliest Resolution Time computed from the slot event's
+  `@earliestResolutionTimeOffset` (§6.2).
+- Returns a syntactically valid resolution document — a `ListMPD`
+  (§8.14 of the base specification) for linear slots, or an
+  Overlay Resolution Document conforming to
+  `urn:svta:dash:profile:sgai-overlay-list:2026` for non-linear
+  slots (§5.2).
+- Translates the ADS's decision document into the resolution
+  document by mapping each selected ad to a candidate, each
+  candidate's media files to a renderable presentation option,
+  each candidate's tracking events to DASH callback events, and
+  each candidate's duration to the candidate's declared duration
+  in the resolution document (§6.6).
+- Preserves the ADS's candidate order verbatim in the resolution
+  document. Adds, removes, or reorders no candidates relative to
+  the ADS's decision.
+- Preserves the ADS's per-candidate option order verbatim. Each
+  candidate's renderable presentation options appear in the
+  resolution document in the order the ADS declared, and the
+  Player evaluates them in document order (§4.6).
+- Preserves the ADS's tracking schedule verbatim. Adds, removes,
+  or reorders no beacons; transcribes each beacon's relative time
+  into the corresponding callback event's `@presentationTime`
+  inside the resolution document's `<EventStream>` of scheme
+  `urn:mpeg:dash:event:callback:2015` (§5.5).
+- Conveys ADS-declared application-level metadata that has no
+  native DASH carrier (click-through URL, AdSystem, AdTitle,
+  UniversalAdId) via `urn:svta:dash:sgai:2026`-namespaced
+  extension elements inside the candidate, per §5.6.
+- Carries non-AV ad-asset URLs (`image`, `html`) on the
+  `<svta:RenderableAsset>` element's `@assetUrl` attribute. Video
+  asset URLs are carried through `<ImportedMPD>` to a sub-MPD
+  conforming to the SPS profile (§5.4).
+- Emits each candidate's form metadata using `@mediaType` values
+  drawn from §3.2 and `@layout` values drawn from the same
+  enumeration (§5.3).
+- Returns either an HTTP error (4xx / 5xx) or an empty resolution
+  document when the ADS yields no fill or the conversion fails.
+  Either response triggers Player fall-through (§4.6, §8.1).
+
+### 4.6 Player obligations
+
+A conformant Player:
+
+#### 4.6.1 Graceful degradation
+
+- Plays the primary content uninterrupted when it encounters an
+  event scheme URI, an element in a namespace, or any other
+  construct it does not implement; the unknown construct is
+  silently skipped together with its full subtree (the
+  ignore-if-unknown rule inherited from §5.2.1 of the base
+  specification).
+
+#### 4.6.2 Constraint validation
+
+- Reads the slot constraints declared by the Publisher on the
+  slot's scheme-specific child element (`@maxDuration`,
+  `@allowedLayouts`, `@maxConcurrency`, plus the linear
+  `@earliestResolutionTimeOffset`, `@returnOffset`, `@clipDuration`,
+  `@startWithOffset` where applicable).
+- Validates each candidate in the resolution document against
+  those constraints. A candidate whose presentation options carry
+  layouts outside `@allowedLayouts`, or whose declared duration
+  would push the cumulative slot duration past `@maxDuration`, is
+  discarded; the Player advances to the next candidate in document
+  order.
+
+#### 4.6.3 Cap enforcement
+
+- Enforces `@maxDuration` against the cumulative actual rendered
+  length of the candidates accepted for the slot. The Player drops
+  a candidate before playback when its declared duration alone
+  would exceed the remaining cap (drop-before-play). When the
+  Player has committed to a candidate and the actual rendered
+  length reaches the cap mid-render, the Player stops rendering at
+  the cap boundary (trim-during-play). Tracking beacons whose
+  scheduled relative time is greater than the trim boundary are
+  not fired (§5.5).
+
+#### 4.6.4 Ordering
+
+- Plays the resolution document's candidates in document order.
+  Candidates dropped under §4.6.2 (constraint violation) or §4.6.3
+  (cap drop-before-play) or §4.6.5 (no renderable option) are
+  removed from the sequence; the remaining candidates' relative
+  order is preserved.
+
+#### 4.6.5 Presentation-option selection
+
+- Evaluates each accepted candidate's presentation options in
+  document order. For each option, the Player checks that (a) the
+  option's `@mediaType` (`video`, `image`, `html`) is renderable
+  on the device, that (b) the option's `@layout` token is listed
+  in the slot's `@allowedLayouts`, and that (c) all surfaces and
+  decoders the option requires are available on the device. The
+  Player renders the first option that satisfies all three; if
+  none does, the Player skips the candidate and proceeds to the
+  next in document order.
+
+#### 4.6.6 Single-active-form rendering
+
+- Keeps at most one non-linear ad form active on the screen at
+  any instant. When the resolution document declares multiple
+  non-linear forms for the same slot, the Player presents them in
+  document order, each starting when the previous one ends.
+
+#### 4.6.7 Pause-ad lifecycle
+
+- Removes any rendered pause-ad form from the screen within one
+  rendering frame of the viewer's pause-to-play transition; ceases
+  firing tracking beacons scheduled after the transition.
+- Presents every pause-ad form fullscreen, occupying the entire
+  screen surface; the Player MAY release the resources held by the
+  primary content and by any pre-existing overlay to present a
+  fullscreen video, image, or HTML asset.
+- In live content, while the viewer is paused inside a pause-ad
+  window, freezes its presentation time inside the window for the
+  full duration of the pause, regardless of the live edge
+  advancing in wall-clock time. Any decision to resume at the live
+  edge is a Player action that occurs after the resume from pause,
+  outside the pause-ad window.
+
+#### 4.6.8 Pause-ad priority over overlay
+
+- While the viewer is paused inside a pause-ad window and an
+  overlay is active, renders the pause-ad form and suspends the
+  overlay surface. On resume from pause, dismisses the pause-ad
+  and restores the overlay surface when the overlay slot window is
+  still active; otherwise keeps the overlay surface clear.
+
+#### 4.6.9 Playback speed
+
+- Renders every ad form (linear or non-linear) at the same
+  playback speed as the primary content at the moment the ad is
+  presented. The effective wall-clock on-screen duration is
+  derived as `duration / playback_speed`; the canonical `duration`
+  remains expressed on the presentation timeline. Cap enforcement
+  (§4.6.3) and beacon scheduling (§5.5) operate on the
+  presentation-timeline `duration`; the wall-clock behaviour
+  follows the derived value.
+
+#### 4.6.10 Tracking
+
+- Fires the tracking schedule it reads in the resolution document
+  for every accepted candidate. The Player executes each
+  callback event at the corresponding presentation time relative
+  to the ad's start. A tracking-endpoint HTTP failure does not
+  affect ad playback or primary content (§8.1).
+
+#### 4.6.11 Overlapping same-family windows
+
+- When two or more ad-opportunity windows of the same family
+  (linear, overlay, pause-trigger) overlap in time in the primary
+  MPD, selects the first overlapping window it encounters and
+  attempts to resolve its resolution document. The Player resorts
+  to a subsequent overlapping window only when it cannot access
+  the first window's resolution document (transport failure,
+  malformed response, late arrival); when the first window's
+  resolution document is accessible, the Player serves it and does
+  not fall through.
+
+#### 4.6.12 Three-element layout composition
+
+- For a layout that leaves the screen partially uncovered (the
+  side-by-side / double-box family), composites three on-screen
+  elements: the shrunk primary content, the ad creative, and the
+  background fill. The background fill is the advertiser's
+  creative when the candidate carries one; the Player MAY
+  composite the Publisher-declared platform fallback when no
+  advertiser creative is supplied and a fallback is declared.
+  Element count and type determine the device classes that can
+  composite the layout (§5.3.7).
+
+### 4.7 Cross-edition compatibility
+
+This specification introduces every new XML construct under the
+namespace `urn:svta:dash:sgai:2026` and every new event scheme
+under the year-pinned pattern `urn:svta:dash:event:*:2026`.
+Subsequent editions that alter the semantics of any construct
+publish under a new namespace year or a new scheme-URI year. A
+Player implementing this edition recognises the URIs listed in
+§2.1; a Player implementing a later edition recognises both this
+edition's URIs and its own. Constructs whose semantics are
+unchanged across editions retain their existing URIs.
+
+## 5. Syntax
+
+### 5.1 Main MPD events
+
+A Publisher declares each ad opportunity as an `<Event>` inside an
+`<EventStream>` in the main MPD. The `<EventStream>@schemeIdUri`
+identifies the slot family; the `<Event>`'s scheme-specific child
+element carries the slot constraints.
+
+The four event schemes are listed below; their normative URIs are
+declared in §2.1.
+
+| Slot family | EventStream `@schemeIdUri` | Child element |
+|-------------|----------------------------|---------------|
+| Linear insert | `urn:mpeg:dash:event:alternativeMPD:insert:2025` | `<InsertPresentation>` |
+| Linear replace | `urn:mpeg:dash:event:alternativeMPD:replace:2025` | `<ReplacePresentation>` |
+| Non-linear overlay | `urn:svta:dash:event:sgai-overlay:2026` | `<svta:OverlayPresentation>` |
+| Pause-trigger window | `urn:svta:dash:event:sgai-pause-trigger:2026` | `<svta:PauseAdPresentation>` |
+
+The `<Event>` carrier itself uses the baseline DASH attributes
+defined in §5.10 of the base specification — `@presentationTime`,
+`@duration`, `@id`, `@timescale` (inherited from the parent
+`<EventStream>`). The scheme-specific child element is the SGAI
+attribute carrier.
+
+#### 5.1.1 `<InsertPresentation>` (linear, inherited from §5.16.3)
+
+Reused verbatim from MPEG-DASH 6th edition §5.16.3. The Publisher
+declares an `<Event>` whose `presentationTime` marks a point on the
+primary timeline at which the alternative presentation is inserted
+without consuming any primary timeline. After the alternative
+presentation ends, primary content resumes from where it was
+paused.
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@url` | yes | xs:anyURI | — | URL the Player resolves at the Earliest Resolution Time. Resolves to the APS endpoint. |
+| `@maxDuration` | yes | xs:unsignedInt | — | Maximum cumulative duration the Player enforces on the slot's rendered length, expressed in the parent `<EventStream>@timescale` units. |
+| `@earliestResolutionTimeOffset` | yes | xs:unsignedInt | — | Offset (in `@timescale` units) subtracted from the event's `presentationTime` to compute the Earliest Resolution Time. |
+
+Constraint inherited from the base specification: this event is
+admissible only in an MPD whose `@type` is `static` (VOD content).
+Live content (`MPD@type="dynamic"`) uses `<ReplacePresentation>`
+(§5.1.2).
+
+Legacy-Player behaviour is provided by the baseline event-scheme
+ignore-if-unknown semantics inherited from §5.10 of the base
+specification.
+
+#### 5.1.2 `<ReplacePresentation>` (linear, inherited from §5.16.4)
+
+Reused verbatim from MPEG-DASH 6th edition §5.16.4. The Publisher
+declares an `<Event>` whose `presentationTime` and `duration` mark
+a span of the primary timeline that the alternative presentation
+replaces. The primary content under the span is effectively
+skipped; on completion of the alternative presentation, primary
+content resumes at the playhead position determined by
+`@returnOffset`.
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@url` | yes | xs:anyURI | — | URL the Player resolves at the Earliest Resolution Time. Resolves to the APS endpoint. |
+| `@maxDuration` | yes | xs:unsignedInt | — | Maximum cumulative duration the Player enforces on the slot's rendered length, expressed in the parent `<EventStream>@timescale` units. |
+| `@earliestResolutionTimeOffset` | yes | xs:unsignedInt | — | Offset (in `@timescale` units) subtracted from the event's `presentationTime` to compute the Earliest Resolution Time. |
+| `@returnOffset` | yes | xs:unsignedInt | — | Offset (in `@timescale` units) added to the event's `presentationTime` to compute the position at which primary content resumes after the alternative presentation. |
+| `@clipDuration` | no | xs:unsignedInt | (alternative full length) | Maximum duration of a single alternative period inside the resolution document, expressed in `@timescale` units. Bounds the per-ad sub-MPD's rendered length even when the slot starts late. |
+| `@startWithOffset` | no | xs:boolean | `false` | When `true`, a delayed start of the alternative presentation skips into the alternative's timeline by the elapsed delay. When `false`, the alternative starts from its first frame regardless of delay. |
+
+Legacy-Player behaviour: inherited from §5.10 of the base
+specification.
+
+#### 5.1.3 `<svta:OverlayPresentation>` (non-linear, new)
+
+Declares a non-linear overlay opportunity. The opportunity window
+is given by the parent `<Event>`'s `presentationTime` and
+`duration`; the Player resolves the slot's `@url` at the Earliest
+Resolution Time, evaluates the candidates against the constraints
+below, and composites the chosen ad form on top of the primary
+content for the slot's rendered window.
+
+##### 5.1.3.1 Attributes
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@url` | yes | xs:anyURI | — | URL the Player resolves at the Earliest Resolution Time. Resolves to the APS endpoint. The returned document conforms to the Overlay Resolution Document profile (§5.2.2). |
+| `@maxDuration` | yes | xs:unsignedInt | — | Maximum cumulative duration the Player enforces against the overlay's rendered length, expressed in the parent `<EventStream>@timescale` units. |
+| `@earliestResolutionTimeOffset` | yes | xs:unsignedInt | — | Offset (in `@timescale` units) subtracted from the event's `presentationTime` to compute the Earliest Resolution Time. |
+| `@allowedLayouts` | yes | space-separated list of xs:string tokens | — | Whitespace-separated list of layout tokens admissible for this slot, drawn from §3.2. The Player evaluates each candidate's `@layout` against this list using exact-token matching. |
+| `@maxConcurrency` | yes | xs:unsignedInt | — | Maximum number of non-linear ad forms the Player presents concurrently for this slot. The admissible value is `1`. The attribute is the explicit declaration of the single-active-form contract: it asserts the runtime rule at authoring time so a static reader sees the contract on the slot. |
+| `@backgroundFallback` | no | xs:anyURI | — | URL of a Publisher-declared image asset the Player MAY composite as the background fill of a partial-screen layout when the candidate supplies no advertiser background. Image format follows §3.2 (`image/jpeg`, `image/png`, `image/webp`). |
+
+##### 5.1.3.2 Layout token semantics
+
+The `@allowedLayouts` attribute admits every token literally listed
+in §3.2 (including documented sub-tokens). The matching rule is
+exact-token enumeration: a Publisher declaring `overlay-corner` admits
+candidates whose `@layout` equals `overlay-corner`; a Publisher
+admitting both `overlay-corner` and `overlay-lower-third` lists both
+explicitly. Parent tokens do not implicitly admit their sub-tokens.
+
+##### 5.1.3.3 Children
+
+A `<svta:OverlayPresentation>` element has no element children. All
+slot constraints are carried as attributes.
+
+##### 5.1.3.4 Legacy-Player behaviour
+
+A Player that does not implement `urn:svta:dash:event:sgai-overlay:2026`
+applies the baseline event-scheme ignore-if-unknown rule (inherited
+from §5.10 of the base specification): the parent `<EventStream>` is
+skipped together with every `<Event>` it contains, and primary
+content continues uninterrupted. The `<svta:OverlayPresentation>`
+element is in a foreign namespace relative to the base DASH schema
+and is discarded together with the parent `<Event>` per §5.2.1 of the
+base specification.
+
+#### 5.1.4 `<svta:PauseAdPresentation>` (non-linear, new)
+
+Declares a pause-trigger window during which a viewer pause permits
+a pause-ad. Outside the window, a pause permits no pause-ad. The
+window is given by the parent `<Event>`'s `presentationTime` and
+`duration`. The Player resolves the slot's `@url` either
+speculatively (ahead of the slot window) or lazily (at the moment
+of pause); see §8.5.
+
+##### 5.1.4.1 Attributes
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@url` | yes | xs:anyURI | — | URL the Player resolves to obtain the pause-ad resolution document. Resolves to the APS endpoint; the returned document conforms to the Overlay Resolution Document profile (§5.2.2). |
+| `@maxDuration` | yes | xs:unsignedInt | — | Maximum cumulative duration the Player enforces against the pause-ad's rendered length, expressed in the parent `<EventStream>@timescale` units. |
+| `@earliestResolutionTimeOffset` | yes | xs:unsignedInt | — | Offset (in `@timescale` units) subtracted from the event's `presentationTime` to compute the Earliest Resolution Time. |
+| `@allowedLayouts` | yes | space-separated list of xs:string tokens | — | List of admissible layout tokens for the pause-ad. The admissible token for a pause-ad form is `pause-ad`; the Publisher lists at least that token. Other tokens listed are ignored at runtime for a pause-trigger window. |
+
+##### 5.1.4.2 Legacy-Player behaviour
+
+A Player that does not implement
+`urn:svta:dash:event:sgai-pause-trigger:2026` applies the baseline
+event-scheme ignore-if-unknown rule and continues with primary
+content uninterrupted on pause. The pause-trigger window is invisible
+to legacy Players; a viewer pause produces no overlay and no
+side-effect.
+
+#### 5.1.5 Co-located events (hybrid linear + overlay)
+
+A hybrid slot is authored by declaring two events at the same
+`presentationTime` in the main MPD: one carrying
+`<ReplacePresentation>` (the linear take-over portion) and one
+carrying `<svta:OverlayPresentation>` (the overlay portion that
+composites on top of the linear ad).
+
+The two events are independent at authoring time and at runtime.
+The Player resolves the two `@url` values separately, validates and
+selects from each resolution document independently, and composes
+the chosen linear ad with the chosen overlay during the same break.
+A Publisher that wishes to restrict the overlay to non-L-shape
+layouts during a linear take-over lists only the non-L-shape tokens
+in the overlay event's `@allowedLayouts`.
+
+### 5.2 Resolution documents
+
+The Player resolves a slot's `@url` and receives a resolution
+document the format of which depends on the slot family.
+
+| Slot family | Resolution document profile |
+|-------------|------------------------------|
+| Linear (insert, replace) | `ListMPD` (§5.2.1), conforming to `urn:mpeg:dash:profile:list:2024` |
+| Non-linear overlay | Overlay Resolution Document (§5.2.2), conforming to `urn:svta:dash:profile:sgai-overlay-list:2026` |
+| Pause-trigger window | Overlay Resolution Document (§5.2.2), conforming to the same profile |
+
+#### 5.2.1 Linear `ListMPD` (`urn:mpeg:dash:profile:list:2024`)
+
+Reused verbatim from MPEG-DASH 6th edition §8.14. The APS returns an
+MPD whose `@profiles` includes
+`urn:mpeg:dash:profile:list:2024` and whose `@type` is `list`. The
+document carries one or more `<Period>` entries; each Period
+references a sub-MPD via `<ImportedMPD>` (§5.4) or carries the ad's
+representations inline.
+
+##### 5.2.1.1 Period-level attributes
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@id` | yes | xs:string | — | Period identifier, unique within the ListMPD. |
+| `@duration` | yes | xs:duration | — | Declared duration of this Period, expressed as an ISO 8601 duration. Used by the Player for pre-validation against `@maxDuration` on the parent SGAI event. |
+
+##### 5.2.1.2 Period-level children
+
+A linear `<Period>` SHOULD contain at most one `<ImportedMPD>` child
+that points to a sub-MPD bound to the SPS profile (§5.4); other
+authoring shapes admitted by §8.14 (inline `<AdaptationSet>` /
+`<Representation>`) are permitted, subject to the RFC 4337 MIME-type
+constraint inherited from the CMAF extension of the ListMPD profile.
+
+##### 5.2.1.3 `<ImportedMPD>` attributes
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@uri` | yes | xs:anyURI | — | URL of the sub-MPD that materialises this Period. The sub-MPD conforms to the SPS profile (§5.4). |
+| `@earliestResolutionTimeOffset` | no | xs:unsignedInt | `0` | Offset (in seconds) the Player MAY use to pre-fetch this sub-MPD ahead of its scheduled position inside the ListMPD. |
+
+#### 5.2.2 Overlay Resolution Document (`urn:svta:dash:profile:sgai-overlay-list:2026`)
+
+The non-linear resolution document, returned by the APS in response
+to a Player's resolution request for an overlay or pause-ad slot.
+The document declares `@profiles` to include
+`urn:svta:dash:profile:sgai-overlay-list:2026` and carries the
+candidate list as the document body.
+
+##### 5.2.2.1 Document shape
+
+The document is an `MPD` whose top-level `<svta:OverlayList>`
+element carries one or more `<svta:Candidate>` children. Each
+candidate carries one or more `<svta:RenderableAsset>` children
+(the candidate's renderable presentation options) and, when
+applicable, application-level metadata children (§5.6).
+
+Skeleton:
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     profiles="urn:svta:dash:profile:sgai-overlay-list:2026"
+     type="static"
+     minBufferTime="PT1S"
+     publishTime="2026-05-28T10:00:00Z">
+  <svta:OverlayList>
+    <svta:Candidate id="cand-1" duration="PT10S">
+      <svta:RenderableAsset mediaType="video"
+                            layout="squeezeback-double-box-with-background">
+        <ImportedMPD uri="ad-1-video.mpd"/>
+      </svta:RenderableAsset>
+      <svta:RenderableAsset mediaType="image"
+                            layout="squeezeback-l-shape"
+                            assetUrl="https://cdn.example.com/ad-1.png"/>
+      <svta:RenderableAsset mediaType="image"
+                            layout="overlay-corner"
+                            assetUrl="https://cdn.example.com/ad-1-corner.png"/>
+      <EventStream xmlns:cb="urn:mpeg:dash:event:callback:2015"
+                       schemeIdUri="urn:mpeg:dash:event:callback:2015"
+                       value="1" timescale="1000">
+        <Event presentationTime="0" id="b1">https://tracker.example.com/impression?ad=1</Event>
+        <Event presentationTime="0" id="b2">https://tracker.example.com/start?ad=1</Event>
+        <Event presentationTime="5000" id="b3">https://tracker.example.com/midpoint?ad=1</Event>
+        <Event presentationTime="10000" id="b4">https://tracker.example.com/complete?ad=1</Event>
+      </EventStream>
+      <svta:Click clickThroughUrl="https://advertiser.example.com/landing"/>
+      <svta:UniversalAdId idRegistry="ad-id.org" value="8465"/>
+    </svta:Candidate>
+  </svta:OverlayList>
+</MPD>
+```
+
+##### 5.2.2.2 `<svta:OverlayList>` children
+
+Zero or more `<svta:Candidate>` elements. A zero-candidate document
+signals no fill (§8.1, E2).
+
+##### 5.2.2.3 `<svta:Candidate>` attributes
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@id` | yes | xs:string | — | Candidate identifier, unique within the document. |
+| `@duration` | yes | xs:duration | — | Declared duration of this candidate, expressed as an ISO 8601 duration. Used by the Player for drop-before-play cap evaluation (§4.6.3). |
+
+##### 5.2.2.4 `<svta:Candidate>` children
+
+| Child | Required | Cardinality | Description |
+|-------|----------|-------------|-------------|
+| `<svta:RenderableAsset>` | yes | 1..n | The candidate's renderable presentation options as an ordered list; document order is the preference order the Player walks (§4.6.5). See §5.3. |
+| `<EventStream>` (callback scheme) | no | 0..1 | The candidate's tracking schedule, carried as a baseline DASH `<EventStream>` of scheme `urn:mpeg:dash:event:callback:2015` (§5.5). |
+| `<svta:Click>` | no | 0..1 | The candidate's click-through metadata (§5.6.1). |
+| `<svta:UniversalAdId>` | no | 0..1 | The candidate's UniversalAdId metadata (§5.6.2). |
+| `<svta:AdSystem>` | no | 0..1 | The candidate's ADS identification metadata (§5.6.3). |
+| `<svta:AdTitle>` | no | 0..1 | The candidate's human-readable title metadata (§5.6.3). |
+
+### 5.3 `<svta:RenderableAsset>`
+
+A `<svta:RenderableAsset>` is one renderable presentation option on
+a candidate. It pairs a creative-carrier form (`@mediaType`) with a
+spatial-layout token (`@layout`). The candidate carries its options
+as an ordered list of these elements; document order is the
+preference order the Player walks at presentation-option selection.
+
+#### 5.3.1 Attributes
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@mediaType` | yes | enum (`video` \| `image` \| `html`) | — | The creative-carrier form (§3.2). The enum is the admissible set; any other value is non-conformant. See the enum table in §5.3.2. |
+| `@layout` | yes | xs:string token | — | The spatial-layout token (§3.2). The Player matches this against the slot's `@allowedLayouts` using exact-token matching. See the enum table in §5.3.3. |
+| `@assetUrl` | conditional | xs:anyURI | — | The asset URL when `@mediaType` ∈ {`image`, `html`}. Carried directly on the element via foreign-namespace open content (§5.2.1 of the base specification). Absent when `@mediaType="video"`; the video asset URL is reached through the `<ImportedMPD>` child instead. |
+
+#### 5.3.2 Enum: `@mediaType`
+
+| Enum value | Description |
+|------------|-------------|
+| `video` | ISO-BMFF video carried as a sub-MPD reached through the `<ImportedMPD>` child of the `<svta:RenderableAsset>`. Concrete MIME types on Representations inside the sub-MPD: `video/mp4`, `audio/mp4`, `application/mp4` (RFC 4337). |
+| `image` | Static image at the URL given by `@assetUrl`. Concrete MIME types: `image/jpeg`, `image/png`, `image/webp`. |
+| `html` | HTML document at the URL given by `@assetUrl`. Concrete MIME type: `text/html`. Inline `<script>` runs under the device's HTML capability contract per the HTML Living Standard. |
+
+#### 5.3.3 Enum: `@layout`
+
+The `@layout` attribute value is drawn from the layout enumeration
+declared in §3.2. The Player matches the value against the slot's
+`@allowedLayouts` using exact-token matching. A `@layout` value that
+is not listed in the slot's `@allowedLayouts` produces an option
+that fails the Publisher-layout check and the Player skips it in
+favour of the next option in document order.
+
+| Enum value | Slot families | Description |
+|------------|--------------|-------------|
+| `linear` | linear insert, linear replace | Linear take-over; admissible only inside a `ListMPD` slot. |
+| `overlay-corner` | overlay | Quarter-screen overlay anchored to one of the four corners. |
+| `overlay-lower-third` | overlay | Bottom-strip overlay covering roughly the lower third of the screen. |
+| `squeezeback-l-shape` | overlay | Primary content is shrunk into a cutout inside a full-frame ad; no uncovered region; no background fill applies. |
+| `squeezeback-frame` | overlay | Primary content is shrunk into a centred frame; the ad surrounds it. |
+| `squeezeback-double-box` | overlay | Primary content and ad each occupy a 25% box side-by-side; the uncovered region between them is filled with the Player's default fallback. |
+| `squeezeback-double-box-with-background` | overlay | Same as `squeezeback-double-box`, but a third element (advertiser-supplied or Publisher fallback background image) explicitly fills the uncovered region (§5.3.7). |
+| `pause-ad` | pause-trigger | Pause-ad form; presented fullscreen on viewer pause. |
+| `menu-ad` | (CTV UI) | UI-embedded menu ad on CTV. |
+| `in-scene` | overlay | Branded element composited inside the scene (virtual signage). |
+| `screen-saver-ad` | (device-initiated) | Screen-saver-style fullscreen ad triggered by device inactivity. |
+| `companion-ad` | (out-of-player) | End-card companion ad. |
+
+#### 5.3.4 `<ImportedMPD>` child (for `@mediaType="video"`)
+
+When `@mediaType="video"`, the asset is carried through an
+`<ImportedMPD>` child element placed inside the
+`<svta:RenderableAsset>`. The `<ImportedMPD>` element is reused
+verbatim from §5.3.2.6 of the base specification.
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@uri` | yes | xs:anyURI | — | URL of the sub-MPD that materialises this video form. The sub-MPD conforms to the SPS profile (§5.4). |
+| `@earliestResolutionTimeOffset` | no | xs:unsignedInt | `0` | Offset (in seconds) the Player MAY use to pre-fetch this sub-MPD ahead of its presentation. |
+
+#### 5.3.5 Document order is preference order
+
+The order of `<svta:RenderableAsset>` children inside a
+`<svta:Candidate>` is the preference order. The Player evaluates
+each option in document order (§4.6.5) and renders the first option
+whose `@mediaType` and `@layout` satisfy both the device's
+capabilities and the slot's `@allowedLayouts`. No separate priority
+attribute appears on the element; document order is the canonical
+ordering.
+
+#### 5.3.6 Required-sibling and legacy-Player behaviour
+
+A `<svta:RenderableAsset>` element appears as a child of an
+`<svta:Candidate>` inside a `<svta:OverlayList>`. A legacy Player
+that does not implement `urn:svta:dash:sgai:2026` discards the
+parent `<svta:Candidate>` together with the entire subtree of
+`<svta:RenderableAsset>` elements per §5.2.1 of the base
+specification. Because the overlay resolution document itself is
+declared via a foreign profile URI (§5.2.2), no legacy Player
+reaches the resolution document; the slot is silently skipped at
+the main-MPD level (§5.1.3.4 / §5.1.4.2).
+
+#### 5.3.7 Background fill for partial-screen layouts
+
+When the chosen presentation option's `@layout` is
+`squeezeback-double-box-with-background`, the Player composites a
+third on-screen element — the background image — in the bands
+uncovered by the shrunk primary content and the ad creative. The
+background image source is, in order of precedence:
+
+1. **Advertiser-supplied background**, declared on the candidate by
+   a `<svta:BackgroundFill>` child element of the
+   `<svta:RenderableAsset>` carrying the chosen layout. Its
+   `@assetUrl` attribute carries the image URL.
+2. **Publisher-declared fallback**, given by `@backgroundFallback`
+   on the parent `<svta:OverlayPresentation>` event in the main
+   MPD (§5.1.3.1).
+
+When neither source is present, the Player composites whatever its
+default uncovered-region behaviour is (typically a uniform fill).
+
+`<svta:BackgroundFill>` attributes:
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@assetUrl` | yes | xs:anyURI | — | URL of the advertiser-supplied background image. Concrete MIME types as in §3.2 (`image/jpeg`, `image/png`, `image/webp`). |
+
+The element count and type required by the layout determine the
+device classes that can composite it:
+
+| Layout option | Decoders required | Surfaces required (in addition to primary video decoder) |
+|---------------|-------------------|----------------------------------------------------------|
+| `squeezeback-double-box-with-background` with a **video** ad | 2 (primary + ad video) | Image surface for the background |
+| `squeezeback-double-box-with-background` with an **image** ad | 1 (primary) | Image surface for the ad **and** image surface for the background |
+| `squeezeback-double-box-with-background` with an **html** ad | 1 (primary) | HTML surface for the ad **and** image surface for the background |
+| `squeezeback-l-shape` with a video full-frame ad | 2 (primary + ad) | None (the ad covers the whole screen) |
+| `squeezeback-l-shape` with an image / html full-frame ad | 1 (primary) | Image or HTML surface for the full-frame ad |
+
+### 5.4 Sub-MPD (SPS profile)
+
+Each `<ImportedMPD>` reached from a `ListMPD` Period (linear,
+§5.2.1) or from a video `<svta:RenderableAsset>` (non-linear,
+§5.3.4) points to a sub-MPD bound to the Single-Period Static (SPS)
+profile of the base specification (§8.15). The SPS profile inherits
+§7.3 of the base specification, which limits every
+`Representation@mimeType` to the IETF RFC 4337 registry — `video/mp4`,
+`audio/mp4`, `application/mp4`.
+
+The sub-MPD's `@profiles` includes `urn:mpeg:dash:profile:sps:2024`,
+`@type` is `static`, and the single `<Period>` carries the ad's
+`<AdaptationSet>` and `<Representation>` children. The Period's
+`@duration` is mandatory.
+
+#### 5.4.1 Period duration reconciliation
+
+When the sub-MPD's `Period@duration` differs from the candidate's
+`@duration` declared in the parent resolution document, the Player
+treats the parent's declared duration as the upper bound for cap
+evaluation (§4.6.3, drop-before-play). The Player enforces the
+actual rendered length against `@maxDuration` on the slot
+(trim-during-play), regardless of any value in the sub-MPD.
+
+#### 5.4.2 Tracking carrier inside sub-MPDs
+
+Video sub-MPDs MAY carry the candidate's tracking schedule as an
+inline `<EventStream>` of scheme `urn:mpeg:dash:event:callback:2015`
+on the sub-MPD's `<Period>` (§5.5). When the parent resolution
+document also carries a tracking `<EventStream>` for the same
+candidate, the union of beacons is fired by the Player; duplicate
+beacons (same `@id` or same URL at the same `presentationTime`) are
+de-duplicated.
+
+### 5.5 Tracking carrier
+
+In-band tracking beacons are carried as `<Event>` entries inside an
+`<EventStream>` of scheme `urn:mpeg:dash:event:callback:2015`,
+defined by §5.10.4.5 of the base specification. No new tracking
+scheme is introduced by this specification.
+
+#### 5.5.1 Carrier shape
+
+```xml
+<EventStream xmlns:cb="urn:mpeg:dash:event:callback:2015"
+             schemeIdUri="urn:mpeg:dash:event:callback:2015"
+             value="1" timescale="1000">
+  <Event presentationTime="0"     id="b1">https://tracker.example.com/impression?ad=1</Event>
+  <Event presentationTime="0"     id="b2">https://tracker.example.com/start?ad=1</Event>
+  <Event presentationTime="2500"  id="b3">https://tracker.example.com/firstQuartile?ad=1</Event>
+  <Event presentationTime="5000"  id="b4">https://tracker.example.com/midpoint?ad=1</Event>
+  <Event presentationTime="7500"  id="b5">https://tracker.example.com/thirdQuartile?ad=1</Event>
+  <Event presentationTime="10000" id="b6">https://tracker.example.com/complete?ad=1</Event>
+</EventStream>
+```
+
+| Attribute (on `<EventStream>`) | Required | Type | Default | Description |
+|--------------------------------|----------|------|---------|-------------|
+| `@schemeIdUri` | yes | xs:anyURI | — | Always `urn:mpeg:dash:event:callback:2015` for tracking carriers introduced by this specification. |
+| `@value` | yes | xs:string | — | Inherited from §5.10. For SGAI tracking the value `1` is used to disambiguate from non-callback usages of the same scheme. |
+| `@timescale` | yes | xs:unsignedInt | — | Time base for `<Event>@presentationTime`. The recommended value is `1000` (millisecond resolution); other values are admissible. |
+
+| Attribute (on `<Event>`) | Required | Type | Default | Description |
+|--------------------------|----------|------|---------|-------------|
+| `@presentationTime` | yes | xs:unsignedInt | — | Time at which the Player fires the beacon, expressed in `@timescale` units and measured relative to the start of the ad's presentation (offset 0 is the first frame of the ad). |
+| `@id` | yes | xs:string | — | Unique identifier of the beacon, used by the Player for de-duplication and by the implementation for application-layer logging. |
+
+The element's text content carries the absolute HTTP(S) URL of the
+tracking endpoint. The Player issues an HTTP GET to that URL at the
+scheduled presentation time.
+
+#### 5.5.2 Where the tracking carrier lives
+
+For linear ads, the tracking `<EventStream>` lives inside the
+sub-MPD's `<Period>` (one `<EventStream>` per candidate, mirroring
+the structure inherited from §5.16 of the base specification).
+
+For non-linear video ads, the tracking `<EventStream>` MAY live
+inside the candidate's video sub-MPD or directly inside the
+`<svta:Candidate>` in the overlay resolution document. The two
+positions are functionally equivalent.
+
+For non-linear image and HTML ads, the tracking `<EventStream>`
+lives directly inside the `<svta:Candidate>` (the image/HTML asset
+has no sub-MPD to host the carrier). The carrier is placed under
+the foreign-namespace `<svta:Candidate>` parent; legacy Players
+discard the carrier together with the parent subtree per §5.2.1 of
+the base specification.
+
+#### 5.5.3 Tracking for non-video forms
+
+Image and HTML ads do not have segment-aligned media on the
+presentation timeline. The Player establishes the ad's presentation
+timeline at the moment the asset becomes visible on screen (offset
+0 = first rendered frame of the image / HTML document). Subsequent
+`<Event>@presentationTime` values are measured from that origin.
+The Player computes the ad's effective on-screen duration as the
+candidate's declared `@duration` (§5.2.2.3) divided by the primary
+content's playback speed at the moment of presentation (§4.6.9).
+Beacons scheduled past the cap or past the actual termination
+point are not fired (§4.6.3).
+
+#### 5.5.4 Beacon timing
+
+All `<Event>@presentationTime` values inside the resolution
+document are expressed **relative to the start of the ad's
+presentation**, never relative to the primary timeline and never
+relative to wall-clock. A beacon scheduled for the first frame of a
+candidate declares `presentationTime="0"`. Quartile beacons for a
+10 s candidate (timescale = 1000) are scheduled at 2500 ms, 5000 ms,
+7500 ms. The Player adds the ad's start time on the primary timeline
+to each relative value to compute the actual firing point.
+
+### 5.6 Application-level metadata
+
+Application-level metadata that has no native DASH carrier is
+conveyed via `urn:svta:dash:sgai:2026`-namespaced extension elements
+inside the candidate. Legacy Players discard these elements together
+with the parent `<svta:Candidate>` per §5.2.1 of the base
+specification, so the metadata has no effect on legacy playback.
+
+#### 5.6.1 `<svta:Click>`
+
+Carries the candidate's click-through URL and zero or more
+click-tracking URLs the Player fires when the viewer interacts with
+the ad.
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@clickThroughUrl` | yes | xs:anyURI | — | URL the Player opens (typically in a system browser or a designated app surface) when the viewer interacts with the ad. |
+| `@clickTrackingUrl` | no | xs:anyURI | — | URL the Player fires as a tracking beacon at the moment of viewer interaction. Multiple `<svta:Click>` children with distinct `@clickTrackingUrl` values are admissible to carry multiple trackers. |
+
+#### 5.6.2 `<svta:UniversalAdId>`
+
+Carries the UniversalAdId pair (registry, value) for the candidate's
+creative.
+
+| Attribute | Required | Type | Default | Description |
+|-----------|----------|------|---------|-------------|
+| `@idRegistry` | yes | xs:string | — | Registry identifier (e.g. `ad-id.org`). |
+| `@value` | yes | xs:string | — | Registry-scoped identifier of the creative. |
+
+#### 5.6.3 `<svta:AdSystem>`, `<svta:AdTitle>`, `<svta:Advertiser>`
+
+Carry ADS identification and human-readable creative metadata. Each
+element carries a single attribute `@value` of type `xs:string`
+holding the corresponding value.
+
+| Element | Required | Description |
+|---------|----------|-------------|
+| `<svta:AdSystem>` | no | Identifier of the ADS that produced the candidate (mirrors the VAST `<AdSystem>` element). |
+| `<svta:AdTitle>` | no | Human-readable title of the creative (mirrors VAST `<AdTitle>`). |
+| `<svta:Advertiser>` | no | Human-readable advertiser identifier (mirrors VAST `<Advertiser>`). |
+
+### 5.7 URL parameterisation
+
+The Player constructs the APS resolution request by appending query
+parameters to the slot's `@url`. The Publisher declares the query
+parameter template via the `<UrlParamInfo>` descriptor of the base
+specification (§I.4), referenced through an `<EssentialProperty>` on
+the main MPD with `schemeIdUri="urn:mpeg:dash:urlparam:2025"`. The
+descriptor's `@includeInRequests` attribute scopes the template to
+the slot's resolution request (typical value: `altmpd`).
+
+The Player substitutes the state-vocabulary variables declared in
+the template (e.g. `$urn:mpeg:dash:state:cmcd#sid$`) with live values
+at request time and appends the resulting string to the slot's
+`@url`. No SGAI-specific extension to the base URL-parameterisation
+mechanism is introduced.
+
+## 6. Interfaces
+
+This chapter documents the **Player-visible interfaces** between
+the actors. The Publisher↔APS endpoint contract and the APS↔ADS
+decisioning protocol are agreed bilaterally between the parties
+involved and are not normatively bound by this specification; this
+chapter notes them only insofar as the Player observes their
+outputs.
+
+```
+                                       primary content
+                                              ^
+                              (1) GET main MPD|         (3) GET segments
+                                              |              v
+       +-----------+   (2) MPD (XML) +--------+--------+
+       | Publisher |---------------->|     Player      |---------> tracking endpoints
+       | (origin + |                 |                 |   (5) HTTP GET callbacks
+       |  CDN)     |<----------------+ - validates     |
+       +-----------+                 | - selects       |
+                                     | - composes      |
+                                     | - enforces cap  |
+                                     +----+--------+---+
+                                          |        ^
+                          (4a) GET <@url> |        | (4b) resolution
+                              ?<query>    v        |     document
+                                     +----+--------+---+
+                                     |       APS       |
+                                     | (adapter, per   |
+                                     |  Publisher)     |
+                                     +----+--------+---+
+                                          |        ^
+                                (4c) ADS  |        | (4d) decision doc
+                                  request v        |     (VAST or other)
+                                     +----+--------+---+
+                                     |       ADS       |
+                                     +-----------------+
+```
+
+### 6.1 Publisher → Player (main MPD)
+
+The Player issues an HTTP GET for the main MPD at session start and
+periodically thereafter for live content (per `@minimumUpdatePeriod`).
+The Publisher serves the MPD over HTTPS. The body is an MPEG-DASH 6th
+edition XML document, optionally extended with the SGAI events and
+descriptors defined in §5.1 and §5.7.
+
+| Item | Value |
+|------|-------|
+| Transport | HTTPS |
+| Method | GET |
+| Request body | None |
+| Response body | DASH MPD (XML), `application/dash+xml` |
+| Caching | Per HTTP cache headers; live MPDs typically marked `no-cache` |
+| Failure | HTTP 4xx / 5xx triggers Player-policy retry or session abort |
+
+### 6.2 Player → APS (resolution request)
+
+When the playhead approaches a slot event's `presentationTime`, the
+Player computes the Earliest Resolution Time
+(`presentationTime − @earliestResolutionTimeOffset`) and issues the
+resolution request at a randomised instant between the ERT and the
+event's `presentationTime`.
+
+The Player constructs the request URL by taking the slot event's
+`@url` and appending the query string materialised from the
+`<UrlParamInfo>` template (§5.7).
+
+| Item | Value |
+|------|-------|
+| Transport | HTTPS |
+| Method | GET |
+| Request body | None |
+| Response body | Resolution document (`ListMPD` or Overlay Resolution Document), XML, `application/dash+xml` |
+| Latency budget | Bounded by `@earliestResolutionTimeOffset`; the Player issues the request early enough that a typical APS response arrives before the slot's `presentationTime` |
+| Failure | HTTP timeout, 4xx, 5xx, malformed body, or empty document triggers Player fall-through (§4.6.1, §8.1 E1–E3) |
+
+### 6.3 APS → Player (resolution response)
+
+The APS returns one of:
+
+| Response | Document |
+|----------|----------|
+| Linear slot (Insert / Replace) | `ListMPD` (§5.2.1) |
+| Non-linear overlay slot | Overlay Resolution Document (§5.2.2) |
+| Pause-trigger window | Overlay Resolution Document (§5.2.2) |
+| No fill or error | HTTP 4xx / 5xx, or empty resolution document (§8.1 E2) |
+
+The APS produces the document by converting the ADS's decision
+document (§6.6) and SHOULD respond within a Player-policy timeout
+budget. Slow ADS responses do not block the APS's response to the
+Player past that budget; on timeout the APS returns an HTTP error
+or an empty document and the Player falls through; the
+same-family fallback rule of §4.6.11 applies where a subsequent
+overlapping window exists.
+
+### 6.4 Player → Ad CDN (segment fetch)
+
+For each video ad the Player accepts, the Player fetches the ad's
+media segments from the URL(s) declared inside the sub-MPD reached
+via `<ImportedMPD>` (§5.4). For image and HTML ads, the Player
+fetches the single asset at the `@assetUrl` declared on the
+`<svta:RenderableAsset>` (§5.3.1).
+
+| Item | Value |
+|------|-------|
+| Transport | HTTPS |
+| Method | GET (segments or single-asset GET) |
+| Response body | ISO-BMFF segment (video), or image (`image/jpeg`, `image/png`, `image/webp`), or HTML document (`text/html`) |
+| Failure | Per-segment HTTP failure triggers Player-side retry per DASH-IF guidance; persistent failure causes the candidate to be skipped (§8.1 E11) and the Player advances per §4.6.4 |
+
+### 6.5 Player → Tracking endpoint (beacon fire)
+
+The Player fires each tracking beacon as an HTTP GET to the URL
+embedded in the corresponding `<Event>` (§5.5). The body of the
+request is empty; the response body is discarded by the Player.
+
+| Item | Value |
+|------|-------|
+| Transport | HTTPS |
+| Method | GET |
+| Request body | None |
+| Response body | Ignored (the Player treats any 2xx response as success) |
+| Failure | HTTP timeout, 4xx, 5xx, or network drop is logged at best effort and does not affect ad playback or primary content (§8.1 E12) |
+
+### 6.6 APS internal: decision document → resolution document (non-normative)
+
+The conversion between the ADS's decision document and the
+resolution document the Player reads is performed inside the APS
+and is not bound by this specification. This section describes,
+illustratively, the conversion an APS typically performs against a
+VAST 4.x input — VAST being the predominant industry decision
+format. An APS that consumes a non-VAST decision document performs
+an equivalent translation; the Player-visible output (the
+resolution document) is the only contract this specification binds.
+
+#### 6.6.1 Linear: VAST → `ListMPD`
+
+| VAST element | Resolution document target | Notes |
+|--------------|----------------------------|-------|
+| `<Ad>` (Inline) | One `<Period>` containing one `<ImportedMPD>` entry inside the `ListMPD` | One Period per Inline ad in the pod. |
+| `<Ad>` (Wrapper) | Resolved recursively by the APS until an Inline is reached | The Player never sees the wrapper chain. |
+| `<Creatives>/<Linear>/<Duration>` | `Period@duration` on the ListMPD-level Period and on the sub-MPD's Period | Drives drop-before-play cap evaluation. |
+| `<MediaFile>` | One `<Representation>` inside an `<AdaptationSet>` of the sub-MPD | Multiple `<MediaFile>` entries collapse into an ABR ladder under one AdaptationSet. |
+| `<TrackingEvents>/<Tracking>` | One `<Event>` inside an `<EventStream>` of scheme `urn:mpeg:dash:event:callback:2015` in the sub-MPD | Standard VAST event names (`start`, `firstQuartile`, `midpoint`, `thirdQuartile`, `complete`, etc.) map to callback events at the matching relative times. |
+| `<Impression>` | Callback event at relative time `0` inside the sub-MPD | Fires at the first frame of the ad. |
+| `<ClickThrough>`, `<ClickTracking>` | `<svta:Click>` element inside the parent `<Period>` (carried via foreign-namespace extension; see §5.6.1 for the non-linear analogue) | No native DASH carrier exists; the SGAI namespace provides one. |
+| `<AdSystem>`, `<AdTitle>`, `<Advertiser>`, `<UniversalAdId>` | Corresponding `<svta:*>` elements (§5.6.2, §5.6.3) | Same rationale as the click metadata. |
+| `<Error>` | HTTP error or empty `ListMPD` | Triggers Player fall-through (§8.1 E1 / E2). |
+
+#### 6.6.2 Non-linear: VAST → Overlay Resolution Document
+
+| VAST element | Resolution document target | Notes |
+|--------------|----------------------------|-------|
+| `<Ad>` (Inline) | One `<svta:Candidate>` inside the `<svta:OverlayList>` | The ADS's per-ad decisioning produces one candidate per `<Ad>`. |
+| `<Creatives>/<NonLinear>` (per creative variant) | One `<svta:RenderableAsset>` inside the candidate, in document order matching the VAST `<NonLinear>` order | Each `<NonLinear>` carries a form variant (video, image, HTML) and the `@layout` token mapped from the variant's IAB-defined type. |
+| `<StaticResource>` (image, mime ∈ image/*) | `<svta:RenderableAsset mediaType="image" assetUrl="…">` | The static resource URL is carried directly on the renderable asset. |
+| `<HTMLResource>` | `<svta:RenderableAsset mediaType="html" assetUrl="…">` | Inline HTML payloads are stored at the APS and referenced by URL. |
+| `<Creatives>/<Linear>` (video variant for an overlay) | `<svta:RenderableAsset mediaType="video">` with an `<ImportedMPD>` child pointing to a sub-MPD assembled from the VAST `<MediaFile>` entries | The sub-MPD is bound to SPS (§5.4). |
+| `<Duration>` (per candidate) | `<svta:Candidate>@duration` | Drives drop-before-play cap evaluation. |
+| `<TrackingEvents>/<Tracking>` | `<Event>` inside an `<EventStream>` of scheme `urn:mpeg:dash:event:callback:2015` inside the candidate | Timing is relative to the candidate's presentation start. |
+| `<ClickThrough>`, `<ClickTracking>` | `<svta:Click>` child of the candidate (§5.6.1) | Same carrier as the linear case. |
+| `<AdSystem>`, `<AdTitle>`, `<Advertiser>`, `<UniversalAdId>` | Corresponding `<svta:*>` children of the candidate (§5.6.2, §5.6.3) | Same carrier as the linear case. |
+
+### 6.7 Interface contracts
+
+| Source | Target | Transport | Format | Direction | Error semantics |
+|--------|--------|-----------|--------|-----------|-----------------|
+| Player | Publisher CDN | HTTPS | DASH MPD (XML) | pull | HTTP status codes; on 4xx / 5xx Player retries or aborts the session per its policy. |
+| Player | Publisher CDN | HTTPS | media segments (ISO-BMFF, CMAF, …) | pull | Segment-level retry per DASH-IF guidance. |
+| Player | APS | HTTPS | request: query params per §5.7; response: resolution document (XML) | pull | Empty resolution document, 4xx, 5xx → Player falls through to primary content. |
+| Player | Ad CDN | HTTPS | media segments and non-AV assets | pull | Asset-level retry per Player policy; persistent failure skips the candidate. |
+| Player | Tracking endpoint | HTTPS | callback beacons (GET, body-less) | push | Best-effort; failures do not surface to the viewer or affect playback. |
+| APS | ADS | (bilateral) | (bilateral, typically VAST 4.x) | pull | The APS translates errors into HTTP errors or empty resolution documents toward the Player. |
+
+All transport between the Player and the public endpoints (Publisher
+CDN, APS, ad CDN, tracking endpoints) is over HTTPS in production.
+Authentication, DRM, encryption, and token-exchange flows layer on
+top of HTTPS per DASH-IF guidance and are outside the scope of this
+specification.
+
+## 7. Expected behaviour
+
+This chapter describes the observable behaviour of each actor in
+each scenario covered by the specification. The annexes (A–K) carry
+the full worked examples; this chapter states the per-scenario
+contract normatively.
+
+### 7.1 Publisher behaviour
+
+For every ad opportunity the Publisher intends to expose, the
+Publisher declares the corresponding `<Event>` in the main MPD,
+filling the slot's scheme-specific child element with the
+constraints listed in §5.1. The same Publisher declaration applies
+uniformly across every viewer's Player and every device class —
+the Publisher emits one device-agnostic slot declaration; the per
+device-class outcome emerges at Player-side selection time.
+
+The Publisher selects the slot mechanism per content type and
+intent:
+
+- **VOD content**: `<InsertPresentation>` for slots that do not
+  consume primary timeline; `<ReplacePresentation>` for slots that
+  replace a bounded primary span.
+- **Live content (`MPD@type="dynamic"`)**: `<ReplacePresentation>`
+  for all linear slots (the base specification confines
+  `<InsertPresentation>` to VOD).
+- **Non-linear overlays**: `<svta:OverlayPresentation>` regardless
+  of VOD / live.
+- **Pause-trigger windows**: `<svta:PauseAdPresentation>` regardless
+  of VOD / live.
+
+For hybrid breaks (linear + overlay during the same window) the
+Publisher co-locates the two events at the same `presentationTime`
+(§5.1.5).
+
+### 7.2 ADS behaviour
+
+For every resolution request the APS forwards, the ADS produces an
+ordered set of selected ads. For each ad the ADS declares (a) the
+renderable variants its inventory carries (video / image / HTML;
+in-stream linear / overlay / pause-ad), in the order the ADS
+prefers, and (b) the tracking schedule (which beacons fire, and at
+which relative offsets on the ad's presentation timeline).
+
+The ADS optimises for revenue within the slot's declared budget
+without holding a per-device matrix; it emits the same ordered set
+to every viewer. The Player walks the set and resolves the
+device-aware outcome at selection time.
+
+### 7.3 APS behaviour
+
+For every Player resolution request, the APS calls the ADS, applies
+the conversion described in §6.6, and returns the resolution
+document. The APS preserves the ADS's candidate order, per-candidate
+option order, and per-beacon schedule order verbatim. The APS makes
+no decisioning choice — it does not insert ads, drop ads, reorder
+ads, or alter beacon timings.
+
+When the ADS returns no fill or the conversion fails, the APS
+returns an HTTP error or an empty resolution document; the Player
+falls through to primary content uninterrupted (§4.6.1).
+
+### 7.4 Player validation and selection
+
+For every resolution document the APS returns, the Player:
+
+1. Validates each candidate against the Publisher's slot constraints
+   (`@maxDuration`, `@allowedLayouts`, `@maxConcurrency`). Candidates
+   that fail validation are discarded.
+2. Evaluates each accepted candidate's renderable presentation
+   options in document order. For each option the Player checks
+   the device's capabilities (decoder count, surface types) and
+   the slot's `@allowedLayouts`. The Player commits to the first
+   option that satisfies both checks.
+3. When no option on a candidate is satisfiable, the Player skips
+   the candidate and proceeds to the next candidate in document
+   order.
+4. When no candidate remains, the Player declines the slot and
+   continues with primary content uninterrupted.
+
+The order in which the Player drops candidates is irrelevant to
+the surviving candidates' relative order — the Player preserves
+document order on the survivors.
+
+### 7.5 Per-scenario behaviour
+
+#### 7.5.1 Linear ad break (pre-roll, mid-roll)
+
+The Player resolves the slot's APS endpoint, validates the
+`ListMPD` against `@maxDuration`, plays each accepted Period in
+declared order back-to-back, and fires the tracking beacons
+carried in each sub-MPD. After the last Period (or after a
+trim-during-play cap stop), the Player resumes the primary
+timeline per the slot event's semantics:
+`<InsertPresentation>` resumes from where the timeline paused;
+`<ReplacePresentation>` resumes at the position computed from
+`@returnOffset`.
+
+Per-device-class outcome: linear ads are sequential, not
+concurrent; every device class plays them on its single (or
+primary) video decoder. D2's second decoder and D1's overlay
+surfaces are not exercised by a linear-only slot.
+
+#### 7.5.2 Non-linear overlay
+
+The Player resolves the slot's APS endpoint, validates each
+candidate against `@maxDuration` and `@allowedLayouts`, walks the
+chosen candidate's renderable presentation options in document
+order, and composites the first satisfiable option on top of the
+primary content. The composition uses HTML5 / CSS layout
+primitives; spatial position inside the chosen layout is delegated
+to the standard CSS layout model.
+
+Per-device-class outcome:
+
+- **D1** (2+ video decoders, image + HTML overlay surfaces) — any
+  option in the document is satisfiable; the Player typically
+  renders the first.
+- **D2** (2 video decoders, video-on-video only) — video overlay
+  options are satisfiable on the second decoder; image and HTML
+  options fail the surface check; the Player skips to the next
+  option (often a video form) or to the next candidate.
+- **D3** (1 video decoder, image + HTML surfaces) — image and HTML
+  options are satisfiable on the overlay surfaces; video options
+  fail the decoder count check; the Player picks the HTML or image
+  form per document order.
+- **D4** (1 video decoder, image only) — image options are
+  satisfiable; HTML and video options fail; the Player picks the
+  image form.
+- **D5** (1 video decoder, no overlay) — no overlay option is
+  satisfiable; the Player declines the slot.
+
+#### 7.5.3 Coexisting overlay over a partial-screen layout
+
+When the chosen option carries a `squeezeback-*` or `overlay-*`
+layout, the Player composites the elements per §5.3.7:
+
+- For an `overlay-corner` or `overlay-lower-third` option, the
+  Player keeps the primary content at full size and renders the ad
+  on top via the overlay surface.
+- For a `squeezeback-l-shape` option, the Player shrinks the
+  primary content into the cutout of the full-frame ad; no
+  background fill applies.
+- For a `squeezeback-double-box-with-background` option, the
+  Player shrinks the primary content into one box, renders the ad
+  in the other box, and composites the third element (the
+  background fill — advertiser-supplied or Publisher fallback) into
+  the bands the two boxes leave uncovered.
+
+#### 7.5.4 Hybrid linear + overlay
+
+The Player resolves the two co-located events (§5.1.5) independently
+and serves both. It plays the chosen linear ad on its primary video
+decoder and composites the chosen overlay on top of the linear ad
+using a second decoder (for video forms) or an image / HTML surface
+(for image / HTML forms).
+
+Per-device-class outcome:
+
+- **D1** — Both portions render; the overlay uses an image or HTML
+  surface (or the second decoder for a video form).
+- **D2** — The linear ad renders on the primary decoder; a video
+  overlay form renders on the second decoder; image and HTML
+  overlay options fail and the overlay portion is declined.
+- **D3 / D4** — The linear ad renders on the single decoder; an
+  L-shape / squeezeback layout whose full-frame ad is image or HTML
+  is satisfiable as a composition of the linear ad with the
+  shrunk-primary cutout; a separate top-of-video overlay requires
+  concurrent composition the single decoder cannot guarantee and
+  is declined.
+- **D5** — The linear ad renders; the overlay is declined.
+
+#### 7.5.5 Pause-triggered ad
+
+While the playhead is inside a `<svta:PauseAdPresentation>` window
+and the viewer pauses primary playback, the Player resolves the
+pause-trigger window's APS endpoint (lazily on pause, unless the
+Player chose to speculatively pre-fetch earlier; §8.5) and
+composites the chosen ad form fullscreen on top of the paused
+primary frame. The Player presents at most one pause-ad form per
+pause session; sequential forms inside the resolution document play
+back-to-back (§5.1.3 in-slot sequencing), each fullscreen.
+
+On the viewer's resume from pause, the Player dismisses the
+pause-ad within one rendering frame and ceases firing beacons
+scheduled past the dismissal. The primary content resumes from the
+paused position (or, for live content, the Player MAY apply a
+post-resume jump to the live edge as a separate action outside the
+pause-ad window — §4.6.7).
+
+Per-device-class outcome:
+
+- **D1** — Any form (HTML, image, video) is satisfiable.
+- **D2** — Video forms render on the second decoder while the
+  primary frame stays on the primary decoder; image and HTML forms
+  fail the surface check; the Player picks the video form.
+- **D3** — Image and HTML forms render on the overlay surfaces;
+  the video form's feasibility depends on whether the device can
+  re-task the single decoder while preserving the paused position
+  (§8.5).
+- **D4** — Only the image form renders.
+- **D5** — No pause-ad form renders; the paused frame stays
+  on-screen until resume.
+
+#### 7.5.6 Overlay window crosses a pause-ad window
+
+When a viewer pauses inside a `<svta:PauseAdPresentation>` window
+while a `<svta:OverlayPresentation>` overlay is on screen, the
+Player suspends the overlay surface, resolves the pause-ad window,
+and composites the chosen pause-ad form fullscreen on top of the
+paused primary frame.
+
+On resume from pause, the Player dismisses the pause-ad and
+restores the overlay surface if the overlay slot window is still
+active. The overlay's slot-window clock follows the primary
+timeline and freezes during the pause; the overlay terminates when
+its declared window expires (or when the slot's cap is reached),
+not because of the pause itself.
+
+#### 7.5.7 Multi-ad break
+
+The Player plays each Period of the linear `ListMPD` back-to-back,
+applying drop-before-play cap evaluation on the cumulative duration
+and trim-during-play on the actual rendered length. The cap is the
+parent slot event's `@maxDuration`; the trim point falls inside
+whatever Period happens to be playing when the cap is reached.
+
+#### 7.5.8 Overlapping same-family windows
+
+When two `<svta:OverlayPresentation>` events overlap in the primary
+MPD, the Player resolves the first and serves it. The second is
+fallback: the Player resorts to it only when it cannot access the
+first window's resolution document (transport failure, malformed
+response, late arrival). The same rule applies independently to
+overlapping linear windows and overlapping pause-trigger windows.
+
+#### 7.5.9 Legacy Player encounters new constructs
+
+A Player implementation that predates this specification encounters
+an `<EventStream>` whose `@schemeIdUri` is
+`urn:svta:dash:event:sgai-overlay:2026`,
+`urn:svta:dash:event:sgai-pause-trigger:2026`, or an
+`<svta:*>`-namespaced child it does not implement. Per the
+ignore-if-unknown rule inherited from §5.10 and §5.2.1 of the base
+specification, the Player silently skips the unknown event together
+with its full subtree and continues with primary content
+uninterrupted. The legacy Player never reaches the APS resolution
+step (the unknown event never triggers a request) and produces no
+ad-related side-effect.
+
+The outcome is uniform across device classes: it depends on the
+Player's edition, not on the device hardware.
+
+## 8. Implementation notes
+
+This chapter is non-normative. It documents implementation guidance
+that helps a conformant Player, APS, or authoring tool handle
+edge conditions without surprising the viewer. The error-semantics
+matrix in §8.1 is the canonical inline restatement of how a Player
+behaves when an exchange fails; the test-case annex (Annex K) maps
+each row to a test-case identifier.
+
+### 8.1 Error semantics
+
+The matrix below enumerates the failure conditions a Player handles
+during a slot exchange. The **Player response (MUST)** column states
+the normative behaviour; the **MAY** column lists implementation
+options consistent with the MUST behaviour. The **Upstream
+obligation** column summarises what the Publisher / ADS / APS
+provides to make the MUST behaviour clean.
+
+| ID | Error condition | Player response (MUST) | Player response (MAY) | Upstream obligation |
+|----|-----------------|------------------------|-----------------------|---------------------|
+| E1 | Transport-level failure on the APS resolution request (HTTP timeout, 4xx, 5xx, DNS unreachable, TCP refused, TLS handshake failure) | Fall through to primary content uninterrupted; apply the same-family fallback (§4.6.11) when a subsequent overlapping window exists | Surface the failure to the application layer via an implementation-defined event; retry once with exponential backoff per Player policy | The APS responds within a Player-policy timeout budget; the APS does not block the Player on slow ADS calls |
+| E2 | Empty resolution document (`ListMPD` with zero `<Period>`, or `<svta:OverlayList>` with zero `<svta:Candidate>`) | Fall through to primary content uninterrupted; apply same-family fallback | Surface to the application layer | The APS MAY return an empty resolution document on ADS no-fill; the silent-skip vs surface-error policy is APS-internal |
+| E3 | Parse failure on the resolution document (malformed XML, schema-invalid, unknown root element) | Fall through to primary content uninterrupted; discard the entire document | Surface to the application layer | The APS emits a syntactically valid resolution document; if it cannot, the APS returns an HTTP error (collapsing into E1) |
+| E4 | No candidate in the resolution document carries a presentation option satisfiable on the device | Skip the entire slot and continue primary content uninterrupted | Surface to the application layer; record the slot as a graceful decline | The ADS / APS hold no device-class matrix; the Player is the sole authority on device capability |
+| E5 | Candidate violates a Publisher-declared slot constraint (disallowed layout, exceeds concurrency cap, declared duration exceeds the cap on its own) | Discard the candidate and continue evaluating the next candidate in document order | Surface to the application layer; log the constraint that triggered the discard | The Publisher declares the constraints in the main MPD; ADS / APS are not obligated to enforce them; the APS MAY emit candidates that violate constraints |
+| E6 | Declared candidate duration would push cumulative slot duration past the cap | Skip the candidate before playback (drop-before-play); continue with the next candidate in document order | No alternative; drop-before-play is the only conformant response | The ADS is not required to respect the cap when selecting candidates |
+| E7 | Actual rendered length exceeds declared duration | Stop rendering at the cap boundary; fire only the tracking beacons whose scheduled relative time is ≤ the trim boundary | Surface an "ad trimmed" event to the application layer | The ADS / APS declare each candidate's duration as accurately as possible; the Player does not extend the slot beyond the cap regardless of metadata |
+| E8 | Unknown layout token in the Publisher's `@allowedLayouts` or on a candidate's `@layout` (token does not appear in §3.2) | Treat the affected option as non-renderable on this device; advance to the next option in document order | Surface the unknown token to the application layer | The Publisher and the APS draw `@allowedLayouts` / `@layout` values exclusively from §3.2 |
+| E9 | Unknown event scheme URI on an `<EventStream>` carrying an SGAI construct the Player does not implement | Skip the unknown event and continue primary content uninterrupted | Surface to the application layer | New constructs are expressed via §5.10 application-level Event Streams or §5.2.1 foreign-namespace open content (the ignore-if-unknown extension points) |
+| E10 | Per-candidate decode-time failure (segment fetch failed, decoder rejected the bitstream, codec not supported) | Treat as if the candidate had no renderable form on this device; skip to the next candidate in document order; fire no further tracking beacons for the failed candidate | Surface a "decode failed" event; attempt a single retry on transport failure per Player policy | The ADS selects creatives whose codecs are within the Publisher-declared codec set agreed bilaterally |
+| E11 | Per-candidate playback-time failure mid-render (decoder stall, network drop on segment N+1, asset URL 404 for non-AV creatives) | Cease rendering the candidate; fire only the tracking beacons whose scheduled relative time has already elapsed; advance to the next candidate or to primary content | Surface an "ad failed mid-render" event to the application layer | The APS emits asset URLs that resolve; transient CDN-level errors are best-effort handled |
+| E12 | Tracking beacon HTTP failure (4xx, 5xx, timeout on the HTTP GET to a tracking endpoint) | Continue rendering the ad uninterrupted; tracking failure does not affect ad playback or primary content | Best-effort log the failure; MAY retry once per Player policy | The tracking endpoint is operated by the ADS or its tracking-provider proxy; the spec does not bind endpoint availability |
+| E13 | Late APS response (resolution document arrives after the slot's playback window has elapsed) | Discard the late response and continue primary content uninterrupted; apply same-family fallback | Surface an "ad arrived too late" event to the application layer | The Player computes the Earliest Resolution Time from `@earliestResolutionTimeOffset`; the APS responds before the slot starts |
+
+#### 8.1.1 Order of precedence
+
+When multiple failure conditions arise on the same slot exchange,
+the Player applies them in the following order:
+
+1. **Transport-level** (E1, E13) — when the resolution document
+   cannot be fetched in time, no later condition is evaluated.
+2. **Resolution-document level** (E2, E3) — when the document is
+   absent or unparseable, no candidate is evaluated.
+3. **Constraint surfacing** (E5, E6, E8) — for each candidate, the
+   Player validates against Publisher constraints and the layout
+   vocabulary; discarded candidates do not advance to playback.
+4. **Per-candidate decode-time** (E10) — at the moment the Player
+   commits to a candidate, decoder readiness is checked. Failure at
+   this stage falls back to the next candidate.
+5. **Per-candidate playback-time** (E11, E7 trim) — during the
+   candidate's render, mid-stream failures and cap-trim apply.
+6. **Tracking failures** (E12) — non-fatal; never affect playback.
+
+The order is strict: a transport failure pre-empts every later
+check; a decode-time failure on candidate N does not block the
+evaluation of candidate N+1.
+
+#### 8.1.2 Fall-through definition
+
+"Fall through to primary content uninterrupted" means:
+
+- No visible artefact — no freeze, no blank slate, no error overlay
+  (unless the application explicitly opted in to surface errors via
+  the non-normative API of §8.1.3).
+- No tracking beacon fired — neither for the failed candidate nor
+  for any candidate that would have followed it.
+- Playback continues — the primary timeline keeps advancing exactly
+  as if the slot had never been declared.
+
+Fall-through is the default for every transport-level, parse, and
+no-renderable-form error (E1, E2, E3, E4, E13). It is the
+manifestation of graceful degradation at runtime.
+
+#### 8.1.3 Surfacing errors to the application layer
+
+A Player MAY expose error events via an implementation-defined API
+(for example, an `onAdError(slotId, candidateId, reason)` callback
+exposed to embedding application code). The shape of this API is
+non-normative; implementations are free to choose it. Implementers
+SHOULD use an enumerated `reason` value set aligned with the E1–E13
+matrix above so application code can branch on the cause without
+parsing free-form text. Application-layer error surfacing does not
+deviate from the runtime obligations in the MUST column.
+
+### 8.2 Tracking-only VAST inputs
+
+A VAST `<Ad>` that carries `<TrackingEvents>` but no `<MediaFile>`
+(tracking-only ad) cannot be materialised as a renderable ad MPD.
+The APS's options are: (a) drop the entry from the resolution
+document (silent-skip — no tracking is reported for this entry), or
+(b) translate the entry's tracking-events into a Player-side
+heartbeat without a creative. Option (b) is non-standard and the
+Player MAY treat such an entry as a constraint-violation candidate
+(E5) and discard it. The spec recommends silent-skip as the
+default.
+
+### 8.3 Late callbacks
+
+When a tracking beacon's scheduled relative time has elapsed by the
+time the Player commits to the ad (for instance, because the slot
+started late after a long resolution-request round trip), the
+Player SHOULD fire the elapsed beacons immediately at the start of
+ad presentation rather than skip them. This reflects the ADS's
+intent that the impression beacon, in particular, always fires at
+ad start. Quartile beacons whose scheduled time falls past the
+trim boundary (§4.6.3 trim-during-play) are not fired.
+
+### 8.4 Device-class fallbacks
+
+A Player on a device whose capabilities sit between two of the
+documented classes (for example, a device with a single video
+decoder that can composite HTML on top of video only at reduced
+frame rate) treats every renderable presentation option per the
+strict capability check of §4.6.5. If the option's rendering would
+require capabilities the device cannot guarantee at the required
+quality, the Player skips the option as if it were unsatisfiable
+and proceeds to the next. The class taxonomy in §3.4 is a coarse
+guide; the per-option check is the operative test.
+
+### 8.5 Speculative pre-fetch for pause ads
+
+A Player MAY pre-fetch the resolution document of a pause-trigger
+window at any time after the main MPD is loaded and before the
+window opens, so the pause-ad is ready to render on viewer pause
+without a latency hit. Pre-fetching trades a small amount of
+network for lower interactive latency; the ADS's targeting
+freshness is the trade-off. Implementers SHOULD pre-fetch only
+when the window is likely to fire (per its declared validity), and
+SHOULD honour the APS's HTTP cache headers when deciding whether
+to reuse a cached response.
+
+### 8.6 Image-form intrinsic duration
+
+An image creative has no intrinsic temporal extent. The Player
+treats the candidate's declared `@duration` (§5.2.2.3) as the
+authoritative on-screen duration for an image form, modulated by
+the playback speed (§4.6.9). When the playback speed is 1x, the
+image is on screen for the declared duration; at 2x, the image is
+on screen for half that wall-clock time. The Player fires the
+candidate's tracking schedule against the canonical
+presentation-timeline `@duration`, not against the derived
+wall-clock value.
+
+### 8.7 Degenerate authoring cases
+
+When a Publisher declares an `@allowedLayouts` list that contains
+only the `linear` token on a non-linear overlay slot, no candidate
+can ever satisfy the slot (a non-linear overlay never carries the
+`linear` layout). The Player declines the slot at validation time
+(E5 against every candidate). Implementers SHOULD treat this case
+as an authoring error and surface it through the application-layer
+API of §8.1.3.
+
+When a Publisher declares `@maxConcurrency="0"` on an overlay slot
+(in a hypothetical future authoring tool), the slot effectively
+declines every overlay; the Player applies the validation rule and
+falls through. The admissible value defined by this specification
+is `1` (§5.1.3.1).
+
+### 8.8 Per-construct backward-compatibility audit
+
+For each new construct this specification introduces, the audit
+below confirms that a Player predating the construct silently
+discards it and continues with primary content uninterrupted.
+
+| Construct | Placement | Extension point | Legacy behaviour |
+|-----------|-----------|-----------------|------------------|
+| `urn:svta:dash:event:sgai-overlay:2026` (event scheme) | `<EventStream>@schemeIdUri` in the main MPD | Event scheme ignore-if-unknown (§5.10 of the base specification) | The Player skips the `<EventStream>` and every `<Event>` inside; primary content continues |
+| `urn:svta:dash:event:sgai-pause-trigger:2026` (event scheme) | `<EventStream>@schemeIdUri` in the main MPD | Same | Same |
+| `<svta:OverlayPresentation>` (element) | Child of `<Event>` in the main MPD | Foreign-namespace open content (§5.2.1 of the base specification) | Discarded with the parent `<Event>` subtree per the parent's scheme-ignore rule |
+| `<svta:PauseAdPresentation>` (element) | Same | Same | Same |
+| `urn:svta:dash:profile:sgai-overlay-list:2026` (profile URI) | `MPD@profiles` on the resolution document | Profile-ignore (a Player unaware of the profile treats the response as unknown and falls through per E3) | Resolution document discarded; Player falls through |
+| `<svta:OverlayList>`, `<svta:Candidate>`, `<svta:RenderableAsset>`, `<svta:Click>`, `<svta:UniversalAdId>`, `<svta:AdSystem>`, `<svta:AdTitle>`, `<svta:Advertiser>`, `<svta:BackgroundFill>` | Inside the foreign-profile resolution document | Foreign-namespace open content; not reached by legacy Players because the resolution document itself is gated by the parent event scheme | No legacy Player reaches the resolution document; the slot is declined at the main-MPD level |
+| `@allowedLayouts`, `@maxConcurrency`, `@backgroundFallback` (attributes) | On the SGAI element children of `<Event>` in the main MPD | Inside the foreign-namespace subtree; discarded with the parent | Same |
+| `@mediaType`, `@layout`, `@assetUrl` (attributes) | On `<svta:RenderableAsset>` inside the foreign-profile resolution document | Not reached by legacy Players | Same |
+
+Every row resolves to the same outcome: primary content continues
+uninterrupted; no error surfaces; no tracking beacon fires for the
+unknown construct.
+
+## Annex A — Pre-roll (linear)
+
+(Informative.)
+
+### A.1 Scenario
+
+The viewer starts a VOD session. The Publisher has declared an ad
+opportunity at `presentationTime=0` of the primary timeline. A
+linear ad plays before the primary content begins; on completion,
+primary content starts from its first frame. The slot's mechanism
+is `<InsertPresentation>` (VOD-only).
+
+### A.2 Main MPD (relevant excerpt)
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:up="urn:mpeg:dash:schema:urlparam:2025"
+     type="static"
+     minBufferTime="PT2S"
+     profiles="urn:mpeg:dash:profile:advanced-linear:2025">
+
+  <EssentialProperty schemeIdUri="urn:mpeg:dash:urlparam:2025">
+    <up:UrlParamInfo includeInRequests="altmpd"
+                     queryTemplate="session_id=$urn:mpeg:dash:state:cmcd#sid$"/>
+  </EssentialProperty>
+
+  <Period id="1" start="PT0S">
+
+    <EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:insert:2025"
+                 timescale="1000">
+      <Event id="preroll" presentationTime="0" duration="20000">
+        <InsertPresentation url="https://aps.example.com/resolve/preroll"
+                            earliestResolutionTimeOffset="0"
+                            maxDuration="20000"/>
+      </Event>
+    </EventStream>
+
+    <AdaptationSet id="1" mimeType="video/mp4" codecs="avc1.4D401F"
+                   segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="2000"
+                       initialization="video/init.mp4"
+                       media="video/seg_$Number$.m4s"
+                       startNumber="1"/>
+      <Representation id="v1" bandwidth="2500000" width="1280" height="720"/>
+    </AdaptationSet>
+
+  </Period>
+</MPD>
+```
+
+### A.3 Resolution document (`ListMPD`)
+
+The APS produces the document from the ADS's VAST decision. A
+single 15 s pre-roll ad is selected for this viewer.
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     profiles="urn:mpeg:dash:profile:list:2024"
+     type="list"
+     minBufferTime="PT1S"
+     publishTime="2026-05-28T10:00:00Z">
+
+  <BaseURL>https://ads.example.com/delivery/</BaseURL>
+
+  <Period id="ad_01" duration="PT15S">
+    <ImportedMPD uri="creative_preroll_01.mpd" earliestResolutionTimeOffset="0"/>
+  </Period>
+
+</MPD>
+```
+
+### A.4 Sub-MPD (SPS profile)
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     profiles="urn:mpeg:dash:profile:sps:2024"
+     type="static"
+     minBufferTime="PT2S">
+
+  <Period id="1" duration="PT15S" start="PT0S">
+
+    <EventStream schemeIdUri="urn:mpeg:dash:event:callback:2015"
+                 value="1" timescale="1000">
+      <Event presentationTime="0"     id="b1">https://tracker.example.com/impression?ad=preroll-01</Event>
+      <Event presentationTime="0"     id="b2">https://tracker.example.com/start?ad=preroll-01</Event>
+      <Event presentationTime="3750"  id="b3">https://tracker.example.com/firstQuartile?ad=preroll-01</Event>
+      <Event presentationTime="7500"  id="b4">https://tracker.example.com/midpoint?ad=preroll-01</Event>
+      <Event presentationTime="11250" id="b5">https://tracker.example.com/thirdQuartile?ad=preroll-01</Event>
+      <Event presentationTime="15000" id="b6">https://tracker.example.com/complete?ad=preroll-01</Event>
+    </EventStream>
+
+    <AdaptationSet mimeType="video/mp4" codecs="avc1.4d401f"
+                   segmentAlignment="true" startWithSAP="1">
+      <Representation id="v1" bandwidth="2500000" width="1280" height="720">
+        <BaseURL>media/preroll_01_v1.mp4</BaseURL>
+        <SegmentBase indexRange="0-850"/>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+```
+
+### A.5 Per-device-class behaviour
+
+| Device class | Outcome |
+|--------------|---------|
+| D1 | Plays the 15 s pre-roll on a video decoder; second decoder and overlay surfaces unused. |
+| D2 | Same as D1. |
+| D3 | Plays the 15 s pre-roll on the single decoder; reuses the same decoder for primary content. |
+| D4 | Same as D3. |
+| D5 | Same as D3. |
+
+Across every class the user sees a 15 s full-screen ad before the
+primary content begins. The Player fires six tracking beacons —
+impression and start at 0, three quartiles at 3750 / 7500 / 11250,
+and complete at 15000 — against the ad's presentation timeline.
+
+## Annex B — Mid-roll (linear)
+
+(Informative.)
+
+### B.1 Scenario
+
+The viewer is watching live primary content. At
+`presentationTime=PT10M` of the primary timeline, the Publisher has
+declared a 30 s linear ad break. The slot's mechanism is
+`<ReplacePresentation>` (the only admissible linear mechanism on
+live content).
+
+### B.2 Main MPD (relevant excerpt)
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     type="dynamic"
+     minimumUpdatePeriod="PT2S"
+     minBufferTime="PT2S"
+     profiles="urn:mpeg:dash:profile:advanced-linear:2025">
+
+  <Period id="1" start="PT0S">
+
+    <EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:replace:2025"
+                 timescale="1000">
+      <Event id="midroll-1" presentationTime="600000" duration="30000">
+        <ReplacePresentation url="https://aps.example.com/resolve/midroll-1"
+                             earliestResolutionTimeOffset="60000"
+                             maxDuration="30000"
+                             returnOffset="0"
+                             clipDuration="30000"
+                             startWithOffset="false"/>
+      </Event>
+    </EventStream>
+
+    <AdaptationSet id="1" mimeType="video/mp4" codecs="avc1.4D401F"
+                   segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="2000"
+                       initialization="video/init.mp4"
+                       media="video/seg_$Number$.m4s"
+                       startNumber="1"/>
+      <Representation id="v1" bandwidth="2500000" width="1280" height="720"/>
+    </AdaptationSet>
+
+  </Period>
+</MPD>
+```
+
+### B.3 Resolution document (`ListMPD`, two-ad pod)
+
+The ADS returns a two-ad pod (15 s + 15 s) for this slot. The APS
+preserves the ADS's order.
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     profiles="urn:mpeg:dash:profile:list:2024"
+     type="list"
+     minBufferTime="PT1S"
+     publishTime="2026-05-28T10:09:00Z">
+
+  <BaseURL>https://ads.example.com/delivery/</BaseURL>
+
+  <Period id="ad_a" duration="PT15S">
+    <ImportedMPD uri="creative_mid_a.mpd"/>
+  </Period>
+
+  <Period id="ad_b" duration="PT15S">
+    <ImportedMPD uri="creative_mid_b.mpd" earliestResolutionTimeOffset="15"/>
+  </Period>
+
+</MPD>
+```
+
+### B.4 Sub-MPD
+
+Each sub-MPD follows the SPS shape illustrated in Annex A.4, with
+tracking event timings adjusted to the per-ad duration.
+
+### B.5 Per-device-class behaviour
+
+| Device class | Outcome |
+|--------------|---------|
+| D1 / D2 | Plays ad A then ad B (15 + 15 = 30 s, matching the cap exactly); resumes primary at `returnOffset=0` past the slot's `presentationTime`. D2 MAY pre-buffer ad B on its second decoder while ad A plays. |
+| D3 / D4 / D5 | Same outcome as D1 with sequential reuse of the single decoder; no pre-buffering. |
+
+If the ADS had returned ad A (15 s) + ad B (20 s) — cumulative 35 s
+— the Player would apply drop-before-play and skip ad B (its
+declared duration would push the cumulative past the 30 s cap);
+only ad A would render. If ad A's actual rendered length had
+unexpectedly exceeded 30 s, the Player would have trimmed at the
+cap boundary mid-ad.
+
+## Annex C — Coexisting overlay (multi-form / multi-layout showcase)
+
+(Informative.)
+
+This annex is the canonical multi-form / multi-layout showcase
+required by §1.1. A single non-linear overlay opportunity is filled
+by a candidate whose presentation options span three forms and four
+layouts. The five device classes resolve the same ordered list to
+three different observed outcomes purely by walking the options
+top-down.
+
+### C.1 Scenario
+
+The Publisher has declared a non-linear overlay opportunity at
+`presentationTime=PT5M` of a VOD primary timeline, with a 15 s
+duration and a device-agnostic allowed-layout set covering
+side-by-side with background, L-shape, corner overlay, and the
+linear fallback (used as a takeover within the overlay slot when no
+true overlay option fits — see §C.5).
+
+### C.2 Main MPD (relevant excerpt)
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     type="static"
+     minBufferTime="PT2S"
+     profiles="urn:mpeg:dash:profile:advanced-linear:2025">
+
+  <Period id="1" start="PT0S">
+
+    <EventStream schemeIdUri="urn:svta:dash:event:sgai-overlay:2026"
+                 timescale="1000">
+      <Event id="ov-1" presentationTime="300000" duration="15000">
+        <svta:OverlayPresentation
+            url="https://aps.example.com/resolve/overlay-1"
+            maxDuration="15000"
+            earliestResolutionTimeOffset="5000"
+            allowedLayouts="squeezeback-double-box-with-background squeezeback-l-shape overlay-corner linear"
+            maxConcurrency="1"
+            backgroundFallback="https://cdn.example.com/publisher-fallback-bg.png"/>
+      </Event>
+    </EventStream>
+
+    <AdaptationSet id="1" mimeType="video/mp4" codecs="avc1.4D401F"
+                   segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="2000"
+                       initialization="video/init.mp4"
+                       media="video/seg_$Number$.m4s"
+                       startNumber="1"/>
+      <Representation id="v1" bandwidth="2500000" width="1280" height="720"/>
+    </AdaptationSet>
+
+  </Period>
+</MPD>
+```
+
+### C.3 Resolution document (Overlay Resolution Document)
+
+The ADS returns one candidate carrying four renderable presentation
+options as an ordered list. The APS preserves the order verbatim.
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     profiles="urn:svta:dash:profile:sgai-overlay-list:2026"
+     type="static"
+     minBufferTime="PT1S"
+     publishTime="2026-05-28T10:00:00Z">
+
+  <svta:OverlayList>
+    <svta:Candidate id="cand-1" duration="PT15S">
+
+      <!-- Option 1: side-by-side video + advertiser background.
+           Needs 2 decoders + image surface for background. -->
+      <svta:RenderableAsset mediaType="video"
+                            layout="squeezeback-double-box-with-background">
+        <ImportedMPD uri="https://ads.example.com/cand1_video.mpd"/>
+        <svta:BackgroundFill assetUrl="https://cdn.example.com/cand1-advertiser-bg.png"/>
+      </svta:RenderableAsset>
+
+      <!-- Option 2: L-shape with full-frame image ad.
+           Needs 1 decoder + image surface. -->
+      <svta:RenderableAsset mediaType="image"
+                            layout="squeezeback-l-shape"
+                            assetUrl="https://cdn.example.com/cand1-lshape.png"/>
+
+      <!-- Option 3: image banner overlay (corner).
+           Needs 1 decoder + image overlay surface. -->
+      <svta:RenderableAsset mediaType="image"
+                            layout="overlay-corner"
+                            assetUrl="https://cdn.example.com/cand1-corner.png"/>
+
+      <!-- Option 4: full-screen takeover video (linear-style).
+           Needs 1 decoder reused sequentially; no overlay surface. -->
+      <svta:RenderableAsset mediaType="video"
+                            layout="linear">
+        <ImportedMPD uri="https://ads.example.com/cand1_takeover.mpd"/>
+      </svta:RenderableAsset>
+
+      <EventStream xmlns:cb="urn:mpeg:dash:event:callback:2015"
+                       schemeIdUri="urn:mpeg:dash:event:callback:2015"
+                       value="1" timescale="1000">
+        <Event presentationTime="0"     id="b1">https://tracker.example.com/impression?ad=cand-1</Event>
+        <Event presentationTime="0"     id="b2">https://tracker.example.com/start?ad=cand-1</Event>
+        <Event presentationTime="3750"  id="b3">https://tracker.example.com/firstQuartile?ad=cand-1</Event>
+        <Event presentationTime="7500"  id="b4">https://tracker.example.com/midpoint?ad=cand-1</Event>
+        <Event presentationTime="11250" id="b5">https://tracker.example.com/thirdQuartile?ad=cand-1</Event>
+        <Event presentationTime="15000" id="b6">https://tracker.example.com/complete?ad=cand-1</Event>
+      </EventStream>
+
+      <svta:Click clickThroughUrl="https://advertiser.example.com/landing"/>
+      <svta:UniversalAdId idRegistry="ad-id.org" value="cand-1-uaid"/>
+      <svta:AdSystem value="Example ADS v4.6"/>
+      <svta:AdTitle value="Example advertiser — campaign Q2"/>
+
+    </svta:Candidate>
+  </svta:OverlayList>
+</MPD>
+```
+
+### C.4 Video sub-MPD for option 1
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     profiles="urn:mpeg:dash:profile:sps:2024"
+     type="static"
+     minBufferTime="PT2S">
+
+  <Period id="1" duration="PT15S" start="PT0S">
+    <AdaptationSet mimeType="video/mp4" codecs="avc1.4d401f"
+                   segmentAlignment="true" startWithSAP="1">
+      <Representation id="v1" bandwidth="1500000" width="640" height="360">
+        <BaseURL>media/cand1_video.mp4</BaseURL>
+        <SegmentBase indexRange="0-850"/>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
+```
+
+### C.5 Per-device-class behaviour
+
+Each device class walks the same four options in document order and
+renders the first satisfiable one.
+
+| Class | Option 1 (side-by-side video + bg) | Option 2 (L-shape image) | Option 3 (corner image) | Option 4 (takeover video) | Rendered |
+|-------|-------------------------------------|---------------------------|---------------------------|----------------------------|----------|
+| D1 | ✅ 2 decoders + image surface for bg | — | — | — | Option 1 |
+| D2 | ❌ Background image is a non-video surface D2 cannot composite | ❌ Image surface unavailable | ❌ Image surface unavailable | ✅ 1 decoder reused sequentially | Option 4 |
+| D3 | ❌ Needs 2 decoders | ✅ 1 decoder + image surface | — | — | Option 2 |
+| D4 | ❌ Needs 2 decoders | ✅ 1 decoder + image surface | — | — | Option 2 |
+| D5 | ❌ Needs 2 decoders + non-video surface | ❌ No image surface | ❌ No overlay surface | ✅ 1 decoder reused sequentially | Option 4 |
+
+Three different layouts emerge from the same authored list:
+
+- **D1** lands on the three-element side-by-side (primary shrunk
+  into one box, ad video in the other, advertiser background image
+  in the bands).
+- **D3 / D4** land on the L-shape (primary shrunk into the cutout
+  of a full-frame image ad; no uncovered region).
+- **D2 / D5** land on the full-screen takeover video (the overlay
+  slot is satisfied by a sequential linear-style ad, since no
+  overlay layout is composable on these classes).
+
+In each case the Player fires the same six tracking beacons against
+the candidate's presentation timeline.
+
+## Annex D — Hybrid linear + concurrent overlay
+
+(Informative.)
+
+### D.1 Scenario
+
+The Publisher has declared a mid-content slot where the experience
+is hybrid: a linear ad takes over the screen and a non-linear
+overlay is composited on top of it during the same break. The two
+events are co-located at `presentationTime=PT12M`.
+
+### D.2 Main MPD (relevant excerpt)
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     type="static"
+     minBufferTime="PT2S">
+
+  <Period id="1" start="PT0S">
+
+    <EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:replace:2025"
+                 timescale="1000">
+      <Event id="lin-1" presentationTime="720000" duration="30000">
+        <ReplacePresentation url="https://aps.example.com/resolve/midroll-lin"
+                             earliestResolutionTimeOffset="30000"
+                             maxDuration="30000"
+                             returnOffset="0"
+                             clipDuration="30000"
+                             startWithOffset="false"/>
+      </Event>
+    </EventStream>
+
+    <EventStream schemeIdUri="urn:svta:dash:event:sgai-overlay:2026"
+                 timescale="1000">
+      <Event id="ov-on-lin-1" presentationTime="720000" duration="30000">
+        <svta:OverlayPresentation
+            url="https://aps.example.com/resolve/midroll-ov"
+            maxDuration="30000"
+            earliestResolutionTimeOffset="30000"
+            allowedLayouts="overlay-lower-third overlay-corner"
+            maxConcurrency="1"/>
+      </Event>
+    </EventStream>
+
+    <AdaptationSet id="1" mimeType="video/mp4" codecs="avc1.4D401F"
+                   segmentAlignment="true" startWithSAP="1"/>
+  </Period>
+</MPD>
+```
+
+### D.3 Player behaviour
+
+The Player resolves the two `@url` values independently. The
+linear resolution returns a single 30 s ad; the overlay resolution
+returns a candidate whose options are a video form (lower-third
+overlay) followed by an image form (corner overlay).
+
+### D.4 Per-device-class behaviour
+
+| Device class | Linear | Overlay | Combined outcome |
+|--------------|--------|---------|------------------|
+| D1 | Plays the 30 s linear on a decoder | Overlay image (corner) composited on the image surface | Linear with lower-third / corner overlay branding |
+| D2 | Plays the 30 s linear on the primary decoder | Overlay video (lower-third) composited on the second decoder | Linear with video lower-third on top |
+| D3 / D4 | Plays the 30 s linear on the single decoder | A top-of-video overlay requires concurrent composition the single decoder cannot guarantee; the overlay portion is declined | Linear only; no overlay |
+| D5 | Plays the 30 s linear on the single decoder | No overlay capability; overlay portion declined | Linear only; no overlay |
+
+## Annex E — Pause-triggered ad
+
+(Informative.)
+
+### E.1 Scenario
+
+The Publisher has declared a pause-trigger window from
+`PT4M` to `PT8M` of a VOD primary timeline. If the viewer pauses
+inside that window, the Player composites a pause-ad fullscreen on
+top of the paused frame. Outside the window, pause has no
+ad-related side-effect.
+
+### E.2 Main MPD (relevant excerpt)
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     type="static"
+     minBufferTime="PT2S">
+
+  <Period id="1" start="PT0S">
+
+    <EventStream schemeIdUri="urn:svta:dash:event:sgai-pause-trigger:2026"
+                 timescale="1000">
+      <Event id="pause-window-1" presentationTime="240000" duration="240000">
+        <svta:PauseAdPresentation
+            url="https://aps.example.com/resolve/pause-1"
+            maxDuration="60000"
+            earliestResolutionTimeOffset="0"
+            allowedLayouts="pause-ad"/>
+      </Event>
+    </EventStream>
+
+    <AdaptationSet id="1" mimeType="video/mp4" codecs="avc1.4D401F"
+                   segmentAlignment="true" startWithSAP="1"/>
+  </Period>
+</MPD>
+```
+
+### E.3 Resolution document (Overlay Resolution Document)
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     profiles="urn:svta:dash:profile:sgai-overlay-list:2026"
+     type="static">
+
+  <svta:OverlayList>
+    <svta:Candidate id="pause-cand-1" duration="PT60S">
+
+      <svta:RenderableAsset mediaType="html"
+                            layout="pause-ad"
+                            assetUrl="https://cdn.example.com/pause-1.html"/>
+      <svta:RenderableAsset mediaType="image"
+                            layout="pause-ad"
+                            assetUrl="https://cdn.example.com/pause-1.jpg"/>
+      <svta:RenderableAsset mediaType="video"
+                            layout="pause-ad">
+        <ImportedMPD uri="https://ads.example.com/pause_video.mpd"/>
+      </svta:RenderableAsset>
+
+      <EventStream xmlns:cb="urn:mpeg:dash:event:callback:2015"
+                       schemeIdUri="urn:mpeg:dash:event:callback:2015"
+                       value="1" timescale="1000">
+        <Event presentationTime="0" id="p1">https://tracker.example.com/pause-impression</Event>
+        <Event presentationTime="0" id="p2">https://tracker.example.com/pause-start</Event>
+      </EventStream>
+
+      <svta:Click clickThroughUrl="https://advertiser.example.com/pause-landing"/>
+    </svta:Candidate>
+  </svta:OverlayList>
+</MPD>
+```
+
+### E.4 Per-device-class behaviour
+
+| Class | Outcome |
+|-------|---------|
+| D1 | Renders the HTML form fullscreen on top of the paused frame. |
+| D2 | HTML and image forms fail (no non-video surface); renders the video form on the second decoder over the paused frame. |
+| D3 | Renders the HTML form fullscreen via the HTML surface. |
+| D4 | HTML fails; renders the image form fullscreen on the image surface. |
+| D5 | No overlay capability; declines the pause-ad. The paused frame stays on-screen until the viewer resumes. |
+
+On the viewer's resume, every class dismisses the pause-ad within
+one rendering frame and ceases firing any further beacons.
+
+## Annex F — Multi-ad break (linear)
+
+(Informative.)
+
+### F.1 Scenario
+
+The Publisher has declared a `<ReplacePresentation>` mid-roll slot
+of 60 s. The ADS returns three back-to-back ads (15 s + 20 s +
+30 s) — cumulative 65 s, exceeding the cap. The Player applies the
+cap-enforcement rules.
+
+### F.2 Main MPD (relevant excerpt)
+
+```xml
+<EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:replace:2025"
+             timescale="1000">
+  <Event id="midroll-pod" presentationTime="900000" duration="60000">
+    <ReplacePresentation url="https://aps.example.com/resolve/pod-1"
+                         earliestResolutionTimeOffset="60000"
+                         maxDuration="60000"
+                         returnOffset="0"
+                         clipDuration="60000"
+                         startWithOffset="false"/>
+  </Event>
+</EventStream>
+```
+
+### F.3 Resolution document (`ListMPD`, three candidates)
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     profiles="urn:mpeg:dash:profile:list:2024"
+     type="list">
+
+  <BaseURL>https://ads.example.com/delivery/</BaseURL>
+
+  <Period id="ad_p1" duration="PT15S">
+    <ImportedMPD uri="creative_pod_1.mpd"/>
+  </Period>
+
+  <Period id="ad_p2" duration="PT20S">
+    <ImportedMPD uri="creative_pod_2.mpd" earliestResolutionTimeOffset="15"/>
+  </Period>
+
+  <Period id="ad_p3" duration="PT30S">
+    <ImportedMPD uri="creative_pod_3.mpd" earliestResolutionTimeOffset="35"/>
+  </Period>
+
+</MPD>
+```
+
+### F.4 Player cap arithmetic
+
+Drop-before-play evaluation:
+
+- After ad_p1 (declared 15 s): cumulative = 15 s ≤ 60 s. Keep.
+- After ad_p2 (declared 20 s): cumulative = 35 s ≤ 60 s. Keep.
+- After ad_p3 (declared 30 s): cumulative = 65 s > 60 s. The
+  Player chooses between drop-before-play (skip ad_p3 entirely) and
+  accept-with-trim (play ad_p3 from second 0 and trim at second 25
+  of ad_p3, the moment cumulative actual length hits the 60 s cap).
+  Drop-before-play is the conformant default and the simpler
+  outcome; accept-with-trim is admissible only when the Player
+  needs to honour the ordering and accepts the trim.
+
+### F.5 Per-device-class behaviour
+
+| Class | Outcome |
+|-------|---------|
+| D1 / D2 | Plays ad_p1 (15 s), then ad_p2 (20 s); skips ad_p3 under drop-before-play; resumes primary at second 35 of the slot's playback. D2 MAY pre-buffer ads on its second decoder. |
+| D3 / D4 / D5 | Same outcome; sequential reuse of the single decoder. |
+
+## Annex G — Legacy Player encounters new constructs
+
+(Informative.)
+
+### G.1 Scenario
+
+A Player implementation that predates this specification fetches a
+manifest authored per Annex C (overlay slot) or Annex E (pause
+window). The Player does not implement
+`urn:svta:dash:event:sgai-overlay:2026` or
+`urn:svta:dash:event:sgai-pause-trigger:2026`.
+
+### G.2 Expected behaviour (uniform across D1..D5)
+
+- The Player parses the main MPD. It encounters the
+  `<EventStream>` whose `@schemeIdUri` is one of the SGAI event
+  schemes. Per the baseline scheme ignore-if-unknown rule, the
+  Player skips the entire `<EventStream>` and every `<Event>` it
+  contains.
+- The Player does not resolve any APS endpoint and never reaches
+  the resolution document. No tracking beacon fires for any of
+  the unknown events.
+- The Player plays the primary `<AdaptationSet>` uninterrupted.
+
+The same outcome applies on every device class. The legacy Player's
+behaviour depends on its edition, not on its hardware.
+
+### G.3 Why this works
+
+This specification introduces every new XML construct under the
+namespace `urn:svta:dash:sgai:2026` (a foreign namespace relative
+to the base DASH schema) and every new event scheme under a
+year-pinned `urn:svta:dash:event:*:2026` URI. The base
+specification's §5.10 (event scheme ignore-if-unknown) and §5.2.1
+(foreign-namespace open content) guarantee silent skip; the legacy
+Player needs no new logic to handle this case.
+
+## Annex H — Overlay window crosses a pause-ad window
+
+(Informative.)
+
+### H.1 Scenario
+
+The viewer is watching primary content with an overlay on screen
+(per Annex C). The Publisher has also declared a pause-trigger
+window overlapping the overlay's window. The viewer pauses while
+the overlay is rendering and while the playhead is inside the
+pause-trigger window. The pause-ad takes priority over the overlay
+(§4.6.8).
+
+### H.2 Main MPD (relevant excerpt)
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     type="static">
+
+  <Period id="1" start="PT0S">
+
+    <EventStream schemeIdUri="urn:svta:dash:event:sgai-overlay:2026"
+                 timescale="1000">
+      <Event id="ov-h" presentationTime="180000" duration="60000">
+        <svta:OverlayPresentation
+            url="https://aps.example.com/resolve/ov-h"
+            maxDuration="60000"
+            earliestResolutionTimeOffset="10000"
+            allowedLayouts="overlay-corner overlay-lower-third"
+            maxConcurrency="1"/>
+      </Event>
+    </EventStream>
+
+    <EventStream schemeIdUri="urn:svta:dash:event:sgai-pause-trigger:2026"
+                 timescale="1000">
+      <Event id="pause-h" presentationTime="180000" duration="60000">
+        <svta:PauseAdPresentation
+            url="https://aps.example.com/resolve/pause-h"
+            maxDuration="60000"
+            earliestResolutionTimeOffset="0"
+            allowedLayouts="pause-ad"/>
+      </Event>
+    </EventStream>
+
+    <AdaptationSet id="1" mimeType="video/mp4" codecs="avc1.4D401F"/>
+  </Period>
+</MPD>
+```
+
+### H.3 Timeline
+
+| Wall-clock | Player state | On-screen elements |
+|-----------|--------------|---------------------|
+| `t=PT3M00S` | Primary playing; overlay starts | Primary + overlay banner |
+| `t=PT3M20S` | Viewer pauses | Primary paused; overlay suspended; pause-ad resolved and composited fullscreen |
+| `t=PT3M50S` | Viewer resumes (30 s into pause) | Pause-ad dismissed within one frame; overlay restored; primary resumes |
+| `t=PT4M00S` | Overlay window expires | Overlay dismissed; primary continues |
+
+The overlay's slot-window clock followed the primary timeline; it
+froze during the pause and resumed when the primary did. The pause-ad
+fired its own tracking schedule between `PT3M20S` and the resume; no
+tracking beacons fired for the overlay during the pause-ad's
+presence.
+
+### H.4 Per-device-class behaviour
+
+| Class | Overlay during play | Pause-ad on pause | Overlay on resume |
+|-------|---------------------|-------------------|-------------------|
+| D1 | HTML or image banner | HTML, image, or video pause-ad | Same banner restored |
+| D2 | Video banner (second decoder) | Video pause-ad (second decoder) or pause-ad declined | Video banner restored if window still active |
+| D3 | HTML or image banner | HTML or image pause-ad | Banner restored |
+| D4 | Image banner | Image pause-ad | Image banner restored |
+| D5 | Overlay declined | Pause-ad declined | No overlay restored (nothing to restore) |
+
+## Annex I — One ad, ordered options resolved across device classes
+
+(Informative.)
+
+### I.1 Scenario
+
+A single non-linear overlay opportunity is filled by one candidate
+whose ordered presentation options span four device-class outcomes.
+This annex is the worked illustration of how the ordered-list
+contract (§4.6.5) produces per-class behaviour without any
+authoring party holding a device-class matrix.
+
+The Publisher declares one device-agnostic `@allowedLayouts` set
+covering side-by-side with background, L-shape, corner overlay, and
+the linear fallback. The ADS emits the **same** ordered list of
+four options to every viewer. The per-class outcome emerges
+Player-side.
+
+### I.2 Main MPD (relevant excerpt)
+
+Identical to Annex C.2, repeated here for completeness:
+
+```xml
+<EventStream xmlns:svta="urn:svta:dash:sgai:2026"
+             schemeIdUri="urn:svta:dash:event:sgai-overlay:2026"
+             timescale="1000">
+  <Event id="i-1" presentationTime="120000" duration="20000">
+    <svta:OverlayPresentation
+        url="https://aps.example.com/resolve/i-1"
+        maxDuration="20000"
+        earliestResolutionTimeOffset="10000"
+        allowedLayouts="squeezeback-double-box-with-background squeezeback-l-shape overlay-corner linear"
+        maxConcurrency="1"/>
+  </Event>
+</EventStream>
+```
+
+### I.3 Resolution document
+
+```xml
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     profiles="urn:svta:dash:profile:sgai-overlay-list:2026"
+     type="static">
+
+  <svta:OverlayList>
+    <svta:Candidate id="i-cand-1" duration="PT20S">
+
+      <svta:RenderableAsset mediaType="video"
+                            layout="squeezeback-double-box-with-background">
+        <ImportedMPD uri="i_video.mpd"/>
+        <svta:BackgroundFill assetUrl="https://cdn.example.com/i-advertiser-bg.png"/>
+      </svta:RenderableAsset>
+
+      <svta:RenderableAsset mediaType="image"
+                            layout="squeezeback-l-shape"
+                            assetUrl="https://cdn.example.com/i-lshape.png"/>
+
+      <svta:RenderableAsset mediaType="image"
+                            layout="overlay-corner"
+                            assetUrl="https://cdn.example.com/i-corner.png"/>
+
+      <svta:RenderableAsset mediaType="video"
+                            layout="linear">
+        <ImportedMPD uri="i_takeover.mpd"/>
+      </svta:RenderableAsset>
+
+    </svta:Candidate>
+  </svta:OverlayList>
+</MPD>
+```
+
+### I.4 Per-class walk
+
+| Class | Option 1 (side-by-side video + bg) | Option 2 (L-shape image) | Option 3 (corner image) | Option 4 (takeover video) | Rendered |
+|-------|------------------------------------|---------------------------|---------------------------|----------------------------|----------|
+| D1 | ✅ | — | — | — | Option 1 — side-by-side |
+| D2 | ❌ Background image is a non-video surface D2 cannot composite | ❌ Image surface | ❌ Image surface | ✅ 1 decoder reused sequentially | Option 4 — takeover video |
+| D3 | ❌ Needs 2 decoders | ✅ 1 decoder + image surface | — | — | Option 2 — L-shape image |
+| D4 | ❌ Needs 2 decoders | ✅ 1 decoder + image surface | — | — | Option 2 — L-shape image |
+| D5 | ❌ Needs 2 decoders + non-video surface | ❌ No image surface | ❌ No overlay surface | ✅ 1 decoder reused sequentially | Option 4 — takeover video |
+
+### I.5 What this illustrates
+
+- The Publisher declared one device-agnostic allowed-layout set.
+- The ADS emitted the same ordered list to every viewer.
+- The APS transcribed the list verbatim.
+- The five device classes landed on three different observable
+  outcomes purely by walking the same list and rendering the first
+  satisfiable option.
+
+The contrast between D1 (two decoders, all surfaces) and D2 (two
+decoders, video-only surfaces) is the instructive case: D2 owns the
+two decoders that option 1's side-by-side video needs, yet it
+declines option 1 because the third element — the background image
+— is a non-video surface D2 cannot composite. The same lookup
+explains why D3 / D4 land on the L-shape (one decoder + image
+surface — option 2 satisfiable) rather than on the side-by-side
+(two decoders — option 1 unsatisfiable).
+
+## Annex J — Side-by-side / double-box (three-element layout)
+
+(Informative.)
+
+### J.1 Scenario
+
+The Publisher has declared an overlay slot whose allowed layouts
+include `squeezeback-double-box-with-background`. The chosen
+candidate's presentation option is the three-element layout: the
+shrunk primary content, the ad creative, and a background fill.
+This annex is the worked illustration of the three-element
+composition rule (§4.6.12, §5.3.7).
+
+### J.2 Main MPD (relevant excerpt)
+
+```xml
+<EventStream xmlns:svta="urn:svta:dash:sgai:2026"
+             schemeIdUri="urn:svta:dash:event:sgai-overlay:2026"
+             timescale="1000">
+  <Event id="j-1" presentationTime="60000" duration="20000">
+    <svta:OverlayPresentation
+        url="https://aps.example.com/resolve/j-1"
+        maxDuration="20000"
+        earliestResolutionTimeOffset="10000"
+        allowedLayouts="squeezeback-double-box-with-background overlay-corner"
+        maxConcurrency="1"
+        backgroundFallback="https://cdn.example.com/publisher-fallback-bg.png"/>
+  </Event>
+</EventStream>
+```
+
+### J.3 Resolution document — two variants
+
+Variant A: advertiser supplies the background fill.
+
+```xml
+<svta:OverlayList xmlns:svta="urn:svta:dash:sgai:2026">
+  <svta:Candidate id="j-cand-A" duration="PT20S">
+
+    <svta:RenderableAsset mediaType="image"
+                          layout="squeezeback-double-box-with-background"
+                          assetUrl="https://cdn.example.com/j-image-ad.png">
+      <svta:BackgroundFill assetUrl="https://cdn.example.com/j-advertiser-bg.png"/>
+    </svta:RenderableAsset>
+
+  </svta:Candidate>
+</svta:OverlayList>
+```
+
+Variant B: advertiser supplies no background; the Player uses the
+Publisher fallback declared on the slot.
+
+```xml
+<svta:OverlayList xmlns:svta="urn:svta:dash:sgai:2026">
+  <svta:Candidate id="j-cand-B" duration="PT20S">
+
+    <svta:RenderableAsset mediaType="image"
+                          layout="squeezeback-double-box-with-background"
+                          assetUrl="https://cdn.example.com/j-image-ad.png"/>
+
+  </svta:Candidate>
+</svta:OverlayList>
+```
+
+### J.4 Per-device-class behaviour
+
+| Class | Image ad + image bg (variants A or B) | Video ad + image bg (alternative variant not shown above) |
+|-------|---------------------------------------|------------------------------------------------------------|
+| D1 | ✅ 1 decoder (primary) + image surfaces for ad and bg | ✅ 2 decoders + image surface for bg |
+| D2 | ❌ Background image is a non-video surface | ❌ Same; D2 cannot composite the third element |
+| D3 | ✅ 1 decoder + image surfaces | ❌ Needs 2 decoders |
+| D4 | ✅ 1 decoder + image surfaces | ❌ Needs 2 decoders |
+| D5 | ❌ No image surface for the ad or the background | ❌ Same |
+
+On D2 the side-by-side option fails because the **third element**
+is a non-video surface. The Player falls through to the next
+option in document order, which in this annex's allowed-layout set
+would be `overlay-corner` — D2 also cannot composite a non-video
+overlay-corner, so the Player ultimately declines the slot.
+
+### J.5 What this illustrates
+
+- The background fill is a composition attribute of the layout
+  (carried by `<svta:BackgroundFill>` or `@backgroundFallback`),
+  not a separate presentation option (§5.3.7).
+- Element type matters as much as element count: D2 owns the two
+  decoders a side-by-side video would need, but the third-element
+  image-background blocks composition.
+- The L-shape / squeezeback (full-frame ad with cutout for primary)
+  is a different layout — it has no uncovered region and needs no
+  background fill, so it is not a three-element case (Annex I,
+  option 2 illustrates that path).
+
+## Annex K — Test cases and conformance criteria
+
+(Informative.)
+
+This annex enumerates the test cases an implementer can run against
+a conformant Player, APS, or authoring tool. Each row corresponds
+to an error-semantics condition from §8.1 or to a positive-behaviour
+contract from chapters 4–7. The reference column points at the
+section that defines the normative obligation.
+
+### K.1 Error-semantics test cases (mapping E1..E13)
+
+| Error ID | Test case ID | Pre-condition | Expected Player behaviour | Pass criteria | Reference |
+|----------|--------------|---------------|----------------------------|----------------|-----------|
+| E1 | TC-E1 | APS resolution endpoint returns HTTP 500 | Falls through to primary content uninterrupted; the same-family fallback of §4.6.11 is evaluated if a subsequent overlapping window exists | No visible artefact; no beacon fired; primary continues | §8.1, §4.6.1, §4.6.11 |
+| E2 | TC-E2 | APS returns an empty `<svta:OverlayList>` | Falls through to primary content uninterrupted | Same as TC-E1 | §8.1 |
+| E3 | TC-E3 | APS returns malformed XML | Falls through; document discarded | Same as TC-E1 | §8.1 |
+| E4 | TC-E4 | Resolution document carries one candidate whose only option is `mediaType="html"` on a D4 Player | Skips the slot; continues primary | No visible artefact; primary continues | §4.6.5, §8.1 |
+| E5 | TC-E5 | Resolution document carries a candidate whose `@layout` is `overlay-corner` while the slot's `@allowedLayouts` lists only `overlay-lower-third` | Discards the candidate; advances to the next in document order | First candidate not rendered; second candidate evaluated | §4.6.2, §8.1 |
+| E6 | TC-E6 | Three candidates in pod: 15 s + 20 s + 30 s; cap is 60 s | Plays first two; drops the third before play | Second candidate completes at second 35; third never starts | §4.6.3, §8.1 |
+| E7 | TC-E7 | Candidate's declared `@duration` is 15 s but actual stream is 17 s | Stops rendering at second 15; fires no beacons scheduled past second 15 | Trim at 15 s mark; no late beacons | §4.6.3, §8.1 |
+| E8 | TC-E8 | Resolution document carries a candidate with `@layout="non-iab-layout-foo"` | Treats the option as non-renderable; advances to the next option | First option not rendered; next option evaluated | §3.2, §8.1 |
+| E9 | TC-E9 | Main MPD carries `<EventStream>@schemeIdUri="urn:vendor-unknown:event:2030"` | Skips the unknown event; primary continues | Event never resolved; no beacon fired | §4.6.1, §8.1 |
+| E10 | TC-E10 | Selected candidate's video sub-MPD references segments that 404 | Skips the candidate; advances to the next in document order | First candidate not rendered; tracker for first candidate fires no further beacons; next candidate evaluated | §4.6.4, §8.1 |
+| E11 | TC-E11 | Selected candidate's image asset returns HTTP 200 then connection drops mid-stream | Ceases rendering; fires only the elapsed beacons; advances per policy | Mid-render abort; remaining beacons not fired | §4.6.4, §8.1 |
+| E12 | TC-E12 | Tracking endpoint returns HTTP 500 for the impression beacon | Continues rendering the ad uninterrupted | Ad plays to completion; no playback artefact | §8.1 |
+| E13 | TC-E13 | APS responds 2 s after the slot's `presentationTime` has elapsed | Discards the late response; primary continues | Late document discarded; same-family fallback evaluated if applicable | §8.1, §4.6.11 |
+
+### K.2 Positive-behaviour test cases
+
+| Test case ID | Scenario | Expected behaviour | Pass criteria | Reference |
+|--------------|----------|---------------------|----------------|-----------|
+| TC-PRE | Annex A pre-roll on D1..D5 | Each class plays the 15 s pre-roll on its primary decoder | Primary starts after the ad on every class; six beacons fire | Annex A, §7.5.1 |
+| TC-MID | Annex B mid-roll on D1..D5 | Each class plays the 30 s break (two 15 s ads) | Cumulative break = 30 s; primary resumes at `returnOffset=0` | Annex B, §7.5.1 |
+| TC-OVL-D1 | Annex C overlay on D1 | D1 lands on the three-element side-by-side | Primary shrunk; ad video; advertiser background composited | Annex C, §7.5.2, §7.5.3 |
+| TC-OVL-D2 | Annex C overlay on D2 | D2 lands on the takeover (option 4) | Full-screen video; no overlay rendered | Annex C, §7.5.2 |
+| TC-OVL-D3 | Annex C overlay on D3 | D3 lands on the L-shape (option 2) | Primary shrunk into cutout of full-frame image ad | Annex C, §7.5.2 |
+| TC-OVL-D4 | Annex C overlay on D4 | D4 lands on the L-shape (option 2) | Same as TC-OVL-D3 | Annex C, §7.5.2 |
+| TC-OVL-D5 | Annex C overlay on D5 | D5 lands on the takeover (option 4) | Same as TC-OVL-D2 | Annex C, §7.5.2 |
+| TC-HYBRID-D1 | Annex D hybrid linear + overlay on D1 | Linear plus image-corner overlay | Linear plays full-screen; overlay rendered on top | Annex D, §7.5.4 |
+| TC-HYBRID-D2 | Annex D hybrid on D2 | Linear plus video-lower-third overlay | Linear plus video overlay via second decoder | Annex D, §7.5.4 |
+| TC-PAUSE-D1 | Annex E pause-trigger on D1, viewer pauses inside window | HTML pause-ad fullscreen on paused frame | Pause-ad rendered; dismissed on resume within one frame | Annex E, §7.5.5 |
+| TC-PAUSE-LIVE-FREEZE | Live primary; viewer pauses inside pause-ad window for 60 s | Player presentation-time frozen inside the window | After 60 s of pause, the resume keeps the pause-ad's window valid until resume | §4.6.7 |
+| TC-OVERLAP-FAMILY | Two overlapping `<svta:OverlayPresentation>` windows; APS for the first returns HTTP 500 | Player falls through to the second window | Second window's resolution document served; first window's failure surfaced | §4.6.11 |
+| TC-LEGACY | Annex G legacy Player on D1..D5 | Primary plays uninterrupted; no APS request | Player never resolves the SGAI events; no tracking beacon fires | Annex G, §7.5.9 |
+| TC-MULTI-FORM | Annex I one-ad ordered options walked across D1..D5 | Three distinct outcomes emerge from one ordered list | D1 → side-by-side; D3 / D4 → L-shape; D2 / D5 → takeover | Annex I, §4.6.5 |
+| TC-THREE-ELEMENT | Annex J side-by-side with image ad + image background on D1, D3, D4 | Three on-screen elements composited | Primary shrunk; ad image; background fill image visible in uncovered region | Annex J, §4.6.12, §5.3.7 |
+| TC-BACKGROUND-FALLBACK | Annex J variant B (no advertiser background; Publisher fallback declared) | Player composites the Publisher fallback in the uncovered region | Background visible matches the Publisher fallback URL | §5.3.7 |
+| TC-OVL-CROSS-PAUSE | Annex H overlay + pause-ad on D1 | Overlay suspended on pause; pause-ad rendered; overlay restored on resume | The transition is observable at the viewer; no overlay tracking beacon fires during the pause-ad | Annex H, §4.6.8, §7.5.6 |
+| TC-CAP-TRIM | A single-ad slot whose creative actual length unexpectedly exceeds the cap by 5 s | Player stops rendering at the cap; fires no beacons scheduled past the cap | Cap honored; remaining beacons suppressed | §4.6.3 |
+| TC-SPEED-2X | Annex C overlay rendered while primary is at 2x speed | Effective on-screen wall-clock duration is 7.5 s (15 s / 2) | Overlay visible for ~7.5 s wall-clock; beacons fired on presentation timeline | §4.6.9 |
+
+### K.3 Per-chapter conformance highlights
+
+| Chapter | Highlighted conformance assertions |
+|---------|------------------------------------|
+| §4.3 Publisher | Slot declared in main MPD with positive obligations on `@maxDuration`, `@allowedLayouts`, `@maxConcurrency`. |
+| §4.4 ADS | Selects ads, declares the tracking schedule, emits the ordered options set. |
+| §4.5 APS | Returns a syntactically valid resolution document; preserves ADS order verbatim; emits IAB-conformant `@mediaType` and `@layout`. |
+| §4.6 Player | Graceful degradation, constraint validation, cap enforcement (drop-before-play + trim-during-play), ordered-options walk, single-active-form rendering, pause-ad lifecycle and priority, playback-speed derivation, tracking execution, same-family fallback, three-element composition. |
+| §5.1 / §5.2 / §5.3 | Attribute tables per construct (`@url`, `@maxDuration`, `@earliestResolutionTimeOffset`, `@allowedLayouts`, `@maxConcurrency`, `@mediaType`, `@layout`, `@assetUrl`, `@returnOffset`, `@clipDuration`, `@startWithOffset`). |
+| §5.5 | Reuse of the baseline DASH callback event scheme; per-event `@presentationTime` relative to ad start. |
+| §6 | Player-visible interface contracts (HTTPS, MPD / resolution document XML payloads, beacon GETs). |
+| §7 | Per-actor, per-scenario observable behaviour for linear, overlay, hybrid, pause, multi-ad break, legacy, overlap, side-by-side. |
+| §8.1 | The thirteen-row error-semantics matrix, including order of precedence and fall-through definition. |
+| §8.8 | Per-construct backward-compatibility audit confirming silent skip on legacy Players. |
+
+### K.4 Implementer's checklist
+
+A Player implementer SHOULD run TC-E1 through TC-E13 plus the
+positive-behaviour cases in §K.2 against a representative set of
+device classes covering D1, D3, and D5 (the three extreme cases of
+the device-class taxonomy). An APS implementer SHOULD verify
+TC-MULTI-FORM and TC-THREE-ELEMENT against its conversion pipeline.
+A Publisher implementer SHOULD verify TC-LEGACY against any Player
+predating this specification, and TC-OVERLAP-FAMILY when authoring
+multiple ad opportunities at adjacent timeline positions.
+
+
+
+
+
+
+
+
+
