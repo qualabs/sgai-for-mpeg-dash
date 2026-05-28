@@ -74,6 +74,8 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-06 Multi-ad break | Verification | full sequence | full sequence | full sequence on single decoder | full sequence on single decoder | full sequence on single decoder |
 | UC-07 Legacy Player encounters new constructs | Cross-cutting | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) |
 | UC-08 Overlay window crosses a pause-ad window | Composition | overlay swaps to pause-ad on pause, restores on resume | overlay swaps to video pause-ad if available, else pause-ad declined; overlay restores on resume | overlay swaps to HTML or image pause-ad, restores on resume | overlay swaps to image pause-ad, restores on resume | both opportunities declined gracefully |
+| UC-09 One ad, ordered options across device classes | Worked example | side-by-side (video + background) — option 1 | full-screen takeover video — option 4 (image/background surfaces unrenderable) | L-shape image ad — option 2 (no second decoder for side-by-side) | L-shape image ad — option 2 (no HTML, no second decoder) | full-screen takeover video — option 4 (no overlay surface) |
+| UC-10 Side-by-side / double-box (three-element R26) | Composition | three-element side-by-side (video or image/HTML ad + background) | side-by-side declined (background image is a non-video surface) | side-by-side for image/HTML ad; declined for video ad | side-by-side for image ad; declined for video/HTML ad | side-by-side declined (no overlay surface) |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -114,22 +116,23 @@ use case below references the industry-standard term where applicable
 
 **Ad response:**
 - One or more candidates eligible for this slot.
-- Each candidate carries one or more renderable forms — typically a
-  video form, optionally with an image or HTML form as a fallback
-  for devices that cannot render video. Each form has its own
-  intrinsic duration declared by the ADS; the actual rendered
+- Each candidate carries one or more renderable presentation options
+  — typically a video form, optionally with an image or HTML form as
+  a fallback for devices that cannot render video — as an ordered
+  list, where document order is the preference order. Each form has
+  its own intrinsic duration declared by the ADS; the actual rendered
   stream length governs R4 enforcement.
-- Optional ADS-supplied ranking hints across candidates and across
-  forms within a candidate.
+- The candidates appear in document order across the slot, and the
+  presentation options within a candidate appear in document order.
 
 **Expected behavior per device class:**
 
 #### D1 — Top-tier (2+ video decoders, image and HTML overlays)
 
 - **Player decision:** reads the Publisher's slot rules
-  (linear-only, bounded duration). Selects the highest-ranked
-  renderable candidate using ADS ranking hints and any client-side
-  ranking, and renders its video form on one of the decoders. R4 is
+  (linear-only, bounded duration). Selects the first
+  renderable candidate following document order, and renders its
+  first satisfiable option (video form) on one of the decoders. R4 is
   enforced at playback (the Player stops at the slot cap if the
   rendered stream length reaches it). The extra decoder and overlay
   surfaces are not exercised here because the slot is linear-only.
@@ -147,8 +150,8 @@ use case below references the industry-standard term where applicable
 
 #### D3 — Single-decoder, image and HTML capable
 
-- **Player decision:** selects the highest-ranked renderable
-  candidate using ADS ranking hints. Plays the candidate's video
+- **Player decision:** selects the first renderable
+  candidate following document order. Plays the candidate's video
   form on the single decoder, then reuses the same decoder for the
   primary content. This is feasible because a linear ad and the
   primary content do not need to play concurrently — they are
@@ -187,10 +190,11 @@ leaves it intact and resumes at the same point
 
 **Ad response:**
 - One or more candidates eligible for this slot.
-- Each candidate carries one or more renderable forms — typically a
-  video form, optionally with an image or HTML form as a fallback
-  for devices that cannot render video. Each form has its own
-  intrinsic duration declared by the ADS; the actual rendered
+- Each candidate carries one or more renderable presentation options
+  — typically a video form, optionally with an image or HTML form as
+  a fallback for devices that cannot render video — as an ordered
+  list, where document order is the preference order. Each form has
+  its own intrinsic duration declared by the ADS; the actual rendered
   stream length governs R4 enforcement.
 
 **Expected behavior per device class:**
@@ -198,8 +202,8 @@ leaves it intact and resumes at the same point
 #### D1 — Top-tier (2+ video decoders, image and HTML overlays)
 
 - **Player decision:** reads the Publisher's slot rules at the
-  slot position. Selects the highest-ranked renderable candidate
-  using ADS ranking hints, and renders its video form on one of the
+  slot position. Selects the first renderable candidate
+  following document order, and renders its video form on one of the
   decoders. Transitions playback from primary to ad and back. The
   second decoder may be used to pre-buffer the ad while the first
   finishes the last frames of primary, but this is a Player
@@ -223,8 +227,8 @@ leaves it intact and resumes at the same point
 
 #### D3 — Single-decoder, image and HTML capable
 
-- **Player decision:** selects the highest-ranked renderable
-  candidate using ADS ranking hints. Plays the candidate's video
+- **Player decision:** selects the first renderable
+  candidate following document order. Plays the candidate's video
   form on the single decoder, sequentially with the primary content
   (primary stops, ad plays, primary resumes). R4 is enforced at
   playback.
@@ -247,9 +251,9 @@ runs *on top of* the primary content without interrupting it. The
 primary continues to play; an overlay is composited over it for a
 bounded duration, then disappears. This is the central scenario for
 non-linear ads and the one where the heterogeneity of devices
-matters most: per R3, the Player walks the candidate's renderable
-forms in priority order and picks the highest-fidelity form it can
-render.
+matters most: per R3, the Player walks the candidate's presentation
+options in document order and renders the first option (form +
+layout) it can satisfy.
 
 **Publisher intent:**
 - Non-linear forms allowed.
@@ -262,25 +266,44 @@ render.
 
 **Ad response:**
 - One or more candidates eligible for this slot.
-- Each candidate carries multiple renderable forms — typically a
-  video form, an image form, and an HTML form — with optional
-  ADS-supplied priority hints across forms.
+- Each candidate carries multiple renderable presentation options —
+  typically a video form, an image form, and an HTML form — as an
+  ordered list, where document order is the preference order.
 - The ADS is unaware of the device class; it returns the same
-  multi-form candidates for every viewer.
+  multi-option candidates for every viewer.
+- A candidate's presentation option MAY be a partial-screen layout.
+  Two cases differ in how the screen is covered:
+  - **L-shape / squeezeback**: the ad is rendered full-frame with a
+    cutout into which the shrunk primary content is composited. The
+    ad already covers the whole screen, so there is no uncovered
+    region and no background fill. The full-frame ad form may be
+    video, image, or HTML; the form type determines which device
+    class can composite the layout (an image or HTML full-frame ad
+    needs one decoder for the shrunk primary content plus an
+    image/HTML surface for the ad; a video full-frame ad needs two
+    concurrent decoders). This is a layout / presentation option per
+    R5 — one option, not two forms.
+  - **Side-by-side / double-box**: the shrunk primary content sits
+    next to the ad and the two together leave bands / margins
+    uncovered, so a third element — a background image — MAY fill the
+    uncovered region (per R26). The form type of the ad determines
+    which device class can composite it (a video ad needs two
+    decoders plus an image surface for the background; an image or
+    HTML ad needs one decoder plus image/HTML surfaces for the ad and
+    the background).
 
 **Expected behavior per device class:**
 
 #### D1 — Top-tier (2+ video decoders, image and HTML overlays)
 
 - **Player decision:** reads Publisher slot rules (allowed
-  layouts, duration cap, concurrency cap). Selects the highest-
-  ranked candidate whose form-and-layout combinations conform to
-  the allowed layouts and concurrency cap and are renderable on
-  this device, using ADS ranking hints and any client-side ranking.
-  For the selected candidate, per R3, walks the forms in priority
-  order and picks the highest-fidelity form it can render. On D1
-  every form is renderable, so the choice follows ADS priority
-  hints. Composes the chosen form on top of the primary content
+  layouts, duration cap, concurrency cap). Selects a candidate whose
+  presentation options conform to the allowed layouts and concurrency
+  cap and are renderable on this device, following document order.
+  For the selected candidate, per R3, walks the presentation options
+  in document order and renders the first option (form + layout) it
+  can satisfy. On D1 every form is renderable, so the choice follows
+  document order. Composes the chosen form on top of the primary content
   using HTML/CSS layout primitives (per R10). R4 (the duration cap)
   is enforced at playback: the overlay is removed when the rendered
   display reaches the cap.
@@ -292,10 +315,10 @@ render.
 
 #### D2 — Dual-decoder, video-on-video only
 
-- **Player decision:** selects the highest-ranked candidate whose
-  form-and-layout combinations conform to the allowed layouts and
-  are renderable on this device, using ADS ranking hints. For the
-  selected candidate, walks forms in priority order. The video form
+- **Player decision:** selects a candidate whose presentation
+  options conform to the allowed layouts and are renderable on this
+  device, following document order. For the selected candidate, walks
+  the presentation options in document order. The video form
   can be composited on top of the primary using the second decoder
   — this *is* possible on D2 (the device cannot composite non-video
   content on top of video, but it can composite video on video).
@@ -310,21 +333,21 @@ render.
 - **What the user sees:** the typical case is a video overlay
   composited on top of the primary content for the declared
   duration. Alternative outcomes: side-by-side (primary shrinks
-  to one side, ad video plays in the other) if the candidate's
-  highest-renderable form is video and the layout is preferred or
-  forced; nothing, if neither overlay-video nor side-by-side is
+  to one side, ad video plays in the other) if the first satisfiable
+  presentation option is a video form in a side-by-side layout;
+  nothing, if neither overlay-video nor side-by-side is
   satisfiable for any candidate. The primary content keeps playing
   in all cases.
 
 #### D3 — Single-decoder, image and HTML capable
 
-- **Player decision:** selects the highest-ranked candidate. For the selected
-  candidate, walks forms in priority order and (per R3) skips the
-  video form because rendering it concurrently with the primary
-  would require a second decoder this device lacks. Picks the HTML
-  form (or the image form, if HTML is unavailable for that
-  candidate). Renders the chosen form via the HTML/CSS layer on
-  top of the primary content.
+- **Player decision:** selects a candidate following document order.
+  For the selected candidate, walks the presentation options in
+  document order and (per R3) skips the video form because rendering
+  it concurrently with the primary would require a second decoder
+  this device lacks. Picks the HTML form (or the image form, if HTML
+  is unavailable for that candidate). Renders the chosen form via the
+  HTML/CSS layer on top of the primary content.
 - **What the user sees:** the primary content plays without
   interruption. At the configured position, an overlay appears on
   top of the primary content, rendered via HTML or as a static
@@ -332,8 +355,9 @@ render.
 
 #### D4 — Single-decoder, image only
 
-- **Player decision:** selects the highest-ranked candidate. For the selected
-  candidate, walks forms in priority order: skips the HTML form
+- **Player decision:** selects a candidate following document order.
+  For the selected candidate, walks the presentation options in
+  document order: skips the HTML form
   (this device cannot render HTML on top of video), skips the
   video form (this device has only one decoder), picks the image
   form (which it can render via the image overlay surface). If the
@@ -351,7 +375,7 @@ render.
 #### D5 — Single-decoder, no overlay (worst case)
 
 - **Player decision:** reads slot rules. For each candidate, walks
-  the forms and finds none renderable: HTML needs an HTML overlay
+  the presentation options and finds none renderable: HTML needs an HTML overlay
   surface, image needs an image overlay surface, video needs a
   second decoder for concurrent rendering — the device has none of
   these. Side-by-side is also unavailable on D5 because it
@@ -377,11 +401,11 @@ but are independently selected.
 - Maximum break duration is bounded.
 
 **Ad response:**
-- A linear candidate (or several, with ranking) for the take-over
+- A linear candidate (or several, in document order) for the take-over
   portion of the break.
-- A non-linear candidate (or several, with ranking) for the
+- A non-linear candidate (or several, in document order) for the
   overlay portion. Non-linear candidates carry multiple
-  renderable forms.
+  renderable presentation options.
 - The two responses are independent: the ADS does not
   cross-reference one against the other.
 
@@ -417,32 +441,44 @@ but are independently selected.
   - Overlay candidate has video form: a linear ad plays full-screen
     with a smaller video overlay composited on top of it (e.g.
     branding tied to the campaign) for the declared duration.
-  - Overlay candidate has only HTML/image forms: a linear ad plays
-    full-screen with no overlay on top. From the user's
-    perspective, the experience collapses to UC-02.
+  - Overlay candidate has only HTML/image forms: D2 cannot composite
+    non-video surfaces on top of video, so the overlay portion is
+    declined per R5/R3 while the linear ad still plays. The user sees
+    a full-screen linear ad of bounded duration with no overlay on
+    top; on completion, primary content resumes.
 
 #### D3 — Single-decoder, image and HTML capable
 
-- **Player decision:** the linear portion uses the single decoder.
-  The overlay portion would need to render concurrently with the
-  linear ad's video, but the device has only one decoder for
-  video. The HTML and image forms could in principle be composited
-  via the HTML/CSS layer, but the Player has to decide whether
-  rendering an overlay on top of a linear ad is supported in this
-  scenario at all. The conservative interpretation, consistent
-  with R2 and R3, is to decline the overlay portion when the
-  primary "video underneath" is itself an ad and the device cannot
-  handle the linear+overlay composition cleanly.
-- **What the user sees:** a linear ad plays full-screen, with no
-  overlay on top. (See open question below — this behavior is not
-  fully resolved.)
+- **Player decision:** for an L-box / squeezeback option, the
+  creative is a full-frame ad rendered with a cutout where the shrunk
+  primary content is composited (a layout / presentation option per
+  R5). When the full-frame ad form is an image or HTML surface, this
+  is one decoder for the shrunk primary content plus an image/HTML
+  surface for the ad, which a single-decoder image/HTML-capable device
+  (D3) can satisfy; a video full-frame form would need two concurrent
+  decoders and is not satisfiable on D3. A separate HTML/image overlay
+  *on top of* the linear ad's video still requires concurrent
+  composition the single decoder cannot guarantee, and is declined per
+  R5/R3.
+- **What the user sees:** either the L-box (shrunk primary content
+  inside the cutout of a full-frame image or HTML ad) if that option
+  is offered and satisfiable, or — if only a top-of-video overlay
+  option exists — a full-screen linear ad with no overlay on top.
 
 #### D4 — Single-decoder, image only
 
-- **Player decision:** same reasoning as D3. The overlay portion
-  is declined.
-- **What the user sees:** same as D3 — a linear ad full-screen,
-  no overlay on top.
+- **Player decision:** same reasoning as D3, except this device
+  cannot render HTML. An L-box / squeezeback option (a layout /
+  presentation option per R5) whose full-frame ad form is an **image**
+  is satisfiable (one decoder for the shrunk primary content plus the
+  image surface for the ad); an HTML full-frame form is not (D4 cannot
+  render HTML), and a video full-frame form is not (it would need two
+  decoders). A separate HTML/image overlay *on top of* the linear ad's
+  video is declined per R5/R3.
+- **What the user sees:** either the L-box (shrunk primary content
+  inside the cutout of a full-frame image ad) if that option is
+  offered and satisfiable, or — if only a top-of-video overlay option
+  exists — a full-screen linear ad with no overlay on top.
 
 #### D5 — Single-decoder, no overlay (worst case)
 
@@ -487,8 +523,9 @@ content continues from the paused position.
 - Maximum display duration before automatic dismissal is bounded.
 
 **Ad response:**
-- Candidates with one or more renderable forms (image, HTML;
-  optionally video) for the pause-triggered slot.
+- Candidates with one or more renderable presentation options (image,
+  HTML; optionally video), as an ordered list whose document order is
+  the preference order, for the pause-triggered slot.
 
 **Expected behavior per device class:**
 
@@ -496,9 +533,9 @@ content continues from the paused position.
 
 - **Player decision:** if the user pauses inside the
   Publisher-declared window of validity, the Player applies the
-  slot rules and selects the highest-ranked renderable candidate
-  using ADS ranking hints. For the selected candidate, per R3,
-  walks the forms in priority order. Because the primary is paused
+  slot rules and selects a renderable candidate following document
+  order. For the selected candidate, per R3,
+  walks the presentation options in document order. Because the primary is paused
   (no concurrent decoding needed for the primary), even
   single-decoder devices can render a video form here — but on D1
   the second decoder is also available. Renders the chosen form on
@@ -530,8 +567,8 @@ content continues from the paused position.
 
 #### D3 — Single-decoder, image and HTML capable
 
-- **Player decision:** selects the highest-ranked candidate. Walks the forms in
-  priority order. The video form would need a decoder, and the
+- **Player decision:** selects a candidate following document order.
+  Walks the presentation options in document order. The video form would need a decoder, and the
   primary's decoder is currently holding the paused frame; the
   Player has to decide whether it can re-task the decoder to play
   an ad video while preserving the paused position. The image and
@@ -545,7 +582,7 @@ content continues from the paused position.
 #### D4 — Single-decoder, image only
 
 - **Player decision:** same logic as D3, but HTML is not
-  renderable on this device. Walks forms and picks the image form.
+  renderable on this device. Walks the presentation options in document order and picks the image form.
   If the only renderable form is HTML or video, per R3 the
   candidate is skipped and the Player tries the next one; if no
   candidate has a renderable form, the Player declines the
@@ -825,3 +862,281 @@ overlay terminates naturally when its window expires (per R4).
 - **What the user sees:** primary content plays uninterrupted; on
   pause, the paused frame stays clean; on resume, primary
   continues. No ad is rendered at any point.
+
+### UC-09 — One ad, ordered presentation options, resolved across device classes
+
+**Scenario:** A single non-linear ad candidate is presented for an
+overlay slot. The candidate carries several presentation options as
+an **ordered list** in the resolution document; per R5, document
+order IS the preference order. The ADS emits the **same** ordered
+list to every viewer, and the Publisher declares **one
+device-agnostic allowed-layout set** for the slot. There is no
+per-device-class variant anywhere in the manifest or the resolution
+document. The per-device-class outcome is not authored upstream — it
+**emerges Player-side** when each device walks the ordered options
+(R5.2 / R5.6) and renders the first one it can satisfy against its
+own capability and the Publisher's allowed layouts, skipping to the
+next when an option fails (R5.7). This use case is the worked
+example of that emergence.
+
+**Publisher intent:**
+- Non-linear forms allowed.
+- One **device-agnostic** allowed-layout set for the slot, including
+  side-by-side, L-shape / squeezeback, banner overlay, and
+  full-screen takeover. The Publisher does NOT declare a different
+  layout set per device class — device capability is the Player's
+  sole authority (R5 / R5.4).
+- For the side-by-side layout, an advertiser-supplied background fill
+  is permitted (R26).
+- Maximum slot / overlay duration is bounded (R4).
+
+**Ad response:**
+- One candidate, carrying four presentation options as an **ordered
+  list** (document order is the preference order, R5.1 / R5.5). In
+  document order:
+  1. **Side-by-side / double-box with a video ad + advertiser
+     background** — three on-screen elements: the shrunk primary
+     content, the ad video, and an advertiser-supplied background
+     image filling the bands the two boxes leave uncovered (R26).
+     Compositing it needs **two concurrent video decoders** (primary
+     content + ad video) **plus an image surface** for the background
+     (R26.3).
+  2. **L-shape / squeezeback with a full-frame image ad** — the ad is
+     a full-frame image rendered with a cutout into which the shrunk
+     primary content is composited. The ad covers the whole screen,
+     so there is **no uncovered region and no background fill** (this
+     is a layout, not an R26 case). Compositing it needs **one video
+     decoder** (the shrunk primary content) **plus an image surface**
+     for the full-frame ad.
+  3. **Image banner overlay** — a static image composited on top of
+     the primary content. Needs **one video decoder** (the primary
+     content) **plus an image overlay surface**.
+  4. **Full-screen takeover video** — a linear-style video ad that
+     replaces the primary content for the slot, played sequentially
+     (primary stops, ad plays, primary resumes). Needs only **one
+     video decoder**, reused across ad and primary content; no overlay
+     surface and no second decoder.
+- The ADS is unaware of the device class; it returns this same
+  ordered list for every viewer.
+
+**Expected behavior per device class:**
+
+#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+
+- **Player decision:** walks the options in document order (R5.2 /
+  R5.6). Option 1 (side-by-side video + background) requires two
+  decoders plus an image surface for the background — D1 has both, and
+  side-by-side is in the Publisher's allowed set, so the **first**
+  option already satisfies form + layout. The Player renders it and
+  stops walking.
+- **What the user sees:** the primary content shrinks into one box,
+  the ad video plays in the other, and the advertiser's background
+  image fills the bands around them.
+
+#### D2 — Dual-decoder, video-on-video only
+
+- **Player decision:** walks the options in document order. Option 1
+  (side-by-side video + **image** background) — D2 has the two
+  decoders for the two videos, but the **background is an image
+  element**, and D2 **cannot composite non-video content** on top of
+  / alongside video (R26.3): the option fails on its third element.
+  Option 2 (L-shape full-frame **image** ad) — needs an image surface
+  D2 lacks: fails. Option 3 (image banner overlay) — needs an image
+  surface: fails. Option 4 (full-screen takeover video) — a single
+  decoder reused sequentially, no overlay surface, no concurrent
+  composition: **satisfiable**. The Player renders option 4.
+- **What the user sees:** a full-screen video ad of bounded duration
+  replaces the primary content; on completion the primary content
+  resumes. Note this is the instructive case: D2 has two decoders yet
+  still lands on the takeover, because every earlier option needs a
+  non-video surface (the background or the image ad) that D2 cannot
+  composite.
+
+#### D3 — Single-decoder, image and HTML capable
+
+- **Player decision:** walks the options in document order. Option 1
+  (side-by-side video + background) — needs **two** decoders (primary
+  + ad video); D3 has one: fails (R26.3). Option 2 (L-shape full-frame
+  image ad) — needs **one** decoder for the shrunk primary content
+  plus an image surface for the full-frame ad; D3 has both:
+  **satisfiable**. The Player renders option 2.
+- **What the user sees:** the primary content shrinks into the cutout
+  of a full-frame image ad that covers the rest of the screen (the
+  L-shape / squeezeback). No background fill is involved — the ad
+  already covers the whole frame.
+
+#### D4 — Single-decoder, image only
+
+- **Player decision:** walks the options in document order. Option 1
+  — two decoders: fails. Option 2 (L-shape full-frame **image** ad) —
+  one decoder for the shrunk primary content plus an image surface for
+  the full-frame ad; D4 can render images on top of video, so:
+  **satisfiable**. The Player renders option 2. (Had option 2's
+  full-frame ad been HTML, D4 — which cannot render HTML — would have
+  skipped it and fallen to option 4.)
+- **What the user sees:** same as D3 — the primary content shrinks
+  into the cutout of a full-frame image ad. No background fill.
+
+#### D5 — Single-decoder, no overlay (worst case)
+
+- **Player decision:** walks the options in document order. Option 1
+  — two decoders plus an image surface: fails on both counts. Option 2
+  — image surface for the full-frame ad: fails (no overlay capability
+  of any kind). Option 3 — image overlay surface: fails. Option 4
+  (full-screen takeover video) — a single decoder reused
+  sequentially, no overlay surface required: **satisfiable**. The
+  Player renders option 4.
+- **What the user sees:** a full-screen video ad of bounded duration
+  replaces the primary content; on completion the primary content
+  resumes. Same outcome as D2, reached for a different reason (D5 has
+  no overlay capability at all; D2 has it for video only).
+
+**What this demonstrates:** the per-device-class outcome was authored
+**once**, as a single ordered list emitted identically to every
+viewer, with the Publisher declaring **one device-agnostic
+allowed-layout set**. No actor upstream of the Player declared a
+per-device-class layout. The five classes land on three different
+layouts (D1 → side-by-side, D3 / D4 → L-shape, D2 / D5 → full-screen
+takeover) purely because each Player walked the same ordered options
+and rendered the first one its hardware could satisfy. This directly
+answers David Hassoun's question (cross-ref A3) — *"shouldn't the
+Publisher declare layouts per device class?"* — by showing that the
+positional ordered fallback (R5) plus the Publisher's single
+device-agnostic allowed-layout set already produce the correct
+per-class layout, without the Publisher (or the ADS or the APS)
+holding a device-class matrix (R5.4). The element-count / element-type
+reasoning of R26.3 is what makes D2 (two decoders, video-only
+surfaces) land differently from D1 (two decoders plus image/HTML
+surfaces), and what makes D3 / D4 (one decoder plus image surface)
+land on the L-shape rather than the side-by-side.
+
+**Notes:**
+- The instructive contrast is D2: it owns the two decoders the
+  side-by-side video needs, yet declines option 1 because the **third
+  element** — the background image — is a non-video surface D2 cannot
+  composite (R26.3). This shows the rule is element-**type**, not just
+  element-**count**.
+- D5 and D2 share the outcome (full-screen takeover) but for different
+  reasons; the ordered fallback reaches the same last-resort option by
+  two different paths.
+
+### UC-10 — Side-by-side / double-box (three-element layout, R26 illustration)
+
+**Scenario:** The Publisher has declared an overlay slot whose allowed
+layouts include **side-by-side / double-box**. A candidate is
+presented whose chosen presentation option is the side-by-side: the
+shrunk primary content sits next to the ad on a 16:9 screen, and the
+two boxes together leave bands / margins uncovered. Per R26, a third
+element — a **background image** — MAY fill the uncovered region. This
+use case is the worked illustration of R26 itself: a layout that puts
+**three on-screen elements** in play (primary content, ad, background)
+and the device-class reasoning that follows from the element count and
+type.
+
+**Publisher intent:**
+- Non-linear forms allowed; the allowed-layout set includes
+  side-by-side / double-box.
+- An advertiser-supplied background fill is permitted for the
+  uncovered region (R26). The Publisher MAY additionally declare a
+  platform / publisher fallback background for the case where the
+  advertiser supplies none — this is an opt-in MAY with no normative
+  default (R26.2).
+- Maximum overlay duration is bounded (R4).
+
+**Ad response:**
+- A candidate whose selected presentation option is the side-by-side
+  layout. The option pairs the ad **form** (video, image, or HTML per
+  R15) with the side-by-side **layout**.
+- The background fill is carried as a **composition attribute of the
+  slot / layout**, NOT as one of the candidate's alternative
+  presentation options (R26.1). Two background cases are exercised:
+  - **Advertiser background supplied** — the advertiser's creative
+    brands / takes over the region between the two boxes (the IAB
+    "Double Box Video + Background" model). The Player composites it as
+    the third element (R26.2).
+  - **No advertiser background** — if the Publisher declared a platform
+    fallback, the Player MAY composite it (opt-in MAY); absent both,
+    the uncovered-region behaviour is the Publisher's declared default
+    (R26.2).
+
+**Expected behavior per device class:**
+
+#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+
+- **Player decision:** the side-by-side is in the allowed set and the
+  device can composite three elements. If the ad form is **video**, D1
+  uses two decoders (primary + ad video) plus an image surface for the
+  background (R26.3). If the ad form is an **image or HTML** surface,
+  D1 uses one decoder for the primary content plus image / HTML
+  surfaces for the ad and the background. Either way the side-by-side
+  renders with the third-element background.
+- **What the user sees:** the primary content shrinks into one box,
+  the ad plays / displays in the other, and the background image (the
+  advertiser's, or the platform fallback if declared and no advertiser
+  background was supplied) fills the bands around the two boxes.
+
+#### D2 — Dual-decoder, video-on-video only
+
+- **Player decision:** D2 can composite **video on video** but cannot
+  composite **non-video** surfaces alongside / on top of video. The
+  side-by-side's third element — the background image — is a non-video
+  surface (R26.3). Even when the ad form is video (the two decoders are
+  available for the two videos), the background-image element cannot be
+  composited on D2, so the side-by-side option is **not satisfiable**
+  on D2. Per R5.7 the Player skips it and falls through to the next
+  presentation option (or declines per R3).
+- **What the user sees:** the side-by-side is not rendered on D2;
+  whatever the next satisfiable option is takes its place (or nothing,
+  if none renders). The three-element background is the blocker, not
+  the decoder count.
+
+#### D3 — Single-decoder, image and HTML capable
+
+- **Player decision:** if the ad form is **image or HTML**, the
+  side-by-side needs **one** decoder (the primary content) plus image /
+  HTML surfaces for the ad and for the background — D3 has both, so it
+  is **satisfiable** (R26.3). If the ad form is **video**, the
+  side-by-side needs **two** decoders (primary + ad video), which D3
+  lacks: not satisfiable, the Player skips to the next option per R5.7.
+- **What the user sees:** for an image / HTML ad, the primary content
+  shrinks into one box, the image / HTML ad displays in the other, and
+  the background image fills the bands around them. For a video ad on
+  D3, the side-by-side is skipped.
+
+#### D4 — Single-decoder, image only
+
+- **Player decision:** same reasoning as D3 restricted to the image
+  case — D4 cannot render HTML. An **image** ad in the side-by-side
+  needs one decoder (the primary content) plus image surfaces for the
+  ad and the background; D4 has them, so it is **satisfiable** (R26.3).
+  A **video** ad (two decoders) or an **HTML** ad (no HTML surface) is
+  not satisfiable; the Player skips to the next option per R5.7.
+- **What the user sees:** for an image ad, the primary content shrinks
+  into one box, the image ad displays in the other, and the background
+  image fills the bands around them. For a video or HTML ad, the
+  side-by-side is skipped.
+
+#### D5 — Single-decoder, no overlay (worst case)
+
+- **Player decision:** D5 has no overlay capability of any kind — no
+  image surface, no HTML surface, and only one decoder. The
+  side-by-side needs at minimum one decoder plus an image surface for
+  the ad and for the background; D5 cannot composite any non-video
+  surface, so the side-by-side is **not satisfiable** regardless of the
+  ad form. Per R5.7 / R3 the Player skips it and falls through (or
+  declines the opportunity).
+- **What the user sees:** the side-by-side is not rendered on D5; the
+  next satisfiable option takes its place, or nothing if none renders.
+
+**Notes:**
+- The background fill is a **composition attribute of the layout**
+  (R26.1), not a fourth presentation option. The Player does not "walk"
+  it the way it walks the ordered presentation options; it composites
+  it as part of rendering the side-by-side once that layout is chosen.
+- The element **type** matters as much as the count (R26.3): D2 owns
+  the decoders a side-by-side video needs but still cannot render it,
+  because the background image is a non-video surface D2 cannot
+  composite. This is the same distinction that separates the
+  side-by-side (an R26 three-element case) from the L-shape /
+  squeezeback (UC-09 option 2 — a full-frame ad with a cutout, no
+  uncovered region, no background, not an R26 case).

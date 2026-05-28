@@ -1,5 +1,130 @@
 # Project log
 
+## 2026-05-27 — use cases: UC-09 (ordered fallback across device classes) + UC-10 (side-by-side three-element R26)
+
+Added two use cases to `context/04-use-cases.md` to make the expected
+behaviour explicit for the WG, built on the corrected positional-ordering
+(R5/R5.x) + R26 side-by-side model confirmed earlier today.
+
+- **UC-09 — One ad, ordered presentation options, resolved across device
+  classes.** A worked example: ONE candidate offering four ordered
+  presentation options (document order = preference per R5) — (1) side-by-side
+  with a video ad + advertiser background (R26, three elements: two decoders +
+  image surface), (2) L-shape / squeezeback with a full-frame image ad (one
+  decoder + image surface, ad covers the screen, no background — a layout, not
+  R26), (3) image banner overlay, (4) full-screen takeover video as last
+  resort. The same ordered list is emitted identically to every viewer and the
+  Publisher declares ONE device-agnostic allowed-layout set; the per-class
+  layout emerges Player-side (R5.2/R5.6/R5.7). Per-class outcomes: D1 → option 1
+  (side-by-side); D2 → option 4 (takeover — owns two decoders but the
+  background/image surfaces are non-video, R26.3); D3 → option 2 (L-shape image
+  ad); D4 → option 2 (L-shape image ad); D5 → option 4 (takeover — no overlay
+  surface). Directly answers Hassoun A3 ("shouldn't the Publisher declare
+  layouts per device class?") by showing the ordered fallback already produces
+  the correct per-class layout with no device-class matrix held upstream (R5.4).
+
+- **UC-10 — Side-by-side / double-box (three-element layout, R26
+  illustration).** The worked illustration of R26 itself: primary content + ad
+  + background as three on-screen elements, the advertiser-supplied background
+  (R26 default) and the no-advertiser-background fallback (platform MAY,
+  R26.2), and the device-class reasoning (video ad → two decoders + image
+  surface; image/HTML ad → one decoder + image/HTML surfaces; the background is
+  a composition attribute of the layout per R26.1, not a presentation option).
+  D2 declines the side-by-side even with two decoders because the background
+  image is a non-video surface (R26.3) — the element-type distinction.
+
+Coverage table updated with rows for UC-09 and UC-10. This is a `context/`
+change → next major build is **v6** (implied; `build-all` regenerates the spec
+and analyses when the operator runs it). Staged in the working tree **pending
+Nicolás's validation before push** — not committed. Addresses Hassoun A3 + U2 /
+U4 by illustrating the per-device-class layout outcome and the L-shape vs
+side-by-side distinction concretely.
+
+## 2026-05-27 — decisions: positional ordered fallback (normative) + advertiser-owned background fill (Option A)
+
+Two design decisions confirmed by Nicolás. Both are recorded here as a
+decision trace. The `context/` implementation has now been **applied** to the
+normative spec (R5 + R5.1/R5.2/R5.5/R5.6/R5.7, new R26 + R26.1-3, UC-01..05
+vocabulary alignment, UC-04 D2/D3 + UC-03 L-box rewrites, the `02-actors.md`
+APS/Publisher edits, and the `99-glossary.md` ListMPD line + new "Presentation
+option" entry) following Nicolás's wording review (R5.5 trimmed; R26 in
+English; R26 placed in the Presentation section; platform fallback kept as an
+opt-in MAY with no normative default). R14 was deliberately left unchanged
+(intra-slot sequence axis, distinct from R5's ordered fallback). The changes
+are staged in the working tree **pending Nicolás's final validation before
+push** — not yet committed.
+
+**Decision 1 — Ordered fallback is normative and positional.** The
+presentation options an ad offers (a form plus its layout) are modelled as an
+**ordered list in the resolution document, where document order IS the
+preference order** — there is no separate priority / ranking attribute. The
+Player evaluates the options in document order, intersects each with device
+capability and the Publisher's allowed layouts (per R5.6), and renders the
+**first option that passes** (R5.7 still governs skipping to the next
+candidate when nothing renders). This makes the ordered-fallback behaviour a
+normative MUST rather than emergent behaviour driven by optional hints.
+
+Rationale: today the spec models preference as OPTIONAL "ADS-supplied priority
+hints" ("optionally ranked", R5.1 / R5.2 / R5.5) and R5.6 treats allowed
+layouts as a SET to intersect. Nicolás's decision (verbatim, translated):
+*"make the order NOT optional. The order the Player follows is the order of
+appearance in the ad resolution document. It is not an attribute or anything —
+it is the specific order of the options."* This also resolves the
+two-dimensions subtlety in R5.5 (form AND layout "ranked independently"): a
+single linear order cannot rank two independent axes, so the model becomes a
+single ordered list of discrete **(form + layout) presentation options**. The
+"priority hints" / "optionally ranked" / independent-ranking language is
+retired in favour of positional order. UC-03 / UC-04 wording aligns
+("priority order" → "document order").
+
+**Decision 2 — Background fill is the advertiser's (Option A), mirroring
+IAB.** When a non-linear ad layout leaves empty screen area (L-shape /
+squeezeback, side-by-side, banner with margins), the background fill is part
+of the **advertiser's creative**, NOT neutral publisher filler. This mirrors
+the IAB model normatively because our spec delegates the layout vocabulary to
+IAB (R10, R12, OOS-1). A new requirement is proposed: for any layout whose
+on-device composition leaves regions with no content, a **background image MAY
+be defined**; by default it is part of the advertiser's creative (the IAB
+underlay model), and the spec MAY specify a platform / publisher fallback only
+for the case where the advertiser supplies none. The background is modelled as
+an attribute of the slot / layout composition, NOT as one of the alternative
+forms. A full-frame HTML form composes its own background and needs no
+separate fill.
+
+IAB evidence (the layout vocabulary this spec defers to, cited so the trace is
+auditable):
+- Document: **IAB Tech Lab — "Ad Format Guidelines for Digital Video and
+  CTV"**, version released for public comment Dec 2025. The public-comment
+  period closed 2026-01-31; a signaling addendum remains in public comment
+  until 2026-06-05.
+- URLs:
+  - https://iabtechlab.com/standards/ctv-ad-portfolio/
+  - https://iabtechlab.com/wp-content/uploads/2025/12/TV-Ad-Format-Guidelines-For-Public-Comment-Dec-2025.pdf
+- Quote (p.12, squeezeback): *"the squeezeback assets are provided in an
+  underlay format. This means that the full screen 1920 x 1080 branded
+  advertisement is provided with a cutout for the content placement."*
+- Quote (pp.12-13, "Double Box Video + Background"): *"The advertiser also
+  brands/takes over the background between the double boxes of video."*
+- Model: the creative is a full-frame (1920x1080) underlay with a cutout where
+  the content is composited. Full-frame composition is the creative's
+  responsibility, not the player's. IAB defines no notion of neutral publisher
+  filler.
+- Honest gap: the base variant (no "+ Background") does NOT specify who fills
+  the gap when the advertiser does not brand it — IAB is silent there. So our
+  spec MAY define a platform / publisher fallback for the "no advertiser
+  background" case WITHOUT contradicting IAB.
+
+Open for owner review (carried into the proposal): whether retiring the
+"priority hints" language loses any intended capability (the form/layout
+independence it allowed); the exact number / placement of the new background
+requirement (proposed near R3 / R17 in Presentation, or near R5 in Selection);
+and any cross-ref that goes stale (R7, R14, R20 reference "order" / "priority
+hints"; R5.5 / R5.6 are the most affected). The 🔧 background-image-below-video
+L-box and the UC-04 D2 "CONFUSING" items in phase `02-wg-feedback-round-1`
+(see `phases/02-wg-feedback-round-1/hassoun-feedback-crossref.md`, U2 / U3 /
+U4) are addressed by Decision 2 and the UC-04 wording fixes in the same
+proposal.
+
 ## 2026-05-27 — phase opened: 02-wg-feedback-round-1
 
 Opened phase `02-wg-feedback-round-1` to formally process working-group

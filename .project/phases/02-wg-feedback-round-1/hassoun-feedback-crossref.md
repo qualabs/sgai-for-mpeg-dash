@@ -1,8 +1,8 @@
 # Cross-reference: David Hassoun's feedback ↔ state of the SGAI spec
 
-**Date:** 2026-05-27 (v2 — updated source)
-**Author:** CTO assistant (report — NO change was applied to the spec)
-**Scope:** cross-reference David Hassoun's **actual** feedback (the 3 files he edited / commented and uploaded to `#wg-comcast` on 2026-05-20) against the current state of the SGAI spec (`projects/sgai-for-mpeg-dash/context/`) after the large revision of 2026-05-27 (commit `fb30314`).
+**Date:** 2026-05-27 (v3 — refreshed after the ordered-fallback / R26 edits + UC-09 / UC-10)
+**Author:** CTO assistant (report — the `context/` edits are staged, NOT committed / NOT pushed)
+**Scope:** cross-reference David Hassoun's **actual** feedback (the 3 files he edited / commented and uploaded to `#wg-comcast` on 2026-05-20) against the current state of the SGAI spec (`projects/sgai-for-mpeg-dash/context/`) after the 2026-05-27 revisions: the positional ordered-fallback rewrite (R5 + R5.1/R5.2/R5.5/R5.6/R5.7), the R26 side-by-side background-fill requirement (R26 + R26.1/.2/.3), the UC-03 L-shape-as-layout + UC-04 D2 / D3 wording rewrites, and the two new use cases **UC-09** (worked ordered-fallback example across device classes) and **UC-10** (side-by-side three-element R26 illustration). All these `context/` changes are staged in the working tree pending owner validation before push.
 
 ---
 
@@ -25,13 +25,13 @@ Where v1 and v2 differ, **v2 wins** (it is the direct source). See section 6 for
 
 ## 1. Executive summary
 
-David left **10 pieces of feedback** in total, all as inline `//` comments (plus 2 text renames in `02-actors`). Breakdown:
+David left **10 pieces of feedback** in total, all as inline `//` comments (plus 2 text renames in `02-actors`). Current status after the 2026-05-27 edits (ordered fallback R5.x, R26 side-by-side, UC-03 / UC-04 rewrites, new UC-09 / UC-10):
 
-- ✅ **Already addressed (4):** Publisher rename (`02#L15`), ADS→APS rename / naming conflict (`02#L9`+`L38`), expansion of "ADS" on first reference (`02#L9`), Player "select" — the `02#L98` ISSUE is now covered by the atomised R5/R7 chain.
-- 🔧 **Change per feedback (3):** background-image below the video in an L-box layout (`02` layout-per-device `02#L26` + `04` UC-03 `#L242` + UC-04 D3 `#L423`), UC-08 "pause-ad can be a partial overlay" (`04#L702`), UC-04 D2 "CONFUSING" (`04#L419`) — wording to clarify.
-- ❓ **Open for discussion / conflict (3):** UC-02 "why limit to 1 vs combine with UC-06?" (`04#L170`) — David pushes in the OPPOSITE direction to Nicolas's decision to keep them separate; UC-07 "this is bad, should use the old ad experience" (`04#L653`) — David objects to the legacy-player behaviour; layout-per-device as an open question (`02#L26`).
+- ✅ **Covered (6):** Publisher rename (A2), ADS→APS split (A4, pending only David's confirmation), ADS expanded on first reference (A1), Player "select" via the atomised R5/R7 chain (the `02#L98` ISSUE), **layout-per-device-class (A3)** — now resolved by the positional ordered fallback (R5.x) + R26 and *illustrated* by **UC-09**, and **background-image L-box (U2 / U4)** — now covered by R26 + the UC-03 L-shape-as-layout option + UC-04 D3/D4 + **UC-09 option 2** + **UC-10**.
+- ✅ **Wording fixed (1):** UC-04 D2 "CONFUSING" (U3) — the "collapses to UC-02" sub-bullet rewritten to an explicit outcome.
+- ❓ **Still open (3):** UC-07 "should use the old ad experience" (U5) — legacy-player design objection, undecided; UC-08 "pause-ad can be a partial overlay" (U6) — conflicts with R21 (pause-ad fullscreen), not addressed by this session's edits; UC-02 vs UC-06 "combine?" (U1) — **parked by owner** (keep separate per the v1 decision), conflict with David acknowledged but deferred.
 
-**What requires action from Nicolas** are the 3 🔧 points (wording / documentation) and the 3 ❓ points (decisions), detailed in section 3.
+**What requires action from Nicolas** is now narrower: the 3 ❓ points (U5 decision, U6 decision, U1 already parked) plus the lightweight A4 confirmation with David. The 🔧 documentation points (A3 / U2 / U4 / U3) are done. Details in section 3.
 
 ---
 
@@ -43,7 +43,7 @@ David left **10 pieces of feedback** in total, all as inline `//` comments (plus
 | --- | --- | --- | --- | --- |
 | A1 | L9 (intro paragraph) | **Edited the text**: expanded "the ADS provides" → "the **Ad Decision Server (ADS)** provides" (spell out the acronym on first reference) | ✅ Already addressed | The CURRENT spec uses "Ad Decision Server (ADS)" on the first reference in the intro (L11) and additionally defines ADS and APS in the header blockquote (L5-6). Covered and exceeded. |
 | A2 | L15 (heading "Broadcaster / Content Owner") | Commented `//ISSUE - naming - maybe publisher?` | ✅ Already addressed | The CURRENT spec renamed the actor to **Publisher** throughout the doc (heading L19, entire body). Exactly what David suggested. |
-| A3 | L26 (layout-templates bullet) | Commented `//ISSUE - what about diff devices supporting different layouts?` | 🔧 / ❓ | The device-class model (R3 + UC D1-D5) answers *how* a layout degrades per device, but the spec keeps the allowed layouts as a **device-agnostic** declaration by the Publisher (the Player intersects with the device's capability, R5.6). David asks whether the Publisher should be able to declare *different layouts per device class*. The spec does NOT allow this today. Remains an open design question. |
+| A3 | L26 (layout-templates bullet) | Commented `//ISSUE - what about diff devices supporting different layouts?` | ✅ **Covered** | **Decided + illustrated.** The Publisher does NOT declare layouts per device class — by decision (T-04, 2026-05-27). The same per-class outcome is achieved Player-side via the **positional ordered fallback** (R5 + R5.1/R5.2/R5.5/R5.6/R5.7): the Publisher declares ONE device-agnostic allowed-layout set, the ADS emits ONE ordered list of presentation options identically to every viewer, and each Player renders the first option its hardware can satisfy. This keeps device capability as the Player's sole authority (R5.4) and preserves DP-1. **UC-09** is the worked example proving the per-class layout emerges from one list (D1 → side-by-side, D3/D4 → L-shape, D2/D5 → takeover). Rationale + IAB citation in `.project/LOG.md`. |
 | A4 | L38 (heading "Ad Decision Server (ADS)") | **Edited the heading** → "Ad Presentation Server (APS)" + commented `//ISSUE - conflict of naming` | ✅ Already addressed | The CURRENT spec **split the monolithic actor in two**: ADS (decisioning, outputs VAST) + APS (converts VAST→resolution document). The APS term David proposed now exists as its own actor (`02#L90`). The split resolves the "conflict of naming" by going beyond the rename. Worth confirming with David that the split is what he expected (likely yes). |
 
 Note on A2+A4: in David's file the ADS heading ended up labelled "Ad Presentation Server (APS)" — David overwrote the actor name to APS. The CURRENT spec did not do the literal rename (which would have left a single actor called APS), but instead separated the two responsibilities into two actors. This honours the intent without the 1:1 rename.
@@ -53,9 +53,9 @@ Note on A2+A4: in David's file the ADS heading ended up labelled "Ad Presentatio
 | # | Location (David) | David's comment | Category | State in the CURRENT spec |
 | --- | --- | --- | --- | --- |
 | U1 | L170 (heading UC-02) | `//Why limit this to 1 vs combine w UC6?` | ❓ Conflict | David questions why UC-02 (single mid-roll) is separate from UC-06 (multi-ad break) and suggests combining them. This goes in the **OPPOSITE direction** to Nicolas's decision (recorded in v1) to keep them separate, because the agentic test-generation workflow needs both cases discrete. The CURRENT spec keeps them separate. A real conflict between David's feedback and Nicolas's decision. |
-| U2 | L242 (heading UC-03) | `//WHAT ABOUT BG IMAGE BELOW VIDEO L-BOX` | 🔧 Change | David asks for the **background-image-below-video L-box** case (the video shrinks into an L shape and a background image fills the rest of the screen). The CURRENT spec covers side-by-side and overlays *on top of* the video, but NOT a background-image *below* / behind the shrunk video. Missing documentation. (Same point as A3 and U4.) |
-| U3 | L419 (UC-04, D2 sub-bullet "only HTML/image forms") | `//CONFUSING` | 🔧 Change | David flags the wording of "the experience collapses to UC-02" as confusing, for when the overlay candidate has only HTML/image forms in D2. This is a **wording-clarity** problem, not a design one. Rewrite that sub-bullet so the outcome (full-screen linear ad, no overlay) is explicit without sending the reader back to UC-02. |
-| U4 | L423 (UC-04, heading D3) | `//WHAT ABOUT BG IMAGE BELOW VIDEO L-BOX` | 🔧 Change | Same request as U2, now in the D3 context (single-decoder image+HTML). David wants the L-box-with-background-image case handled here too. Reinforces U2: background-image-below-video is a case David expects to see across multiple UCs. |
+| U2 | L242 (heading UC-03) | `//WHAT ABOUT BG IMAGE BELOW VIDEO L-BOX` | ✅ **Covered** | **Resolved with the corrected model.** The case David flagged is now disambiguated into the two distinct layouts: (a) **L-shape / squeezeback** — the ad is full-frame with a cutout for the shrunk primary content, so the ad already covers the whole screen and there is **no background fill** (documented in UC-03 ad-response + UC-09 option 2; it is a layout per R5, NOT an R26 case); (b) **side-by-side / double-box** — the genuine three-element case where a background image fills the bands the two boxes leave uncovered, now normatively **R26** (+R26.1/.2/.3) and illustrated by **UC-10**. The "background image below the video" intent is the side-by-side R26 case; the L-box is the no-background full-frame case. Both are now explicit. (Same point as A3 / U4.) |
+| U3 | L419 (UC-04, D2 sub-bullet "only HTML/image forms") | `//CONFUSING` | ✅ **Covered (wording fixed)** | The UC-04 D2 sub-bullet no longer says the experience "collapses to UC-02". It now states the outcome explicitly: D2 cannot composite non-video surfaces on top of video, so the overlay portion is declined per R5/R3 while the linear ad still plays — the user sees a full-screen linear ad of bounded duration with no overlay, and primary content resumes on completion. No back-reference to UC-02. |
+| U4 | L423 (UC-04, heading D3) | `//WHAT ABOUT BG IMAGE BELOW VIDEO L-BOX` | ✅ **Covered** | Same as U2, now handled in the D3 / D4 contexts. UC-04 D3 and D4 were rewritten so the L-shape / squeezeback is a presentation option per R5 (full-frame image-or-HTML ad with a cutout; one decoder for the shrunk primary content plus an image/HTML surface; a video full-frame form needs two decoders and is not satisfiable on a single-decoder device). The same L-shape vs side-by-side distinction is illustrated across device classes in **UC-09** and the side-by-side three-element case in **UC-10**. |
 | U5 | L653 (heading UC-07) | `//THis is bad - should use old ad exp` | ❓ Conflict | David objects to the **legacy-player** behaviour: he says that instead of "silent skip + continue primary content" (what the spec defines via R1 ignore-if-unknown), the legacy player **should fall back to the old ad experience** (the SGAI/linear one that already exists in DASH 6th). This is a design objection about graceful degradation. The CURRENT spec does skip-and-continue, not fallback to the old ad. We need to discuss whether UC-07 should contemplate a fallback to the pre-existing linear mechanism. |
 | U6 | L702 (heading UC-08) | `//Pause ad experience can be an partial overlay` | 🔧 / ❓ | David points out that the pause-ad **need not be fullscreen** — it can be a partial overlay on the paused frame. The CURRENT spec (UC-08 + R16/R17) treats the pause-ad as a surface that takes priority and suspends the overlay, but assumes a fullscreen-ish composition of the pause-ad. (In v1 there was an "R21 fullscreen" mentioned — verify; David explicitly pushes toward a partial pause-ad.) Adjust UC-08 / R17 to admit the pause-ad as a partial overlay coexisting with the paused frame. |
 
@@ -67,21 +67,21 @@ David **neither edited nor commented anything** in `03-requirements.md`. The onl
 
 ## 3. Next steps (prioritised)
 
-**High — require a decision from Nicolas (the ❓):**
+**Still open — require a decision from Nicolas (the ❓):**
 
-1. **(U5 / UC-07) Resolve the legacy-player objection.** David says the legacy player should not simply skip the new constructs but **fall back to the old ad experience** (the linear SGAI of DASH 6th). This contradicts the current design (R1 ignore-if-unknown → continue primary content). A material design decision: should UC-07 contemplate a fallback to the pre-existing linear mechanism, or is the silent skip correct? Discuss with David — likely touches R1 and UC-07.
-2. **(U1 / UC-02) Resolve the UC-02 vs UC-06 conflict.** David wants to combine single-ad and multi-ad break; Nicolas separated them on purpose (the test-generation workflow needs them discrete). A direct conflict. Decide whether to keep the separation (and communicate the rationale to David) or combine them.
-3. **(A3 / `02#L26`) Layouts per device class.** Should the Publisher be able to declare different allowed layouts per device class, or is the device-agnostic model + intersection in the Player (R5.6) sufficient? Open design question.
+1. **(U5 / UC-07) Resolve the legacy-player objection. — STILL OPEN.** David says the legacy player should not simply skip the new constructs but **fall back to the old ad experience** (the linear SGAI of DASH 6th). This contradicts the current design (R1 ignore-if-unknown → continue primary content). A material design decision: should UC-07 contemplate a fallback to the pre-existing linear mechanism, or is the silent skip correct? Not touched by the 2026-05-27 edits. Discuss with David — likely touches R1 and UC-07. (TASKS T-02.)
+2. **(U6 / UC-08) Allow pause-ad as a partial overlay. — STILL OPEN.** David says the pause-ad need not be fullscreen. This conflicts with **R21** (pause-ad MUST be fullscreen) and was **not** addressed by the 2026-05-27 edits. Resolving it means either adjusting R21 / R17 to admit a partial pause-ad or declining David's point with a rationale. (TASKS T-06.)
+3. **(U1 / UC-02 vs UC-06) — PARKED by owner.** David wants to combine single-ad and multi-ad break; Nicolás decided to keep them separate (the test-generation workflow needs them discrete) and **parked** the conflict on 2026-05-27 ("por ahora no hacer nada"). The disagreement with David is acknowledged but deferred; spec keeps them separate. (TASKS T-03.)
 
-**Medium — documentation / wording work (the 🔧):**
+**Done this round (the 🔧 + the layout question):**
 
-4. **(U2 + U4 / UC-03 + UC-04 D3) Document background-image below the video in an L-box.** David asked for it twice. The case is: video shrunk into an L (or a window), a background image filling the rest of the screen *behind* / around the video. Today the spec only covers overlays on top of the video and side-by-side. Add the L-box-with-background-image case. Connects to point #4 of the v1 report (3-asset layout / Z-depth).
-5. **(U6 / UC-08) Allow pause-ad as a partial overlay.** David says the pause-ad need not be fullscreen. Adjust UC-08 / R17 to allow the pause-ad as a partial overlay on the paused frame.
-6. **(U3 / UC-04 D2) Clarify the "CONFUSING" wording.** Rewrite the D2 sub-bullet (overlay candidate with only HTML/image) so the outcome is explicit without referring back to UC-02. Pure wording.
+4. **(A3 / `02#L26`) Layouts per device class — DONE.** Decided: no per-device-class declaration by the Publisher; the positional ordered fallback (R5.x) + R26 produce the per-class layout Player-side. Illustrated by **UC-09**. (TASKS T-04.)
+5. **(U2 + U4 / UC-03 + UC-04 D3/D4) Background-image L-box — DONE.** Disambiguated into L-shape (full-frame, no background, a layout per R5) vs side-by-side (three-element R26 background fill). Covered by R26 + UC-03 + UC-04 D3/D4 + **UC-09** + **UC-10**. (TASKS T-05.)
+6. **(U3 / UC-04 D2) "CONFUSING" wording — DONE.** D2 sub-bullet rewritten with an explicit outcome, no back-reference to UC-02. (TASKS T-07.)
 
-**No action (the ✅):**
+**Lightweight follow-up (the ✅):**
 
-7. **(A1, A2, A4)** already closed: ADS expanded on first reference, Broadcaster→Publisher applied, ADS→APS resolved via the split. Worth **confirming with David** that the ADS+APS split works for him (A4) — the only lightweight follow-up.
+7. **(A1, A2, A4)** closed: ADS expanded on first reference, Broadcaster→Publisher applied, ADS→APS resolved via the split. Still worth **confirming with David** that the ADS+APS split works for him (A4). (TASKS T-08.)
 
 ---
 

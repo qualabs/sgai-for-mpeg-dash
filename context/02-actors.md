@@ -30,7 +30,10 @@ The Publisher owns the primary content and the viewer's screen.
   - which layout templates are allowed (e.g. L-shape, banner,
     skyscraper, sidebar, or unrestricted; additional publisher-side
     examples include squeezeback, lower-third, and corner-bug as
-    defined in [`99-glossary.md`](99-glossary.md)), and
+    defined in [`99-glossary.md`](99-glossary.md)),
+  - whether a background fill is permitted for partial-screen
+    layouts, and (optionally) a platform fallback background for the
+    case where the advertiser's creative supplies none (per R26), and
   - other slot-level constraints such as maximum overlay duration,
     maximum number of concurrent overlays, or mutually exclusive
     layouts.
@@ -124,11 +127,12 @@ resolution document is not itself defined by this spec.
   tracking events into DASH callback events (or equivalent) embedded
   in the resolution document, preserving the ADS's authority over
   which beacons fire and when.
-- **Produce candidates with renderable forms.** Because the Player
-  is device-agnostic on the APS interface, the APS emits each ad
-  candidate carrying one or more renderable forms (video, image,
-  HTML), optionally ranked by priority hints, and the Player selects
-  per device capabilities.
+- **Produce candidates with renderable presentation options.**
+  Because the Player is device-agnostic on the APS interface, the APS
+  emits each ad candidate carrying one or more renderable presentation
+  options (form + layout) as an ordered list whose document order is
+  the preference order, and the Player renders the first option it can
+  satisfy per device capabilities and the Publisher's allowed layouts.
 
 The APS is **not** the ad-decisioning authority — it does not decide
 which ads to serve (that is the ADS), and it does not enforce the
