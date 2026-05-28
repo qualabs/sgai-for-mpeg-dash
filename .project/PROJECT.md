@@ -270,9 +270,13 @@ When I receive a research / spec generation task:
   pause-ads as a distinct type (action-triggered) from
   OverlayPresentation (timeline-triggered). Surfaces from
   Olivier's thread.
-- [ ] **Spec — alignment with IAB CTV Ad Standard**: the
+- [x] **Spec — alignment with IAB CTV Ad Standard**: the
   Positioning Templates section must reference the IAB spec.
-  Pending official publication from IAB.
+  *Resolved 2026-05-26* — spatial caps defer to the IAB CTV Ad
+  Format Guidelines by normative reference via the `@layout`
+  token (R12.4), instead of a new MPD construct. See ADR
+  `.project/decisions/0001-defer-to-iab-ctv-for-spatial-caps.md`
+  and PR #6 (resolves issue #4).
 - [ ] **Prototype — dynamic user parameters** (wire from the
   client to the manifest).
 - [ ] **Prototype — brand safety guardrails**.
