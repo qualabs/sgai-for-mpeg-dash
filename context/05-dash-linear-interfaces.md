@@ -170,19 +170,17 @@ cause the Player to terminate the slot.
    semantics (§5.16.4) — same as for a bounded
    `ReplacePresentation`.
 
-Whether a safety-fallback `@maxDuration` declared at activation
-time is good spec practice is an **open question** left to WG
-resolution. DASH 6th does not mandate it; recommending it as a
-SHOULD would need a concrete justification given that a too-wide
-cap may create ambiguity.
+The Broadcaster MAY declare `@maxDuration` at activation as a
+local safety fallback; the spec neither requires nor discourages it
+(ADR-01 in
+[`../.project/decisions/01-listen-mode-safety-cap.md`](../.project/decisions/01-listen-mode-safety-cap.md)).
 
-**Non-linear analog:** for non-linear SGAI slots the same listen-mode
-pattern MUST be defined in the non-linear spec chapter. The linear
-`status=update` on `ReplacePresentation` is baseline DASH 6th and
-requires no new construct. The non-linear equivalent is a net-new
-mechanism. **UC-09** in [`04-use-cases.md`](04-use-cases.md)
-exercises the listen-mode pattern across both linear and non-linear
-slot types.
+**Non-linear scope:** UC-09 is currently scoped to linear slots
+(`ReplacePresentation`, §5.16.4). Extending listen mode to
+non-linear SGAI slots is a follow-up item contingent on the syntax
+chapter defining the non-linear event construct. See the open
+thread in
+[`../.project/PROJECT.md`](../.project/PROJECT.md).
 
 ## Resolution document timing baseline
 

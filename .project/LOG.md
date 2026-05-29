@@ -1,5 +1,45 @@
 # Project log
 
+## 2026-05-28 — UC-09 cycle-2: ADR-01, linear scope restriction, normative lifts
+
+Resolved four blocking open points from PR cycle-2 review:
+
+- **OP-1 — Safety-cap policy (ADR-01):** Created
+  `.project/decisions/01-listen-mode-safety-cap.md` (ADR-01). Decision:
+  the Broadcaster MAY declare `@maxDuration` at activation as a local
+  safety fallback; the spec neither requires nor discourages it. Replaced
+  all "open question" language in `context/03-requirements.md` (R4.1
+  note), `context/04-use-cases.md` (UC-09 Notes), and
+  `context/05-dash-linear-interfaces.md` with the ADR-01 MAY default.
+  Anti-pattern note in `context/07-backward-compat-checklist.md` updated
+  to cite ADR-01.
+- **OP-2 — Linear scope restriction:** UC-09 Scenario and D1–D5
+  sub-sections now explicitly scope to linear `ReplacePresentation`
+  (§5.16.4). Non-linear references replaced with a forward reference to
+  the follow-up PR. Non-linear audit table row in the backward-compat
+  checklist changed from PENDING to DEFERRED.
+- **OP-3 — Seek behavior (normative MUST):** "Conservative default" note
+  lifted to: "The Player MUST NOT re-activate a listen-mode slot that has
+  been closed by a terminating `status=update`, even if the slot's
+  `presentationTime` is re-encountered on seek."
+- **OP-4 — ADS agnosticism (normative SHOULD):** "Unresolved" note lifted
+  to: "The ADS SHOULD NOT be required to advertise or adapt to the
+  Broadcaster's termination mechanism. The ADS response for a listen-mode
+  slot is identical to the response for a bounded slot of the same type."
+
+Optional improvements also applied:
+
+- **F1.4:** Added backward link from UC-09 Notes to the
+  "Listen-mode slot with no termination mechanism" anti-pattern in
+  `context/07-backward-compat-checklist.md`.
+- **F2.1:** Updated `context/01-intro.md` TOC from "seven scenarios
+  UC-01..UC-07" to "nine scenarios UC-01..UC-09" with descriptions of
+  UC-08 and UC-09.
+
+`.project/PROJECT.md` updated: UC-09 safety-cap thread marked resolved
+(→ ADR-01); non-linear construct thread reframed as follow-up PR gated
+on the syntax chapter.
+
 ## 2026-05-20 — UC-09: open-ended slot (listen mode)
 
 Added UC-09 to the spec context, covering the listen-mode pattern

@@ -825,28 +825,29 @@ overlay terminates naturally when its window expires (per R4).
 
 ### UC-09 — Open-ended slot (listen mode)
 
-**Scenario:** The Broadcaster signals the *start* of an ad
-opportunity — linear or non-linear — without declaring a fixed end
-time (`@maxDuration` is absent at activation). The slot's end is
-not known when it opens; it will be communicated later by an
+**Scenario:** The Broadcaster signals the *start* of a **linear**
+ad opportunity via `ReplacePresentation` without declaring a fixed
+end time (`@maxDuration` is absent at activation). The slot's end
+is not known when it opens; it will be communicated later by an
 in-band event update. The Player enters **listen mode** immediately
 after activating the slot: it begins rendering the selected
 candidate using the same per-device logic as the corresponding
-linear or non-linear UC, and simultaneously monitors the event
-stream for a `status=update` that introduces or revises
-`@maxDuration`. When that update arrives and the Player enforces
-the newly-set cap, the slot terminates and the Player transitions
-back to (or resumes) the primary content.
+linear UC, and simultaneously monitors the event stream for a
+`status=update` that introduces or revises `@maxDuration`. When
+that update arrives and the Player enforces the newly-set cap, the
+slot terminates and the Player transitions back to the primary
+content.
 
-The linear variant of this pattern is grounded in MPEG-DASH 6th
-edition: `ReplacePresentation` already supports `status=update`
-for live linear slots (§5.16.4). UC-09 generalises the pattern to
-non-linear slots and makes it explicit as a first-class scenario
-with defined per-device behavior.
+This pattern is grounded in MPEG-DASH 6th edition:
+`ReplacePresentation` already supports `status=update` for live
+linear slots (§5.16.4). UC-09 makes it explicit as a first-class
+scenario with defined per-device behavior. Extension to non-linear
+slots is a follow-up item; see the open thread in
+[`../.project/PROJECT.md`](../.project/PROJECT.md).
 
 **Broadcaster intent:**
-- Declare an ad slot (linear or non-linear) in the MPD event
-  WITHOUT `@maxDuration`.
+- Declare a linear ad slot (`ReplacePresentation`) in the MPD
+  event WITHOUT `@maxDuration`.
 - At the desired cut point, emit a `status=update` that introduces
   or revises `@maxDuration` to the actual elapsed slot duration,
   causing the Player to enforce the cap immediately.
@@ -864,7 +865,7 @@ with defined per-device behavior.
 - **Player decision:** reads slot rules at activation (no
   `@maxDuration` present). Selects and begins rendering the
   highest-ranked renderable candidate, using the same logic as D1
-  in the corresponding linear or non-linear UC. Enters listen mode:
+  in the corresponding linear UC (UC-01 or UC-02). Enters listen mode:
   registers a listener on the event stream for `status=update` on
   the activating event's identity. On each `status=update`,
   inspects whether `@maxDuration` has been introduced or revised;
@@ -880,31 +881,31 @@ with defined per-device behavior.
 #### D2 — Dual-decoder, video-on-video only
 
 - **Player decision:** same rendering selection as D2 in the
-  corresponding UC. Enters listen mode and monitors for a
+  corresponding linear UC (UC-01 or UC-02). Enters listen mode and monitors for a
   `status=update` that sets `@maxDuration`. Enforces the cap per
   R4.2 on arrival. A `status=update` that does not introduce or
   revise `@maxDuration` MUST NOT trigger termination.
 - **What the user sees:** same rendering as D2 in the
-  corresponding UC. Slot terminates on the Broadcaster's update,
-  not on a fixed duration.
+  corresponding linear UC. Slot terminates on the Broadcaster's
+  update, not on a fixed duration.
 
 #### D3 — Single-decoder, image and HTML capable
 
 - **Player decision:** same rendering selection as D3 in the
-  corresponding UC. Enters listen mode and monitors for a
+  corresponding linear UC (UC-01 or UC-02). Enters listen mode and monitors for a
   `status=update` that sets `@maxDuration`. Enforces the cap on
   arrival.
-- **What the user sees:** same rendering as D3. Slot terminates on
-  the Broadcaster's update.
+- **What the user sees:** same rendering as D3 in the corresponding
+  linear UC. Slot terminates on the Broadcaster's update.
 
 #### D4 — Single-decoder, image only
 
 - **Player decision:** same rendering selection as D4 in the
-  corresponding UC. Enters listen mode and monitors for a
+  corresponding linear UC (UC-01 or UC-02). Enters listen mode and monitors for a
   `status=update` that sets `@maxDuration`. Enforces the cap on
   arrival.
-- **What the user sees:** same rendering as D4. Slot terminates on
-  the Broadcaster's update.
+- **What the user sees:** same rendering as D4 in the corresponding
+  linear UC. Slot terminates on the Broadcaster's update.
 
 #### D5 — Single-decoder, no overlay (worst case)
 
@@ -914,32 +915,34 @@ with defined per-device behavior.
   listen mode and monitor for the terminating `status=update` so
   it correctly closes the slot and does not re-activate it on
   re-encounter (e.g. on seek).
-- **What the user sees:** same as D5 in the corresponding UC
-  (typically: primary content continues uninterrupted if the slot
+- **What the user sees:** same as D5 in the corresponding linear
+  UC (typically: primary content continues uninterrupted if the slot
   was declined). Slot state transitions to closed on the
   Broadcaster's update.
 
-**Notes / open questions:**
+**Notes:**
 - `status=update` is a generic lifecycle update — NOT inherently a
   termination signal. The Player MUST NOT terminate on a
   `status=update` that does not introduce or revise `@maxDuration`.
   Termination occurs only when the update sets `@maxDuration` to a
   value the Player then enforces per R4.2.
-- **Open: safety-fallback `@maxDuration` at activation.** DASH 6th
-  does not mandate it for listen-mode slots. Recommending it as a
-  SHOULD-level fallback is a WG policy question: a cap declared at
-  activation must be wide enough not to interfere with normal
-  operation, and a too-narrow value creates ambiguity about which
-  mechanism governs termination. Left unresolved pending WG input.
+- The Broadcaster MAY declare `@maxDuration` at activation as a
+  safety fallback (ADR-01 in
+  [`../.project/decisions/01-listen-mode-safety-cap.md`](../.project/decisions/01-listen-mode-safety-cap.md)).
+  R4.2 and R4.3 apply whenever `@maxDuration` is present, whether
+  declared at activation or introduced via a subsequent
+  `status=update`.
 - Tracking boundary for quartile beacons is the actual rendered
   window from activation to the instant the Player enforces the
   cap from the terminating `status=update` (consistent with R13
   and R4.2).
-- Whether the Player must advertise listen-mode capability in the
-  ADS request is unresolved; conservative default: ADS response is
-  agnostic to the Broadcaster's termination mechanism.
-- Behavior on seek across a listen-mode slot boundary (where the
-  slot's `presentationTime` is re-encountered after the slot
-  has already been closed by a `status=update`) is unresolved;
-  the conservative default is to not re-activate a slot that has
-  already been closed.
+- The ADS SHOULD NOT be required to advertise or adapt to the
+  Broadcaster's termination mechanism. The ADS response for a
+  listen-mode slot is identical to the response for a bounded slot
+  of the same type.
+- The Player MUST NOT re-activate a listen-mode slot that has been
+  closed by a terminating `status=update`, even if the slot's
+  `presentationTime` is re-encountered on seek.
+- See also: the "Listen-mode slot with no termination mechanism"
+  anti-pattern in
+  [`07-backward-compat-checklist.md`](07-backward-compat-checklist.md).
