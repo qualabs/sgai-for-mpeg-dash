@@ -30,10 +30,11 @@ This folder stays focused on the technical content.
   governance requirements R1–R10, out-of-scope items, and design
   characteristics that satisfy the Rs.
 - **[04-use-cases.md](./04-use-cases.md)** — Device classes D1–D5
-  and the seven scenarios UC-01..UC-07 (pre-roll, mid-roll,
-  coexisting overlay, hybrid linear + overlay, pause-triggered ad,
-  multi-ad break, legacy Player encountering new constructs). Each
-  scenario is described once with per-device-class expected
+  and nine scenarios UC-01..UC-09 (pre-roll, mid-roll, coexisting
+  overlay, hybrid linear + overlay, pause-triggered ad, multi-ad
+  break, legacy Player encountering new constructs, overlay window
+  crossing a pause-ad window, open-ended linear slot / listen mode).
+  Each scenario is described once with per-device-class expected
   behavior.
 - **[05-dash-linear-interfaces.md](./05-dash-linear-interfaces.md)** —
   Reference for how SGAI is implemented today for linear ads in

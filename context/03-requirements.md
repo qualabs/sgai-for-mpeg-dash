@@ -158,10 +158,11 @@ concrete requirements that follow are constrained by them.
     > the desired cut point; the Player enforces that cap per R4.2 when
     > it arrives. `status=update` is a generic lifecycle update — the
     > Player MUST NOT terminate on a `status=update` that does not set
-    > or revise `@maxDuration`. Whether to recommend a safety-fallback
-    > `@maxDuration` at activation is an open question left to WG
-    > resolution (DASH 6th does not mandate it). R4.2 and R4.3 apply
-    > whenever `@maxDuration` is present, regardless of whether it was
+    > or revise `@maxDuration`. The Broadcaster MAY declare
+    > `@maxDuration` at activation as a local safety fallback; the spec
+    > neither requires nor discourages it (ADR-01 in
+    > [`../.project/decisions/01-listen-mode-safety-cap.md`](../.project/decisions/01-listen-mode-safety-cap.md)).
+    > R4.2 and R4.3 apply whenever `@maxDuration` is present, whether
     > declared at activation or introduced via a subsequent
     > `status=update`. See **UC-09** in
     > [`04-use-cases.md`](04-use-cases.md) and the listen-mode
