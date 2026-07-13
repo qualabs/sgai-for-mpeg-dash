@@ -36,6 +36,7 @@ For external readers familiar with industry vocabulary:
 | Linear ad | An ad whose form takes over the primary content surface during a slot |
 | Non-linear ad | An ad whose form is composited on top of the primary content during a slot |
 | Ad pod / ad break | UC-06 — Multi-ad break |
+| Click-through | UC-11 — ClickThrough activation |
 
 ## Device classes
 
@@ -74,8 +75,10 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-06 Multi-ad break | Verification | full sequence | full sequence | full sequence on single decoder | full sequence on single decoder | full sequence on single decoder |
 | UC-07 Legacy Player encounters new constructs | Cross-cutting | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) |
 | UC-08 Overlay window crosses a pause-ad window | Composition | overlay swaps to pause-ad on pause, restores on resume | overlay swaps to video pause-ad if available, else pause-ad declined; overlay restores on resume | overlay swaps to HTML or image pause-ad, restores on resume | overlay swaps to image pause-ad, restores on resume | both opportunities declined gracefully |
-| UC-09 One ad, ordered options across device classes | Worked example | side-by-side (video + background) — option 1 | full-screen takeover video — option 4 (image/background surfaces unrenderable) | L-shape image ad — option 2 (no second decoder for side-by-side) | L-shape image ad — option 2 (no HTML, no second decoder) | full-screen takeover video — option 4 (no overlay surface) |
-| UC-10 Side-by-side / double-box (three-element R26) | Composition | three-element side-by-side (video or image/HTML ad + background) | side-by-side declined (background image is a non-video surface) | side-by-side for image/HTML ad; declined for video ad | side-by-side for image ad; declined for video/HTML ad | side-by-side declined (no overlay surface) |
+| UC-09 One ad, ordered options across device classes | Worked example | side-by-side (video ad + background) — option 1 | full-screen takeover video — option 4 (image ad/background surfaces unrenderable) | L-shape image full-frame ad creative — option 2 (no second decoder for side-by-side) | L-shape image full-frame ad creative — option 2 (no HTML, no second decoder) | full-screen takeover video — option 4 (no overlay surface) |
+| UC-10 Side-by-side / double-box (three-element R26) | Composition | three-element side-by-side (video or image/HTML ad + background element) | side-by-side declined (background element is a non-video surface) | side-by-side for image/HTML ad; declined for video ad | side-by-side for image ad; declined for video/HTML ad | side-by-side declined (no overlay surface) |
+| UC-11 ClickThrough | Interaction | reads carrier, fires click on activation | same | same | same | same |
+| UC-12 Overlapping same-family windows + fallback | Selection | first-window-wins, fallback on resolve failure | same | same | same | same |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -244,6 +247,14 @@ leaves it intact and resumes at the same point
 - **Player decision:** same as D3.
 - **What the user sees:** same as D3.
 
+**Trick-play variant (playback speed != 1x):** the viewer is watching
+at 1.5x or 2x when the mid-content slot triggers. The ad renders at the
+same speed as the primary content (per R19), so its wall-clock time on
+screen is `duration / playback_speed` — a 10 s ad played at 2x occupies
+5 s of wall-clock. The slot cap (R4) and the beacon schedule (R13)
+operate on the presentation timeline, not on wall-clock, so neither
+changes with the playback speed.
+
 ### UC-03 — Coexisting overlay
 
 **Scenario:** The Publisher has declared an ad opportunity that
@@ -272,25 +283,33 @@ layout) it can satisfy.
 - The ADS is unaware of the device class; it returns the same
   multi-option candidates for every viewer.
 - A candidate's presentation option MAY be a partial-screen layout.
-  Two cases differ in how the screen is covered:
-  - **L-shape / squeezeback**: the ad is rendered full-frame with a
-    cutout into which the shrunk primary content is composited. The
-    ad already covers the whole screen, so there is no uncovered
-    region and no background fill. The full-frame ad form may be
-    video, image, or HTML; the form type determines which device
-    class can composite the layout (an image or HTML full-frame ad
-    needs one decoder for the shrunk primary content plus an
-    image/HTML surface for the ad; a video full-frame ad needs two
-    concurrent decoders). This is a layout / presentation option per
-    R5 — one option, not two forms.
-  - **Side-by-side / double-box**: the shrunk primary content sits
-    next to the ad and the two together leave bands / margins
-    uncovered, so a third element — a background image — MAY fill the
-    uncovered region (per R26). The form type of the ad determines
-    which device class can composite it (a video ad needs two
-    decoders plus an image surface for the background; an image or
-    HTML ad needs one decoder plus image/HTML surfaces for the ad and
-    the background).
+  Two distinct partial-screen layouts can appear, and they are modelled
+  differently:
+  - **L-shape / squeezeback (the "L-box")**: a layout with **two
+    on-screen elements** — a single full-frame ad creative in the
+    background and the shrunk primary content composited on top of it
+    (the "L" is the band of the full-frame creative that stays visible
+    around the shrunk primary content, commonly the side and / or
+    bottom). The ad creative is one URL the ADS supplies (image, video,
+    or web/HTML) and **always** occupies the whole frame; there is no
+    separate third filler element, because the ad creative is itself the
+    background (per R27). The media type of the full-frame ad creative
+    determines which device class can composite the layout: a **video**
+    creative needs two concurrent decoders (the background creative plus
+    the shrunk primary content); an **image / HTML** creative needs one
+    decoder (the shrunk primary content) plus an image / HTML surface for
+    the background.
+  - **Side-by-side / double-box**: a layout with **three on-screen
+    elements**: the shrunk primary content and the ad sit next to each
+    other in two separate boxes, and the two together leave bands /
+    margins uncovered, so a third **background element** (a still image,
+    never a video and never a web/HTML surface) fills the uncovered
+    region (per R26). The media type of the ad determines which device
+    class can composite it: a video ad needs two decoders (the primary
+    content plus the ad video) plus an image surface for the background;
+    an image / HTML ad needs one decoder (the primary content) plus an
+    image / HTML surface for the ad and an image surface for the
+    background.
 
 **Expected behavior per device class:**
 
@@ -385,6 +404,12 @@ layout) it can satisfy.
 - **What the user sees:** nothing. The primary content keeps
   playing without interruption. No overlay is rendered.
 
+**Playback speed:** if the primary content plays at a speed other than
+1x when the overlay triggers, the overlay renders at that same speed and
+its wall-clock on-screen time is `duration / playback_speed` (per R19);
+the duration cap (R4) and the beacon schedule (R13) stay on the
+presentation timeline.
+
 ### UC-04 — Hybrid linear + concurrent overlay
 
 **Scenario:** The Publisher has declared a mid-content slot
@@ -449,36 +474,41 @@ but are independently selected.
 
 #### D3 — Single-decoder, image and HTML capable
 
-- **Player decision:** for an L-box / squeezeback option, the
-  creative is a full-frame ad rendered with a cutout where the shrunk
-  primary content is composited (a layout / presentation option per
-  R5). When the full-frame ad form is an image or HTML surface, this
-  is one decoder for the shrunk primary content plus an image/HTML
-  surface for the ad, which a single-decoder image/HTML-capable device
-  (D3) can satisfy; a video full-frame form would need two concurrent
-  decoders and is not satisfiable on D3. A separate HTML/image overlay
-  *on top of* the linear ad's video still requires concurrent
-  composition the single decoder cannot guarantee, and is declined per
-  R5/R3.
-- **What the user sees:** either the L-box (shrunk primary content
-  inside the cutout of a full-frame image or HTML ad) if that option
-  is offered and satisfiable, or — if only a top-of-video overlay
-  option exists — a full-screen linear ad with no overlay on top.
+- **Player decision:** for an L-shape / squeezeback option, the layout
+  composes two elements — the full-frame ad creative in the background
+  and the shrunk primary content on top of it — per R27 (a layout /
+  presentation option per R5). The device can satisfy it only when it
+  can composite both under the decoder-and-surface budget of R27.3. When
+  the full-frame ad creative is an image or HTML surface, this is one
+  decoder for the shrunk primary content plus an image / HTML surface for
+  the background creative, which a single-decoder image/HTML-capable
+  device (D3) can satisfy; if the full-frame ad creative is **video** the
+  layout needs two concurrent decoders and is not satisfiable on D3. A
+  separate HTML/image overlay *on top of* the linear ad's video still
+  requires concurrent composition the single decoder cannot guarantee,
+  and is declined per R5/R3.
+- **What the user sees:** either the L-shape (the shrunk primary content
+  composited on top of a full-frame image / HTML ad creative that fills
+  the rest of the frame) if that option is offered and satisfiable, or —
+  if only a top-of-video overlay option exists — a full-screen linear ad
+  with no overlay on top.
 
 #### D4 — Single-decoder, image only
 
 - **Player decision:** same reasoning as D3, except this device
-  cannot render HTML. An L-box / squeezeback option (a layout /
-  presentation option per R5) whose full-frame ad form is an **image**
-  is satisfiable (one decoder for the shrunk primary content plus the
-  image surface for the ad); an HTML full-frame form is not (D4 cannot
-  render HTML), and a video full-frame form is not (it would need two
-  decoders). A separate HTML/image overlay *on top of* the linear ad's
-  video is declined per R5/R3.
-- **What the user sees:** either the L-box (shrunk primary content
-  inside the cutout of a full-frame image ad) if that option is
-  offered and satisfiable, or — if only a top-of-video overlay option
-  exists — a full-screen linear ad with no overlay on top.
+  cannot render HTML. An L-shape / squeezeback option (two elements
+  per R27, a layout / presentation option per R5) is satisfiable when
+  the full-frame ad creative is an **image** (one decoder for the shrunk
+  primary content plus an image surface for the background creative); an
+  HTML full-frame creative is not (D4 cannot render HTML), and a video
+  full-frame creative is not (it would need two decoders). A separate
+  HTML/image overlay *on top of* the linear ad's video is declined per
+  R5/R3.
+- **What the user sees:** either the L-shape (the shrunk primary content
+  composited on top of a full-frame image ad creative that fills the
+  rest of the frame) if that option is offered and satisfiable, or — if
+  only a top-of-video overlay option exists — a full-screen linear ad
+  with no overlay on top.
 
 #### D5 — Single-decoder, no overlay (worst case)
 
@@ -597,6 +627,17 @@ content continues from the paused position.
 - **What the user sees:** nothing. The paused frame stays on
   screen until the user resumes; no ad is rendered.
 
+**Live-content variant (presentation-time freeze):** the content is
+live and the viewer pauses inside the pause-ad window. The Player's
+presentation time freezes inside the window while the live edge keeps
+advancing in wall-clock time; the window is anchored to the frozen
+presentation time, so the pause-ad stays admissible for as long as the
+viewer remains paused (per R25.1). On resume the pause-ad is dismissed
+(per R16). If the Player then jumps to the live edge, that jump is a
+Player action after the resume, outside the pause-ad window. This
+variant applies across device classes on top of each class's D1–D5
+rendering behavior above.
+
 **Notes / open questions:**
 - Whether the Player is allowed to pre-fetch pause-triggered
   candidates speculatively when the manifest loads, or must defer
@@ -710,21 +751,58 @@ trigger the request.
 **Expected behavior (uniform across device classes D1..D5):**
 
 - **Player decision:** the Player encounters an unrecognized event
-  type or construct in the manifest. Per **R1**, the Player MUST
-  skip the unknown construct and continue playing the primary
+  type or construct in the manifest. Per **R1**, the legacy Player
+  MUST skip the unknown construct and continue playing the primary
   content as if the construct were not present. The new proposal
   achieves this by expressing all new mechanisms via MPEG-DASH 6th
   edition extension points whose normative semantics already let a
-  non-conforming Player ignore them silently.
-- **What the user sees:** the primary content plays uninterrupted.
-  No ad is rendered. No error surfaces.
+  non-conforming Player ignore them silently. The legacy Player's
+  own behaviour is therefore always skip-and-continue; it has no
+  knowledge of the SGAI construct and cannot do anything else.
+
+  What the legacy Player skips depends on what the **Publisher**
+  authored for the opportunity, and the Publisher's choice is
+  **content-dependent**:
+
+  - **Live / real-time content** → the opportunity falls through as
+    skip-and-continue and the ad is an expected loss on the legacy
+    Player. Live content cannot be paused or held to splice in a
+    standard linear break without losing real content, so per **R1**
+    the only safe outcome is to let the legacy Player ignore the SGAI
+    construct and keep playing the live edge. The Publisher SHOULD
+    treat the opportunity as a loss on legacy Players (see Notes).
+  - **Non-live / VOD content** → the Publisher MAY (and SHOULD, where
+    monetising the opportunity matters) author a **standard linear
+    break** alongside the SGAI construct, using only baseline
+    MPEG-DASH 6th edition constructs that a legacy Player already
+    renders. The legacy Player skips the SGAI construct it does not
+    understand and plays the standard break it does understand, so the
+    opportunity is still monetised instead of lost. A current Player
+    recognises the SGAI construct and uses it; the standard break is
+    the legacy fallback only. Because VOD is not bound to a live edge,
+    inserting a standard break costs no real content.
+
+  The Publisher cannot detect a viewer's Player version from the
+  manifest (see Notes), so the standard-break fallback is authored
+  unconditionally for VOD and is simply ignored by current Players
+  that take the richer SGAI path.
+- **What the user sees:**
+  - Live content, or VOD with no standard-break fallback authored →
+    the primary content plays uninterrupted, no ad is rendered, and no
+    error surfaces.
+  - VOD with a standard-break fallback authored → the legacy Player
+    plays the standard linear break (the fallback the Publisher
+    authored), then resumes the primary content; no error surfaces.
 
 Behavior does not vary across device classes because the
-graceful-degradation outcome depends on Player version, not on
-device hardware capabilities. A device with rich rendering caps
-running a legacy Player produces the same outcome as a worst-case
-device running a legacy Player: the primary content continues
-unmodified.
+graceful-degradation outcome depends on Player version and on the
+content type (live vs VOD), not on device hardware capabilities. A
+device with rich rendering caps running a legacy Player produces the
+same outcome as a worst-case device running a legacy Player. What
+differs is the content type, not the device: for live content the
+legacy Player skips and the opportunity is lost; for VOD the legacy
+Player plays whatever standard linear break the Publisher authored as
+the fallback.
 
 **Notes:**
 - This scenario is the cornerstone of the proposal's extensibility
@@ -734,9 +812,13 @@ unmodified.
   MPEG-DASH semantics, or that would error on legacy Players, are
   out of scope (R1).
 - The Publisher cannot detect from the manifest whether a viewer's
-  Player is legacy or current. Thus the Publisher must treat ad
-  opportunities that fall through to UC-07 as expected losses, not
-  as errors.
+  Player is legacy or current. For **live** content the Publisher
+  must therefore treat ad opportunities that fall through to UC-07 as
+  expected losses, not as errors. For **VOD** the Publisher MAY avoid
+  the loss by authoring a standard linear break as the legacy
+  fallback (using baseline constructs a legacy Player renders): a
+  current Player takes the SGAI path and a legacy Player plays the
+  standard break, so the opportunity is monetised in both cases.
 
 ### UC-08 — Overlay window crosses a pause-ad window
 
@@ -745,9 +827,13 @@ when the viewer pauses primary playback, and the pause occurs
 inside a Publisher-declared pause-ad window (per UC-05). The
 pause-ad takes priority over the overlay (per R17): while the
 viewer is paused, the pause-ad form is rendered and the overlay
-is suspended. On resume, the pause-ad is dismissed (per R16) and
-the overlay continues if its slot window is still active; the
-overlay terminates naturally when its window expires (per R4).
+is suspended. The pause-ad form MAY be fullscreen or a partial
+overlay over the paused primary frame (per R21); either way it is
+the only ad surface visible during the pause and the coexisting
+overlay is suspended (R17 / R22). On resume, the pause-ad is
+dismissed (per R16) and the overlay continues if its slot window is
+still active; the overlay terminates naturally when its window
+expires (per R4).
 
 **Publisher intent:**
 - An overlay slot (per UC-03) is active at some moment.
@@ -784,10 +870,13 @@ overlay terminates naturally when its window expires (per R4).
 - **What the user sees:** the overlay is visible while playback
   advances. The viewer pauses; the overlay disappears and a
   pause-ad form (typically the highest-fidelity available: HTML,
-  image, or video over the paused frame) takes its place. On
-  resume, the pause-ad disappears and, if the overlay slot window
-  is still active, the original overlay reappears and continues
-  until its declared window expires.
+  image, or video over the paused frame) takes its place. The
+  pause-ad may fill the whole screen or appear as a partial overlay
+  over the paused frame (per R21); in the partial case the paused
+  frame stays visible around it, but the original overlay is still
+  suspended. On resume, the pause-ad disappears and, if the overlay
+  slot window is still active, the original overlay reappears and
+  continues until its declared window expires.
 
 #### D2 — Dual-decoder, video-on-video only
 
@@ -886,8 +975,9 @@ example of that emergence.
   full-screen takeover. The Publisher does NOT declare a different
   layout set per device class — device capability is the Player's
   sole authority (R5 / R5.4).
-- For the side-by-side layout, an advertiser-supplied background fill
-  is permitted (R26).
+- For the side-by-side layout, an advertiser-supplied background element
+  fills the uncovered bands (R26). For the L-shape / squeezeback, the
+  single ad creative is itself the full-frame background (R27).
 - Maximum slot / overlay duration is bounded (R4).
 
 **Ad response:**
@@ -897,17 +987,18 @@ example of that emergence.
   1. **Side-by-side / double-box with a video ad + advertiser
      background** — three on-screen elements: the shrunk primary
      content, the ad video, and an advertiser-supplied background
-     image filling the bands the two boxes leave uncovered (R26).
-     Compositing it needs **two concurrent video decoders** (primary
-     content + ad video) **plus an image surface** for the background
-     (R26.3).
-  2. **L-shape / squeezeback with a full-frame image ad** — the ad is
-     a full-frame image rendered with a cutout into which the shrunk
-     primary content is composited. The ad covers the whole screen,
-     so there is **no uncovered region and no background fill** (this
-     is a layout, not an R26 case). Compositing it needs **one video
-     decoder** (the shrunk primary content) **plus an image surface**
-     for the full-frame ad.
+     element (an image here) filling the bands the two boxes leave
+     uncovered (R26). Compositing it needs **two concurrent video
+     decoders** (primary content + ad video) **plus an image surface**
+     for the background (R26.3).
+  2. **L-shape / squeezeback (L-box) with an image full-frame ad
+     creative** — two on-screen elements: a single image ad creative
+     occupying the full frame in the background, and the shrunk primary
+     content composited on top of it (the "L" is the band of the image
+     creative that stays visible around the shrunk primary content)
+     (R27). The full-frame ad creative is an image, so compositing it
+     needs **one video decoder** (the shrunk primary content) **plus an
+     image surface** for the full-frame background creative.
   3. **Image banner overlay** — a static image composited on top of
      the primary content. Needs **one video decoder** (the primary
      content) **plus an image overlay surface**.
@@ -940,11 +1031,13 @@ example of that emergence.
   decoders for the two videos, but the **background is an image
   element**, and D2 **cannot composite non-video content** on top of
   / alongside video (R26.3): the option fails on its third element.
-  Option 2 (L-shape full-frame **image** ad) — needs an image surface
-  D2 lacks: fails. Option 3 (image banner overlay) — needs an image
-  surface: fails. Option 4 (full-screen takeover video) — a single
-  decoder reused sequentially, no overlay surface, no concurrent
-  composition: **satisfiable**. The Player renders option 4.
+  Option 2 (L-box with an **image** full-frame ad creative) — needs an
+  image surface D2 lacks (the full-frame background creative is
+  non-video, R27.3): fails. Option 3 (image banner
+  overlay) — needs an image surface: fails. Option 4 (full-screen
+  takeover video) — a single decoder reused sequentially, no overlay
+  surface, no concurrent composition: **satisfiable**. The Player
+  renders option 4.
 - **What the user sees:** a full-screen video ad of bounded duration
   replaces the primary content; on completion the primary content
   resumes. Note this is the instructive case: D2 has two decoders yet
@@ -956,33 +1049,38 @@ example of that emergence.
 
 - **Player decision:** walks the options in document order. Option 1
   (side-by-side video + background) — needs **two** decoders (primary
-  + ad video); D3 has one: fails (R26.3). Option 2 (L-shape full-frame
-  image ad) — needs **one** decoder for the shrunk primary content
-  plus an image surface for the full-frame ad; D3 has both:
-  **satisfiable**. The Player renders option 2.
-- **What the user sees:** the primary content shrinks into the cutout
-  of a full-frame image ad that covers the rest of the screen (the
-  L-shape / squeezeback). No background fill is involved — the ad
-  already covers the whole frame.
+  + ad video); D3 has one: fails (R26.3). Option 2 (L-box with an
+  image full-frame ad creative) — needs **one** decoder for the shrunk
+  primary content plus an image surface for the full-frame background
+  creative; D3 has both: **satisfiable** (R27.3). The Player renders
+  option 2.
+- **What the user sees:** the primary content shrinks into one region
+  composited on top of the image ad creative that fills the whole frame
+  (the L-shape / squeezeback); the band of the ad creative visible
+  around the shrunk primary content forms the "L". Both elements are
+  present per R27.
 
 #### D4 — Single-decoder, image only
 
 - **Player decision:** walks the options in document order. Option 1
-  — two decoders: fails. Option 2 (L-shape full-frame **image** ad) —
-  one decoder for the shrunk primary content plus an image surface for
-  the full-frame ad; D4 can render images on top of video, so:
-  **satisfiable**. The Player renders option 2. (Had option 2's
-  full-frame ad been HTML, D4 — which cannot render HTML — would have
-  skipped it and fallen to option 4.)
-- **What the user sees:** same as D3 — the primary content shrinks
-  into the cutout of a full-frame image ad. No background fill.
+  — two decoders: fails. Option 2 (L-box with an **image** full-frame
+  ad creative) — one decoder for the shrunk primary content plus an
+  image surface for the full-frame background creative; D4 can render
+  images together with video, so: **satisfiable** (R27.3). The Player
+  renders option 2. (Had option 2's full-frame ad creative been HTML,
+  D4 — which cannot render HTML — would have skipped it and fallen to
+  option 4.)
+- **What the user sees:** same as D3 — the primary content shrinks into
+  one region composited on top of the image ad creative that fills the
+  whole frame (the L-shape / squeezeback).
 
 #### D5 — Single-decoder, no overlay (worst case)
 
 - **Player decision:** walks the options in document order. Option 1
   — two decoders plus an image surface: fails on both counts. Option 2
-  — image surface for the full-frame ad: fails (no overlay capability
-  of any kind). Option 3 — image overlay surface: fails. Option 4
+  — an image surface for the full-frame ad creative: fails (no
+  compositing capability of any kind). Option 3 — image overlay surface:
+  fails. Option 4
   (full-screen takeover video) — a single decoder reused
   sequentially, no overlay surface required: **satisfiable**. The
   Player renders option 4.
@@ -1005,17 +1103,24 @@ positional ordered fallback (R5) plus the Publisher's single
 device-agnostic allowed-layout set already produce the correct
 per-class layout, without the Publisher (or the ADS or the APS)
 holding a device-class matrix (R5.4). The element-count / element-type
-reasoning of R26.3 is what makes D2 (two decoders, video-only
-surfaces) land differently from D1 (two decoders plus image/HTML
-surfaces), and what makes D3 / D4 (one decoder plus image surface)
-land on the L-shape rather than the side-by-side.
+reasoning is what makes D2 (two decoders, video-only surfaces) land
+differently from D1 (two decoders plus image/HTML surfaces), and what
+makes D3 / D4 (one decoder plus image surfaces) land on the L-shape
+rather than the side-by-side. The two layouts are modelled
+differently: the side-by-side here is a **three-element** layout
+(primary content + ad + background element, R26) carrying a **video**
+ad, which needs two decoders plus an image surface for the background —
+out of reach for D3 / D4; the L-shape is a **two-element** layout
+(a full-frame ad creative + the shrunk primary content on top, R27)
+carrying an **image** full-frame creative, which needs one decoder plus
+one image surface — within reach for D3 / D4.
 
 **Notes:**
 - The instructive contrast is D2: it owns the two decoders the
   side-by-side video needs, yet declines option 1 because the **third
-  element** — the background image — is a non-video surface D2 cannot
-  composite (R26.3). This shows the rule is element-**type**, not just
-  element-**count**.
+  element** — the background element, an image here — is a non-video
+  surface D2 cannot composite (R26.3). This shows the rule is
+  element-**type**, not just element-**count**.
 - D5 and D2 share the outcome (full-screen takeover) but for different
   reasons; the ordered fallback reaches the same last-resort option by
   two different paths.
@@ -1026,21 +1131,21 @@ land on the L-shape rather than the side-by-side.
 layouts include **side-by-side / double-box**. A candidate is
 presented whose chosen presentation option is the side-by-side: the
 shrunk primary content sits next to the ad on a 16:9 screen, and the
-two boxes together leave bands / margins uncovered. Per R26, a third
-element — a **background image** — MAY fill the uncovered region. This
-use case is the worked illustration of R26 itself: a layout that puts
-**three on-screen elements** in play (primary content, ad, background)
-and the device-class reasoning that follows from the element count and
-type.
+two boxes together leave bands / margins uncovered. Per R26 a third
+element, a **background element** (a still image, never a video and
+never a web/HTML surface), MAY fill the uncovered region; in this worked
+example the advertiser supplies an image background. This use case is the worked
+illustration of R26 itself: a layout that puts **three on-screen
+elements** in play (primary content, ad, background) and the
+device-class reasoning that follows from the element count and type.
 
 **Publisher intent:**
 - Non-linear forms allowed; the allowed-layout set includes
   side-by-side / double-box.
-- An advertiser-supplied background fill is permitted for the
-  uncovered region (R26). The Publisher MAY additionally declare a
-  platform / publisher fallback background for the case where the
-  advertiser supplies none — this is an opt-in MAY with no normative
-  default (R26.2).
+- An advertiser-supplied background element MAY brand the uncovered
+  region (R26); the Publisher does not supply a background. When the
+  advertiser supplies none, the uncovered region renders as black
+  (R26.2).
 - Maximum overlay duration is bounded (R4).
 
 **Ad response:**
@@ -1054,10 +1159,8 @@ type.
     brands / takes over the region between the two boxes (the IAB
     "Double Box Video + Background" model). The Player composites it as
     the third element (R26.2).
-  - **No advertiser background** — if the Publisher declared a platform
-    fallback, the Player MAY composite it (opt-in MAY); absent both,
-    the uncovered-region behaviour is the Publisher's declared default
-    (R26.2).
+  - **No advertiser background** — the uncovered region renders as
+    black (R26.2).
 
 **Expected behavior per device class:**
 
@@ -1067,13 +1170,12 @@ type.
   device can composite three elements. If the ad form is **video**, D1
   uses two decoders (primary + ad video) plus an image surface for the
   background (R26.3). If the ad form is an **image or HTML** surface,
-  D1 uses one decoder for the primary content plus image / HTML
-  surfaces for the ad and the background. Either way the side-by-side
-  renders with the third-element background.
+  D1 uses one decoder for the primary content plus an image / HTML
+  surface for the ad and an image surface for the background. Either way
+  the side-by-side renders with the third-element background.
 - **What the user sees:** the primary content shrinks into one box,
-  the ad plays / displays in the other, and the background image (the
-  advertiser's, or the platform fallback if declared and no advertiser
-  background was supplied) fills the bands around the two boxes.
+  the ad plays / displays in the other, and the advertiser's background
+  image fills the bands around the two boxes.
 
 #### D2 — Dual-decoder, video-on-video only
 
@@ -1093,9 +1195,9 @@ type.
 #### D3 — Single-decoder, image and HTML capable
 
 - **Player decision:** if the ad form is **image or HTML**, the
-  side-by-side needs **one** decoder (the primary content) plus image /
-  HTML surfaces for the ad and for the background — D3 has both, so it
-  is **satisfiable** (R26.3). If the ad form is **video**, the
+  side-by-side needs **one** decoder (the primary content) plus an image
+  / HTML surface for the ad and an image surface for the background; D3
+  has both, so it is **satisfiable** (R26.3). If the ad form is **video**, the
   side-by-side needs **two** decoders (primary + ad video), which D3
   lacks: not satisfiable, the Player skips to the next option per R5.7.
 - **What the user sees:** for an image / HTML ad, the primary content
@@ -1129,14 +1231,89 @@ type.
   next satisfiable option takes its place, or nothing if none renders.
 
 **Notes:**
-- The background fill is a **composition attribute of the layout**
+- The background element is a **composition attribute of the layout**
   (R26.1), not a fourth presentation option. The Player does not "walk"
   it the way it walks the ordered presentation options; it composites
   it as part of rendering the side-by-side once that layout is chosen.
 - The element **type** matters as much as the count (R26.3): D2 owns
   the decoders a side-by-side video needs but still cannot render it,
-  because the background image is a non-video surface D2 cannot
-  composite. This is the same distinction that separates the
-  side-by-side (an R26 three-element case) from the L-shape /
-  squeezeback (UC-09 option 2 — a full-frame ad with a cutout, no
-  uncovered region, no background, not an R26 case).
+  because the background element (an image here) is a non-video surface
+  D2 cannot composite. The L-shape / squeezeback (the L-box, UC-09
+  option 2) is defined in R27 as its own layout: two elements (a
+  full-frame ad creative with the shrunk primary content on top), with
+  its own decoder-and-surface budget (R27.3).
+
+### UC-11 — ClickThrough
+
+**Scenario:** An ad (linear or non-linear) is presented in a slot. Its
+resolution document carries the ad's ClickThrough URL together with one
+or more associated click-tracking URLs. The viewer activates the click
+— a select on a CTV remote, a tap on mobile. At the moment of
+activation the Player opens (or hands off) the ClickThrough destination
+and fires the associated click-tracking (per R28.2). The activation is
+a user-input event: the click carries no presentation time and fires
+only when the viewer acts, never on the timeline.
+
+**Publisher intent:**
+- The slot permits an ad whose creative may carry a ClickThrough. No
+  Publisher-side configuration beyond permitting the ad — the
+  ClickThrough travels with the ad, not with the slot.
+
+**Ad response:**
+- A candidate whose resolution document declares the ClickThrough URL
+  and its associated click-tracking URL(s) in the normative carrier
+  (per R28.1).
+
+**Expected behavior:**
+- On activation the Player opens the ClickThrough destination and fires
+  every associated click-tracking URL once. This is the interoperability
+  point of the use case: because the carrier is normative, every
+  conformant Player reads the same two fields and fires the click
+  identically (R28.2).
+- The click-tracking fires on activation. This is separate from the
+  timeline tracking beacons (impression, quartiles) of R13 / R6, which
+  the Player schedules by presentation time through the callback scheme;
+  the click has no presentation time.
+
+**Device classes:** the outcome depends on the device's input mechanism
+(remote select, tap), not on its decoder or overlay budget. D1–D5 read
+the ClickThrough carrier and fire the click-tracking identically;
+device class does not change the behavior.
+
+**Backward compatibility:** a legacy Player predating SGAI renders the
+ad but does not activate the click, because it ignores the unknown
+carrier (per R1) — the click is simply inert, connecting to UC-07.
+
+### UC-12 — Overlapping same-family windows with fallback
+
+**Scenario:** Two overlay windows of the same family overlap in time in
+the primary `MPD`. The Player takes the first overlapping window it
+encounters and resolves its resolution document. If it cannot access
+that resolution document — the APS does not respond, or the event URL
+that resolves to the APS fails — it falls through to the second window
+as a backup. If the first window resolves successfully, the second is
+ignored; the two are never served concurrently (per R20.1).
+
+**Publisher intent:**
+- Two overlapping opportunity windows of the same family are declared in
+  the primary `MPD`, forming a primary-plus-fallback chain, not two
+  concurrent opportunities.
+
+**Ad response:**
+- Each window resolves independently to its own resolution document via
+  its own event URL / APS. The fallback window's resolution document is
+  fetched only if the first window fails to resolve.
+
+**Expected behavior:**
+- The Player selects the first overlapping window and attempts to
+  resolve it. On success it serves that window and does not touch the
+  second. On failure to access the first window's resolution document,
+  it resorts to the second (per R20.1). Whichever window is served, the
+  forms inside its resolution document are then sequenced per R14: R20
+  selects which window is served; R14 sequences the forms within the
+  chosen window.
+
+**Device classes:** this is window selection, not rendering, so it is
+largely device-agnostic. D1–D5 select and fall back identically; the
+device class affects only how the forms inside the chosen window render
+(per UC-03), not which window is chosen.

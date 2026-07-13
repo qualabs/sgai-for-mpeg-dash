@@ -1,5 +1,502 @@
 # Project log
 
+## 2026-07-10 — New use cases and extensions (Nicolás): UC-11 ClickThrough (R28), UC-12 overlapping same-family windows + fallback (R20), UC-05 live variant (R25), UC-02/UC-03 playback-speed extensions (R19)
+
+Added new use cases and extended existing ones in
+`context/04-use-cases.md` to exercise requirements that had no use-case
+coverage yet. Working tree only, not committed.
+
+- **UC-11 — ClickThrough (R28)** — new. An ad's resolution document
+  carries the ClickThrough URL plus its click-tracking URL(s); the
+  viewer activates the click (remote select / tap) and the Player opens
+  the ClickThrough and fires the click-tracking at the moment of
+  activation, not by the timeline. Exercises R28.1 (APS populates both
+  URLs) and R28.2 (Player reads and fires on activation). Brief contrast
+  with the timeline beacons of R13 / R6 (the click has no presentation
+  time). Device classes collapsed to one sentence (D1–D5 read and fire
+  identically; input-driven, not decoder-driven). One-line backward-compat
+  note connecting to UC-07 (a legacy Player renders the ad but the click
+  is inert per R1). Per Nicolás, R23 (AdSystem/AdTitle) contrast was
+  explicitly dropped — nothing to show.
+- **UC-12 — Overlapping same-family windows with fallback (R20)** — new.
+  Two same-family overlay windows overlap in the primary `MPD`; the
+  Player serves the first and falls back to the second only when it
+  cannot access the first window's resolution document (APS/event URL
+  failure). Never concurrent. Exercises R20.1. One sentence on the axis
+  vs R14 (R20 selects which window is served; R14 sequences the forms
+  inside it). Device classes collapsed to one sentence (window selection,
+  not rendering — largely device-agnostic).
+- **UC-05 — live-content variant (R25)** — extension. Added a
+  "Live-content variant (presentation-time freeze)" sub-scene: the
+  viewer pauses inside the pause-ad window in live content; presentation
+  time freezes inside the window while the live edge advances in
+  wall-clock; the pause-ad stays admissible until resume; a later jump to
+  the live edge is a post-resume Player action outside the window.
+  Exercises R25.1. Integrated into UC-05, not a separate UC.
+- **UC-02 — trick-play variant (R19)** — extension. Added a sub-scene:
+  the viewer watches at 1.5x/2x when the mid-content slot triggers; the
+  ad renders at the primary's speed, wall-clock on-screen time is
+  `duration / playback_speed`; the cap (R4) and beacon schedule (R13)
+  operate on the presentation timeline. Exercises R19.
+- **UC-03 — playback-speed mirror note (R19)** — one-line note mirroring
+  the UC-02 variant for overlays.
+- **Indexes** — Coverage table updated with UC-11 (category "Interaction")
+  and UC-12 (category "Selection") rows; Terminology table gains a
+  "Click-through → UC-11" row. Existing UCs use no "Requirements
+  exercised:" closing line, so none was added (pattern not invented).
+- **Matrix** — `context-analysis/uc-coverage-matrix.md` is now stale and
+  left for regeneration by the build step (not edited by hand).
+
+## 2026-07-10 — Namespace correction (Nicolás): R23 metadata carrier realigned to the canonical SVTA Ads WG namespace; invented `urn:qualabs:sgai:<year>` removed
+
+The round-2e edit had wrongly assigned the R23 generic-metadata carrier
+to a Qualabs vendor namespace (`urn:qualabs:sgai:<year>`), framing it as
+"not part of this spec", while keeping R28's ClickThrough carrier under
+the SVTA Ads WG namespace as "the exception". This contradicted the
+canonical namespace policy: every XML element the spec introduces lives
+under the single SVTA Ads WG extension namespace
+`urn:svta:dash:sgai:<year>` (06-naming-and-namespaces.md, corroborated by
+08-dash-extension-rules.md §, 07-backward-compat-checklist.md, and every
+conformance audit, which use `urn:svta:dash:sgai:2026` on every SVTA
+element and never `urn:qualabs`). The Qualabs namespace is reserved for
+experimental extensions that are NOT part of the spec; R23 is a numbered
+requirement of the spec, so its carrier belongs to SVTA. The invented
+`urn:qualabs:sgai:<year>` was replaced by the canonical SVTA namespace.
+The R23-vs-R28 distinction is normative interoperability (best-effort vs
+mandatory-read), not namespace: both carriers are SVTA. Working tree
+only, not committed.
+
+- **`context/06-naming-and-namespaces.md`** — "Element / attribute
+  extension namespaces" section rewritten. Removed the paragraph and the
+  `urn:qualabs:sgai:<year>` bullet that placed the R23 carrier in the
+  Qualabs vendor namespace, and the "ClickThrough is the exception"
+  paragraph. Now states that every XML element the spec introduces
+  (including both the R23 metadata carrier and the R28 ClickThrough
+  carrier) lives under the single SVTA Ads WG namespace, and that the
+  R23/R28 difference is normative interoperability, not namespace. The
+  general "Vendor extensions (Qualabs)" section (`urn:qualabs:<feature>:<year>`
+  for genuine non-spec experiments) was left intact.
+- **`context/03-requirements.md` R23 / R23.1** — "vendor-namespaced
+  extension elements" / "does not recognise the vendor namespace"
+  reworded to "extension elements in the SVTA Ads WG namespace" and the
+  best-effort/ignorable property re-grounded on foreign-namespace
+  handling (conformant Player MAY drop; legacy Player discards unknown
+  namespace) rather than on a vendor namespace.
+- **`context/05-dash-linear-interfaces.md`** — the VAST↔DASH mapping
+  rows for `<AdSystem>`/`<AdTitle>`/`<Advertiser>`, `<UniversalAdId>`,
+  the `<ClickThrough>` contrast line, and the UniversalAdId prose all
+  changed from "vendor-namespaced" / "best-effort vendor namespace" to
+  "best-effort SVTA-namespaced carrier" (R23), keeping the best-effort
+  vs normative (R28) contrast intact.
+- **Consistency check** — grep over `context/` confirms no remaining
+  `urn:qualabs:sgai` and no remaining "vendor-namespaced" reference tied
+  to R23; the only surviving `urn:qualabs:*` is the general
+  `urn:qualabs:<feature>:<year>` pattern for non-spec experiments.
+
+## 2026-07-10 — Refinement sub-round (Nicolás, round 2g): R28 shortened and made concise; long grounding kept in 05, not in the requirement; R23 no longer references R28
+
+R28 had grown too long and verbose across the 2e / 2f rounds. Nicolás
+asked to make it much shorter and more concrete. The requirement now
+carries only the essential idea (a normative, mandatory carrier for the
+ClickThrough URL plus its click-tracking URL(s), and that the click is
+fired on user activation, not by the callback timeline) with a single
+grounding anchor (§5.10.1). The long grounding detail — that the
+callback fires its HTTP GET at the presentation time (§5.10.4.5.2 /
+Table 47) and the `urn:mpeg:dash:nonlinearplayback:2020` precedent where
+the event is anchored to the timeline while the user interaction stays
+outside the trigger — now lives only in `05-dash-linear-interfaces.md`,
+where the ClickThrough / callback mapping already carried it. Working
+tree only, not committed.
+
+- **`context/03-requirements.md` R28 body** — cut from ~28 lines to two
+  sentences. Removed the timeline-beacon recap (impression / quartiles),
+  the §5.10.4.5.2 / Table 47 citation, and the nonlinearplayback:2020
+  precedent paragraph. Only §5.10.1 remains as grounding in the
+  requirement. The essentials are preserved: mandatory normative carrier
+  for the ClickThrough URL + click-tracking, not relegated to a
+  vendor-namespaced extension, and the click-tracking fired on user
+  activation rather than through the callback presentation-time trigger.
+- **`context/03-requirements.md` R28.1 / R28.2** — shortened to one
+  sentence each while keeping the same normative content (APS populates
+  both URLs in the normative carrier; Player reads the ClickThrough and
+  fires click-tracking on user activation, not via the callback trigger).
+- **`context/03-requirements.md` R23** — removed the sentence in the R23
+  body that distinguished R23 from R28 ("It is also distinct from R28:
+  …") and the trailing R28 reference in R23.1. R23 keeps its own idea
+  (generic best-effort carrier for AdSystem / AdTitle, safely ignorable)
+  and its distinction from R6, but no longer references R28.
+- **`context/05-dash-linear-interfaces.md`** — checked; the long
+  grounding (§5.10.4.5.2 / Table 47 + nonlinearplayback:2020, with the
+  timeline-anchored-event / outside-timeline-interaction split) is
+  already present in the `<ClickThrough>` / `<ClickTracking>` mapping
+  row. No change needed — the detail now lives here and not in the
+  requirement.
+- **Consistency check** — grep over `03-requirements.md` confirms R23
+  no longer mentions R28, and R28 no longer asserts the click-tracking
+  uses the callback event scheme.
+
+## 2026-07-10 — Refinement sub-round (Nicolás, round 2f): R28 click-tracking corrected — it no longer reuses the DASH callback event scheme
+
+Correction to the R28 introduced in round 2e. Verification against
+DASH 6th edition (confirmed via NotebookLM with verbatim citations)
+showed the callback event scheme is timeline-triggered and cannot
+represent a user-triggered event such as a click: DASH events are
+timeline-scheduled and the callback fires its HTTP GET at the scheduled
+presentation time (ISO/IEC 23009-1 §5.10.1; §5.10.4.5.2 / Table 47).
+The 2e text erroneously said the click-tracking MUST reuse the callback
+event scheme of R6 / R13.4. Corrected: the timeline-scheduled ad
+beacons still reuse the callback scheme (that is right), but the
+ClickThrough URL and its click-tracking are now co-located in the
+normative ClickThrough carrier and the Player fires the click-tracking
+when the viewer activates the ClickThrough (on click), not via the
+presentation-time trigger. Precedent cited: DASH's interactive
+nonlinear-playback scheme (`urn:mpeg:dash:nonlinearplayback:2020`),
+where the event is anchored to the timeline while the user interaction
+is handled outside the timeline trigger. Working tree only, not
+committed.
+
+- **`context/03-requirements.md` R28 body** — the click-tracking
+  clause was rewritten. Removed the assertion that the click-tracking
+  MUST reuse the R6 beacon carrier / callback event scheme. New text:
+  timeline-scheduled beacons reuse the callback scheme per R6 / R13.4;
+  a ClickThrough activation has no presentation time and DASH defines
+  no user-triggered event (§5.10.1; §5.10.4.5.2 / Table 47), so the
+  resolution document MUST carry the ClickThrough URL together with its
+  click-tracking URL(s) in the normative carrier and a conformant
+  Player MUST fire the click-tracking on user activation, not via the
+  callback presentation-time trigger; nonlinearplayback:2020 cited as
+  precedent for the timeline-anchored-event / outside-timeline-
+  interaction split.
+- **`context/03-requirements.md` R28.1 / R28.2** — R28.1 (APS) now
+  requires populating BOTH the ClickThrough URL AND its click-tracking
+  URL(s) in the normative carrier. R28.2 (Player) now requires reading
+  the ClickThrough URL from the normative carrier AND firing its
+  click-tracking on user click, NOT via the presentation-time trigger
+  of the callback event scheme. The prior "read the ClickThrough and
+  fire click-tracking via the R6 callback carrier" wording was removed.
+- **`context/03-requirements.md` R6 note** — the line stating that the
+  R28 click-tracking reuses R6's beacon carrier was corrected: the
+  timeline-scheduled beacons reuse the callback carrier, but the R28
+  click-tracking is not timeline-scheduled, is not carried by the
+  callback event scheme, and is fired on user activation. R6 / R13.4
+  themselves (timeline beacons) are unchanged.
+- **`context/05-dash-linear-interfaces.md` VAST↔DASH mapping** — the
+  `<ClickThrough>` / `<ClickTracking>` row now states the ClickThrough
+  URL and its click-tracking URL(s) are carried together in the
+  normative carrier and the click-tracking fires on user click, not via
+  the callback timeline. Existing grounding preserved (DASH 6th defines
+  no native carrier for Click-through URLs). Added §5.10.1 and
+  nonlinearplayback:2020 as backing that DASH has no user-triggered
+  event.
+- **`context/06-naming-and-namespaces.md`** — checked; already
+  consistent (both the ClickThrough URL and its click-tracking are
+  carried by the R28 normative carrier under the SVTA Ads WG namespace,
+  not an EventStream callback). No change needed.
+- **Consistency check** — grep over `context/` for `R28` and for
+  `click` near `callback` confirms no remaining assertion that the
+  click-tracking uses the callback event scheme.
+
+## 2026-07-10 — Refinement sub-round (Nicolás, round 2e): R23 narrowed to best-effort generic metadata; new R28 elevates ClickThrough to a normative carrier; UniversalAdId declared out of DASH scope
+
+Nicolás split the application-level metadata carrier into two distinct
+requirements: a generic best-effort carrier (R23, unchanged in spirit)
+and a normative, interoperable carrier specifically for ClickThrough
+(new R28). The rationale: the click MUST work across every conformant
+Player, so it cannot ride the ignorable vendor-namespaced carrier that
+generic metadata uses. UniversalAdId is dropped from the DASH carrier
+scope entirely because its tracking / reconciliation role is handled by
+VAST on the ADS side. Working tree only, not committed.
+
+- **`context/03-requirements.md` R23** — narrowed to *generic*
+  application-level metadata with no native DASH carrier. Examples
+  trimmed to `AdSystem`, `AdTitle`, "etc."; `ClickThrough` and
+  `UniversalAdId` removed from both the R23 body and R23.1. The
+  optional / best-effort / ignorable nature is now stated explicitly
+  (a Player that does not recognise the vendor namespace drops the
+  metadata and nothing breaks), and R23 cross-refs R28 to make the
+  boundary explicit: ClickThrough is NOT covered by the best-effort
+  carrier.
+- **`context/03-requirements.md` R28 (new)** — added at the end of the
+  Tracking sub-section (ascending numeric order after R24). The
+  resolution document MUST carry the ClickThrough URL and its
+  click-tracking through a normative, interoperable carrier the spec
+  defines explicitly, so every conformant Player reads it the same way
+  and the click works cross-Player. Contrasted explicitly with R23
+  (optional / ignorable). The click-tracking MUST reuse the existing
+  R6 beacon carrier (DASH callback event scheme, per R13.4); no new
+  tracking scheme. Conformance criteria: R28.1 (APS MUST populate the
+  normative carrier) and R28.2 (Player MUST read the ClickThrough and
+  fire its click-tracking via the R6 carrier). R6's cross-ref note
+  updated to mention R28 reuses its beacon carrier.
+- **`context/05-dash-linear-interfaces.md` VAST↔DASH mapping** — the
+  `<ClickThrough>` / `<ClickTracking>` row now reflects the R28
+  normative carrier (click-tracking via the callback scheme), instead
+  of "no native carrier — sidecar or vendor namespace". The
+  `<AdSystem>` / `<AdTitle>` row was re-anchored on R23 directly (it
+  previously said "same conclusion as `<ClickThrough>`", which no
+  longer holds). The `<UniversalAdId>` row and the "lost in
+  translation" bullet were reframed: no hole left behind, but the id is
+  declared intentionally out of the DASH carrier scope and left on the
+  VAST / ADS side (with the reason recorded — tracking handled by VAST).
+- **`context/06-naming-and-namespaces.md`** — the vendor-namespace
+  paragraph now distinguishes the generic best-effort carrier (R23,
+  Qualabs vendor namespace) from the ClickThrough normative carrier
+  (R28), which lives under the SVTA Ads WG extension namespace, not the
+  vendor-private one.
+- **Coherence check** — no conflict with R11 (the spec defines its OWN
+  ClickThrough carrier, it does not depend on VAST; the URL originates
+  in VAST but is transcribed into a DASH-native carrier, same pattern
+  as R6 / R13) nor with R18 (defining the resolution-document format is
+  in scope; R28 constrains the document, not the ADS / APS API
+  contract). No commit.
+
+## 2026-07-10 — Refinement sub-round (Nicolás, round 2d): side-by-side background further restricted to IMAGE ONLY (no web/HTML)
+
+Follow-up to 2c. Nicolás tightened the constraint further: the
+side-by-side / double-box background is now **image only**, dropping the
+web/HTML option left in 2c. The background is a still image, never a
+video and never a web/HTML surface. Working tree only, not committed.
+
+- **`context/03-requirements.md` R26** — body carrier sentence, the
+  device-budget "worked cases" paragraph, and R26.3 all changed from
+  "image or web/HTML surface" to "a still **image**, never a video and
+  never a web/HTML surface". Surface arithmetic updated: a video ad
+  needs two decoders (primary + ad video) plus an **image** surface for
+  the background; an image / HTML ad needs one decoder (primary) plus an
+  image / HTML surface for the ad and an **image** surface for the
+  background. The ad still admits the full R15 carrier set (video /
+  image / HTML); only the background is restricted.
+- **`context/04-use-cases.md`** — UC-04 layout taxonomy bullet, UC-10
+  scenario intro, and the D1 / D3 device analyses updated so the
+  background surface is image only (ad may still be image / HTML). UC-09
+  and the D4 / D5 analyses already described an image background, so no
+  change there. The UC-10 table row (background element generic, ad
+  types listed) needed no change.
+- **Scope check** — grep over `context/` confirms no side-by-side
+  background is described as web/HTML or video anywhere. R27 (L-shape /
+  squeezeback) left untouched: there the full-frame creative IS the ad
+  and may still be image / video / web/HTML, since it is the ad itself,
+  not a separate background fill.
+- **IAB alignment** — unchanged. IAB describes the background only as
+  advertiser branding of the region between the two boxes; restricting
+  it to a still image is strictly more restrictive and does not
+  contradict IAB. No commit.
+
+## 2026-07-10 — Refinement sub-round (Nicolás, round 2c): R26.3 decoder arithmetic fixed; side-by-side background restricted to image/HTML (never video), IAB-checked
+
+Two fixes to the side-by-side / double-box device budget in
+`context/03-requirements.md` R26, propagated to the use-cases. Working
+tree only, not committed.
+
+- **Arithmetic error fixed.** The prior R26 text claimed a side-by-side
+  whose ad and/or background is video "requires two decoders". With
+  three video elements (primary content + video ad + video background)
+  that is three concurrent decoders, not two. The error is now moot
+  because of the restriction below, but it drove the rewrite.
+- **IAB check on the background type.** Re-read IAB Tech Lab, "Ad Format
+  Guidelines for Digital Video and CTV" (public comment, Dec 2025),
+  Squeezeback section, p.12. The "Double Box Video + Background" entry
+  describes the background only as: *"The advertiser also brands/takes
+  over the background between the double boxes of video."* IAB does not
+  state or require the background to be a video element; it is described
+  as advertiser branding of the region between the two video boxes. IAB
+  is effectively silent on the background being a decoder-bearing video.
+- **Decision (simplification, Nicolás's preferred path).** The
+  side-by-side background element is now **always an image or a web/HTML
+  surface, never a video**. It never consumes a video decoder. The
+  decoder budget is therefore at most **two** concurrent video decoders:
+  the primary content plus a video ad. The three-video / three-decoder
+  case is removed entirely. This does not contradict IAB (IAB does not
+  require a video background) and matches the "Background = branding
+  surface" reading.
+- **Applied.** `context/03-requirements.md`: R26 body carrier sentence
+  (background = image or web/HTML, never video), the device-budget
+  "worked cases" paragraph (two cases now: video ad → two decoders +
+  image/HTML surface; image/HTML ad → one decoder + surfaces), and R26.3
+  conformance criterion (same two-branch arithmetic; the two-video-max
+  bound made explicit). `context/04-use-cases.md`: UC-04 layout taxonomy
+  bullet and UC-10 scenario intro updated to list the background as
+  image/web-HTML only (never video). UC-09 already used the correct
+  two-decoder arithmetic (its background is an image), so no change there.
+- **R27 unchanged.** The L-shape / squeezeback ad creative (which IS the
+  full-frame background) may still be image, video, or web/HTML per R27,
+  since there the creative is the ad itself, not a separate branding
+  fill. No commit.
+
+## 2026-07-10 — Refinement sub-round (Nicolás, round 2b): publisher fallback background removed entirely; background is advertiser-only, black if none
+
+Follow-up to the sub-round below. Nicolás simplified further: the
+uncovered-region background is **only** the advertiser's creative (IAB
+"Double Box Video + Background"). There is **no** publisher / platform
+fallback. If the advertiser supplies no background, the uncovered bands
+render as **black**. All mention of a publisher-declared fallback
+background was removed across `context/`. Applied to the working tree
+(not committed).
+
+- **`context/02-actors.md`** — removed the Publisher bullet about
+  optionally declaring a fallback background. The Publisher no longer
+  declares anything about the side-by-side background; the background is
+  the advertiser's. The Publisher bullet list now runs layout templates
+  → other slot-level constraints.
+- **`context/03-requirements.md` R26** — advertiser-default paragraph
+  rewritten: the background element, when present, is the advertiser's
+  creative; it is owned by the advertiser, not the Publisher or the
+  platform; when the advertiser supplies none, the uncovered region
+  renders as black. Deleted the "specification MAY define a platform /
+  publisher fallback background" sentences. R26.2 rewritten to two
+  branches only: advertiser supplies a background (Player places it) or
+  advertiser supplies none (black). R26 stays MAY (the advertiser may or
+  may not bring a background).
+- **`context/04-use-cases.md` UC-10** — removed the publisher-fallback
+  mentions in the scenario intro, Publisher intent, Ad response ("No
+  advertiser background → black", no fallback), and D1 "what the user
+  sees" (advertiser's background image only). Also swept the two
+  residual negative-framing sentences ("the L-box is a different layout,
+  not an R26 case") in the scenario intro and closing Note, leaving R27
+  to define the L-box positively.
+- **Verification** — grep over `context/` confirms no remaining
+  publisher / platform fallback-background mention and no "not a(n) R26
+  case" negative framing. Remaining "fallback" hits are unrelated
+  (legacy standard-break fallback, R20 first-window-wins fallback
+  chain). IAB alignment unchanged (advertiser owns the background per
+  the Dec 2025 guidelines, verified prior). No commit.
+
+## 2026-07-10 — Refinement sub-round (Nicolás, round 2): R26 background simplified to advertiser-default / publisher-fallback-MAY, IAB-aligned; negative "not R26" framing dropped
+
+Nicolás's refinement feedback on the uncovered-region background model,
+applied to the working tree (not committed). Four points, all reconciled
+against the authoritative IAB source.
+
+- **IAB verification (the crux).** Confirmed against IAB Tech Lab, *"Ad
+  Format Guidelines for Digital Video and CTV"* (public comment, Dec 2025),
+  Squeezeback section, p.12. IAB text, verbatim: *"Double Box Video +
+  Background: Each box (content and the ad) will take up 25% of the 1920 x
+  1080 screen. The content squeezes back to the center left, and the ad
+  squeezes to the center right. The advertiser also brands/takes over the
+  background between the double boxes of video."* Also, Squeezeback creative
+  note: *"the squeezeback assets are provided in an underlay format... the
+  full screen 1920 x 1080 branded advertisement is provided with a cutout
+  for the content placement."* Conclusion: in IAB the background is the
+  **advertiser's** creative, not the publisher's. IAB is silent on any
+  fallback when the advertiser supplies none.
+- **R26 → MAY (Punto 2).** `context/03-requirements.md` R26 title and body
+  changed from "layouts carry a background element" to "**MAY** carry a
+  background element". The background is optional: when none is present the
+  uncovered bands render as black. R26.2 rewritten so the Player MUST
+  composite primary content + ad, and MUST place a background element only
+  when one is present (advertiser default, publisher fallback when the
+  advertiser supplies none), black otherwise.
+- **Advertiser default, publisher fallback opt-in (Punto 4).** The
+  advertiser-default paragraph (mirroring IAB "Double Box Video +
+  Background") is retained as the normative default; the platform /
+  publisher fallback stays an opt-in MAY that applies only when the
+  advertiser supplies no background. This was already largely present in the
+  working tree; verified against IAB and kept.
+- **Dropped the negative "not R26" framing (Punto 3).** Removed the R26
+  paragraph that defined the L-shape by what it is NOT ("a different layout,
+  not a case of R26..."). R27 already defines the L-shape / squeezeback
+  positively (one full-frame ad creative in the background + shrunk primary
+  content on top, no separate third fill element); added a one-line anchor
+  to the IAB underlay model. R27's closing contrast sentence against R26 was
+  removed in favour of the positive definition.
+- **02-actors.md (Punto 1).** The Publisher bullet was simplified: dropped
+  the long parenthetical and the L-shape negative clause. It now states the
+  Publisher optionally declares a platform / publisher fallback background
+  for the side-by-side, with the default background being the advertiser's
+  own creative (IAB model), fallback used only when the advertiser supplies
+  none so the region does not render black.
+- **Consistency.** `context/04-use-cases.md` UC-10 already frames the
+  background as advertiser-supplied with an optional publisher fallback
+  (R26.2), consistent with the MAY model; no contradiction introduced, left
+  as-is per "adjust the minimum necessary". No commit (Nicolás refining).
+
+## 2026-05-29 — WG feedback round 2 (David Hassoun, Slack thread #wg-comcast): L-box modelled as its own layout (R27, not R26) + UC-07 content-dependent fallback + R21 relaxed
+
+A second round of David Hassoun's feedback arrived as a **Slack thread**
+(`#wg-comcast`, 2026-05-29), distinct from the file-based round 1 cross-referenced
+on 2026-05-27. Three `context/` changes applied + one point closed; A4 still
+pending. Changes applied to the working tree for Nicolás to validate before commit.
+
+- **L-box model (U2 / U4).** David objected to an earlier model that
+  treated the L-box as a full-frame ad with a cutout and **no background**: *"I'm
+  not sure I totally agree with the L-Box. Yes it can be done with a cutout image
+  (with transparency), but it could also be a background image - no transparency.
+  It could reasonably be bg image, content on top, ad video or static on side and
+  or bottom."* **Nicolás closed the debate:** *"Lets agree on this: Lbox is ALWAYS
+  a background image/video/web"* + *"so lets not call it background image, is just
+  'the image/web/video for the LBOX'"* (David reacted 👍). The agreed model: the
+  L-box (L-shape / squeezeback) is a layout with **one** ad creative — an image,
+  video, or web/HTML, a single URL the ADS supplies — that is **always** placed
+  **full-frame in the background**, with the shrunk primary content composited on
+  top of it. Two on-screen elements (the full-frame ad creative + the shrunk
+  primary content); the "L" is the band of the ad creative that stays visible
+  around the shrunk content. There is **no separate third filler element** — the
+  ad creative is itself the background. The L-box is therefore **its own layout,
+  NOT a case of R26**: R26 is specifically the side-by-side / double-box, where
+  two boxes leave an uncovered region that a distinct third background element
+  fills. The L-box has no such uncovered region. Applied:
+  - `context/03-requirements.md` **R26** scoped back to **side-by-side /
+    double-box only** — the three-element case (primary content + ad + a third
+    background element of variable media filling the uncovered bands). R26.1/.2/.3
+    describe the side-by-side. The L-box is **not** an R26 case.
+  - `context/03-requirements.md` **new R27** — L-shape / squeezeback as its own
+    layout: one full-frame ad creative (image/video/web) + the shrunk primary
+    content on top, a presentation option under R5. R27.1/.2/.3 cover the
+    two-element composition and the decoder budget (video creative → 2 decoders;
+    image/HTML creative → 1 decoder + a surface). Next free number, no
+    renumbering of existing requirements.
+  - `context/04-use-cases.md` — UC-03 layout taxonomy, UC-04 D3/D4, UC-09 (option
+    2 + D2/D3/D4/D5 analysis + "what this demonstrates"), UC-10 (scenario intro +
+    final Note: the L-box is a different layout, not the "other R26 case"), and the
+    coverage table reconciled to the two-element L-shape model under R27.
+  - `context/02-actors.md` — the Publisher sub-bullet now scopes the background
+    element to the side-by-side (R26) and notes the L-shape's full-frame ad
+    creative is its own background (R27).
+  - **UC-09 option 2 modeling:** an **L-shape with an image full-frame ad
+    creative** (one decoder for the shrunk primary content + an image surface for
+    the full-frame background creative), which preserves the worked-example
+    per-class outcomes (D1 → side-by-side, D3 / D4 → L-shape, D2 / D5 → takeover).
+    A video full-frame creative would push D3 / D4 off the L-shape.
+
+- **UC-07 content-dependent legacy fallback (U5).** David: *"It should skip OR use
+  standard break depending on content options. If live and real content then skip
+  otherwise use will lose content."* UC-07 now documents the legacy-player
+  fallback as **content-dependent**: the legacy Player always skips the unknown
+  SGAI construct (R1), but what the Publisher authors around it differs — for
+  **live** content, skip-and-continue (cannot pause live to splice without losing
+  real content); for **non-live / VOD**, the Publisher MAY / SHOULD author a
+  **standard linear break** using baseline constructs a legacy Player renders, so
+  the legacy Player plays the standard break instead of losing the opportunity.
+  Applied to `context/04-use-cases.md` UC-07 (Player decision + What the user sees
+  + Notes) and `context/07-backward-compat-checklist.md` §5 (the UC-07 test now
+  asserts only the silent skip of the new construct; the surrounding viewer
+  experience is the Publisher's content-dependent authoring choice). RFC 2119
+  MUST / SHOULD / MAY used.
+
+- **R21 pause-ad partial overlay (U6).** David: *"i think thats an oversight in
+  spec... I have seen partial screen pause ad overlays."* R21 relaxed from
+  "Pause-ad forms are fullscreen" (MUST fullscreen, partial not supported) to
+  **"Pause-ad forms MAY be fullscreen or a partial overlay"**. R21.1 rewritten to
+  permit both surfaces; the R17 priority (pause-ad suspends a coexisting overlay)
+  and the R22 single-active-form bound were made the load-bearing guarantee
+  instead of the old "fullscreen necessarily covers the overlay" reasoning. R16
+  and R17 cross-refs to R21 updated to drop the fullscreen assumption; UC-08
+  scenario intro + D1 "What the user sees" note that the pause-ad may be
+  fullscreen or partial. No renumbering.
+
+- **UC-02 vs UC-06 closed (U1).** David reacted "sounds good" to keeping the two
+  use cases separate; the round-1 conflict is resolved in favour of the v1
+  decision (keep them discrete for the test-generation workflow). No spec change.
+
+- **A4 still pending.** David did not confirm the ADS + APS split in this thread;
+  the lightweight confirmation remains outstanding.
+
+These are `context/` changes → next major build is **v6** (the orchestrator
+regenerates the spec + analyses when the operator runs `build-all`). **NOT yet
+committed** — pending Nicolás's diff review (especially the UC-09 option-2
+modeling decision above). Phase governance updated in
+`.project/phases/02-wg-feedback-round-1/TASKS.md` (round-2 note).
+
 ## 2026-05-27 — use cases: UC-09 (ordered fallback across device classes) + UC-10 (side-by-side three-element R26)
 
 Added two use cases to `context/04-use-cases.md` to make the expected

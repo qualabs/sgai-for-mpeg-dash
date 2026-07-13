@@ -87,10 +87,24 @@ chapter 10 modelled on UC-07
 
 - A representative MPD/ListMPD containing C.
 - A legacy Player implementation harness.
-- The expected behaviour: silent skip + uninterrupted primary
-  content + no tracking beacon for C.
-- Pass criteria: observable playback continues; no errors logged
-  at FATAL level.
+- The expected behaviour: silent skip of C + no tracking beacon for
+  C. The legacy Player MUST ignore C in every case; this is the
+  invariant the test verifies.
+- What the viewer experiences around the skipped C is
+  **content-dependent** and is the Publisher's authoring choice, not a
+  property of C (see UC-07 in
+  [`04-use-cases.md`](./04-use-cases.md)): for **live** content the
+  primary content continues uninterrupted (the opportunity is an
+  expected loss on legacy Players); for **non-live / VOD** content the
+  Publisher MAY author a standard linear break — using only baseline
+  constructs a legacy Player renders — alongside C, in which case the
+  legacy Player skips C and plays the standard break. The standard
+  break is itself a baseline construct, so it is out of scope of C's
+  per-construct skip test; the test still asserts only that C is
+  skipped silently.
+- Pass criteria: C is skipped silently; no errors logged at FATAL
+  level; observable playback continues (either the primary content for
+  live, or the Publisher-authored standard break for VOD).
 
 ### 6. Namespace policy
 
