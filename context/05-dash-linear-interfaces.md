@@ -428,9 +428,9 @@ VAST 4.x is out of scope of this document):
 | `<MediaFile>` (one per encoding profile)  | one `Representation` inside an `AdaptationSet` of the sub-MPD | `@type`, `@bitrate`, `@width`, `@height`, `@codec` map onto `Representation` attributes. Multiple `<MediaFile>` entries collapse to an ABR ladder. |
 | `<TrackingEvents>/<Tracking event="X">`   | inline `EventStream` of scheme `urn:mpeg:dash:event:callback:2015` inside the sub-MPD | Standard VAST event names (`start`, `firstQuartile`, `midpoint`, `thirdQuartile`, `complete`, `pause`, `mute`, …) map to callback events scheduled at the matching media times (§4.7, §5.10.4.5). |
 | `<Impression>`                            | callback event at offset `0` inside the sub-MPD        | Fires when ad playback starts. |
-| `<ClickThrough>`, `<ClickTracking>`       | no native carrier — sidecar or vendor namespace        | DASH 6th edition defines **no native field** inside ListMPD or the ad MPD for click-through metadata. Validated against the 6th edition source: "The MPEG-DASH 6th edition standard does not define any carrier fields within the MPD for application-level VAST metadata such as Click-through URLs." In production the APS conveys clicks via a vendor-namespaced extension element or a sidecar JSON returned alongside the ListMPD; DASH clients are instructed to safely ignore unknown namespaces. |
-| `<AdSystem>`, `<AdTitle>`, `<Advertiser>` | no native carrier — sidecar or vendor namespace        | Same conclusion as `<ClickThrough>`: §8.14 confines the spec's tracking footprint to the callback event scheme; AdSystem / AdTitle / Advertiser have no normative slot. Carried as vendor-namespaced attributes / elements or sidecar data. |
-| `<UniversalAdId>`                         | no native carrier — sidecar or vendor namespace        | Same conclusion as above: DASH 6th edition defines no `UniversalAdId` carrier on `ImportedMPD` or anywhere else in the ListMPD; in practice the APS carries it as a vendor attribute or sidecar entry. |
+| `<ClickThrough>`, `<ClickTracking>`       | normative ClickThrough carrier defined by this spec (R28); ClickThrough URL and its click-tracking URL(s) carried together in that carrier; click-tracking fired on user click, not via the callback timeline | DASH 6th edition defines **no native field** inside ListMPD or the ad MPD for click-through metadata. Validated against the 6th edition source: "The MPEG-DASH 6th edition standard does not define any carrier fields within the MPD for application-level VAST metadata such as Click-through URLs." This spec closes that gap: R28 requires a **normative, interoperable** carrier that holds the ClickThrough URL together with its associated `<ClickTracking>` URL(s), so every conformant Player reads them the same way. The click-tracking is NOT carried by the callback event scheme: a ClickThrough activation is a user interaction with no presentation time, and DASH defines no user-triggered event (DASH events are timeline-scheduled and the callback fires its HTTP GET at the scheduled presentation time, ISO/IEC 23009-1 §5.10.1; §5.10.4.5.2 / Table 47). A conformant Player therefore fires the click-tracking when the viewer activates the ClickThrough. DASH follows the same split in its interactive nonlinear-playback scheme (`urn:mpeg:dash:nonlinearplayback:2020`), where the event is anchored to the timeline while the user interaction is handled outside the timeline trigger. This is deliberately stronger than the best-effort carrier used for generic metadata (R23): the click MUST work cross-Player, not be silently ignored. |
+| `<AdSystem>`, `<AdTitle>`, `<Advertiser>` | no native carrier — best-effort SVTA-namespaced carrier (R23) | DASH 6th edition defines no native slot for these generic metadata fields, and §8.14 confines the spec's tracking footprint to the callback event scheme. They fall under the best-effort carrier of R23: carried as SVTA Ads WG namespaced attributes / elements that a Player MAY safely ignore. Unlike `<ClickThrough>` (R28), no interoperable carrier is mandated for them — dropping them breaks nothing in the ad presentation. |
+| `<UniversalAdId>`                         | out of scope of the DASH carrier — stays VAST / ADS side | DASH 6th edition defines no `UniversalAdId` carrier, and this spec deliberately does not add one. The universal ad identifier is used for ad tracking and reconciliation on the ADS / VAST side; that tracking is handled by VAST, not by the DASH resolution document. It is therefore intentionally left in the VAST / ADS domain and is out of scope of the DASH carrier defined by this spec. An APS that still wants to propagate it MAY do so on a best-effort SVTA-namespaced attribute (R23), but the spec mandates no carrier for it. |
 | `<Error>`                                 | translated by the APS into an error response           | When the ADS's VAST signals an error (or the APS cannot produce a valid `ListMPD` from it), the APS returns an HTTP error and/or an empty `ListMPD`; the Player falls through to primary content (R1). |
 
 Edge cases worth flagging:
@@ -456,11 +456,16 @@ Edge cases worth flagging:
   `ListMPD` or an HTTP error (e.g. when the ADS returns no fill);
   either way the Player falls through to primary content (R1
   graceful degradation; UC-07-adjacent behaviour applies).
-- **VAST `<UniversalAdId>`**: lost in translation as far as DASH
-  6th edition is concerned (see the field mapping above). An APS
-  that needs to carry it preserves it on a vendor-namespaced
-  attribute / element on the corresponding `ImportedMPD` (or on a
-  sidecar payload).
+- **VAST `<UniversalAdId>`**: intentionally left on the VAST / ADS
+  side and out of scope of the DASH carrier defined by this spec (see
+  the field mapping above). The universal ad identifier serves ad
+  tracking and reconciliation, which VAST already handles on the ADS
+  side; this spec does not replicate that carrier in the DASH
+  resolution document. An APS that still needs to propagate it MAY
+  preserve it on a best-effort SVTA-namespaced attribute / element on
+  the corresponding `ImportedMPD` (R23), but no carrier is mandated for
+  it. This is distinct from `<ClickThrough>`, which this spec DOES
+  carry normatively (R28) because the click must work cross-Player.
 
 ## Interface contracts
 

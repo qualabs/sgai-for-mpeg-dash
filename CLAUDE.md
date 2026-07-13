@@ -597,6 +597,15 @@ short paragraphs, explicit grounding (section references where
 verifiable), tables only when comparing something. No marketing
 language, no apologies, no filler.
 
+Requirements are self-contained and concise. State what a requirement
+mandates, not how it differs from other requirements. Do not compare
+one requirement to another (no decorative "unlike R_x" / "R_y, by
+contrast") unless the distinction is normatively necessary because an
+implementer could otherwise conflate two constructs (for example two
+different carriers), and then state it once, minimally. A reader should
+be able to understand a requirement without holding the rest of the
+requirement set in their head.
+
 For artefacts that quote or extend the MPEG-DASH 6th edition (the
 spec, the gap analysis), use RFC 2119 vocabulary
 (MUST / SHOULD / MAY) when stating requirements. Reference the RFC

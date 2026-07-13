@@ -68,14 +68,12 @@ WG extension namespace:
   - **`urn:svta:dash:sgai:<year>`** — proposed extensions to
     MPEG-DASH authored by the SVTA Ads WG as part of this spec.
 
-Vendor-private extensions developed by Qualabs that are not part
-of this spec — including VAST application-layer metadata that has
-no native DASH carrier (per R23 in
-[`03-requirements.md`](./03-requirements.md)) — live under the
-Qualabs vendor namespace:
-
-  - **`urn:qualabs:sgai:<year>`** — Qualabs vendor-private
-    extensions. Not normative; not part of this spec.
+Every XML element this spec introduces lives under this single SVTA
+Ads WG namespace, including the generic application-level metadata
+carrier (per R23 in [`03-requirements.md`](./03-requirements.md),
+e.g. `AdSystem`, `AdTitle`) and the ClickThrough carrier (per R28).
+Both are constructs authored by this spec, so both belong to the
+SVTA Ads WG namespace.
 
 Elements in the SVTA Ads WG extension namespace operate under
 DASH §5.2.1 foreign-namespace open content (DR-2 in

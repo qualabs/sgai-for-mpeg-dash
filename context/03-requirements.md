@@ -437,7 +437,8 @@ the ADS-declared order, and resolving overlapping opportunity windows.
 
 Requirements that govern how ad forms appear on screen — device-class
 support, in-slot sequencing, pause-ad lifecycle, priority and
-fullscreen rules, playback speed, and the single-active-form bound.
+pause-ad presentation-surface rules, playback speed, and the
+single-active-form bound.
 
 - **R3. Support a diverse range of device capabilities.** The
   solution must work across the heterogeneity of target devices in
@@ -508,10 +509,11 @@ fullscreen rules, playback speed, and the single-active-form bound.
   associated with that pause-ad. The pause-ad's lifecycle is
   bounded by the pause-state interval.
 
-  The fullscreen presentation of a pause-ad form is governed separately
-  by R21. The presentation-time freeze that keeps a pause-ad admissible
-  in live content is governed separately by R25; R16 governs the generic
-  pause-ad lifecycle (admissible only in pause, dismissed on resume).
+  The presentation surface of a pause-ad form — fullscreen or partial
+  overlay — is governed separately by R21. The presentation-time freeze
+  that keeps a pause-ad admissible in live content is governed
+  separately by R25; R16 governs the generic pause-ad lifecycle
+  (admissible only in pause, dismissed on resume).
 
   **Conformance criteria** (runtime):
   - **R16.1** (Player): Upon a pause-to-play transition by the
@@ -527,11 +529,13 @@ fullscreen rules, playback speed, and the single-active-form bound.
   pause-ad over an overlay); it is distinct from the single-family
   overlap handling of R20. Suspending the overlay during a pause and
   restoring it on resume is a cross-family layering rule, not an
-  in-slot sequencing of two forms within one family (R14). The
-  fullscreen presentation of a pause-ad form (R21) reinforces this
-  priority: a fullscreen pause-ad necessarily covers and suspends any
-  active overlay, so there is no simultaneous partial composition of a
-  pause-ad and an overlay during the pause.
+  in-slot sequencing of two forms within one family (R14). This
+  priority holds regardless of the pause-ad's presentation surface
+  (R21): whether the pause-ad is fullscreen or a partial overlay, while
+  the viewer is paused inside the pause-ad window the pause-ad is the
+  only ad surface visible and any active overlay is suspended, so there
+  is no simultaneous composition of a pause-ad and an overlay during the
+  pause (R22).
 
   When a pause-ad opportunity and an overlay opportunity are
   active at the same instant, the pause-ad is rendered on top of
@@ -584,28 +588,41 @@ fullscreen rules, playback speed, and the single-active-form bound.
     cap enforcement (R4) and beacon scheduling (R13) operate on the
     presentation-timeline `duration`, while wall-clock on-screen
     behaviour follows the derived value.
-- **R21. Pause-ad forms are fullscreen.**
-  A pause-ad form MUST be presented fullscreen, occupying the entire
-  screen surface; partial-overlay pause-ads are not supported. Because
-  the pause-ad replaces the whole visual surface for the duration of
-  the pause, the Player MAY release all resources held by the primary
-  content and by any pre-existing overlay in order to present a
-  fullscreen video, image, or web page.
+- **R21. Pause-ad forms MAY be fullscreen or a partial overlay.**
+  A pause-ad form MAY be presented fullscreen, occupying the entire
+  screen surface, OR as a partial overlay composited over the paused
+  primary frame. Both presentation surfaces are admissible; which one
+  applies is a property of the pause-ad form / layout the Player
+  selects (R5), not a fixed constraint of this requirement. When the
+  pause-ad is fullscreen, because it replaces the whole visual surface
+  for the duration of the pause, the Player MAY release all resources
+  held by the primary content and by any pre-existing overlay in order
+  to present a fullscreen video, image, or web page. When the pause-ad
+  is a partial overlay, the paused primary frame remains visible
+  underneath it.
 
-  This fullscreen constraint reinforces R17: a fullscreen pause-ad
-  necessarily covers and suspends any active overlay, so there is no
-  simultaneous partial composition of a pause-ad and an overlay during
-  the pause. R16 governs the pause-ad lifecycle (bound to the pause
-  state); the live-content presentation-time freeze is governed by R25;
-  this requirement (R21) is about the fullscreen presentation surface.
+  R17 governs pause-ad priority over a coexisting overlay independently
+  of the pause-ad's presentation surface: while the viewer is paused
+  inside a pause-ad window, the pause-ad is the only ad surface visible
+  and any coexisting overlay (R17) is suspended, whether the pause-ad
+  is fullscreen or partial. This preserves R22's single-active-form
+  bound — at most one non-linear ad form is active at any instant — so a
+  partial pause-ad does not introduce simultaneous presentation of two
+  forms. R16 governs the pause-ad lifecycle (bound to the pause state);
+  the live-content presentation-time freeze is governed by R25; this
+  requirement (R21) is about the admissible pause-ad presentation
+  surfaces.
 
   **Conformance criteria** (runtime):
-  - **R21.1** (Player): The Player MUST present a pause-ad form
-    fullscreen, occupying the entire screen surface, and MUST NOT
-    render a pause-ad as a partial overlay. While the pause-ad is
-    fullscreen, the Player MAY release the resources held by the
+  - **R21.1** (Player): The Player MAY present a pause-ad form
+    fullscreen, occupying the entire screen surface, or as a partial
+    overlay composited over the paused primary frame. When the pause-ad
+    is fullscreen, the Player MAY release the resources held by the
     primary content and by any pre-existing overlay to present a
-    fullscreen video, image, or web page.
+    fullscreen video, image, or web page. When the pause-ad is a
+    partial overlay, the Player MUST keep at most one non-linear ad form
+    active during the pause (R22): any coexisting overlay is suspended
+    while the pause-ad is shown (R17).
 - **R22. Single active non-linear form; no concurrent presentation.**
   Although a slot MAY carry a sequence of non-linear ad forms (R14),
   what this edition does **not** permit is the **simultaneous**
@@ -668,76 +685,99 @@ fullscreen rules, playback speed, and the single-active-form bound.
     Any decision to resume at the live edge MUST be treated as a
     Player action occurring after the resume from pause, outside the
     pause-ad window.
-- **R26. Layouts that leave the screen partially uncovered MAY define
-  a background fill.** Some non-linear layouts compose the primary
-  content and the ad as **separate on-screen elements that together do
-  not cover the full screen**. The canonical case is the
-  **side-by-side / double-box**: the shrunk primary content sits next
-  to the ad on a 16:9 screen and leaves bands / margins uncovered.
-  Without intervention those uncovered regions render as black. So a
-  **third element — a background image — MAY be defined to fill the
-  uncovered region**. A side-by-side therefore puts **three elements**
-  on screen: the primary content, the ad, and the background image.
-
-  By default the background is the **advertiser's creative**, mirroring
-  the IAB **"Double Box Video + Background"** model — the double-box IS
-  the side-by-side, and the "+ Background" is exactly this third
-  element (the advertiser brands / takes over the background between
-  the double boxes of video). The specification MAY define a platform /
-  publisher fallback background only for the case where the advertiser
-  supplies none — this is an opt-in MAY with no normative default. IAB
-  is silent on that case, so a fallback there does not contradict the
-  IAB vocabulary. The background is an attribute of the slot / layout
+- **R26. Side-by-side / double-box background element.** In a
+  **side-by-side / double-box** layout the shrunk primary content and the
+  ad are composed as two on-screen boxes that leave bands uncovered. A
+  **background element** MAY fill those bands; when none is present they
+  render as black. The background element is a still **image** (a branding
+  surface, never a video or web/HTML surface, so it never adds a video
+  decoder). It is the **advertiser's creative**, mirroring the IAB
+  **"Double Box Video + Background"** model, owned by the advertiser and
+  not the Publisher or platform. It is an attribute of the slot / layout
   composition, NOT one of the candidate's alternative presentation
   options (R5).
 
-  **The number and type of concurrent elements determine which device
-  class can composite the layout** — the same admissible creative
-  carriers as R15 (video, image, HTML) apply to the ad element:
-  - **Side-by-side with a video ad** → two video decoders (the primary
-    content plus the ad video) plus an image surface for the
-    background. This requires two decoders; a single-decoder device
-    cannot satisfy it.
-  - **Side-by-side with an image (or HTML) ad** → one video decoder
-    (the primary content) plus image / HTML surfaces for the ad and
-    the background. A single-decoder device that can put image / HTML
-    surfaces over video (e.g. D3, or D4 for the image case) satisfies
-    this; no second decoder is required.
-
-  **Distinction — the L-shape / squeezeback is a different layout, not
-  an R26 case.** In an L-shape / squeezeback the ad is rendered
-  full-frame with a cutout into which the shrunk primary content is
-  composited, so the ad already covers the whole screen and there is no
-  uncovered region to fill — it needs NO background. The L-shape is a
-  valid layout / presentation option (R5); it is simply not a case of
-  R26.
-
-  Reference: IAB Tech Lab — "Ad Format Guidelines for Digital Video
+  Reference: IAB Tech Lab, "Ad Format Guidelines for Digital Video
   and CTV" (public comment, Dec 2025). "Double Box Video + Background",
   pp.12-13.
   https://iabtechlab.com/standards/ctv-ad-portfolio/
 
   **Conformance criteria** (runtime + document-level):
-  - **R26.1** (APS + Publisher): The background fill of a layout that
-    leaves the screen partially uncovered MUST be carried as a
-    composition attribute of the slot / layout, not as a separate
-    presentation option (R5).
-  - **R26.2** (Player): The Player MUST composite the three elements —
-    primary content, ad, and background fill — for a layout that leaves
-    the screen partially uncovered, placing the advertiser-supplied
-    background in the uncovered region. If no advertiser background is
-    supplied and the Publisher declared a platform fallback, the Player
-    MAY composite the fallback; absent both, the uncovered-region
-    behaviour is the Publisher's declared default.
+  - **R26.1** (APS + Publisher): The background element of a side-by-side
+    / double-box layout MUST be carried as a composition attribute of the
+    slot / layout, not as a separate presentation option (R5).
+  - **R26.2** (Player): The Player MUST composite the primary content
+    and the ad as the two boxes of a side-by-side / double-box layout.
+    When the advertiser supplies a background element, the Player MUST
+    place it in the uncovered bands. When the advertiser supplies no
+    background element, the uncovered region renders as black.
   - **R26.3** (Player): The number and type of concurrent elements
-    determine the device classes that can composite the layout. A
-    side-by-side with a **video** ad requires two concurrent video
-    decoders (the primary content plus the ad video) plus an image
-    surface for the background, and MUST NOT be selected on a
-    single-decoder device (R3 / R5). A side-by-side with an **image** or
-    **HTML** ad needs one decoder (the primary content) plus image /
-    HTML surfaces for the ad and the background, and a single-decoder
-    image/HTML-capable device can render it.
+    determine the device classes that can composite the side-by-side
+    layout. The background element is always a still **image**, never a
+    video and never a web/HTML surface, so it never consumes a video
+    decoder. The primary content consumes one video decoder; the ad
+    consumes a second video decoder only when the ad itself is a video,
+    otherwise consuming an image / HTML surface. A side-by-side whose ad
+    is **video** therefore requires **two** concurrent video decoders (the
+    primary content plus the ad video) plus an image surface for the
+    background, and MUST NOT be selected on a single-decoder device
+    (R3 / R5). A side-by-side whose ad is an **image** or **HTML** surface
+    needs **one** decoder (the primary content) plus an image / HTML
+    surface for the ad and an image surface for the background, and a
+    single-decoder image/HTML-capable device can render it. A non-video
+    element (the ad when it is an image / HTML surface, or the image
+    background) MUST NOT be selected on a device that cannot composite
+    that surface type on top of video (e.g. an image background is not
+    satisfiable on a video-only-overlay device such as D2, R3 / R5).
+- **R27. L-shape / squeezeback (the "L-box") — a full-frame ad creative
+  with the primary content shrunk on top.** The L-shape / squeezeback
+  is a layout that has **one** ad creative — a single URL the ADS
+  supplies, carrying an **image, a video, or a web/HTML** creative — and
+  that creative is **always** placed **full-frame in the background**.
+  The shrunk primary content is composited **on top of** the full-frame
+  creative, in one region of the screen; the "L" is the band of the
+  background creative that stays visible around the shrunk primary
+  content (commonly the side and / or bottom). The L-shape therefore
+  puts **two elements** on screen: the full-frame ad creative in the
+  background and the shrunk primary content on top of it. There is **no
+  separate third filler element**: the ad creative itself already covers
+  the whole frame, so the region around the shrunk primary content is
+  the ad creative, not a distinct background fill. This matches the IAB
+  squeezeback model, in which the assets are provided in an underlay
+  format (a full-frame branded creative with a cutout for the content).
+
+  The L-shape is a **layout / presentation option** offered under R5
+  (an ad candidate MAY list it among its ordered presentation options),
+  not a slot-composition attribute.
+
+  Reference: IAB Tech Lab — "Ad Format Guidelines for Digital Video
+  and CTV" (public comment, Dec 2025). "Squeezeback", p.12.
+  https://iabtechlab.com/standards/ctv-ad-portfolio/
+
+  **Conformance criteria** (runtime + document-level):
+  - **R27.1** (APS + Publisher): An L-shape / squeezeback presentation
+    option MUST carry exactly one ad creative — the full-frame
+    background creative — as an image, a video, or a web/HTML surface
+    (R15). The shrunk primary content is not a creative the ADS / APS
+    supplies; it is the main content the Player shrinks.
+  - **R27.2** (Player): The Player MUST composite the two elements of an
+    L-shape — the full-frame ad creative in the background and the
+    shrunk primary content on top of it — with the ad creative covering
+    the whole frame and the shrunk primary content occupying its
+    declared region.
+  - **R27.3** (Player): The decoder-and-surface budget of an L-shape is
+    driven by the media type of the full-frame ad creative. The shrunk
+    primary content always consumes **one** video decoder. If the
+    full-frame ad creative is a **video**, it consumes a **second** video
+    decoder (two videos: the background creative and the shrunk primary
+    content), so the L-shape is NOT satisfiable on a single-decoder
+    device (R3 / R5). If the full-frame ad creative is an **image or
+    HTML**, it consumes an image / HTML surface for the background and the
+    L-shape needs only **one** decoder (the shrunk primary content) plus
+    that surface; a single-decoder device that can composite that surface
+    type underneath / around video can render it. An image / HTML
+    full-frame creative MUST NOT be selected on a device that cannot
+    composite that surface type together with video (R3 / R5).
 
 ### Tracking
 
@@ -762,7 +802,8 @@ carriers for creative metadata and non-AV assets.
   is governed separately by R23, and the carrier for non-AV creative
   assets is governed separately by R24; both are distinct from this
   requirement (R6 covers tracking beacons, not creative metadata or
-  asset URLs).
+  asset URLs). The timeline-scheduled ad beacons reuse this callback
+  carrier.
 
   **Conformance criteria** (runtime + document-level):
   - **R6.1** (spec document): The specification MUST specify how in-band ad
@@ -814,20 +855,24 @@ carriers for creative metadata and non-AV assets.
   - **R13.4** (spec document): The specification MUST NOT introduce
     a new tracking event scheme; reuse of the DASH baseline
     callback mechanism is mandatory.
-- **R23. Application-level ad metadata carrier.** Application-level
-  metadata that has no native DASH carrier (e.g. `ClickThrough`,
-  `AdSystem`, `AdTitle`, `UniversalAdId`) MAY be conveyed via
-  vendor-namespaced extension elements; Players MUST safely ignore
-  unknown namespaces per the DASH extension rules invoked by R1. This
-  requirement governs creative metadata, distinct from the tracking
-  beacon carrier of R6 (both are "carriers", but R6 carries tracking
-  beacons while R23 carries creative metadata).
+- **R23. Application-level ad metadata carrier.** Generic
+  application-level metadata that has no native DASH carrier (e.g.
+  `AdSystem`, `AdTitle`, etc.) MAY be conveyed via extension elements
+  in the SVTA Ads WG namespace on a best-effort basis; Players MUST
+  safely ignore unknown namespaces per the DASH extension rules invoked
+  by R1. This carrier is optional and non-interoperable by design: a
+  conformant Player MAY drop the metadata and a legacy Player discards
+  the extension elements as an unknown namespace, so nothing in the ad
+  presentation breaks. This requirement governs
+  generic creative metadata, distinct from the tracking beacon carrier
+  of R6 (both are "carriers", but R6 carries tracking beacons while R23
+  carries creative metadata).
 
   **Conformance criteria** (runtime + document-level):
-  - **R23.1** (APS): Application-level metadata with no native DASH
-    carrier (`ClickThrough`, `AdSystem`, `AdTitle`, `UniversalAdId`,
-    etc.) declared in the ADS's VAST MAY be conveyed by the APS via
-    vendor-namespaced extension elements in the resolution document.
+  - **R23.1** (APS): Generic application-level metadata with no native
+    DASH carrier (`AdSystem`, `AdTitle`, etc.) declared in the ADS's
+    VAST MAY be conveyed by the APS via SVTA Ads WG namespaced
+    extension elements in the resolution document.
 - **R24. Non-AV creative asset carrier (RFC 4337 avoidance).** When a
   non-AV ad form (`mediaType ∈ {html, image, ...}`) is carried in the
   resolution document, the asset URL MUST NOT be expressed as
@@ -846,6 +891,19 @@ carriers for creative metadata and non-AV assets.
     [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
     It MUST be carried via one of the §5.2.1 / §5.10 / §5.8.4.x
     carriers enumerated by DR-6, per R1.2.
+- **R28. ClickThrough carrier — normative and interoperable.** The
+  resolution document MUST carry the ad's ClickThrough URL and its
+  associated click-tracking URL(s) in a normative carrier that the
+  specification defines explicitly, so that every conformant Player
+  reads them the same way.
+
+  **Conformance criteria** (runtime + document-level):
+  - **R28.1** (APS): when the ADS's VAST declares a ClickThrough, the
+    APS MUST populate both the ClickThrough URL and its associated
+    click-tracking URL(s) in the normative carrier.
+  - **R28.2** (Player): a conformant Player MUST read the ClickThrough
+    URL and fire its associated click-tracking when the viewer activates
+    the ClickThrough.
 
 ### Governance
 

@@ -30,10 +30,7 @@ The Publisher owns the primary content and the viewer's screen.
   - which layout templates are allowed (e.g. L-shape, banner,
     skyscraper, sidebar, or unrestricted; additional publisher-side
     examples include squeezeback, lower-third, and corner-bug as
-    defined in [`99-glossary.md`](99-glossary.md)),
-  - whether a background fill is permitted for partial-screen
-    layouts, and (optionally) a platform fallback background for the
-    case where the advertiser's creative supplies none (per R26), and
+    defined in [`99-glossary.md`](99-glossary.md)), and
   - other slot-level constraints such as maximum overlay duration,
     maximum number of concurrent overlays, or mutually exclusive
     layouts.
