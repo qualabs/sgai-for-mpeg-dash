@@ -4,94 +4,93 @@
 **Status:** closed (2026-07-13)
 **Reviewer processed:** David Hassoun (WG contributor)
 
-## 1. Resumen
+## 1. Summary
 
-La fase procesó la primera ronda de feedback del working group sobre la spec
-de SGAI, centrada en la review de David Hassoun. El trabajo arrancó con el
-cross-reference de sus 3 archivos editados (round 1, sesión del 2026-05-20)
-contra el estado vigente de `context/`, clasificando cada uno de sus 10 items
-como ya-resuelto, cambio-necesario u abierto-a-discusión. Ese reporte
-(`hassoun-feedback-crossref.md`) fue el producto de trabajo de la fase y la
-fuente de verdad de las tareas T-01..T-08.
+This phase processed the first round of working-group feedback on the SGAI
+spec, centred on David Hassoun's review. The work started by cross-referencing
+the 3 files he edited (round 1, 2026-05-20 session) against the current state of
+`context/`, classifying each of his 10 items as already-addressed,
+change-needed, or open-for-discussion. That report
+(`hassoun-feedback-crossref.md`) was the phase's work product and the source of
+truth for tasks T-01..T-08.
 
-Sobre esa base se resolvieron las tres decisiones abiertas, se aplicaron las
-tres ediciones de documentación a `context/`, y se cerró el follow-up. Una
-segunda ronda de feedback de David (thread de Slack en `#wg-comcast`,
-2026-05-29) cerró los tres puntos previamente abiertos más un cuarto (U1),
-consolidando el modelo del L-box, el fallback dependiente de contenido para
-UC-07, y el pause-ad como overlay parcial. Al cierre, los 10 items de David
-quedan resueltos e incorporados a `context/`.
+On that basis the three open decisions were resolved, the three documentation
+edits were applied to `context/`, and the follow-up was closed. A second round
+of David's feedback (Slack thread in `#wg-comcast`, 2026-05-29) closed the three
+previously-open points plus a fourth (U1), consolidating the L-box model, the
+content-dependent fallback for UC-07, and the pause-ad as a partial overlay. At
+closure, all 10 of David's items are resolved and incorporated into `context/`.
 
-## 2. Decisiones tomadas
+## 2. Decisions made
 
-- **Layout no se declara por clase de dispositivo** (T-04). El Publisher no
-  emite layouts por clase de dispositivo. El mismo resultado se logra con un
-  fallback ordenado posicional del lado del Player (R5/R5.1/R5.2/R5.5/R5.6/R5.7)
-  y, para regiones vacías, con un background provisto por el anunciante. Preserva
-  "la capacidad del dispositivo es autoridad exclusiva del Player" (R5/R5.4) y
-  DP-1. Ilustrado por UC-09.
-- **Modelo del L-box** (T-04 / T-05, ronda 2). El L-box (L-shape / squeezeback)
-  tiene un unico creativo publicitario (imagen, video o web) colocado siempre
-  full-frame en el fondo, con el contenido primario reducido compuesto encima.
-  Es su propio layout, modelado por la nueva R27; el side-by-side / double-box
-  queda en R26.
-- **Fallback dependiente de contenido para players legacy** (T-02 / UC-07). Para
-  contenido live, skip-and-continue; para no-live / VOD, el Publisher puede
-  autorear un corte lineal estandar como fallback para monetizar la oportunidad.
-- **Pause-ad como overlay parcial** (T-06 / R21). R21 se relajo de "el pause-ad
-  DEBE ser fullscreen" a "el pause-ad PUEDE ser fullscreen O un overlay parcial".
-- **UC-02 vs UC-06 se mantienen separados** (T-03 / U1). Se resuelve el conflicto
-  de round 1 a favor de la decision v1: se mantienen discretos.
+- **Layout is not declared per device class** (T-04). The Publisher does not emit
+  layouts per device class. The same outcome is achieved via a positional ordered
+  fallback on the Player side (R5/R5.1/R5.2/R5.5/R5.6/R5.7) and, for uncovered
+  regions, via an advertiser-supplied background. This preserves "device
+  capability is the Player's sole authority" (R5/R5.4) and DP-1. Illustrated by
+  UC-09.
+- **L-box model** (T-04 / T-05, round 2). The L-box (L-shape / squeezeback) has a
+  single ad creative (image, video, or web) always placed full-frame in the
+  background, with the shrunk primary content composited on top. It is its own
+  layout, modelled by the new R27; the side-by-side / double-box stays in R26.
+- **Content-dependent fallback for legacy players** (T-02 / UC-07). For live
+  content, skip-and-continue; for non-live / VOD, the Publisher may author a
+  standard linear break as the fallback so the opportunity is monetised.
+- **Pause-ad as a partial overlay** (T-06 / R21). R21 was relaxed from "the
+  pause-ad MUST be fullscreen" to "the pause-ad MAY be fullscreen OR a partial
+  overlay".
+- **UC-02 and UC-06 stay separate** (T-03 / U1). The round-1 conflict is resolved
+  in favour of the v1 decision: they remain discrete.
 
-Estas decisiones se registraron en `TASKS.md` y en `.project/LOG.md`. No se
-crearon ADRs formales nuevos en esta fase. El ADR global `0001` (deferir spatial
-caps a IAB CTV) es contexto relacionado pero precede la apertura de la fase.
+These decisions are recorded in `TASKS.md` and `.project/LOG.md`. No new formal
+ADRs were created in this phase. The global ADR `0001` (defer spatial caps to IAB
+CTV) is related context but predates the phase.
 
-## 3. Tareas
+## 3. Tasks
 
-Todas las tareas de la fase quedaron `done`:
+All phase tasks are `done`:
 
-- **T-01** — Cross-reference de la feedback de David contra la spec vigente.
-- **T-02** — UC-07: fallback dependiente de contenido para players legacy.
-- **T-03** — UC-02 vs UC-06: se mantienen separados (David: "sounds good").
-- **T-04** — Layout device-agnostic + interseccion Player-side (UC-09).
-- **T-05** — Background/L-box documentado (R26 side-by-side, R27 L-shape).
-- **T-06** — Pause-ad como overlay parcial (R21 relajado).
-- **T-07** — Reescritura del wording "CONFUSING" en UC-04 D2.
-- **T-08** — Split ADS+APS: incorporado y commiteado en la spec. La confirmacion
-  explicita con David queda como follow-up externo no bloqueante.
+- **T-01** — Cross-reference David's feedback against the current spec.
+- **T-02** — UC-07: content-dependent fallback for legacy players.
+- **T-03** — UC-02 vs UC-06: kept separate (David: "sounds good").
+- **T-04** — Device-agnostic layout + Player-side intersection (UC-09).
+- **T-05** — Background / L-box documented (R26 side-by-side, R27 L-shape).
+- **T-06** — Pause-ad as a partial overlay (R21 relaxed).
+- **T-07** — Rewrote the "CONFUSING" wording in UC-04 D2.
+- **T-08** — ADS+APS split: incorporated and committed in the spec. The explicit
+  confirmation with David remains an external, non-blocking follow-up.
 
-Ninguna tarea fue abandonada.
+No task was abandoned.
 
-## 4. Hilos abiertos
+## 4. Open threads
 
-- **Confirmacion con David del split ADS+APS** — follow-up externo no bloqueante.
-  El split esta en la spec commiteada; falta el visto bueno explicito de David de
-  que el split matchea su intencion del rename ADS->APS. A levantar en el proximo
-  intercambio en `#wg-comcast`.
-- **Feedback de otros reviewers** — Alex Giladi, Thasso, SVTA Ads WG. Fuera de
-  scope de esta fase; disparan una fase de round 2 cuando llegue ese trabajo.
-- **PR #6** — el conflicto de spatial caps (issue #4 / ADR 0001) siguio su curso
-  fuera de esta fase; la fase no lo gestiono.
+- **Confirmation with David of the ADS+APS split** — external, non-blocking
+  follow-up. The split is in the committed spec; what remains is David's explicit
+  sign-off that it matches his intent behind the ADS to APS rename. To be raised
+  in the next `#wg-comcast` exchange.
+- **Other reviewers' feedback** — Alex Giladi, Thasso, SVTA Ads WG. Out of scope
+  for this phase; they trigger a round-2 phase when that work arrives.
+- **PR #6** — the spatial-caps conflict (issue #4 / ADR 0001) ran its course
+  outside this phase; the phase did not manage it.
 
-## 5. Riesgos materializados
+## 5. Risks that materialised
 
-Ninguno material. El feedback de David llego fuera del canal esperado (no pudo
-editar el Doc compartido, devolvio archivos con comentarios inline por Slack),
-lo que agrego un paso de cross-reference manual, pero no bloqueo ni desvio la
-fase. Las decisiones de diseno que David empujaba en direccion opuesta a la
-decision v1 (UC-02 vs UC-06) se cerraron por acuerdo sin friccion.
+None material. David's feedback arrived outside the expected channel (he could
+not edit the shared Doc, so he returned files with inline comments over Slack),
+which added a manual cross-reference step but did not block or derail the phase.
+The design points David pushed opposite to the v1 decision (UC-02 vs UC-06) were
+closed by agreement without friction.
 
-## 6. Recomendaciones para la proxima fase
+## 6. Recommendations for the next phase
 
-- La progresion de largo plazo del proyecto sigue siendo foundation -> design ->
-  prototype -> closeout. El PROJECT.md sugiere `02-spec-iteration` para la
-  iteracion de foundation; dado que la fase de feedback ya esta numerada 02, la
-  proxima fase de iteracion/feedback deberia abrirse como `03-...`.
-- Si el proximo trabajo es otra ronda de feedback del WG (mas reviewers o un
-  segundo pase), abrir `03-wg-feedback-round-2`. Si en cambio el foco pasa a
-  cerrar los ADRs fundacionales y agregar el doc de requisitos no funcionales,
-  abrir `03-spec-iteration`.
-- Levantar el follow-up de confirmacion con David como primer touchpoint externo
-  de la proxima fase, para cerrar el ultimo hilo de round 1.
-- No abrir la proxima fase hasta que Nicolas lo decida explicitamente.
+- The project's long-term progression stays foundation -> design -> prototype ->
+  closeout. PROJECT.md suggests a spec-iteration phase for foundation work; since
+  the feedback phase is already numbered 02, the next iteration/feedback phase
+  should open as `03-...`.
+- If the next work is another round of WG feedback (more reviewers or a second
+  pass), open `03-wg-feedback-round-2`. If instead the focus shifts to closing the
+  foundational ADRs and adding the non-functional requirements document, open
+  `03-spec-iteration`.
+- Raise the David confirmation follow-up as the first external touchpoint of the
+  next phase, to close the last round-1 thread.
+- Do not open the next phase until Nicolas decides explicitly.
