@@ -847,3 +847,49 @@ requirement or be generalised:
 R13 itself remains as rewritten in fda6b5f (ADS-directed
 callbacks; no hardcoded quartiles in the spec text). Only R13.5
 is removed.
+
+## 2026-07-13 — Phases 03-custom-layout and 04-multiview opened (planning, scaffold only)
+
+Two new phases opened in `planning` to scaffold two **advanced,
+optional** extensions of the spec, both driven by David Hassoun. Only
+the governance scaffold was created — no `context/` edits, nothing
+committed. Both phases await Nicolás's review before execution.
+
+Transversal framing set by Nicolás and encoded in both phases: custom
+layout and multiview are **opt-in advanced extensions**, not required
+for core conformance; each feature's requirement(s) and use-cases must
+live in their own self-contained advanced-extension section, separate
+from the core. The two phases are **independent** of each other.
+
+- **`03-custom-layout`** — a new, additional layout type (alongside
+  overlay / side-by-side R26 / L-shape R27 / takeover). Reference-viewport
+  pixel coordinate model (pixels over percentages, for exact placement);
+  N elements with arbitrary position / size / Z-order and permitted
+  overlap; one primary-content reference element. Publisher enables the
+  layout, ADS/APS declares the positions (R2); degrades via R5 ordered
+  fallback + R3 decoder budget. Scaffolded `PHASE.md`, `TASKS.md`,
+  `T-01-PLAN.md`, and proposed ADR 0002
+  (`0002-custom-layout-viewport-pixel-model.md`). Proposed requirement
+  number R29, next free UC number — fixed at execution.
+
+- **`04-multiview`** — 2 up to 4 videos at once in a **fixed** named
+  `multiview-*` layout collection, for **alternative content** (another
+  feed / angle / match), explicitly **not** an ad experience (conscious
+  scope widening beyond ads). Implementation-agnostic between
+  multi-decoder and HEVC tiles; R3 extended to express two-or-more
+  decoders and the tiles single-decoder path. Default audio = primary
+  content, audio selection left open. Live content MUST be possible
+  (open point flagged: `<ImportedMPD>` live carriage — T-06). Scaffolded
+  `PHASE.md`, `TASKS.md`, `T-01-PLAN.md`, and proposed ADR 0003
+  (`0003-multiview-decoder-tiles-agnostic-fixed-layouts.md`). The
+  proposed `multiview-*` set (`multiview-dual`, `-pip`,
+  `-triple-2-over-1`, `-1-plus-2-sidebar`, `-quad`, `-1-plus-3-sidebar`,
+  `-1-plus-3-strip`) was distilled from the WOXCON SCU41 reference image
+  (retrieved and viewed directly: 16 hardware presets, up to 4 videos;
+  corner / side / strip variants collapsed into named presets), pending
+  Nicolás's validation against the image. Proposed requirement number
+  R30, next free UC number — fixed at execution.
+
+PROJECT.md phases index updated with both phases. ADRs 0002 and 0003
+recorded in `status: proposed` (they capture decisions Nicolás already
+made; they flip to `accepted` when execution is authorised).

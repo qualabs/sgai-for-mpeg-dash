@@ -167,11 +167,41 @@ the long-range plan and get a folder when they open.
   confirmation with David carries over as an external, non-blocking
   follow-up. The phase's primary work product is the cross-reference
   report (`phases/02-wg-feedback-round-1/hassoun-feedback-crossref.md`);
-  the closure report is `phases/02-wg-feedback-round-1/REPORT.md`. No
-  phase is currently active — the next phase opens explicitly when
-  Nicolás decides (candidates: `03-wg-feedback-round-2` for more
-  reviewers, or `03-spec-iteration` for foundational ADRs + non-
-  functional requirements).
+  the closure report is `phases/02-wg-feedback-round-1/REPORT.md`.
+- **`03-custom-layout` — `planning`** (opened 2026-07-13). Scaffold for
+  the **custom layout** advanced extension: a new, additional layout
+  type (alongside overlay / side-by-side R26 / L-shape R27 / takeover)
+  with a reference-viewport pixel coordinate model and an N-element model
+  (arbitrary position / size / Z-order, overlap permitted, one
+  primary-content reference element). Publisher enables it, ADS/APS
+  supplies the positions; degrades via the R5 ordered fallback and the R3
+  decoder budget. Custom layout is an **opt-in, advanced** feature — its
+  requirement and use-cases go in self-contained advanced-extension
+  sections, not the core. Deliverables scaffolded: `PHASE.md`,
+  `TASKS.md`, `T-01-PLAN.md`, and proposed ADR
+  `0002-custom-layout-viewport-pixel-model.md`. `context/` is not yet
+  touched — the phase is in `planning` for Nicolás to review.
+- **`04-multiview` — `planning`** (opened 2026-07-13). Scaffold for the
+  **multiview** advanced extension: 2 up to 4 videos at once in a **fixed**
+  collection of named `multiview-*` layouts, for **alternative content**
+  (another feed / angle / match), explicitly **not** an ad experience
+  (a conscious scope widening). Implementation stays **agnostic** between
+  multi-decoder and HEVC tiles; R3 is extended to express two-or-more
+  decoders and the tiles single-decoder path. Default audio is the
+  primary content, with audio selection left open. Live content MUST be
+  possible (open point: `<ImportedMPD>` live carriage). Independent of
+  phase 03 (fixed layouts, not custom layout). Deliverables scaffolded:
+  `PHASE.md`, `TASKS.md`, `T-01-PLAN.md` (with the proposed `multiview-*`
+  set derived from the WOXCON SCU41 reference image), and proposed ADR
+  `0003-multiview-decoder-tiles-agnostic-fixed-layouts.md`. `context/`
+  is not yet touched — the phase is in `planning` for Nicolás to review.
+
+Phases 03 and 04 are **independent** of each other; either can be
+executed first. Neither has started execution — both await Nicolás's
+review of the scaffold before `context/` is edited. The earlier
+long-range candidates (`03-wg-feedback-round-2`, `03-spec-iteration`)
+remain open future options and would take the next free phase numbers
+when they open.
 
 ### Long-range plan
 
