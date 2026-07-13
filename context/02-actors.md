@@ -27,10 +27,11 @@ The Publisher owns the primary content and the viewer's screen.
   decides whether the slot is a linear replacement, a linear
   insertion, or a non-linear (overlay-style) opportunity. For
   overlay-style slots, the Publisher also constrains:
-  - which layout templates are allowed (e.g. L-shape, banner,
-    skyscraper, sidebar, or unrestricted; additional publisher-side
-    examples include squeezeback, lower-third, and corner-bug as
-    defined in [`99-glossary.md`](99-glossary.md)), and
+  - which layout templates are allowed, drawn from the ad types and
+    visual placements enumerated in R12 of
+    [`03-requirements.md`](03-requirements.md) (e.g. corner / bug,
+    lower-third, L-shape / squeezeback, side-by-side / double-box), or
+    unrestricted, and
   - other slot-level constraints such as maximum overlay duration,
     maximum number of concurrent overlays, or mutually exclusive
     layouts.

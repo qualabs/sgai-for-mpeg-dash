@@ -216,38 +216,87 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     accepted candidate exceeds its declared duration, the Player
     MUST enforce the cap against actual length, not declared
     length ("trim during play").
-- **R12. Ad type definitions owned by IAB.** Ad types and their
-  visual templates are defined and maintained by the IAB. This
-  specification references IAB definitions normatively for ad-type names
-  and behavioural expectations; introducing new ad-type
-  definitions (new template categories beyond what IAB publishes)
-  is out of scope.
+- **R12. Ad types and formats supported by this edition.** Ad types and
+  their visual templates are defined and maintained by the IAB. This
+  specification references those definitions normatively; it does not
+  introduce new ad-type categories or new visual templates. On top of
+  that principle, this edition supports an explicit, closed subset of
+  the IAB catalogue. The ad types and visual placements enumerated below
+  are the complete set that a conformant Publisher, APS, and Player
+  handle under this edition. Each entry names the IAB ad type it maps to
+  (identifier in `code`) and, where the IAB type has named visual
+  placements, the placement.
+
+  The enumeration is edition-scoped by design. An IAB ad type or visual
+  placement that is not listed below is out of scope for this edition,
+  and an ad type or placement that the IAB publishes later does NOT
+  enter scope automatically; widening the set requires a new edition of
+  this specification. This is a deliberate per-edition snapshot, not a
+  runtime limitation to work around.
+
+  **Supported ad types and placements** (all rendered on or within the
+  video surface):
+
+  - **Linear** (IAB *Linear Ad*, `linear`): a full-viewport ad that
+    takes over the primary content surface for the slot. Supported
+    timing positions are pre-roll, mid-roll, and multi-ad breaks (two
+    or more linear ads presented back-to-back within one slot).
+    A full-screen takeover is the `linear` full-viewport
+    rendering offered as a fallback presentation option for a candidate
+    whose richer non-linear options are not renderable on the device
+    (see UC-09 in [`04-use-cases.md`](04-use-cases.md)); it is a
+    placement of the `linear` type, not a separate ad type.
+  - **Overlay** (IAB *Overlay*, `overlay`): a non-linear surface
+    composited on top of the primary content, which keeps playing. Its
+    named visual placements are corner / bug (IAB *Corner Overlay*) and
+    lower-third (IAB *Lower-Third Overlay*); a plain image or HTML
+    overlay with no named placement is the base `overlay` type.
+  - **Squeezeback** (IAB *Squeezeback*, `squeezeback`): a non-linear
+    layout in which the primary content is shrunk to share the frame
+    with the ad. Supported placements are L-shape / squeezeback (IAB
+    *L-Shape*; see R27) and side-by-side / double-box (IAB *Double Box
+    Video* and *Double Box Video + Background*; see R26).
+  - **Pause-ad** (IAB *Pause Ad*, `pause`): a non-linear surface shown
+    over the paused primary frame, fullscreen or partial (see R21).
+
+  **Out of scope: ads outside the video surface.** Any ad rendered in
+  the Player chrome or the application UI rather than on the playing or
+  paused video is out of scope for this specification. This includes
+  menu ads (IAB *Menu Ad*: home screen, content menu, guide / EPG),
+  home-screen / launcher ads, screensaver ads (IAB *Screensaver Ad*),
+  and companion / multi-screen ads (IAB *Companion Ad*). These are
+  concerns of the application's ad integration, not of the
+  Player-facing SGAI contract this specification defines. Because the
+  supported set above is closed, anything not enumerated there is
+  already out of scope; this paragraph makes the off-video-surface
+  category unambiguous.
 
   Reference (live link, not snapshotted):
   https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
 
   **Conformance criteria**:
-  - **R12.1** (spec document): The list of accepted ad-type values
-    in the spec MUST be sourced from IAB definitions. A reference
-    to the IAB source MUST be included.
-  - **R12.2** (Publisher): Publishers declaring allowed
-    layouts MUST use names that map 1:1 to IAB-defined ad-type
-    values (no publisher-private layout names in the
-    allowed-layouts declaration on the slot).
-  - **R12.3** (APS): The ad-type set originates in the ADS's
-    decision; the APS transcribes it. The normative obligation is the
-    APS's: the APS MUST NOT emit, in the resolution document, form
-    metadata for ad types that are not part of the IAB-defined set
-    used by this spec's edition. Conformance is checked against the
-    APS's resolution document, not against the ADS's internal
-    decision document.
-  - **R12.4** (spec document): Each layout token defined under R12
-    implies the spatial bound declared by the IAB CTV Ad Format
-    Guidelines for that layout (e.g. Corner Overlay no more than 25%
-    of the frame, Squeezeback L-Shape primary content 60% of the
-    frame). The spec inherits these bounds by normative reference
-    rather than re-declaring them MPD-side; no dimensional attribute
-    is introduced on the slot declaration. See
+  - **R12.1** (spec document): The accepted ad-type and visual-placement
+    values are exactly those enumerated in this requirement, each mapped
+    to its IAB definition. The spec MUST NOT accept a value outside the
+    enumeration, and MUST cite the IAB source for the values it accepts.
+  - **R12.2** (Publisher): Publishers declaring allowed layouts MUST use
+    names drawn from the enumerated set, each of which maps 1:1 to an
+    IAB-defined ad type or visual placement. Publisher-private layout
+    names, and IAB values outside the enumerated set, MUST NOT appear in
+    the allowed-layouts declaration on the slot.
+  - **R12.3** (APS): The ad-type set originates in the ADS's decision;
+    the APS transcribes it. The APS MUST NOT emit, in the resolution
+    document, form metadata for an ad type or visual placement outside
+    the enumerated set. Conformance is checked against the APS's
+    resolution document, not against the ADS's internal decision
+    document.
+  - **R12.4** (spec document): Each enumerated layout implies the
+    spatial bound declared by the IAB CTV Ad Format Guidelines for that
+    layout (e.g. Corner Overlay no more than 25% of the frame,
+    Squeezeback L-Shape primary content 60% of the frame). The spec
+    inherits these bounds by normative reference rather than
+    re-declaring them MPD-side; no dimensional attribute is introduced
+    on the slot declaration. See
     `../.project/decisions/0001-defer-to-iab-ctv-for-spatial-caps.md`.
 - **R15. Admissible creative carrier formats.**
   The admissible ad-creative carrier formats for this edition are
