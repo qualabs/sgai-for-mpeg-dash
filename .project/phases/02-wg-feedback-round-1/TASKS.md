@@ -9,7 +9,7 @@
 | T-05 | 🔧 Document background-image below the video in L-box layout (UC-03 + UC-04 D3)           | done        | —    | `context/03-requirements.md` R26 (+R26.1-3); `context/04-use-cases.md` UC-03 ad-response (L-box presentation option) + UC-04 D3/D4 + **UC-09 option 2** (L-shape) + **UC-10** (side-by-side three-element R26); `context/02-actors.md` Publisher background-fill sub-bullet |
 | T-06 | 🔧 Allow pause-ad as a partial overlay (UC-08 / R17)                                      | done        | —    | round 2 (2026-05-29) note below; `context/03-requirements.md` R21 (relaxed) + R16/R17 refs; `context/04-use-cases.md` UC-08 |
 | T-07 | 🔧 Clarify the "CONFUSING" wording in UC-04 D2                                            | done        | —    | `context/04-use-cases.md` UC-04 D2 (rewrote the "collapses to UC-02" sub-bullet to an explicit outcome) |
-| T-08 | ✅ Confirm with David that the ADS+APS split matches his ADS→APS intent (A4)              | pending     | —    | —                                                 |
+| T-08 | ✅ Confirm with David that the ADS+APS split matches his ADS→APS intent (A4)              | done        | —    | Split incorporated in the committed spec: `context/02-actors.md` (four-actor Publisher / ADS / APS / Player) + R2/R2.2. David confirmation is an external, non-blocking follow-up (see note below). |
 
 T-01 produced the cross-reference report (the phase resource). T-02..T-08
 are the actions the report surfaces: the 3 ❓ require Nicolas's decision,
@@ -113,5 +113,28 @@ points and closes a fourth; A4 stays open.
   of the v1 decision (keep them discrete for the test-generation workflow). No
   spec change.
 
-- **A4 — STILL PENDING (T-08).** David did not confirm the ADS + APS split in
-  this thread. The lightweight confirmation is still outstanding.
+- **A4 — RESOLVED IN SPEC, confirmation is external follow-up (T-08, done).**
+  The ADS + APS split (four-actor Publisher / ADS / APS / Player model) is
+  incorporated and committed in `context/02-actors.md` and R2/R2.2. The point is
+  considered resolved on the spec side. The lightweight confirmation with David
+  that the split matches his ADS→APS rename intent is treated as an **external,
+  non-blocking follow-up** — it does not gate the phase close and carries over as
+  an external touchpoint (to raise in the next `#wg-comcast` exchange with David).
+
+## Phase close (2026-07-13)
+
+All of David Hassoun's round-1 feedback (10 items) is resolved and incorporated
+into `context/`. Round 2 of his feedback (Slack thread, 2026-05-29) closed the
+three previously-open / documentation points and the fourth (U1). T-08, the one
+remaining follow-up, is given `done`: the ADS+APS split is in the committed spec;
+David's explicit confirmation is an external, non-blocking follow-up.
+
+Separately from David's feedback, a **later spec-refinement iteration** (commit
+`97e6f71`, 2026-07-13) landed changes that are **this project's own scope**, not
+part of David's review: R28 (ClickThrough carrier as a normative requirement),
+R23 narrowed to a generic best-effort carrier, R26 scoped to image-only fill,
+new use-cases UC-11 (R28) and UC-12 (R20), SVTA namespace alignment, and the
+`CLAUDE.md` rule that requirements must be self-contained and concise. This is
+recorded as context for the close (it is part of everything worked up to the
+close) and is intentionally **not** attributed to tasks T-01..T-07, which are
+David's feedback resolutions.

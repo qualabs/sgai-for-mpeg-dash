@@ -1,5 +1,31 @@
 # Project log
 
+## 2026-07-13 — phase closed: 02-wg-feedback-round-1
+
+Closed the working-group feedback round-1 phase. All of David Hassoun's
+10 feedback items (round 1 file-based review 2026-05-20 + round-2 Slack
+thread 2026-05-29) are resolved and incorporated into `context/`. The
+last open task, **T-08** (confirm the ADS+APS split matches David's
+ADS→APS rename intent), is marked `done`: the four-actor split
+(Publisher / ADS / APS / Player) is in the committed spec
+(`context/02-actors.md`, R2/R2.2), and the explicit confirmation with
+David is treated as an external, non-blocking follow-up (to raise in the
+next `#wg-comcast` exchange), not a phase blocker.
+
+Closure report written to
+`phases/02-wg-feedback-round-1/REPORT.md`. PHASE.md set to `closed`
+(`closed: 2026-07-13`). PROJECT.md phase pointer and `last_update`
+updated; no phase is currently active.
+
+Context for the close: a later spec-refinement iteration (commit
+`97e6f71`, 2026-07-13) landed changes that are this project's own scope,
+distinct from David's review — R28 (ClickThrough carrier as a normative
+requirement), R23 narrowed to a generic best-effort carrier, R26 scoped
+to image-only fill, new use-cases UC-11 (R28) / UC-12 (R20), SVTA
+namespace alignment, and the `CLAUDE.md` rule that requirements must be
+self-contained and concise. Recorded here as part of everything worked
+up to the close; not attributed to tasks T-01..T-07.
+
 ## 2026-07-10 — New use cases and extensions (Nicolás): UC-11 ClickThrough (R28), UC-12 overlapping same-family windows + fallback (R20), UC-05 live variant (R25), UC-02/UC-03 playback-speed extensions (R19)
 
 Added new use cases and extended existing ones in
