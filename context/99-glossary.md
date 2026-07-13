@@ -12,23 +12,27 @@ through `08-dash-extension-rules.md`.
   Reduces client-side stitching fragmentation and centralises
   inventory control.
 - **Linear ad**: ad whose form takes over the primary content
-  surface during a slot (pre-roll, mid-roll, post-roll). The Player
-  switches its rendering source from the main timeline to the ad
-  timeline and back.
+  surface during a slot. The generic timing positions of a linear ad
+  are pre-roll, mid-roll, and post-roll; the positions this edition
+  supports are enumerated in R12 of
+  [`03-requirements.md`](03-requirements.md) (post-roll is out of scope
+  for this edition). The Player switches its rendering source from the
+  main timeline to the ad timeline and back.
 - **Non-linear ad**: ad that *coexists* with the primary content; it
   does not interrupt playback. Rendered as an overlay or as a
   side-by-side composition.
-- **Overlay**: umbrella term for any non-linear ad surface. The
-  concrete sub-types (banner, l-shape, skyscraper, side-by-side,
-  pause-ad, etc.) are defined and maintained by the IAB; this spec
-  references the IAB definitions normatively and does NOT introduce
-  new sub-types. See the IAB CTV Ad Format Guidelines live document:
+- **Overlay**: umbrella term for any non-linear ad surface (a surface
+  composited on top of the primary content, or a squeezeback that
+  shrinks the primary content to share the frame). The concrete ad
+  types and visual placements are defined and maintained by the IAB;
+  this spec references the IAB definitions normatively and does NOT
+  introduce new ones. The subset this edition supports is enumerated in
+  R12 of [`03-requirements.md`](03-requirements.md): overlay (corner /
+  bug, lower-third), squeezeback (L-shape, side-by-side /
+  double-box), and pause-ad. R12 is the authoritative edition-scoped
+  list; the IAB CTV Ad Format Guidelines remain the authoritative
+  source for the definitions themselves:
   https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
-  for the authoritative list. Examples of sub-types encountered in
-  practice include
-  l-shape, banner, skyscraper, sidebar, side-by-side, squeezeback,
-  pause-ad, lower-third, and corner-bug; these names are illustrative
-  and the authoritative list is the IAB document, not this glossary.
 - **MPEG-DASH 6th edition**: revision of ISO/IEC 23009-1 that
   introduced the `InsertPresentation` and `ReplacePresentation`
   constructs for linear SGAI.
