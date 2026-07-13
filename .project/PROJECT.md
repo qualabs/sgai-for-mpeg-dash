@@ -16,7 +16,7 @@ status: ongoing
 type: research
 owner: qualabs
 started: 2026-05-06
-last_update: 2026-05-27
+last_update: 2026-07-13
 tags: [dash, sgai, non-linear-ads, mpeg, svta, overlays, dynamic-presentation, prototype, spec, server-guided-ads]
 related_processes: [preparacion-working-group]
 related_wgs: [industry-sgai, svta-ads]
@@ -148,16 +148,22 @@ the long-range plan and get a folder when they open.
   `.env.agent.example`, `.gitignore`), and `git init` with an
   initial commit. See `phases/01-setup/` for PHASE.md and TASKS.md
   (the close report is embedded in PHASE.md).
-- **`02-wg-feedback-round-1` — `in-progress`** (opened 2026-05-27).
-  Process working-group feedback round 1 on the SGAI spec, starting
-  with **the WG chair's** review (the 3 `context/` files he edited and
-  commented during the 2026-05-20 WG session). Each of his 10 feedback
-  items is classified as already-addressed (✅) / change-needed (🔧) /
-  open-for-discussion (❓) against the current spec (post `fb30314`),
-  and the resolutions are driven from there. The phase's primary work
-  product is the cross-reference report
-  (`phases/02-wg-feedback-round-1/wg-chair-feedback-crossref.md`). See
-  `phases/02-wg-feedback-round-1/` for PHASE.md and TASKS.md.
+- **`02-wg-feedback-round-1` — `closed`** (2026-07-13). Processed
+  working-group feedback round 1 on the SGAI spec, centred on **the WG chair's** review (the 3 `context/` files he edited and commented
+  during the 2026-05-20 WG session, plus a round-2 Slack thread on
+  2026-05-29). His 10 feedback items were classified as
+  already-addressed (✅) / change-needed (🔧) / open-for-discussion (❓)
+  against the current spec, and all resolved and incorporated into
+  `context/`. T-08 (confirm the ADS+APS split matches the WG chair's intent)
+  is `done`: the split is in the committed spec; the explicit
+  confirmation with the WG chair carries over as an external, non-blocking
+  follow-up. The phase's primary work product is the cross-reference
+  report (`phases/02-wg-feedback-round-1/wg-chair-feedback-crossref.md`);
+  the closure report is `phases/02-wg-feedback-round-1/REPORT.md`. No
+  phase is currently active — the next phase opens explicitly when
+  The project lead decides (candidates: `03-wg-feedback-round-2` for more
+  reviewers, or `03-spec-iteration` for foundational ADRs + non-
+  functional requirements).
 
 ### Long-range plan
 

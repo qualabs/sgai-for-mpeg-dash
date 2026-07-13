@@ -1,9 +1,9 @@
 ---
 phase: 02-wg-feedback-round-1
 title: Working-group feedback — round 1
-status: in-progress
+status: closed
 started: 2026-05-27
-closed: null
+closed: 2026-07-13
 ---
 
 # 02-wg-feedback-round-1
