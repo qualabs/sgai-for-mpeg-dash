@@ -83,7 +83,11 @@ a substitute for the per-device sub-sections inside each UC.
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
 device, the Player declines the slot and continues with the primary
-content uninterrupted.
+content uninterrupted. The same continuity guarantee holds at
+runtime: if an accepted ad fails while being resolved or rendered — a
+decode error, a malformed candidate, a mid-ad network loss — the
+Player aborts that ad and continues the primary content uninterrupted
+(per R1.4).
 
 ## Scenarios
 
