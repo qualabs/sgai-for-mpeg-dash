@@ -29,11 +29,11 @@ concrete requirements that follow are constrained by them.
 - **DP-1.1. No "future flexibility" placeholders.** A construct
   MUST NOT be introduced "just in case a future edition relaxes
   it". Constructs whose only admissible value matches the
-  construct's default OR is fixed by another rule (e.g. R14)
+  construct's default OR is fixed by another rule
   MUST NOT exist in the spec. The argument "we might want this
   attribute later" is explicitly rejected — good ideas for the
-  future stay in the future, they don't enter the spec "por si
-  las dudas". Less is more.
+  future stay in the future, they do not enter the spec
+  speculatively. Less is more.
 - **DP-1.2. Single source of truth.** When the same value or
   relationship appears in multiple places in the spec or in a
   generated MPD, exactly ONE declaration is canonical and the
@@ -52,6 +52,14 @@ concrete requirements that follow are constrained by them.
   example: instead of saying "the Player MUST NOT fire tracking
   beacons after the slot end," say "the Player fires tracking
   beacons within the slot window.")
+- **DP-3. Maximize the ad opportunity, never at the cost of
+  playback.** When a design choice affects how fully an ad
+  opportunity can be used, prefer the option that uses it most —
+  subordinate always to one hard invariant: applying this
+  specification MUST NEVER break primary-content playback, so when
+  an opportunity cannot be honoured, graceful skip-and-continue is
+  mandatory. Which ads fill the opportunity, and the revenue they
+  yield, are the ADS's concern, not this specification's.
 
 ## Requirements
 
