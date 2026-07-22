@@ -134,6 +134,10 @@ and the boundaries of what this spec does and does not define.
   - **R1.3** (Publisher / spec document): The specification MUST NOT alter
     or override the semantics of any pre-existing MPEG-DASH 6th
     edition construct.
+  - **R1.4** (Player): When resolving or rendering an accepted ad
+    fails at runtime (for example a decode error, a malformed
+    candidate, or a mid-ad network loss), the Player MUST abort that
+    ad and continue playing the primary content uninterrupted.
 
 - **R2. Honour the actor's responsibilities.**
   *Gist: Four actors with fixed roles: the Publisher declares constraints, the ADS decides which ads to serve, the APS converts that into the resolution document, and the Player validates and renders.*
@@ -393,19 +397,21 @@ the ADS-declared order.
   **ordered list — document order IS the preference order; there is
   no separate priority or ranking attribute**. The Player MUST render
   the **first presentation option whose form and layout its device
-  can satisfy**, and MUST skip candidates with no satisfiable option
-  (falling back to the next candidate or to primary content,
-  depending on policy). R5 is a concrete instance of R2 — Player owns
+  can satisfy**, and MUST skip candidates with no satisfiable option,
+  falling through to the next candidate and continuing with the primary
+  content only once every candidate is exhausted. R5 is a concrete
+  instance of R2 — Player owns
   the responsibility the ADS and APS do not have — and a direct
   contributor to R3.
 
   The resolution document MAY carry candidates with multiple
   presentation options. The Player MUST select per device
   capabilities and the Publisher's allowed layouts, taking options
-  **in document order and rendering the first that passes**. Skipping
-  a candidate when none of its options is satisfiable is acceptable;
-  the Player then falls through to the next candidate or to primary
-  content.
+  **in document order and rendering the first that passes**. When none
+  of a candidate's options is satisfiable, the Player skips that
+  candidate and moves to the next candidate; continuing with the primary
+  content is the last resort, reached only once every candidate has been
+  exhausted.
 
   **Conformance criteria** (runtime):
   - **R5.1** (APS): Each ad candidate in the resolution document the
@@ -425,8 +431,9 @@ the ADS-declared order.
     the **first option** whose form and layout it can satisfy on its
     device.
   - **R5.3** (Player): The Player MUST skip any candidate that
-    carries no form renderable on its device, falling back to the
-    next candidate or to primary content per the configured policy.
+    carries no form renderable on its device and fall through to the
+    next candidate; when the candidates are exhausted, the Player MUST
+    continue with the primary content.
   - **R5.4** (ADS + APS): Neither the ADS nor the APS MUST be
     required to maintain a device-class matrix or a per-Player
     capability view to produce candidates.
