@@ -18,7 +18,7 @@ status: ongoing
 type: research
 owner: nicolas-levy
 started: 2026-05-06
-last_update: 2026-07-13
+last_update: 2026-08-19
 tags: [dash, sgai, non-linear-ads, mpeg, comcast, svta, overlays, dynamic-presentation, prototype, spec, server-guided-ads]
 related_processes: [preparacion-working-group]
 related_wgs: [comcast-sgai, svta-ads]
@@ -196,12 +196,58 @@ the long-range plan and get a folder when they open.
   `0003-multiview-decoder-tiles-agnostic-fixed-layouts.md`. `context/`
   is not yet touched — the phase is in `planning` for Nicolás to review.
 
+- **`05-wg-feedback-round-2` — `planning`** (opened 2026-08-19). Processes
+  the feedback from the **SVTA Advertising WG call of 2026-08-19** — the
+  first round of WG feedback arriving as a group discussion rather than
+  one reviewer's marked-up files. David Hassoun walked the group through
+  a document collecting every concern raised so far about the non-linear
+  work; the call produced **15 agreements** (A1–A15), **7 open
+  proposals** (O1–O7), and a set of items mentioned without conclusion.
+  The phase material is the agreements extract
+  (`phases/05-wg-feedback-round-2/svta-wg-2026-08-19-agreements.md`),
+  which attributes and timestamps every item against the transcript and
+  carries a section of **eleven readings the transcript does not
+  support** rather than resolving them by inference. The phase's work
+  product is **a task per proposed change**: `T-01` is a task that
+  generates tasks, so the changes can be decided one at a time; `T-02`
+  settles the eleven open readings with David; `T-03` **verifies, against
+  the primary sources, the four places where the extract claims the WG's
+  position breaks against the committed spec** — A2 vs R5, A6 vs R22, A7
+  vs R17, A8 vs the Player-dismiss vocabulary — and **gates T-01** on
+  those items. The claims are a reading of an automatic transcript, and
+  three of the eleven open readings land on A2's mechanics, so
+  `compatible` and `indeterminate` are admissible verdicts alongside
+  `contradiction`; where the transcript cannot settle it, the output is a
+  question for the WG rather than a spec change. `T-04` makes **R5's
+  designed flexibility explicit in `context/`** — a **drafting** task,
+  not a design one: R5's author has confirmed it was written as a
+  superset (the APS may send ordered options; the device may send
+  capabilities, optionally; an implementation may send a single option and
+  keep control at the APS), and that the text does not make that legible,
+  which is how it came to be read as prescriptive both in the call and in
+  this phase's own extract. `T-05` **states outright what the text never
+  says — that an APS may return exactly one presentation option** — as a
+  new requirement
+  and/or, per Nicolás's stated preference, a **use case** carrying the
+  motivation, which would pair with UC-09 (device chooses) to teach the
+  superset by example. The two remedies divide the problem deliberately:
+  **T-04 clarifies what is written, T-05 adds what is not.** Both are
+  deliberately **independent of T-03**, and if either lands, several of
+  T-01's candidate items stop being design changes and collapse into
+  them. Execution order is not numbering order:
+  T-03 runs before T-01 emits anything, and T-04 can run at any time.
+  `context/` is not touched by the phase's planning; T-04 is the one task
+  that will edit it, and only its wording.
+
 Phases 03 and 04 are **independent** of each other; either can be
 executed first. Neither has started execution — both await Nicolás's
-review of the scaffold before `context/` is edited. The earlier
-long-range candidates (`03-wg-feedback-round-2`, `03-spec-iteration`)
-remain open future options and would take the next free phase numbers
-when they open.
+review of the scaffold before `context/` is edited. Phase 05 is
+independent of both, though its A2 item reaches into them: both lean on
+the R5 ordered fallback that A2 is reported to contradict. The earlier long-range
+candidate `03-spec-iteration` remains an open future option and would
+take the next free phase number when it opens; the round-2 candidate
+that PROJECT.md reserved as `03-wg-feedback-round-2` opened as
+`05-wg-feedback-round-2`, 03 and 04 having been taken in the meantime.
 
 ### Long-range plan
 

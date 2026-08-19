@@ -893,3 +893,366 @@ from the core. The two phases are **independent** of each other.
 PROJECT.md phases index updated with both phases. ADRs 0002 and 0003
 recorded in `status: proposed` (they capture decisions Nicolás already
 made; they flip to `accepted` when execution is authorised).
+
+## 2026-08-19 — phase opened: 05-wg-feedback-round-2 (SVTA Ads WG call of 2026-08-19)
+
+Opened phase `05-wg-feedback-round-2` to process the feedback from the
+**SVTA Advertising WG call of 2026-08-19**. Round 2 is a different shape
+from round 1: a live discussion among six participants (David Hassoun
+chairing, Frédéric Plissonneau / InterDigital, Martin Gold / YouView,
+Nicolás Levy / Qualabs, Rob Walch / Apple, Yasser Syed / Comcast;
+Olivier Cortambert absent), not one reviewer's marked-up files. David
+walked the group through a document he had assembled collecting every
+concern raised so far about the non-linear work.
+
+The number reserved in PROJECT.md for this was `03-wg-feedback-round-2`;
+03 and 04 were taken by `custom-layout` and `multiview` on 2026-07-13, so
+it opened as `05`.
+
+**Source.** The Tactiq transcript, Google Doc
+`1E_B_53VRaBm8TwJYKTouFxZvSq2MabkO-1l0NIiIdPA` — the only record, no
+separate notes, no recording. The 2026-07-22 call
+(`1ENK8wExWLduxv45rw08OfIoAd0KwF2w1pCVp1K4dVys`, where this project was
+presented to the WG) was read as background so nothing carried over from
+it would be reported as new.
+
+**Phase material**: `phases/05-wg-feedback-round-2/svta-wg-2026-08-19-agreements.md`
+(English, matching the rest of `.project/`). It splits the call three
+ways — **15 agreements** (A1–A15), **7 open proposals** (O1–O7), and
+items mentioned without conclusion — attributes every item to its
+proposer, notes who argued against it, timestamps each against the
+transcript, and carries a fourth section of **eleven readings the
+transcript does not support with confidence**, quoted verbatim and left
+unresolved rather than guessed at. The extract is phase material, not
+task evidence: it is the *input* to T-01, whose *output* is the tasks.
+
+**The two structural items**, both pointing the opposite way from the
+committed spec:
+
+- **A2** — device capability travels **up** the chain: the Player tells
+  the APS what it can render, the APS makes a specific ad request, and
+  the ADS returns a single presentation that is expected to be rendered.
+  David's position. Yasser argued for the alternative — the ADS offers
+  options and the APS, knowing the device, selects — and the counter to
+  it was about ad-delivery practice rather than mechanics: several
+  options delivered and only one used breaks tracking and upstream
+  expectations. Nicolás's written comment was cited around the point, and
+  which of the questions on the table it was cited on is not recoverable
+  from the transcript (see the entry below). The external
+  constraint behind it is **A3**: the IAB pushed back hard on carrying
+  alternative ad experiences inside a single VAST response. This
+  contradicts R5 (ADS/APS need no device view, R5.4; a candidate MAY carry
+  several ordered presentation options, R5.5; the Player renders the first
+  it can satisfy, R5.2), the APS's presentation-options responsibility in
+  `02-actors.md`, the
+  ordered-fallback decision logged on 2026-05-27, and the whole of
+  **UC-09**, which exists solely to demonstrate that model. It also
+  reaches phases 03 and 04, both of which lean on the R5 ordered
+  fallback.
+- **A7** — pausing during an ad break does not raise a pause ad; the
+  running ad owns that time until completed or abandoned (David, as
+  current practice, with the IAB defining it; Nicolás agreed as an
+  instance of the one-experience-at-a-time rule and asked that it be
+  confirmed with Zach Kava). This points against **R17**'s pause-ad
+  priority over a running overlay, and touches R16, R21, R25, UC-05 and
+  UC-08.
+
+**Other agreements of consequence**: capability detection lives in the
+application, not the Player, and is passed through to the manifest / APS
+request (A1, closed on silence as acceptance); the ADS
+decides the layout (A4); slice/tile single-decoder replacement is
+deferred to a future edition but recorded as a breadcrumb, at Yasser's
+request (A5); **one ad experience at a time** as a general rule spanning
+families — broader than R22, which bounds simultaneity only within the
+non-linear family (A6); viewer-initiated skip of a non-linear form must
+be supported, possibly timer-gated, with dismissal read as an
+engagement signal per Rob — a construct absent from the spec, where
+"dismiss" only ever means the Player dismissing on resume (A8); SSAI is
+not mixed with SGAI in one break (A11); SIMID stays out (A12); and on
+the HLS side a non-linear interstitial class in an SVTA-owned namespace,
+`com.svta.*` and not `com.apple.*` at Rob's request (A13).
+
+**The principal open proposal is O1**: a placement-type declaration in
+the MPD — `replace` / `insert` / `concurrent` / `concurrent-static` — as
+a declarable permitted set, with the break **skipped, with tracking**,
+when a device satisfies none of the declared types (**O2**). The
+combinations carry the intent: `concurrent` only for content that must
+not be interrupted; `concurrent` or `insert` so VOD never loses content;
+`concurrent` or `replace` so an incapable device gets a standard linear
+break; `concurrent` or `concurrent-static` for an L-box with an image
+when two video decoders are unavailable. **O3** is agreed as a real
+requirement but unresolved in mechanism: mixed ad types inside one break
+(concurrent, concurrent, linear, concurrent — Nicolás confirmed he saw
+it in the FIFA World Cup water break), where nobody could yet say how
+the linear member is known to be a replace or an insert; three candidate
+answers were floated and none chosen. **O4** (what the APS must receive
+from the Player) collides with R18, which declares the ADS/APS APIs out
+of scope. **O5** is the one item where this project has something to
+contribute rather than absorb: pause ads have no manifest-level
+definition on the SVTA side yet, while our spec already models a
+Publisher-declared pause window.
+
+**Tasks**: `T-01` compares the three `context/` source-of-truth files
+against the extract and **emits one task per proposed change** — it is a
+task that generates tasks, written that way deliberately so the changes
+can be iterated one at a time between Nicolás and the agent, each with
+its own status and its own close. `T-02` settles the eleven open
+readings with David, the deadline first (§4.1, "buy the RENS meeting" —
+probably the Rennes MPEG meeting, but the date is what matters).
+`T-03` onward do not exist by design: they are T-01's output.
+**19 candidate change items** were identified across A1–A15 and O1–O7;
+T-01 fixes the final count, since some will merge (A3 and A4 into A2)
+and some may split.
+
+Neither task has run. `context/` is untouched — the phase plans the spec
+change, it does not make it. PROJECT.md phases index updated.
+
+## 2026-08-19 — phase 05: T-03 added to verify the four claimed spec contradictions
+
+Nicolás questioned the most consequential claim in the agreements
+extract — that A2 contradicts R5 — and asked for a task to establish it
+rather than assume it, not being convinced the contradiction was real.
+Added `T-03` to phase `05-wg-feedback-round-2`.
+
+**Why the doubt is well founded.** The claim travelled through two
+layers of interpretation: the automatic transcript, then a reading of
+it. And the extract itself leaves **eleven readings unresolved**, of
+which **three land directly on A2's mechanics** — §4.8 (whether the
+placement-type list is ordered and whether order expresses preference),
+§4.9 (where in the MPD the declaration lives, a sentence David breaks
+off mid-way), and §4.7 (whether `concurrent-static` is a presentation
+element or only a placement-type token). If order expresses preference,
+the distance between A2 and R5 narrows sharply. The doubt is not generic
+scepticism: identified ambiguities fall exactly on the point in question.
+
+**How T-03 is written.** The verification runs against the **primary
+sources**, not against the extract — the extract is the artifact under
+test, so re-reading it proves nothing. Required inputs: the transcript
+itself (Google Doc `1E_B_53VRaBm8TwJYKTouFxZvSq2MabkO-1l0NIiIdPA`, with
+the export command, since it is not in the repo), with every supporting
+quote read **in its surrounding turns** rather than isolated; the literal
+text of R5 + R5.1–R5.7, R17 + R17.1–R17.4, R22 + R22.1, R16 / R21 / R25,
+and DP-1..DP-3; the Ad Presentation Server section and Boundary Summary
+of `02-actors.md`; UC-09, plus UC-05 and UC-08; and the ordered-fallback
+decision record — which is a **`LOG.md` entry dated 2026-05-27, not an
+ADR**, read for its rationale (the spec previously modelled preference as
+*optional* priority hints, and the decision made document order
+normative) and not only its outcome.
+
+**Three verdicts per pair, all valid**: `contradiction`, `compatible`,
+`indeterminate`. The task is explicitly forbidden from forcing one — if
+the honest answer is that David has to say what he meant, that is the
+result, and it produces a concrete question for the WG instead of a
+change to the spec. `indeterminate` is expected on several pairs; that is
+what the eleven open readings imply.
+
+Four pairs, with candidate hypotheses named as hypotheses rather than
+findings:
+
+- **A2 vs R5** — the *layer* question (R5 governs the resolution
+  document APS→Player, A2 the ad request Player→APS→ADS: different legs
+  may both hold), the *cardinality* question (R5.5 says a candidate
+  **MAY** carry multiple options — is a single-option candidate already
+  conformant?), and the *R5.4* question (whether "neither ADS nor APS
+  MUST be required to maintain a device-class matrix" **forbids** the APS
+  from knowing the device or merely declines to mandate it — the two
+  readings give opposite verdicts).
+- **A6 vs R22** — contradiction or *gap*: R22 bounds simultaneity within
+  the non-linear family, A6 across families, and silence is not
+  contradiction. R17 already legislates one cross-family case, so the
+  spec is not wholly silent on the axis.
+- **A7 vs R17** — whether "an overlay is active" and "an ad break is
+  running" denote the same state in this model. If not, the two rules
+  may never meet.
+- **A8 vs the Player-dismiss vocabulary** — absence rather than
+  conflict: a viewer-initiated skip looks unaddressed, not forbidden,
+  which makes it an addition and not a contradiction.
+
+**The dependency is written into both tasks.** T-03 questions the
+premise T-01 rests on: if A2 does not contradict R5, a large part of the
+19 candidate items changes shape or disappears. T-01 may not emit any
+task deriving from A2, A6, A7 or A8 before T-03 has ruled on that pair,
+and its definition of done now checks that. **Execution order is not
+numbering order** — T-03 takes the next free id per the repo convention
+(no renumbering of what exists) but runs first; that is stated in the
+TASKS.md preamble and in both blocks. `T-04` onward remain T-01's output.
+
+T-03 also has to **write any correction back into the extract**,
+including the "Consequence for our spec" note on an affected item:
+leaving a disproved claim in the phase material would corrupt the audit
+trail for everything downstream.
+
+Not executed. `context/` untouched. PHASE.md context and risks updated
+(new risk: the extract's own conflict claims being wrong, mitigated by
+T-03); PROJECT.md phase entry updated.
+
+## 2026-08-19 — phase 05: Nicolás's WG-doc comment lands as evidence; A2 claim corrected; T-04 opened
+
+Nicolás supplied the comment of his that was cited during the call, from
+the WG document itself. It changed two things and produced one new
+task.
+
+**The extract's A2 carried a misreading of the comment, now corrected.**
+The extract had summarised the comment as agreeing that the device should
+not choose and that the request should send only one option. The comment
+says close to the opposite:
+
+> "In my opinion at spec level we should should let devices to choose ->
+> main reason: it's the most flexible design because if you don't want
+> devices to choose, the APS should send only one option (this is just an
+> implementation decision). In my point of view: - spec must be the most
+> flexible - the URL to the APS is not under this spec (you could send a
+> queryparam with capabilities in your implementation if you like) -
+> implementations may send only 1 options if they don't want the device
+> to choose"
+
+It defends letting the device choose **at spec level**, and calls "the
+APS sends one option" an **implementation** decision. The error was in
+this extract: the conditional ("if you don't want devices to choose…")
+and the "this is just an implementation decision" qualifier were
+compressed away, which inverted the sense. A2's body now reproduces the
+comment verbatim, points at the stretch of the call where it was cited
+[10:08, 10:49] — where the transcript breaks down at exactly the
+conditionals that carry the sense — and flags the point as **contested**.
+Two questions sit next to each other there: where capability *detection*
+happens, which is **A1** and which Nicolás did agree to, and who
+*chooses* the presentation, which is A2. So the passage can be read as
+bearing on either. Establishing which of the two the room was on is
+handed to T-03.
+
+The same section of the doc also documents what sits behind **A1**: the
+"Capabilities detection" question, its device-level and APS-lookup
+branches, and the doc's own privacy objection to the latter. Its comment
+thread of 2026-08-17 asks for help verifying whether the
+decoder-detection APIs exist, and names the supplemental material
+referenced in the call — a tab titled *"Concurrent Media Decode
+Capability Detection for SGAI Non-Linear Ad Experiences"*. A1 now records
+that the material is offered for verification rather than as settled.
+Both facts are in the extract.
+
+**The intent behind R5 is settled by its author, so T-03 narrows.**
+Nicolás confirmed R5 was written as a **superset**: the APS may send
+ordered options; the device may send capabilities **if it has them, and
+that is optional**; an implementation may send a single option, in which
+case control sits with the APS, and if it sends them all, control sits
+with the device: the spec is flexible, the implementation may vary. Under
+that reading the A2 shape is **an implementation R5 already permits**,
+not a contradiction of it. T-03 no longer has to reconstruct
+what R5 means — that is given — only **whether the text says it**, since
+a WG reader has nothing but the words. Its expected outcome for A2 is now
+the fourth verdict, `spec-does-not-express-its-intent`, and every verdict
+must be labelled **design** or **drafting**.
+
+**T-04 opened: make R5's flexibility explicit in `context/`.** A
+**drafting** task, explicitly not a design one — it changes what the spec
+says, not what it allows, and is constrained so that nothing conformant
+becomes non-conformant or vice versa. It must also decide two judgement
+calls rather than assume them:
+
+- **R18.** The comment's *"the URL to the APS is not under this spec"*
+  overlaps R18, which already declares the ADS / APS API contracts out of
+  scope. The task decides whether R18 already carries this adequately and
+  only needs to be findable from R5, or whether R5 must state it too.
+- **UC-09.** It demonstrates **only one of the two permitted
+  implementations** — the APS returning everything and the device
+  choosing, worked across D1..D5. A reader who studies the use cases sees
+  one path and concludes it is *the* path, which is a plausible
+  explanation of how the text came to be read as prescriptive. The task
+  evaluates whether a companion use case, or a variant inside UC-09,
+  should show the single-option / APS-decides route reaching the same
+  screen outcome — weighed against its cost (UC numbering, coverage
+  matrix, derived `context-analysis/` artefacts). It records the decision
+  either way; clarified wording alone may suffice.
+
+T-04 is **deliberately independent of T-03**: the intent is already
+confirmed, so the clarification is justified whatever verdict T-03
+reaches. The dependency runs the other way — if T-04 lands, **several of
+T-01's 19 candidate items stop being design changes and collapse into
+this one drafting problem**, and T-01 must check T-04's outcome and
+report which candidates it absorbed. T-01's classification now carries a
+**design vs drafting** axis for the same reason. `T-05` onward remain
+T-01's output.
+
+New risk recorded in PHASE.md: a drafting task on a normative
+requirement is exactly where a "clarification" can quietly become a
+semantic change; T-04 is instructed to stop and report if that happens,
+because it would mean the intent and the current design genuinely differ.
+
+Nothing executed. `context/` still byte-identical — T-04 will be the
+first task to touch it, and only its wording.
+
+## 2026-08-19 — phase 05: T-05 opened (state that an APS may return one option); T-04 scoped back
+
+Nicolás asked for a task to put the permission into `context/` in so many
+words, and in doing so answered the question T-04 had left open:
+
+> Add a task for a requirement, a clarification, or something in
+> `context/` that says an APS may return one option. Perhaps a use case
+> explaining that the APS wants to offer only one option.
+
+**T-05 opened**, and **T-04 scoped back** so the two do not overlap. The
+split is written into both blocks and into the TASKS.md preamble:
+
+- **T-04 fixes what is there.** It audits R5 and the APS section of
+  `02-actors.md` and clarifies the existing wording where it fails to
+  convey the permissiveness. It is subtractive of ambiguity and **adds no
+  artefact** — no new requirement, no new use case. Its definition of done
+  now says so explicitly, and an audit finding that something is
+  *missing* rather than *unclear* is handed to T-05 instead of growing
+  T-04's scope. The UC-09 observation moved out of T-04 entirely.
+- **T-05 adds what is missing.** An explicit statement that an APS may
+  return exactly one presentation option, with the choice then sitting at
+  the APS, and/or the use case that demonstrates it.
+
+**The form is T-05's to decide, with an argument**: a clarification inside
+R5, a new requirement, or a use case — not mutually exclusive. The
+criterion recorded for it: **a requirement says what is permitted, a use
+case shows why someone would want it**, and Nicolás's framing — an APS
+that *wants* to offer only one option — is a **motivation**, not a rule.
+His message
+**leans toward the use case**, and that is registered as the **preference
+of the spec's owner** — the leading option, not one of two equals. It
+remains a preference and not an instruction: if the analysis lands
+elsewhere the task must raise it with him rather than deciding silently.
+
+**The pair, and the failure mode it carries.** If the use case lands, it
+pairs with **UC-09** — UC-09 shows the device choosing from an ordered
+list, the new one shows the APS deciding and sending one. Together they
+teach that the spec is a **superset** far better than an adjective in a
+requirement could, which is what justifies the cost. But two use cases
+can be read as **two modes of the spec** rather than two implementations
+of one rule, and that would deepen the misunderstanding instead of
+undoing it, since there is no mode to declare. T-05 must therefore edit
+**both** cases (UC-09 included, in scope) to state that they exercise
+**R5 differently**, that the difference lives in the implementation and
+not in the spec, and that **neither is canonical** — and is forbidden
+from introducing any name, label, flag or attribute that could be read as
+selecting between them, per DP-1.1.
+
+**Two costs written into scope rather than left to be discovered:**
+
+- **The derived artefacts.** A new use case touches the *"Total UC
+  count"* line and both matrices in `context-analysis/uc-coverage-matrix.md`
+  (which enumerate UC-01..UC-12 explicitly),
+  `context-analysis/dash-gap-analysis.md`, and the UC cross-references in
+  `context/03-requirements.md`, `05-dash-linear-interfaces.md` and
+  `07-backward-compat-checklist.md`. The matrix is regenerable via
+  `prompts/1-pre-spec/build-uc-coverage-matrix.prompt`, so regenerate
+  rather than hand-patch.
+- **A live numbering collision.** The highest landed requirement is
+  **R28**, but phase `03-custom-layout` has proposed **R29** and
+  `04-multiview` **R30**, and both also claim "next free UC number" —
+  neither having executed. T-05 must read both phases before taking a
+  number and **raise a collision rather than quietly taking it**.
+
+Same hard limit as T-04: this clarifies and exemplifies, it does **not**
+change what the spec permits, and if writing it surfaces that a semantic
+change is needed the task **stops and reports**. Also independent of T-03
+for the same reason — the intent is already confirmed by R5's author.
+The relation to T-01 again runs the other way: T-05 is a **second route**
+by which several of the 19 candidates stop being design changes, and T-01
+must check its outcome and report which candidates it absorbed.
+
+`T-06` onward remain T-01's output; the phase backlog is five. Two new
+risks recorded in PHASE.md: the two-modes misreading, and the numbering
+collision. Nothing executed; `context/` still byte-identical.
