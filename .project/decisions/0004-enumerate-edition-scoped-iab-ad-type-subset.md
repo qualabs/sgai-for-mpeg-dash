@@ -1,5 +1,5 @@
 ---
-id: 0004
+id: "0004"
 title: Enumerate the edition-scoped IAB ad-type subset in R12 and exclude ads outside the video surface
 status: accepted
 scope: core
