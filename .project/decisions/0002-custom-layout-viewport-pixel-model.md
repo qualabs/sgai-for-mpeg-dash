@@ -1,5 +1,5 @@
 ---
-id: 0002
+id: "0002"
 title: Add custom layout as a new layout type with a viewport-relative pixel coordinate model
 status: proposed
 scope: phase-03
