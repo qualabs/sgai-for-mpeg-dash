@@ -46,17 +46,18 @@ through `08-dash-extension-rules.md`.
   URL (served by the APS) returns a `ListMPD` describing the ad
   presentation. The APS derives the `ListMPD` from the VAST the ADS
   produced. The presentation options an ad offers appear in the
-  ListMPD as an ordered list; document order is the Player's
-  preference order (R5).
+  ListMPD; when an ad offers more than one they appear as an ordered
+  list whose document order is the Player's preference order (R5).
 - **Capability parameter**: a parameter the Player MAY attach to the
   resolution request it sends the APS, describing what its device can
   render. The names are reserved by this specification; sending any of
   them is optional, and one the Player cannot or will not populate is
   omitted rather than sent empty (R29).
 - **Presentation option**: a (form + layout) pairing offered for an
-  ad candidate. The resolution document lists the options in an
-  ordered list; document order is the preference order the Player
-  follows (R5).
+  ad candidate. A candidate carries one or more; when it carries
+  several they appear as an ordered list and document order is the
+  preference order the Player follows. A candidate carrying exactly one
+  leaves the choice with the APS (R5).
 - **InsertPresentation** *(DASH 6th ed)*: signals that an ad
   presentation is to be **inserted into** the timeline alongside the
   main content. Used for splice-style insertion.

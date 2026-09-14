@@ -129,11 +129,16 @@ resolution document is not itself defined by this spec.
   in the resolution document, preserving the ADS's authority over
   which beacons fire and when.
 - **Produce candidates with renderable presentation options.**
-  Because the Player is device-agnostic on the APS interface, the APS
-  emits each ad candidate carrying one or more renderable presentation
-  options (form + layout) as an ordered list whose document order is
-  the preference order, and the Player renders the first option it can
-  satisfy per device capabilities and the Publisher's allowed layouts.
+  The APS emits each ad candidate carrying one or more renderable
+  presentation options (form + layout). Several is the expected form:
+  they appear as an ordered list whose document order is the preference
+  order, the Player renders the first option it can satisfy per device
+  capabilities and the Publisher's allowed layouts, and carrying several
+  is what lets one candidate resolve on a device the APS knows nothing
+  about. An APS that does not want the Player choosing sends exactly one
+  option — that is admissible, and the choice then sits with the APS, or
+  with the ADS that returned a single option to it. The Player-visible
+  interface is the same either way.
 
 The APS is **not** the ad-decisioning authority — it does not decide
 which ads to serve (that is the ADS), and it does not enforce the
