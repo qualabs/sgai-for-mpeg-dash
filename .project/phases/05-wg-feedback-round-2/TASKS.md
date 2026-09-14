@@ -5,8 +5,8 @@
 | T-01 | Compare `context/` against the WG agreements extract and **emit one task per proposed change**  | pending | —    | —        |
 | T-02 | Settle the eleven unresolved transcript readings (§4) with David, starting with the deadline    | pending | —    | —        |
 | T-03 | **Verify the four claimed spec contradictions against the primary sources** (gates T-01)        | done    | —    | [`tasks/T-03/verdicts.md`](tasks/T-03/verdicts.md) — A2 `spec-does-not-express-its-intent` (drafting), A6 `contradiction` (lands on UC-04, not R22), A7 `contradiction`, A8 `compatible` (an addition); corrections written back into the extract |
-| T-04 | **Make R5's flexibility explicit in `context/`** — drafting, not design                          | pending | —    | —        |
-| T-05 | **State that an APS may return exactly one option** — new requirement and/or use case             | pending | —    | —        |
+| T-04 | **Make R5's flexibility explicit in `context/`** — drafting, not design                          | done    | —    | `context/03-requirements.md` R5 gist + prose + core-invariant row; `context/02-actors.md` APS section; `context/99-glossary.md` two entries. The R18 scope question resolved via R18.2 + R29 |
+| T-05 | **State that an APS may return exactly one option** — new requirement and/or use case             | partly landed | —    | The explicit statement is in `context/03-requirements.md` R5 and `context/02-actors.md`; only the paired use case remains |
 
 `T-06` onward do **not** exist yet by design: they are the **output of
 T-01**. T-01 is a task that generates tasks. Until it runs, this phase
@@ -576,6 +576,20 @@ boundary so they do not overlap.
   framing and, if the task so decides, one example.
 
 ## T-05 — State in `context/` that an APS may return exactly one option
+
+> **Its core has landed; what remains is the use case.** The explicit statement
+> this task was created to add is now in `context/` — R5's prose carries that
+> carrying several options is the form the requirement asks for, that carrying
+> exactly one is equally admissible, that an implementation which does not want
+> the Player choosing sends a single option, and that the choice then sits with
+> the APS or with the ADS that returned one to it; the APS section of
+> `02-actors.md`, R5's gist, the core-invariant row and two `99-glossary.md`
+> entries carry the short form. It landed inside the application of the A2
+> drafting fixes, on Nicolás's instruction, rather than through this task.
+> **What is left for T-05 is only the open question below**: whether to add the
+> companion use case that pairs with UC-09. Do not re-state the permission — it
+> is already written, and writing it twice is what this note exists to prevent.
+
 
 - **Objective:** put into `context/` an explicit, findable statement that
   **an APS may return exactly one presentation option** — and, on the

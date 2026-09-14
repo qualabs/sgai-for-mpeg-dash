@@ -981,8 +981,9 @@ example of that emergence.
 - One **device-agnostic** allowed-layout set for the slot, including
   side-by-side, L-shape / squeezeback, banner overlay, and
   full-screen takeover. The Publisher does NOT declare a different
-  layout set per device class — device capability is the Player's
-  sole authority (R5 / R5.4).
+  layout set per device class: in this scenario neither the ADS nor the
+  APS holds a view of the device, so capability is resolved entirely at
+  the Player (R5 / R5.4).
 - For the side-by-side layout, an advertiser-supplied background element
   fills the uncovered bands (R26). For the L-shape / squeezeback, the
   single ad creative is itself the full-frame background (R27).

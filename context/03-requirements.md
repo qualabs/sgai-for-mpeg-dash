@@ -86,10 +86,10 @@ positions.
 | R1 | SGAI extends MPEG-DASH 6th edition without breaking it; a legacy Player ignores the new constructs and keeps playing. |
 | R2 | Four actors, fixed roles: the Publisher declares, the ADS decides, the APS converts, the Player validates and renders. |
 | R4 | The Publisher declares the maximum slot duration; the Player enforces the cap, even mid-ad. |
-| R5 | Candidates list renderable options in preference order; the Player renders the first its device can satisfy. |
+| R5 | Candidates carry one or more renderable options in preference order; the Player renders the first its device can satisfy, and a single-option candidate leaves the choice with the APS. |
 | R11 | No dependency on VAST or any specific VAST version. |
 | R12 | A fixed, closed set of IAB ad types (linear, overlay, squeezeback, pause-ad); nothing else is in scope. |
-| R18 | Only the Player-visible interface is specified; the ADS / APS APIs are out of scope. |
+| R18 | The Player-visible interface is specified, including what the Player sends on the resolution request; the APS-to-ADS and ADS-side APIs are out of scope. |
 | R22 | At most one non-linear ad form is active on screen at any instant. |
 
 ### Contract foundations
@@ -422,11 +422,15 @@ in what order it presents them: device-aware selection and honouring
 the ADS-declared order.
 
 - **R5. Device-aware ad selection.**
-  *Gist: Each candidate carries renderable presentation options in preference order, and the Player renders the first one its device can satisfy, skipping candidates with none.*
+  *Gist: Each candidate carries one or more renderable presentation options in preference order and the Player renders the first one its device can satisfy, skipping candidates with none; an APS that wants the choice to sit with it sends exactly one.*
 
-  The Player is the sole
-  authority on device capability — neither the ADS nor the APS needs
-  a device-class matrix or a per-Player view. Ad candidates in the
+  The Player is the authority on what its own device can render: no
+  presentation option reaches the screen without passing the Player's
+  capability check. This specification therefore requires no
+  device-class matrix and no per-Player capability view at the ADS or
+  the APS, and an implementation whose APS does hold one is equally
+  conformant — it simply arrives at a shorter option list, and the
+  Player's check is unchanged. Ad candidates in the
   resolution document the Player reads carry one or more
   **renderable presentation options**, each a **form (video, image,
   HTML) together with its layout**. The options appear as an
@@ -439,6 +443,17 @@ the ADS-declared order.
   instance of R2 — Player owns
   the responsibility the ADS and APS do not have — and a direct
   contributor to R3.
+
+  **Several options is the form this requirement asks for**: a candidate
+  that carries more than one resolves on devices the ADS and the APS know
+  nothing about, which is what makes a single decision serve a
+  heterogeneous population. **Carrying exactly one option is equally
+  admissible.** An implementation that does not want the Player choosing
+  among options sends a single option, and the Player then renders that
+  one or skips the candidate — that is the path to take when the decision
+  is meant to sit upstream. When a candidate carries one option, that
+  choice was made by the APS, or by the ADS that returned a single option
+  to the APS, and the responsibility for its suitability sits there.
 
   The resolution document MAY carry candidates with multiple
   presentation options. The Player MUST select per device
