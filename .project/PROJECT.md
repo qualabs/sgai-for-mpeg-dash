@@ -242,12 +242,33 @@ the long-range plan and get a folder when they open.
 Phases 03 and 04 are **independent** of each other; either can be
 executed first. Neither has started execution — both await Nicolás's
 review of the scaffold before `context/` is edited. Phase 05 is
-independent of both, though its A2 item reaches into them: both lean on
-the R5 ordered fallback that A2 is reported to contradict. The earlier long-range
-candidate `03-spec-iteration` remains an open future option and would
-take the next free phase number when it opens; the round-2 candidate
+independent of both, and reaches each of them by a different item.
+Phase 03 leans on the R5 ordered fallback, which is A2's territory;
+phase 04 does not reference R5 at all — it rests on the R3 / R22
+decoder-budget reasoning, which is what A6 would move. **Neither is
+blocked by A2**: its verdict is drafting-only, so nothing normative in
+R5 changes. Measured against both phases' own files in
+[`phases/05-wg-feedback-round-2/tasks/T-03/verdicts.md`](phases/05-wg-feedback-round-2/tasks/T-03/verdicts.md).
+
+The earlier long-range candidate `03-spec-iteration` remains an open
+future option and would take the next free phase number when it opens;
+the round-2 candidate
 that PROJECT.md reserved as `03-wg-feedback-round-2` opened as
 `05-wg-feedback-round-2`, 03 and 04 having been taken in the meantime.
+
+### Requirement and use-case numbering across phases
+
+Requirement and use-case numbers are **assigned when a phase executes,
+not when it proposes**. A number named in an unexecuted phase's plan is a
+placeholder, never a reservation: whoever lands text in `context/` first
+takes the next free identifier, and the remaining phases re-read the
+then-current `context/` when their turn comes. Once landed, a number is
+stable and never changes (`context/03-requirements.md`, "Requirement
+numbers are stable identifiers, not positional ones"); this rule governs
+only the moment of allocation.
+
+This is the one place the rule is written; phase plans point here rather
+than restating it.
 
 ### Long-range plan
 

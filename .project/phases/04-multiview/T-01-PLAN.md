@@ -135,8 +135,9 @@ views.
 
 ## Requirement to draft (T-03) + R3 extension (T-04)
 
-Proposed identifier for the new requirement: **R30** (next free stable
-number; final number fixed at execution). Written as a **standalone
+Proposed identifier for the new requirement: **R30** — a placeholder,
+not a reservation; the number is assigned at execution per the numbering
+rule in [`../../PROJECT.md`](../../PROJECT.md). Written as a **standalone
 advanced-extension subsection** of `context/03-requirements.md`,
 explicitly marked "advanced / optional extension — not required for core
 conformance". States: the fixed `multiview-*` collection (2–4 videos);
@@ -182,8 +183,9 @@ the decoder-vs-tiles agnosticism and the R3 extension.
   consistent with D1–D5 and the R22 / R26 / R27 decoder-budget logic.
 - **Layout-set validation.** The `multiview-*` names / set are proposed
   from the reference image and need Nicolás's sign-off (T-08).
-- **Numbering.** R30 / the UC number are proposed; confirm next free
-  numbers at execution.
+- **Numbering.** R30 / the UC number are placeholders; the numbers are
+  assigned at execution per the numbering rule in
+  [`../../PROJECT.md`](../../PROJECT.md).
 
 ## Verification (run before marking each task done)
 

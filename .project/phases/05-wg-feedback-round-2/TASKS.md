@@ -4,7 +4,7 @@
 | ---- | ---------------------------------------------------------------------------------------------- | ------- | ---- | -------- |
 | T-01 | Compare `context/` against the WG agreements extract and **emit one task per proposed change**  | pending | —    | —        |
 | T-02 | Settle the eleven unresolved transcript readings (§4) with David, starting with the deadline    | pending | —    | —        |
-| T-03 | **Verify the four claimed spec contradictions against the primary sources** (gates T-01)        | pending | —    | —        |
+| T-03 | **Verify the four claimed spec contradictions against the primary sources** (gates T-01)        | done    | —    | [`tasks/T-03/verdicts.md`](tasks/T-03/verdicts.md) — A2 `spec-does-not-express-its-intent` (drafting), A6 `contradiction` (lands on UC-04, not R22), A7 `contradiction`, A8 `compatible` (an addition); corrections written back into the extract |
 | T-04 | **Make R5's flexibility explicit in `context/`** — drafting, not design                          | pending | —    | —        |
 | T-05 | **State that an APS may return exactly one option** — new requirement and/or use case             | pending | —    | —        |
 
@@ -113,21 +113,50 @@ boundary so they do not overlap.
   different decisions from Nicolás, and conflating them is what T-04
   exists to undo.
 
-  **Two items are structural and must be handled as such**, not as
-  ordinary rows — **subject to T-03's verdict on each, which is what
-  decides whether they are contradictions at all**. **A2** (device
+  **Two items are structural in the form they were reported** and must
+  be handled as such, not as ordinary rows. The reported form is below,
+  followed by **T-03's verdict on all four claims, which is the framing
+  to work from**. **A2** (device
   capability travels up to the ADS, which returns a single presentation)
   is *reported* as contradicting R5 and everything built on it: R5.1–R5.7, the APS's "produce candidates with renderable
   presentation options" responsibility in `02-actors.md`, the
   ordered-fallback decision recorded in `LOG.md` for 2026-05-27, and the
   whole of UC-09 — which exists solely to demonstrate the model A2
-  contradicts. It also reaches phase `03-custom-layout` and
-  `04-multiview`, both of which lean on the R5 ordered fallback. Its
-  task must enumerate the full dependency set and be marked as blocking
-  every dependent task. **A7** (pausing during an ad break does not
-  raise a pause ad) points against R17's pause-ad priority and touches
-  R16, R21, R25, UC-05 and UC-08; the same treatment applies at smaller
-  scale.
+  contradicts. It reaches phase `03-custom-layout`, which leans on the
+  R5 ordered fallback; it does **not** reach `04-multiview`, which
+  carries no reference to R5 and rests on the R3 / R22 decoder-budget
+  reasoning — that phase is reached by A6, not by A2 (measured against
+  both phases' own files in
+  [`tasks/T-03/verdicts.md`](tasks/T-03/verdicts.md)). Where the
+  verdict below confirms a contradiction, that item's task must
+  enumerate the full dependency set before proposing an edit and be
+  marked as blocking every dependent task. **A7** (pausing during an ad
+  break does not raise a pause ad) points against R17's pause-ad
+  priority and touches R16, R21, R25, UC-05 and UC-08; the same
+  treatment applies at smaller scale.
+
+  **T-03's verdict — the framing to work from**
+  ([`tasks/T-03/verdicts.md`](tasks/T-03/verdicts.md)):
+
+  - **A2 is drafting, not structure.** Every normative clause of R5
+    already permits the arrangement A2 describes; what fails is the
+    wording, at four sites. Nothing normative moves, so **neither
+    `03-custom-layout` nor `04-multiview` is blocked by it**, and the
+    items in this family collapse into T-04 and T-05 rather than
+    becoming design tasks of their own.
+  - **A6 contradicts, and it lands on UC-04** — not on R22, which is
+    narrower than the WG rule but consistent with it. Adopting A6
+    retires a use case.
+  - **A7 contradicts**, and UC-08 is that exact state resolved the
+    other way. R21 is only re-referenced; R16, R25 and UC-05 are not
+    reached.
+  - **A8 is compatible** — an absence, so an addition rather than a
+    change, and a MUST-support rather than a MAY.
+
+  **The scope of this task does not change.** It still emits one task
+  per proposed change or addition, over the same item set. What the
+  verdict changes is which bucket A2's items land in — drafting rather
+  than structure — not how many items there are.
 
   **Constraints.** Do **not** edit anything in `context/` — this phase
   plans the spec change and does not make it; every edit is a later

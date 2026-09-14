@@ -27,7 +27,8 @@ implement lives in [`T-01-PLAN.md`](T-01-PLAN.md).
   core use-cases. This is the transversal framing constraint for the
   phase.
 - Requirement / use-case numbers are assigned at execution time from the
-  next free stable identifiers (per the numbering convention in
-  `context/03-requirements.md`). The plan proposes R29 for the
-  custom-layout requirement and the next free UC number for the
-  use-case, but the final numbers are fixed when the text lands.
+  next free stable identifiers, per the numbering rule in
+  [`../../PROJECT.md`](../../PROJECT.md).
+  The plan proposes R29 for the custom-layout requirement and the next
+  free UC number for the use-case; both are placeholders, and the final
+  numbers are fixed when the text lands.

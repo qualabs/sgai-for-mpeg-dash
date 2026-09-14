@@ -33,6 +33,8 @@ proposed `multiview-*` layout set) lives in [`T-01-PLAN.md`](T-01-PLAN.md).
   from the WOXCON SCU41 reference image and needs Nicolás's validation
   against that image before the use-cases lock the named presets.
 - Requirement / use-case numbers are assigned at execution time from the
-  next free stable identifiers. The plan proposes R30 for the multiview
-  requirement and the next free UC number; final numbers fixed when the
-  text lands. R3 is extended in place (its number does not change).
+  next free stable identifiers, per the numbering rule in
+  [`../../PROJECT.md`](../../PROJECT.md).
+  The plan proposes R30 for the multiview requirement and the next free
+  UC number; both are placeholders, and the final numbers are fixed when
+  the text lands. R3 is extended in place (its number does not change).

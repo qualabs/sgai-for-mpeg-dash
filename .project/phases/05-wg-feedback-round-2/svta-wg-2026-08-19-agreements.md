@@ -165,20 +165,41 @@ work:
 it, the output is a question to put to the WG rather than an edit to the
 spec.
 
-> **Consequence for our spec — reported, and under verification.** Taken
-> at face value, A2 runs against `context/03-requirements.md` R5, where
-> the ADS/APS need no device view (R5.4), a candidate MAY carry several
-> ordered presentation options (R5.5), and the Player renders the first
-> it can satisfy (R5.2); UC-09 in `context/04-use-cases.md` exists to
-> demonstrate that model. But the comment above cuts the other way on
-> two counts: *"the URL to the APS is not under this spec"* suggests the
-> ad-request leg A2 describes may be outside what R5 governs at all
-> (compare R18, which already declares the ADS / APS APIs out of scope),
-> and *"implementations may send only 1 options"* suggests a
-> single-option response is a case R5 permits rather than one it
-> forbids. **T-03 decides this against the sources**; it is the largest
-> single item in the phase either way, because if the conflict dissolves
-> so does much of the work that hangs off it.
+> **Consequence for our spec — verified: there is no contradiction; the
+> spec does not express its own flexibility.** Every normative clause of
+> R5 permits the arrangement A2 describes. The APS→ADS leg the [10:49]
+> quote is about is out of scope by R18 and R18.2, so R5 never governed
+> it. A single-option candidate is already conformant: R5.1 requires
+> "one or more" options and R5.5 makes multiple a MAY, while R5.2's
+> "render the first option whose form and layout its device can satisfy"
+> is a rule for resolving a choice, not an obligation to offer one.
+> R5.4 declines to *mandate* a device-class matrix; it does not forbid
+> one, and DP-2 settles that silence is permissive.
+>
+> What fails is the drafting. Four passages read as prescribing
+> client-side selection: R5's gist line, the core-invariant table line
+> for R5, R5's "the Player is the **sole authority** on device
+> capability", and — the sharpest — `context/02-actors.md`'s "Because
+> the Player is **device-agnostic on the APS interface**", which states
+> as a premise about the interface exactly what A2 denies. **T-04 owns
+> the R5 and `02-actors.md` wording; T-05 owns the explicit
+> single-option permission and its use case.** UC-09 survives intact —
+> its own premise is that the ADS is unaware of the device class, so it
+> illustrates one implementation R5 permits rather than the only one.
+> The 2026-05-27 ordered-fallback decision is **not** reached: it was
+> about how preference is expressed (document order rather than priority
+> hints), not about who chooses.
+>
+> On the WG's own position, the transcript does not settle it, and the
+> support the extract credited A2 with belongs elsewhere: the only
+> assent in that stretch ([17:15], [17:22]) answers the Player-vs-app
+> detection question of A1, and the sentence of the comment the room
+> heard at [10:49] had lost its conditional ("**if** you don't want
+> devices to choose"). A2 is better read as proposed than as agreed.
+> The question for David is in T-03's output.
+>
+> Full verification, with both sides quoted, in
+> [`tasks/T-03/verdicts.md`](tasks/T-03/verdicts.md).
 
 ### A3 — The IAB will not allow alternative ad experiences inside one VAST response
 
@@ -260,10 +281,21 @@ Nicolás agreed:
 > David: "this is, like, a general rule. You cannot have two ad
 > experiences at the same time." [42:30] — Nicolás: "Yes." [42:35]
 
-> **Consequence for our spec.** R22 in `context/03-requirements.md`
-> bounds simultaneity **within** the non-linear family only. The WG
-> rule is broader: it spans families (linear vs non-linear, pause-ad vs
-> overlay).
+> **Consequence for our spec — verified: a contradiction, and it lands
+> on UC-04, not on R22.** R22 in `context/03-requirements.md` bounds
+> simultaneity **within** the non-linear family only, so it is narrower
+> than the WG rule but not incompatible with it. The spec is not silent
+> across families, though: **UC-04 — Hybrid linear + concurrent
+> overlay** in `context/04-use-cases.md` models precisely the case A6
+> forbids ("a linear ad takes over the screen *and* a non-linear overlay
+> is composited on top of it during the same break"), specified against
+> all five device classes and carrying its own row in the coverage
+> table. Adopting A6 deletes that use case and widens R22 from "one
+> non-linear form" to "one ad experience", which also moves the
+> decoder-budget rationale phase `04-multiview` leans on. The §4.10
+> scope caveat does not rescue UC-04: both of its portions are
+> Publisher-declared and APS-resolved, i.e. inside the mechanism.
+> Detail in [`tasks/T-03/verdicts.md`](tasks/T-03/verdicts.md).
 
 ### A7 — Pausing during an ad break does not trigger a pause ad; the running ad owns that time
 
@@ -289,11 +321,25 @@ instance of A6:
 
 So: agreed in substance, with a confirmation with Zach Kava pending.
 
-> **Consequence for our spec.** R17 in `context/03-requirements.md`
-> gives the pause-ad priority **over** a running overlay and suspends
-> the overlay. The WG's rule points the other way for the case where
-> the pause happens while an ad is already presenting. R17, R21, R25,
-> UC-05 and UC-08 all need to be read against it.
+> **Consequence for our spec — verified: a contradiction.** R17 in
+> `context/03-requirements.md` gives the pause-ad priority **over** a
+> running overlay and suspends the overlay, and R17.4 declares that
+> priority non-invertible. The WG's rule reverses it for the case where
+> the pause happens while an ad is already presenting — the case
+> Nicolás put at [40:41] in those words. **UC-08 — Overlay window
+> crosses a pause-ad window** in `context/04-use-cases.md` is that exact
+> state resolved the other way, across all five device classes, and is
+> contradicted whole.
+>
+> Two claims are tangled in A7 and they do not have the same verdict.
+> Nicolás's restatement at [41:55] — no pause-ad *plus* L-shape at the
+> same time — is **already** the spec's position (R17 suspends the
+> overlay so nothing composes simultaneously, per R22). What
+> contradicts is David's half: which of the two wins. R21 is only
+> re-referenced; R16, R25 and UC-05 are **not** contradicted — A7 adds a
+> gating condition upstream of them and changes nothing about how a
+> pause-ad behaves once raised. Detail in
+> [`tasks/T-03/verdicts.md`](tasks/T-03/verdicts.md).
 
 ### A8 — Viewer-initiated skip of a non-linear ad: existing mechanics carry over, support is required, the market decides its use
 
@@ -336,10 +382,21 @@ Two observations were added and neither was disputed:
 - **Yasser**: the video window size changes between the skip and
   non-skip states, which may itself make skip preferable [34:34].
 
-> **Consequence for our spec.** "Dismiss" in
-> `context/03-requirements.md` (R16, R21) always means *the Player
-> dismisses on resume*. A **viewer-initiated** skip or dismissal of a
-> non-linear form is absent from the spec.
+> **Consequence for our spec — verified: an absence, not a conflict.**
+> "Dismiss" in `context/03-requirements.md` (R16, R21) always means
+> *the Player dismisses on resume*, at every one of its seven
+> occurrences, and every "skip" in that file is the Player skipping an
+> unrenderable candidate. A **viewer-initiated** skip or dismissal of a
+> non-linear form appears nowhere in `context/` — and nothing forbids
+> it: DP-2 makes silence permissive, and R28's ClickThrough already
+> fires on a viewer action, so viewer-initiated events are not foreign
+> to the model. So this is an addition, not a change. One nuance the
+> item under-reports: David's *"we need to support it"* [34:42] makes
+> the capability a MUST-support with market-determined use, not a MAY.
+> The addition reaches a new requirement (its effect on the slot and
+> its tracking event), the two-agent ambiguity it creates for the verb
+> "dismiss" in R16 / R21, and a `99-glossary.md` term. Detail in
+> [`tasks/T-03/verdicts.md`](tasks/T-03/verdicts.md).
 
 ### A9 — Joining a live stream mid-break with a pre-roll pending: nothing changes
 
