@@ -222,7 +222,7 @@ and the boundaries of what this spec does and does not define.
     Player's resolution request (R29).
 
 - **R29. Player-declared capability parameters on the resolution request.**
-  *Gist: The Player MAY attach a defined set of capability parameters to the resolution request it sends the APS; each is optional, and one the Player cannot or will not populate is omitted rather than sent empty.*
+  *Gist: The Player MAY attach reserved capability parameters — inputs about the device, not conclusions about what can be served — to the resolution request it sends the APS; each is optional, and one the Player cannot or will not populate is omitted rather than sent empty.*
 
   This specification defines a set of **reserved parameter names** that a
   Player MAY attach to the resolution request it issues against the MPD
@@ -236,11 +236,13 @@ and the boundaries of what this spec does and does not define.
   edition, whose contents are declared by the content author.
 
   **Conformance criteria** (runtime + document-level):
-  - **R29.1** (spec document): The specification enumerates the reserved
-    parameters and the meaning of each. This edition reserves two: the
-    number of media decoders the device can run concurrently, and the
-    streaming formats the Player can play. The token spelling of each is
-    fixed when the syntax is specified.
+  - **R29.1** (spec document): The reserved parameters are **inputs
+    about the device** — statements of what the device supports — and
+    not conclusions about which ad experiences can be served; deriving
+    the second from the first is the APS's. Device capability has more
+    than one axis, so what this specification reserves is a set and not
+    a single value. Which parameters the set contains, and how each is
+    written, is fixed when the syntax is specified.
   - **R29.2** (Player): Sending a reserved parameter is OPTIONAL. A
     conformant Player MAY send all of them, some of them, or none.
   - **R29.3** (Player): When the Player has no value for a reserved
@@ -254,6 +256,10 @@ and the boundaries of what this spec does and does not define.
     parameter and MUST be able to produce ad candidates without receiving
     any of them. An APS that requires a parameter in order to answer
     would make R29.2 unattainable for the Player.
+  - **R29.6** (spec document): The reserved set MUST be able to express
+    the capability axes that distinguish the device classes this
+    specification enumerates (R3.1). A set that cannot tell two
+    enumerated device classes apart does not satisfy this requirement.
 
 ### Opportunity declaration
 
@@ -565,7 +571,9 @@ squeezeback layouts (side-by-side and L-shape).
   top of video, down to devices with a single video decoder and no
   overlay capability at all. The supported device classes and the
   expected behaviour for each combination of device class and ad
-  opportunity are enumerated in the **Use Cases** section.
+  opportunity are enumerated in the **Use Cases** section. The capability
+  axes that separate those classes are what the reserved parameter set
+  of R29 must be able to express.
 
   **Conformance criteria** (runtime + document-level):
   - **R3.1** (spec document): The specification MUST enumerate the supported
