@@ -32,7 +32,7 @@ different decisions:
 | N-2 | A2 | `04-use-cases.md` UC-09 | NO CHANGE here | Belongs to T-05 |
 | G-1 | A6 | R22 + UC-04 + coverage table | **DESIGN** | Adopt A6 or not — costs UC-04 |
 | G-2 | A7 | R17 + UC-08 + coverage table | **DESIGN** | Adopt A7 or not — costs UC-08; blocked |
-| G-3 | A8 | new requirement + "dismiss" vocabulary + glossary | **DESIGN** (addition) | **Adopted.** Carrier and gating settled; the slot question is open |
+| G-3 | A8 | new requirement + "dismiss" vocabulary + glossary | **DESIGN** (addition) | Adopted; **blocked on the WG** — the slot question went out as an issue |
 | D-7 | A2 | the new requirement's carrier | **DESIGN** | Query string by default; header admissible |
 | X-1 | — | numbering | **SETTLED** | — |
 
@@ -528,9 +528,19 @@ in the set, and rewriting it twice costs more than waiting.
 
 ## A8 — DESIGN (an addition). Viewer-initiated dismissal is absent
 
-**Adopted.** It is an addition, not a conflict, and David put it as a
-MUST-support rather than a MAY. Of the three sub-decisions below, the carrier
-and the eligibility gating are settled; what happens to the slot is open.
+**Adopted, and now waiting on the Working Group.** It is an addition, not a
+conflict, and David put it as a MUST-support rather than a MAY. The carrier and
+the eligibility gating are settled. **What happens to the slot went to the WG as
+an issue rather than being decided here**, because the current draft answers it
+by accident: R14.1 says each form starts when the previous one ends, and a
+viewer dismissal is a form ending early, so the text already implies falling
+through to the next form. That default is an artefact of drafting, not a
+position anyone took.
+
+**The requirement does not land until the WG answers**, because the answer
+decides one of its conformance criteria. This is blocked externally, not pending
+on our side. **No number is held for it**: per the allocation rule, the next
+requirement to land takes R30, whether it comes from this item or another.
 
 **Verified:** every occurrence of "dismiss" in `context/03-requirements.md`
 (lines 531, 535, 544, 551, 640, 826, 838) is **the Player** acting on a state
@@ -654,9 +664,11 @@ governs only the moment of allocation.
   Numbering bullet) and its `TASKS.md`.
 
 **Allocated so far: R29** is taken by the Player capability-parameter
-requirement, which landed in `context/03-requirements.md` on 2026-09-14. The next
-requirement to land — A8's viewer-dismissal requirement is the one queued — takes
-**R30**, and phases `03-custom-layout` and `04-multiview` re-read `context/` when
+requirement, which landed in `context/03-requirements.md` on 2026-09-14. **R30 is
+free**: A8's viewer-dismissal requirement was the one queued for it, but it is
+now blocked on the Working Group, and a number is never held for an item that has
+not landed — the next requirement to land takes R30, whichever item it comes
+from, and phases `03-custom-layout` and `04-multiview` re-read `context/` when
 they execute, which is what the rule exists for.
 
 Worth knowing: both phases already said *"final number fixed at execution"* in
