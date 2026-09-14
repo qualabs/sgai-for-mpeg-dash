@@ -48,6 +48,11 @@ through `08-dash-extension-rules.md`.
   produced. The presentation options an ad offers appear in the
   ListMPD as an ordered list; document order is the Player's
   preference order (R5).
+- **Capability parameter**: a parameter the Player MAY attach to the
+  resolution request it sends the APS, describing what its device can
+  render. The names are reserved by this specification; sending any of
+  them is optional, and one the Player cannot or will not populate is
+  omitted rather than sent empty (R29).
 - **Presentation option**: a (form + layout) pairing offered for an
   ad candidate. The resolution document lists the options in an
   ordered list; document order is the preference order the Player

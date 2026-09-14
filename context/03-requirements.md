@@ -192,7 +192,7 @@ and the boundaries of what this spec does and does not define.
     MUST be in an annex or in a non-normative note explicitly
     flagged as illustrative.
 
-- **R18. ADS / APS API contracts are not defined by this spec.**
+- **R18. The APS-to-ADS and ADS-side API contracts are not defined by this spec.**
   *Gist: The spec defines only the Player-visible interface; the APS-to-ADS and ADS-side APIs are out of scope and agreed bilaterally.*
 
   This specification does NOT define the URL syntax, parameter
@@ -214,10 +214,46 @@ and the boundaries of what this spec does and does not define.
     MPD event URL pattern (Player-visible input, served by the APS)
     and the resolution document format (Player-visible output,
     produced by the APS).
-  - **R18.2** (Publisher / APS / ADS): The bilateral contracts —
-    Publisher-to-APS for the event URL and APS-to-ADS for ad
-    decisioning invocation — are established and maintained by those
-    parties directly, outside this specification.
+  - **R18.2** (Publisher / APS / ADS): The APS-to-ADS contract for ad
+    decisioning invocation is established and maintained by those
+    parties directly, outside this specification. The Publisher's
+    arrangement with the APS for the event URL remains bilateral,
+    except for the parameters this specification defines on the
+    Player's resolution request (R29).
+
+- **R29. Player-declared capability parameters on the resolution request.**
+  *Gist: The Player MAY attach a defined set of capability parameters to the resolution request it sends the APS; each is optional, and one the Player cannot or will not populate is omitted rather than sent empty.*
+
+  This specification defines a set of **reserved parameter names** that a
+  Player MAY attach to the resolution request it issues against the MPD
+  event URL. Which of them travel is the Player's decision, taken at
+  runtime; no declaration by the Publisher, the APS or the ADS is
+  required before a Player sends them.
+
+  These parameters are carried as query parameters on the resolution
+  request. They are defined here and are NOT expressed through the
+  MPD-declared URL-parameter template mechanism of MPEG-DASH 6th
+  edition, whose contents are declared by the content author.
+
+  **Conformance criteria** (runtime + document-level):
+  - **R29.1** (spec document): The specification enumerates the reserved
+    parameters and the meaning of each. This edition reserves two: the
+    number of media decoders the device can run concurrently, and the
+    streaming formats the Player can play. The token spelling of each is
+    fixed when the syntax is specified.
+  - **R29.2** (Player): Sending a reserved parameter is OPTIONAL. A
+    conformant Player MAY send all of them, some of them, or none.
+  - **R29.3** (Player): When the Player has no value for a reserved
+    parameter, or does not disclose its value, the Player MUST omit that
+    parameter entirely rather than send it with an empty or placeholder
+    value.
+  - **R29.4** (Player): A parameter that is not one of the reserved names
+    MUST carry a vendor-specific prefix, so that reserved names added in
+    a later edition cannot collide with it.
+  - **R29.5** (APS): The APS MUST tolerate the absence of any reserved
+    parameter and MUST be able to produce ad candidates without receiving
+    any of them. An APS that requires a parameter in order to answer
+    would make R29.2 unattainable for the Player.
 
 ### Opportunity declaration
 
@@ -1150,11 +1186,11 @@ and deferring layout to existing primitives.
   Ad Standard. The specification MUST NOT define a parallel layout
   standard.
 - **OOS-2. Defining the ADS's internal decisioning logic.** The
-  proposal only specifies the contract between the MPD event and
-  the resolution document the APS returns. Targeting, frequency
-  capping, brand safety filtering and similar ADS concerns — and
-  the APS-to-ADS exchange that conveys them — remain
-  implementation-specific.
+  proposal only specifies the contract between the MPD event, the
+  Player's resolution request, and the resolution document the APS
+  returns. Targeting, frequency capping, brand safety filtering and
+  similar ADS concerns — and the APS-to-ADS exchange that conveys
+  them — remain implementation-specific.
 - **OOS-3. Specific position semantics inside a layout** (left,
   right, top, bottom). Those belong to the per-layout detail
   covered in the Positioning Templates section of the proposal.

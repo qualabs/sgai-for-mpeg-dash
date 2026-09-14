@@ -112,8 +112,11 @@ resolution document is not itself defined by this spec.
   Publisher references in the MPD event `@url`. The
   Publisher can encode slot constraints (for example, a
   slot-duration hint) as query parameters on that URL — this is the
-  APS's runtime input. When the playhead reaches the event, the
-  Player resolves this URL and receives the resolution document.
+  APS's runtime input. The Player may also attach the capability
+  parameters this specification defines (R29 in
+  [`03-requirements.md`](03-requirements.md)). When the playhead reaches
+  the event, the Player resolves this URL and receives the resolution
+  document.
 - **Convert VAST → MPD-native / SGAI.** On each resolution request,
   the APS obtains the ad decision from the ADS as VAST and
   transforms it into the resolution document: it maps VAST media
@@ -148,6 +151,10 @@ the final viewer experience.
   Publisher for each event.
 - Resolve the APS URL when the playhead reaches an event and
   receive the list of ad candidates as the resolution document.
+- Attach the capability parameters it chooses to send. Which of them
+  travel is the Player's decision; a parameter whose value it does not
+  have, or does not wish to disclose, is omitted rather than sent
+  empty.
 - Validate each candidate against the slot constraints declared in
   the MPD. Any candidate that violates the constraints (disallowed
   layout, exceeded duration, more concurrent overlays than allowed,
@@ -189,6 +196,7 @@ SGAI flow:
   events in the resolution document* — **APS**.
 - *Validating each candidate* against the MPD constraints —
   **Player**.
+- *What the Player discloses about its device* — **Player**.
 - *Selecting the ad to render* from validated candidates —
   **Player**.
 - *Compositing and rendering* the ad over the primary content —
