@@ -377,12 +377,11 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     IAB-defined ad type or visual placement. Publisher-private layout
     names, and IAB values outside the enumerated set, MUST NOT appear in
     the allowed-layouts declaration on the slot.
-  - **R12.3** (APS): The ad-type set originates in the ADS's decision;
-    the APS transcribes it. The APS MUST NOT emit, in the resolution
-    document, form metadata for an ad type or visual placement outside
-    the enumerated set. Conformance is checked against the APS's
-    resolution document, not against the ADS's internal decision
-    document.
+  - **R12.3** (APS): The ad-type set originates in the ADS's decision.
+    The APS MUST NOT emit, in the resolution document, form metadata
+    for an ad type or visual placement outside the enumerated set.
+    Conformance is checked against the APS's resolution document, not
+    against the ADS's internal decision document.
   - **R12.4** (spec document): Each enumerated layout implies the
     spatial bound declared by the IAB CTV Ad Format Guidelines for that
     layout (e.g. Corner Overlay no more than 25% of the frame,
@@ -414,9 +413,9 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     selected) and forms declared by the Publisher MUST carry a
     creative whose mimeType falls under one of the three admissible
     categories defined above. The admissible set originates in the
-    ADS's decision; the APS transcribes it, so conformance is checked
-    against the APS's resolution document and the Publisher's
-    declaration, not against the ADS's internal decision document.
+    ADS's decision; conformance is checked against the APS's
+    resolution document and the Publisher's declaration, not against
+    the ADS's internal decision document.
   - **R15.3** (Player): The Player MAY skip a candidate whose
     creative carrier mimeType is not in the admissible set; such
     a candidate signals a non-conformant ADS, APS, or Publisher.
@@ -435,8 +434,7 @@ the ADS-declared order.
   capability check. This specification therefore requires no
   device-class matrix and no per-Player capability view at the ADS or
   the APS, and an implementation whose APS does hold one is equally
-  conformant — it simply arrives at a shorter option list, and the
-  Player's check is unchanged. Ad candidates in the
+  conformant; the Player's check is unchanged. Ad candidates in the
   resolution document the Player reads carry one or more
   **renderable presentation options**, each a **form (video, image,
   HTML) together with its layout**. The options appear as an
@@ -474,15 +472,15 @@ the ADS-declared order.
   - **R5.1** (APS): Each ad candidate in the resolution document the
     Player reads MUST carry one or more **renderable presentation
     options (each a form plus its layout) as an ordered list, where
-    document order is the preference order**. The set and its order
-    originate in the ADS's decision (which media files / forms exist,
-    and their order); the APS carries that **ordered** set into the
-    resolution document, **preserving document order**, **without
+    document order is the preference order**. The options and their
+    order originate in the ADS's decision (which media files / forms
+    exist, and their order). The APS MAY omit options from what the ADS
+    returned; it MUST carry the options it does emit in the order the
+    ADS gave them, **preserving document order**, **without
     reordering**. The normative carry obligation is the APS's: the
     APS produces the resolution document the Player reads, so
     conformance is checked against the APS's resolution document,
-    not against the ADS's internal decision document. The ADS defines
-    the set; the APS transcribes it.
+    not against the ADS's internal decision document.
   - **R5.2** (Player): The Player MUST evaluate the presentation
     options of an accepted candidate **in document order** and render
     the **first option** whose form and layout it can satisfy on its
