@@ -103,9 +103,11 @@ as one more admissible layout token.
 
 ## Requirement to draft (T-03)
 
-Proposed identifier: **R29** (next free stable number; final number
-fixed at execution). Written as a **standalone advanced-extension
-subsection** of `context/03-requirements.md`, explicitly marked
+Proposed identifier: **R29** — a placeholder, not a reservation; the
+number is assigned at execution per the numbering rule in
+[`../../PROJECT.md`](../../PROJECT.md). Written as a **standalone
+advanced-extension subsection** of `context/03-requirements.md`,
+explicitly marked
 "advanced / optional extension — not required for core conformance".
 
 The requirement states, at minimum:
@@ -128,8 +130,10 @@ implementer could otherwise conflate with overlay.
 
 ## Use-case(s) to write (T-04)
 
-Next free UC number (UC-13 at time of writing; final number fixed at
-execution). A standalone advanced-extension subsection of
+Next free UC number, assigned at execution per the numbering rule in
+[`../../PROJECT.md`](../../PROJECT.md) (UC-13 was free when this plan
+was written; another phase may take it first). A standalone
+advanced-extension subsection of
 `context/04-use-cases.md`, marked advanced / optional. It exercises a
 custom layout with several elements (at least one video, the
 primary-content reference, and an overlapping element with explicit
@@ -163,8 +167,10 @@ justified because custom layout is opt-in and self-contained).
   screen (letterbox, scale, clip) is a design-level detail; the plan
   flags it as an open point for the design phase, not resolved in the
   requirement text.
-- **Numbering.** R29 / UC-13 are proposed; confirm the next free numbers
-  at execution against the then-current `context/`.
+- **Numbering.** R29 / UC-13 are placeholders; the numbers are assigned
+  at execution per the numbering rule in
+  [`../../PROJECT.md`](../../PROJECT.md), against
+  the then-current `context/`.
 
 ## Verification (run before marking each task done)
 
