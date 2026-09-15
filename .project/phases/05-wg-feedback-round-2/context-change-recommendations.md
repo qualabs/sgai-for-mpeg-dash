@@ -686,6 +686,11 @@ was ready, took it. **R31 is free**: the next requirement to land takes it,
 whichever item it comes from, and phases `03-custom-layout` and `04-multiview`
 re-read `context/` when they execute, which is what the rule exists for.
 
+**UC-13 is taken** by the Player-declared-capabilities case, which landed in
+`context/04-use-cases.md`. Phases `03-custom-layout` and `04-multiview` both
+named UC-13 in their unexecuted plans; per the rule, neither held it, and both
+re-read `context/` when they execute. **UC-14 is free.**
+
 Worth knowing: both phases already said *"final number fixed at execution"* in
 their own words, so the collision was softer than the risk register read it. What
 was missing was a central statement and the removal of the bare integers that
