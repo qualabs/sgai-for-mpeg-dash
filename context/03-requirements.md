@@ -1077,15 +1077,13 @@ carriers for creative metadata and non-AV assets.
   resolution document.
 
   **Conformance criteria**:
-  - **R13.1** (ADS + APS): The ADS MUST declare the tracking
-    schedule (which beacons, at which relative times) as the sole
-    authority; the APS MUST transcribe those instructions verbatim
-    into the resolution document using DASH callback events (or
-    equivalent), with timings expressed relative to the ad's
-    presentation timeline. The APS exercises no discretion over the
-    schedule — it neither adds, removes, nor reorders beacons; it
-    only re-expresses the ADS-declared schedule in the DASH callback
-    form.
+  - **R13.1** (APS): When the resolution document carries tracking
+    instructions, the APS MUST express them using DASH callback
+    events (or an equivalent baseline DASH construct), with timings
+    relative to the ad's presentation timeline. Conformance is
+    checked against the resolution document alone: it fixes the form
+    the instructions take and the timebase they use, and it does not
+    reveal how many beacons the ADS declared.
   - **R13.2** (Player): Given an ad accepted for rendering, the
     Player MUST execute the tracking schedule it reads from the
     resolution document — firing each beacon at its specified
@@ -1097,6 +1095,13 @@ carriers for creative metadata and non-AV assets.
   - **R13.4** (spec document): The specification MUST NOT introduce
     a new tracking event scheme; reuse of the DASH baseline
     callback mechanism is mandatory.
+  - **R13.5** (APS + ADS): The fidelity of the transcription — that
+    the APS neither adds, removes, nor reorders the beacons the ADS
+    declared — is part of the APS-to-ADS contract those parties
+    maintain directly, outside this specification (R18). The ADS
+    declares the schedule and receives the beacons, so it is in a
+    position to enforce that fidelity; the resolution document is
+    not, because it does not show what was declared.
 
 - **R23. Application-level ad metadata carrier.**
   *Gist: The specification defines an SVTA-namespaced place for creative metadata with no native DASH carrier; emitting it and reading it are both optional.*
