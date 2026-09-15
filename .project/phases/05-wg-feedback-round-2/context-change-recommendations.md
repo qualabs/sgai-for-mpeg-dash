@@ -5,8 +5,12 @@ Written 2026-09-14. Input: the T-03 verdicts
 ([`svta-wg-2026-08-19-agreements.md`](svta-wg-2026-08-19-agreements.md)), and the
 literal text of `context/` read at every line cited below.
 
-**This is a list of recommendations, not an edit.** `context/` is byte-identical
-to how this work found it (verification at the end).
+**This was a list of recommendations, not an edit.** The recommendations have
+since been decided and, where a decision required it, applied to `context/`. The
+*Where it landed* column of the summary names the task and commit for each one;
+`TASKS.md` T-06..T-13 carries the full record. What is still open is in
+*Decisions outstanding*. The verification section at the end is a **dated
+record** of the state before any of that landed, not the state today.
 
 Every item is classified **DRAFTING** or **DESIGN**, because the two need
 different decisions:
@@ -20,41 +24,50 @@ different decisions:
 
 ## Summary
 
-| # | WG item | Where | Class | Decision needed |
-|---|---|---|---|---|
-| D-1 | A2 | `02-actors.md:128–133` | DRAFTING | Approve wording |
-| D-2 | A2 | `03-requirements.md:391–393` | DRAFTING | Approve wording |
-| D-3 | A2 | `03-requirements.md:389` | DRAFTING | Approve wording |
-| D-4 | A2 | `03-requirements.md:89` | DRAFTING | Approve wording |
-| D-5 | A2 | `99-glossary.md:48–54` | DRAFTING | Approve wording |
-| D-6 | A2 | `03-requirements.md` R18.2 + a new requirement | **DESIGN** | Publisher-gated or Player-gated |
-| N-1 | A2 | `02-actors.md:192` | NO CHANGE | Confirm |
-| N-2 | A2 | `04-use-cases.md` UC-09 | NO CHANGE here | Belongs to T-05 |
-| G-1 | A6 | R22 + UC-04 + coverage table | **DESIGN** | Adopt A6 or not — costs UC-04 |
-| G-2 | A7 | R17 + UC-08 + coverage table | **DESIGN** | Adopt A7 or not — costs UC-08; blocked |
-| G-3 | A8 | new requirement + "dismiss" vocabulary + glossary | **DESIGN** (addition) | Adopted; **blocked on the WG** — the slot question went out as an issue |
-| D-7 | A2 | the new requirement's carrier | **DESIGN** | Query string by default; header admissible |
-| X-1 | — | numbering | **SETTLED** | — |
+| # | WG item | Where | Class | Decision needed | Where it landed |
+|---|---|---|---|---|---|
+| D-1 | A2 | `02-actors.md:128–133` | DRAFTING | Approve wording | **Applied** — T-08 (`4304208`) |
+| D-2 | A2 | `03-requirements.md:391–393` | DRAFTING | Approve wording | **Applied** — T-08 (`4304208`) |
+| D-3 | A2 | `03-requirements.md:389` | DRAFTING | Approve wording | **Applied** — T-08 (`4304208`) |
+| D-4 | A2 | `03-requirements.md:89` | DRAFTING | Approve wording | **Applied** — T-08 (`4304208`) |
+| D-5 | A2 | `99-glossary.md:48–54` | DRAFTING | Approve wording | **Applied** — T-08 (`4304208`) |
+| D-6 | A2 | `03-requirements.md` R18.2 + a new requirement | **DESIGN** | Publisher-gated or Player-gated | **Applied — Player-gated.** R18.2 + R29 in T-07 (`8fe9bd3`); R29 rebound to R3's device classes in T-09 (`3a0823c`) |
+| N-1 | A2 | `02-actors.md:192` | NO CHANGE | Confirm | Confirmed — no change |
+| N-2 | A2 | `04-use-cases.md` UC-09 | NO CHANGE here | Belongs to T-05 | **Open** — T-05 is *partly landed*; the paired use case remains |
+| G-1 | A6 | R22 + UC-04 + coverage table | **DESIGN** | Adopt A6 or not — costs UC-04 | **Open — David (WG)** |
+| G-2 | A7 | R17 + UC-08 + coverage table | **DESIGN** | Adopt A7 or not — costs UC-08; blocked | **Open — Zach Kava, via David** |
+| G-3 | A8 | new requirement + "dismiss" vocabulary + glossary | **DESIGN** (addition) | Adopted; **blocked on the WG** — the slot question went out as an issue | **Open — the WG**, via issue 7 on the public repo |
+| D-7 | A2 | the new requirement's carrier | **DESIGN** | Query string by default; header admissible | **Applied** — inside R29, T-07 / T-09 |
+| X-1 | — | numbering | **SETTLED** | — | **Applied** — `.project/PROJECT.md` |
 
 Five drafting items, four design items, and two confirmations that nothing
-changes. The numbering question is settled and applied; A8 is adopted with one
-open sub-decision.
+changes. Seven of the thirteen are applied; the four that remain are all waiting
+on someone outside this project, plus the T-05 use case.
 
-## Decisions outstanding — five answers
+**Four further changes landed that have no row above**, because they were raised
+and decided after this table was drawn. They are recorded in `TASKS.md`: the APS
+may omit options from what the ADS returned with the order preserved (T-10,
+`ff528d7`); the two out-of-scope declarations OOS-5 and OOS-6 (T-11, `730c468`);
+R30 and ADR 0005, an empty resolution being distinguishable from a failed one
+(T-12, `cac233f`); and the `<Error>` mapping row no longer describing APS
+internals (T-13, `624585a`).
+
+## Decisions outstanding — three, all external
 
 The items above are not one request. Each line below is a **separate answer**,
 and none of them implies any other:
 
-| # | Question | Answers it | Blocks |
-|---|---|---|---|
-| 1 | Approve the proposed wording of **D-1 … D-5**? One answer covers the five: they are the same correction at five sites, and D-1 is the one that carries the rest. | Nicolás | Five drafting edits, ready to apply |
-| 2 | **D-6**: is the reserved parameter set **Publisher-gated** (what Annex I gives: the Publisher declares the template) or **Player-gated** (the Player decides what to disclose — not provided by Annex I, separate cost)? | Nicolás | R18.2's rewording and the new requirement |
-| 3 | **A8 (a)**: does a viewer dismissal end the slot, or fall through to the next form under R14? Recommendation: it ends the slot. | Nicolás | The A8 requirement text |
-| 4 | **A6**: does "one ad experience at a time" contemplate a Publisher-declared hybrid break, or only the narrower case Yasser asked about? | David (WG) | UC-04's fate and R22's rewording |
-| 5 | **A7**: does the "running ad owns the pause" practice hold? | Zach Kava, via David | R17's inversion and UC-08 |
+| # | Question | Answers it | Blocks | Status |
+|---|---|---|---|---|
+| 1 | Approve the proposed wording of **D-1 … D-5**? One answer covers the five: they are the same correction at five sites, and D-1 is the one that carries the rest. | Nicolás | Five drafting edits | **Answered — approved, and applied in T-08** |
+| 2 | **D-6**: is the reserved parameter set **Publisher-gated** (what Annex I gives: the Publisher declares the template) or **Player-gated** (the Player decides what to disclose — not provided by Annex I, separate cost)? | Nicolás | R18.2's rewording and the new requirement | **Answered — Player-gated.** R29.2 makes sending a reserved parameter OPTIONAL, R29.3 omits rather than sends empty, and R29.5 obliges the APS to tolerate the absence. Applied in T-07 / T-09 |
+| 3 | **A8 (a)**: does a viewer dismissal end the slot, or fall through to the next form under R14? Recommendation: it ends the slot. | ~~Nicolás~~ → **the WG** | The A8 requirement text | **Open.** It was not decided here: the current draft answers it by accident through R14.1, so the question went out to the WG as issue 7 rather than being settled on a drafting artefact. See §A8 |
+| 4 | **A6**: does "one ad experience at a time" contemplate a Publisher-declared hybrid break, or only the narrower case Yasser asked about? | David (WG) | UC-04's fate and R22's rewording | **Open** |
+| 5 | **A7**: does the "running ad owns the pause" practice hold? | Zach Kava, via David | R17's inversion and UC-08 | **Open** |
 
-Three are Nicolás's; two are external and do not wait on him. Answering 1 does
-not commit anything about 2, and nothing in 1–3 depends on 4 or 5.
+Nicolás's two answers are in and applied. **What remains is external in all three
+cases** — the WG on the A8 slot question, David on A6, Zach Kava via David on
+A7 — so nothing here is waiting on a decision this project can take by itself.
 
 ---
 
@@ -663,13 +676,15 @@ governs only the moment of allocation.
   bullet) and its `TASKS.md`; `04-multiview/T-01-PLAN.md` (the R30 line, the
   Numbering bullet) and its `TASKS.md`.
 
-**Allocated so far: R29** is taken by the Player capability-parameter
-requirement, which landed in `context/03-requirements.md` on 2026-09-14. **R30 is
-free**: A8's viewer-dismissal requirement was the one queued for it, but it is
-now blocked on the Working Group, and a number is never held for an item that has
-not landed — the next requirement to land takes R30, whichever item it comes
-from, and phases `03-custom-layout` and `04-multiview` re-read `context/` when
-they execute, which is what the rule exists for.
+**Allocated so far: R29 and R30.** R29 is taken by the Player
+capability-parameter requirement and R30 by the empty-resolution requirement,
+both landed in `context/03-requirements.md` on 2026-09-14. R30 is the rule
+working exactly as written: A8's viewer-dismissal requirement was the one queued
+for that number, but it is blocked on the Working Group, and a number is never
+held for an item that has not landed — so the empty-resolution requirement, which
+was ready, took it. **R31 is free**: the next requirement to land takes it,
+whichever item it comes from, and phases `03-custom-layout` and `04-multiview`
+re-read `context/` when they execute, which is what the rule exists for.
 
 Worth knowing: both phases already said *"final number fixed at execution"* in
 their own words, so the collision was softer than the risk register read it. What
@@ -826,7 +841,14 @@ two halves fail differently. Emitting the list when the decider is present costs
 a round trip and delays nothing else. Skipping the list when the decider is
 absent means the work cannot proceed at all.
 
-## Verification — `context/` untouched
+## Verification — `context/` untouched as of 2026-09-14, before any edit landed
+
+**A dated record, not the current state.** It proves that while this document was
+being written `context/` had not been touched. The edits of T-06..T-13 landed
+afterwards, so five of the nine hashes below no longer match the working tree —
+`02-actors.md`, `03-requirements.md`, `04-use-cases.md`,
+`05-dash-linear-interfaces.md` and `99-glossary.md`. That is the decisions being
+applied, not a discrepancy to investigate.
 
 Baseline taken before any reading, checked after all of it, and the check itself
 tested by breaking it on purpose.
