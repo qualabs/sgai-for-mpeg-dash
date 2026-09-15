@@ -22,7 +22,8 @@ requirements apply to which use cases.
 
 ### Matrix 1 — UC × R (rows = UCs, columns = Rs)
 
-A grid with UC-01..UC-N as rows and R1..R10 (or current R-range)
+A grid with every use case in `../context/04-use-cases.md` as rows and
+every requirement in `../context/03-requirements.md`
 as columns. Each cell:
 
 - **A** (applies): the requirement is exercised by the use case.

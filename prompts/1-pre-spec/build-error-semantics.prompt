@@ -1,6 +1,6 @@
 # Build error semantics matrix
 
-**Inputs**: `context/03-requirements.md` (especially R1..R7) and
+**Inputs**: `context/03-requirements.md` (all requirements it defines) and
 `context/05-dash-linear-interfaces.md` (interface contracts that
 surface most error conditions).
 **Output**: `context-analysis/error-semantics.md` (overwrites previous).
@@ -19,16 +19,17 @@ with that same line as its first line.
 
 ## Task
 
-Read R1..R7 in `../context/03-requirements.md` and the interface
+Read the requirements in `../context/03-requirements.md` and the interface
 contracts in `../context/05-dash-linear-interfaces.md`. Build an
 exhaustive matrix of error conditions × Player MUST / MAY responses
-+ ADS / Broadcaster obligations.
++ the obligations of the non-Player actors, as `../context/02-actors.md`
+defines them.
 
 ### Matrix structure
 
 Output a single table with these columns:
 
-| ID | Error condition | Player response (MUST) | Player response (MAY) | ADS / Broadcaster obligation |
+| ID | Error condition | Player response (MUST) | Player response (MAY) | Non-Player actor obligation |
 
 Rows MUST cover at minimum:
 
@@ -62,7 +63,8 @@ Below the matrix, include the following subsections:
    transport → resolution-document level → constraint surfacing →
    per-candidate decode-time → per-candidate playback-time →
    tracking failures (non-fatal).
-3. **Guarantees by actor** — summarise what Broadcaster / ADS /
+3. **Guarantees by actor** — summarise, for each actor defined in
+   `../context/02-actors.md`, what that actor /
    Player each guarantee under the matrix, derived from the rows
    above.
 4. **Surfacing to application layer** — the Player MAY expose
