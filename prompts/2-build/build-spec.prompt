@@ -48,7 +48,8 @@ authoritative source as `[inferred]`.
 - **The spec document MUST be self-contained.** A reader of the
   spec alone (without access to `context/`) MUST understand the
   full normative content. Do not assume the reader has the context.
-- **The spec document MUST NOT reference requirements (R1..R13).**
+- **The spec document MUST NOT reference the requirements**
+  (the R-numbers defined in `context/03-requirements.md`).
   Requirements live in the context and are an INPUT to the spec
   build. The spec's normative obligations stand on their own,
   expressed directly in chapter 4 (Conformance), chapter 5
@@ -107,11 +108,12 @@ The output document MUST follow this structure:
    values; it ONLY accepts and presents the IAB-defined ones.
 4. **Conformance** — what an implementation must do to claim
    conformance (MUST / SHOULD / MAY language per RFC 2119). Per
-   actor: Broadcaster, ADS, Player.
+   actor, for every actor defined in `context/02-actors.md`.
 5. **Syntax** — manifest fields, event schemas, ListMPD /
    OverlayList document shapes. Every attribute block MUST use the
    tabular pattern described in "Attribute tables pattern" below.
-6. **Interfaces** — Broadcaster ↔ ADS ↔ Player message flows,
+6. **Interfaces** — message flows between the actors defined in
+   `context/02-actors.md`,
    transports, payload shapes. Linear baseline + non-linear
    extensions.
 7. **Expected behaviour** — per actor, per scenario (linear ad
@@ -154,7 +156,7 @@ For each UC annex:
 
 - Brief restatement of the scenario (1–2 paragraphs). Do not
   assume the reader has the context; the annex MUST stand on its own.
-- The full MPD that the Broadcaster would publish for this UC.
+- The full MPD that the Publisher would publish for this UC.
 - The full ListMPD the ADS would return.
 - The full sub-MPD(s) of the ad candidate(s).
 - **At least one example MUST include a multi-form /
