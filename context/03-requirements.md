@@ -965,10 +965,13 @@ screen to a single active non-linear form at any instant.
     its resolution document. The remaining overlapping windows of the
     same family are fallback only: the Player MUST resort to a
     subsequent overlapping window ONLY when it cannot access the
-    resolution document of the first window (e.g. the APS does not
-    respond or the event URL fails); when the first window's resolution
-    document is accessible, the Player MUST NOT fall through to the
-    others.
+    resolution document of the first window (the APS does not respond,
+    the request fails at the transport level, or the response carries a
+    final HTTP status other than `200`); when the first window's
+    resolution document is accessible, the Player MUST NOT fall through
+    to the others (a `200` response carrying a resolution document with
+    no candidates per R30 is accessible — the opportunity resolved, and
+    it resolved to no ads).
 
 - **R22. Single active non-linear form; no concurrent presentation.**
   *Gist: At most one non-linear ad form is active on screen at any instant; no two non-linear forms are shown simultaneously.*

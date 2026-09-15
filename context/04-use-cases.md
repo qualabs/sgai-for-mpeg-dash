@@ -1298,10 +1298,14 @@ carrier (per R1) — the click is simply inert, connecting to UC-07.
 **Scenario:** Two overlay windows of the same family overlap in time in
 the primary `MPD`. The Player takes the first overlapping window it
 encounters and resolves its resolution document. If it cannot access
-that resolution document — the APS does not respond, or the event URL
-that resolves to the APS fails — it falls through to the second window
-as a backup. If the first window resolves successfully, the second is
-ignored; the two are never served concurrently (per R20.1).
+that resolution document — the APS does not respond, the request fails
+at the transport level, or the response carries a final HTTP status
+other than `200` — it falls through to the second window as a backup.
+If the first window resolves successfully, the second is ignored; the
+two are never served concurrently (per R20.1). **Resolving to no ads is
+resolving successfully**: a `200` carrying a resolution document with no
+candidates (R30) is an answer, not a failure, so the second window stays
+untouched and the Player continues with the primary content.
 
 **Publisher intent:**
 - Two overlapping opportunity windows of the same family are declared in
@@ -1316,8 +1320,10 @@ ignored; the two are never served concurrently (per R20.1).
 **Expected behavior:**
 - The Player selects the first overlapping window and attempts to
   resolve it. On success it serves that window and does not touch the
-  second. On failure to access the first window's resolution document,
-  it resorts to the second (per R20.1). Whichever window is served, the
+  second; when that window resolved to no ads, there is nothing to
+  serve and the Player continues with the primary content, still
+  without touching the second. On failure to access the first window's
+  resolution document, it resorts to the second (per R20.1). Whichever
   forms inside its resolution document are then sequenced per R14: R20
   selects which window is served; R14 sequences the forms within the
   chosen window.
