@@ -2,84 +2,94 @@
 
 # IAB ad-template catalogue — live mirror
 
-**Source**: IAB Tech Lab — *Ad Format Guidelines for Digital Video and CTV*
-(Final Release May 2026).
+**Source**: IAB Tech Lab — *Ad Format Guidelines for Digital Video and CTV*,
+Final Release May 2026.
 Google Doc:
 https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
 
-**Fetch timestamp (UTC)**: 2026-05-28T02:20:00Z
+**Fetch timestamp (UTC)**: 2026-09-15T22:26:24Z
 
-**License**: Creative Commons Attribution 3.0 (per IAB doc footer).
+**Fetch method**: `mcp__claude_ai_Google_Drive__read_file_content` against the
+document ID above (authenticated Google Drive connector).
 
 This file is a **live mirror** — a snapshot in time of the source document,
-regenerated on every `build-all` invocation. It is consumed verbatim by
-the spec build (chapter 3, Terms & ad-type vocabulary). Do not edit by
-hand; instead regenerate by re-running
-`prompts/1-pre-spec/analyze-iab-ad-templates.prompt`.
+regenerated on every `build-all` invocation. The source updates independently
+of this project, so this file MAY be stale between builds. It is consumed by
+the spec build (chapter 3, ad-type vocabulary). Do not edit by hand; regenerate
+by re-running `prompts/1-pre-spec/analyze-iab-ad-templates.prompt`.
 
 ---
 
 ## Accepted ad-type values
 
-The IAB *Ad Format Guidelines for Digital Video and CTV* enumerates one
-linear baseline plus six non-linear CTV ad portfolio formats. The
-"Squeezeback" and "Overlay" entries each enumerate sub-variants of
-visual placement that are normatively listed in their source tables; we
-keep the canonical IAB names as separate rows because the visual
-placement and creative size differ materially. "Companion ad" is
-explicitly excluded from CTV per the IAB doc ("Companion ads, that are
-not served as end cards, are not available on CTV.") but is included as
-a row because it is a normative ad-form in the broader Digital Video
-catalogue.
+The source enumerates a **CTV Ad Portfolio** of seven entries — the Linear Ad
+baseline plus six formats introduced by the 2025/2026 update (Pause, Menu,
+Squeezeback, Overlay, In Scene, Screen Saver). Companion Ad is not part of the
+CTV Ad Portfolio list but is normatively specified in its own section
+(*Video Companion Ad Guidelines*) and is therefore carried as a row; the source
+states companion ads that are not end cards are not available on CTV.
+
+Named sub-variants inside Squeezeback (L-Shape, Frame, Double Box Video, Double
+Box Video + Background) and Overlay (Corner, Lower-Third) are **visual
+placements of one ad type**, not separate ad types — the source defines them
+inside the single format's Creative Size / Placement rows. They appear in the
+"Visual placement" column.
 
 | Name | Category | Visual placement | Typical duration / interaction | Source paragraph / heading |
-|------|----------|------------------|--------------------------------|----------------------------|
-| Linear Ad | in-stream | Full viewport during pre-roll / mid-roll / post-roll (16:9 preferred, 21:9 accepted) | 6 / 15 / 20 / 30 s; "bumpers" 3–10 s; up to 60 s; "infomercial" 1–5 min. Interactive variants 15–30 s mandatory + indefinite on engagement. Skip & controls publisher-negotiated. | "Linear Ad Format Guidelines" |
-| Pause Ad | non-linear, out-stream | Fullscreen 1920×1080 or partial 600×600 overlay shown while content is paused | Persistent for the duration of the pause; ends on resume / dismiss / app exit / screensaver. Optional QR / remote interactivity. Audio off by default. | "Pause Ad" |
-| Menu Ad | non-linear, out-stream | Inside TV/streaming UI (home screen, content menu). Headline Banner (2:3, 6:5, 16:9) or In-Menu Tile (16:9 or 3:9) | Variable; tied to menu navigation. May autoplay video. Optional QR / remote interactivity. Audio off by default. | "Menu Ad" |
-| Squeezeback | non-linear, in-content (concurrent, content resized) | Content squeezed to share screen with the ad. Variants: L-Shape (content 60%, ad spans bottom + vertical right bar), Frame (content centred, ad surrounds), Double Box Video (content + ad each 25%, left/right), Double Box Video + Background (Double Box plus advertiser-branded background) | Minimum 10 s; variable. Content reduction takes 1–2 s. Audio off by default; publisher may request it. Optional QR / remote interactivity. | "Squeezeback" |
-| Overlay | non-linear, in-content (concurrent, content not resized) | Over content. Variants: Corner Overlay (25% of 1920×1080, one of four corners) and Lower-Third Overlay (30% of bottom strip). 16:9. | Minimum 10 s; variable. Audio off by default. Optional QR / remote interactivity. | "Overlay" |
-| In Scene Ads | non-linear, in-content (composited) | Composited into the scene as a virtual out-of-home insertion (billboard, poster, bulletin). Resolutions 9:16 1080×1920, 4:3 1280×960, 16:9 1920×1080, Poster 840×400, Bulletin 1400×400 | Minimum 3 s brand exposure; variable. No audio. No user interactivity (closer to product placement). | "In Scene Ads" |
-| Screensaver Ad | non-linear, OS/app-initiated | Fullscreen 1920×1080 after device inactivity | Persistent until viewer / device dismiss. Optional QR / remote interactivity. Audio off by default. May refresh; video may autoplay. | "Screen Saver Ad" |
-| Companion Ad | non-linear, out-of-player | Display/static/rich-media bands wrapping the player (300×250, 468×60, 300×100, 728×90, 300×60) | Sustained visibility throughout the video session. No audio / video allowed inside the companion. Not available on CTV except as end-cards. | "Video Companion Ad Guidelines" |
+|------|----------|------------------|-------------------------------|----------------------------|
+| Linear Ad | Linear, in-stream | Full video viewing pane during pre-roll / mid-roll / post-roll. Preferred aspect ratio 16:9; ultra-wide 21:9 less common. Viewer-initiated portion may extend beyond the viewing pane if the publisher allows. | 6 / 15 / 20 / 30 s; "bumper" short-form 3–10 s; 60 s spots used sparingly; "info-mercial" 1–5 min or longer. Interactive ads 15–30 s compulsory portion, may continue indefinitely on viewer interaction. Skip and player controls negotiated with the publisher; viewer-initiated portion must provide a close control. | "Linear Ad Format Guidelines" |
+| Pause Ad | Non-linear, viewer-initiated (content paused) | Fullscreen 1920×1080 (16:9) or Partial Screen 600×600 (1:1) in the pause experience. | Persists for the pause experience. Ends on viewer dismiss / resume / power off / app exit, or device-initiated screen saver / timeout. Some refresh; videos may autoplay (signalled in the bid request). Default execution requires no audio. Optional QR code and TV-remote interactivity. | "Pause Ad" |
+| Menu Ad | Non-linear, out-of-playback (platform UI) | Inside the TV / streaming platform UI — home screen or content navigation menu. Headline Banner (2:3, 6:5, 16:9) across a horizontal row; In Menu Tile (16:9 or 3:9) anywhere in the navigational UI. Size variable, aspect ratios given for scalability. | Duration depends on viewer or device behaviour. Ends on navigate-away / power off / app exit, or device screen saver / timeout. Some are navigable slides; some have fixed duration and/or refresh rates; videos may autoplay or require engagement. Default execution requires no audio. Optional QR code and TV-remote interactivity. | "Menu Ad" |
+| Squeezeback | Non-linear, concurrent with content (content resized, not covered) | Content resized to share the frame; no content is covered. **L-Shape**: content 60% of 1920×1080, squeezed upper-left or upper-right, ad across the bottom and the vertical right bar. **Frame**: content 60%, squeezed to centre, ad surrounds it. **Double Box Video**: content and ad each 25%, content centre-left, ad centre-right. **Double Box Video + Background**: Double Box plus advertiser-branded background between the two boxes. Aspect ratio 16:9. Assets assumed provided in underlay format (full-screen 1920×1080 branded ad with a cutout for the content). | Not user initiated. Content reduction takes 1–2 s. Minimum duration 10 s; variable, signalled in the bid request. Content returns to full screen when the ad ends. Default execution requires no audio, but the publisher may request audio (e.g. a lull in sports content). Optional QR code and TV-remote interactivity. | "Squeezeback" |
+| Overlay | Non-linear, concurrent with content (content covered, not resized) | Over the playing content; content size is not reduced. **Corner Overlay**: 25% of a 1920×1080 screen, generally in one of the four corners; may appear to cover less and not adhere to a square shape if formatted for transparency. **Lower Third Overlay**: 30% of the bottom of a 1920×1080 screen, same transparency caveat. Aspect ratio 16:9. Often a banner or picture-in-picture execution. | Not user initiated. Minimum duration 10 s; variable, signalled in the bid request. Creative is no longer visible when the ad ends. Default execution requires no audio. Optional QR code and TV-remote interactivity. | "Overlay" |
+| In Scene Ads | Non-linear, composited into the content | Composited within the programming so it appears naturally in the scene; content is not resized or covered. Typically billboards / virtual out-of-home insertions. Sizes: 9:16 1080×1920, 4:3 1280×960, 16:9 1920×1080, Poster 840×400, Bulletin 1400×400. Creative is static image (jpg, png, gif); 3D / CGI supported by some partners via direct arrangement. | Not user initiated. Minimum 3 s Brand Exposure Duration; variable. No sound. **No interactivity** — the format is closer to a brand placement and is meant not to read as an ad. | "In Scene Ads" |
+| Screen Saver Ad | Non-linear, OS / app-initiated | Full screen 1920×1080, 16:9. | Begins after a defined period of inactivity on the smart TV. Ends on viewer dismiss / resume / power off / app exit, or device timeout / shutdown. Some refresh; videos may autoplay (signalled in the bid request). Default execution requires no audio. Optional QR code and TV-remote interactivity. | "Screen Saver Ad" |
+| Companion Ad | Companion, outside the player | Display ad wrapping the video experience — text, static image, rich media, or skin alongside or surrounding the player. Common sizes 300×250, 468×60, 300×100, 728×90, 300×60; should fit the publisher's display placement. File size 200 kB for most ads. | Sustained visibility throughout the streaming video experience, leaving a reminder after the linear or nonlinear component completes. Always served with a master (linear or nonlinear) ad. **No video or audio allowed** in the companion unit. Companion ads that are not served as end cards are not available on CTV. | "Video Companion Ad Guidelines" (definition also in "Linear, Nonlinear & Companion Ads") |
 
 ### Notes on the catalogue
 
-- The IAB doc identifies the six non-linear CTV formats (Pause, Menu,
-  Squeezeback, Overlay, In Scene, Screensaver) as the *standardisation
-  scope* of the 2026 release. The Linear Ad row is the baseline that
-  every player already supports; it is included so that the spec
-  chapter 3 can normatively reference one ad-type identifier for the
-  linear case as well.
-- Interactivity (SIMID, QR codes, remote-control gestures) is
-  orthogonal to the ad-type and is described in a separate IAB section
-  (*Interactivity* and *QR Codes*); the spec chapter 3 does not enumerate
-  interactivity flavours as ad-types — they are layered on top of any
-  of the rows above.
-- Variants inside Squeezeback and Overlay (L-Shape, Frame, Double Box,
-  Corner, Lower-Third) are *visual placements* of the same ad-type, not
-  separate ad-types. They are listed in the "Visual placement" column.
+- The source lists the portfolio entry as "Screen Ssaver Ad" (typo in the CTV
+  Ad Portfolio bullet list); the section heading spells it "Screen Saver Ad".
+  The heading spelling is used as the canonical name in the table.
+- The source states the portfolio "is not comprehensive of all CTV
+  experiences" and explicitly does not further define executions inside a
+  linear pod slot.
+- Interactivity is orthogonal to the ad type. The source describes it in
+  separate sections (*Interactivity*, *QR Codes*) and recommends SIMID
+  (VAST 4.2+) over VPAID; QR codes may be burned into the creative,
+  generated sell-side, or made dynamic under SIMID. Interactivity flavours
+  are not ad types and are not enumerated as such.
+- Digital Video Placement Types are deferred by the source to the OpenRTB
+  `plcmt` attribute and the AdCOM enumeration; they are a buying-side
+  taxonomy, not an ad-type taxonomy, and do not produce rows here.
 
 ## Mapping to spec chapter 3
 
-The spec chapter 3 ("Terms, definitions, abbreviations") MUST include a
-normative section that enumerates the accepted ad-type values consumed
-by chapter 5 (Syntax) — specifically by the `@adType` (or equivalent)
-attribute on non-linear ad descriptors. The spec MUST NOT invent new
-identifiers; it MUST adopt the IAB names verbatim, kebab-cased for XML
-attribute hygiene.
+Spec chapter 3 does **not** accept the whole IAB catalogue. Per **R12** in
+[`../context/03-requirements.md`](../context/03-requirements.md), this edition
+supports an explicit, **closed** subset of four IAB ad types, all rendered on or
+within the video surface; anything rendered in the player chrome or the
+application UI is out of scope. The enumeration is edition-scoped by design — an
+IAB type published later does not enter scope automatically.
 
-| IAB ad-type (verbatim) | Spec-side identifier (`@adType` value) | Rationale |
-|------------------------|----------------------------------------|-----------|
-| Linear Ad | `linear` | Baseline; one identifier suffices for the linear case since the variations (pre-roll / mid-roll / post-roll, bumper, infomercial) are timing & duration metadata, not ad-type distinctions. |
-| Pause Ad | `pause` | One-to-one mapping. The fullscreen vs partial-screen sub-variant is a visual-placement attribute carried separately. |
-| Menu Ad | `menu` | One-to-one mapping. Headline Banner vs In-Menu Tile is a visual-placement attribute. |
-| Squeezeback | `squeezeback` | One-to-one mapping. L-Shape / Frame / Double Box / Double Box + Background are visual-placement attributes (the Player picks the rendering layout based on the candidate's declared placement and the local device class). |
-| Overlay | `overlay` | One-to-one mapping. Corner Overlay vs Lower-Third Overlay is a visual-placement attribute. |
-| In Scene Ads | `in-scene` | One-to-one mapping. Composited / out-of-home virtual signage is a single ad-type; resolution & aspect-ratio variants are carried as separate media-fragment attributes. |
-| Screensaver Ad | `screensaver` | One-to-one mapping. OS/app-initiated trigger is normative for the ad-type. |
-| Companion Ad | `companion` | One-to-one mapping. CTV restriction (end-card only) is a conformance constraint enforced in chapter 4, not a separate ad-type. |
+The spec adopts the IAB identifiers verbatim and invents no layout names
+(see *Layout vocabulary* in
+[`../context/06-naming-and-namespaces.md`](../context/06-naming-and-namespaces.md)).
 
-Spec chapter 3 MUST cite this file (live mirror) as the authoritative
-source for accepted ad-type values, and MUST state that any ad-type
-identifier not in this table is non-conformant with this spec.
+| IAB ad-type (verbatim) | Spec chapter 3 value | Rationale |
+|------------------------|----------------------|-----------|
+| Linear Ad | `linear` | Accepted. Full-viewport takeover of the primary content surface for the slot. Pre-roll, mid-roll and multi-ad breaks are timing positions of the one type, not separate types; the full-screen takeover fallback (UC-09) is a placement of `linear`. |
+| Pause Ad | `pause` | Accepted. Non-linear surface over the paused primary frame. Fullscreen vs partial is a placement of the one type (R21). |
+| Squeezeback | `squeezeback` | Accepted. Primary content shrunk to share the frame. Supported placements: L-shape / squeezeback (IAB *L-Shape*, R27) and side-by-side / double-box (IAB *Double Box Video* and *Double Box Video + Background*, R26). IAB *Frame* is not among the supported placements. |
+| Overlay | `overlay` | Accepted. Composited on top of the playing primary content. Named placements: corner / bug (IAB *Corner Overlay*) and lower-third (IAB *Lower-Third Overlay*); a plain image or HTML overlay with no named placement is the base type. |
+| Menu Ad | — (out of scope) | Rendered in the platform UI (home screen, content menu, guide / EPG), not on the playing or paused video. R12 names it explicitly as out of scope — a concern of the application's ad integration, not of the Player-facing SGAI contract. |
+| Screen Saver Ad | — (out of scope) | Rendered by the OS / app after inactivity, off the video surface. Named explicitly as out of scope in R12. |
+| Companion Ad | — (out of scope) | Rendered outside the player, alongside or surrounding it. Named explicitly as out of scope in R12 (companion / multi-screen ads). |
+| In Scene Ads | — (out of scope) | Not in R12's closed supported set. The creative is composited into the content upstream of the Player rather than presented as a Player-side ad surface, and the format carries no interactivity. Because the supported set is closed, it is out of scope without needing a separate exclusion clause. |
+
+R12.4 further binds each accepted layout to the spatial bound the IAB declares
+for it (e.g. Corner Overlay no more than 25% of the frame, Squeezeback L-Shape
+primary content 60% of the frame), by normative reference rather than by
+re-declaring dimensions MPD-side — see
+[`../.project/decisions/0001-defer-to-iab-ctv-for-spatial-caps.md`](../.project/decisions/0001-defer-to-iab-ctv-for-spatial-caps.md).
+Those bounds are traceable to the "Visual placement" column above.
