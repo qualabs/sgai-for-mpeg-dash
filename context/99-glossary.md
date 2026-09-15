@@ -52,7 +52,8 @@ through `08-dash-extension-rules.md`.
   resolution request it sends the APS, describing what its device can
   render. The names are reserved by this specification; sending any of
   them is optional, and one the Player cannot or will not populate is
-  omitted rather than sent empty (R29).
+  omitted rather than sent empty; an absent parameter means its value
+  is **undetermined**, not that the device lacks the capability (R29).
 - **Presentation option**: a (form + layout) pairing offered for an
   ad candidate. A candidate carries one or more; when it carries
   several they appear as an ordered list and document order is the

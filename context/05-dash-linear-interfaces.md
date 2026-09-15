@@ -452,10 +452,9 @@ Edge cases worth flagging:
   APS-internal policy until a normative reference emerges; the
   resulting `ListMPD` simply omits the entry under the silent-skip
   policy.
-- **Empty / no-fill response**: the APS returns either an empty
-  `ListMPD` or an HTTP error (e.g. when the ADS returns no fill);
-  either way the Player falls through to primary content (R1
-  graceful degradation; UC-07-adjacent behaviour applies).
+- **Empty / no-fill response**: when the decision carries no ads, the
+  APS returns a resolution document with no candidates (R30); the
+  Player continues with the primary content.
 - **VAST `<UniversalAdId>`**: intentionally left on the VAST / ADS
   side and out of scope of the DASH carrier defined by this spec (see
   the field mapping above). The universal ad identifier serves ad
@@ -473,7 +472,7 @@ Edge cases worth flagging:
 |------------------|---------------------|----------------|-----------------------------------|-------------------|-----------------|
 | Player           | Publisher CDN     | HTTP/HTTPS     | DASH MPD (XML)                    | request / response (pull) | HTTP status codes; on 4xx/5xx Player retries or aborts session. |
 | Player           | Publisher CDN     | HTTP/HTTPS     | media segments (ISOBMFF, CMAF, …) | request / response (pull) | HTTP status codes; segment-level retry per DASH-IF guidelines. |
-| Player           | APS                 | HTTP/HTTPS     | request: query params (§I.4); response: `ListMPD` (XML) | request / response (pull, sync) | HTTP status codes; empty `ListMPD` or 4xx/5xx -> Player falls through to primary content. |
+| Player           | APS                 | HTTP/HTTPS     | request: query params (§I.4); response: `ListMPD` (XML) | request / response (pull, sync) | HTTP status codes; a `200` carrying a resolution document with no candidates is the opportunity resolved with no ads (R30); a 4xx/5xx is the APS unable to answer, and triggers the fallback window if one is declared (R20.1). With no fallback, both end with the Player on the primary content. |
 | Player           | Ad CDN              | HTTP/HTTPS     | media segments                    | request / response (pull) | Same as Publisher CDN; failure of an ad segment skips that ad or aborts the break per Player policy. |
 | Player           | Tracking endpoints  | HTTP/HTTPS     | callback beacons (HTTP GET, body-less) | fire-and-forget (push) | Errors are best-effort logged by the Player; not surfaced to viewer. |
 | APS              | ADS                 | HTTP/HTTPS     | VAST 4.x (XML) request / response | request / response (pull) | VAST `<Error>` element + HTTP status; the APS translates errors into HTTP errors or empty `ListMPD` toward the Player. |

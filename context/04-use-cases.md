@@ -1333,9 +1333,24 @@ untouched and the Player continues with the primary content.
   serve and the Player continues with the primary content, still
   without touching the second. On failure to access the first window's
   resolution document, it resorts to the second (per R20.1). Whichever
-  forms inside its resolution document are then sequenced per R14: R20
-  selects which window is served; R14 sequences the forms within the
-  chosen window.
+  window is served, the forms inside its resolution document are then
+  sequenced per R14: R20 selects which window is served; R14 sequences
+  the forms within the chosen window.
+- **The three paths this scenario admits**, all ending with the primary
+  content playing uninterrupted:
+  1. The first window answers with a resolution document carrying no
+     candidates. The opportunity resolved, and it resolved to no ads;
+     the second window is not touched (R20.1, R30) and the Player
+     continues with the primary content.
+  2. The first window cannot be accessed and the second answers with a
+     document carrying no candidates. The fallback is used as declared,
+     and the opportunity still resolves to no ads.
+  3. Neither window can be accessed and no further fallback is
+     declared. The chain is exhausted with no resolution document
+     obtained, so no candidate was ever accepted. The Player skips the
+     opportunity and continues with the primary content: applying this
+     specification never breaks primary-content playback, and an
+     opportunity that cannot be honoured is skipped (DP-3).
 
 **Device classes:** this is window selection, not rendering, so it is
 largely device-agnostic. D1–D5 select and fall back identically; the
@@ -1426,11 +1441,12 @@ leaves it able to do.
   and **omits** the HTML-surface axis, whose value it cannot determine
   when it issues the request. It omits that parameter entirely rather
   than sending it empty or with a placeholder (R29.3). The APS treats
-  the omitted axis as undetermined — neither present nor absent — and
-  therefore emits no option that depends on it. Option 1 needs a second
-  decoder and is ruled out; option 2 needs one decoder plus one image
-  surface, depends on no undetermined axis, and survives. The APS emits
-  it alone; the Player checks it and renders it.
+  the omitted axis as undetermined (R29.7), and this implementation
+  resolves an undetermined axis conservatively: it emits no option that
+  depends on it. Option 1 needs a second decoder and is ruled out;
+  option 2 needs one decoder plus one image surface, depends on no
+  undetermined axis, and survives. The APS emits it alone; the Player
+  checks it and renders it.
 - **What the user sees:** the primary content shrinks into one region
   and the image ad creative occupies the full frame behind it, the
   visible band of the creative forming the "L". The same rendered
@@ -1497,3 +1513,9 @@ silent Player.
   reserved set contains, and how each is written, is fixed when the
   syntax is specified (R29.1). A use case that named them would fix
   them early and would age against a decision that has not been taken.
+- **The policy for an undetermined axis is the APS's, not this
+  specification's.** The APS in this scenario resolves an undetermined
+  axis conservatively. One that assumed the most capable case would
+  emit a different option on D3 and would be equally conformant
+  (R29.7). What does not vary is that the Player checks whatever
+  arrives before rendering it.
