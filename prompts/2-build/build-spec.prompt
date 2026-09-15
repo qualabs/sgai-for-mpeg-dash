@@ -157,10 +157,10 @@ For each UC annex:
 - Brief restatement of the scenario (1–2 paragraphs). Do not
   assume the reader has the context; the annex MUST stand on its own.
 - The full MPD that the Publisher would publish for this UC.
-- The full ListMPD the ADS would return.
+- The full ListMPD the APS would return.
 - The full sub-MPD(s) of the ad candidate(s).
 - **At least one example MUST include a multi-form /
-  multi-layout candidate** — i.e. the ADS offers multiple forms
+  multi-layout candidate** — i.e. the APS offers multiple forms
   (e.g. l-shape + banner + side-by-side) for the same ad slot, to
   demonstrate device-aware ad selection by the Player.
 - The Player's per-device-class decision walk-through (D1..D5
