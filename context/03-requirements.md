@@ -260,6 +260,13 @@ and the boundaries of what this spec does and does not define.
     the capability axes that distinguish the device classes this
     specification enumerates (R3.1). A set that cannot tell two
     enumerated device classes apart does not satisfy this requirement.
+  - **R29.7** (spec document): A reserved parameter absent from the
+    resolution request means its value is **undetermined** — the
+    Player did not determine it, or did not disclose it. Absence does
+    NOT assert that the device lacks the capability. This
+    specification does not define how an APS resolves an undetermined
+    value; that is the APS's decision, and two APSs that resolve it
+    differently are both conformant.
 
 ### Opportunity declaration
 
@@ -424,7 +431,7 @@ admissible ad-type vocabulary, and the admissible creative carriers.
 
 Requirements that govern how the Player chooses among candidates and
 in what order it presents them: device-aware selection and honouring
-the ADS-declared order.
+the order the resolution document declares.
 
 - **R5. Device-aware ad selection.**
   *Gist: Each candidate carries one or more renderable presentation options in preference order and the Player renders the first one its device can satisfy, skipping candidates with none; an APS that wants the choice to sit with it sends exactly one.*
@@ -472,15 +479,11 @@ the ADS-declared order.
   - **R5.1** (APS): Each ad candidate in the resolution document the
     Player reads MUST carry one or more **renderable presentation
     options (each a form plus its layout) as an ordered list, where
-    document order is the preference order**. The options and their
-    order originate in the ADS's decision (which media files / forms
-    exist, and their order). The APS MAY omit options from what the ADS
-    returned; it MUST carry the options it does emit in the order the
-    ADS gave them, **preserving document order**, **without
-    reordering**. The normative carry obligation is the APS's: the
-    APS produces the resolution document the Player reads, so
-    conformance is checked against the APS's resolution document,
-    not against the ADS's internal decision document.
+    document order is the preference order**. How many options a
+    candidate carries is the APS's decision: this specification sets
+    no maximum, and no minimum beyond one. Conformance is checked
+    against the APS's resolution document, which is the only artefact
+    on the path to the Player that this specification defines.
   - **R5.2** (Player): The Player MUST evaluate the presentation
     options of an accepted candidate **in document order** and render
     the **first option** whose form and layout it can satisfy on its
@@ -492,10 +495,10 @@ the ADS-declared order.
   - **R5.4** (ADS + APS): Neither the ADS nor the APS MUST be
     required to maintain a device-class matrix or a per-Player
     capability view to produce candidates.
-  - **R5.5** (ADS): An ad candidate MAY carry multiple presentation
+  - **R5.5** (APS): An ad candidate MAY carry multiple presentation
     options, each pairing a form with an admissible layout. The
-    options form a single ordered list; their document order
-    expresses the ADS's preference.
+    options form a single ordered list, and their document order is
+    the preference order the Player follows.
   - **R5.6** (Player): The Player MUST resolve presentation-option
     selection by walking the options in document order and, for each,
     checking it against (a) device capabilities and (b) the
@@ -509,21 +512,21 @@ the ADS-declared order.
     resolution document (preserving the order required by R7) or,
     when exhausted, to primary content.
 
-- **R7. Respect ADS-declared order.**
-  *Gist: The Player plays candidates in the order the ADS declared, only dropping (never reordering) ones it cannot render or that would exceed the slot cap.*
+- **R7. Respect the order of the resolution document.**
+  *Gist: The Player plays candidates in the order the resolution document declares, only dropping (never reordering) ones it cannot render or that would exceed the slot cap.*
 
   When the resolution document
   the APS returns contains more than one ad (e.g. a `ListMPD`
   with multiple `<Period>` entries), the Player MUST play the ads
-  in the order declared by the ADS and preserved by the APS,
+  in the order the resolution document declares,
   **as long as this is possible given the other Player constraints**.
   Specifically, the Player MAY drop a candidate that violates R3 (no
   renderable form for the device) or that would push the cumulative
   duration past the slot cap (R4), but it MUST NOT re-order,
   deduplicate, or otherwise rearrange the remaining candidates. Ad
-  selection and ordering are ADS responsibilities (R2); the APS MUST
-  preserve that order when building the resolution document, and the
-  Player's role is to honour it unless a hard constraint blocks it.
+  selection and ordering happen upstream of the Player (R2); the
+  order the resolution document carries is the one the Player honours,
+  unless a hard constraint blocks it.
 
   Order of evaluation when a candidate's declared duration would
   push the cumulative slot duration past the cap (R4 / max slot
@@ -538,7 +541,7 @@ the ADS-declared order.
   **Conformance criteria** (runtime):
   - **R7.1** (Player): Given a resolution document with more
     than one ad candidate, the Player MUST play the candidates in
-    the order declared by the ADS (and preserved by the APS), except
+    the order the resolution document declares, except
     for candidates dropped under R7.2 or R7.3.
   - **R7.2** (Player): The Player MAY drop a candidate that has no
     form renderable on its device (R3 / R5).
