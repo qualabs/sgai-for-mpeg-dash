@@ -1401,3 +1401,111 @@ that the regenerated spec would not contain parts nothing can test.
 The two proposal documents in this phase folder carry the reasoning
 behind the edits, including what was deliberately not done:
 `uc-13-proposal.md` and `aps-truth-and-undetermined-proposal.md`.
+
+## 2026-09-15 — v7 build attempt: halted before Step 6, and what it exposed
+
+The first attempt to regenerate the spec since 2026-05-28. It did not
+produce a spec, and the reason is worth more than the spec would have
+been.
+
+### What ran
+
+`build-all` was invoked at 19:24 with the defaults Nicolás asked for
+(`BUILD_ALL_AUTO_REFINE=true`, `MAX_REFINEMENTS=5`). Stage 1 completed
+in 16m 37s — all five artefacts regenerated, none skipped, each
+grounding line correct (`notebooklm` for the gap analysis,
+`iab-live-link` for the IAB catalogue, `spec-only` for the other
+three). They are committed, and the commit records which `context/`
+state they were built against.
+
+### Why it stopped
+
+The orchestrator halted **before** Step 6 rather than generating a spec
+it knew would be wrong. Its report is preserved verbatim at
+[`phases/05-wg-feedback-round-2/v7-build-halt-report-2026-09-15.md`](phases/05-wg-feedback-round-2/v7-build-halt-report-2026-09-15.md).
+
+The finding: **MPEG-DASH 6th spells the same attributes two ways in two
+clauses.** The prose (§5.16.4 / §5.16.5) says `@url` and `@clip`; the
+normative XML schema (§5.16.6) says `uri` and `clipDuration`. An
+instance document validates against the schema, so every XML example in
+`context/05-dash-linear-interfaces.md` would be schema-invalid. And
+`clipDuration` is `xs:boolean` — our example writes `clipDuration="30000"`,
+which is invalid under either spelling.
+
+Halting was the right call: baking invalid XML into a ~160 KB spec and
+then refining on it up to five times does not self-correct, because the
+refine loop cannot reach back into `context/`.
+
+**What was verified locally, independent of any retrieval**: the file
+contradicts itself — `url=` on lines 195 and 205, `uri=` on 289 and 294;
+the ten `@url` prose references; and `earliestResolutionTimeOffset`
+carrying three incompatible unit conventions (`0`, `15`, `60000`).
+These stand whichever spelling turns out to be correct.
+
+**What was NOT verified**: that the schema says `uri` and that
+`clipDuration` is boolean. That rests on this build's NotebookLM
+retrieval, and this project already records that retrievals have
+disagreed with each other about this very document's clause numbering.
+**The blocking question is therefore whether the ISO PDF is available**
+— it is the only thing that settles spelling and type.
+
+### The pattern the build exposed
+
+Three prompts were found describing a repo that no longer exists:
+stale requirement ranges (`R1..R7`, `R1..R10`, `R1..R13` against a set
+that reaches R30), the retired **Broadcaster** actor, and — in
+`build-spec.prompt`, the generator itself — **no mention of the APS at
+all**, the actor that owns most of the obligations landed this week.
+
+In every case the output came out correct anyway, because the worker
+reading the prompt noticed and compensated. That is the finding: a
+prompt whose output is correct because its reader corrects it is not
+working, it is getting lucky, and the next reader has no obligation to
+notice. Four commits fixed them, by replacing hard-coded literals with
+references to the source of truth — a literal goes stale silently, a
+reference does not.
+
+One instance of the same family is **left open deliberately**:
+`build-spec.prompt` asks each use-case annex for "the full ListMPD",
+but `ListMPD` is only one of the forms a resolution document takes
+(R18.1: "`ListMPD` or single-period alternative MPD"), and the glossary
+scopes it to the **linear** flow. Counting the v6.1 annexes shows the
+worker compensated correctly — linear annexes carry `ListMPD`,
+non-linear ones carry `OverlayList`, and nothing wrong was published.
+Naming an artefact that takes two shapes is a design decision, not a
+correction, so it waits for the batch.
+
+### Where this leaves the work
+
+Blocked on decisions, in the order they block:
+
+1. **The ISO PDF of DASH 6th** — settles spelling and type. Blocks the
+   build.
+2. **R28.1** — corrected text approved, applied after the batch closes.
+3. **How `build-spec` should name the resolution document.**
+4. **The IAB citations** at `03-requirements.md:745, 802, 374` —
+   a December 2025 draft cited where the Final Release of May 2026
+   applies, and a private Google Doc where R12.1 wants the public URL.
+5. **Two load-bearing obligations that live outside the R-set** — the
+   strip-foreign-namespace validation rule and the backward-compat
+   checklist. Recorded as a design question, not a fix.
+
+Nothing was pushed. `context/` was frozen throughout the attempt and is
+unchanged: the fixes above are all in `prompts/`, so Stage 1 stays fresh
+and the next build starts at Step 6.
+
+### A note on instruments
+
+Four separate measuring instruments returned confident, readable, wrong
+answers during this session: a `zsh` glob that aborted the whole command
+because one pattern matched nothing; `fuser -m`, which answers for the
+mount point rather than the directory asked about; `pgrep -f`, which
+matched the very shell running the query; and line-based `grep` for
+obligations, in files that wrap at 72 columns, which cannot see a
+subject and its `MUST` on different lines. That last one produced a
+wrong count twice in one evening.
+
+None of the four failed loudly. Each returned a number that could be
+read and believed. The only thing that caught all four was asking the
+instrument something whose answer was already known, and disbelieving it
+until it got that right.
