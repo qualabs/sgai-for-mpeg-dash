@@ -2,308 +2,505 @@
 
 # DASH 6th edition gap analysis (SGAI for linear + non-linear ads)
 
-This document compares the requirements in `../context/03-requirements.md`
+This document compares the requirements in
+[`../context/03-requirements.md`](../context/03-requirements.md) (R1–R30)
+and the use cases in
+[`../context/04-use-cases.md`](../context/04-use-cases.md) (UC-01–UC-13)
 against what MPEG-DASH 6th edition (FDIS ISO/IEC 23009-1:2025) provides,
-and identifies the constructs the new SGAI specification must add or
-extend. It is the bridge between the canonical context and the spec
-build.
+and identifies what the SGAI specification must add or extend. It is the
+bridge between the canonical context and the spec build.
 
-Grounding mode: NotebookLM was queried against the
-`streaming-protocols-—-dash,-hls,-c2pa,-drm` notebook (notebook URL
-ID `bb67e20c-9ad1-4a1d-a641-7c7d901f93cb`) for the load-bearing
-DASH 6th claims about the §5.16 / §8.14 / §5.10 mechanics. Where the
-notebook could not (or did not) confirm a specific section in the
-sessions consulted for this build, the claim is tagged `[inferred]`
-and grounded against the prior NotebookLM validation that
-`../context/05-dash-linear-interfaces.md` already absorbed verbatim
-(quoted there: *"The MPEG-DASH 6th edition standard does not define
-any carrier fields within the MPD for application-level VAST metadata
-such as Click-through URLs."*).
+This document uses RFC 2119 vocabulary (MUST / SHOULD / MAY) when
+stating requirements.
+
+**Grounding.** NotebookLM was queried against the notebook
+`Streaming Protocols — DASH, HLS, C2PA, DRM`
+(`bb67e20c-9ad1-4a1d-a641-7c7d901f93cb`) for the load-bearing DASH 6th
+claims: whether any non-linear ad construct exists; the scope of
+`urn:mpeg:dash:nonlinearplayback:2020` (Annex L, illustrated in G.26)
+and of the Spatial Relationship Description (Annex H); the timeline-only
+nature of DASH events; the alternative-MPD event attributes, the
+`@maxDuration` trim rule, the execution queue and its handling of
+overlapping events; the List MPD sequencing semantics, its Period
+cardinality, and its prohibition on nested alternative-MPD events; the
+zero-duration versus failed-execution distinction; the ordered-preference
+constructs (`Preselection`, `@selectionPriority`,
+`urn:mpeg:dash:fallback:2016`); the Annex I.4 state vocabulary and
+whether any client-capability channel exists; playhead behaviour during
+a user pause of a live presentation; and the playback-rate model. Quoted
+text is verbatim from those sessions. Claims the notebook did not
+confirm are tagged `[inferred]`.
 
 ## 1. Scope
 
 In scope:
 
-- Compare the SGAI-relevant capabilities of MPEG-DASH 6th edition
-  against the requirements R1..R26 in `../context/03-requirements.md`
-  and the use cases UC-01..UC-10 in `../context/04-use-cases.md`.
-- Identify the gaps the new spec must close (constructs, attributes,
-  carriers, conformance rules).
-- Surface reuse opportunities (existing DASH machinery the spec MUST
-  extend before introducing new constructs, per R8 / R9).
+- Every requirement R1–R30 in `../context/03-requirements.md` against the
+  capabilities MPEG-DASH 6th edition provides.
+- The use cases UC-01–UC-13 in `../context/04-use-cases.md` as the
+  behavioural check on those capabilities across device classes D1–D5.
+- The constructs, carriers and conformance rules the spec must add, and
+  the existing DASH machinery it must reuse first (R8 / R9).
 
 Out of scope:
 
-- Internal ADS or APS protocol design (R18 — opaque to the spec).
-- VAST version pinning (R11 — VAST-version-agnostic).
-- ABR, DRM, transport, low-latency CMAF tuning — orthogonal to SGAI.
-- IAB ad-template enumeration — analysed separately in
-  `iab-ad-templates.md`.
+- The APS-to-ADS and ADS-side API contracts (R18) — opaque to the spec.
+- VAST version pinning (R11) — the spec is VAST-version-agnostic.
+- ABR, DRM, transport, low-latency tuning — orthogonal to SGAI.
+- The IAB ad-type vocabulary itself (R12) — owned by the IAB and
+  analysed separately in [`iab-ad-templates.md`](iab-ad-templates.md).
+- The linear SGAI baseline mechanics themselves — inventoried in
+  [`../context/05-dash-linear-interfaces.md`](../context/05-dash-linear-interfaces.md)
+  and absorbed here as the starting point, not re-derived.
 
 ## 2. Coverage matrix — R × DASH 6th capability
 
-Cells: **full** (DASH 6th covers it normatively), **partial** (covered
-for linear / partially), **gap** (no native carrier — spec must add),
-**N/A** (governance / document-level — orthogonal to DASH).
+Cells: **full** (DASH 6th covers it normatively and the spec reuses it
+as-is), **partial** (covered for the linear case only, or the machinery
+exists but is not bound to what the requirement needs), **gap** (no
+native construct — the spec must add one), **N/A** (governance or
+document-level — DASH has nothing to say). The grouping follows the
+sub-sections of `../context/03-requirements.md`.
 
-| R     | Theme                                                              | DASH 6th status |
-|-------|--------------------------------------------------------------------|-----------------|
-| R1    | DASH 6th compliance + ignore-if-unknown for legacy Players         | full (§5.2.1 foreign-namespace + per-scheme `Event` skip — DR-2 / DR-3) |
-| R2    | Honour Publisher / ADS / APS / Player actor split                  | partial (§5.16 has Publisher/Player legs; APS and ADS are external; no actor enforcement at MPD level — R2 lives in spec text) |
-| R3    | Diverse device classes                                             | N/A (governance — DASH does not model device capabilities) |
-| R4    | Publisher-declared max slot duration, Player-enforced              | partial (`@maxDuration` on `InsertPresentation` / `ReplacePresentation`, trim mandated by §5.16.5; non-linear slot cap has no native equivalent) |
-| R5    | Device-aware ad selection — ordered presentation options           | gap (no native construct for "ad candidate carrying multiple form+layout options"; ListMPD is a sequence of ads, not an ordered-options-per-ad set) |
-| R6    | In-band tracking beacon carrier                                    | full (callback scheme `urn:mpeg:dash:event:callback:2015`, §4.7 / §5.10.4.5 — reusable verbatim) |
-| R7    | Respect ADS-declared order                                         | partial (ListMPD Periods play in declared order, §8.14; drop-before-play / trim-during-play semantics for the cap need extension) |
-| R8    | Justify additions / omissions                                      | N/A (governance — applies to spec authoring, not DASH) |
-| R9    | Minimise net new constructs                                        | N/A (governance — applies to spec authoring, not DASH) |
-| R10   | Defer layout to HTML5 / CSS                                        | N/A (governance — DASH carries no layout primitives) |
-| R11   | No dependency on VAST                                              | N/A (DASH is VAST-agnostic by construction) |
-| R12   | IAB-owned ad-type vocabulary                                       | N/A (governance — vocabulary lives in IAB) |
-| R13   | ADS-directed tracking schedule (non-linear, relative times)        | partial (callback scheme covers the carrier; presentation-time-relative semantics need the spec to confirm relative-to-ad-presentation anchoring) |
-| R14   | Sequential non-linear forms within a slot                          | gap (DASH 6th has no non-linear ad slot at all; no construct for sequencing forms within an overlay window) |
-| R15   | Admissible creative carriers (video / image / HTML)                | gap for non-AV (DR-1 binds sub-MPD Representations to RFC 4337 mp4 set; image/HTML need a separate carrier via DR-6) |
-| R16   | Pause-ad lifecycle bound to pause state                            | gap (no pause-ad construct) |
-| R17   | Pause-ad priority over overlay                                     | gap (depends on R14 / R16 constructs) |
-| R18   | ADS / APS API contracts not defined by spec                        | N/A (governance — DASH does not constrain external APIs) |
-| R19   | Ad playback speed follows primary                                  | gap (DASH 6th `Period@duration` is presentation-time; no normative anchor that an ad's wall-clock follows primary playback speed for non-linear) |
-| R20   | Overlapping same-family windows: first-window-wins fallback        | gap (DASH 6th defines no policy for overlapping non-linear opportunity windows; for linear, `InsertPresentation` / `ReplacePresentation` events are scheduled without an overlap-resolution rule) |
-| R21   | Pause-ad forms are fullscreen                                      | gap (depends on R16 construct) |
-| R22   | Single active non-linear form; no concurrent presentation          | gap (depends on R14 construct) |
-| R23   | Application-level ad metadata carrier (ClickThrough, AdSystem, ...) | gap (the 6th edition validated via NotebookLM in `05-dash-linear-interfaces.md` defines no native field; conveyance is via vendor-namespaced extensions per DR-2 / DR-6(a)) |
-| R24   | Non-AV creative asset carrier (RFC 4337 avoidance)                 | gap (DR-1 / DR-5 close the AdaptationSet axis; spec must route non-AV asset URLs through DR-6) |
-| R25   | Pause-ad presentation-time freeze in live content                  | gap (depends on R16 construct; presentation-time freeze on pause is a Player-state concern DASH does not normatively bind) |
-| R26   | Three-element layouts with background fill (side-by-side)          | gap (depends on R14 / R5 constructs; DASH carries no layout composition primitives) |
+### Contract foundations
+
+| R | Theme | DASH 6th status |
+|---|---|---|
+| R1 | Extends DASH 6th; legacy Player ignores and keeps playing | **full** — §5.2.1 foreign-namespace open content, with NOTE 2 mandating that an unimplemented foreign element is discarded together with its whole subtree (DR-2 / DR-3); plus per-scheme `Event` skip (§5.10). The ignore-if-unknown contract is inherited, not invented. |
+| R2 | Four actors, fixed roles | **partial** — §5.16 wires only two legs: the MPD author (Publisher) and the client (Player). The APS is nothing more than "whatever answers the event URL", and the ADS is invisible to DASH. No MPD construct binds an actor to a responsibility, so R2 is carried entirely by spec prose and conformance criteria. |
+| R11 | No dependency on VAST | **N/A** — DASH is VAST-agnostic by construction; nothing to add or avoid. |
+| R18 | Player-visible interface only | **N/A** — governance; DASH does not constrain server-side APIs. |
+| R29 | Player-declared capability parameters on the resolution request | **gap**, confirmed negatively: the edition defines no mechanism by which a client declares its device rendering capabilities to a server. The Annex I.4 state vocabulary describes the currently playing Representation and event state (`video`, `audio`, `lang#[…]`, `encryption`, `cmcd#[key]`, `execution-delta#[id]`, `expected-duration#[id]`, `execution-count#[id]`, `previous-state`), not decoder budget or overlay-surface support; CMCD (Annex K.3.7) carries operational delivery state; `ServiceDescription` (Annex K.3) runs the other way, service to client. §I.4's query template is authored in the MPD, so its parameter set is fixed at authoring time — which is why R29 places the reserved parameters outside it. |
+
+### Opportunity declaration
+
+| R | Theme | DASH 6th status |
+|---|---|---|
+| R4 | Publisher-declared max slot duration, Player-enforced | **partial** — the cap and the trim already exist for the linear slot: *"If the Alternative Presentation initiated by this event has a longer duration than specified in this element, it shall be terminated at the end of this duration"*, and *"If the value of `@maxDuration` is zero, the event is not executed"*. There is no non-linear slot in DASH at all, so no cap construct for an overlay or pause window; and the "enforce against **actual** rendered length" rule (R4.5) has no DASH anchor even for linear. |
+| R12 | Closed IAB ad-type / placement set | **N/A** for the vocabulary (owned by the IAB); **gap** for the carrier — no DASH construct carries an ad-type or visual-placement token, so the Publisher's allowed-layout declaration on the slot is a net new construct. |
+| R15 | Creative carriers: video, image, HTML | **partial** — video is native (an ISO-BMFF presentation reached via `<ImportedMPD>`, SPS-conformant by construction). Image and HTML are a **gap**, and doubly so: the RFC 4337 chain (DR-1 / DR-5) closes the AdaptationSet axis, and no profile, annex or clause in the base standard defines carriage of a static image or an HTML document as a Representation at all — `Representation` is defined for continuous media streams (video, audio, timed text, timed metadata). |
+
+### Selection and ordering
+
+| R | Theme | DASH 6th status |
+|---|---|---|
+| R5 | Candidates carry ordered presentation options; Player renders the first it can satisfy | **gap** — a List MPD is a *playlist*: *"A Media Presentation as described in the MPD consists of a sequence of one or more Periods"*, played back-to-back, not offered as alternatives. No construct lets one ad candidate carry an ordered list of (form + layout) options. The two that come closest are scoped elsewhere: `Preselection` (§5.3.11) with `@selectionPriority` (§5.3.7.2) orders preferred experiences *within* a Period across Representations; the MPD fallback scheme `urn:mpeg:dash:fallback:2016` (§5.11.3) orders whole candidate MPD URLs by document order — *"the content author expresses the preferences of using one of those by the order with the first one having the highest preference"* — which is R5's preference rule at the wrong granularity. R8 requires both to be considered and the departure documented. |
+| R7 | Honour the resolution document's order | **partial** — declared-order playback is already the List MPD semantics. What is missing is the drop / trim vocabulary R7 adds on top: drop-before-play on declared duration, trim-during-play on actual length, and the prohibition on re-ordering or deduplicating what survives. |
+| R30 | Empty resolution distinguishable from failed | **partial** — the edition does define a legitimate zero-ad outcome: *"If at time PRTA the duration APDA is determined to be 0, the event is not executed and the playback of the main Media Presentation continues seamlessly."* It also separates that from an execution failure (alternative MPD unavailable or invalid, a List MPD whose merge yields no media, missing segments), and the separation is observable in exactly one place — a failure *"does not count for the purpose of Event Restrictions"*, so the execute-once counter is not incremented. That is client-internal bookkeeping with no reporting channel, anchored on a zero **duration** rather than on a document that carries no candidates. R30's requirement — an unfilled opportunity identifiable as unfilled — still has to be built, and cannot be built as a zero-Period List MPD (see G8). |
+
+### Presentation
+
+| R | Theme | DASH 6th status |
+|---|---|---|
+| R3 | Diverse device classes D1–D5 | **N/A** — DASH models codecs and bandwidth, not concurrent decoder budget or overlay-surface capability. The capability axes R3 separates are what R29's reserved set must express. |
+| R16 | Pause-ad lifecycle bound to pause state | **gap** — DASH events are strictly scheduled against the media presentation timeline; *"The DASH Client shall dispatch the event to the application at the presentation time of the corresponding media sample"*. A viewer pause is an out-of-band action on the playhead, and the standard defines no event or trigger that activates on a pause state. |
+| R19 | Ad playback speed follows primary content | **partial** — the edition already carries the derivation. `@maxPlayoutRate` (§5.3.7.2) and the DASH Metrics `PlayList` (Table D.5) define *"playback speed relative to normal playback speed (i.e. normal forward playback speed is 1.0)"*, with a media interval of duration `DU` rendering in `DU/r` of wall clock at speed `r`; and an event still fires when the playhead reaches its presentation time whatever the rate. What is absent is the binding R19 needs: nothing ties an ad form's on-screen length, or a slot cap, to that derived value. |
+| R21 | Pause-ad fullscreen or partial overlay | **gap** — depends on the pause-ad construct that does not exist (R16). |
+| R25 | Pause-ad presentation-time freeze in live content | **partial**, and with a bound the requirement does not yet state. The freeze is already DASH's model: the playhead is *"the media time that is presented (i.e., rendered) at specific wall-clock time"*, so on a user pause it stays static at the paused media sample while the live edge advances. But the guarantee is not unbounded — once the pause exceeds `MPD@timeShiftBufferDepth`, the paused position falls out of the timeshift buffer and playback must resume from the oldest available segment or jump to the live edge. R25 promises the freeze holds "for the full duration of the pause"; DASH bounds it. |
+| R26 | Side-by-side / double-box with background element | **gap** — DASH carries no layout composition primitives. Annex H's Spatial Relationship Description (`urn:mpeg:dash:srd:2014`) expresses coordinate relationships between spatial objects — tiles, ROIs, panoramas — for viewport-adaptive streaming; it is stream metadata for tile selection, not an overlay composition facility, and it is not the right reuse target (and per R10 the spec must defer to HTML5 / CSS rather than build one). |
+| R27 | L-shape / squeezeback, one full-frame ad creative | **gap** — same as R26. Neither the alternative-MPD events nor the List MPD profile supports concurrent side-by-side playout, picture-in-picture, squeezeback layouts, or compositing an ad graphic over the primary video surface. |
+
+### Interaction and composition rules
+
+| R | Theme | DASH 6th status |
+|---|---|---|
+| R14 | Sequential non-linear forms within a slot | **gap** — there is no non-linear slot to sequence forms inside. The ordering contract itself is borrowable from the List MPD profile once the slot exists. |
+| R17 | Pause-ad priority over overlay | **gap** — depends on the R14 / R16 constructs. |
+| R20 | Overlapping same-family windows: first-window-wins with fallback | **partial**, and closer than it looks. The execution model already forbids concurrency and already produces first-wins: on-receive dispatching puts every alternative-MPD event into a single execution queue ordered by presentation time; exactly one alternative client exists, so a second event whose presentation time falls inside a running alternative presentation is not executed concurrently; playhead-triggered evaluation on the main timeline is suspended while the alternative plays; and on return the queue is reset, dropping every event whose active window has elapsed. What is absent is the **fallback** half — the drop is unconditional rather than conditional on the first window having succeeded, and nothing licenses falling through when the first fails to resolve. |
+| R22 | At most one active non-linear form | **gap** — DASH has no notion of a concurrently presented ad surface to bound. The edition's own single-alternative-client model is the same reasoning applied to linear, and is the precedent R22 should cite. |
+
+### Tracking
+
+| R | Theme | DASH 6th status |
+|---|---|---|
+| R6 | Tracking beacon carrier | **full** — the callback event scheme `urn:mpeg:dash:event:callback:2015` (§4.7 / §5.10.4.5) is reused verbatim; R13.4 forbids a parallel scheme. |
+| R13 | ADS-directed beacon schedule, relative timings | **partial** — the carrier is full (R6). The relative-to-ad-presentation timebase falls out of the sub-MPD's own Period timeline, but the obligations R13 adds — the Player executes the schedule it reads, and stops firing at an R4 trim boundary — are spec-side. |
+| R23 | Application-level ad metadata carrier | **gap** — DASH 6th defines no native MPD field for `AdSystem`, `AdTitle`, `Advertiser` or comparable creative metadata. Conveyance is via DR-6(a) SVTA-namespaced elements; legacy clients discard the subtree (DR-3). |
+| R24 | Non-AV creative asset carrier | **gap** — DR-1 / DR-5 close the AdaptationSet axis, and `Representation` is not defined for non-continuous assets in the first place. Asset URLs must route through the DR-6 enumeration. |
+| R28 | ClickThrough carrier, normative and interoperable | **gap**, and structurally so: DASH defines no native carrier for click-through metadata **and** no user-triggered event of any kind. Every event fires at a scheduled presentation time, so the callback scheme cannot carry a click that has none. The carrier must be a document-level construct the Player reads at render time and acts on at activation. |
+
+### Governance
+
+| R | Theme | DASH 6th status |
+|---|---|---|
+| R8 | Justify any addition or omission | **N/A** — spec-authoring obligation. |
+| R9 | Minimise net new constructs | **N/A** — spec-authoring obligation; §4 of this document is its input. |
+| R10 | Do not recreate a layout system | **N/A** — DASH carries no layout primitives to recreate, and Annex H SRD is deliberately not one (see R26). |
 
 ## 3. Gaps detail
 
-The matrix surfaces seven structural gaps that the SGAI spec must close.
-Each is described below with the missing capability and the minimal
-extension footprint.
+Nine structural gaps follow from the matrix.
 
-### G1 — No native non-linear ad construct (R14 / R16 / R20 / R21 / R22 / R25 / R26)
+### G1 — DASH 6th has no non-linear ad construct at all (R14, R17, R22, R26, R27; and the carrier for R4 and R12 on non-linear slots)
 
-DASH 6th edition's ad-related machinery is `InsertPresentation` and
+The ad machinery of the 6th edition is `InsertPresentation` /
 `ReplacePresentation` (§5.16) plus the List MPD profile (§8.14). Both
-are **linear-only**: they describe what plays *instead of* or
-*inserted into* the primary timeline. The spec carries no construct
-for an ad that coexists with primary content — overlay, banner,
-L-shape, side-by-side, pause-ad. The notebook session that grounded
-this build returned no §5.16 / §8.14 / elsewhere construct that
-addresses non-linear; the standard's `Alternative MPD Insertion /
-Replacement` framing is substitutive by definition
-[partial-inferred from the §5.16 grounding session].
+are **substitutive by definition**: they describe what plays *instead
+of*, or *spliced into*, the primary timeline, and while the alternative
+renders the main playhead either pauses or advances unrendered in
+"listen mode". Neither supports concurrent side-by-side playout,
+picture-in-picture, squeezeback layouts, or compositing an ad graphic
+over the primary video surface.
 
-What the spec must add (in new constructs under the SVTA Ads WG
-namespace, per `../context/06-naming-and-namespaces.md`):
+Nothing elsewhere in the edition fills that role. Annex H's Spatial
+Relationship Description is a tile / ROI metadata framework for
+viewport-adaptive streaming. Annex L's
+`urn:mpeg:dash:nonlinearplayback:2020` — despite the name — is about
+non-linear **playback**: branching narratives in which content Periods
+are edges of a directed acyclic graph and a `SelectionInfo` payload
+offers the viewer story choices resolved through a callback URL. It
+defines no overlay rendering, no banner, no squeezeback, no ad
+insertion semantics.
 
-- An MPD-level event family analogous to `InsertPresentation` /
-  `ReplacePresentation` but with the semantics "overlay this on top
-  of, do not interrupt the primary" (governs R14, R20, R26).
-- A pause-trigger window event family — declares a temporal window
-  during which a viewer pause permits a pause-ad (governs R16, R17,
-  R21, R25).
-- An overlay / pause-ad **resolution document** analogous to ListMPD,
-  carrying ordered presentation options per candidate (governs R5,
-  R14, R22).
+What the spec must add, under the SVTA Ads WG namespace per
+[`../context/06-naming-and-namespaces.md`](../context/06-naming-and-namespaces.md):
 
-### G2 — No ordered-presentation-options carrier per ad candidate (R5)
+- A non-linear **opportunity declaration** in the primary MPD — a slot
+  that says "compose this on top of the primary content, do not
+  interrupt it", carrying the Publisher's allowed-layout set (R12), the
+  duration cap (R4) and the concurrency cap.
+- A non-linear **resolution document** carrying the candidates, their
+  presentation options (G3), and their tracking (R6 / R13). One
+  constraint closes part of this design space before it opens: §8.14
+  states that *"List MPDs shall not contain Alternative MPD events"*.
+  A resolution document that reuses the List MPD structure therefore
+  cannot declare a nested ad opportunity inside itself — an overlay or
+  pause window is signalled from the primary MPD and nowhere else.
+  UC-08's "the overlay candidate doubles as the pause-ad candidate" has
+  to be expressed Publisher-side, not resolution-side.
+- The composition rules themselves as Player obligations: one active
+  form at a time (R22), forms sequenced in declared order (R14), the
+  three-element side-by-side (R26) and the two-element L-shape (R27).
 
-DASH 6th edition's ListMPD (§8.14) sequences ads, one Period per
-selected ad. There is no construct that lets a single ad candidate
-carry multiple **renderable presentation options** (form + layout) as
-an ordered list with document order = preference order — the model
-R5 codifies. The Player needs this carrier so it can walk the options
-top-down (R5.6) and render the first satisfiable one without the ADS
-or APS holding a per-device matrix (R5.4).
+### G2 — No pause-state trigger anywhere in DASH (R16, R21)
 
-What the spec must add: an option-list child on the per-candidate
-construct (whether linear or non-linear), where each `Option` pairs
-`form` and `layout` (R5.1). The order is XML document order, no
-priority attribute (DP-1).
+Every DASH event is scheduled against the continuous media presentation
+timeline, and the client dispatches it when the playhead reaches the
+presentation time of the corresponding media sample. A viewer pause is
+an out-of-band action on the playhead, and the standard defines no event
+or trigger that activates on a pause state. UC-05 and UC-08 therefore
+have no DASH primitive to hang from.
 
-### G3 — Non-AV creative carrier (R15 / R24 — DR-1 / DR-5 chain)
+The shape the spec must take follows from that asymmetry. What is
+declared on the timeline is the **window of validity** (start, end)
+during which a pause permits an ad — which a timeline-scheduled
+construct expresses natively — while the **trigger** is Player-side and
+fires on the pause transition inside that window. The pause-ad lifecycle
+(R16) and the admissible presentation surfaces (R21) are then Player
+obligations the spec states; DASH contributes only the window's
+placement on the timeline. The same timeline-anchored-window plus
+off-timeline-trigger split is what Annex L already does for viewer
+selection, and is the precedent R8 wants cited.
 
-DR-1 binds every Representation reached via `<ImportedMPD>` to the
-SPS profile, which inherits §7.3 RFC 4337 — `video/mp4`, `audio/mp4`,
-`application/mp4`. DR-5 extends the same restriction to inline
-AdaptationSets under ListMPD-level Periods. The AdaptationSet /
-Representation axis is therefore closed for HTML and image
-creatives end-to-end. Non-AV ad asset URLs must be carried via one
-of the DR-6 carriers (foreign-namespace open content, Event Stream
-payload, or vendor descriptor), not as `@mimeType` on an
-AdaptationSet.
+### G3 — No per-candidate ordered presentation options (R5, R7)
 
-What the spec must add: explicit DR-6 carrier selection per
-construct in the per-construct backward-compat checklist (Item 8 of
-`../context/07-backward-compat-checklist.md` already requires this).
-The default carrier for one-fetch static assets is DR-6(a)
-foreign-namespace open content; presentation-time-aligned payloads
-go to DR-6(b) Event Stream.
+A List MPD sequences the ads the ADS already chose: one Period per ad,
+played back-to-back. There is no construct anywhere in the edition in
+which a **single** ad candidate offers an **ordered list of alternative
+presentation options** and the client renders the first it can satisfy.
+That model is what makes UC-09 work — one device-agnostic decision
+resolving correctly on D1 through D5 without the ADS or the APS holding
+a device matrix (R5.4).
 
-### G4 — Application-level VAST metadata carrier (R23)
+The edition does contain the *semantics* R5 needs, twice, at the wrong
+granularity. `Preselection` plus `@selectionPriority` orders preferred
+experiences inside one Period, across Representations and Adaptation
+Sets — media variants of the same content, not alternative presentations
+of one ad. The MPD fallback scheme `urn:mpeg:dash:fallback:2016` orders
+whole candidate MPD URLs and states R5's preference rule almost
+verbatim: document order is preference order, first is highest. Neither
+reaches inside an ad candidate. R8 requires the spec to record that both
+were considered and why neither was reused.
 
-The MPEG-DASH 6th edition specification confirms (validated via
-NotebookLM as already absorbed in `../context/05-dash-linear-interfaces.md`,
-which quotes verbatim: *"The MPEG-DASH 6th edition standard does not
-define any carrier fields within the MPD for application-level VAST
-metadata such as Click-through URLs"*) that there is no native MPD
-field for `ClickThrough`, `ClickTracking`, `AdSystem`, `AdTitle`,
-`Advertiser`, or `UniversalAdId`.
+What the spec must add: an option-list child on the candidate, each
+option pairing a **form** (video / image / HTML, R15) with a **layout**
+(R12). Order is XML document order — no priority or ranking attribute,
+which also keeps it consistent with the fallback scheme's existing
+convention (DP-1, R5.1). The same construct must read correctly when a
+candidate carries exactly one option, which is the UC-13 case where the
+APS resolved the choice upstream from the Player's declared capabilities
+(R29): the Player-visible interface is identical, and nothing in the
+document distinguishes "the APS filtered" from "this is all there was".
 
-What the spec must add: route these through DR-6(a) — vendor /
-SVTA-namespaced extension elements under `urn:svta:dash:sgai:<year>`
-(R23.1). Legacy clients discard the foreign-namespace subtree per
-DR-3 — no impact on baseline parsing.
+R7's drop / trim vocabulary rides on the same construct and is likewise
+spec-side.
 
-### G5 — Overlap-resolution policy for same-family opportunity windows (R20)
+### G4 — Non-AV creatives have no home on the media axis (R15, R24)
 
-DASH 6th edition schedules `InsertPresentation` / `ReplacePresentation`
-events by `presentationTime`, with §5.16.6 "On Receive Processing"
-rules governing event updates (validated by the §5.16 NotebookLM
-session for this build). The standard contains no normative rule
-for what a Player does when two **same-family** ad opportunity
-windows overlap in time — both linear and non-linear cases are
-silent. R20 fills the gap with first-window-wins-with-fallback.
+Two independent facts close this. First, the profile chain: DR-1 binds
+every Representation reached via `<ImportedMPD>` to the SPS profile,
+which inherits §7.3 and therefore RFC 4337 — `video/mp4`, `audio/mp4`,
+`application/mp4`; DR-5 extends the same restriction to inline
+AdaptationSets under a List-MPD-level Period, and per-AdaptationSet
+`@profiles` must be a subset of the MPD-level value, so no single
+AdaptationSet can be promoted out of it. Second, and more basic: no
+profile, annex or clause in the base standard defines carriage of a
+static image or an HTML document as a Representation at all.
+`Representation` is defined for continuous media streams. There is
+nothing to relax, only something absent.
 
-What the spec must add: a chapter that states the R20 rule
-normatively for the three families (linear, overlay, pause) and a
-test case in chapter 10 modelled on UC-07.
+What the spec must add: an explicit DR-6 carrier choice per construct,
+recorded in the per-construct classification that Item 8 of
+[`../context/07-backward-compat-checklist.md`](../context/07-backward-compat-checklist.md)
+already demands. DR-6(a) foreign-namespace open content is the default
+for a one-fetch static asset URL; DR-6(b) Event Stream payload is for
+presentation-time-aligned payloads. Wrapping a non-MP4 payload in an
+`application/mp4` Representation to satisfy the registry remains an
+anti-pattern — it adds no segment-delivery semantics for the underlying
+format, which would be an Annex F exercise (DR-4).
 
-### G6 — Wall-clock vs presentation-time semantics for non-linear ads (R19 / R25)
+### G5 — No metadata carrier, and no user-triggered event for the click (R23, R28)
 
-DASH 6th's timing model is presentation-time; `Period@duration`
-expresses presentation-time duration. For non-linear ads that share
-the screen with primary content played at a non-1x speed, the
-**wall-clock** on-screen duration is `presentation_time_duration /
-playback_speed`. DASH has no normative anchor that this derived
-value is what the Player uses for cap enforcement against the slot's
-declared display window. R25's pause-ad presentation-time freeze
-guarantee in live content is a similar concern — the Player must
-freeze its presentation time inside the pause-ad window even while
-the live edge advances [inferred from `context/03-requirements.md`
-R25 — no §5.x rule in DASH 6th binds Player presentation-time during
-pause].
+DASH 6th defines no native MPD field for application-level ad metadata
+(`AdSystem`, `AdTitle`, `Advertiser`) nor for click-through metadata.
+For R23 that is a low-stakes gap: the carrier is optional on both ends
+by design, and a legacy client discarding it breaks nothing.
 
-What the spec must add: a Player obligation paragraph in the
-non-linear chapter, plus an explicit cross-reference to DASH's
-presentation-time vs wall-clock model. The derivation is computed by
-the Player; `duration` stays canonical (DP-1.2 single-source-of-truth).
+R28 is the harder half, and the difficulty is not the missing field but
+the event model. Every DASH event fires at a scheduled presentation
+time; a ClickThrough activation has no presentation time, because it
+happens when the viewer acts or never. The callback scheme is therefore
+the wrong carrier for click-tracking even though it is the right one for
+impression and quartiles (R6). The spec must define the ClickThrough URL
+and its click-tracking URL(s) as a document-level construct the Player
+reads at render time and fires on activation — normative and
+interoperable, unlike R23's best-effort carrier, because UC-11 requires
+every conformant Player to behave identically. The edition already
+splits these two concerns the same way in Annex L, where the
+nonlinear-playback event is anchored to the timeline while the viewer's
+selection is resolved off it.
 
-### G7 — Layout composition for three-element layouts (R26)
+### G6 — No channel for the Player to declare device capability (R29, R3)
 
-R26's side-by-side / double-box layout puts three on-screen elements
-(primary, ad, background fill). DASH 6th has no layout composition
-primitives (and per R10, the spec must defer to HTML5 / CSS rather
-than create them). The gap is not a DASH gap to close inside the
-spec — it is a spec-text obligation: declare that the third element
-is a **composition attribute of the slot / layout**, not an
-alternative presentation option (R26.1), and that the Player
-composites it via HTML5 / CSS (R10.1).
+UC-13 needs the Player to tell the APS what its device can render so the
+APS can resolve the presentation option upstream. The edition defines no
+such mechanism, and the three places one might expect it all miss for
+different reasons.
 
-What the spec must add: an explicit attribute (likely on the overlay
-slot's allowed-layout declaration in `urn:svta:dash:sgai:<year>`)
-expressing the background-fill source — advertiser creative or
-Publisher fallback — together with the device-class composition
-rules from R26.3.
+The Annex I.4 state vocabulary describes what is *playing* and what
+events have *run* — the codecs and bandwidth of the active video and
+audio Representations, the active language and protection scheme, CMCD
+key values, and per-event execution deltas, durations and counts — not
+what the device can render. CMCD (Annex K.3.7) carries operational
+delivery state: buffer length, measured and requested throughput,
+player state. `ServiceDescription` (Annex K.3) runs the opposite way,
+letting the service prescribe consumption targets to the client. And
+§I.4's query template is authored by the content author in the MPD, so
+its parameter set is fixed at authoring time — which is precisely why
+R29 places the reserved parameters outside that mechanism.
+
+What the spec must add: a set of reserved query-parameter names on the
+resolution request, each optional, each omitted rather than emptied when
+the Player has no value or will not disclose it (R29.2 / R29.3), with
+absence meaning **undetermined** rather than unsupported (R29.7), a
+vendor-prefix rule for non-reserved names (R29.4), and an APS obligation
+to answer without any of them (R29.5). The set must be expressive enough
+to separate D1 through D5 (R29.6), which fixes its axes: concurrent
+video-decoder count, and which surface types can be composited over
+video.
+
+### G7 — Overlap is resolved, fallback is not (R20)
+
+The execution model already delivers the first half of R20 for linear.
+Alternative-MPD events go into one execution queue ordered by
+presentation time; there is exactly one alternative client, so a second
+event falling inside a running alternative presentation is not executed
+concurrently; playhead-triggered evaluation is suspended while the
+alternative plays; and on return the queue is reset and every event
+whose active window has elapsed is discarded unexecuted. That is
+first-window-wins, resting on the same device-resource reasoning R22
+gives: the edition models one alternative client because one is what a
+device can be assumed to afford.
+
+What is missing is the second half. The discarded windows are discarded
+unconditionally — nothing makes the drop conditional on the first window
+having *succeeded*, and nothing licenses falling through to the next one
+when the first cannot be resolved. R20 turns the overlap from a
+concurrency case into a declared fallback chain, and DASH has no
+construct for that chain at the opportunity level. The nearest machinery
+sits at other layers: `BaseURL` failover on an `<ImportedMPD>` retries
+the *same* document from a secondary origin, and
+`urn:mpeg:dash:fallback:2016` chains candidate MPD URLs — neither chains
+two *opportunity windows*.
+
+What the spec must add: the R20 rule stated normatively for the three
+families (linear, overlay, pause), including the precise failure
+condition that licenses the fallback — the Player falls through only
+when it cannot **access** the first window's resolution document
+(transport failure, or a final HTTP status other than `200`), and a
+`200` carrying no candidates is an answer, not a failure (R30) — plus
+the UC-12 test case. The spec must also state how its rule composes with
+the existing queue behaviour for the linear family, where the edition
+already discards the losing windows unconditionally.
+
+### G8 — The empty-versus-failed distinction exists, is unreportable, and cannot reuse the List MPD shape (R30)
+
+The edition defines a legitimate zero-ad outcome and separates it from a
+failure. A resolution whose alternative presentation has duration zero
+is not executed and the main presentation continues seamlessly; an
+execution *failure* — alternative MPD unavailable or invalid, a List MPD
+whose merge yields no media, missing segments — is listed separately,
+and the two differ in exactly one observable: a failed execution *"does
+not count for the purpose of Event Restrictions"*, leaving the
+execute-once counter untouched where a successful one increments it.
+
+That is not enough for R30, for two reasons. The distinction is anchored
+on a zero **duration** rather than on a resolution that returned no
+candidates, and it lives entirely inside the client's own bookkeeping —
+no channel lets an unfilled opportunity be *identified* as unfilled by
+anyone but the client. For playback the difference is nil either way
+(R5.3, DP-3); what it costs is exactly the identification the SVTA WG
+asked for.
+
+A third fact constrains the remedy. The obvious encoding — a `list` MPD
+carrying zero Periods — is not available: `Period` cardinality under the
+MPD root is 1..N, and a List MPD follows the static MPD schema
+constraints, so a zero-Period document is schema-invalid. R30's empty
+resolution therefore needs either a degenerate Period that carries no
+candidate, or a resolution document shape of its own.
+
+What the spec must add: the normative shape of a resolution document
+carrying zero candidates — a document, never an error status and never
+an empty body (R30.1) — chosen against the cardinality constraint above,
+which is also what makes R20's fallback condition well-defined.
+
+### G9 — The wall-clock derivation exists but is not bound to ads (R19, R25)
+
+DASH's timing model is presentation-time, and the edition already
+supplies the conversion R19 needs: `@maxPlayoutRate` and the DASH
+Metrics `PlayList` define playback speed relative to normal speed, with
+a media interval of duration `DU` rendering in `DU/r` of wall clock at
+speed `r`, and an event fires when the playhead reaches its presentation
+time whatever the rate. What is missing is the binding: nothing ties an
+ad form's on-screen length, or the slot cap it is measured against, to
+that derived value — which only becomes load-bearing once an ad shares
+the screen with primary content running at a non-1x speed.
+
+R25 is the same concern at the other end, and here the edition
+constrains the requirement rather than merely omitting it. The freeze is
+already DASH's model — the playhead is the media time rendered at a
+given wall-clock time, so on pause it stays static while the live edge
+advances — but it is not unbounded: once the pause exceeds
+`MPD@timeShiftBufferDepth`, the paused position falls out of the
+timeshift buffer and playback resumes from the oldest available segment
+or jumps to the live edge. R25 as written promises the freeze holds for
+the full duration of the pause.
+
+What the spec must add: a Player obligation that `duration` stays the
+single canonical value (DP-1.2) while the wall-clock length is derived
+from it, and an explicit statement of which rules operate on which
+timebase — cap enforcement (R4) and beacon scheduling (R13) on the
+presentation timeline, on-screen behaviour on the derived value. For
+R25, the spec must state what happens when the pause outlives the
+timeshift buffer, because the pause-ad's dismissal and the Player's
+resume-at-live-edge jump then coincide.
 
 ## 4. Reuse opportunities
 
 The spec MUST reuse the constructs below before introducing new ones
-(R9), and document the reuse decision per R8.
+(R9), and document each reuse or departure inline (R8).
 
-| Existing DASH 6th construct                                       | Reused for                                            | Notes |
-|-------------------------------------------------------------------|-------------------------------------------------------|-------|
-| `EventStream` + `<Event>` (§5.10)                                 | All new SGAI events (overlay slot, pause window)      | Standard authoring vehicle; legacy Players skip events whose `schemeIdUri` they don't recognise. |
-| Callback event scheme `urn:mpeg:dash:event:callback:2015` (§4.7 / §5.10.4.5) | All ad tracking beacons (R6, R13)                     | No new tracking scheme per R13.4. Beacon URLs go in the `<Event>` `text()`. |
-| `ListMPD` profile `urn:mpeg:dash:profile:list:2024` (§8.14)       | The linear resolution document baseline               | Already covers `<InsertPresentation>` / `<ReplacePresentation>` resolution. Non-linear borrows the "playlist of MPDs" structure but with overlay semantics. |
-| `<ImportedMPD>` (§5.3.2.6)                                        | Per-ad sub-MPDs for video creatives                   | DR-1 binds sub-MPD to SPS — fine for video ads, blocked for non-AV. |
-| `UrlParamInfo` descriptor (§I.4)                                  | APS resolution-request query parametrisation          | Player-side substitution of state-vocabulary variables; already in linear flow. |
-| Foreign-namespace open content (§5.2.1)                           | All new SGAI-namespaced elements / attributes (DR-2)  | The single normative extension point. New constructs MUST live here. Legacy discards subtree (DR-3) — pick wrapping to control what legacy sees. |
-| Vendor descriptors (§5.8.4.8 / §5.8.4.9)                          | Application-level ad metadata (R23) — alternative carrier | Choice between DR-6(a) and DR-6(c) is per-construct; descriptor-based has weaker readability vs SVTA-named element. |
-| `InsertPresentation` (§5.16.3) — VOD-only                         | UC-01 (pre-roll on VOD) and UC-02 (mid-roll on VOD)   | Per §5.16.3, `InsertPresentation` "shall not appear if the MPD type is dynamic"; live content must use `ReplacePresentation`. The spec carries this constraint as a Publisher authoring rule. |
-| `ReplacePresentation` (§5.16.4) — VOD and live                    | UC-01, UC-02 on live; UC-06 multi-ad break baseline   | `@returnOffset`, `@clipDuration`, `@startWithOffset` are exclusive to `ReplacePresentation` (§5.16.5). |
-| `@maxDuration` trimming rule (§5.16.5)                            | R4 enforcement baseline for linear slots              | Validated via NotebookLM: *"If absent, the value is assumed to be infinity, in which case the current presentation resumes only when the alternative presentation terminates."* Non-linear slot cap reuses the same name and semantics. |
-| `status="update"` lifecycle on Events (§5.16.4 / §5.16.6.2.4)     | Dynamic update of a running slot — useful for live ad-decision updates | NotebookLM grounded the verbatim rule: only `@maxDuration`, `@returnOffset`, `@clip` updates apply to a running event; `@url`, `@PRT` updates are ignored on already-running events. |
+| Existing DASH 6th construct | Reused for | Notes |
+|---|---|---|
+| `EventStream` + `<Event>` (§5.10) | Every new SGAI opportunity declaration — overlay slot, pause window | The standard authoring vehicle for timeline-anchored signalling. A Player that does not implement the `schemeIdUri` skips the event, which is half of R1. |
+| Callback event scheme `urn:mpeg:dash:event:callback:2015` (§4.7 / §5.10.4.5) | All timeline-scheduled tracking beacons (R6, R13) | Reused verbatim; R13.4 forbids a parallel scheme. Beacon URLs ride in the `<Event>` `text()`. Does **not** cover click-tracking, which has no presentation time (G5). |
+| List MPD profile `urn:mpeg:dash:profile:list:2024` (§8.14) | The resolution document baseline, linear and non-linear | Already gives declared-order playback (R7's baseline). The non-linear document borrows the structure and adds the option list (G3) and the non-AV carriers (G4). Two hard constraints: *"List MPDs shall not contain Alternative MPD events"*, and `Period` cardinality 1..N, so there is no zero-Period document (G8). |
+| `<ImportedMPD>` (§5.3.2.6) | Per-ad sub-MPDs for video creatives | Fine for video; DR-1 binds the target to SPS, which is exactly why it is unusable for image / HTML (G4). |
+| `BaseURL` failover on `<ImportedMPD>` (§5.3.2.6.2) | Origin-level robustness for a sub-MPD fetch | Retries the same document from a secondary origin. Not R20's fallback, which chains different *opportunities* — the spec should say so rather than let R20 absorb transport retries. |
+| MPD fallback scheme `urn:mpeg:dash:fallback:2016` (§5.11.3) | **Precedent for R5 and R20** | Orders candidate MPD URLs by document order with R5's own rule: *"the content author expresses the preferences of using one of those by the order with the first one having the highest preference"*. Wrong granularity for both (whole MPDs, not options inside a candidate nor opportunity windows), but it is the edition's precedent for document-order-as-preference and for a declared fallback chain. R8 requires the decision to be recorded. |
+| `Preselection` (§5.3.11) + `@selectionPriority` (§5.3.7.2) | **Considered and rejected for R5** | Orders preferred experiences within a Period across Representations / Adaptation Sets — media variants of one presentation, not alternative presentations of one ad. Reusing it would put ad-level choice on a media-level construct. |
+| `InsertPresentation` (§5.16) | Pre-roll and mid-roll on VOD (UC-01, UC-02) | Forbidden on `MPD@type="dynamic"`; the spec carries this as a Publisher authoring rule. |
+| `ReplacePresentation` (§5.16) | Pre-roll / mid-roll on live, and the multi-ad break baseline (UC-01, UC-02, UC-06) | Adds three attributes the insert variant lacks — the resumption offset, the late-execution clip flag, and the start-with-offset flag. Exact spellings pending the pin in open question 7. |
+| `@maxDuration` and its trim rule | R4's enforcement baseline | *"If the Alternative Presentation … has a longer duration than specified in this element, it shall be terminated at the end of this duration."* The non-linear slot cap reuses the same name and semantics rather than inventing a second duration vocabulary, per the naming-consistency rule in `../context/06-naming-and-namespaces.md`. |
+| Alternative-MPD execution model (§5.16.6: one queue, one alternative client) | R20's first-window-wins half, and R22's rationale | The edition already forbids concurrent alternative presentations and already drops overlapping windows on return. The spec inherits the behaviour and adds only the conditional fallback (G7). |
+| `@executeOnce` / `@noJump` / `@skipAfter` on the alternative-MPD event | Slot lifecycle controls the spec need not reinvent | `@executeOnce` bounds re-execution; `@noJump` governs what survives a seek (*"If the value is 1, all events are executed. If the value is 2, only the latest such event is executed"*); `@skipAfter` marks when the rest of a presentation may be skipped. A non-linear slot needing equivalent controls reuses these names and semantics. |
+| `status="update"` event lifecycle (§5.16.6) | Updating a slot that is already running, on live | Only the attributes affecting playback duration and resumption point apply to a running event; URL and presentation-time changes do not. |
+| `@maxPlayoutRate` (§5.3.7.2) and `PlayList.playbackspeed` (Table D.5) | R19's derivation | The `DU/r` conversion is already the edition's; the spec supplies only the binding to ad on-screen length and cap enforcement (G9). |
+| `MPD@timeShiftBufferDepth` | R25's bound | The freeze the requirement describes is DASH's default playhead behaviour, and this attribute is what limits it. The spec states the behaviour at the limit rather than re-deriving the freeze. |
+| Foreign-namespace open content (§5.2.1) | Every new SGAI element and attribute (DR-2) | The single normative extension point. DR-3's whole-subtree discard is the authoring lever for what a legacy client sees: sibling placement exposes, nesting hides. |
+| Vendor descriptors (§5.8.4.8 / §5.8.4.9) | Alternative carrier for metadata (R23) | Admissible per DR-6(c), but placement is constrained to AdaptationSet / Representation, so it inherits DR-5 unless hosted inside a foreign-namespace parent — at which point it collapses into DR-6(a) with worse readability. |
+| Annex L `urn:mpeg:dash:nonlinearplayback:2020` | **Precedent, not carrier** | Not reusable for non-linear ads (G1), but it is the edition's own example of the split R28 and G2 both need: the event sits on the timeline while the viewer's interaction is resolved off it. Cite it as the justification for the ClickThrough carrier's shape and the pause trigger's (R8). |
+| Annex H SRD `urn:mpeg:dash:srd:2014` | **Considered and rejected** | Expresses coordinates between spatial objects for tile / ROI selection, not composition of an ad surface over video. Reusing it would both misuse the construct and violate R10. R8 requires this rejection documented inline. |
+| Annex I.4 state vocabulary, CMCD (Annex K.3.7), `ServiceDescription` (Annex K.3) | **Considered and rejected for R29** | None carries device rendering capability, and §I.4's template is author-declared. The reserved parameter set is new by necessity, not by preference (G6). |
 
 ## 5. Open questions
 
-The items below need WG input, further NotebookLM verification, or a
-deliberate design decision before the spec text stabilises.
-
-1. **Pause-trigger window vs `ReplacePresentation`** — UC-05's
-   pause-ad is conceptually a window during which the Player MAY
-   render an ad triggered by viewer action, not a timeline event the
-   Player *reaches*. Can `EventStream` + a new `schemeIdUri`
-   `urn:svta:dash:sgai-pause-trigger:<year>` (DR-2) carry this, or
-   does the action-triggered nature require an Annex F-style profile
-   extension (DR-4)? Default position: §5.2.1 carries it; DR-4 is
-   rejected per DR-4's "cost not justified" guidance.
-2. **Live presentation-time freeze (R25)** — DASH 6th does not
-   normatively bind Player presentation-time behaviour during user
-   pause in dynamic MPDs (the spec assumes timing follows wall
-   clock). R25 introduces a Player obligation that freezes
-   presentation-time inside the pause-ad window. Confirm with
-   NotebookLM that no §5.x / §I.x rule conflicts with that
-   obligation before the spec text goes out.
-3. **Overlay resolution document shape** — should the overlay
-   resolution document be a ListMPD variant (Periods + ImportedMPD,
-   reusing §8.14) or a fully separate document type under the SVTA
-   namespace? ListMPD reuse maximises R9 compliance but forces the
-   non-AV creative cases through DR-6 carriers (and out of the
-   AdaptationSet axis per DR-5). A separate document type
-   pessimises R9. Default position: extend ListMPD; carry non-AV
-   asset URLs via SVTA-namespaced child elements per DR-6(a).
-4. **`UniversalAdId` carrier choice** — both DR-6(a) foreign-
-   namespace and DR-6(c) vendor descriptor are admissible (R23). The
-   choice is between a named element (`<svta:UniversalAdId
-   idRegistry="..." value="..."/>`) and a descriptor
-   (`<EssentialProperty schemeIdUri="urn:svta:dash:ad-id:<year>"
-   value="..."/>`). Default position: named element under DR-6(a)
-   for readability.
-5. **`InsertPresentation` on dynamic MPDs** — UC-02 mid-roll on live
-   content must use `ReplacePresentation`, not `InsertPresentation`
-   (§5.16.3 forbids `InsertPresentation` for `MPD@type="dynamic"`).
-   `context/05-dash-linear-interfaces.md` already documents this; the
-   spec MUST surface it as a Publisher authoring rule in the chapter
-   on slot mechanism choice.
-6. **Empty / no-fill ListMPD policy** — `context/05-dash-linear-
-   interfaces.md` flags that the industry-convention question for
-   tracking-only VAST `<Ad>` (no `<MediaFile>`) — *silent skip vs
-   VAST Error code 403* — could not be resolved against the 6th
-   edition source. The non-linear spec MUST decide silently-skip vs
-   surface-an-error and state it in the per-construct chapter. The
-   ListMPD response is APS-internal policy under R18.2 — the spec
-   may decline to normatively bind it.
+1. **Shape of the non-linear resolution document.** Extend the List MPD
+   structure (Periods plus `ImportedMPD`) or define a separate document
+   type under the SVTA namespace? Reuse maximises R9 but inherits the
+   §8.14 constraints — no nested alternative-MPD events, and no
+   zero-Period document — and forces every non-AV creative through a
+   DR-6 carrier. Default position: extend the List MPD structure and
+   solve the empty case explicitly (open question 2).
+2. **Encoding of the zero-candidate resolution document (R30).** Since a
+   zero-Period List MPD is schema-invalid, the empty resolution is
+   either a document with one Period that declares no candidate, or a
+   distinct document type. The first keeps R9; the second is cleaner to
+   read and to report on. Needs a WG decision.
+3. **The reserved capability-parameter set (R29).** Which axes it
+   contains and how each is written is left open by R29.1 and fixed
+   "when the syntax is specified". R29.6 sets the acceptance test: the
+   set must tell D1–D5 apart. Needs a WG decision on the concrete names
+   and value spaces, and on whether an author-declared §I.4 template and
+   the reserved parameters can coexist on one request without collision.
+4. **Single-option versus multi-option candidates (R5, UC-09 vs UC-13).**
+   Both are conformant and the Player-visible interface is identical, so
+   the resolution document does not show whether the APS filtered. Is
+   that indistinguishability acceptable, or does the WG want the
+   document to record that a filter was applied — for diagnostics, or so
+   a Player that cannot satisfy the single option knows it was not the
+   only one?
+5. **Bound on the R25 freeze.** The freeze holds only while the paused
+   position stays inside `MPD@timeShiftBufferDepth`. R25 currently
+   promises it for the full duration of the pause. Decide whether R25
+   is amended to state the bound, or whether the spec declares the
+   pause-ad dismissed when the buffer expires — and what the Player
+   does with the pause-ad's pending beacons when the resume is a jump
+   to the live edge rather than a resume in place.
+6. **Carrier for the pause window (G2).** A §5.2.1 element plus a
+   timeline-scheduled window is the default position; Annex F (DR-4) is
+   rejected on cost per DR-4's own guidance. Confirm with the WG that a
+   window whose trigger is Player-side rather than playhead-side is
+   acceptable as an event-stream construct.
+7. **Attribute names and sub-clause numbering of the alternative-MPD
+   event.** The NotebookLM session for this build returns the
+   alternative-MPD event type as carrying `@uri`,
+   `@earliestResolutionTimeOffset`, `@serviceDescriptionId`,
+   `@maxDuration`, `@executeOnce`, `@noJump` and `@skipAfter`, with
+   `@returnOffset`, `@clip` and `@startWithOffset` added by the
+   replacement variant, and it places `InsertPresentation` at §5.16.2
+   and `ReplacePresentation` at §5.16.3.
+   `../context/05-dash-linear-interfaces.md` writes `@url` and
+   `@clipDuration` and places the two elements at §5.16.3 and §5.16.4.
+   Both cannot be right. Pin the spellings and the clause numbers
+   against the published FDIS text before any spec chapter quotes them:
+   the spec reuses these names verbatim, so a wrong spelling propagates
+   into every example.
+8. **Layouts outside the closed R12 set.** ADR 0002 (custom layout with
+   a viewport-relative pixel coordinate model) and ADR 0003 (multiview)
+   are both `proposed` and scoped to later phases. They sit outside
+   R12's closed enumeration, and R10 / OOS-1 forbid a parallel layout
+   engine in the core. Confirm they stay out of this edition.
+9. **Tracking-only decision entries.**
+   `../context/05-dash-linear-interfaces.md` flags that the industry
+   convention for a tracking-only VAST `<Ad>` with no media — silent
+   skip versus signalled error — could not be resolved against the 6th
+   edition source. Under R18.2 this is APS-internal and the spec may
+   decline to bind it; R30 now covers the Player-visible half (the
+   opportunity resolved to no ads).
 
 ## References
 
-- `../context/01-intro.md` — document index
-- `../context/02-actors.md` — Publisher / ADS / APS / Player
-- `../context/03-requirements.md` — R1..R26
-- `../context/04-use-cases.md` — UC-01..UC-10 (D1..D5 device classes)
-- `../context/05-dash-linear-interfaces.md` — linear SGAI baseline
-- `../context/06-naming-and-namespaces.md` — SVTA Ads WG namespace
-- `../context/07-backward-compat-checklist.md` — per-construct R1 audit
-- `../context/08-dash-extension-rules.md` — DR-1..DR-7 closed design space
-- `../context/99-glossary.md` — terminology
-
-### NotebookLM sessions consulted for this build
-
-- Notebook: `Streaming Protocols — DASH, HLS, C2PA, DRM` (UUID
-  `bb67e20c-9ad1-4a1d-a641-7c7d901f93cb`). Sessions: 2026-05-27.
-- Verbatim quotes from those sessions used above:
-  - §5.16.5: *"If absent, the value is assumed to be infinity, in
-    which case the current presentation resumes only when the
-    alternative presentation terminates."*
-  - §5.16.6.2.4 (On Receive Processing): *"changes to attributes
-    such as URL or PRT will not be applied to the running event,
-    however any changes affecting changes to its playback duration
-    and resumption point (i.e., @maxDuration, @returnOffset, @clip)
-    will be applied and acted upon."*
-- The application-level metadata absence claim is grounded against
-  the prior NotebookLM validation captured verbatim inside
-  `../context/05-dash-linear-interfaces.md` (the VAST → ListMPD
-  conversion table): *"The MPEG-DASH 6th edition standard does not
-  define any carrier fields within the MPD for application-level
-  VAST metadata such as Click-through URLs."*
+- [`../context/01-intro.md`](../context/01-intro.md) — document index
+- [`../context/02-actors.md`](../context/02-actors.md) — Publisher / ADS / APS / Player
+- [`../context/03-requirements.md`](../context/03-requirements.md) — R1–R30, DP-1..DP-3, OOS-1..OOS-6
+- [`../context/04-use-cases.md`](../context/04-use-cases.md) — UC-01–UC-13, device classes D1–D5
+- [`../context/05-dash-linear-interfaces.md`](../context/05-dash-linear-interfaces.md) — linear SGAI baseline
+- [`../context/06-naming-and-namespaces.md`](../context/06-naming-and-namespaces.md) — SVTA Ads WG namespace and versioning
+- [`../context/07-backward-compat-checklist.md`](../context/07-backward-compat-checklist.md) — per-construct R1 audit
+- [`../context/08-dash-extension-rules.md`](../context/08-dash-extension-rules.md) — DR-1..DR-7, the closed design space
+- [`../context/99-glossary.md`](../context/99-glossary.md) — terminology
+- FDIS ISO/IEC 23009-1:2025(E), MPEG-DASH 6th edition — clauses cited
+  above: §4.7, §5.2.1, §5.3.1, §5.3.2.6, §5.3.7.2, §5.3.11, §5.8.4.8 /
+  §5.8.4.9, §5.10, §5.11.3, §5.16, §7.3, §8.12, §8.14, §8.15, Annex D
+  (Table D.5), Annex F, Annex H, Annex I.4, Annex K.3, Annex L.
