@@ -44,7 +44,8 @@ Column semantics:
   `06-naming-and-namespaces.md`, `G99.<n>` from `99-glossary.md`.
 - **Source**: `file:line` of the original sentence
   (e.g. `context/03-requirements.md:47`).
-- **Actor**: which of Broadcaster / ADS / Player the obligation
+- **Actor**: which of the actors defined in `../context/02-actors.md`
+  the obligation
   binds. Use `spec document` for governance / document-level
   assertions. Use `all` for cross-cutting assertions that bind
   more than one runtime actor at once.
@@ -56,23 +57,27 @@ Column semantics:
 
 After the table, output the following sections in order:
 
-1. **Assertions per R** — count of assertions for R1..R10
+1. **Assertions per R** — count of assertions for every requirement
    (use a small `R<N>: <count>` list).
-2. **Assertions per actor** — count for Broadcaster, ADS, Player,
+2. **Assertions per actor** — count for each actor defined in
+   `../context/02-actors.md`,
    spec document, all.
 3. **Assertions per source doc** — count per `context/*.md` file.
 4. **Orphan assertions** — any MUST / SHOULD / MAY found outside
-   `context/03-requirements.md` that does not map cleanly to one of
-   R1..R10. For each, list the assertion ID, source, a 1-line
+   `context/03-requirements.md` that does not map cleanly to any
+   requirement. For each, list the assertion ID, source, a 1-line
    summary, and a 1-line note on which R it should arguably be
    absorbed into (or whether a new R is implied). These are signals
    that a requirement is missing or that an R needs to absorb the
    orphan.
 
-Target volume: 40-80 assertions total; under 150 lines for the
-entire output document. If you exceed 80 assertions, you are
-probably duplicating; consolidate. If you fall below 40, you are
-probably missing ancillary sentences in the non-R files; re-scan.
+Volume is set by the requirement set, not by a target: extract every
+assertion the sources carry. **Two assertions that differ in actor, in
+triggering condition, or in the obligation they impose are two
+assertions, and MUST NOT be merged to reach any count.** If the total
+looks low against the number of conformance criteria in
+`../context/03-requirements.md`, the likely cause is missing ancillary
+sentences in the non-R files; re-scan those.
 
 Tone: tabular and crisp, no narrative. Chapter 10 of the spec
 (Test cases) absorbs this directly, so each row must be
