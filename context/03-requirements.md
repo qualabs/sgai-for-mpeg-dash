@@ -1221,6 +1221,17 @@ and deferring layout to existing primitives.
   proprietary binary creatives — are out of scope for this edition.
   Senders that need scripted creatives MUST wrap the script inside
   an HTML document and use `text/html` per R15.
+- **OOS-5. Interactive ad frameworks.** An ad built on an interactive
+  framework such as SIMID is delivered by that framework, not by this
+  specification: SIMID is not among the ad types R12 enumerates, and
+  this edition defines no non-linear form that carries a SIMID
+  payload.
+- **OOS-6. Single-decoder slice or tile replacement.** Replacing a
+  slice or a tile so that one decoder carries both the primary content
+  and the ad is out of scope for this edition. The technique exists —
+  it is most practical in HEVC and AV1 — and a future edition may
+  cover it; this edition's decoder-budget reasoning (R3, R22) assumes
+  one decoder per concurrent form.
 
 The remainder of the proposal — Positioning Templates, Anatomy of
 the Overlay Resolution Document, Ad Tracking, Client Execution Flow,
