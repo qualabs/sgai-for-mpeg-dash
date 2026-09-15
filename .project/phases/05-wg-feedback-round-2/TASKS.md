@@ -2,14 +2,37 @@
 
 | id   | brief                                                                                          | status  | plan | evidence |
 | ---- | ---------------------------------------------------------------------------------------------- | ------- | ---- | -------- |
-| T-01 | Compare `context/` against the WG agreements extract and **emit one task per proposed change**  | pending | —    | —        |
-| T-02 | Settle the eleven unresolved transcript readings (§4) with David, starting with the deadline    | pending | —    | —        |
+| T-01 | Compare `context/` against the WG agreements extract and **emit one task per proposed change**  | done    | —    | T-06..T-13 below, emitted after the fact — see the note under the table |
+| T-02 | Settle the eleven unresolved transcript readings (§4) with David, starting with the deadline    | blocked | —    | Four questions handed over for the sync with David before the 21st |
 | T-03 | **Verify the four claimed spec contradictions against the primary sources** (gates T-01)        | done    | —    | [`tasks/T-03/verdicts.md`](tasks/T-03/verdicts.md) — A2 `spec-does-not-express-its-intent` (drafting), A6 `contradiction` (lands on UC-04, not R22), A7 `contradiction`, A8 `compatible` (an addition); corrections written back into the extract |
 | T-04 | **Make R5's flexibility explicit in `context/`** — drafting, not design                          | done    | —    | `context/03-requirements.md` R5 gist + prose + core-invariant row; `context/02-actors.md` APS section; `context/99-glossary.md` two entries. The R18 scope question resolved via R18.2 + R29 |
 | T-05 | **State that an APS may return exactly one option** — new requirement and/or use case             | partly landed | —    | The explicit statement is in `context/03-requirements.md` R5 and `context/02-actors.md`; only the paired use case remains |
 
-`T-06` onward do **not** exist yet by design: they are the **output of
-T-01**. T-01 is a task that generates tasks. Until it runs, this phase
+| T-06 | Numbering across phases: a number is taken at execution, never held by a proposal                | done    | —    | `62cc961` — *"Fase 05: los veredictos del feedback, y la numeracion como regla"* |
+| T-07 | Specify the Player-to-APS interface: reserved capability parameters the Player may attach (R29)   | done    | —    | `8fe9bd3` — *"R29: el Player declara sus capacidades en el request de resolucion"* |
+| T-08 | Make R5 read as what it always meant: several options the form, exactly one admissible           | done    | —    | `4304208` — *"R5 se lee como lo que siempre dijo: multi opcion, y una sola tolerada"* |
+| T-09 | R29 states a property instead of a list, and binds to the device classes of R3                   | done    | —    | `3a0823c` — *"R29 deja de enumerar y pasa a decir que son insumos, atado a R3"* |
+| T-10 | The APS may omit options from what the ADS returned; the order is preserved                      | done    | —    | `ff528d7` — *"El APS puede omitir opciones, y el orden se mantiene igual"* |
+| T-11 | Two out-of-scope declarations: interactive ad frameworks, and single-decoder slice/tile replacement | done  | —    | `730c468` — *"Dos declaraciones de fuera de alcance: SIMID y el reemplazo por slice"* |
+| T-12 | An unfilled opportunity is a resolution document with no candidates, not an error (R30 + ADR 0005) | done   | —    | `cac233f` — *"R30: una resolucion vacia se distingue de una fallida"* |
+| T-13 | The `<Error>` mapping row stops describing what the APS does internally                          | done    | —    | `624585a` — *"La fila del Error deja de describir lo que el APS hace por dentro"* |
+
+**Why T-06..T-13 were written after they were done.** T-01 was specified to
+emit a task per proposed change so the changes could then be decided one at a
+time. It did not run that way, and the reason is worth recording rather than
+hiding: Nicolás was available throughout, so each item was put to him, decided,
+and applied in the same pass. Writing the list first and executing it afterwards
+would have been a step that bought nothing — the list exists to let work proceed
+without the decider present, and the decider was present.
+
+So this table is a **record of what happened**, not a plan that was followed.
+Each row names the decision and the commit that closed it; the commits are the
+audit trail, in the order they landed. The items still waiting on David, on Zach
+Kava and on the Working Group are **not** listed here as done — they are not
+done, and they appear as what they are.
+
+`T-06` onward were the **output of
+T-01**. T-01 is a task that generates tasks. Until it ran, this phase
 has a backlog of five.
 
 **Execution order is not numbering order.** `T-03` is numbered after

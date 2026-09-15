@@ -803,6 +803,29 @@ rather than one:
 
 All three have the shape of a check that could not come back negative.
 
+## A phase shape, proposed and NOT in force
+
+Recorded next to the method rule above, for the same reason and with the same
+status: it has not been applied, and adopting it is Nicolás's call.
+
+> **When the person who decides is available, emitting a list of tasks and then
+> executing it is a step that buys nothing.** Each item is decided and applied in
+> the same pass, and the list is written at the end as the record of what
+> happened. **When that person is not available, the list has to come first** —
+> it is what lets the work proceed without them.
+
+This phase is the evidence for both halves. It opened planning to emit a task per
+proposed change and decide them one at a time; what actually happened is that
+every item was put to Nicolás, decided and applied in the same sitting, and the
+tasks were written afterwards (T-06..T-13 in `TASKS.md`). Nothing was lost by
+inverting the order, because the control the list was there to provide — no edit
+without its own decision — was satisfied by the decision itself being present.
+
+The reason this is worth writing down rather than repeating by habit is that the
+two halves fail differently. Emitting the list when the decider is present costs
+a round trip and delays nothing else. Skipping the list when the decider is
+absent means the work cannot proceed at all.
+
 ## Verification — `context/` untouched
 
 Baseline taken before any reading, checked after all of it, and the check itself

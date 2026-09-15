@@ -1,7 +1,7 @@
 ---
 phase: 05-wg-feedback-round-2
 title: Working-group feedback — round 2 (SVTA Advertising WG, 2026-08-19)
-status: planning
+status: in-progress
 started: 2026-08-19
 closed: null
 ---
@@ -122,10 +122,16 @@ adjective in a requirement can.
 
 ## Out of scope
 
-- **Editing `context/`.** This phase plans the spec change; it does not
-  make it. Every `context/` edit lands as its own task, after its own
-  decision.
-- **Executing T-01.** The comparison runs when Nicolás says so.
+- **Editing `context/`.** The phase opened on the plan that it would
+  plan the spec change and not make it, with every edit landing as its
+  own task after its own decision. That is not how it ran: the decider
+  was available, so each item was decided and applied in the same pass
+  (see T-06..T-13). The second half held — no edit landed without its
+  own decision. What was dropped was the detour, not the control.
+- **Executing T-01.** The comparison was to run when Nicolás said so.
+  It ran, and its output was written after the fact rather than before:
+  the tasks it was to emit are T-06..T-13, each carrying the commit
+  that closed it.
 - **The HLS half of the work** (A13). It is David's to author; this
   project tracks the DASH side and the naming constraint the HLS side
   imposes.
