@@ -1256,3 +1256,148 @@ must check its outcome and report which candidates it absorbed.
 `T-06` onward remain T-01's output; the phase backlog is five. Two new
 risks recorded in PHASE.md: the two-modes misreading, and the numbering
 collision. Nothing executed; `context/` still byte-identical.
+
+## 2026-09-15 — phase 05: where the thread stands after two work streams
+
+Written so the next person does not reconstruct this from commits. The
+previous entry ends with *"Nothing executed; `context/` still
+byte-identical"* — that stopped being true on 2026-09-14 and is
+stale; this entry supersedes it as the statement of current state.
+
+### What landed, in two streams
+
+**Stream 1 — the WG feedback round (2026-08-19 call).** Nine commits on
+2026-09-14 closed T-06..T-13 (listed with their commits in the phase's
+`TASKS.md`): the numbering rule, R29 and its binding to R3, R5 read as
+the superset it always was, the APS's permission to omit options,
+OOS-5 / OOS-6, R30 with ADR 0005, and the `<Error>` row. On 2026-09-15
+the phase's `context-change-recommendations.md` stopped claiming
+nothing had been applied (`ed862e4`), and the empty-vs-failed
+frontier was closed: `200` strict, an empty resolution is an answer
+and not a server failure (`5de5c4d`).
+
+**Stream 2 — the use-case review Nicolás asked for.** The question was
+whether the requirements are exercised by the use cases, because that
+is what makes the spec testable. Six findings came out; four are
+closed and two dissolved on inspection.
+
+- **UC-13** — one ad, Player-declared capabilities, the APS resolving
+  to a single option, paired with UC-09 so neither reads as canonical
+  (`507c214`). Its D4 row is the structural part: a Player that
+  declares nothing leaves the APS unable to narrow, so the same APS
+  emits UC-09's document.
+- **The APS's document is the reference point** (`242590b`): R5.1,
+  R5.5, R7 (title, gist, prose, R7.1) and the section intro stopped
+  obliging anyone against the ADS's decision document, which R18
+  declares out of scope. Plus R29.7 (an absent parameter means
+  *undetermined*, and what an APS does with that is its own business
+  decision), UC-12's three paths, and the two sites in
+  `05-dash-linear-interfaces.md` that presented an empty response and
+  an HTTP error as interchangeable.
+- **R23** became a document requirement (`f7d19dd`) instead of a pair
+  of permissions no implementation could fail.
+- **R13** (`b997663`) and **R28** (applied, pending commit at the time
+  of writing) split the same way: the checkable obligation is written
+  against the resolution document, and the fidelity of what the APS
+  did with the ADS's material is declared part of the bilateral
+  contract R18 already puts out of scope, with the ADS named as the
+  party in a position to enforce it.
+
+**Result: zero obligations in `context/` that cannot be audited from
+the Player-visible interface.** The number comes from two sweeps with
+working controls — one over each conformance criterion, one over each
+sentence including requirement prose — not from an expectation. A
+line-based sweep is not sufficient here and produced a wrong count
+twice: these files wrap at ~72 columns, so a subject and its `MUST`
+routinely sit on different lines.
+
+**Two findings dissolved rather than closing.** An extension of UC-01
+for R30 would have documented a distinction it cannot show, because in
+a single-window scenario an empty resolution and a failed one produce
+the same playback; the distinction is observable only where a fallback
+window exists, which is UC-12. And the reporting of an unfilled
+opportunity needs no tracking carrier: R6 and R13 are both anchored to
+an ad that exists, and the distinction R30 promises is carried by the
+shape of the response.
+
+### What waits on third parties — not blocked on us
+
+- **David Hassoun**: A6 (does "one ad experience at a time"
+  contemplate a Publisher-declared hybrid break?), plus the four
+  structural questions handed over for the sync before the 21st.
+  A6 decides UC-04's fate and R22's wording.
+- **Zach Kava, via David**: A7 (does the "running ad owns the pause"
+  practice hold?). Decides R17's inversion and UC-08.
+- **The Working Group**: A8's slot question — does a viewer dismissal
+  end the slot or fall through to the next form under R14 — sent as
+  issue 7 on the public repo. The A8 requirement does not land until
+  it is answered, and no number is held for it.
+
+**UC-04 and UC-08 are not to be edited** while A6 and A7 are open.
+
+### Pending, depending on nobody
+
+**Regenerating the spec.** `output/v6.1-sgai-spec.md` is from
+2026-05-28 and `context/` has moved a great deal since. It is a
+**major (v7)**: `context/` changed, which the decision table in
+`CLAUDE.md` sends to `build-all`, not to `refine-spec`. Measured, not
+estimated:
+
+- **Every one of the nine steps runs; nothing skips.** All generated
+  artefacts predate the newest `context/` mtime, the v7 sidecars do
+  not exist, and Step 5 (`analyze-iab-ad-templates`) never skips by
+  contract.
+- **~30–40 minutes of compute**, calibrated on the v5 run of
+  2026-05-20, which is the only clean sample — the v6 run has a
+  3½-hour idle gap inside it. Roughly 420k input tokens and 70k
+  output across the nine steps.
+- **Auto-refine: leave it on with `MAX_REFINEMENTS=1`.** The six
+  comparison artefacts on disk show the first refinement of a major
+  moving four to seven issue categories and the third and fourth
+  moving one cosmetic flag each, while the verdict stayed `ON TRACK`
+  throughout — so the `STALLED` break never fires on the tail and the
+  cap is the only real stop. The default of 5 buys one iteration's
+  value for four iterations' cost.
+- **`v6.1` has no `comparison.md`** and is the only minor in the
+  project without one. It does not need to be produced: it answers
+  whether to keep refining or escalate to a major, and `context/`
+  having changed already forces the major.
+
+This was deliberately deferred: the use cases had to close first, so
+that the regenerated spec would not contain parts nothing can test.
+
+### Recorded, and not work
+
+- **`context/05-dash-linear-interfaces.md` carries no explicit
+  informative flag.** This is **not** a defect. R11.3 already requires
+  VAST references to sit in an annex or a non-normative note flagged
+  as illustrative, and the build already executes that: v6.1 §6.6 is
+  titled *"APS internal: decision document → resolution document
+  (non-normative)"* and states the conversion *"is not bound by this
+  specification"*. The three findings previously open against that
+  file — the `<Ad>` wrapper row, the "central responsibility of the
+  APS" heading, and the absence of an informative marking — were
+  artefacts of reading `context/` as if it were the generated spec,
+  and all three dissolve in the output. **They are closed.** A single
+  sentence in the file's opening would remove the inference for a
+  human reading the source; it changes nothing about the build, and
+  the round-1 WG review touched `02`, `03`, `04` and `07` but not
+  `05`.
+- **A method rule is in force**, approved on 2026-09-15 and living in
+  `knowledge/reglas-para-workers.md` in the parent repo: a zero is not
+  a result until the same search has been shown to find something
+  known to be present. It earned its place repeatedly in this session.
+  Its companion — that an idea is swept for across every file rather
+  than by the phrase in the file that was edited — is recorded in
+  `context-change-recommendations.md` and was **not** approved as a
+  rule.
+- **The phase-shape proposal is NOT in force.** The suggestion that a
+  list of tasks buys nothing when the decider is present, recorded at
+  the end of `context-change-recommendations.md`, remains a proposal
+  Nicolás has not adopted. It is marked as such there.
+
+### Where the texts are
+
+The two proposal documents in this phase folder carry the reasoning
+behind the edits, including what was deliberately not done:
+`uc-13-proposal.md` and `aps-truth-and-undetermined-proposal.md`.

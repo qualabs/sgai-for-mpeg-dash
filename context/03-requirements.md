@@ -1159,12 +1159,22 @@ carriers for creative metadata and non-AV assets.
   reads them the same way.
 
   **Conformance criteria** (runtime + document-level):
-  - **R28.1** (APS): when the ADS's VAST declares a ClickThrough, the
-    APS MUST populate both the ClickThrough URL and its associated
-    click-tracking URL(s) in the normative carrier.
+  - **R28.1** (APS): When an ad candidate in the resolution document
+    carries a ClickThrough, the carrier MUST hold both the ClickThrough
+    URL and its associated click-tracking URL(s). Conformance is
+    checked against the resolution document alone: a ClickThrough
+    present without its click-tracking is a violation the document
+    shows.
   - **R28.2** (Player): a conformant Player MUST read the ClickThrough
     URL and fire its associated click-tracking when the viewer activates
     the ClickThrough.
+  - **R28.3** (APS + ADS): Whether a ClickThrough the ADS declared
+    reaches the resolution document at all is part of the APS-to-ADS
+    contract those parties maintain directly, outside this
+    specification (R18). The ADS declares the ClickThrough and receives
+    the click-tracking, so it is in a position to enforce that it
+    travels; the resolution document is not, because it does not show
+    what was declared.
 
 ### Governance
 
