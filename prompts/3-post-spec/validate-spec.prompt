@@ -65,8 +65,8 @@ context language allows it. For each:
 
 ### 4. R coverage map
 
-A table listing R1..R13 (from `../context/03-requirements.md`)
-with one row per R:
+A table listing every requirement defined in
+`../context/03-requirements.md`, with one row per R:
 
 | R   | Status | Spec sections that satisfy it | Notes |
 |-----|--------|-------------------------------|-------|
