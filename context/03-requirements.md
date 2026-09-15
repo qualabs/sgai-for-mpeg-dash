@@ -552,6 +552,23 @@ the ADS-declared order.
     rendered length exceeds the cap, the Player MUST trim
     mid-rendering ("trim during play") per R4.
 
+- **R30. An empty resolution is distinguishable from a failed one.**
+  *Gist: A resolution that legitimately returned no ads is expressed as a resolution document carrying no candidates, not as an error.*
+
+  When the APS resolves an opportunity and the ad decision carries no
+  ads, it returns a resolution document that carries no candidates. The
+  Player's behaviour is unchanged — it continues with the primary
+  content, as it does whenever the candidates are exhausted (R5.3). The
+  distinction is not a difference in playback; it is what lets an
+  unfilled opportunity be reported as an unfilled opportunity rather
+  than as a failure to resolve.
+
+  **Conformance criteria** (runtime):
+  - **R30.1** (APS): An opportunity that resolved with no ads MUST be
+    expressed as a resolution document carrying no candidates, and MUST
+    NOT be expressed as an error response or as a response without a
+    body.
+
 ### Presentation
 
 Requirements that govern how ad forms appear on screen: device-class
