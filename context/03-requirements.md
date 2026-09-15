@@ -1099,26 +1099,28 @@ carriers for creative metadata and non-AV assets.
     callback mechanism is mandatory.
 
 - **R23. Application-level ad metadata carrier.**
-  *Gist: Optional creative metadata with no native DASH carrier (AdSystem, AdTitle, etc.) rides SVTA-namespaced extension elements on a best-effort basis.*
+  *Gist: The specification defines an SVTA-namespaced place for creative metadata with no native DASH carrier; emitting it and reading it are both optional.*
 
-  Generic
-  application-level metadata that has no native DASH carrier (e.g.
-  `AdSystem`, `AdTitle`, etc.) MAY be conveyed via extension elements
-  in the SVTA Ads WG namespace on a best-effort basis; Players MUST
-  safely ignore unknown namespaces per the DASH extension rules invoked
-  by R1. This carrier is optional and non-interoperable by design: a
-  conformant Player MAY drop the metadata and a legacy Player discards
-  the extension elements as an unknown namespace, so nothing in the ad
-  presentation breaks. This requirement governs
-  generic creative metadata, distinct from the tracking beacon carrier
-  of R6 (both are "carriers", but R6 carries tracking beacons while R23
-  carries creative metadata).
+  Generic application-level metadata that has no native DASH carrier
+  (e.g. `AdSystem`, `AdTitle`, etc.) has a defined place to ride:
+  extension elements in the SVTA Ads WG namespace. This carrier is
+  **optional and non-interoperable by design** — nothing obliges an APS
+  to emit it or a Player to read it, and a legacy Player discards the
+  extension elements as an unknown namespace per the DASH extension
+  rules invoked by R1, so nothing in the ad presentation breaks either
+  way. That is what makes this a requirement on the specification
+  rather than on an implementation: what can be checked is that the
+  place exists and is named, not that anyone used it. This requirement
+  governs generic creative metadata, distinct from the tracking beacon
+  carrier of R6 (both are "carriers", but R6 carries tracking beacons
+  while R23 carries creative metadata).
 
-  **Conformance criteria** (runtime + document-level):
-  - **R23.1** (APS): Generic application-level metadata with no native
-    DASH carrier (`AdSystem`, `AdTitle`, etc.) declared in the ADS's
-    VAST MAY be conveyed by the APS via SVTA Ads WG namespaced
-    extension elements in the resolution document.
+  **Conformance criteria** (document-level):
+  - **R23.1** (spec document): The specification MUST define, in the
+    SVTA Ads WG namespace, the extension elements that carry generic
+    application-level metadata with no native DASH carrier
+    (`AdSystem`, `AdTitle`, etc.), and MUST state that emitting them
+    and reading them are both optional.
 
 - **R24. Non-AV creative asset carrier (RFC 4337 avoidance).**
   *Gist: URLs for non-AV creatives (image, HTML) must use a DASH-conformant carrier, never an @mimeType path bound by RFC 4337.*
