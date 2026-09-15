@@ -754,6 +754,55 @@ returned these same nine, with the column headings and the clause number. A
 tenth row would have surfaced there. Before any of this is quoted normatively in
 the spec, still read Table I.5 in the ISO text directly.
 
+## Open findings, recorded so they are not rediscovered
+
+Three observations surfaced while reviewing `context/05-dash-linear-interfaces.md`
+and were deliberately left alone. They are the same family — the document
+describes what the APS does internally, which R18 declares this spec does not
+define — and they are probably one short item some day, not three.
+
+- **The `<Ad>` (Wrapper) row** says the wrapper chain is *"resolved
+  recursively"*. That is APS behaviour, not a DASH-side target. It prescribes
+  nothing, so it is weaker than the `<Error>` row was, but it is the same kind
+  of statement.
+- **The section heading** states that the VAST-to-ListMPD transformation *"is
+  the central responsibility of the APS on linear SGAI integrations"*. True, and
+  simultaneously the one thing the spec says about something it declares it does
+  not define.
+- **The document describes practice but never says "informative".** It opens as
+  *"the **reference** for how SGAI is implemented today"* and presents the
+  mapping *"that an APS performs in production"*, which is framing in substance;
+  no sentence marks it non-normative. A reader auditing for normative force has
+  to infer it.
+
+## A method rule, proposed and NOT in force
+
+Written for Nicolás to approve or correct; it has deliberately **not** been
+applied anywhere, and it is recorded here only so the next person finds it
+instead of rediscovering it.
+
+> **When an idea is removed from a document, the sweep is by the idea and across
+> every file — not by the phrase, in the file that was edited.** The same premise
+> appears written differently elsewhere, and searching for the words just deleted
+> only finds the ones whose location was already known.
+>
+> **And a negative is not asserted without a control.** Before saying "it appears
+> nowhere", the same search must find a pattern known to be present. If it does
+> not, the zero is not a result — it is a broken instrument.
+
+**The three instances it was drawn from**, which is why it is stated as two rules
+rather than one:
+
+1. A publish to a NATS subject with no subscriber returns success, so the send
+   tool's return value was mistaken for an acknowledgement. It looked like
+   verification and could not fail.
+2. A query seeded with the nine names it was asked to confirm returned those
+   nine names. It could only echo what it was given.
+3. A search for a deleted phrase, in the file it was deleted from, reported that
+   the idea appeared nowhere. It appeared in five other places.
+
+All three have the shape of a check that could not come back negative.
+
 ## Verification — `context/` untouched
 
 Baseline taken before any reading, checked after all of it, and the check itself
