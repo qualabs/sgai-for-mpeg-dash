@@ -255,6 +255,54 @@ would **declare** that a document carries these constructs; it would
   the scoping untouched, because both obligations were always addressed
   to the same Players.
 
+## DR-9 — The two vendor descriptor elements are not interchangeable: an unrecognised scheme costs the parent on one and only the descriptor on the other
+
+R1.2 admits vendor descriptor schemes (§5.8.4.8 / §5.8.4.9) as an
+extension point for **any** new construct, not only for the asset
+carriers DR-6 enumerates. The two elements look alike — each carries a
+scheme URI and a value — and they differ in the one respect that
+decides what an extension costs: what a client does when it does not
+recognise the scheme.
+
+> §5.8.4.8, NOTE 1: *"If the scheme or the value for this descriptor is
+> not recognized, the DASH Client is expected to ignore **the parent
+> element that contains the descriptor**."*
+>
+> §5.8.4.9, NOTE: *"If the scheme or the value for this descriptor is
+> not recognized, the DASH Client is expected to ignore **the
+> descriptor**."*
+
+An SGAI scheme carried on an `EssentialProperty` therefore makes a
+legacy client drop the `AdaptationSet` or `Representation` that holds
+it. Choosing between the two elements is choosing what a client that
+does not implement this specification loses.
+
+**Neither is wrong.** `EssentialProperty` is the correct choice when
+presenting the parent without understanding the descriptor would
+produce an incorrect result — it is better for an old client to omit
+the element than to render it wrongly. `SupplementalProperty` is the
+correct choice everywhere else.
+
+One consequence follows from DP-3 rather than from the base
+specification, and is recorded as a consequence: on anything in the
+primary content path, dropping the parent would break primary-content
+playback, which DP-3 forbids outright. `EssentialProperty` is
+therefore unavailable there — not because DASH says so, but because
+this specification has already decided what it will never do.
+
+- **Source**: §5.8.4.8 NOTE 1 and §5.8.4.9's NOTE, quoted verbatim
+  above. Both are notes rather than normative clauses, which matches
+  the base specification declining to specify Player behaviour
+  normatively at all (DR-8); what they describe is the expectation the
+  two elements were designed around, and it is the only account the
+  standard gives of them.
+- **Implication for SGAI**: every construct using either element MUST
+  state which one it uses and why, and the backward-compatibility
+  checklist classifies them separately for that reason. DR-6 applies
+  this rule to the non-AV asset carriers, splitting them into (c1) and
+  (c2); this rule is what that split rests on, and it reaches the
+  constructs DR-6 does not cover.
+
 ## Cross-refs
 
 - [`03-requirements.md`](./03-requirements.md) — R1, R8, R9, R24, R28
@@ -270,4 +318,5 @@ would **declare** that a document carries these constructs; it would
   Ads WG extension namespace.
 - [`07-backward-compat-checklist.md`](./07-backward-compat-checklist.md)
   — Item 2 cites DR-2 / DR-3; Item 8 forces a per-construct carrier
-  classification against DR-6.
+  classification against DR-6, and keeps (c1) and (c2) apart on the
+  grounds DR-9 states.
