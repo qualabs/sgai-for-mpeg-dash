@@ -76,7 +76,7 @@ through `08-dash-extension-rules.md`.
   enforcing the Publisher's MPD-level constraints.
 - **APS (Ad Presentation Server)**: external server that sits between
   the Player and the ADS. Exposes the endpoint the Player resolves
-  (referenced by the Publisher in the MPD event `@url`), calls the
+  (referenced by the Publisher in the MPD event `@uri`), calls the
   ADS, and **converts whatever the ADS emits — VAST (IAB) or any
   other decision format — into the MPD-native / SGAI resolution
   document** the Player understands (`ListMPD` or single-period
