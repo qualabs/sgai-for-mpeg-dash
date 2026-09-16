@@ -78,14 +78,13 @@ SVTA Ads WG namespace.
 Elements in the SVTA Ads WG extension namespace operate under
 DASH §5.2.1 foreign-namespace open content (DR-2 in
 [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
-Legacy DASH clients discard such elements **with their full
-subtree** (DR-3) — baseline DASH children nested inside a foreign-
-namespace element are not seen by legacy clients. This is the
-authoring lever for choosing what legacy clients see: a baseline
-element placed as a sibling of an SGAI element remains visible to
-legacy; a baseline element wrapped inside an SGAI element is
-opaque. Constructs introduced by this spec MUST honour the
-authoring rule stated in DR-3.
+Legacy DASH clients remove such elements, and a baseline DASH child
+nested inside one carries **no legacy guarantee** (DR-3). This is the
+authoring lever for choosing what legacy clients process: a baseline
+element placed as a sibling of an SGAI element stays within their
+reach; one wrapped inside an SGAI element does not. Constructs
+introduced by this spec MUST honour the authoring rule stated in
+DR-3.
 
 ## Versioning
 

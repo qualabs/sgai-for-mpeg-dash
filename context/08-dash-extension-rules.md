@@ -48,25 +48,43 @@ a valid DASH document conforming to this specification.
   operate within §5.2.1. The construction does not need a new
   profile URI to be DASH-conformant.
 
-## DR-3 — Legacy parsers discard foreign-namespace subtrees entirely (no descent into baseline children inside foreign elements)
+## DR-3 — A baseline element nested inside a foreign-namespace parent carries no legacy guarantee
 
-A DASH client that does not implement the foreign namespace removes
-the **entire** XML node including its subtree of children (§5.2.1,
-NOTE 2). The spec contains no rule suggesting a parser should
-descend into an unknown foreign-namespace element to look for known
-DASH children. Consequence: a baseline DASH element wrapped inside
-a foreign-namespace element is invisible to legacy clients.
-Authoring rule: baseline children that legacy clients are expected
-to process go at a baseline (non-foreign) position; baseline
-children that should be hidden from legacy go inside the foreign-
-namespace subtree.
+§5.2.1 defines the removal **by namespace**, and states it as an
+obligation on the author:
 
-- **Source**: §5.2.1 NOTE 2.
+> In addition, the MPD shall be authored such that, after XML
+> attributes or elements in the other namespaces than the DASH
+> namespace are removed, the result is a valid XML document formatted
+> according to that schema and that conforms to this document.
+
+NOTE 2 restates the same operation from the client's side. Neither
+addresses a DASH-namespace child nested inside a foreign-namespace
+element, and the word *subtree* appears nowhere in the base
+specification.
+
+Removing an element removes what it contains: that is ordinary XML,
+and it is the reading this specification assumes. What the base
+specification supplies is not that reading but the authoring
+obligation quoted above — whatever remains after removal has to be a
+valid, conformant document, and an author cannot inspect which legacy
+client will read it.
+
+Authoring rule: baseline children that legacy clients are expected to
+process go at a baseline (non-foreign) position. A baseline child
+nested inside a foreign-namespace element is authored for clients
+that implement that namespace, and no legacy behaviour may be assumed
+for it.
+
+- **Source**: §5.2.1 and its NOTE 2, for the removal-by-namespace
+  obligation quoted above. The whole-subtree reading is this
+  specification's; the base specification does not state it.
 - **Implication for SGAI**: chooses the placement of any baseline
-  DASH element appearing alongside SGAI extensions. Wrapping a
-  baseline element inside a foreign-namespace parent is the
-  authoring move that hides it from legacy clients; placing it as
-  a sibling is the move that exposes it.
+  DASH element appearing alongside SGAI extensions. A baseline
+  element placed as a sibling of an SGAI element stays within what a
+  legacy client processes; one wrapped inside an SGAI element does
+  not — and any construct that nests a baseline element MUST still
+  satisfy §5.2.1 once the foreign-namespace parent is removed.
 
 ## DR-4 — Annex F is informative; what binds a new delivery format is the Interoperability Point URI of §8.1
 

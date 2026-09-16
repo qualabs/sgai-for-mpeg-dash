@@ -38,10 +38,10 @@ chapter MUST name the applicable DR-N rule from
 [`08-dash-extension-rules.md`](./08-dash-extension-rules.md).
 
 - For new XML elements under known parents: §5.2.1 foreign-
-  namespace open content (DR-2). Legacy clients discard the
-  element together with its full subtree (DR-3) — verify the
-  walk-through in step 3 against this discard semantic, not
-  against a "descend and read known children" semantic.
+  namespace open content (DR-2). A baseline child nested inside the
+  new element carries no legacy guarantee (DR-3) — verify the
+  walk-through in step 3 against that, and check that the document
+  is still valid under §5.2.1 once the new element is removed.
 - For new attributes on known elements: typically the
   ignore-unknown-attribute rule.
 - For new namespaces: standard XML namespace rules apply, but
