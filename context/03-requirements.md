@@ -591,11 +591,25 @@ the order the resolution document declares.
   wrong"*. R30 names the case from the APS side; it does not change
   playback.
 
+  **The opportunity is not consumed.** The base specification counts
+  executions, not attempts: `E.c` is *"Execution counter (number of
+  times alternative MPD playback successfully started)"* (§5.16.2.2.2),
+  and §5.16.2.2.6 NOTE 3 states that *"The counter E.c has not been
+  incremented due to the failure, consequently if E.c = 0 the event can
+  still be executed in the future even if the value of `@executeOnce`
+  is `"true"`."* A slot that resolved to no ads therefore leaves the
+  opportunity executable. This specification inherits that rule rather
+  than restating it.
+
   **Conformance criteria** (runtime):
   - **R30.1** (APS): An opportunity that resolved with no ads MUST be
     expressed as a resolution document carrying no candidates, and MUST
     NOT be expressed as an error response or as a response without a
     body.
+  - **R30.2** (Player): A resolution carrying no candidates MUST NOT
+    count as an execution of the opportunity. Where the opportunity's
+    event carries `@executeOnce="true"`, the event remains executable
+    afterwards, per §5.16.2.2.2 and §5.16.2.2.6 NOTE 3.
 
 ### Presentation
 
@@ -960,8 +974,8 @@ screen to a single active non-linear form at any instant.
   `MPD`, the Player takes the FIRST overlapping window it encounters and
   resolves its resolution document; that one resolution document may
   itself carry a sequence of candidates governed by the in-slot rule
-  of R14. The remaining overlapping windows (the second and any subsequent ones)
-  are FALLBACK: the Player resorts to them only when it cannot access
+  of R14. The remaining overlapping windows (the second and any
+  subsequent ones) are FALLBACK: the Player resorts to them only when it cannot access
   the resolution document of the first window — for example the APS does
   not respond, or the event URL that resolves to the APS fails. The two
   levels are independent: this requirement (R20) selects which window is
@@ -998,13 +1012,17 @@ screen to a single active non-linear form at any instant.
     its resolution document. The remaining overlapping windows of the
     same family are fallback only: the Player MUST resort to a
     subsequent overlapping window ONLY when it cannot access the
-    resolution document of the first window (the APS does not respond,
-    the request fails at the transport level, or the response carries a
-    final HTTP status other than `200`); when the first window's
-    resolution document is accessible, the Player MUST NOT fall through
-    to the others (a `200` response carrying a resolution document with
-    no candidates per R30 is accessible — the opportunity resolved, and
-    it resolved to no ads).
+    resolution document of the first window: the APS does not respond,
+    the request fails at the transport level, the response carries a
+    final HTTP status other than `200`, or the response carries a
+    `200` whose body is not a resolution document the Player can parse.
+    When the first window's resolution document is accessible, the
+    Player MUST NOT fall through to the others. A `200` carrying a
+    resolution document with no candidates per R30 **is** accessible —
+    the opportunity resolved, and it resolved to no ads. A `200`
+    carrying a body that does not parse is **not**: nothing was
+    obtained to resolve the opportunity with, which is the same
+    outcome as no response at all.
   - **R20.2** (Publisher): All opportunity windows of one family that
     share a `Period` MUST be authored as `<Event>` entries inside a
     **single** `<EventStream>`. DASH §5.10.2.1 admits at most one
