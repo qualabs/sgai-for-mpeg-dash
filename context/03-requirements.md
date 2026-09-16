@@ -1066,11 +1066,26 @@ screen to a single active non-linear form at any instant.
   therefore stops being a concurrency case to arbitrate at runtime and
   becomes a simple, declared fallback chain.
 
+  **Two things this requirement does not settle, stated rather than
+  left silent.** The ordering rule below is the base specification's,
+  and it reaches only as far as the base model does:
+
+  - **The ordering rule for the non-linear families is not defined
+    here.** R20.3 states what the base specification decides for the
+    inherited linear schemes. The overlay and pause families have no
+    `PRT` / `PRTA` execution model in the base specification, so
+    nothing decides their order yet. Applying the same rule is the
+    obvious answer and is a choice this specification has not made.
+  - **Two windows sharing a presentation time have no tie-break.**
+    Presentation time does not separate them, and the base
+    specification does not say what happens. Document order would be
+    the natural tie-break; it is written nowhere, here or there.
+
   **Conformance criteria** (runtime):
   - **R20.1** (Player): When ad opportunity windows of the same family
     overlap in time within the primary `MPD`, the Player MUST select
-    the first overlapping window it encounters and attempt to resolve
-    its resolution document. The remaining overlapping windows of the
+    the first overlapping window (R20.3) and attempt to resolve its
+    resolution document. The remaining overlapping windows of the
     same family are fallback only: the Player MUST resort to a
     subsequent overlapping window ONLY when it cannot access the
     resolution document of the first window: the APS does not respond,
@@ -1090,11 +1105,17 @@ screen to a single active non-linear form at any instant.
     `EventStream` per `Period` for a given (`@schemeIdUri`, `@value`)
     pair — "all Events of one type shall be clustered in one Event
     Stream" — so two sibling streams carrying the same SGAI scheme in
-    one `Period` is not a conformant document. Clustering is also what
-    gives R20.1's "first overlapping window it encounters" a defined
-    referent: §5.10.2.1 dispatches active events "in the order they
-    appear in the EventStream element", so the primary window and its
-    fallbacks are read off document order inside that one stream.
+    one `Period` is not a conformant document. Which of the clustered
+    windows is served first is a separate question, answered by R20.3.
+  - **R20.3** (Player): On the inherited linear schemes, which of two
+    overlapping windows is served first is decided by **presentation
+    time, not by document order**. The base specification's execution
+    queue is *"a priority queue ... ordered by the presentation time
+    PRT"* (§5.16.2.2.2), and events are applied *"in its priority
+    order (from oldest PRT to the most recent)"* (§5.16.2.2.5). The
+    order in which events appear inside an `EventStream` is the order
+    in which they are **dispatched** to the application (§5.10.2.1) —
+    a different stage, which does not decide which window executes.
 
 - **R22. Single active non-linear form; no concurrent presentation.**
   *Gist: At most one non-linear ad form is active on screen at any instant; no two non-linear forms are shown simultaneously.*
