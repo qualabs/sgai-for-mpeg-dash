@@ -5,8 +5,10 @@ cover_tokens:
   - "Sixth edition"
   - "2026-07"
 primary_copy:
-  path: "/home/nicolas/Develop/ai_workspace/cto-assistant/sandbox/vertex-rag/ISO_IEC_23009-1_2026(en) (1).pdf"
+  filename: "ISO_IEC_23009-1_2026(en).pdf"
   sha256: "a7274eb244d916285f76c3a08c806ec07481968e1e771820eba58370b64be100"
+  source: "https://www.iso.org/standard/89962.html"
+  locate_with: "SGAI_NORMATIVE_PDF, or a .normative-base-path file at the repository root"
 last_revalidation: "2026-09-16"
 revalidation_max_age_days: 90
 verification_register: ".project/phases/05-wg-feedback-round-2/citation-verification-register.md"
@@ -34,13 +36,18 @@ the whitespace between them.
 
 ## The primary copy
 
-`primary_copy` is the document used for verification. It is a licensed
-single-user copy and therefore **lives outside this repository and
-cannot be committed to it**.
+`primary_copy` identifies the document used for verification. It is a
+licensed single-user copy and therefore **lives outside this repository
+and cannot be committed to it**.
 
-It carries a `sha256` because a path is not an identity. A new edition
-arriving under the same filename is exactly the event this declaration
-exists to catch, and a path alone would not notice it.
+**It is identified by content, not by location.** The `sha256` is what
+makes the identification hold: a new edition arriving under the same
+filename is exactly the event this declaration exists to catch, and a
+filename alone would not notice it. Where the file sits is a property
+of whoever checked it out, not of this specification — a declaration
+that named one machine's directory would only be true on that machine.
+`locate_with` names how the check finds it; the check fails, loudly,
+when it cannot.
 
 ## What binding to an edition claims, and what it does not
 
