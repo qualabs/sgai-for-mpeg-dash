@@ -332,7 +332,10 @@ admissible ad-type vocabulary, and the admissible creative carriers.
 
   On the non-linear families this specification defines there is no
   `PRT` / `PRTA` model to preserve an end against, and the cap bounds
-  the cumulative duration of what the slot presents (R4.2, R14.2).
+  the cumulative duration of what the slot presents (R4.2, R14.2) —
+  with one exception. A **pause** slot has no declared duration for a
+  cap to bound: the viewer decides how long it lasts, and R31 states
+  what follows from that.
 
   So "the cap" names one Publisher declaration and two things it can
   bound. The criteria below are written against that: R4.1, R4.4 and
@@ -382,6 +385,32 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     semantics, which is what a profile does (§8.1). It is recorded
     here so that a reader who finds the unbounded default in the base
     specification knows it was excluded on purpose.
+
+- **R31. A pause opportunity window bounds where, not how long.**
+  *Gist: The window marks the region of the primary timeline in which a viewer pause triggers a resolution request; the duration of the resulting slot is set by the viewer and is unknown in advance.*
+
+  A pause opportunity window declares a region of the primary
+  timeline. A viewer pause that begins inside that region triggers the
+  resolution request; the window does not schedule a presentation and
+  does not predict one. How long the resulting slot lasts is
+  determined entirely by the viewer and is unbounded and unknowable
+  when the document is authored.
+
+  Every other slot family this specification defines has a duration
+  the Publisher can declare. A pause slot does not. Requirements
+  written on the assumption of a declared duration — the slot cap (R4)
+  among them — do not bound a pause slot: the viewer bounds it.
+
+  **Conformance criteria** (runtime):
+  - **R31.1** (Player): The Player MUST request a resolution document
+    when a viewer pause begins inside a pause opportunity window, and
+    MUST NOT request one for a pause that begins outside every such
+    window.
+  - **R31.2** (Publisher + Player): The Publisher-declared slot cap
+    (R4) MUST NOT be interpreted as bounding the duration of a pause
+    slot. R4's cap bounds an end on a replacement slot and a
+    cumulative duration elsewhere; on a pause slot it bounds neither,
+    because there is no authored duration for it to bound.
 
 - **R12. Ad types and formats supported by this edition.**
   *Gist: This edition supports a fixed, closed set of IAB ad types (linear, overlay, squeezeback, pause-ad); anything not listed, or rendered off the video surface, is out of scope.*
@@ -737,6 +766,47 @@ squeezeback layouts (side-by-side and L-shape).
     pause-ad; beacons scheduled at relative times after the
     transition fall outside the pause-ad's active window and are
     therefore out of scope.
+
+- **R32. Exhausted pause-ad candidates while the viewer is still paused.**
+  *Gist: When the pause-ad candidates run out and the pause continues, the APS declares which of three behaviours applies: repeat, request again, or stop.*
+
+  Because a pause slot has no declared duration (R31), the candidates
+  a resolution document carries may be exhausted while the viewer is
+  still paused. This specification does not leave that state
+  undefined, and R5.3's fall-through to primary content does not
+  apply: the primary content is paused.
+
+  The resolution document declares which of three behaviours the
+  Player applies:
+
+  - **repeat** — the Player presents the sequence again from the
+    start, for as long as the pause lasts.
+  - **request-again** — the Player requests a new resolution document
+    for the same pause.
+  - **stop** — the Player presents no further ad; the paused primary
+    frame is shown.
+
+  The declaration belongs to the APS and not to the Publisher. A
+  Publisher-declared limit on how many documents may be served would
+  be answered by APS implementations returning defensively long
+  candidate lists, since a single response would be their only
+  opportunity — the constraint would produce the outcome it exists to
+  prevent.
+
+  `stop` is the default: it is what the viewer would see if this
+  mechanism did not exist, and it is the behaviour every Player can
+  perform.
+
+  **Conformance criteria** (runtime):
+  - **R32.1** (APS): A resolution document for a pause slot MUST
+    declare which of the three behaviours applies. Absent the
+    declaration, the Player MUST apply `stop`.
+  - **R32.2** (Player): Under `request-again`, a resolution document
+    carrying no candidates (R30) MUST be treated as `stop` for the
+    remainder of that pause.
+  - **R32.3** (Player): When the viewer resumes playback, the Player
+    MUST return to the primary content immediately, whether or not an
+    ad is mid-presentation.
 
 - **R19. Ad playback speed follows primary content.**
   *Gist: Ads play at the primary content's speed, so a 10 s ad at 2x is on screen for 5 s of wall-clock; the cap and beacon schedule still use the presentation timeline.*
