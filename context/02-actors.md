@@ -37,8 +37,8 @@ The Publisher owns the primary content and the viewer's screen.
     layouts.
 - Encode these constraints within the MPD event so they are
   normative for the slot. Specific positions inside a layout are
-  out of scope here — they belong to the per-layout detail covered
-  in the Positioning Templates section of the proposal.
+  out of scope here — they follow from the IAB CTV ad type that the
+  slot's layout token names.
 
 ## Ad Decision Server (ADS)
 

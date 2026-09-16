@@ -1250,9 +1250,12 @@ and deferring layout to existing primitives.
   - **R10.2** (spec document): The specification MUST NOT define a parallel
     layout standard for overlay placement.
   - **R10.3** (spec document): Position semantics inside a layout
-    (left, right, top, bottom, etc.) are out of scope for the spec
-    and MUST be expressed via the Positioning Templates section
-    using HTML5 / CSS primitives.
+    (left, right, top, bottom, etc.) are out of scope for the spec.
+    Where an ad sits inside its layout follows from the IAB CTV ad
+    type that the `@layout` token names (R12.2, R12.4) and is
+    rendered with HTML5 / CSS primitives (R10.1). This specification
+    declares no positioning vocabulary of its own, which is what
+    R10.2 forbids.
 
 ## Out of Scope
 
@@ -1267,8 +1270,9 @@ and deferring layout to existing primitives.
   similar ADS concerns — and the APS-to-ADS exchange that conveys
   them — remain implementation-specific.
 - **OOS-3. Specific position semantics inside a layout** (left,
-  right, top, bottom). Those belong to the per-layout detail
-  covered in the Positioning Templates section of the proposal.
+  right, top, bottom). They follow from the IAB CTV ad type that the
+  `@layout` token names (R12.2, R12.4), and are rendered with
+  HTML5 / CSS primitives.
 - **OOS-4. Creative carrier formats outside R15.** Carriers other
   than the admissible set defined in R15 — for example raw
   JavaScript (`application/javascript`), SVG-as-payload, PDF,
@@ -1287,8 +1291,8 @@ and deferring layout to existing primitives.
   cover it; this edition's decoder-budget reasoning (R3, R22) assumes
   one decoder per concurrent form.
 
-The remainder of the proposal — Positioning Templates, Anatomy of
-the Overlay Resolution Document, Ad Tracking, Client Execution Flow,
-Example Implementation — should be read against these requirements.
+The remainder of the proposal — Anatomy of the Overlay Resolution
+Document, Ad Tracking, Client Execution Flow, Example
+Implementation — should be read against these requirements.
 Where a design choice satisfies several Rs in tension, the trade-off
 is made explicit in the corresponding section.
