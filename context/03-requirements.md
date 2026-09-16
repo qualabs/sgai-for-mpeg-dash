@@ -286,23 +286,24 @@ an ad opportunity before any ad is selected — the slot cap, the
 admissible ad-type vocabulary, and the admissible creative carriers.
 
 - **R4. Publisher-declared max slot duration, Player-enforced.**
-  *Gist: The Publisher declares a maximum slot duration and the Player enforces it, cutting mid-ad if the candidates would overflow; the ADS is not responsible for the cap.*
+  *Gist: The Publisher declares a maximum on every ad slot and the Player enforces it, cutting mid-ad rather than overrunning; what the maximum bounds depends on the slot's family, and the ADS is not responsible for it either way.*
 
-  The Publisher declares a maximum duration for each ad slot. The
-  ADS may return one or more ad candidates to fill that slot, but the
-  ADS is **not** responsible for respecting the cap. The Player MUST
-  enforce the cap: if the cumulative duration of the candidates the
-  Player chose to render exceeds the declared maximum, the Player
-  MUST stop at the cap, even if that means cutting an ad in
-  mid-playback. This default applies to both linear ad slots
-  (start-of-session, mid-content, multi-ad break) and non-linear
-  overlay slots (overlay max display duration). Alternative overflow
-  policies (e.g. skip the break entirely, trim-clean at the previous
-  ad boundary, fail-closed) are explicitly out of scope for the
-  default semantics; if needed, they must be expressible by the
-  Publisher as an opt-in policy on the slot. R4 is a concrete
-  instance of R2 — Publisher declares the constraint, Player
-  enforces it, ADS does not.
+  The Publisher declares a maximum on each ad slot, covering both
+  linear slots (start-of-session, mid-content, multi-ad break) and
+  non-linear overlay slots. The ADS may return one or more ad
+  candidates to fill that slot, but the ADS is **not** responsible for
+  respecting the cap. The Player MUST enforce it, stopping at the
+  bound even when the stop falls mid-ad. R4 is a concrete instance of
+  R2 — Publisher declares the constraint, Player enforces it, ADS does
+  not.
+
+  Overflow policies other than stopping at the bound — skip the break
+  entirely, trim clean at the previous ad boundary, fail closed — are
+  out of scope for the default semantics and would have to be
+  expressible by the Publisher as an opt-in on the slot. One such
+  policy already exists and is not ours to invent: `@clip` decides
+  what a late start does to a replacement slot, and it is described
+  below with the rest of the family behaviour.
 
   **What the cap bounds is not the same in every family, because the
   base specification makes it so.** On an inherited linear slot the cap
@@ -331,16 +332,22 @@ admissible ad-type vocabulary, and the admissible creative carriers.
 
   On the non-linear families this specification defines there is no
   `PRT` / `PRTA` model to preserve an end against, and the cap bounds
-  cumulative duration (R4.2, R14.2).
+  the cumulative duration of what the slot presents (R4.2, R14.2).
+
+  So "the cap" names one Publisher declaration and two things it can
+  bound. The criteria below are written against that: R4.1, R4.4 and
+  R4.5 hold in every family, R4.2 is the cumulative-duration rule, and
+  R4.6 is what replaces it where the base specification bounds an end
+  instead.
 
   **Conformance criteria** (runtime):
   - **R4.1** (Publisher): The Publisher MUST declare a maximum
     duration on every ad slot (linear or non-linear) defined in the
     `MPD`.
-  - **R4.2** (Player): When the cumulative duration of accepted ad
-    candidates would exceed the Publisher-declared cap, the
-    Player MUST stop rendering at the cap boundary, even if the
-    stop falls mid-ad.
+  - **R4.2** (Player): Where the cap bounds cumulative duration — the
+    non-linear families, and linear insertion — the Player MUST stop
+    rendering once the cumulative duration of the accepted candidates
+    would exceed it, even if the stop falls mid-ad.
   - **R4.3** (Player): The Player MUST NOT extend a slot beyond what
     the cap bounds for that slot's family (R4.6), regardless of ADS
     metadata or candidate count. On a replacement slot the bound is
@@ -358,8 +365,9 @@ admissible ad-type vocabulary, and the admissible creative carriers.
   - **R4.6** (Player): On an inherited linear replacement slot, the
     Player MUST honour the base specification's clip semantics: unless
     the event declares otherwise, the presentation ends at the
-    scheduled end of the slot and a late start shortens it. On an
-    insertion slot the cap bounds the presentation's own duration.
+    scheduled end of the slot and a late start shortens it rather
+    than moving that end. Insertion has no clip semantics to honour
+    and falls under R4.2.
   - **R4.7** (Publisher + Player): A declared cap of zero means the
     opportunity does not fire. The base specification states it
     directly — *"If the value of `@maxDuration` is zero, the event is
