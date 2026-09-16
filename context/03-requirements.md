@@ -975,6 +975,17 @@ screen to a single active non-linear form at any instant.
     to the others (a `200` response carrying a resolution document with
     no candidates per R30 is accessible — the opportunity resolved, and
     it resolved to no ads).
+  - **R20.2** (Publisher): All opportunity windows of one family that
+    share a `Period` MUST be authored as `<Event>` entries inside a
+    **single** `<EventStream>`. DASH §5.10.2.1 admits at most one
+    `EventStream` per `Period` for a given (`@schemeIdUri`, `@value`)
+    pair — "all Events of one type shall be clustered in one Event
+    Stream" — so two sibling streams carrying the same SGAI scheme in
+    one `Period` is not a conformant document. Clustering is also what
+    gives R20.1's "first overlapping window it encounters" a defined
+    referent: §5.10.2.1 dispatches active events "in the order they
+    appear in the EventStream element", so the primary window and its
+    fallbacks are read off document order inside that one stream.
 
 - **R22. Single active non-linear form; no concurrent presentation.**
   *Gist: At most one non-linear ad form is active on screen at any instant; no two non-linear forms are shown simultaneously.*
