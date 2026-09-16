@@ -10,8 +10,13 @@ stale base.
 It never passes when it could not look: an unreadable or missing primary
 copy is an error, not a skipped check.
 
+The primary copy is a licensed single-user document that is not in this
+repository, so its location is not declared here. Point the check at it
+with SGAI_NORMATIVE_PDF, or with a .normative-base-path file at the
+repository root holding the path (gitignored). Without either, the check
+fails rather than passing quietly.
+
 Usage:  bin/check-normative-base.py [--quiet]
-Env:    SGAI_NORMATIVE_PDF  overrides the declared path (other machines)
 """
 import hashlib
 import os
@@ -73,9 +78,20 @@ def main():
     decl = load_declaration(DECL)
     errors, warnings = [], []
 
-    pdf = os.environ.get("SGAI_NORMATIVE_PDF") or decl["primary_copy"]["path"]
-    if os.environ.get("SGAI_NORMATIVE_PDF"):
-        warnings.append(f"ruta sobrescrita por SGAI_NORMATIVE_PDF: {pdf}")
+    pointer = os.path.join(ROOT, ".normative-base-path")
+    pdf = os.environ.get("SGAI_NORMATIVE_PDF")
+    if not pdf and os.path.isfile(pointer):
+        pdf = open(pointer, encoding="utf-8").read().strip()
+    if not pdf:
+        print("ERROR: no se sabe donde esta la copia primaria de "
+              f"{decl['primary_copy']['filename']}.\n"
+              "    Es una copia licenciada de uso personal y no vive en este "
+              "repositorio.\n"
+              "    Indicala con SGAI_NORMATIVE_PDF o con un archivo "
+              ".normative-base-path en la raiz.\n"
+              "\nFALLA: sin la copia primaria no se puede verificar nada. "
+              "El build no debe continuar.")
+        return 1
 
     cover = cover_text(pdf, errors)
 
