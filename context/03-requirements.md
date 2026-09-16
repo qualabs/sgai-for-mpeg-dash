@@ -1110,17 +1110,16 @@ screen to a single active non-linear form at any instant.
   the same family in the primary `MPD`** (the families are linear,
   overlays, and pause ads — each family is a category of ad). When two
   or more windows of the same family overlap in time in the primary
-  `MPD`, the Player takes the FIRST overlapping window it encounters and
-  resolves its resolution document; that one resolution document may
-  itself carry a sequence of candidates governed by the in-slot rule
-  of R14. The remaining overlapping windows (the second and any
-  subsequent ones) are FALLBACK: the Player resorts to them only when it cannot access
-  the resolution document of the first window — for example the APS does
-  not respond, or the event URL that resolves to the APS fails. The two
-  levels are independent: this requirement (R20) selects which window is
-  served; R14 governs the sequence of candidates inside the selected
-  window's
-  resolution document.
+  `MPD`, the Player takes the first overlapping window — which R20.3
+  identifies — and resolves its resolution document; that one
+  resolution document may itself carry a sequence of candidates
+  governed by the in-slot rule of R14. The remaining overlapping
+  windows are FALLBACK: the Player resorts to them only when it cannot
+  obtain the first window's resolution document at all, and R20.1
+  enumerates exactly when that is. The two levels are independent:
+  this requirement (R20) selects which window is served; R14 governs
+  the sequence of candidates inside the selected window's resolution
+  document.
 
   The rationale for resolving overlapping same-family windows as
   first-window-wins-with-fallback — rather than serving them
@@ -1144,21 +1143,6 @@ screen to a single active non-linear form at any instant.
   therefore stops being a concurrency case to arbitrate at runtime and
   becomes a simple, declared fallback chain.
 
-  **Two things this requirement does not settle, stated rather than
-  left silent.** The ordering rule below is the base specification's,
-  and it reaches only as far as the base model does:
-
-  - **The ordering rule for the non-linear families is not defined
-    here.** R20.3 states what the base specification decides for the
-    inherited linear schemes. The overlay and pause families have no
-    `PRT` / `PRTA` execution model in the base specification, so
-    nothing decides their order yet. Applying the same rule is the
-    obvious answer and is a choice this specification has not made.
-  - **Two windows sharing a presentation time have no tie-break.**
-    Presentation time does not separate them, and the base
-    specification does not say what happens. Document order would be
-    the natural tie-break; it is written nowhere, here or there.
-
   **Conformance criteria** (runtime):
   - **R20.1** (Player): When ad opportunity windows of the same family
     overlap in time within the primary `MPD`, the Player MUST select
@@ -1179,21 +1163,32 @@ screen to a single active non-linear form at any instant.
     outcome as no response at all.
   - **R20.2** (Publisher): All opportunity windows of one family that
     share a `Period` MUST be authored as `<Event>` entries inside a
-    **single** `<EventStream>`. DASH §5.10.2.1 admits at most one
-    `EventStream` per `Period` for a given (`@schemeIdUri`, `@value`)
-    pair — "all Events of one type shall be clustered in one Event
-    Stream" — so two sibling streams carrying the same SGAI scheme in
-    one `Period` is not a conformant document. Which of the clustered
-    windows is served first is a separate question, answered by R20.3.
-  - **R20.3** (Player): On the inherited linear schemes, which of two
-    overlapping windows is served first is decided by **presentation
-    time, not by document order**. The base specification's execution
-    queue is *"a priority queue ... ordered by the presentation time
-    PRT"* (§5.16.2.2.2), and events are applied *"in its priority
-    order (from oldest PRT to the most recent)"* (§5.16.2.2.5). The
-    order in which events appear inside an `EventStream` is the order
-    in which they are **dispatched** to the application (§5.10.2.1) —
-    a different stage, which does not decide which window executes.
+    **single** `<EventStream>`. DASH admits at most one `EventStream`
+    per `Period` for a given scheme — §5.10.2.1: *"all Events of one
+    type shall be clustered in one Event Stream"* — so two sibling
+    streams carrying the same SGAI scheme in one `Period` is not a
+    conformant document.
+  - **R20.3** (Player): Overlapping windows of one family are ordered
+    by **presentation time, oldest first**. Where two windows carry
+    the same presentation time, the order is the order in which they
+    appear inside the `EventStream`.
+
+    For the linear family this is the base standard's own rule: the
+    execution queue is *"a priority queue ... ordered by the
+    presentation time PRT"* (§5.16.2.2.2), processed *"from oldest PRT
+    to the most recent"* (§5.16.2.2.5). **It is not document order** —
+    document order governs when an event is handed to the application
+    (§5.10.2.1), which is an earlier and separate step.
+
+    For the non-linear families the base standard does not reach: its
+    execution model is built on a scheduled presentation time that
+    overlays and pause-ads do not have. **This specification therefore
+    extends the same rule to them**, so that one ordering governs
+    every family and an implementer does not have to learn two. The
+    tie-break by document position is likewise ours: the base
+    standard's queue does not resolve equal presentation times, and
+    document position is what remains once presentation time has
+    stopped separating them.
 
 - **R22. Single active non-linear form; no concurrent presentation.**
   *Gist: At most one non-linear ad form is active on screen at any instant; no two non-linear forms are shown simultaneously.*
