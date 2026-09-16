@@ -152,6 +152,27 @@ Edit the file in `context/` directly. Downstream artefacts
 by mtime; re-run `prompts/build-all.prompt` and the orchestrator
 regenerates only the steps whose inputs moved.
 
+### How to invoke a build
+
+```bash
+CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0 \
+  claude -p "$(cat prompts/build-all.prompt)"
+```
+
+**The environment variable is not optional.** `claude -p` terminates a
+run after waiting 600 seconds for background tasks, and this pipeline
+dispatches subagents by contract — Steps 7 and 8 MUST run in fresh
+subagent contexts, and `compare-spec-versions` too. Without the
+variable the run is killed **while collecting work that has already
+been done and paid for** — and it reports the step it was waiting on as
+still running, because the orchestrator's last message is composed
+before the subagent delivers. That is worse than failing: the work is
+on disk, the run that would have used it is gone, and the log says the
+opposite.
+
+The same applies to any prompt invoked on its own that dispatches a
+subagent.
+
 When renumbering or renaming files in `context/`:
 
 - Update the TOC in `context/01-intro.md`.
