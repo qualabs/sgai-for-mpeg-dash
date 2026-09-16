@@ -684,9 +684,9 @@ for that number, but it is blocked on the Working Group, and a number is never
 held for an item that has not landed — so the empty-resolution requirement, which
 was ready, took it.
 
-**R31 and R32 are now taken as well**, by the pause opportunity window and by
-the exhausted-pause-candidates rule, both landed in
-`context/03-requirements.md` on 2026-09-16. **R33 is free**: the next
+**R31, R32 and R33 are now taken as well**, by the pause opportunity window,
+the exhausted-pause-candidates rule and the pause-delivery metric, all landed
+in `context/03-requirements.md` on 2026-09-16. **R34 is free**: the next
 requirement to land takes it, whichever item it comes from, and phases
 `03-custom-layout` and `04-multiview` re-read `context/` when they execute,
 which is what the rule exists for.
