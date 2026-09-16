@@ -40,7 +40,7 @@ This folder stays focused on the technical content.
   described once with per-device-class expected behavior.
 - **[05-dash-linear-interfaces.md](./05-dash-linear-interfaces.md)** —
   Reference for how SGAI is implemented today for linear ads in
-  MPEG-DASH 6th edition (FDIS ISO/IEC 23009-1:2025). Inventories the
+  MPEG-DASH 6th edition. Inventories the
   actor interfaces, walks the end-to-end message flow with
   concrete MPD and ListMPD examples, and lays out the VAST → ListMPD
   adapter mapping performed by the APS.
