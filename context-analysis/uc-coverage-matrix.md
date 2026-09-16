@@ -2,139 +2,133 @@
 
 # UC × R coverage matrix
 
-Consumed `../context/03-requirements.md` (mtime 2026-09-15 19:16:04 -03) and
-`../context/04-use-cases.md` (mtime 2026-09-15 17:41:41 -03). **13 use cases**
-(UC-01..UC-13) × **30 requirements** (R1..R30; numbering is non-contiguous by
-section but the set is complete).
-
-A cell is `A` when the UC text names the requirement (or one of its `RN.M`
-criteria) **or** its scenario / expected behaviour performs the obligation the
-requirement states; `·` otherwise. Naming a requirement is not required for `A`
-— R7 is never cited by number yet six UCs walk candidates "in document order",
-which is R7.1 verbatim.
+Built from [`../context/03-requirements.md`](../context/03-requirements.md)
+(mtime 2026-09-15 21:54) and [`../context/04-use-cases.md`](../context/04-use-cases.md)
+(mtime 2026-09-15 17:41): **13 use cases** (UC-01..UC-13) × **30 requirements**
+(R1..R30), 80 `A` cells. A cell is `A` when the UC names the requirement or its
+scenario exercises the requirement's obligation; conservative elsewhere. Two
+readings warrant stating, because they set several cells: R12 is marked `A` only
+where the Publisher declares an allowed-layout set using the enumerated visual
+placements (not merely where an enumerated ad type is used), and R15 only where
+the UC selects among the three admissible carrier formats (video / image / HTML).
 
 ## Matrix 1 — UC × R
 
-| UC | R1 | R2 | R3 | R4 | R5 | R6 | R7 | R8 | R9 | R10 | R11 | R12 | R13 | R14 | R15 | R16 | R17 | R18 | R19 | R20 | R21 | R22 | R23 | R24 | R25 | R26 | R27 | R28 | R29 | R30 |
+Columns are R1..R30 (the `R` prefix is dropped in the header).
+
+| UC | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| UC-01 | · | · | A | A | A | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · |
-| UC-02 | · | · | A | A | A | · | A | · | · | · | · | · | A | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · |
-| UC-03 | · | · | A | A | A | · | A | · | · | A | · | A | A | · | A | · | · | · | A | · | · | · | · | · | · | A | A | · | · | · |
-| UC-04 | · | A | A | A | A | · | A | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | A | · | · | · |
-| UC-05 | · | A | A | A | A | · | A | · | · | A | · | · | · | · | A | A | · | · | · | · | A | · | · | · | A | · | · | · | · | · |
-| UC-06 | · | A | A | A | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · |
-| UC-07 | A | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · |
-| UC-08 | · | · | A | A | A | · | · | · | · | A | · | · | · | · | · | A | A | · | · | · | A | A | · | · | · | · | · | · | · | · |
-| UC-09 | · | A | A | A | A | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | A | A | · | A | · |
-| UC-10 | · | · | A | A | A | · | · | · | · | · | · | A | · | · | A | · | · | · | · | · | · | · | · | · | · | A | A | · | · | · |
-| UC-11 | A | · | A | · | · | A | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | A | · | · |
-| UC-12 | · | · | A | · | · | · | · | · | · | · | · | · | · | A | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | A |
-| UC-13 | · | A | A | A | A | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | A | A | · | A | · |
+| **UC-01** | · | · | · | A | A | · | A | · | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · |
+| **UC-02** | · | · | · | A | A | · | A | · | · | · | · | · | A | · | A | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · |
+| **UC-03** | · | · | A | A | A | · | A | · | · | A | · | A | A | · | A | · | · | · | A | · | · | · | · | · | · | A | A | · | · | · |
+| **UC-04** | · | A | A | A | A | · | A | · | · | · | · | A | · | · | A | · | · | · | · | · | · | · | · | · | · | · | A | · | · | · |
+| **UC-05** | · | · | A | A | A | · | A | · | · | · | · | A | · | · | A | A | · | · | · | · | A | · | · | · | A | · | · | · | · | · |
+| **UC-06** | · | A | · | A | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · |
+| **UC-07** | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · |
+| **UC-08** | · | · | A | A | A | · | · | · | · | · | · | · | · | · | · | A | A | · | · | · | A | A | · | · | · | · | · | · | · | · |
+| **UC-09** | · | A | A | A | A | · | · | · | · | · | · | A | · | · | A | · | · | · | · | · | · | · | · | · | · | A | A | · | · | · |
+| **UC-10** | · | · | A | A | A | · | · | · | · | · | · | A | · | · | A | · | · | · | · | · | · | · | · | · | · | A | A | · | · | · |
+| **UC-11** | A | · | · | · | · | A | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | A | · | · |
+| **UC-12** | · | · | · | · | · | · | · | · | · | · | · | · | · | A | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | A |
+| **UC-13** | · | A | A | A | A | · | · | · | · | · | · | A | · | · | A | · | · | · | · | · | · | · | · | · | · | A | A | · | A | · |
 
 ## Matrix 2 — R × UC
 
-| R | UC-01 | UC-02 | UC-03 | UC-04 | UC-05 | UC-06 | UC-07 | UC-08 | UC-09 | UC-10 | UC-11 | UC-12 | UC-13 | Tag |
+Columns are UC-01..UC-13 (the `UC-` prefix is dropped in the header).
+
+| R | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11 | 12 | 13 | Tag |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| R1 | · | · | · | · | · | · | A | · | · | · | A | · | · | (covered) |
-| R2 | · | · | · | A | A | A | · | · | A | · | · | · | A | (covered) |
-| R3 | A | A | A | A | A | A | A | A | A | A | A | A | A | (covered) |
-| R4 | A | A | A | A | A | A | · | A | A | A | · | · | A | (covered) |
-| R5 | A | A | A | A | A | · | · | A | A | A | · | · | A | (covered) |
-| R6 | · | · | · | · | · | · | · | · | · | · | A | · | · | (covered) |
-| R7 | A | A | A | A | A | A | · | · | · | · | · | · | · | (covered) |
-| R8 | · | · | · | · | · | · | · | · | · | · | · | · | · | (governance) |
-| R9 | · | · | · | · | · | · | · | · | · | · | · | · | · | (governance) |
-| R10 | · | · | A | · | A | · | · | A | · | · | · | · | · | (covered) |
-| R11 | · | · | · | · | · | · | · | · | · | · | · | · | · | (orphan) |
-| R12 | · | · | A | A | · | · | · | · | A | A | · | · | A | (covered) |
-| R13 | · | A | A | · | · | · | · | · | · | · | A | · | · | (covered) |
-| R14 | · | · | · | · | · | · | · | · | · | · | · | A | · | (covered) |
-| R15 | · | · | A | · | A | · | · | · | · | A | · | · | · | (covered) |
-| R16 | · | · | · | · | A | · | · | A | · | · | · | · | · | (covered) |
-| R17 | · | · | · | · | · | · | · | A | · | · | · | · | · | (covered) |
-| R18 | · | · | · | · | · | · | · | · | · | · | · | · | · | (governance) |
-| R19 | · | A | A | · | · | · | · | · | · | · | · | · | · | (covered) |
-| R20 | · | · | · | · | · | · | · | · | · | · | · | A | · | (covered) |
-| R21 | · | · | · | · | A | · | · | A | · | · | · | · | · | (covered) |
-| R22 | · | · | · | · | · | · | · | A | · | · | · | · | · | (covered) |
-| R23 | · | · | · | · | · | · | · | · | · | · | · | · | · | (governance) |
-| R24 | · | · | · | · | · | · | · | · | · | · | · | · | · | (orphan) |
-| R25 | · | · | · | · | A | · | · | · | · | · | · | · | · | (covered) |
-| R26 | · | · | A | · | · | · | · | · | A | A | · | · | A | (covered) |
-| R27 | · | · | A | A | · | · | · | · | A | A | · | · | A | (covered) |
-| R28 | · | · | · | · | · | · | · | · | · | · | A | · | · | (covered) |
-| R29 | · | · | · | · | · | · | · | · | A | · | · | · | A | (covered) |
-| R30 | · | · | · | · | · | · | · | · | · | · | · | A | · | (covered) |
+| **R1** | · | · | · | · | · | · | A | · | · | · | A | · | · | `(covered)` |
+| **R2** | · | · | · | A | · | A | · | · | A | · | · | · | A | `(covered)` |
+| **R3** | · | · | A | A | A | · | · | A | A | A | · | · | A | `(covered)` |
+| **R4** | A | A | A | A | A | A | · | A | A | A | · | · | A | `(covered)` |
+| **R5** | A | A | A | A | A | · | · | A | A | A | · | · | A | `(covered)` |
+| **R6** | · | · | · | · | · | · | · | · | · | · | A | · | · | `(covered)` |
+| **R7** | A | A | A | A | A | A | · | · | · | · | · | · | · | `(covered)` |
+| **R8** | · | · | · | · | · | · | · | · | · | · | · | · | · | `(governance)` |
+| **R9** | · | · | · | · | · | · | · | · | · | · | · | · | · | `(governance)` |
+| **R10** | · | · | A | · | · | · | · | · | · | · | · | · | · | `(governance)` |
+| **R11** | · | · | · | · | · | · | · | · | · | · | · | · | · | `(governance)` |
+| **R12** | · | · | A | A | A | · | · | · | A | A | · | · | A | `(covered)` |
+| **R13** | · | A | A | · | · | · | · | · | · | · | A | · | · | `(covered)` |
+| **R14** | · | · | · | · | · | · | · | · | · | · | · | A | · | `(covered)` |
+| **R15** | A | A | A | A | A | · | · | · | A | A | · | · | A | `(covered)` |
+| **R16** | · | · | · | · | A | · | · | A | · | · | · | · | · | `(covered)` |
+| **R17** | · | · | · | · | · | · | · | A | · | · | · | · | · | `(covered)` |
+| **R18** | · | · | · | · | · | · | · | · | · | · | · | · | · | `(governance)` |
+| **R19** | · | A | A | · | · | · | · | · | · | · | · | · | · | `(covered)` |
+| **R20** | · | · | · | · | · | · | · | · | · | · | · | A | · | `(covered)` |
+| **R21** | · | · | · | · | A | · | · | A | · | · | · | · | · | `(covered)` |
+| **R22** | · | · | · | · | · | · | · | A | · | · | · | · | · | `(covered)` |
+| **R23** | · | · | · | · | · | · | · | · | · | · | · | · | · | `(governance)` |
+| **R24** | · | · | · | · | · | · | · | · | · | · | · | · | · | `(orphan)` |
+| **R25** | · | · | · | · | A | · | · | · | · | · | · | · | · | `(covered)` |
+| **R26** | · | · | A | · | · | · | · | · | A | A | · | · | A | `(covered)` |
+| **R27** | · | · | A | A | · | · | · | · | A | A | · | · | A | `(covered)` |
+| **R28** | · | · | · | · | · | · | · | · | · | · | A | · | · | `(covered)` |
+| **R29** | · | · | · | · | · | · | · | · | · | · | · | · | A | `(covered)` |
+| **R30** | · | · | · | · | · | · | · | · | · | · | · | A | · | `(covered)` |
 
 ## Notes
 
 ### Orphan Rs
 
-Two requirements carry a runtime actor obligation and no UC exercises it.
-Neither is redundant with another R; both are gaps.
+**R24 — non-AV creative asset carrier (RFC 4337 avoidance).** The only
+non-governance requirement no use case exercises. Every UC that renders an image
+or HTML form (UC-03, UC-05, UC-09, UC-10, UC-13) describes that form at the
+capability level — which surface the device needs — and never how the asset URL
+reaches the Player, which is exactly what R24 constrains. It is not redundant:
+R15 fixes *which* carrier formats are admissible, R6 covers tracking beacons,
+and R24 fixes *how* a non-AV asset URL is carried. Minimal UC that closes the
+gap: a resolution document carrying one image ad and one HTML ad, where the
+Player retrieves both assets and the observable is that each asset URL arrives
+through a DR-6 carrier and not as an `@mimeType` on a path bound by RFC 4337.
+Appending it to UC-10 (already the image/HTML-heavy worked example) is cheaper
+than a new UC.
 
-- **R11 — No dependency on VAST.** `VAST` appears zero times in
-  `04-use-cases.md`; the ad response of every UC is described as "the ADS
-  decided it and the APS presented it", never as a VAST document. That silence
-  is consistent with R11 but does not exercise R11.2 ("a Player MUST be able to
-  operate regardless of whether the ADS uses VAST"), because no scenario makes
-  the ADS's decision format visible. **Minimal UC to close it**: a variant note
-  on UC-01 or UC-03 stating that the same resolution document is produced from a
-  non-VAST ADS decision and the Player's behaviour is bit-identical — the
-  Player-facing contract starts at the resolution document. One paragraph, no
-  new device-class table.
-- **R24 — Non-AV creative asset carrier (RFC 4337 avoidance).** `mimeType`
-  appears zero times in `04-use-cases.md`. UC-03, UC-05, UC-09, UC-10 and UC-13
-  all render image and HTML creatives, so the situation R24 constrains occurs
-  repeatedly, but no UC says how the asset URL travels. R24.1 binds the APS
-  (a runtime actor emitting the resolution document), so it is not a
-  document-only rule. **Minimal UC to close it**: extend UC-10's "Ad response"
-  block by one bullet — the image ad and the image background element carry
-  their URLs through a DR-6 carrier, not as `@mimeType` on an AdaptationSet —
-  and the same statement covers the image / HTML options of UC-09 and UC-13 by
-  reference.
-
-Tagged `(governance)` instead, because every conformance criterion is
-spec-document or bilateral-contract and a UC cannot exercise it: **R8**
-(justify additions), **R9** (minimise new constructs), **R18** (APS-to-ADS API
-out of scope), **R23** (application-level metadata carrier — the requirement
-explicitly says what is checkable is "that the place exists and is named, not
-that anyone used it").
-
-**R10 is document-level but not orphaned**: UC-03/D1 cites it directly
-("using HTML/CSS layout primitives (per R10)"), and UC-05/D3 and UC-08/D3
-render through "the HTML/CSS layer". Tagged `(covered)`.
+**Governance Rs with no UC — expected, not gaps.** R8, R9, R11, R18, R23 carry
+document-level conformance criteria only, so no playback scenario can exercise
+them: R11.2's "the Player operates regardless of whether the ADS uses VAST" is
+not observable in a session, R18 states a scope boundary, and R23.1 only
+requires the spec to name a place for optional metadata. R10 is tagged
+`(governance)` on the same criterion — all three of its conformance items are
+spec-document ones — even though UC-03 does cite it when it composes the overlay
+through HTML/CSS layout primitives.
 
 ### UCs with thin coverage
 
-| UC | Rs | Candidates to surface in the UC text |
-|---|---|---|
-| UC-07 — Legacy Player | 2 (R1, R3) | **R2.1** — the UC already has the Publisher authoring a standard linear break as the VOD fallback; naming it as a Publisher declaration ties the scenario to the actor contract. **R1.2** — the UC asserts new mechanisms are expressed "via MPEG-DASH 6th edition extension points"; R1.2 is the criterion that enumerates which ones, so the citation is free. **R12** — what the legacy Player ignores is one of the enumerated ad types. |
+**UC-07 (1 R: R1)** is the only UC below three. The thinness is structural: the
+legacy Player never recognises the SGAI construct, so it never reaches the APS
+and every selection, presentation and tracking requirement is out of play by
+construction. Two Rs could legitimately surface in the text — **R12**, because
+the VOD fallback the Publisher authors is the `linear` ad type of the
+enumeration, and **R2**, because authoring that fallback is a Publisher
+declaration under R2.1.
 
-No other UC falls below three. The next lowest are UC-01, UC-06 and UC-12 at
-four each, and in all three the narrow count is the scenario's actual shape
-(a single linear slot; a linear pod; window selection with no rendering), not
-under-specification.
-
-Two requirements are covered by exactly one UC each and are worth watching even
-though they are not orphans:
-
-- **R14** (sequential non-linear forms in a slot) is reached only through
-  UC-12's forward pointer ("the forms inside its resolution document are then
-  sequenced per R14"). No UC shows the scenario R14 describes — a non-linear
-  slot whose resolution document declares Overlay A → B → C played in order.
-- **R22** (single active non-linear form) is exercised only by UC-08, and there
-  only as a by-product of R17 suspending the overlay during a pause. No UC puts
-  two non-linear forms in contention on their own.
+Two UCs sit at exactly three and are worth tightening. **UC-06 (R2, R4, R7)**:
+its ad response says only that each candidate has its own duration, so **R5**
+never surfaces even though a multi-ad break's candidates carry presentation
+options like any other slot; **R30** would also fit, for a break that resolves
+to no ads. **UC-12 (R14, R20, R30)**: it already sequences the chosen window's
+forms per R14, so naming **R7** for the candidate order inside the served
+resolution document costs one clause.
 
 ### Bidirectional sanity check
 
-The two matrices were rendered from one `R → {UC}` table and then re-parsed
-independently from the rendered markdown above; for every R, the UC set read
-back from Matrix 1's columns was compared against the UC set read back from
-Matrix 2's rows. **0 mismatches across all 30 requirements.** The comparator
-was validated by flipping a single cell in Matrix 1 (R5 / UC-04, `A` → `·`),
-which made it report the mismatch and exit non-zero; the check can fail.
+**No mismatch.** The two matrices were transcribed independently — one
+row-oriented (UC → Rs), one column-oriented (R → UCs) — and then diffed cell by
+cell; the symmetric difference is empty at 80 `A` cells. The check was verified
+against a seeded discrepancy (an extra cell injected into the row view alone),
+which it reported, so an empty result is a measurement and not a silent pass.
 
-Totals agree from both directions: 84 `A` cells read row-wise out of Matrix 1
-and 84 read row-wise out of Matrix 2, over 30 requirements × 13 use cases.
+A second check ran over the same pair: every literal `RNN` reference inside a UC
+body must land on an `A` cell. All 49 explicit references do, with one
+deliberate exception — **UC-09 × R29**, where UC-09 names R29 only to point at
+UC-13 as the other division of labour and states in the same paragraph that the
+Player discloses nothing about its device, so R29's obligation is not exercised
+there.
+
+One asymmetry worth recording: **R7 is named by no UC at all**, yet six exercise
+it (UC-01..UC-06, through "selects the first renderable candidate following
+document order" and "plays each candidate in order"). It is covered in substance
+and uncited in text, which is the inverse of the UC-09 × R29 case.

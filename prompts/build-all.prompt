@@ -30,6 +30,27 @@ var (default `true`) and capped at `MAX_REFINEMENTS` iterations
 
 ---
 
+## Step 0 — Confirm the normative base (blocking, runs first)
+
+Before any other step, run from the project root:
+
+```bash
+bin/check-normative-base.py
+```
+
+**A non-zero exit aborts the build.** Do not run Step 1, do not fall
+back, do not reason about whether the mismatch matters — report the
+script's output verbatim and stop.
+
+The script compares `context/00-normative-base.md` against the cover of
+the primary copy of the standard on disk. It fails when the declared
+edition does not describe that document, when the file at the declared
+path is no longer the declared file, and when it cannot read the
+document at all. That last case is an error and not a skip: a check that
+passes because it could not look is worse than no check.
+
+A warning about revalidation age does not abort the build. Surface it.
+
 ## Pipeline
 
 For each step, log a single line:
