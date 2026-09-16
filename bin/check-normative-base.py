@@ -10,8 +10,8 @@ stale base.
 It never passes when it could not look: an unreadable or missing primary
 copy is an error, not a skipped check.
 
-The primary copy is a licensed single-user document that is not in this
-repository, so its location is not declared here. Point the check at it
+The primary copy is not in this repository and its location is not
+declared here, because it is a property of the checkout. Point the check at it
 with SGAI_NORMATIVE_PDF, or with a .normative-base-path file at the
 repository root holding the path (gitignored). Without either, the check
 fails rather than passing quietly.
@@ -85,8 +85,7 @@ def main():
     if not pdf:
         print("ERROR: no se sabe donde esta la copia primaria de "
               f"{decl['primary_copy']['filename']}.\n"
-              "    Es una copia licenciada de uso personal y no vive en este "
-              "repositorio.\n"
+              "    No vive en este repositorio.\n"
               "    Indicala con SGAI_NORMATIVE_PDF o con un archivo "
               ".normative-base-path en la raiz.\n"
               "\nFALLA: sin la copia primaria no se puede verificar nada. "
