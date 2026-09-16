@@ -138,10 +138,26 @@ For each new construct C, classify its carrier against DR-6 in
   attribute.
 - **(b) Event Stream payload** (§5.10) — an `<Event>` whose
   `text()` carries an inline payload.
-- **(c) Vendor descriptor scheme** (§5.8.4.8 / §5.8.4.9) — a
-  scheme URI with `@value` carrying the payload string.
+- **(c1) Supplemental descriptor scheme** (§5.8.4.9) — a scheme URI
+  with `@value` carrying the payload string, on a
+  `SupplementalProperty`. A legacy Player that does not recognise the
+  scheme *"is expected to ignore the descriptor"*: the parent element
+  survives and is processed normally.
+- **(c2) Essential descriptor scheme** (§5.8.4.8) — the same payload
+  on an `EssentialProperty`. A legacy Player that does not recognise
+  the scheme *"is expected to ignore the parent element that contains
+  the descriptor"*: the `AdaptationSet` or `Representation` holding it
+  is dropped. This is the admissible choice when rendering the parent
+  without understanding the descriptor would produce a wrong result,
+  and it is the reason the two are not one option.
 
-Constructs not fitting (a) / (b) / (c) MUST justify why Annex F
+**(c1) and (c2) MUST NOT be classified together.** They are the only
+two carriers in this list whose legacy behaviour differs, and the
+difference is what this checklist exists to make visible: one degrades,
+the other removes. A construct classified as "(c)" states nothing
+auditable.
+
+Constructs not fitting (a) / (b) / (c1) / (c2) MUST justify why Annex F
 (DR-4) is invoked and what new Interoperability Point URI is
 published. The classification MUST be stated explicitly in the
 construct's chapter — leaving it implicit is a checklist failure.
