@@ -1632,3 +1632,91 @@ is performed blind, and the only notice is one line in a file that this
 project has now measured as unopened for three and a half months. Before
 the next build, either it is unblocked or running without grounding is
 chosen deliberately.
+
+## 2026-09-15 (last) — the retrieval did not invent a name, it invented an explanation
+
+Extends the previous entry, which covers only the smaller half. The
+`clipDuration` case recorded there is a false *name*. What follows is a
+false *explanation*, and the two are not the same kind of failure.
+
+### The claim that was almost written into `context/`
+
+`v7-build-halt-report-2026-09-15.md` opens with this as its central
+thesis:
+
+> "MPEG-DASH 6th edition spells these attributes two different ways in
+> two different clauses, and never acknowledges the mismatch."
+
+It presents a two-column table — prose `@url` / `@clip` against schema
+`uri` / `clipDuration` — cites the clauses, and argues that the schema
+wins because instance documents validate against it. From that followed
+a planned footnote in `context/`, explaining to readers why this
+specification picks `@uri`, and a candidate defect report to the SVTA
+working group.
+
+**Counted against the PDF, 24 022 lines:**
+
+```
+@url            0 occurrences
+@uri            8
+@clipDuration   0
+@clip           8
+```
+
+Control: `@maxDuration` 5, `name="uri"` 1 — the search finds what is
+there. The standard's own semantics tables read `@uri  M  specifies the
+URI (typically, an HTTP URL) of the…` and `@clip  OD  specifies whether
+the maximum duration of the…`, and its running text reads "fetched from
+the URL specified in `AlternativeMPDEventType@uri`" and "Else if
+`ReplacePresentation@clip` is 'false'".
+
+**Prose and schema agree. There is no mismatch. Both names were ours.**
+
+### Why this is worse than a wrong datum
+
+A wrong name is caught by looking the name up. This was a complete,
+coherent account: a table, clause citations, an argument about which
+spelling governs, and an actionable conclusion. Every part of it had the
+shape of something verified.
+
+And it ran in the direction that favoured us. Two errors of ours stopped
+being ours and became a defect in an ISO standard — with a bonus, that
+we now had something to contribute to the working group. Nothing about
+it invited suspicion, because nothing about it was uncomfortable.
+
+**It nearly held.** The coordinating agent relayed it to Nicolás as fact
+twice, approved the footnote, and described it as "the real contribution
+to the WG". The only reason it did not reach `context/` is that the
+executing agent counted the occurrences before writing a note that had
+already been approved.
+
+Recording that with both roles named is the point. "It was caught in
+time" teaches nothing; *what* caught it was refusing to write an
+approved sentence without checking the claim under it.
+
+### The third face of the rule
+
+The rule written this morning covers the false negative: a zero is not a
+result until the instrument has shown it can find. The previous entry
+adds the false positive: an answer that is wider than the question. This
+is the third face, and the most expensive:
+
+**An answer that explains your error as someone else's deserves more
+verification, not less.** It is the only class of claim whose
+attractiveness is proportional to what it costs if false. The other two
+make you doubt; this one makes you relieved.
+
+### What it cost, and what it did not
+
+Corrected in `7a29435`: ten `@url` prose references to `@uri`, and two
+`@clipDuration` to `@clip` at `05:107` and `05:262` — both found only by
+walking the sites one by one after the count came back. The commit
+message of `b3e47cb`, written twenty minutes earlier, asserts the
+mismatch as fact; it is left standing as the record and corrected in the
+successor, the way a decision is superseded rather than rewritten.
+
+No footnote was added, because there is nothing to note. No defect
+report goes to the working group, because there is no defect in the
+standard. The three XML corrections stand on their own: the schema says
+`uri` and `clip`, our examples said `url` and `clipDuration`, and that
+is the whole of it.
