@@ -144,7 +144,11 @@ therefore carry at least one AdaptationSet (which inherits DR-1 /
 DR-5) or carry the asset and tracking outside any Period the spec
 defines as non-zero-duration.
 
-- **Source**: §5.3.2.2 Table 4.
+- **Source**: §5.3.2.2 Table 4, the `AdaptationSet` row. The
+  cardinality column reads `0...N`; the requirement is in the same
+  cell, two lines below it: *"At least one Adaptation Set shall be
+  present in each Period unless the value of the @duration attribute
+  of the Period is set to zero."*
 - **Implication for SGAI**: an "empty-Period tracking carrier"
   variant — a Period that holds only events and no media — is
   closed. Tracking for non-AV ads that needs presentation-time
