@@ -195,6 +195,22 @@ the whole unit of the source — the cell, not the column. DR-7 looked
 unfounded because the column said `0...N`; the exception was two lines
 below inside the same cell.
 
+## What this pass found that was already right
+
+**DR-6(b) uses the recommended carrier, for a reason nobody had
+written down.** It carries an inline payload inside the `<Event>`
+element. The 6th edition deprecated the alternative:
+
+```
+PDF 9573  @messageData ... "Deprecated as of the 6th edition"
+PDF 9578  NOTE  "Including the message within the Event element, either
+          as a value or as an XML element, is the recommended approach."
+```
+
+Nothing changes. What is recorded is **why** it should not change,
+which is the part that keeps someone from simplifying it next year into
+the attribute the standard has retired.
+
 ## The defect this pass found — DR-6(c) merges two opposite behaviours
 
 Promoting the twelve carried rows turned up one place where our claim is
