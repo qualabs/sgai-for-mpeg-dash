@@ -1285,9 +1285,9 @@ only when the viewer acts, never on the timeline.
 **Expected behavior:**
 - On activation the Player opens the ClickThrough destination and fires
   every associated click-tracking URL once. This is the interoperability
-  point of the use case: because the carrier is normative, every
-  conformant Player reads the same two fields and fires the click
-  identically (R28.2).
+  point of the use case: because the carrier is normative, every Player
+  conformant to this specification reads the same two fields and fires
+  the click identically (R28.2).
 - The click-tracking fires on activation. This is separate from the
   timeline tracking beacons (impression, quartiles) of R13 / R6, which
   the Player schedules by presentation time through the callback scheme;
@@ -1455,7 +1455,8 @@ leaves it able to do.
 #### D4 — Single-decoder, image only
 
 - **Player decision:** declares **nothing**. Sending a reserved
-  parameter is optional, and a conformant Player may send none (R29.2).
+  parameter is optional, and a Player conformant to this specification
+  may send none (R29.2).
   The APS receives no device information and must still produce
   candidates (R29.5), so it narrows nothing and emits all four options
   in the ADS's order — the resolution document UC-09 describes. The
