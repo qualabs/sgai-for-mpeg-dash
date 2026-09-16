@@ -131,9 +131,16 @@ sub-elements), the preferred encoding is a **single attribute**
 carrying a space-separated string of tokens, NOT a nested element
 wrapper with per-item child elements.
 
-The delimiter is **space**, matching the MPEG-DASH attribute
-conventions for token lists already in use by baseline DASH
-(`@profiles`, `@codecs`, `@dependencyId`, etc.).
+The delimiter is **space**, matching `@dependencyId`, which baseline
+DASH declares as `StringVectorType` — an XML Schema list type, and so
+whitespace-delimited.
+
+Baseline DASH does not use one delimiter for every token list.
+`MPD@profiles` (§5.3.1.2 Table 3) and `@codecs` (§5.3.7.2 Table 16)
+are **comma**-separated: both are constrained to IETF RFC 6381:2011
+productions — `pro-simple` / `pro-fancy` for the first, `simp-list` /
+`fancy-list` for the second. The space delimiter chosen here follows
+`@dependencyId`, not those two.
 
 For example, prefer:
 
