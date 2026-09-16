@@ -860,50 +860,54 @@ non-linear forms within a slot, layering a pause-ad over a coexisting
 overlay, arbitrating overlapping same-family windows, and bounding the
 screen to a single active non-linear form at any instant.
 
-- **R14. Sequential non-linear ad forms within a slot.**
-  *Gist: A non-linear slot may carry several forms, played one after another in declared order, the same way a linear break plays its candidates.*
+- **R14. Sequential non-linear ad candidates within a slot.**
+  *Gist: A non-linear slot may carry several ad candidates, played one after another in declared order, the same way a linear break plays its ads.*
 
-  A non-linear ad slot MAY be filled by more than one ad form played
-  in **sequence**, exactly as a linear ad break plays its candidate
-  ads one after another (R7). When the resolution document the APS
-  produces declares several non-linear forms for one slot, the Player
-  presents them **one after another, in the order the forms appear in
-  the resolution document** — the same ordering contract R7 imposes on
-  linear candidates. For example, a 30 s overlay slot whose resolution
-  document declares Overlay A (10 s), then Overlay B (10 s), then
-  Overlay C (10 s) is presented as A, then B, then C, each starting
-  when the previous one ends. The cumulative duration of the forms is
-  expected to match the opportunity window the Publisher declared for
-  the slot (here, 30 s), and the Player enforces the slot cap against
-  that cumulative duration per R4. That the forms play one at a time
-  rather than concurrently — and the rationale for it — is governed
-  separately by R22.
+  A non-linear ad slot MAY be filled by more than one ad candidate
+  played in **sequence**, exactly as a linear ad break plays its
+  candidate ads one after another (R7). When the resolution document
+  the APS produces declares several non-linear candidates for one
+  slot, the Player presents them **one after another, in the order the
+  candidates appear in the resolution document** — the same ordering
+  contract R7 imposes on linear candidates. Each candidate contributes
+  the one presentation option the Player selected for it under R5, so
+  the sequence is a sequence of candidates and the alternatives inside
+  a candidate are not part of it. For example, a 30 s overlay slot
+  whose resolution document declares Overlay A (10 s), then Overlay B
+  (10 s), then Overlay C (10 s) is presented as A, then B, then C, each
+  starting when the previous one ends. The cumulative duration of the
+  candidates is expected to match the opportunity window the Publisher
+  declared for the slot (here, 30 s), and the Player enforces the slot
+  cap against that cumulative duration per R4. That the forms play one
+  at a time rather than concurrently — and the rationale for it — is
+  governed separately by R22.
 
-  This in-slot sequencing rule (forms played in declared order) is
+  This in-slot sequencing rule (candidates played in declared order) is
   distinct from how the Player handles **multiple overlapping
   opportunity windows of the same family in the primary `MPD`**, which
   is governed separately by R20. The two levels are independent: R20
   selects which opportunity window is served; this requirement (R14)
-  governs the sequence of forms inside the selected window's resolution
-  document.
+  governs the sequence of candidates inside the selected window's
+  resolution document.
 
   **Conformance criteria**:
   - **R14.1** (Player): When the resolution document for a non-linear
-    slot declares more than one ad form, the Player MUST present the
-    forms in sequence, in the order the forms appear in the resolution
-    document (the same ordering contract R7 applies to linear
-    candidates), each form starting when the previous one ends.
+    slot declares more than one ad candidate, the Player MUST present
+    the candidates in sequence, in the order they appear in the
+    resolution document (the same ordering contract R7 applies to
+    linear candidates), each starting when the previous one ends.
   - **R14.2** (Player): The Player MUST enforce the Publisher-declared
     slot cap (R4) against the cumulative duration of the sequence of
-    non-linear forms it presents, trimming or dropping per R4 / R7 when
-    the cumulative duration would exceed the slot's opportunity window.
+    non-linear candidates it presents, trimming or dropping per R4 / R7
+    when the cumulative duration would exceed the slot's opportunity
+    window.
   - **R14.3** (spec document): The specification MUST NOT introduce a
     construct that implies or requires the parallel (simultaneous)
     rendering of two or more non-linear ad forms. Sequencing of forms
     within a slot is governed by the resolution document's declared
-    form order (R14.1) and carries no separate "render-then" primitive
-    beyond that order. The single-active-form runtime constraint itself
-    lives in R22.
+    candidate order (R14.1) and carries no separate "render-then"
+    primitive beyond that order. The single-active-form runtime
+    constraint itself lives in R22.
 
 - **R17. Pause-ad priority over overlay.**
   *Gist: During a pause, a pause-ad takes priority over any coexisting overlay, which is suspended and then restored on resume.*
@@ -955,13 +959,14 @@ screen to a single active non-linear form at any instant.
   or more windows of the same family overlap in time in the primary
   `MPD`, the Player takes the FIRST overlapping window it encounters and
   resolves its resolution document; that one resolution document may
-  itself carry a sequence of forms governed by the in-slot rule of R14.
-  The remaining overlapping windows (the second and any subsequent ones)
+  itself carry a sequence of candidates governed by the in-slot rule
+  of R14. The remaining overlapping windows (the second and any subsequent ones)
   are FALLBACK: the Player resorts to them only when it cannot access
   the resolution document of the first window — for example the APS does
   not respond, or the event URL that resolves to the APS fails. The two
   levels are independent: this requirement (R20) selects which window is
-  served; R14 governs the sequence of forms inside the selected window's
+  served; R14 governs the sequence of candidates inside the selected
+  window's
   resolution document.
 
   The rationale for resolving overlapping same-family windows as
@@ -1015,7 +1020,8 @@ screen to a single active non-linear form at any instant.
 - **R22. Single active non-linear form; no concurrent presentation.**
   *Gist: At most one non-linear ad form is active on screen at any instant; no two non-linear forms are shown simultaneously.*
 
-  Although a slot MAY carry a sequence of non-linear ad forms (R14),
+  Although a slot MAY carry a sequence of non-linear ad candidates
+  (R14),
   what this edition does **not** permit is the **simultaneous**
   presentation of two or more non-linear ad forms: at any instant `t`,
   at most ONE non-linear ad form is active on the screen. Sequential
@@ -1035,9 +1041,9 @@ screen to a single active non-linear form at any instant.
   Hence the expectation of a single non-linear ad form on screen at a
   time.
 
-  R14 permits the sequence of forms within a slot; this requirement
-  imposes that the sequence is played one form at a time, never
-  overlapping.
+  R14 permits the sequence of candidates within a slot; this
+  requirement imposes that the sequence is played one form at a time,
+  never overlapping.
 
   Simultaneous presentation of two or more non-linear forms is OUT OF
   SCOPE for this edition; a future edition MAY relax the single-active-
