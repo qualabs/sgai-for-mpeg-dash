@@ -51,6 +51,26 @@ passes because it could not look is worse than no check.
 
 A warning about revalidation age does not abort the build. Surface it.
 
+## Step 0.5 — Confirm `context/` is internally consistent (blocking)
+
+After Step 0 and before any step that produces anything, run:
+
+```bash
+bin/check-context-coherence.py
+```
+
+**A non-zero exit aborts the build**, for the same reason as Step 0:
+nothing should be generated from an input that does not hold together.
+It reports dangling references to requirements, criteria, design
+principles, extension rules, out-of-scope items and use cases,
+identifiers defined twice, and broken relative links.
+
+It checks that the identifiers line up and **nothing about whether the
+content is right**. A contradiction between a requirement and its own
+criteria, a gist that describes half of its body, or a citation
+pointing at the neighbouring clause all pass this step. Do not report
+its green as "`context/` is fine".
+
 ## Pipeline
 
 For each step, log a single line:
