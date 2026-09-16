@@ -125,8 +125,9 @@ through `08-dash-extension-rules.md`.
   extension mechanism allowing XML elements and attributes from non-
   DASH namespaces under any DASH container, via the
   `<xs:any namespace='##other' processContents='lax'/>` declaration on
-  every container in the MPD schema. Legacy clients discard such
-  elements together with their full subtree (DR-3 in
+  every container in the MPD schema. Legacy clients remove such
+  elements, and a baseline child nested inside one carries no legacy
+  guarantee (DR-3 in
   [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
 - **ImportedMPD** *(DASH 6th ed)*: DASH element that imports an
   external MPD by URI from a parent (typically a ListMPD-level
