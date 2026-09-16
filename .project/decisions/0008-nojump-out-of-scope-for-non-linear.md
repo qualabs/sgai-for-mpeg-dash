@@ -16,8 +16,11 @@ This document uses RFC 2119 vocabulary (MUST / SHOULD / MAY).
 
 ADR 0006 settles that this specification adopts the DASH execution
 model where the base standard already answers. `@noJump` is such an
-answer: it lets a Publisher declare that the playhead may not move
-across an event without executing it — an unskippable break.
+answer. ISO/IEC 23009-1:2026 §5.16.5 defines it: *"If non-zero, the
+playhead may not move forward from any point for which PHP < PRT to any
+point where PHP > EAP without executing this event. In other words, the
+active area of this event cannot be skipped during a seek operation."*
+It lets a Publisher declare an unskippable break.
 
 Applying ADR 0006 mechanically would inherit it for every slot family
 this specification defines.
