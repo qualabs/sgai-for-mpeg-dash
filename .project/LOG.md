@@ -1509,3 +1509,126 @@ None of the four failed loudly. Each returned a number that could be
 read and believed. The only thing that caught all four was asking the
 instrument something whose answer was already known, and disbelieving it
 until it got that right.
+
+## 2026-09-15 (later) — the DASH 6th question settled against the PDF, and what the retrieval got wrong
+
+Supersedes the "note on instruments" that closes the previous entry: that
+note stops at four instrument failures, and the sharpest two appeared
+after it was written.
+
+### The block is gone, and it was never the PDF
+
+The previous entry records the blocking question as *"whether the ISO PDF
+is available"*. It was, and had been since 2026-09-03:
+`sandbox/vertex-rag/ISO_IEC_23009-1_2026(en) (1).pdf` — **ISO/IEC
+23009-1:2026, Sixth edition, 2026-07**, licensed to Qualabs. Extracted
+with `pdftotext -layout`: 24 022 lines.
+
+That block was declared by repeating a finding written earlier in the
+phase (*"not correctable without reading the PDF"*) **without testing
+whether it still held**. A "cannot be done" carried forward from an old
+note is not evidence.
+
+### Read before believing this file's predecessor
+
+[`phases/05-wg-feedback-round-2/v7-build-halt-report-2026-09-15.md`](phases/05-wg-feedback-round-2/v7-build-halt-report-2026-09-15.md)
+is committed **verbatim and stays that way** — its value is being exactly
+what the build said. It contains this claim:
+
+> "`clipDuration` is `xs:boolean`, default `true`"
+
+**The attribute `clipDuration` does not exist in the standard.** Zero
+occurrences in 24 022 lines (control: `executeOnce`, 9 occurrences, so
+the search works). The real attribute is `clip`.
+
+The type and the default in that sentence are correct — **they are
+`clip`'s**. The *name* came from our own `context/`, and the retrieval
+returned it with the standard's authority wrapped around it. Anyone
+opening that report must read this paragraph first.
+
+### What the schema says (verified against the PDF, line numbers in the extracted text)
+
+```
+12040:  <xs:attribute name="uri" type="xs:anyURI" use="required"/>
+12041:  <xs:attribute name="earliestResolutionTimeOffset" type="xs:unsignedLong"/>
+12056:  <xs:attribute name="clip" type="xs:boolean" default="true"/>
+
+ 2746:  <xs:complexType name="ImportedMpdType">
+ 2747:    <xs:simpleContent>
+ 2748:      <xs:extension base="xs:anyURI">
+ 2749:        <xs:attribute name="earliestResolutionTimeOffset" type="xs:double" default="60.0"/>
+```
+
+The standard's own examples: `<ReplacePresentation uri="…">` (19784,
+20683) and `<ImportedMPD earliestResolutionTimeOffset="0">ad0.mpd</ImportedMPD>`
+(20744).
+
+### The fix, and the item that must not be touched
+
+| # | Where | Today | Correct |
+|---|---|---|---|
+| 1 | `context/05:195`, `05:205` | `url=` | **`uri=`** — attribute, `use="required"` |
+| 2 | `context/05:209` | `clipDuration="30000"` | **`clip="true"`**, or omitted (default is `true`) |
+| 3 | `context/05:289`, `05:294` | `<ImportedMPD uri="x.mpd" …/>` | **`<ImportedMPD …>x.mpd</ImportedMPD>`** — the URI is the element content |
+| 4 | the four `earliestResolutionTimeOffset` values | `0`, `60000`, `0`, `15` | **not touched — all four are valid** |
+
+Plus the ten `@url` prose references, now a clean rename to `@uri`, and
+`05:246`, which describes `clip` as if it measured a duration.
+
+**Item 4 is the one a hurried fix breaks.** The four values were reported
+during this session as "three incompatible unit conventions", and they
+are not: the event attribute is `xs:unsignedLong` in `EventStream@timescale`
+units, and the `ImportedMPD` attribute is `xs:double` in seconds. Our `0`
+and `60000` sit on event lines; our `0` and `15` sit on `ImportedMPD`
+lines. Unifying them would have broken correct values by a factor of a
+thousand, and the file would have looked tidier afterwards.
+
+### Instrument failures, completed — and they are two families
+
+The previous entry lists four: the `zsh` glob that aborted a whole
+command over one non-matching pattern; `fuser -m`, answering for the
+mount point; `pgrep -f`, matching the shell that ran the query; and
+line-based `grep` for obligations in files wrapped at 72 columns. Four
+more belong with them:
+
+- **An identifier that exists in one namespace and not another.** The
+  `NOTEBOOK_ID` in `.env.agent` is a NotebookLM URL id; the skill keys
+  its library by slug. The error reads `Notebook not found`, which sounds
+  like "it does not exist" and means "you are asking by the wrong name".
+- **A retrieval that returned our own input.** The `clipDuration` case
+  above.
+- **A deduction carried with the confidence of a verification.** The
+  unit-convention claim was reported under the heading "verified
+  locally, independent of any retrieval", and relayed onward under the
+  same heading. The *text* had been verified and was quoted correctly;
+  the *conclusion* drawn from it — that one of the values must be wrong
+  — had not been, and was false. Both the author and the relayer made
+  the same move.
+- **A cleanup-rule validator that exited successfully with the rule
+  broken**, the warning present in its output text but not in its exit
+  code. Reported in this session by the coordinating agent; the instance
+  was not reproduced here.
+
+**The two families do not share a defence.** In the first six the
+instrument answered a different question than the one asked — wider,
+narrower, or in another namespace — and a control catches every one of
+them: ask it something whose answer is already known, and disbelieve it
+until it gets that right. In the last two **the instrument was healthy**.
+The error lived in the centimetre between the datum and the conclusion,
+or in the datum we supplied ourselves. There is no apparatus to
+interrogate, so no control exists. Those two are caught only against the
+primary source.
+
+### Still open, and it decides whether the next build is worth running
+
+NotebookLM is blocked: a modal dialog intercepts the submit click, and
+the browser session is 123 days old. The notebook answered at 19:40 —
+`dash-gap-analysis.md` carries `[GROUNDED_BY=notebooklm]` and twelve
+citations to the standard — so this appeared afterwards.
+
+**Its failure mode is the dangerous one: it does not fail.** Steps 1 and
+8 degrade to `spec-only`, the build completes, the DASH conformance audit
+is performed blind, and the only notice is one line in a file that this
+project has now measured as unopened for three and a half months. Before
+the next build, either it is unblocked or running without grounding is
+chosen deliberately.
