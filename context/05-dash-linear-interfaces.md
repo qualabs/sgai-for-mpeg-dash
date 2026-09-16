@@ -497,11 +497,12 @@ of HTTPS per DASH-IF guidelines.
 
 ## References
 
-- **FDIS ISO/IEC 23009-1:2025(E), MPEG-DASH 6th edition** —
-  *Information technology — Dynamic adaptive streaming over HTTP
-  (DASH) — Part 1: Media presentation description and segment
-  formats* (currently at FDIS, Final Draft International Standard,
-  stage). Canonical:
+- **MPEG-DASH 6th edition** — *Information technology — Dynamic
+  adaptive streaming over HTTP (DASH) — Part 1: Media presentation
+  description and segment formats*. The edition this specification is
+  written against, and the copy used to verify claims about it, are
+  declared in [`00-normative-base.md`](./00-normative-base.md) and are
+  not restated here. Canonical:
   <https://standards.iso.org/iso-iec/23009/-1/ed-6/en>. Sections
   cited above: §5.16 Alternative MPD Insertion / Replacement
   Events (§5.16.3 `InsertPresentation`, §5.16.4
