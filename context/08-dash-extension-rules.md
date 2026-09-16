@@ -9,9 +9,12 @@ reading R1 + DR-1..DR-N together, will converge to a DASH-conformant
 solution on its own.
 
 Edition binding: every DR-N below is anchored to a specific section
-of ISO/IEC 23009-1 6th edition. On any edition bump, this file MUST
-be re-validated section by section — rules are not blindly carried
-forward.
+of the edition declared in
+[`00-normative-base.md`](./00-normative-base.md). On any edition bump,
+this file MUST be re-validated section by section — rules are not
+blindly carried forward. `bin/check-normative-base.py` is what makes
+that obligation observable: it runs before the build and fails when the
+declared edition no longer describes the copy of the standard on disk.
 
 ## DR-1 — SPS conformance is structurally inescapable for any document reached via `<ImportedMPD>`
 
@@ -189,11 +192,59 @@ defines as non-zero-duration.
   alignment MUST share a Period with at least one AdaptationSet,
   or live outside a non-zero-duration Period.
 
+## DR-8 — DASH does not govern Player behaviour, so no construct of ours can compel a Player
+
+Placing a construct in a namespace other than DASH's is **the only way
+to add anything to an MPD**, and §5.2.1 guarantees the document remains
+valid once those constructs are removed. **That is the whole of what the
+mechanism provides.**
+
+It obliges no Player. The standard states of itself that *"DASH Client
+operation is not specified normatively in this document"* and that
+*"profiles merely specify restrictions on MPD and Segments rather than
+DASH Client behaviour"*. **DASH specifies no Player behaviour anywhere**
+— so no construct defined here, in any namespace and under any profile,
+can compel a Player that does not implement this specification.
+
+**Consequence for authoring:** a requirement in this specification
+**may** oblige a Player conformant **to this specification**. It **may
+not** promise what *"every Player"* will do, nor that a construct will
+*"not be silently ignored"*. A profile or interoperability-point URI
+would **declare** that a document carries these constructs; it would
+**not** make anyone honour them.
+
+- **Source**: §8.1, NOTE 1: *"A profile can also be understood as
+  permission for DASH Clients that only implement the features required
+  by the profile to process the Media Presentation (MPD document and
+  Segments). However, as DASH Client operation is not specified
+  normatively in this document, it is also unspecified how a DASH Client
+  conforms to a particular profile. Hence, profiles merely specify
+  restrictions on MPD and Segments rather than DASH Client behaviour."*
+  And §5.2.1, NOTE 2, for the other half — that a client removing
+  everything outside the Annex B schema obtains a valid document and
+  *"can use such a resulting MPD for presentation of a conforming Media
+  Presentation."* Both quotations are located to the line of the primary
+  copy in the citation verification register named in
+  [`00-normative-base.md`](./00-normative-base.md).
+- **Implication for SGAI**: this rule closes a promise, not an
+  extension point. The extension namespace remains the way SGAI adds
+  everything it adds; what it does not add is any hold over a Player
+  that has never heard of SGAI. R28 is the worked case: its
+  ClickThrough carrier promised that *"every conformant Player"* would
+  read it, which under this rule is unpromiseable, and the guarantee is
+  now scoped to Players conformant to this specification across the
+  nine sites that stated it. The contrast R28 exists to draw — its
+  carrier MUST be read where R23's metadata MAY be ignored — survives
+  the scoping untouched, because both obligations were always addressed
+  to the same Players.
+
 ## Cross-refs
 
-- [`03-requirements.md`](./03-requirements.md) — R1, R8, R9, R24
+- [`03-requirements.md`](./03-requirements.md) — R1, R8, R9, R24, R28
   (R1.2 enumerates the admissible extension points; R24.1 binds non-
-  AV asset URLs to the DR-6 carrier enumeration).
+  AV asset URLs to the DR-6 carrier enumeration; R28 is DR-8's worked
+  case, and scopes its guarantee to Players conformant to this
+  specification).
 - [`05-dash-linear-interfaces.md`](./05-dash-linear-interfaces.md)
   — references DR-1 / DR-5 when stating the closed AdaptationSet
   axis below the linear reference section.
