@@ -244,7 +244,8 @@ and the boundaries of what this spec does and does not define.
     a single value. Which parameters the set contains, and how each is
     written, is fixed when the syntax is specified.
   - **R29.2** (Player): Sending a reserved parameter is OPTIONAL. A
-    conformant Player MAY send all of them, some of them, or none.
+    Player conformant to this specification MAY send all of them, some
+    of them, or none.
   - **R29.3** (Player): When the Player has no value for a reserved
     parameter, or does not disclose its value, the Player MUST omit that
     parameter entirely rather than send it with an empty or placeholder
@@ -1190,8 +1191,18 @@ carriers for creative metadata and non-AV assets.
   The
   resolution document MUST carry the ad's ClickThrough URL and its
   associated click-tracking URL(s) in a normative carrier that the
-  specification defines explicitly, so that every conformant Player
-  reads them the same way.
+  specification defines explicitly, so that every Player conformant to
+  this specification reads them the same way.
+
+  The guarantee is scoped to Players that implement this
+  specification, and it can only be scoped that way. DASH does not
+  specify Player behaviour normatively — §8.1 states that "profiles
+  merely specify restrictions on MPD and Segments rather than DASH
+  Client behaviour" — and §5.2.1 contemplates a client removing every
+  element outside the Annex B schema and still presenting a conforming
+  Media Presentation. An obligation on a Player that does not
+  implement this specification is therefore not available to be made,
+  here or in any other extension of DASH.
 
   **Conformance criteria** (runtime + document-level):
   - **R28.1** (APS): When an ad candidate in the resolution document
@@ -1203,9 +1214,9 @@ carriers for creative metadata and non-AV assets.
     resolution document alone: a ClickThrough or a click-tracking URL
     carried outside the normative carrier is a violation the document
     shows.
-  - **R28.2** (Player): a conformant Player MUST read the ClickThrough
-    URL and fire its associated click-tracking when the viewer activates
-    the ClickThrough.
+  - **R28.2** (Player): a Player conformant to this specification MUST
+    read the ClickThrough URL and fire its associated click-tracking
+    when the viewer activates the ClickThrough.
   - **R28.3** (APS + ADS): Whether a ClickThrough the ADS declared
     reaches the resolution document at all is part of the APS-to-ADS
     contract those parties maintain directly, outside this
