@@ -67,7 +67,11 @@ What does NOT go where:
   a prompt can be reasoned around, a non-zero exit cannot.
   `check-normative-base.py` is Step 0 of `build-all` and confirms that
   `context/00-normative-base.md` still describes the copy of the
-  standard on disk.
+  standard on disk. `check-context-coherence.py` is Step 0.5 and
+  confirms that `context/` holds together — identifiers defined, no
+  duplicates, links resolving. Each states in its own output what its
+  green does and does not cover, because a check read as answering
+  more than it asks is how a green becomes misleading.
 - `context-analysis/` — only **pre-spec** generated artefacts that
   the spec build consumes as inputs (gap analysis, UC coverage
   matrix, error semantics, conformance assertions). Derived from
