@@ -1401,6 +1401,30 @@ and deferring layout to existing primitives.
   cover it; this edition's decoder-budget reasoning (R3, R22) assumes
   one decoder per concurrent form.
 
+- **OOS-7. Preventing a viewer from seeking past a non-linear
+  opportunity window.** The base specification provides `@noJump`,
+  which forbids the playhead moving from a point before an event's
+  presentation time to a point past the end of its active period
+  without executing the event (§5.16.5). On an **inherited linear
+  break the mechanism is preserved unchanged**: the ad occupies the
+  timeline, so forbidding the jump forbids skipping the ad, which is
+  what it exists for.
+
+  On the **non-linear families this specification defines it is out of
+  scope**, and the reason is what the window actually spans. A
+  non-linear ad is presented over the primary content, which keeps
+  playing underneath it, so the region the window covers is programme.
+  Forbidding the jump there would not oblige the viewer to watch the
+  ad — it would oblige them to watch a stretch of the programme they
+  chose to skip. The mechanism would be doing something other than
+  what it was built to do.
+
+  This is an **exception and not an omission**, and the difference is
+  the point of writing it down: `@noJump` exists, it is understood,
+  and it is excluded on one family for a stated reason. A construct
+  absent from a specification says nothing about whether anyone
+  considered it.
+
 The remainder of the proposal — Anatomy of the Overlay Resolution
 Document, Ad Tracking, Client Execution Flow, Example
 Implementation — should be read against these requirements.
