@@ -566,6 +566,30 @@ the order the resolution document declares.
   unfilled opportunity be reported as an unfilled opportunity rather
   than as a failure to resolve.
 
+  **What "carrying no candidates" means.** The resolution document is
+  **well-formed and complete**: it declares itself a resolution
+  document and carries every element the syntax requires. What it does
+  not carry is a single ad candidate. It is **not** an empty HTTP
+  body, **not** a `204`, **not** a `404`, and **not** a document that
+  fails to parse. The distinction is between *a document that says
+  "nothing was sold"* and *no document at all*.
+
+  **This case is already covered by MPEG-DASH, and the Player's
+  behaviour here is DASH's own.** For a linear slot the resolution
+  document is a `ListMPD`, and ISO/IEC 23009-1:2026 §5.16.2.2.6 lists
+  *"Alternative MPD is a List MPD, and merge process resulted in no
+  available media"* among the conditions under which the event's
+  execution does not produce an alternative presentation, with the
+  prescribed outcome: *"A failed execution results in smooth continued
+  playback of the main media presentation."*
+
+  The same clause places an event whose `@executeOnce` has already
+  fired under the same heading — a case that is correct by design. In
+  DASH that heading therefore means *"this event produced no
+  alternative presentation this time"*, **not** *"something went
+  wrong"*. R30 names the case from the APS side; it does not change
+  playback.
+
   **Conformance criteria** (runtime):
   - **R30.1** (APS): An opportunity that resolved with no ads MUST be
     expressed as a resolution document carrying no candidates, and MUST
