@@ -36,9 +36,8 @@ the whitespace between them.
 
 ## The primary copy
 
-`primary_copy` identifies the document used for verification. It is a
-licensed single-user copy and therefore **lives outside this repository
-and cannot be committed to it**.
+`primary_copy` identifies the document used for verification. It
+**lives outside this repository and is not committed to it**.
 
 **It is identified by content, not by location.** The `sha256` is what
 makes the identification hold: a new edition arriving under the same

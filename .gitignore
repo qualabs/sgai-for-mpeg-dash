@@ -24,6 +24,7 @@
 /.github-ai/output-prs/*
 !/.github-ai/output-prs/.gitkeep
 
-# Local pointer to the licensed copy of the standard (never committed:
-# the PDF is a single-user licence and its location is machine-specific).
+# Local pointer to the primary copy of the standard (never committed:
+# the file lives outside this repository and its location is
+# machine-specific).
 .normative-base-path

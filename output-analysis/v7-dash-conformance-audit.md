@@ -29,7 +29,7 @@ where an internal claim about the base specification is itself false.
   + `EventType`; the callback scheme; §8.14; §8.15 + §7.3; the §5.16
   attribute tables; §5.16.2.2 + §5.16.5.2; `MPDtype` order and
   mandatory attributes; Annex I + §5.8.4.8.
-- Every grounded claim was then re-checked against the licensed PDF of
+- Every grounded claim was then re-checked against the primary copy of
   ISO/IEC 23009-1:2026. The two sources agreed on every point. Where a
   verdict rests on schema or clause text, that text is quoted verbatim
   below, so the reader can audit the verdict without opening either
@@ -129,7 +129,7 @@ where an internal claim about the base specification is itself false.
   parent element, terminating the presentation when the descriptor is
   at MPD level.
 
-Every one of these was re-checked against the licensed PDF of
+Every one of these was re-checked against the primary copy of
 ISO/IEC 23009-1:2026; no divergence was found between the two sources.
 
 ## Non-conforming items detail

@@ -614,13 +614,17 @@ verify claims about it, are declared in `context/00-normative-base.md`
 and nowhere else. `bin/check-normative-base.py` confirms before every
 build that the declaration still describes the file on disk.
 
-**That copy is a licensed single-user document.** It is not in this
-repository and it must not travel: quote clauses, never pages, and
-never reproduce the licence stamp that appears on every page of the
-extraction — the licensee's name, e-mail, and ISO Store order number.
-An artefact recording which source it used names **the edition**, not
-the licence. This is easy to get wrong precisely because the stamp sits
-next to every sentence worth quoting, and it has already happened once.
+**That copy is not in this repository and must not travel into it.**
+Quote clauses, never pages.
+
+**And the extraction carries personal data on every page.** Its headers
+and footers repeat who obtained the document and under what order, so
+that text sits *between* the sentences worth quoting, not somewhere a
+reader would think to avoid. Copying a passage out of the extraction is
+how it gets into a file here. None of it belongs in this repository:
+an artefact recording which source it used names **the edition**, and
+nothing about the copy. This has already happened once and was caught
+before publication.
 
 When a prompt needs authoritative content and the primary copy is not
 at hand, invoke the `notebooklm` skill against the relevant notebook

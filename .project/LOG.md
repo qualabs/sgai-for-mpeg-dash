@@ -1557,9 +1557,8 @@ after it was written.
 
 The previous entry records the blocking question as *"whether the ISO PDF
 is available"*. It was, and had been since 2026-09-03:
-`sandbox/vertex-rag/ISO_IEC_23009-1_2026(en) (1).pdf` — **ISO/IEC
-23009-1:2026, Sixth edition, 2026-07**, licensed to Qualabs. Extracted
-with `pdftotext -layout`: 24 022 lines.
+the primary copy of **ISO/IEC 23009-1:2026, Sixth edition, 2026-07**.
+Extracted with `pdftotext -layout`: 24 022 lines.
 
 That block was declared by repeating a finding written earlier in the
 phase (*"not correctable without reading the PDF"*) **without testing
@@ -1768,7 +1767,7 @@ pending verification**, and the reason is worth more than the claim was.
 ### What is established
 
 The published standard — ISO/IEC 23009-1:2026, Sixth edition, 2026-07,
-the licensed PDF in `sandbox/vertex-rag/` — declares `uri` and `clip`,
+read from the primary copy — declares `uri` and `clip`,
 in both its schema and its prose, and contains no `@url` and no
 `clipDuration`. Verified by direct count, twice, by two agents
 independently. **The corrections committed in `b3e47cb`, `7a29435` and
