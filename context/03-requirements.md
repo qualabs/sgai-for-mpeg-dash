@@ -58,8 +58,15 @@ concrete requirements that follow are constrained by them.
   subordinate always to one hard invariant: applying this
   specification MUST NEVER break primary-content playback, so when
   an opportunity cannot be honoured, graceful skip-and-continue is
-  mandatory. Which ads fill the opportunity, and the revenue they
-  yield, are the ADS's concern, not this specification's.
+  mandatory. This invariant is not this specification's invention. The
+  base specification states it for its own execution model — *"If no
+  event can be successfully executed, the playback continues
+  uninterrupted"* (§5.16.2.2.5), and *"A failed execution results in
+  smooth continued playback of the main media presentation"*
+  (§5.16.2.2.6) — and what this principle does is extend the same
+  guarantee to the constructs added here. Which ads fill the
+  opportunity, and the revenue they yield, are the ADS's concern, not
+  this specification's.
 
 ## Requirements
 
@@ -137,7 +144,10 @@ and the boundaries of what this spec does and does not define.
   - **R1.4** (Player): When resolving or rendering an accepted ad
     fails at runtime (for example a decode error, a malformed
     candidate, or a mid-ad network loss), the Player MUST abort that
-    ad and continue playing the primary content uninterrupted.
+    ad and continue playing the primary content uninterrupted. This
+    matches what the base specification already requires of its own
+    execution model (§5.16.2.2.6); the criterion states it for the
+    constructs added here rather than introducing it.
 
 - **R2. Honour the actor's responsibilities.**
   *Gist: Four actors with fixed roles: the Publisher declares constraints, the ADS decides which ads to serve, the APS converts that into the resolution document, and the Player validates and renders.*
