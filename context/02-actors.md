@@ -109,7 +109,7 @@ resolution document is not itself defined by this spec.
 > ultimately implemented.
 
 - **Player-facing endpoint.** The APS exposes the endpoint that the
-  Publisher references in the MPD event `@url`. The
+  Publisher references in the MPD event `@uri`. The
   Publisher can encode slot constraints (for example, a
   slot-duration hint) as query parameters on that URL — this is the
   APS's runtime input. The Player may also attach the capability

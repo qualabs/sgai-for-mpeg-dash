@@ -29,7 +29,7 @@ re-definition.
 
 | Actor     | Emits                                                                 | Consumes                                                                 | Notes |
 |-----------|-----------------------------------------------------------------------|--------------------------------------------------------------------------|-------|
-| Publisher | Main MPD with SGAI events (`InsertPresentation`, `ReplacePresentation`) | Nothing at runtime (authoring-time only)                                | Owns the screen; declares slot constraints inside the SGAI event element (§5.16). The event `@url` resolves to the APS. |
+| Publisher | Main MPD with SGAI events (`InsertPresentation`, `ReplacePresentation`) | Nothing at runtime (authoring-time only)                                | Owns the screen; declares slot constraints inside the SGAI event element (§5.16). The event `@uri` resolves to the APS. |
 | Player    | MPD fetch request; APS resolution request at event activation; tracking beacons | Main MPD; `ListMPD` (or single-period alt MPD) from APS; ad media segments | Enforces R2 / R4: validates the APS-returned resolution document against MPD constraints; caps slot duration. Talks only to the APS, never to the ADS directly. |
 | APS       | `ListMPD` (or single-period alt MPD) in response to the Player's resolution request | Player's resolution request; VAST response from the ADS | The Player-facing adapter: returns candidates with one or more renderable forms — several is the form R5 asks for, and an APS with a view of the device narrows the list and MAY send a single form, the choice then sitting with it — and the Player picks per device capabilities (R5 in [`03-requirements.md`](03-requirements.md)). Converts the ADS's VAST into the resolution document (see §VAST → ListMPD below). |
 | ADS       | VAST 4.x (the ad decision) in response to the APS's request | The APS's ad request | The ad-decisioning authority: selects which ads, how many, in what order; owns the tracking schedule. Outputs VAST; does NOT produce the DASH-native resolution document (that is the APS). |
@@ -65,7 +65,7 @@ Once the Player has fetched the main MPD and is playing primary
 content, the SGAI linear flow is timeline-triggered: an
 `InsertPresentation` or `ReplacePresentation` event scheduled at a
 `presentationTime` activates as the playhead approaches it. The
-Player resolves the event's `@url` against the APS, receives back
+Player resolves the event's `@uri` against the APS, receives back
 either a `ListMPD` or a single-period alternative MPD describing one
 or more ad MPDs, and plays them according to the event semantics
 (insert or replace). Behind the APS, the ADS performs the ad
@@ -88,7 +88,7 @@ bounds the slot; the Player enforces the cap (R4).
                                           +----+-----+
                                             |    ^
                             (4a) GET        |    |  (4b) 200 OK
-                          <event @url>?<q>  |    |  ListMPD (XML)
+                          <event @uri>?<q>  |    |  ListMPD (XML)
                                             v    |
                                           +----------+   (4c) ad decisioning
                                           |   APS    |<-----------------------> ADS
@@ -102,16 +102,16 @@ Numbered steps:
 2. Publisher serves the MPD, including one or more SGAI events
    inside an `EventStream`. Each `<Event>` carries a child element —
    `<InsertPresentation>` or `<ReplacePresentation>` — that holds
-   the SGAI attributes (`@url`, `@maxDuration`,
+   the SGAI attributes (`@uri`, `@maxDuration`,
    `@earliestResolutionTimeOffset`; plus `@returnOffset`,
-   `@clipDuration`, `@startWithOffset` on `ReplacePresentation`
-   only). The `@url` resolves to the APS.
+   `@clip`, `@startWithOffset` on `ReplacePresentation`
+   only). The `@uri` resolves to the APS.
 3. Player fetches primary segments and plays the main timeline.
 4. As the playhead approaches an event's `presentationTime` minus
    `@earliestResolutionTimeOffset` (the *Earliest Resolution Time*,
    ERT), the Player picks a randomised instant between the ERT and
    the event's `presentationTime` and resolves the APS:
-   (4a) `GET <event @url>` augmented with the query parameters
+   (4a) `GET <event @uri>` augmented with the query parameters
    declared by the `UrlParamInfo` descriptor on the MPD (§I.4) — see
    the example below for the wiring.
    (4b) APS replies `200 OK` with a `ListMPD` body (or a single-period
@@ -253,13 +253,13 @@ What the Player does with this manifest:
   resolution time: the Player substitutes the state-vocabulary
   variables (`$urn:mpeg:dash:state:video$`,
   `$urn:mpeg:dash:state:cmcd#sid$`) with live values and appends the
-  resulting query string to the `@url`. `@includeInRequests="altmpd"`
+  resulting query string to the `@uri`. `@includeInRequests="altmpd"`
   is what scopes this descriptor to the APS resolution request.
 
 > **Spec attribute pin**: `InsertPresentation` and
-> `ReplacePresentation` share `@url`, `@maxDuration`,
+> `ReplacePresentation` share `@uri`, `@maxDuration`,
 > `@earliestResolutionTimeOffset`. The attributes `@returnOffset`,
-> `@clipDuration` and `@startWithOffset` are **exclusive to
+> `@clip` and `@startWithOffset` are **exclusive to
 > `ReplacePresentation`** (§5.16.4 / §5.16.5).
 
 ## Reference XML: ListMPD returned by the APS
