@@ -22,6 +22,10 @@ Two different things are recorded, and the register does not merge them:
 An **agregada** row is not a verified row. It is a row that says someone
 looked and reported no problem, without leaving the proof.
 
+**No row carries `agregada` today.** The grade stays defined because the
+distinction is the point of this file, and the next batch of citations
+will arrive carrying it again.
+
 `Verificado` is a date because `context/` changes. A citation checked
 against a sentence we later rewrite is unverified again, and without the
 date nothing detects that.
@@ -50,28 +54,28 @@ graded per row.
 
 | Reference | What the standard titles it | PDF | Correspondence | Grade | Verificado |
 |---|---|---|---|---|---|
-| §4.7 | Schemes | 1376 | ok | agregada | 2026-09-15 |
+| §4.7 | Schemes | 1376 / 1472 | ok — §4.7 *"specifies several schemes as listed in Table 2"*, and Table 2 maps the callback URN to §5.10.4.5. The paired citation is exact | directa | 2026-09-16 |
 | §5.2.1 | General (MPD) | 1583 | ok — the removal-by-namespace obligation is quoted verbatim in DR-3 | directa | 2026-09-16 |
 | §5.3.1.2 | Semantics — Table 3, Semantics of MPD element | 1979 | ok — `MPD@profiles` is comma-separated | directa | 2026-09-16 |
 | §5.3.2.2 | Semantics — Table 4, Semantics of Period element | 2384 | ok — DR-7's exception is quoted verbatim from the same cell | directa | 2026-09-16 |
 | §5.3.2.6 | Linked Periods | 2701 | ok — `ImportedMPD` "in a Period element" | directa | 2026-09-16 |
 | §5.3.7.2 | Semantics — Table 16, Common AdaptationSet / Representation / Sub-Representation | 4355 | ok — cites the subset rule, which Table 16 states | directa | 2026-09-16 |
-| §5.8.4 | Specific descriptors | 7857 | ok | agregada | 2026-09-15 |
-| §5.8.4.8 | Essential Property Descriptor | 8177 | ok | agregada | 2026-09-15 |
-| §5.8.4.9 | Supplemental Property Descriptor | 8214 | ok | agregada | 2026-09-15 |
-| §5.10 | Events | 9328 | ok | agregada | 2026-09-15 |
-| §5.10.1 | Overview | 9329 | ok | agregada | 2026-09-15 |
+| §5.8.4 | Specific descriptors | 7857 | ok — heading confirmed; see the finding on its two children | directa | 2026-09-16 |
+| §5.8.4.8 | Essential Property Descriptor | 8179 / 8187 | **incomplete** — an unrecognised EssentialProperty makes the client ignore **the parent element**; our text does not say so | directa | 2026-09-16 |
+| §5.8.4.9 | Supplemental Property Descriptor | 8216 | **incomplete** — an unrecognised SupplementalProperty makes the client ignore **only the descriptor**; our text treats it as interchangeable with §5.8.4.8 | directa | 2026-09-16 |
+| §5.10 | Events | 9332 | ok — events carry application-specific payloads and are the extension point DR-6(b) names | directa | 2026-09-16 |
+| §5.10.1 | Overview | 9332 | ok — *"Events are timed, i.e. each event starts at a specific media presentation time"*, which is the timeline-scheduled claim of `05:432` | directa | 2026-09-16 |
 | §5.10.2.1 | Overview (Event Stream) | 9371 | ok — the one-stream-per-(scheme,value) rule, quoted in R20.2 | directa | 2026-09-16 |
-| §5.10.4.5 | DASH call back event | 1472 | ok | agregada | 2026-09-15 |
+| §5.10.4.5 | DASH call back event | 10113 | ok — the callback scheme, reached from Table 2; its MPD case is §5.10.4.5.3 | directa | 2026-09-16 |
 | §5.10.4.5.3 | MPD event — Table 47 | 10151 | ok — this is the fix; `.2` is the inband case | directa | 2026-09-15 |
-| §5.16 | Alternative Media Presentations | 11115 | ok | agregada | 2026-09-15 |
+| §5.16 | Alternative Media Presentations | 11115 | ok | directa | 2026-09-16 |
 | §5.16.2.2.6 | Execution | 11578 | ok — the failure list and the smooth-continuation outcome, quoted in R30 | directa | 2026-09-16 |
-| §5.16.3 | Alternative MPD Insertion Event | 1480 | ok | agregada | 2026-09-15 |
+| §5.16.3 | Alternative MPD Insertion Event | 11707 | ok — *"The event shall not appear if the MPD type is 'dynamic'"*, quoted verbatim in `05:45`, which is what makes InsertPresentation VOD-only | directa | 2026-09-16 |
 | §5.16.4 | Alternative MPD Replacement Event | 1478 | ok — `@clip` / `@startWithOffset` / `@returnOffset` live here | directa | 2026-09-16 |
-| §5.16.5 | Common Alternative Media Presentation Properties | 11905 | ok | agregada | 2026-09-15 |
-| §7.3 | Media Presentation based on the ISO base media file format | 13047 | ok | agregada | 2026-09-15 |
+| §5.16.5 | Common Alternative Media Presentation Properties | 11955 | ok — `@maxDuration`, `@executeOnce` and `@noJump` are declared here | directa | 2026-09-16 |
+| §7.3 | Media Presentation based on the ISO base media file format | 13058 | ok — *"of each Representation shall be provided according to IETF RFC 4337"*, the chain DR-1 and DR-5 rest on | directa | 2026-09-16 |
 | §8.1 | Definition (Profiles) | 13322 | ok — profile identifier, `@profiles`, Interoperability Points, and the five profile-checking steps | directa | 2026-09-16 |
-| §8.12 | DASH profile for CMAF content | 14272 | ok | agregada | 2026-09-15 |
+| §8.12 | DASH profile for CMAF content | 14272 | ok — the CMAF profile §8.14 declares itself an extension of | directa | 2026-09-16 |
 | §8.14 | ISO Base Media File Format List Profile | 15350 | ok — the List profile; `type="list"` and the `list:2024` URN are its rules 1 and 2 | directa | 2026-09-16 |
 | §8.15 | Single-Period Static Profile | 15371 | ok — SPS, the profile DR-1 binds to | directa | 2026-09-16 |
 | Annex B | (normative) MPD schema | 16957 | ok | directa | 2026-09-16 |
@@ -191,11 +195,54 @@ the whole unit of the source — the cell, not the column. DR-7 looked
 unfounded because the column said `0...N`; the exception was two lines
 below inside the same cell.
 
+## The defect this pass found — DR-6(c) merges two opposite behaviours
+
+Promoting the twelve carried rows turned up one place where our claim is
+not wrong but **incomplete in a way that matters**, which is why that
+row could not simply be signed off.
+
+`08-dash-extension-rules.md` DR-6 and `07-backward-compat-checklist.md`
+both offer **"(c) vendor descriptors under §5.8.4.8 / §5.8.4.9"** as a
+single carrier option, "a scheme URI with `@value` carrying the payload
+string". The two clauses are named together, as alternatives of one
+thing.
+
+They fail in opposite directions:
+
+```
+PDF 8187   5.8.4.8 EssentialProperty, NOTE 1: "If the scheme or the value
+           for this descriptor is not recognized, the DASH Client is
+           expected to ignore THE PARENT ELEMENT that contains the
+           descriptor."
+PDF 8216   5.8.4.9 SupplementalProperty, NOTE: "If the scheme or the
+           value for this descriptor is not recognized, the DASH Client
+           is expected to ignore THE DESCRIPTOR."
+```
+
+An SGAI scheme carried on an `EssentialProperty` therefore makes a
+legacy Player **drop the AdaptationSet or Representation that holds
+it** — the opposite of the graceful degradation the whole extension
+strategy rests on, and a direct hazard to DP-3's invariant that
+applying this specification never breaks primary-content playback.
+Carried on a `SupplementalProperty`, the same scheme costs nothing.
+
+**Where this bites hardest is the backward-compatibility checklist**,
+whose entire purpose is to make legacy behaviour auditable per
+construct — and which currently offers the dangerous half and the safe
+half as one choice, with no way to tell them apart.
+
+This is a correction with no trade-off rather than a decision: which of
+the two is admissible follows from what dropping the parent would cost,
+and DP-3 already answers that for anything on the primary content path.
+It is recorded here rather than applied because it changes what DR-6
+offers, which is more than a wording fix.
+
 ## What this register does NOT establish
 
-- **The `agregada` rows are not verified here.** Their correspondence
-  rests on the 2026-09-15 sweep's aggregate verdict, with no per-site
-  proof. They are the work this register still owes.
+- **Every row now carries direct evidence.** The twelve that were
+  carried from the 2026-09-15 sweep were re-verified against the
+  primary copy on 2026-09-16, each against what its sentence asserts
+  rather than against its clause number.
 - **It does not re-verify anything against `context/` as of a later
   edit.** Each row is true as of its `Verificado` date and no later.
 - **It records no claim about the FDIS draft.** Everything here is
