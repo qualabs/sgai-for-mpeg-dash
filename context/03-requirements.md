@@ -294,6 +294,35 @@ admissible ad-type vocabulary, and the admissible creative carriers.
   instance of R2 — Publisher declares the constraint, Player
   enforces it, ADS does not.
 
+  **What the cap bounds is not the same in every family, because the
+  base specification makes it so.** On an inherited linear slot the cap
+  is `AlternativeMPDEventType@maxDuration`, *"expressed in units of
+  `EventStream@timescale`"* (§5.16.5), and what it bounds differs
+  between the two linear operations:
+
+  - **Replacement** (`ReplacePresentation`) — the cap bounds **until
+    when**. `@clip`, whose default is `"true"`, makes the alternative
+    presentation *"terminate at the latest at time PRT + APDmax"*,
+    the end the Publisher scheduled, whatever time the event actually
+    fired. Starting late therefore shortens the ad instead of moving
+    the end. With `@clip="false"` it terminates at `PRTA + APDmax` and
+    the slot ends later than scheduled.
+  - **Insertion** (`InsertPresentation`) — the cap bounds **how
+    long**. `@clip` does not exist on the insertion event, and could
+    not: insertion stops the primary timeline and resumes it at
+    `RT = PRTA` (§5.16.2.2, Table 57), so there is no scheduled end to
+    preserve and starting late displaces nothing.
+
+  The asymmetry is not an exception granted to one construct. It
+  follows from the two operations being different: replacement runs
+  against a timeline that keeps moving underneath it, and insertion
+  stops that timeline. A cap that meant the same thing in both would
+  be wrong in one of them.
+
+  On the non-linear families this specification defines there is no
+  `PRT` / `PRTA` model to preserve an end against, and the cap bounds
+  cumulative duration (R4.2, R14.2).
+
   **Conformance criteria** (runtime):
   - **R4.1** (Publisher): The Publisher MUST declare a maximum
     duration on every ad slot (linear or non-linear) defined in the
@@ -302,9 +331,12 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     candidates would exceed the Publisher-declared cap, the
     Player MUST stop rendering at the cap boundary, even if the
     stop falls mid-ad.
-  - **R4.3** (Player): The Player MUST NOT extend a slot beyond
-    the Publisher-declared cap regardless of ADS metadata or
-    candidate count.
+  - **R4.3** (Player): The Player MUST NOT extend a slot beyond what
+    the cap bounds for that slot's family (R4.6), regardless of ADS
+    metadata or candidate count. On a replacement slot the bound is
+    the scheduled end, so an event declaring `@clip="false"` ends
+    later than that end without violating this criterion — it is the
+    base specification moving the bound, not the Player exceeding it.
   - **R4.4** (ADS): The ADS is NOT required to respect the cap when
     selecting candidates; a conformance check on the ADS MUST NOT
     fail solely because the cumulative duration of its returned
@@ -313,6 +345,25 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     accepted candidate exceeds its declared duration, the Player
     MUST enforce the cap against actual length, not declared
     length ("trim during play").
+  - **R4.6** (Player): On an inherited linear replacement slot, the
+    Player MUST honour the base specification's clip semantics: unless
+    the event declares otherwise, the presentation ends at the
+    scheduled end of the slot and a late start shortens it. On an
+    insertion slot the cap bounds the presentation's own duration.
+  - **R4.7** (Publisher + Player): A declared cap of zero means the
+    opportunity does not fire. The base specification states it
+    directly — *"If the value of `@maxDuration` is zero, the event is
+    not executed"* (§5.16.5) — and this specification adds nothing to
+    it: a zero cap is not a very short slot.
+  - **R4.8** (spec document): R4.1's requirement that every slot
+    declare a cap is a **deliberate narrowing** of the base
+    specification, which treats an absent `@maxDuration` as infinity,
+    *"in which case the current presentation resumes only when the
+    alternative presentation terminates"* (§5.16.5). The narrowing
+    restricts which documents conform and changes no construct's
+    semantics, which is what a profile does (§8.1). It is recorded
+    here so that a reader who finds the unbounded default in the base
+    specification knows it was excluded on purpose.
 
 - **R12. Ad types and formats supported by this edition.**
   *Gist: This edition supports a fixed, closed set of IAB ad types (linear, overlay, squeezeback, pause-ad); anything not listed, or rendered off the video surface, is out of scope.*
