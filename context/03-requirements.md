@@ -1426,6 +1426,13 @@ carriers for creative metadata and non-AV assets.
   - **R33.3** (spec document): The transport by which any measurement
     reaches the Publisher, the APS or the ADS is out of scope, as it
     is for the base specification's own metrics (§5.9.1).
+  - **R33.4** (Publisher): Content carrying pause opportunity windows
+    MUST request the `PlayList` metric through the base
+    specification's `Metrics` element. Collection is triggered by the
+    service provider and not by the Player — *"The trigger mechanism
+    is based on the `Metrics` element in the MPD"* (§5.9.1) — so
+    without this declaration R33.2 defines how to derive a quantity
+    that nothing obliges anyone to collect.
 
 - **R28. ClickThrough carrier — normative and interoperable.**
   *Gist: The resolution document carries the ClickThrough URL and its click-tracking URLs in an explicit, normative, interoperable carrier.*
