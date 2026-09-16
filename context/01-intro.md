@@ -23,6 +23,10 @@ This folder stays focused on the technical content.
 
 ## Document index
 
+- **[00-normative-base.md](./00-normative-base.md)** — The edition of
+  MPEG-DASH this specification is written against, the primary copy used
+  to verify claims against it, and how much of that verification carries
+  direct evidence. The only place that names the edition.
 - **[02-actors.md](./02-actors.md)** — Four-actor model
   (Publisher / ADS / APS / Player). Bounded responsibilities and the
   Player as the enforcer of the Publisher's policy.

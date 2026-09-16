@@ -34,6 +34,7 @@ projects/sgai-for-mpeg-dash/
 │   │   └── prs/          Stage 6 prompts — GitHub PRs review
 │   ├── output-issues/    Stage 5 scratch (gitignored) — per-issue triage / impact / response drafts
 │   └── output-prs/       Stage 6 scratch (gitignored) — per-PR triage / analyze / review drafts
+├── bin/                  executable checks the build runs; not prompts
 ├── proposal-drafts/      historical drafts kept for reference
 └── .project/             governance from the create-project skill
 ```
@@ -59,7 +60,14 @@ What does NOT go where:
   `context-analysis/`, `output/` or `output-analysis/` to follow
   along, the missing piece belongs back inside `context/`.
 - `prompts/` — only `.prompt` files. No build scripts in other
-  languages, no helpers, no READMEs.
+  languages, no helpers, no READMEs. An executable a prompt needs to
+  invoke lives in `bin/` and is called from the prompt body.
+- `bin/` — executable checks and helpers the build invokes. Something
+  belongs here rather than in a prompt when it must be able to **fail**:
+  a prompt can be reasoned around, a non-zero exit cannot.
+  `check-normative-base.py` is Step 0 of `build-all` and confirms that
+  `context/00-normative-base.md` still describes the copy of the
+  standard on disk.
 - `context-analysis/` — only **pre-spec** generated artefacts that
   the spec build consumes as inputs (gap analysis, UC coverage
   matrix, error semantics, conformance assertions). Derived from
