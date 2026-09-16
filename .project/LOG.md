@@ -1806,3 +1806,84 @@ Nicolás is loading the published PDF into the notebook. The control to
 re-run afterwards is the same transcription: if it returns
 `xs:unsignedLong` with no default and names `clip`, `returnOffset` and
 `startWithOffset`, the grounding is sound and stays in the pipeline.
+
+## 2026-09-15 (resolved) — the instrument was sound; the document was stale
+
+Closes the previous entry, which left the question open as a hypothesis.
+It is now settled by experiment, and the answer is the opposite of what
+this log asserted two entries ago.
+
+### The controlled test
+
+Nicolás loaded the published PDF into the notebook and cleared the chat
+history — necessary, because with the document swapped the old answers
+were still sitting in the conversation. The **same control question,
+word for word**, was asked again. It returned:
+
+```xml
+<xs:extension base="AlternativeMPDEventType">
+  <xs:attribute name="returnOffset"    type="xs:unsignedLong"/>
+  <xs:attribute name="clip"            type="xs:boolean" default="true"/>
+  <xs:attribute name="startWithOffset" type="xs:boolean" default="false"/>
+```
+```xml
+<xs:attribute name="earliestResolutionTimeOffset" type="xs:unsignedLong"/>
+```
+
+Character-identical to the PDF. The three extension attributes it had
+omitted are present; the type it had given as `xs:double` default `60.0`
+is now `xs:unsignedLong` with no default. It identifies its source as
+ISO/IEC 23009-1:2026(en), Sixth edition 2026-07.
+
+**Same question, same instrument, one variable changed — the document —
+and the answer flipped to match a source verified independently.** That
+is what the previous entry said was missing. The evidence is no longer
+the instrument describing itself; it is the instrument's behaviour under
+a controlled change, checked against the PDF.
+
+### What is now established
+
+**The retrieval was never broken.** It was quoting a different document
+correctly: the Final Draft, `FDIS ISO/IEC 23009-1:2025(E)`, 2025-03. The
+hypothesis in the previous entry is verified and its caveat is lifted.
+
+Which means the claim this log made two entries ago — that the retrieval
+"did not invent a name, it invented an explanation" — **is not merely
+withdrawn, it is wrong.** `clipDuration` and the prose/schema
+discrepancy were almost certainly faithful readings of the draft. The
+build did its job correctly on the source it was given.
+
+The halt report's thesis remains false **against the published
+standard**, which is the document this specification must conform to.
+That is the only part of it that ever mattered, and the corrections in
+`b3e47cb`, `7a29435` and `38e782f` stand unchanged. What changes is the
+reason: not invention, but a stale source.
+
+### The diagnostic error, stated as it deserves
+
+The coordinating agent's mistake was not "concluded without verifying".
+It was **blaming the tool and feeling settled about it** — which is
+exactly the mirror this log recorded one entry earlier, committed by the
+agent who had just written it down:
+
+> An explanation that exonerates you deserves more scrutiny. The mirror
+> is equally true: an explanation that blames the tool is just as
+> comfortable, and gets audited even less, because suspecting a machine
+> feels like rigour.
+
+Both halves of that rule were bought the same evening, twenty minutes
+apart, on the same fact. The one that lasted longer is the one that got
+written into the record.
+
+### What has to be regenerated
+
+`context-analysis/dash-gap-analysis.md` (`e548081`) is grounded against
+the draft and must be rebuilt against the published standard. **No
+manual action is needed**: `context/` was last modified at 21:54 and all
+five Stage-1 artefacts date from 19:27–19:40, so every skip rule in
+Stage 1 now fails and the next `build-all` regenerates all of them.
+
+Only the gap analysis was exposed to the stale document — it is the sole
+`[GROUNDED_BY=notebooklm]` artefact. The other four are `spec-only`
+except the IAB catalogue, which reads a live external source and never
+skips.
