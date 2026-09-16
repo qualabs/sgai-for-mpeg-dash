@@ -1369,6 +1369,64 @@ carriers for creative metadata and non-AV assets.
     It MUST be carried via one of the §5.2.1 / §5.10 / §5.8.4.x
     carriers enumerated by DR-6, per R1.2.
 
+- **R33. Pause-ad delivery is measured with the base specification's play-list metric.**
+  *Gist: The paused interval is derived from the `PlayList` metric DASH already defines; this specification adds no metric of its own, and measures filled duration rather than opportunity count.*
+
+  A pause slot has no authored duration (R31), so what is worth
+  measuring is how much of the paused interval carried an ad, not how
+  many pause opportunities occurred. **The number of opportunities is
+  set by the viewer**, who decides when and how often to pause: it can
+  be neither controlled nor incentivised, and a figure that moves for
+  reasons no party influences reports nothing about how well the slot
+  was served. **The filled fraction can be influenced**, by the APS
+  returning candidates that keep the slot filled for longer.
+
+  The measurement is already defined by the base specification and is
+  adopted unchanged. Annex D.4.6 defines the `PlayList` metric as *"a
+  list of playback periods"*, where a playback period is *"the time
+  interval between a user action and whichever occurs soonest of the
+  next user action, the end of playback or a failure that stops
+  playback"*. Two of its fields carry everything a pause slot needs:
+
+  - Each playback-period entry declares a `starttype`, whose value
+    space includes **`Resume` — "Resume from pause"**. The entry whose
+    `starttype` is `Resume` is the one that ends a pause.
+  - Inside a playback period, each continuously rendered stretch
+    declares a `stopreason`, whose value space includes
+    **`UserRequest`** and **`Rebuffering`**. That is what separates a
+    viewer pause from a stall: a period that stopped on `Rebuffering`
+    is not a pause opportunity, and R31's window never triggered.
+
+  **The paused interval is therefore derived, not measured
+  separately**: it is the interval between the end of a playback
+  period whose last rendered stretch stopped on `UserRequest`, and the
+  `start` of the next entry whose `starttype` is `Resume`. Against
+  that interval, the duration the pause ad actually occupied is the
+  filled fraction.
+
+  **How the measurement reaches anyone is out of scope**, and the base
+  specification takes the same position about its own metrics: *"This
+  document does not define mechanisms for reporting metrics; however,
+  it does define a set of metrics and a mechanism that may be used by
+  the service provider to trigger metric collection and reporting at
+  the clients, if a reporting mechanism is available"* (§5.9.1). This
+  specification defines the quantity and inherits that silence about
+  transport.
+
+  **Conformance criteria** (runtime + document-level):
+  - **R33.1** (spec document): This specification MUST NOT define a
+    metric of its own for pause-ad delivery. The quantity is derived
+    from the `PlayList` metric of Annex D.4.6; defining a parallel
+    metric for something the base specification already measures is
+    the duplication R9 exists to prevent.
+  - **R33.2** (Player): A Player that reports metrics MUST derive the
+    paused interval from the `PlayList` entries as described above,
+    and MUST NOT count a playback period that stopped on
+    `Rebuffering` as a pause opportunity.
+  - **R33.3** (spec document): The transport by which any measurement
+    reaches the Publisher, the APS or the ADS is out of scope, as it
+    is for the base specification's own metrics (§5.9.1).
+
 - **R28. ClickThrough carrier — normative and interoperable.**
   *Gist: The resolution document carries the ClickThrough URL and its click-tracking URLs in an explicit, normative, interoperable carrier.*
 
