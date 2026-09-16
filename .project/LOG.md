@@ -1,5 +1,42 @@
 # Project log
 
+## 2026-09-16 — the v7 artefacts entered the repository by accident, and stay
+
+Fourteen files were committed in `1b1bf33`, whose message describes the
+normative-base declaration and mentions none of them:
+
+```
+output/v7-sgai-spec.md                           output-analysis/v7-spec-validation.md
+output/v7.1-sgai-spec.md                         output-analysis/v7-detail-review.md
+output/v7.2-sgai-spec.md                         output-analysis/v7-dash-conformance-audit.md
+output-analysis/v7.1-comparison.md               output-analysis/v7.1-spec-validation.md
+output-analysis/v7.2-comparison.md               output-analysis/v7.1-detail-review.md
+                                                 output-analysis/v7.1-dash-conformance-audit.md
+                                                 output-analysis/v7.2-spec-validation.md
+                                                 output-analysis/v7.2-detail-review.md
+                                                 output-analysis/v7.2-dash-conformance-audit.md
+```
+
+Roughly seventeen thousand lines. They had been untracked all day. Five
+regenerated `context-analysis/` files rode the same commit, also
+unmentioned.
+
+**How**: a `git add -A` in a commit about something else. Nobody decided
+to add them; the command did.
+
+**They stay.** Every earlier iteration from v1 to v6 is versioned, so
+removing these now would change that policy by accident in the opposite
+direction — the same way they arrived.
+
+**This entry exists instead of a rebase.** With nothing yet pushed the
+history could have been rewritten into something tidier, but tidier is
+not the goal: a rewritten history would say the files arrived
+deliberately, which is false, and would erase that a broad `git add`
+can commit seventeen thousand lines nobody looked at. The defect is not
+that the files are in the repository. It is that a commit message
+described one change and delivered twenty.
+
+
 ## 2026-07-13 — phase closed: 02-wg-feedback-round-1
 
 Closed the working-group feedback round-1 phase. All of David Hassoun's
