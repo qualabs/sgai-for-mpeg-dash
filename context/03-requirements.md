@@ -92,7 +92,7 @@ positions.
 |---|---|
 | R1 | SGAI extends MPEG-DASH 6th edition without breaking it; a legacy Player ignores the new constructs and keeps playing. |
 | R2 | Four actors, fixed roles: the Publisher declares, the ADS decides, the APS converts, the Player validates and renders. |
-| R4 | The Publisher declares the maximum slot duration; the Player enforces the cap, even mid-ad. |
+| R4 | The Publisher declares a maximum on every slot; the Player enforces it even mid-ad, and what it bounds depends on the family. |
 | R5 | Candidates carry one or more renderable options in preference order; the Player renders the first its device can satisfy, and a single-option candidate leaves the choice with the APS. |
 | R11 | No dependency on VAST or any specific VAST version. |
 | R12 | A fixed, closed set of IAB ad types (linear, overlay, squeezeback, pause-ad); nothing else is in scope. |
