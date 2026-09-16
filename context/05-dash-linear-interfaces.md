@@ -192,7 +192,7 @@ append to the APS resolution request.
     <EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:insert:2025"
                  timescale="1000">
       <Event id="101" presentationTime="0" duration="15000">
-        <InsertPresentation url="https://ads.example.com/decision/preroll"
+        <InsertPresentation uri="https://ads.example.com/decision/preroll"
                             earliestResolutionTimeOffset="0"
                             maxDuration="15000"/>
       </Event>
@@ -202,11 +202,11 @@ append to the APS resolution request.
     <EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:replace:2025"
                  timescale="1000">
       <Event id="102" presentationTime="360000" duration="30000">
-        <ReplacePresentation url="https://ads.example.com/decision/midroll"
+        <ReplacePresentation uri="https://ads.example.com/decision/midroll"
                              earliestResolutionTimeOffset="60000"
                              maxDuration="30000"
                              returnOffset="0"
-                             clipDuration="30000"
+                             clip="true"
                              startWithOffset="false"/>
       </Event>
     </EventStream>
@@ -243,11 +243,12 @@ What the Player does with this manifest:
   request. When the ad plays, main media time keeps advancing in
   the background, and at the end the Player resumes at the playhead
   position determined by `@returnOffset` (§5.16.4).
-- `@clipDuration` on `ReplacePresentation` ensures that even if the
-  event executes late, the ad does not exceed `@maxDuration`
-  (§5.16.4). `@startWithOffset` controls whether a delayed ad
-  starts from its first frame or skips into the corresponding offset
-  to stay aligned with the wall clock.
+- `@clip` on `ReplacePresentation` is a boolean, default `true`: when
+  set, an ad whose event executes late is trimmed so that it does not
+  exceed `@maxDuration` (§5.16.4). It carries no duration of its own.
+  `@startWithOffset` controls whether a delayed ad starts from its
+  first frame or skips into the corresponding offset to stay aligned
+  with the wall clock.
 - The MPD-level `UrlParamInfo` descriptor (§I.4) is consulted at
   resolution time: the Player substitutes the state-vocabulary
   variables (`$urn:mpeg:dash:state:video$`,
@@ -286,12 +287,12 @@ ADS, and the APS transcribed them into this document).
 
   <!-- First ad in the pod -->
   <Period id="ad_01" duration="PT15S">
-    <ImportedMPD uri="creative_101.mpd" earliestResolutionTimeOffset="0"/>
+    <ImportedMPD earliestResolutionTimeOffset="0">creative_101.mpd</ImportedMPD>
   </Period>
 
   <!-- Second ad in the pod -->
   <Period id="ad_02" duration="PT30S">
-    <ImportedMPD uri="creative_102.mpd" earliestResolutionTimeOffset="15"/>
+    <ImportedMPD earliestResolutionTimeOffset="15">creative_102.mpd</ImportedMPD>
   </Period>
 
 </MPD>
