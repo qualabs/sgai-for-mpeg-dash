@@ -607,14 +607,27 @@ author should likely revise before the maintainer merges).
   so paths inside the prompt body read naturally as
   `../context/...`.
 
-## NotebookLM integration
+## Grounding against the standard
 
-When a prompt needs authoritative content from a published spec
-(e.g. MPEG-DASH 6th edition), invoke the `notebooklm` skill against
-the relevant notebook (currently:
-"streaming formats / DASH 6th"). Cite section numbers when
-available. Tag claims that could not be verified against the
-authoritative source as `[inferred]`.
+The edition this project is written against, and the copy used to
+verify claims about it, are declared in `context/00-normative-base.md`
+and nowhere else. `bin/check-normative-base.py` confirms before every
+build that the declaration still describes the file on disk.
+
+**That copy is a licensed single-user document.** It is not in this
+repository and it must not travel: quote clauses, never pages, and
+never reproduce the licence stamp that appears on every page of the
+extraction — the licensee's name, e-mail, and ISO Store order number.
+An artefact recording which source it used names **the edition**, not
+the licence. This is easy to get wrong precisely because the stamp sits
+next to every sentence worth quoting, and it has already happened once.
+
+When a prompt needs authoritative content and the primary copy is not
+at hand, invoke the `notebooklm` skill against the relevant notebook
+(currently: "streaming formats / DASH 6th"). It is a derivative of the
+standard, so the PDF outranks it whenever both are available. Cite
+section numbers when available, and tag claims that could not be
+verified against the authoritative source as `[inferred]`.
 
 ## ADRs and decisions
 
