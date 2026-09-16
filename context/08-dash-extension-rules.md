@@ -144,7 +144,7 @@ carrier exists for non-MP4 assets anywhere in the ListMPD flow.
   containing Period is inside the ListMPD root or inside a sub-MPD
   reached via `<ImportedMPD>`.
 
-## DR-6 — Three DASH-conformant carriers exist for non-AV ad assets
+## DR-6 — Four DASH-conformant carriers exist for non-AV ad assets
 
 Given DR-1, DR-4, and DR-5, the only DASH-conformant carriers for
 non-AV (non-MP4) ad assets are:
@@ -156,19 +156,36 @@ non-AV (non-MP4) ad assets are:
   `<Event>` whose `text()` carries an inline payload (the callback
   scheme §5.10.4.5 already uses this pattern). Presentation-time
   aligned.
-- **(c) Vendor descriptors under §5.8.4.8 / §5.8.4.9** — a scheme
-  URI with `@value` carrying the asset URL string. Placement is
-  constrained to AdaptationSet / Representation / Sub-Representation,
-  so this carrier inherits DR-5's MIME constraint unless hosted
-  inside a foreign-namespace parent, which collapses (c) into (a)
-  with worse readability.
+- **(c1) Supplemental descriptors under §5.8.4.9** — a scheme URI
+  with `@value` carrying the asset URL string, on a
+  `SupplementalProperty`. §5.8.4.9's NOTE: an unrecognised scheme or
+  value means the DASH Client *"is expected to ignore the
+  descriptor"*, leaving the parent element intact.
+- **(c2) Essential descriptors under §5.8.4.8** — the same payload on
+  an `EssentialProperty`. §5.8.4.8's NOTE 1: an unrecognised scheme or
+  value means the DASH Client *"is expected to ignore the parent
+  element that contains the descriptor"*. The parent goes with it.
+
+  The two are **not interchangeable, and neither is wrong**: (c2) is
+  what a construct wants when presenting the parent without
+  understanding the descriptor would be incorrect, and (c1) is what it
+  wants everywhere else. Naming them as one option hides the only
+  difference that matters.
+
+  Both share the placement constraint: they sit on AdaptationSet /
+  Representation / Sub-Representation, so both inherit DR-5's MIME
+  constraint unless hosted inside a foreign-namespace parent, which
+  collapses them into (a) with worse readability.
 
 - **Source**: §5.2.1, §5.10, §5.8.4.8, §5.8.4.9 read against DR-1 /
   DR-4 / DR-5.
 - **Implication for SGAI**: the carrier choice for any non-AV
-  asset is closed to this enumeration. Builders pick (a) / (b) / (c)
-  on fit: one-fetch vs round-trip, named element vs descriptor,
-  presentation-time alignment vs static attribute.
+  asset is closed to this enumeration. Builders pick
+  (a) / (b) / (c1) / (c2) on fit: one-fetch vs round-trip, named
+  element vs descriptor, presentation-time alignment vs static
+  attribute, and — between (c1) and (c2) — whether a legacy Player
+  that cannot read the descriptor should keep the parent element or
+  drop it.
 
 ## DR-7 — Non-zero-duration Periods MUST contain at least one AdaptationSet
 
