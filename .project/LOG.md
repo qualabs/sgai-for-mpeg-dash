@@ -1720,3 +1720,89 @@ report goes to the working group, because there is no defect in the
 standard. The three XML corrections stand on their own: the schema says
 `uri` and `clip`, our examples said `url` and `clipDuration`, and that
 is the whole of it.
+
+## 2026-09-15 (correction) — the notebook was probably reading a different document
+
+Corrects the previous entry, which is the strongest claim made all day
+and is now in doubt. It states that the retrieval "did not invent a
+name, it invented an explanation". **That characterisation is withdrawn
+pending verification**, and the reason is worth more than the claim was.
+
+### What is established
+
+The published standard — ISO/IEC 23009-1:2026, Sixth edition, 2026-07,
+the licensed PDF in `sandbox/vertex-rag/` — declares `uri` and `clip`,
+in both its schema and its prose, and contains no `@url` and no
+`clipDuration`. Verified by direct count, twice, by two agents
+independently. **The corrections committed in `b3e47cb`, `7a29435` and
+`38e782f` are made against that document and stand.**
+
+Also established: the notebook's answers do not match that document.
+Asked to transcribe `AlternativeMPDReplaceEventType`, it gave
+`earliestResolutionTimeOffset` as `xs:double` default `60.0` — which is
+`ImportedMpdType`'s declaration, 9 300 lines away — and omitted
+`returnOffset`, `clip` and `startWithOffset`, which are the entire
+content of that extension.
+
+### What is NOT established, and was asserted anyway
+
+From that mismatch the coordinating agent concluded that the retrieval
+mixes declarations and is unreliable for schema syntax, and this log
+recorded, one entry earlier, that it had "invented an explanation".
+
+**Neither conclusion was tested.** Asked what document it holds, the
+notebook reports its source as `FDIS ISO/IEC 23009-1:2025(E)`, dated
+2025-03, file `MDS25026_WG03_N01490_DASH-6th-edition_FinalDIS_r1.docx`
+— the Final Draft, not the published standard. If that is so, the
+retrieval was not mixing anything: it was quoting a different document
+correctly, `clipDuration` may genuinely exist in the draft, and the
+published standard renamed it. It would also explain the clause numbers
+that disagreed between retrievals earlier in this phase: **two
+documents, two numberings**, rather than an unstable instrument.
+
+**This is a hypothesis and is recorded as one.** Nobody has read the
+FDIS. And the evidence for it is the notebook's own report of its own
+source — the instrument's self-description used to exonerate the
+instrument. What would settle it is the notebook's source panel, or the
+FDIS itself.
+
+### The two diagnostic errors, with names
+
+**The coordinating agent** concluded "the tool is not reliable" without
+first asking what the tool was reading. The question cost two minutes
+and was asked only after Nicolás suggested it.
+
+**The executing agent** wrote the previous entry's "invented an
+explanation" framing, and wrote it with more force than any other claim
+in this log, on the same evidence.
+
+Both are the shape this whole session kept finding, applied to a tool
+instead of a command: **ask a source something, get an answer about
+something else, and blame the source rather than establishing what it
+was answering about.** A wrong document is not a wrong instrument.
+
+And it inverts the warning the previous entry ends on. That entry says
+an explanation that exonerates you deserves more scrutiny. True — and
+the mirror is equally true: **an explanation that blames the tool is
+just as comfortable, and gets audited even less, because suspecting a
+machine feels like rigour.**
+
+### What this means for the artefacts
+
+`context-analysis/dash-gap-analysis.md`, committed in `e548081`, carries
+twelve citations to the standard under `[GROUNDED_BY=notebooklm]`.
+Whatever the cause, **its grounding source is not confirmed to be the
+published standard**, so that stamp cannot be read as agreement with
+ISO/IEC 23009-1:2026. It must be re-read on that basis before `v7` is
+built on top of it.
+
+The halt report's central thesis — that the standard spells these
+attributes two ways and never acknowledges the mismatch — remains false
+**against the published standard**, which is the one this specification
+must conform to. What changes is the reason: not that it was invented,
+but that it may describe the draft.
+
+Nicolás is loading the published PDF into the notebook. The control to
+re-run afterwards is the same transcription: if it returns
+`xs:unsignedLong` with no default and names `clip`, `returnOffset` and
+`startWithOffset`, the grounding is sound and stays in the pipeline.
