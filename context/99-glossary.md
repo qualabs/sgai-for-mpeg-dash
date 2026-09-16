@@ -133,11 +133,13 @@ through `08-dash-extension-rules.md`.
   `<Period>`). §5.3.2.6 binds the imported document to the SPS
   profile (DR-1 in
   [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
-- **Interoperability Point URI** *(DASH Annex F)*: a profile URI
-  declared in `MPD@profiles` advertising conformance to a DASH
-  extension authored under Annex F. Required when a custom delivery
-  format is introduced for AdaptationSet / Representation carriage
-  (DR-4 in
+- **Interoperability Point URI** *(DASH 6th ed, §8.1)*: the URI of a
+  set of restrictions defined outside the base document, declared in
+  `MPD@profiles`. §8.1 recommends that such external definitions be
+  called Interoperability Points rather than profiles, and makes the
+  owner of the URI responsible for their semantics. Required when a
+  custom delivery format is introduced for AdaptationSet /
+  Representation carriage (DR-4 in
   [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
 - **Single-Period Static (SPS) profile** *(DASH 6th ed, §8.15)*: DASH
   profile constraining the document to a single Period and inheriting

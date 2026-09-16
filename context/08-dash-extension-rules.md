@@ -68,23 +68,39 @@ namespace subtree.
   authoring move that hides it from legacy clients; placing it as
   a sibling is the move that exposes it.
 
-## DR-4 — Annex F is the only normative DASH path to non-ISO-BMFF delivery formats; requires a new Interoperability Point URI
+## DR-4 — Annex F is informative; what binds a new delivery format is the Interoperability Point URI of §8.1
 
-DASH Annex F (informative) describes how to extend DASH with non-
-ISO-BMFF delivery formats. F.2 requires that a custom format's
-authoring rules define a MIME type for the Representation formed as
-Segment concatenation, and that a new **Interoperability Point
-URI** be declared in `MPD@profiles` (§8.1). No spec-defined image
-profile, HTML profile, or thumbnail profile exists in DASH 6th.
-Introducing one is a full Annex F exercise (new profile URI, new
-authoring rules, new conformance criteria) — heavier than §5.2.1
-foreign-namespace for an attribute that is a flat HTTP URL to a
-renderable asset.
+DASH Annex F is headed **(informative)**. F.2 says that a
+specification for how to use a media container format with DASH
+*should* include a definition of the MIME type for the Representation
+formed as a concatenation of Segments, and a description of either a
+self-initializing Media Segment or the combination of an
+Initialization Segment and a Media Segment format. It is guidance and
+imposes nothing.
 
-- **Source**: Annex F (F.2), §8.1.
+The binding clause is §8.1, which is normative. A profile has an
+identifier that is a URI, and the profiles with which an MPD complies
+are indicated in the `MPD@profiles` attribute as a comma-separated
+list of profile identifiers. §8.1 also names the shape an extension
+like this one would take: restrictions defined outside the base
+document are recommended to be referred to not as profiles but as
+**Interoperability Points**, signalled in `@profiles` once a URI is
+defined, with the owner of the URI responsible for providing
+sufficient semantics on its restrictions and permissions.
+
+No spec-defined image profile, HTML profile, or thumbnail profile
+exists in DASH 6th. Introducing one means authoring rules,
+conformance criteria and an Interoperability Point URI to define,
+publish and get declared — heavier than §5.2.1 foreign-namespace open
+content for an attribute that is a flat HTTP URL to a renderable
+asset.
+
+- **Source**: §8.1 for the Interoperability Point URI and
+  `MPD@profiles`. Annex F (F.2) is informative and is cited here as
+  guidance, not as an obligation.
 - **Implication for SGAI**: admissible only when the construct
   genuinely requires DASH segment-delivery semantics for a non-
-  ISO-BMFF format AND the spec is willing to publish a new
+  ISO-BMFF format AND the spec is willing to define and publish an
   Interoperability Point URI. For flat HTTP URLs to renderable
   assets the cost is not justified.
 
