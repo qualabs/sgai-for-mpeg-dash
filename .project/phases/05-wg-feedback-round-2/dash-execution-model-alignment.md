@@ -109,6 +109,14 @@ all: what happens on a seek.
 - **Why it matters**: the 200-strict rule was written to stop an empty
   resolution from being read as a failure. It also, unintentionally,
   stops a **real** failure from being read as one.
+- **This item exists separately only because D-1 was not adopted.**
+  D-1's rule is "any failed execution tries the next event", and an
+  invalid document is a failed execution, so adopting D-1 covers this
+  case without enumerating it. Applied on its own — which is what was
+  done, in `0c39793` — the enumeration is what closes the hole. If NC2
+  later resolves toward adopting D-1, this becomes redundant rather
+  than wrong, and a reader finding it then should know why it is
+  there.
 
 ---
 
