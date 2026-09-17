@@ -362,9 +362,10 @@ What the Player does with these documents:
   treats the response body as a beacon ack — it discards it.
 
 > **Spec note on ListMPD content**: §8.14 does **not** force a
-> ListMPD's Periods to use `ImportedMPD`. A ListMPD may also contain
-> regular Periods inline (validated against the 6th edition source
-> via NotebookLM). The pattern shown above — Periods that delegate to
+> ListMPD's Periods to use `ImportedMPD`. Its rule 4 says so directly:
+> *"List MPDs may contain one or more Linked Periods (see 5.3.2.6),
+> however it may also contain regular Periods."* The pattern shown
+> above — Periods that delegate to
 > per-ad sub-MPDs — is the one this project targets for the linear
 > SGAI baseline, because it lets the APS keep ad metadata sharded
 > per creative.

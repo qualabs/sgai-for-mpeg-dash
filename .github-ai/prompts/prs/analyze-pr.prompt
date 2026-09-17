@@ -32,7 +32,8 @@
   `.github-ai/output-prs/pr-<N>/cycle-<C-1>/analyze.md` when
   `cycle_count > 1` — used to avoid re-litigating findings that
   were already raised and to anchor on the author's new commits.
-- Optionally NotebookLM grounding — see "Keyword detector" below.
+- The primary copy of the base standard, when the keyword detector
+  trips — see "Keyword detector" below.
 
 **Output**:
 `.github-ai/output-prs/pr-<N>/cycle-<C>/analyze.md`.
@@ -71,18 +72,21 @@ for any of these technical keywords:
 - `CMAF`
 - `HLS`
 
-If at least one keyword matches AND the `notebooklm` skill is
-installed AND `.env.agent` defines a non-empty `NOTEBOOK_ID` →
-query the configured notebook for authoritative content relevant
-to the PR's claims. Use the matched keyword(s) to shape the
-NotebookLM query (e.g. a PR mentioning `DASH` + `ReplacePresentation`
-should search the DASH 6th edition for the latter). Log:
+If at least one keyword matches → search the **primary copy** of the
+base standard (the PDF at `NORMATIVE_PDF_PATH` in `.env.agent`, the
+edition declared in `../context/00-normative-base.md`) for the clause
+relevant to the PR's claim, and quote it. Use the matched keyword(s)
+to shape the search. Log:
 
 ```
-[GROUNDED_BY=notebooklm] [KEYWORDS_MATCHED=DASH,CMAF]
+[GROUNDED_BY=iso-23009-1-2026-pdf] [KEYWORDS_MATCHED=DASH,CMAF]
 ```
 
-If no keyword matches OR NotebookLM is unavailable → ground only
+A keyword outside the base standard's scope — `IAB`, `SCTE-35`, `HLS` —
+will not be answered by it. Say so rather than grounding against
+something that does not cover the question.
+
+If no keyword matches → ground only
 against `../context/` and the model's prior knowledge. Tag every
 unverified claim as `[inferred]`. Log:
 
@@ -106,7 +110,7 @@ note, a glossary entry, a procedural description), classify:
 
 - **`verified`** — matches the canonical source. Cite the source
   inline (`context/03-requirements.md §R7`, `DASH 6th §5.16.4`
-  when NotebookLM is grounded).
+  when the base standard was consulted).
 - **`refuted-by-spec`** — the canonical source contradicts the
   claim. Cite where. Quote the contradicting passage briefly.
 - **`partially-verified`** — partially correct; usually a
@@ -114,7 +118,7 @@ note, a glossary entry, a procedural description), classify:
   what's off.
 - **`unverifiable`** — cannot be checked against the available
   sources (the claim is about something the spec does not yet
-  cover, or about an external standard that NotebookLM did not
+  cover, or about an external standard the primary copy does not
   surface). Mark it as such; do NOT invent verification.
 
 For Stage 6 specifically, the content axis pays special attention
@@ -299,7 +303,7 @@ exact shape:
 ```markdown
 # Analysis — PR #<N> (cycle <C>)
 
-Grounding: <notebooklm | spec-only>
+Grounding: <iso-23009-1-2026-pdf | spec-only>
 Keywords matched: <comma-list or "(none)">
 
 ## Axis 1 — Content validation

@@ -306,7 +306,8 @@ A false 5.b is cheaper than a wrong 5.a (mirrors the
 ### Validation doc structure
 
 ```
-[GROUNDED_BY=spec-only]   # or notebooklm if NotebookLM was used
+[GROUNDED_BY=spec-only]   # or iso-23009-1-2026-pdf if the base
+                          # standard was consulted
 
 # Spec validation — v<N> (<YYYY-MM-DD>)
 

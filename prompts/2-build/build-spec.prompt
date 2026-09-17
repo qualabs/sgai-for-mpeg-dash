@@ -9,8 +9,8 @@ passed in by the orchestrator (`build-all.prompt`) — the prompt
 uses it to construct the output filename. If the prompt is invoked
 standalone (no orchestrator), the runner MUST resolve `N` itself as
 `max(existing v*-sgai-spec.md in output/) + 1` (or `1` if none).
-Optionally: NotebookLM grounding if the `notebooklm` skill is
-installed and `.env.agent` defines `NOTEBOOK_ID`.
+Also: the primary copy of the base standard declared in
+`context/00-normative-base.md`.
 **Output**: `output/v<N>-sgai-spec.md` — the spec itself. The
 `v<N>` prefix is the iteration version (e.g. `v3-sgai-spec.md` for
 the 3rd build).
@@ -28,17 +28,17 @@ I.e. the spec regenerates if any of those inputs moved.
 Before doing the work, decide which grounding mode applies and log
 the result to stdout as the first line of execution:
 
-- If the `notebooklm` skill is installed AND a `.env.agent` file at
-  the project root defines a non-empty `NOTEBOOK_ID` → query that
-  NotebookLM notebook (it must contain the MPEG-DASH 6th edition
-  spec and ideally VAST 4.x, IAB CTV, SCTE-35 references). Use it
-  as the authoritative reference when stating normative content.
-  Log: `[GROUNDED_BY=notebooklm]`.
-- Else → proceed using only `../context/` + `../context-analysis/`
-  as input.
-  The spec is less authoritative (no canonical references resolved
-  at query time) but the build still completes successfully.
-  Log: `[GROUNDED_BY=spec-only]`.
+- Ground normative content against the **primary copy** of the base
+  standard — the PDF of the edition declared in
+  `../context/00-normative-base.md`, located as
+  `bin/check-normative-base.py` locates it. Extract it to text and
+  search it. Cite the clause **and quote the sentence**: a clause
+  number alone has twice pointed at a real clause about a different
+  subject in this project.
+  Log: `[GROUNDED_BY=iso-23009-1-2026-pdf]`.
+- There is no degraded mode. Step 0 of `build-all` refuses to start
+  without the primary copy, so a step that runs has it; invoked alone
+  without it, **fail explicitly** rather than building unreferenced.
 
 In either mode, tag any claim that could not be verified against an
 authoritative source as `[inferred]`.
@@ -95,9 +95,11 @@ The output document MUST follow this structure:
    the baseline (clarifications and minor extensions allowed where
    the gap analysis surfaces them), non-linear is the principal new
    content.
-2. **Normative references** — list with version pins (DASH 6th =
-   ISO/IEC 23009-1:2025(E), VAST 4.x, IAB ad-type catalogue,
-   RFC 2119, etc.).
+2. **Normative references** — list with version pins. The base
+   standard's identifier is **not restated here**: take it from
+   `../context/00-normative-base.md`, which is the only place in this
+   project that names the edition. The rest are VAST 4.x, the IAB
+   ad-type catalogue, RFC 2119, and whatever else the spec cites.
 3. **Terms, definitions, abbreviations** — glossary of every term
    used normatively in chapters 4–8. This chapter MUST include a
    normative section listing the accepted ad-type values used by

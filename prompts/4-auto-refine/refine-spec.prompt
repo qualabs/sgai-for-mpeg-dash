@@ -32,7 +32,8 @@ its mtime is newer than ALL of:
 
 **Execution mode**: fresh subagent context. The agent reads only
 the spec, the three analysis sidecars, and `../context/` for
-grounding. It MUST NOT query NotebookLM or any external authority —
+grounding. It MUST NOT query any external authority, the primary copy
+of the base standard included —
 grounding happened in the major build, and a minor refinement
 operates strictly inside that grounding envelope.
 
@@ -85,7 +86,8 @@ re-grounding the whole spec on every fix.
   `v4-spec-validation.md#gap-2`). Markdown ignores HTML comments,
   so this does not affect rendering — but a downstream auditor can
   grep them to audit which changes came from which input.
-- **No external grounding.** Do NOT call NotebookLM. Do NOT cite
+- **No external grounding.** Do NOT open the primary copy of the base
+  standard or any other external authority. Do NOT cite
   new external sources. If a remedy in the conformance audit
   references a DASH 6th rule, the audit already grounded that rule;
   this prompt only applies the remedy.
@@ -269,7 +271,7 @@ Where:
 
 ## What this prompt explicitly does NOT do
 
-- Does NOT re-run NotebookLM or query any external source.
+- Does NOT re-open the primary copy or query any external source.
 - Does NOT regenerate sections without issues in the analyses.
 - Does NOT introduce new requirements, design principles,
   constructs, namespaces, or actor responsibilities.

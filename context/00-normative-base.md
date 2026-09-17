@@ -8,7 +8,7 @@ primary_copy:
   filename: "ISO_IEC_23009-1_2026(en).pdf"
   sha256: "a7274eb244d916285f76c3a08c806ec07481968e1e771820eba58370b64be100"
   source: "https://www.iso.org/standard/89962.html"
-  locate_with: "SGAI_NORMATIVE_PDF, or a .normative-base-path file at the repository root"
+  locate_with: "NORMATIVE_PDF_PATH in .env.agent; SGAI_NORMATIVE_PDF overrides it for one run"
 last_revalidation: "2026-09-16"
 revalidation_max_age_days: 90
 verification_register: ".project/phases/05-wg-feedback-round-2/citation-verification-register.md"

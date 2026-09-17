@@ -35,7 +35,7 @@ If any of those is newer than the review log, regenerate the log
 
 **Execution mode**: this prompt is deterministic — it consults only
 the spec, the validation sidecar, and `../context/`. It MUST NOT
-query NotebookLM or any external authority; conformance against
+query any external authority, the primary copy included; conformance against
 external standards is the job of `audit-dash-conformance` (Step 8).
 
 ---
