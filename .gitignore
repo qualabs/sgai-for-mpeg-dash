@@ -1,13 +1,6 @@
-# Local agent configuration — contains user-specific notebook names
+# Local agent configuration — machine-specific paths and access lists,
+# including the absolute path to the licensed copy of the base standard.
 .env.agent
-
-# Dead pointer file from an earlier way of locating the primary copy of
-# the base standard. Nothing reads it any more (the path is declared in
-# .env.agent as NORMATIVE_PDF_PATH) and the file has been deleted. The
-# line stays because the file held an absolute machine path to a
-# licensed PDF: if anything ever recreates it, it must not reach a
-# public repository. It is a leftover, not a supported mechanism.
-.normative-base-path
 
 # Editor artifacts
 .DS_Store
