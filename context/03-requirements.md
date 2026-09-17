@@ -48,10 +48,12 @@ concrete requirements that follow are constrained by them.
   declaring it exhaustively is impossible and a long list of
   "MUST NOT" items invites confusion and silent gaps. Instead,
   the positive obligation defines the contract; anything outside
-  the positive obligation is implicitly out of scope. (For
+  the positive obligation is implicitly out of scope. What
+  changes is which side of the line the obligation sits on, not
+  whether there is one: the normative modal stays. (For
   example: instead of saying "the Player MUST NOT fire tracking
-  beacons after the slot end," say "the Player fires tracking
-  beacons within the slot window.")
+  beacons after the slot end," say "the Player MUST fire
+  tracking beacons within the slot window.")
 - **DP-3. Maximize the ad opportunity, never at the cost of
   playback.** When a design choice affects how fully an ad
   opportunity can be used, prefer the option that uses it most —
