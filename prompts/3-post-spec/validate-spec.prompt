@@ -7,7 +7,7 @@
   filename. It MUST match the `v<N>` prefix of the spec being
   validated. If invoked standalone, the runner resolves `N` from
   the spec filename being validated.
-- `../context/` (the source of truth — used to check R coverage).
+- `../context/` (the source of truth — used to check obligation coverage).
 - `../context-analysis/` (intermediate analyses — used to
   cross-check conformance assertions, error semantics, etc.).
 
@@ -63,17 +63,129 @@ context language allows it. For each:
 - Which reading the spec draft assumed, and why.
 - A tighter context sentence that would resolve it.
 
-### 4. R coverage map
+### 4. Obligation coverage map
 
-A table listing every requirement defined in
-`../context/03-requirements.md`, with one row per R:
+A table with **one row per conformance criterion** defined in
+`../context/03-requirements.md` — every `R<n>.<m>`, not one row per
+`R<n>`. The obligation lives in the criterion; a table indexed at the
+requirement above it can only report a violated criterion as prose
+inside its parent's row, which is where findings go to be ignored.
+Requirements that define no criteria (the governance ones) get one row
+each.
 
-| R   | Status | Spec sections that satisfy it | Notes |
-|-----|--------|-------------------------------|-------|
+| Unit | Kind | Verdict | Evidence — quoted passage and location | Notes |
+|------|------|---------|----------------------------------------|-------|
 
-Status values: `full`, `partial`, `gap`, `governance` (R8, R9, R10
-are governance, not runtime-testable). Notes capture residuals
-(e.g., a partial R linked to a gap above).
+Verdicts:
+
+- `met` — the spec states the obligation. Evidence: the passage that
+  states it.
+- `contradicted` — the spec states something the criterion forbids, or
+  forbids something it requires. Evidence: **the passage that breaks
+  it**. This is not a degree of `partial`; it is the opposite of `met`,
+  and it is routed differently (§5.a).
+- `force-lost` — the spec carries the substance and not the
+  obligation: the criterion says MUST and the passage describes what
+  the actor does instead of requiring it. Evidence: the passage,
+  which is why this verdict is not `met` despite the content being
+  present. Only applies where the source states a modal (§4.2).
+- `partial` — the spec states part of the obligation and not the rest.
+  Evidence: the passage that carries the part that is there.
+- `gap` — the spec does not address the criterion at all.
+- `governance` — the criterion constrains how the specification is
+  written rather than what an implementation does, so no passage of
+  the spec can satisfy or break it.
+
+`Kind` is one of `runtime`, `document`, `scope`, `use-case` (§4.2),
+and it is what says which of the two questions were asked.
+
+**Every verdict except `gap` and `governance` requires a quoted
+passage with its location.** A row carrying a verdict and no quotation
+is an error of this step, not a thin row: emit the step's failure
+rather than the row.
+
+The rule is not about output format. Asking *"is this criterion
+covered?"* invites agreement with the document being reviewed; asking
+*"quote the passage that satisfies it, and if none does, quote the one
+that breaks it"* cannot be answered without reading the spec. The
+quotation is the part that forces contact with the text, and it is why
+`gap` is the only verdict that cites nothing — if nothing can be
+quoted in either direction, that is what `gap` means, and it is how
+`gap` and `contradicted` stay distinguishable.
+
+#### 4.1 What the map covers, and how the units are found
+
+The map walks **every obligation `../context/` states**, not only the
+numbered criteria. Three populations, each found mechanically so the
+walk does not depend on anyone keeping a list current:
+
+1. **Conformance criteria** — every `R<n>.<m>` bullet. 108 today.
+2. **Obligations in requirement prose** — every RFC 2119 keyword in
+   `03-requirements.md` that falls **outside** a criterion bullet:
+   in a requirement's body, in a design principle, or in an
+   Out-of-Scope item. There are 41 such occurrences of the MUST family
+   today, and they carry the statements that define what kind of thing
+   is being built ("The solution MUST extend MPEG-DASH 6th edition
+   without breaking existing semantics"). A walk that visits only
+   numbered criteria loses all of them.
+3. **Use cases** — every `UC-<n>` in `../context/04-use-cases.md`.
+   14 today. A use case is not satisfied by one passage: its evidence
+   is the section of the generated spec that walks it **plus the
+   confirmation that all five device classes appear and say what the
+   case says they say**. A section that walks the scenario for two
+   classes and omits three is `partial`, not `met`.
+
+   **The step's own acceptance test is UC-14.** It was added to
+   `context/04-use-cases.md` after the newest spec was generated, so
+   the current output does not walk it. A run of this step that does
+   not report `UC-14` as `gap` has not walked the use cases at all,
+   whatever its table says — check that row before trusting any
+   other.
+
+The counts above are what the current `context/` holds; **derive them,
+do not trust them.** They change whenever a requirement is added, which
+is exactly why the rule is positional rather than a list.
+
+#### 4.2 The two questions, and which units they apply to
+
+For each unit, the map answers **both**:
+
+1. **Is it reflected in the generated spec?** Evidence: the passage.
+2. **Is it reflected with its force?** A criterion that says MUST must
+   arrive as an obligation, not as a description. A passage in the
+   indicative that restates a MUST is **not** `met` — it is
+   `force-lost`, a verdict of its own, because the substance arrived
+   and the obligation did not.
+
+The second question does not apply everywhere, and the map records
+which case each unit is:
+
+- **Runtime obligations** (the actor is the Player, APS, Publisher or
+  ADS): both questions apply. 
+- **Document-level obligations** (the actor is `spec document` — 29
+  criteria today, plus the design principles): these constrain how the
+  specification is written, not what an implementation does. They are
+  verified by inspecting the document for the property, and the
+  evidence is the place where the property holds or fails, not a
+  passage restating the criterion. Question 2 does not apply: a
+  document either has the property or does not.
+- **Scope declarations and records** (criteria that declare something
+  out of scope, or record a deliberate narrowing): question 1 applies
+  — the boundary has to be stated in the output, or a reader does not
+  know it exists. Question 2 does not: there is no obligation to carry.
+- **Criteria that state an obligation with no modal.** 17 criteria
+  carry no RFC 2119 keyword at all, and they are not one kind: some
+  are definitions, some are scope declarations, and **some are
+  obligations written in the indicative** in `context/` itself. For
+  these, answer question 1 and record question 2 as `source-has-no-modal`
+  — and list them in the Ambiguities section (§3), because a criterion
+  whose force cannot be checked against the output is a defect in the
+  input, not in the spec.
+
+One worked row, from a defect this step actually reported and that
+nothing acted on:
+
+| `R26.1` | `runtime` | `contradicted` | §5.3.7 *Layout composition*, L1761: *"It is carried as a `<svta:BackgroundElement>` child of the `<svta:RenderableAsset>` whose `@layout` is …"* | R26.1 requires it "as a composition attribute of the slot / layout, **not** as a separate presentation option (R5)". The spec hangs it off the option. |
 
 ### 5. Disposition of findings
 
@@ -112,6 +224,20 @@ remedy can be expressed as a concrete byte-level edit to
    cross-ref, naming, annex-vs-chapter, schema-namespace pinning,
    etc.) but escaped detection. Refine-spec applies the autofix
    per that prompt's rules.
+5. **A `force-lost` row in the coverage map (§4)**: the substance is
+   already in the spec and only the modal is missing, so the remedy is
+   a wording edit at a cited location — the smallest and safest class
+   of fix in this list. Do not let it consume a scarce slot under the
+   cap ahead of a `contradicted` row: a lost modal is cheaper to
+   correct on the next pass than a statement that says the opposite.
+6. **A `contradicted` row in the coverage map (§4)**: the
+   map cites the criterion's text and the passage that breaks it, so
+   the remedy is already expressed by the two quotations — make the
+   spec stop saying the thing the criterion forbids. A `gap` row does
+   NOT qualify: nothing is written, so there is no edit to apply and
+   the remedy is authoring, which belongs to §5.b. This is the
+   distinction the two verdicts exist to carry, and routing them to
+   the same bucket would undo it.
 
 Hard cap: at most **5 Actionable TODOs per sidecar**. If more
 findings qualify, prioritise by leverage and route the rest to
@@ -191,7 +317,7 @@ Built against:
 ## Gaps (<count>)
 ## Edge cases (<count>)
 ## Ambiguities (<count>)
-## R coverage map
+## Obligation coverage map
 ## Disposition of findings
 ### 5.a Actionable TODOs (<count>)
 ### 5.b Flagged for review (<count>)
