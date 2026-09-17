@@ -694,7 +694,11 @@ which is what the rule exists for.
 **UC-13 is taken** by the Player-declared-capabilities case, which landed in
 `context/04-use-cases.md`. Phases `03-custom-layout` and `04-multiview` both
 named UC-13 in their unexecuted plans; per the rule, neither held it, and both
-re-read `context/` when they execute. **UC-14 is free.**
+re-read `context/` when they execute.
+
+**UC-14 is now taken too**, by the non-linear-ad-over-a-non-advertising-
+replacement case, landed in `context/04-use-cases.md` on 2026-09-17.
+**UC-15 is free.**
 
 Worth knowing: both phases already said *"final number fixed at execution"* in
 their own words, so the collision was softer than the risk register read it. What

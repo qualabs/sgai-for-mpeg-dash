@@ -67,3 +67,6 @@ next queued event; R20.1 and UC-12 require the Player not to fall
 through to a subsequent overlapping window. ADR 0006's criterion does
 not adjudicate it, because it is a decision of this project against
 another decision of this project.
+
+*Closed on 2026-09-17 by ADR 0011, in favour of the base standard's
+model. The text above is left as it was written.*
