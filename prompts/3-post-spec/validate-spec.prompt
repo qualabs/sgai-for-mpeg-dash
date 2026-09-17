@@ -73,8 +73,8 @@ inside its parent's row, which is where findings go to be ignored.
 Requirements that define no criteria (the governance ones) get one row
 each.
 
-| Unit | Kind | Verdict | Evidence — quoted passage and location | Notes |
-|------|------|---------|----------------------------------------|-------|
+| Unit | Kind | Verdict | Disposition | Evidence — quoted passage and location | Notes |
+|------|------|---------|-------------|----------------------------------------|-------|
 
 Verdicts:
 
@@ -99,6 +99,13 @@ Verdicts:
 `Kind` is one of `runtime`, `document`, `scope`, `use-case` (§4.2),
 and it is what says which of the two questions were asked.
 
+`Disposition` is `5.a`, `5.b` or `5.c` per §5, and it is **mandatory on
+every row whose verdict is not `met` or `governance`**. It is what says
+who resolves the row: `5.a` the pipeline on its own, `5.b` and `5.c` a
+person. A row that blocks and carries no disposition cannot be routed,
+and a caller that cannot route it cannot decide whether to stop —
+`bin/check-promotable.py` reports that as "cannot tell", not as "clear".
+
 **Every verdict except `gap` and `governance` requires a quoted
 passage with its location.** A row carrying a verdict and no quotation
 is an error of this step, not a thin row: emit the step's failure
@@ -116,20 +123,31 @@ quoted in either direction, that is what `gap` means, and it is how
 #### 4.1 What the map covers, and how the units are found
 
 The map walks **every obligation `../context/` states**, not only the
-numbered criteria. Three populations, each found mechanically so the
-walk does not depend on anyone keeping a list current:
+numbered criteria. **Do not count them by hand. Run**
 
-1. **Conformance criteria** — every `R<n>.<m>` bullet. 108 today.
+```
+bin/check-promotable.py --population
+```
+
+which prints one unit id per line with its kind, and walk exactly those
+units, using exactly those ids. The same script later checks the map
+against that list, so any rule applied by hand here that differs from
+the script's produces a permanent false alarm — and the way to have one
+rule instead of two is for one side to read the other's output.
+
+The three populations it emits, and why each is found positionally
+rather than from a list someone maintains:
+
+1. **Conformance criteria** — every `R<n>.<m>` bullet.
 2. **Obligations in requirement prose** — every RFC 2119 keyword in
    `03-requirements.md` that falls **outside** a criterion bullet:
    in a requirement's body, in a design principle, or in an
-   Out-of-Scope item. There are 41 such occurrences of the MUST family
-   today, and they carry the statements that define what kind of thing
+   Out-of-Scope item. These carry the statements that define what kind of thing
    is being built ("The solution MUST extend MPEG-DASH 6th edition
    without breaking existing semantics"). A walk that visits only
    numbered criteria loses all of them.
 3. **Use cases** — every `UC-<n>` in `../context/04-use-cases.md`.
-   14 today. A use case is not satisfied by one passage: its evidence
+   A use case is not satisfied by one passage: its evidence
    is the section of the generated spec that walks it **plus the
    confirmation that all five device classes appear and say what the
    case says they say**. A section that walks the scenario for two
@@ -142,9 +160,9 @@ walk does not depend on anyone keeping a list current:
    whatever its table says — check that row before trusting any
    other.
 
-The counts above are what the current `context/` holds; **derive them,
-do not trust them.** They change whenever a requirement is added, which
-is exactly why the rule is positional rather than a list.
+The figures above describe the shape of each population, not its size.
+The sizes move whenever a requirement is added, which is exactly why
+the ids come from the script rather than from any number written here.
 
 #### 4.2 The two questions, and which units they apply to
 
@@ -185,7 +203,7 @@ which case each unit is:
 One worked row, from a defect this step actually reported and that
 nothing acted on:
 
-| `R26.1` | `runtime` | `contradicted` | §5.3.7 *Layout composition*, L1761: *"It is carried as a `<svta:BackgroundElement>` child of the `<svta:RenderableAsset>` whose `@layout` is …"* | R26.1 requires it "as a composition attribute of the slot / layout, **not** as a separate presentation option (R5)". The spec hangs it off the option. |
+| `R26.1` | `runtime` | `contradicted` | `5.b` | §5.3.7 *Layout composition*, L1761: *"It is carried as a `<svta:BackgroundElement>` child of the `<svta:RenderableAsset>` whose `@layout` is …"* | R26.1 requires it "as a composition attribute of the slot / layout, **not** as a separate presentation option (R5)". The spec hangs it off the option. |
 
 ### 5. Disposition of findings
 
@@ -193,6 +211,44 @@ Every Gap, Edge case, and Ambiguity above MUST be routed to exactly
 one of three buckets. The bucket determines what refine-spec
 (`prompts/4-auto-refine/refine-spec.prompt`) does with it on the
 next minor iteration.
+
+**And not only those three populations.** Routing is mandatory for
+every one of:
+
+1. every Gap, Edge case and Ambiguity of §1–§3;
+2. **every coverage-map row of §4 whose verdict is not `met` or
+   `governance`** — the `Disposition` column carries it, and the row
+   also appears in the §5 table its bucket names;
+3. **every `Non-conforming` and every `Marginal` item of the DASH
+   conformance audit** (`../output-analysis/v<N>-dash-conformance-audit.md`),
+   by its audit id (`NC1`, `M3`, …);
+4. **every flagged item of the detail review**
+   (`../output-analysis/v<N>-detail-review.md`), by its flag number.
+
+Items 2–4 are the ones that used to arrive unrouted, and a routing
+that covers a third of what a build produces is not a routing: the
+classification of the v7.2 findings had to be redone by hand for
+exactly the rows this list adds.
+
+Reading the other two sidecars is the one exception to this step's
+spec-only grounding, and it is narrow: **their verdicts and ids, never
+their reasoning.** This step does not re-judge a conformance verdict;
+it says who resolves it.
+
+The bucket is also what says **who** resolves the finding, which is
+what the loop reads:
+
+| Bucket | Who closes it |
+|--------|---------------|
+| `5.a` | the pipeline — nobody has to decide anything |
+| `5.b` | the owner of the specification |
+| `5.c` | the owner, then a major build |
+
+One consequence worth stating, because it is where the disposition
+decides something the verdict cannot: a `Marginal` audit item routed
+to `5.a` is a defect with a known correct fix that nobody applied, and
+it is treated as blocking. The same `Marginal` routed to `5.b` is an
+open question and is not.
 
 #### 5.a Actionable TODOs (high-certainty, refine-spec MUST apply)
 
