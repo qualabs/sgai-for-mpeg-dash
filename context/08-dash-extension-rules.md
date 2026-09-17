@@ -303,6 +303,48 @@ this specification has already decided what it will never do.
   (c2); this rule is what that split rests on, and it reaches the
   constructs DR-6 does not cover.
 
+## DR-10 — `MPD@type="list"` is a profile, not an attribute value: declaring it enrols the document in the List profile
+
+A suggestion to declare `MPD@type="list"` on the non-linear resolution
+document does not survive reading §8.14. That value is not a free
+choice of presentation type; it is rule 1 of the **ISO Base media file
+format List profile**, and the rules travel together:
+
+> The ISO-BMFF List profile is an extension of the ISO-BMFF CMAF
+> Profile (see subclause 8.12), with the following requirements
+> overriding the requirements of the latter subclause:
+> 1) List MPDs shall have the value of the `MPD@type` attribute set to
+>    `"list"`.
+> 2) List MPD shall be identified by the URN
+>    `"urn:mpeg:dash:profile:list:2024"`. This URN shall appear in the
+>    `MPD@profiles` attribute.
+
+So declaring the attribute without the URN produces a document that
+claims a profile's type and does not declare the profile, and
+declaring both enrols the non-linear resolution document in a profile
+built for the linear path — an extension of the CMAF profile, intended
+*"for use in conjunction with the Alternative MPD event (see subclause
+5.16)"*. The overlay resolution document is not reached by an
+Alternative MPD event and carries no `ImportedMPD`; it would be
+declaring conformance to a family it does not belong to.
+
+**The non-linear resolution document therefore declares no profile**,
+and the cost of that is stated rather than hidden: a validator has no
+profile URI to check it against, so its conformance rests on this
+specification's own rules and on the base schema, not on a profile a
+third-party tool already knows how to enforce. Minting a profile URI
+for it is a decision this specification has not taken; it would mean
+defining the restrictions, publishing the URI and getting implementers
+to declare it.
+
+- **Source**: §8.14, rules 1 and 2, quoted above, and §8.14's opening
+  sentence for what the profile is for.
+- **Implication for SGAI**: the choice is between no profile and a new
+  one, never between no profile and an existing one. `type="list"` is
+  not available as a shorthand for "this document is static and
+  carries no XLink", which is what the suggestion was reaching for;
+  those properties are declared directly.
+
 ## Cross-refs
 
 - [`03-requirements.md`](./03-requirements.md) — R1, R8, R9, R24, R28
