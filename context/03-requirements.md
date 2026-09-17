@@ -387,6 +387,37 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     semantics, which is what a profile does (§8.1). It is recorded
     here so that a reader who finds the unbounded default in the base
     specification knows it was excluded on purpose.
+  - **R4.9** (Player): The cap and a candidate's declared duration are
+    stated in different timebases — the cap in the units of the parent
+    `<EventStream>@timescale`, a candidate's duration as an ISO 8601
+    `xs:duration`. The Player MUST convert the candidate's duration
+    into the cap's timescale before comparing the two, and MUST round
+    the converted value **up** to the next whole unit of that
+    timescale. A candidate whose converted duration equals the cap
+    exactly is admitted.
+  - **R4.10** (Player): A slot declaration carrying no maximum
+    duration is not a slot this specification defines (R4.1, R4.8).
+    The Player MUST NOT present ads from such a slot and MUST continue
+    with the primary content. Reading the absence as the base
+    specification's unbounded default is not admissible: it would make
+    R4's Player-side enforcement inert for exactly the slots whose
+    declaration is defective.
+
+    **This position is provisional.** It diverges from the base
+    specification, which treats an absent maximum as infinity (R4.8),
+    and it is open with the working group rather than settled here.
+    What is being weighed is which failure is worse: a Publisher who
+    omits the attribute sells nothing from that slot and may take a
+    while to notice, against an advertisement that can run for as long
+    as it likes. A reader finding this criterion should not take it as
+    closed.
+  - **R4.11** (Player): Cap arithmetic runs on the presentation
+    timeline. An interval during which the presentation timeline does
+    not advance does not accrue against the cap, so a form suspended
+    under R17 resumes with the remaining cap it had when it was
+    suspended. The only suspension this specification defines happens
+    while the viewer is paused (R17.1), and a pause does not advance
+    the presentation timeline.
 
 - **R31. A pause opportunity window bounds where, not how long.**
   *Gist: The window marks the region of the primary timeline in which a viewer pause triggers a resolution request; the duration of the resulting slot is set by the viewer and is unknown in advance.*
@@ -838,6 +869,53 @@ squeezeback layouts (side-by-side and L-shape).
     is **how much of the paused interval carried an ad** (R33), and
     that figure is the same however the requests are counted.
 
+- **R34. A pause opportunity window may be declared once-per-session.**
+  *Gist: The Publisher may declare that a pause opportunity window yields at most one pause ad for the whole session, so a viewer who pauses again inside it is not shown another.*
+
+  The base specification already carries this capability for events on
+  the primary timeline: `@executeOnce` bounds an event to a single
+  execution in the session. A pause opportunity window is not executed
+  by the playhead — its trigger is the viewer's pause (R31) — so the
+  attribute's timeline semantics do not reach it on their own. Without
+  a statement the capability is either inert on a pause window or caps
+  it at one pause ad, and the two readings differ by every pause after
+  the first.
+
+  This specification gives the pause family the same capability, and
+  states its counter in the terms the trigger actually has. The
+  symmetry is the reason: a Publisher who can bound a timeline
+  opportunity to one execution can bound a pause opportunity the same
+  way, and nothing about a pause makes the wish different.
+
+  **What consumes the window** follows the base specification's own
+  rule rather than a new one. The execution counter is not incremented
+  when an execution produces no alternative presentation, so an
+  opportunity that resolved to nothing stays available. A pause that
+  produces no pause ad — no candidate, or none the device can satisfy
+  — therefore does not consume the window either.
+
+  This requirement declares a capability, not an attribute name. The
+  construct that carries it is named under the rules of
+  [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md),
+  which is also what keeps it from being minted twice.
+
+  **Conformance criteria** (runtime):
+  - **R34.1** (Publisher): The Publisher MAY declare a pause
+    opportunity window as once-per-session. The declaration is
+    optional, and a window that does not carry it yields a pause ad on
+    every qualifying pause.
+  - **R34.2** (Player): On a window declared once-per-session, the
+    Player MUST present at most one pause ad for that window for the
+    duration of the session. A later qualifying pause inside the same
+    window MUST leave the primary content uninterrupted.
+  - **R34.3** (Player): The window is consumed when a pause ad
+    **begins rendering**, and not when the pause occurs. A pause that
+    resolves to no renderable candidate leaves the window available.
+  - **R34.4** (spec document): The capability is the pause family's
+    counterpart of the base specification's single-execution bound,
+    and is recorded as such. It is not a new kind of control: a reader
+    who knows the base construct knows what this one does.
+
 - **R19. Ad playback speed follows primary content.**
   *Gist: Ads play at the primary content's speed, so a 10 s ad at 2x is on screen for 5 s of wall-clock; the cap and beacon schedule still use the presentation timeline.*
 
@@ -866,6 +944,11 @@ squeezeback layouts (side-by-side and L-shape).
     cap enforcement (R4) and beacon scheduling (R13) operate on the
     presentation-timeline `duration`, while wall-clock on-screen
     behaviour follows the derived value.
+  - **R19.4** (Player): A form's declared duration is a value on the
+    presentation timeline for **every** form, including those with no
+    intrinsic media — `image` and `html`. The Player MUST derive the
+    wall-clock length of such a form as `duration / playback_speed`,
+    exactly as for a media-backed form.
 
 - **R21. Pause-ad forms MAY be fullscreen or a partial overlay.**
   *Gist: A pause-ad may be presented fullscreen or as a partial overlay over the paused frame.*
@@ -1136,6 +1219,13 @@ screen to a single active non-linear form at any instant.
   - **R17.4** (spec document): The specification carries no
     construct that lets the Publisher, the ADS, or the APS invert
     this priority.
+  - **R17.5** (Player): When a viewer pause begins inside a pause
+    opportunity window while a linear ad occupies the screen, the
+    Player presents the pause ad and suspends the linear ad, resuming
+    it from where it was suspended when the viewer resumes. The pause
+    ad is dismissed on resume (R16). The cross-family priority of this
+    requirement therefore holds against the linear family as well as
+    against an overlay.
 
 - **R20. Overlapping same-family opportunity windows: first-window-wins with fallback.**
   *Gist: When same-family opportunity windows overlap, the Player serves the first and treats the rest as fallback, used only if the first fails to resolve.*
@@ -1254,6 +1344,36 @@ screen to a single active non-linear form at any instant.
     standard's queue does not resolve equal presentation times, and
     document position is what remains once presentation time has
     stopped separating them.
+  - **R20.4** (Player): A resolution document whose family does not
+    match the slot that requested it is not a resolution of that slot.
+    The Player MUST treat it as a failure to resolve and continue down
+    the chain of R20.1. It MUST NOT be treated as a resolution carrying
+    no candidates, which ends the chain — the two produce opposite
+    outcomes from the same `200`.
+
+    The distinction is the one ADR 0011 settled, applied to a second
+    case. A resolution carrying no candidates is an **answer**: the
+    opportunity was offered and nothing filled it, which is why the
+    chain ends there rather than asking again. A document of the wrong
+    family answers a question nobody asked — it cannot fill this slot
+    whatever it contains, because its candidates are of a kind this
+    slot does not admit. Reading it as an empty resolution would let a
+    misrouted response silence every remaining window, which is the
+    failure mode the fallback chain exists to prevent.
+  - **R20.5** (Player): Each window in a fallback chain binds the
+    candidates it serves with **its own** declarations: its allowed
+    layouts and its maximum duration. A window does not inherit the
+    declarations of the window it stands in for. This follows from
+    R20's ownership model — a declaration belongs to the window that
+    carries it — and the alternative, binding the chain to the first
+    window's declarations, contradicts it.
+  - **R20.6** (spec document): R20.5 MUST be carried as a normative
+    Player obligation. Stating it only in informative material does not
+    bind a Player, and a rule that selects which presentation option
+    reaches the screen cannot depend on a reader treating an
+    illustration as a requirement. This is a **change of status** for a
+    rule the specification already contained: it was answered where it
+    could be read and not where it had to be obeyed.
 
 - **R22. Single active non-linear form; no concurrent presentation.**
   *Gist: At most one non-linear ad form is active on screen at any instant; no two non-linear forms are shown simultaneously.*
@@ -1339,6 +1459,23 @@ carriers for creative metadata and non-AV assets.
   - **R6.4** (Player): A Player MUST safely ignore unknown
     namespaces on tracking-related extension elements, per the DASH
     extension rules invoked by R1.
+  - **R6.5** (Player + APS): The de-duplication key for in-band
+    beacons is scoped to **the candidate** that carries them. Within a
+    candidate, beacons sharing an `@id`, or the same URL at the same
+    presentation time, fire once. Two beacons carrying the same `@id`
+    in two different candidates of one resolution document are two
+    distinct beacons and the Player MUST fire both.
+  - **R6.6** (Player): When the beacon carrier is an `<EventStream>`
+    hosted as foreign-namespace open content inside a candidate, its
+    presentation times are resolved against **that candidate's own
+    presentation**, not against a `<Period>` the element does not sit
+    in.
+  - **R6.7** (spec document): The specification MUST state how a
+    resolution document carrying the candidate-level beacon carrier is
+    validated. A validation procedure that reports such a document
+    valid while skipping the foreign-namespace subtree has not checked
+    the tracking carrier at all, which is the outcome a reader is most
+    likely to arrive at by default.
 
 - **R13. Non-linear ad tracking — ADS-directed callbacks.**
   *Gist: The ADS owns the beacon schedule (which beacons, at which relative times); the Player just executes what the resolution document carries.*

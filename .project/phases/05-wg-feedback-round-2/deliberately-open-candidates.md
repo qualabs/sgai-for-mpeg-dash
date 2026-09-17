@@ -7,6 +7,63 @@ each, for the owner of the specification to accept, reject or redirect.
 
 Nothing here has been written into `context/`.
 
+## What has been decided since
+
+The owner of the specification answered on 2026-09-17. The proposal
+below is left as it was made; this section records what came back and
+where it went, because the table further down is no longer the state of
+play on five of its rows.
+
+| Finding | Decision | Where it went |
+|---|---|---|
+| `EC-6` | Give the pause family the same once-per-session capability the base standard gives timeline events. The reason is symmetry. | **R34**, new. It is no longer a candidate for the open table. |
+| `EC-2` | The pause ad wins over a linear ad on screen. Taken as a weak decision, with the weakness declared. | **R17.5**, plus ADR 0013, plus a working-group issue drafted and not published. |
+| `A-5` | Always presentation time. | **R19.4**. A clarification of R19, which already carried the formula for media-backed forms; no new requirement was needed. |
+| `EC-1` | Answered by the one above: with cap arithmetic on the presentation timeline, a suspended form accrues nothing. | **R4.11**. |
+| `EC-4` | A pause document should be able to carry ordered fallback options. | **Nothing written** — R5 already requires exactly that, for every family. See below. |
+
+**The residue on `EC-1` does not exist.** The question was whether a
+form suspended for a reason other than a pause would accrue cap. Every
+suspension this specification defines is R17's, and R17's precondition
+is that the viewer is paused inside a pause-ad window. R22 does not
+suspend anything: it prevents a second non-linear form from starting
+rather than pausing the first, and its forms are sequential by
+construction. So there is no suspension while the presentation timeline
+advances, and R4.11 covers the whole of the case.
+
+**`EC-4` was already answered by R5**, which is why nothing was
+written. R5 requires each candidate to carry its presentation options
+as an ordered list in preference order and the Player to render the
+first one its device can satisfy — video first, image after it, exactly
+as proposed — and R5 is scoped to "the resolution document the Player
+reads", with no family restriction. UC-09 already walks the case across
+five device classes.
+
+One distinction is worth a separate answer, because the proposal can be
+read either way. R5's check is a **capability** check made before
+anything is rendered: can this device satisfy this form and layout. It
+is not a **runtime-failure** fallback: a video that passed the check,
+started, and then failed to play. `context/` states nothing about that
+case for any family, and it would be a new capability rather than a
+clarification. It is not written here, and it is flagged rather than
+assumed.
+
+### One status change, recorded where it can be named
+
+`EC-5`'s answer already existed in the generated spec, in **Annex L.3**
+— *"validates its candidates against window 1202's own constraints"* —
+and that annex is marked *Informative*, while §4.6.8 says nothing. So
+the rule was answered where it could be read and not where it had to be
+obeyed.
+
+R20.5 and R20.6 move it to normative. The requirement itself cannot say
+"Annex L.3" — a `context/` file that points at the generated spec
+inverts the dependency arrow — so R20.6 states the change of status in
+terms of what must hold, and the annex is named here, which is the only
+place that can name it. A reader who later finds the same sentence in an
+informative annex should know it was promoted on purpose and not
+duplicated by accident.
+
 ## Why the table is not simply filled with all sixteen
 
 `v7.2-findings-classified.md` groups sixteen findings as *"the spec is

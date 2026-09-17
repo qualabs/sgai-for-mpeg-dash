@@ -57,6 +57,32 @@ The above returns a JSON array. For each element:
 2. If the orchestrator invocation passed an explicit `--issue <N>`
    list, restrict the result to those numbers ONLY (and skip the
    label filter — the operator is forcing a re-run).
+2b. If the issue body contains the marker `<!-- sgai-issues: ours -->`,
+   **drop it from the result set** in every mode, including an
+   explicit `--issue <N>` re-run.
+   Log: `[STAGE-5 detect] issue=<N> ours, skipping`.
+
+   **This is a filter on direction, not on author, and the difference
+   is the whole point.** Stage 5 exists to react to feedback arriving
+   from outside. An issue carrying this marker travels the other way:
+   it is a question this project posted **to** the working group —
+   the `[DISCUSSION]` series — and there is nothing inbound to triage.
+   Left unmarked it would be picked up like any other: it names
+   `context/` files and requirement identifiers and asks whether they
+   should change, which is the exact shape `triage-issue` routes to
+   Flow B.
+
+   **Do not replace this with a filter on the author.** It is the
+   obvious simplification and it breaks D2: a trusted author's issue
+   is precisely the one that gets the full automatic cycle, and the
+   maintainers who post these questions are the same people whose
+   feedback the pipeline is meant to process. The author says who
+   wrote it; only the marker says which way it points.
+
+   The marker is added by whoever publishes such an issue, at the end
+   of the body. It is an HTML comment, so it is invisible to a reader
+   on GitHub — the same mechanism, and the same reason, as the
+   `<!-- sgai-issues: ai-cycle -->` marker this step already counts.
 3. For every surviving issue, compute the **cycle counter** (see
    the dedicated section below). If the counter resolves to a value
    `>= 4`, the issue has hit the anti-loop cap (D5):

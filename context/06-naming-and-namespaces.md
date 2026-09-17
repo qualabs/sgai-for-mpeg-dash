@@ -112,6 +112,30 @@ Per **R12** in [`03-requirements.md`](./03-requirements.md), the
 layout vocabulary MUST map 1:1 to IAB-defined ad-type values; no
 publisher-private or spec-private layout names are admissible.
 
+## A family name and a layout token are different things
+
+The word *overlay* is used for both, and the two must not be read as
+one. A **family** is a kind of non-linear ad opportunity; a **layout
+token** is one spatial arrangement inside a rendering frame, drawn from
+the IAB vocabulary above. `overlay` is a member of both vocabularies,
+and they do not mean the same thing.
+
+Every name this specification mints follows from that split:
+
+- Names of documents, elements and profile URIs that serve **the whole
+  non-linear family** — the resolution document, its root element, the
+  profile URI that identifies it — take the **family** reading. A
+  pause-ad document travels under those names because a pause ad is a
+  non-linear ad, not because it is laid out as an overlay.
+- Names that select a **spatial arrangement** take the layout reading
+  and are governed by the IAB vocabulary, which this specification does
+  not own.
+
+A reader who meets `overlay` in a name therefore needs to know which of
+the two vocabularies the name belongs to, and the rule above is what
+tells them. Where a single sentence could be read either way, it states
+which reading it takes rather than relying on the context around it.
+
 ## Naming consistency with baseline DASH
 
 When this spec needs to express a component that is in essence the
