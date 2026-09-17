@@ -10,8 +10,9 @@ context/04-use-cases.md]`.
 
 ## Grounding mode
 
-This analysis is purely spec-internal and does not call out to
-NotebookLM. Log the first line of execution as
+This analysis is purely spec-internal and consults no external
+authority, the primary copy of the base standard included. Log the
+first line of execution as
 `[GROUNDED_BY=spec-only]`.
 
 ## Task

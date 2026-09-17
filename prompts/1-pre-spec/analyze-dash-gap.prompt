@@ -1,32 +1,34 @@
 # Generate the DASH 6th edition gap analysis
 
-**Inputs**: `context/` (all files in this directory). Optionally:
-NotebookLM grounding if the `notebooklm` skill is installed and
-`.env.agent` defines `NOTEBOOK_ID`.
+**Inputs**: `context/` (all files in this directory), and the primary
+copy of the base standard declared in `context/00-normative-base.md`.
 **Output**: `context-analysis/dash-gap-analysis.md` (overwrites previous).
 **Skip if**: `context-analysis/dash-gap-analysis.md` exists AND its mtime is
 newer than the newest mtime in `context/`.
 
 ---
 
-## Grounding mode
+## Grounding
 
-Before doing the work, decide which grounding mode applies and log
-the result to stdout as the first line of execution:
+Claims about the base standard are grounded against the **primary
+copy** — the PDF of the edition declared in
+`../context/00-normative-base.md`, located exactly as
+`bin/check-normative-base.py` locates it (`NORMATIVE_PDF_PATH` in
+`.env.agent`). Extract it to text and search it; that is how the
+project's citations are verified today and it needs no tooling beyond
+`pdftotext` and a search.
 
-- If the `notebooklm` skill is installed AND a `.env.agent` file at
-  the project root defines a non-empty `NOTEBOOK_ID` → query that
-  NotebookLM notebook (it must contain the MPEG-DASH 6th edition
-  spec and any related authoritative material). Use it as the
-  authoritative reference for DASH 6th claims and cite section
-  numbers where possible.
-  Log: `[GROUNDED_BY=notebooklm]`.
-- Else → proceed using only `../context/` as input. The analysis is
-  less authoritative (no canonical DASH 6th reference at query time)
-  but the build still completes successfully.
-  Log: `[GROUNDED_BY=spec-only]`.
+Log the first line of execution as `[GROUNDED_BY=iso-23009-1-2026-pdf]`.
 
-In either mode, tag any unverified claim with `[inferred]`.
+**There is no degraded mode.** Step 0 of `build-all` refuses to start a
+build when the primary copy is not present, so a step that runs has it.
+If this prompt is invoked on its own and the copy is missing, **fail and
+say so** — do not continue against `context/` alone. An alternative path
+that audits blind is dangerous precisely because it is the one taken
+without a decision.
+
+Tag any claim that could not be verified against the primary copy with
+`[inferred]`.
 
 ## Task
 
@@ -43,12 +45,11 @@ attention to:
 - `context/05-dash-linear-interfaces.md` — current SGAI mechanics in
   DASH 6th (the baseline we extend).
 
-If the grounding mode is `notebooklm`, query the configured notebook
-to obtain authoritative DASH 6th content and ground every claim
-with a spec section reference where possible. If the grounding mode
-is `spec-only`, rely on the contents of `../context/` and the model's
-prior knowledge of DASH 6th — be conservative and mark uncertain
-claims as `[inferred]`.
+Search the primary copy for the clauses each claim depends on, and
+ground every claim with its clause number and a quoted sentence. A
+clause number without the sentence is not grounding: this project has
+twice recorded a citation that named a real clause about a different
+subject, and only the quotation catches that.
 
 Compare the context/ requirements vs what DASH 6th provides. Produce a
 gap analysis with these sections:

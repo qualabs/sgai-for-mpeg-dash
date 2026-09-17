@@ -13,14 +13,13 @@ mtime is newer than the newest mtime in `context/`.
 
 ## Grounding mode
 
-This prompt operates on the spec only — no external authoritative
-source is required. Log the first line of execution as
-`[GROUNDED_BY=spec-only]`. If `notebooklm` is installed and the
-`.env.agent` `NOTEBOOK_ID` is set, you MAY consult the notebook
-to disambiguate the meaning of a MUST / SHOULD / MAY sentence whose
-intent is unclear, in which case log `[GROUNDED_BY=notebooklm]`
-instead. Cross-spec consistency is the primary goal; the notebook
-is a tiebreaker, not a source of new obligations.
+This prompt operates on the spec only. Log the first line of execution
+as `[GROUNDED_BY=spec-only]`. You MAY open the primary copy of the base
+standard (`NORMATIVE_PDF_PATH`) to disambiguate a MUST / SHOULD / MAY
+sentence whose intent is unclear, in which case log
+`[GROUNDED_BY=iso-23009-1-2026-pdf]` instead. Cross-spec consistency is
+the primary goal; the base standard is a tiebreaker here, not a source
+of new obligations.
 
 ## Task
 

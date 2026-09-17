@@ -93,12 +93,18 @@ flows and the D-decisions that shape each.
    │  │  refine-spec → v<N>.<M+1>-sgai-spec.md           │  │
    │  │  (re-run 3-post-spec/* against the new minor)     │  │
    │  │  compare-spec-versions → v<N>.<M+1>-comparison.md │  │
-   │  │  verdict: ON TRACK → continue                     │  │
-   │  │           STALLED  → break (converged)            │  │
-   │  │           REGRESSION → rollback, break            │  │
+   │  │    (candidate vs what is published in dist/)      │  │
+   │  │  verdict: BETTER THAN PUBLISHED   → continue      │  │
+   │  │           NO BETTER THAN PUBLISHED → break        │  │
+   │  │           WORSE THAN PUBLISHED    → rollback,break│  │
    │  └───────────────────────────────────────────────────┘  │
    └──────────────────────────────────────────────────────────┘
 ```
+
+No step above writes to `../dist/`. The pipeline produces
+**candidates**; `dist/` holds the **published** build, and a
+candidate gets there by promotion — a decision made outside the
+pipeline, against a criterion this project has not written yet.
 
 Stage 5 runs as a **separate orchestrator** (not chained into the
 build-all flow above):
@@ -205,7 +211,7 @@ itself.
 | `review-spec-details`               | New spec / validation sidecar / naming-and-namespaces changed           | `3-post-spec/`      |
 | `audit-dash-conformance`            | New spec exists without matching `v<N>-dash-conformance-audit.md`       | `3-post-spec/`      |
 | `refine-spec`                       | Minor refinement on existing spec; called by Step 9 (or by hand)        | `4-auto-refine/`    |
-| `compare-spec-versions`             | Compare two consecutive minor versions; emits the convergence verdict   | `4-auto-refine/`    |
+| `compare-spec-versions`             | Compare the latest candidate against the published build in `dist/`     | `4-auto-refine/`    |
 | `orchestrate-issues`                | Process open GitHub issues end-to-end (regenerate `meta.md` + per-cycle triage/impact/response). Dry-run default; `--live` to post | `.github-ai/prompts/issues/` |
 | `detect-issues`                     | Fetch open issues missing any handling label; computes `cycle_count` and drops issues at the D5 cap (`>= 4`, label `ai-conversation-cap-hit`) | `.github-ai/prompts/issues/`  |
 | `triage-issue`                      | Classify one issue for cycle `C`: flow / severity / lang / trust; echoes `cycle_count` from `detect-issues` | `.github-ai/prompts/issues/`  |
@@ -260,14 +266,18 @@ Per iteration `K`, the loop:
    `3-post-spec/audit-dash-conformance.prompt` against the new
    minor version → three fresh sidecars.
 3. Calls `4-auto-refine/compare-spec-versions.prompt` → emits
-   `v<N>.<M+1>-comparison.md` with a verdict line.
+   `v<N>.<M+1>-comparison.md` with a verdict line, measured against
+   the published build in `../dist/`.
 4. Reads the verdict and decides:
-   - **ON TRACK** (net issue count went down) → accept the new
-     minor, set `M := M+1`, loop again.
-   - **STALLED** (issue count unchanged) → converged; break loop.
-   - **REGRESSION** (net issue count went up) → rollback (delete
-     the five just-generated files), keep the previous head, break
-     loop.
+   - **BETTER THAN PUBLISHED** (net issue count below the published
+     build) → accept the new minor, set `M := M+1`, loop again.
+   - **NO BETTER THAN PUBLISHED** (net delta zero) → break loop.
+   - **WORSE THAN PUBLISHED** (net issue count above it) → rollback
+     (delete the five just-generated files), keep the previous head,
+     break loop.
+
+   Accepting a minor here means the loop keeps building on it. It
+   does **not** promote anything into `../dist/`.
 5. If `K == MAX_REFINEMENTS` without a natural break → cap
    reached, keep the last accepted minor, break loop.
 
@@ -284,18 +294,32 @@ exception) the loop breaks, keeping the last successful iteration.
 Both are read from `.env.agent`. See `../.env.agent.example` for
 the canonical list of env vars.
 
-### ON TRACK / REGRESSION criterion
+### Verdict criterion
 
 The verdict is computed by
-`4-auto-refine/compare-spec-versions.prompt`:
+`4-auto-refine/compare-spec-versions.prompt`, always against the
+published build in `../dist/`:
 
-- **ON TRACK** — any net reduction in total issue count across the
-  three categories (spec validation, detail review, DASH
+- **BETTER THAN PUBLISHED** — any net reduction in total issue count
+  across the three categories (spec validation, detail review, DASH
   conformance), weighted equally. Cross-category trades are
   accepted as long as the net is negative.
-- **REGRESSION** — strict. A net increase of `+1` or more triggers
-  rollback. No tolerance for "fixed 5, broke 6".
-- **STALLED** — net delta is zero.
+- **WORSE THAN PUBLISHED** — strict. A net increase of `+1` or more
+  triggers rollback. No tolerance for "fixed 5, broke 6".
+- **NO BETTER THAN PUBLISHED** — net delta is zero.
+
+When `../dist/` holds no sidecars there is no baseline: the step
+records the counts and emits no verdict, and the loop breaks rather
+than guessing.
+
+### The promotion criterion — not defined
+
+Nothing here decides when a candidate becomes the published build.
+The loop's verdicts govern whether to keep refining; promotion into
+`../dist/` is a separate decision, made by a human today, against a
+criterion this project has not written. It is named here so that its
+absence is a fact on the page rather than something a reader has to
+infer from not finding it.
 
 ## Prompt conventions
 

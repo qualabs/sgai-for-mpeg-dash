@@ -22,8 +22,9 @@ projects/sgai-for-mpeg-dash/
 ├── context/              inputs — technical specification of the target spec
 ├── prompts/              build scripts — .prompt files run by an LLM agent
 ├── context-analysis/     pre-spec artefacts — derived from context/ and consumed by the spec build
-├── output/               spec only — the principal deliverable per build iteration (vN-sgai-spec.md)
-├── output-analysis/      per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata (vN- prefix)
+├── dist/                 the published spec and its analyses — what the project stands behind
+├── output/               candidate specs, one per build iteration (vN-sgai-spec.md)
+├── output-analysis/      per-candidate analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata (vN- prefix)
 ├── .github-ai/           GitHub-feedback pipelines (Stages 5 & 6) — issues/ + prs/ prompts + output-issues/ + output-prs/ scratch (gitignored)
 ├── proposal-drafts/      historical drafts kept for reference
 └── .project/             governance — PROJECT.md, LOG.md, phases/, decisions/
@@ -52,18 +53,33 @@ numeric prefix, no required reading order. Currently includes the
 DASH gap analysis, UC coverage matrix, error semantics matrix, and
 conformance assertions.
 
+### `dist/`
+The published spec and its three analyses, under names that carry
+no version: `sgai-spec.md`, `spec-validation.md`,
+`detail-review.md`, `dash-conformance-audit.md`, `comparison.md`.
+This is what the project stands behind, and the only place to look
+for that. The filenames are stable because the link to the spec has
+to survive the next build; the spec's own title has never carried a
+version either.
+
+A build never writes here. Files arrive by **promotion**: a
+candidate in `output/` is judged good enough to become the
+published one, and is moved. The criterion for that judgement is
+**not defined yet** — promotion is a human act today.
+
 ### `output/`
-The spec itself, and only that. One file per iteration:
-`v<N>-sgai-spec.md`. The spec is the principal deliverable each
-build produces. Every analysis of the spec — validation sidecar,
+Candidate specs, one file per build iteration:
+`v<N>-sgai-spec.md`. A candidate is what a build produced, not what
+the project publishes; the two coincide only for as long as the
+last promotion holds. Every analysis of a candidate — validation sidecar,
 detail-review log, DASH conformance audit, ad-hoc studies — lives
 in `output-analysis/` instead. Files are **not** overwritten
-between runs, so build history is preserved. The iteration number
+between runs, so the candidate history is preserved. The iteration number
 `N` is computed by the `build-all` orchestrator as
 `max(existing v* in output/) + 1` (or `1` for the first build).
 
 ### `output-analysis/`
-Every analysis of a specific output iteration. Two flavours, same
+Every analysis of a specific candidate. Two flavours, same
 folder:
 - **Per-iteration analyses produced by `build-all`**:
   `v<N>-spec-validation.md` (Step 7 — sidecar validation),
@@ -87,8 +103,11 @@ tasks, decisions (ADRs), chronological log. See
 
 ## How to read
 
-Start with `context/01-intro.md` and follow the document index TOC.
-For project status and history, jump to `.project/PROJECT.md`.
+To read **the specification**, open `dist/sgai-spec.md` — that is
+the published one. To read **what the project is proposing and
+why**, start with `context/01-intro.md` and follow the document
+index TOC. For project status and history, jump to
+`.project/PROJECT.md`.
 
 ## How to regenerate artefacts
 
@@ -136,13 +155,20 @@ use `prompts/4-auto-refine/refine-spec.prompt` to produce a delta-only refinemen
 
 After a refine, re-running `validate-spec`,
 `review-spec-details`, and `audit-dash-conformance` against the
-new minor version checks whether the refinement converged. Then
-run `prompts/4-auto-refine/compare-spec-versions.prompt` to emit
-`output-analysis/v<N.M+1>-comparison.md`: a per-category
-issue-count table (vN.M vs vN.M+1, Δ, Trend) and a verdict line
-(`ON TRACK` / `STALLED` / `REGRESSION`) summarising whether the
-refinement actually reduced issues. Major vs minor is currently a
-manual call — see `CLAUDE.md` for the decision rule.
+new candidate produces its three sidecars. Then run
+`prompts/4-auto-refine/compare-spec-versions.prompt` to emit
+`output-analysis/v<N.M>-comparison.md`: a per-category issue-count
+table comparing the candidate against **what is published in
+`dist/`**, with a verdict line (`BETTER THAN PUBLISHED` / `NO
+BETTER THAN PUBLISHED` / `WORSE THAN PUBLISHED`).
+
+The baseline is the published build rather than the candidate
+generated just before, because that is the question a promotion
+needs answered: not "did this round move", but "is this better
+than what we currently give as good". The verdict is an input to
+the promotion decision and not the decision itself. Major vs minor
+is currently a manual call — see `CLAUDE.md` for the decision
+rule.
 
 ## GitHub issues pipeline (Stage 5)
 
@@ -161,7 +187,8 @@ claude -p "$(cat .github-ai/prompts/issues/orchestrate-issues.prompt)" -- --live
 The pipeline classifies each open issue (Flow A meta / Flow B
 substantive feedback / Flow C generated-artefact pointer / SKIP),
 detects severity and language, runs an impact analysis against
-`context/` for Flow B (optionally grounded by NotebookLM), and
+`context/` for Flow B (grounded against the base standard when the
+keyword detector trips), and
 drafts a flow-appropriate response. Issues from authors listed in
 `TRUSTED_GH_USERS` (see `.env.agent.example`) get the full auto
 cycle in live mode; outsiders' drafts are held with

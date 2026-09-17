@@ -8,7 +8,7 @@
   - `TRUSTED_GH_USERS` — comma-separated GitHub logins that allow the
     full auto cycle (D2). Reused from Stage 5; no Stage-6-specific
     knob.
-  - Optional `NOTEBOOK_ID` — passed through to `analyze-pr` when a
+  - `NORMATIVE_PDF_PATH` — passed through to `analyze-pr` when a
     keyword in the PR body or diff trips the detector (D6).
 - The repo working tree (`context/`, `context-analysis/`, `output/`,
   `output-analysis/`, `.project/`, `CLAUDE.md`, `README.md`) — used

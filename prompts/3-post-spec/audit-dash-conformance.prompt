@@ -7,8 +7,9 @@
   filename. It MUST match the `v<N>` prefix of the spec being
   audited. If invoked standalone, the runner resolves `N` from the
   spec filename being audited.
-- NotebookLM (configured via `.env.agent` — `NOTEBOOK_ID` should
-  point at a notebook containing the MPEG-DASH 6th edition spec).
+- The **primary copy** of the base standard: the PDF of the edition
+  declared in `../context/00-normative-base.md`, at the path
+  `NORMATIVE_PDF_PATH` names in `.env.agent`.
 
 **Output**: `../output-analysis/v<N>-dash-conformance-audit.md`, with `<N>`
 matching the spec's iteration version.
@@ -61,15 +62,27 @@ modified** by the spec:
 
 For each item: name / URI, placement, what the spec says it does.
 
-### 2. NotebookLM queries
+### 2. Searches against the primary copy
 
-For each construct in the inventory, query NotebookLM to verify
-against DASH 6th. There is **no fixed maximum query count** — use
-as many as needed to ground each conformance claim. Be efficient
-(group related questions in one query when reasonable), but don't
-skip verification.
+Extract the primary copy to text once (`pdftotext -layout`) and search
+that text. For each construct in the inventory, find the clause that
+governs it and **quote the sentence**, not only its number: a clause
+number alone has twice pointed at a real clause about a different
+subject in this project, and the quotation is what catches it.
 
-Examples of useful queries:
+Two search habits, both bought by defects this project recorded:
+
+- **Search across line breaks.** The extraction wraps, so a phrase that
+  spans a break never matches a naive search. Flatten the whitespace
+  before matching.
+- **A zero is not a result until the search is shown to find.** Before
+  reporting that the standard says nothing about something, run the
+  same search against a phrase known to be present.
+
+There is **no fixed maximum** — search as many clauses as it takes to
+ground each conformance claim, and do not skip verification.
+
+Examples of what to look for:
 - Rules for adding new attributes to `Event` + ignore-if-unknown.
 - §8.14 ListMPD profile: root children restrictions / extension
   elements?
@@ -78,14 +91,20 @@ Examples of useful queries:
 - Callback event scheme placement and cardinality.
 - §5.16.5 @maxDuration enforcement on new presentation events.
 
-If NotebookLM fails on a specific query (timeout / rate limit),
-log `[fetch-failed]` for that item and proceed with spec-only
-analysis where possible.
+If a construct's governing clause cannot be located in the primary
+copy, log `[fetch-failed]` for that item and say what was searched for.
+`[fetch-failed]` means *the standard was consulted and the clause was
+not found*, which is a finding about our claim; it does not mean the
+standard was unavailable. If the primary copy itself is missing, **fail
+the step** — Step 0 of `build-all` already refuses to start without it,
+so reaching this prompt without it means it was invoked outside the
+pipeline.
 
 ### 3. Verdict per construct
 
 For each item:
-- **Conforming**: cumple las reglas DASH (NotebookLM confirmed or
+- **Conforming**: cumple las reglas DASH (confirmed against the
+  primary copy or
   spec text supports).
 - **Marginal**: cumple pero la lectura es ambigua o requiere
   asunciones — flag y explicar.
@@ -95,21 +114,22 @@ For each item:
 ### 4. Report structure
 
 ```
-[GROUNDED_BY=notebooklm]   # or spec-only / fetch-failed
+[GROUNDED_BY=iso-23009-1-2026-pdf]   # or fetch-failed
 
 # DASH conformance audit — v<N> (<YYYY-MM-DD>)
 
 **Audit target**: `../output/v<N>-sgai-spec.md`.
-**Reference**: MPEG-DASH 6th edition (ISO/IEC 23009-1:2025).
-**Method**: inventory + grounded queries against the DASH 6th
-notebook + per-construct verdict.
+**Reference**: the edition declared in
+`../context/00-normative-base.md`.
+**Method**: inventory + clause searches against the primary copy +
+per-construct verdict.
 
 ## Scope
 [brief]
 
 ## Method summary
 - Inventory built from sections ...
-- N NotebookLM queries against ...
+- N clause searches against the primary copy ...
 - Each construct assessed Conforming / Marginal / Non-conforming.
 
 ## Inventory + verdicts
@@ -118,7 +138,7 @@ notebook + per-construct verdict.
 |----|-----------|------|-----------|---------|-----------|
 | ... | ... | ... | ... | ... | ... |
 
-## NotebookLM findings (highlights)
+## Base-standard findings (highlights)
 [2-4 lines summarising what the source said per substantive query]
 
 ## Non-conforming items detail
@@ -128,7 +148,8 @@ notebook + per-construct verdict.
 [sub-section per ⚠ with ambiguity + suggested clarification]
 
 ## Open questions surfaced
-[things NotebookLM could not resolve]
+[claims whose governing clause could not be located in the primary
+copy, with what was searched for]
 
 ## Summary
 - Total constructs audited: <count>

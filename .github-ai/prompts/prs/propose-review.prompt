@@ -95,7 +95,8 @@ Set `mergeable: true` when **ALL** of the following hold:
    threads).
 3. **No unverifiable load-bearing claims** — every substantive
    claim in the PR has evidence grounded in `context/` or, when
-   the D6 keyword detector tripped, in NotebookLM. A claim tagged
+   the D6 keyword detector tripped, against the primary copy of the
+   base standard. A claim tagged
    `[inferred]` on an axis-1 finding with severity ≥ suggestion is
    a blocker for mergeable.
 4. **No broken cross-references** — the convention axis (Axis 2)
@@ -545,7 +546,7 @@ technical, direct, no fluff.
   request. Phrase blockers as "the AI pass identified the following
   blockers — recommending revision before merge".
 - Do NOT claim a finding is verified against an external standard
-  unless NotebookLM grounding produced the citation (or the spec
+  unless the base standard produced the citation (or the spec
   itself is the source). When in doubt, tag the finding with
   `[inferred]` and lower the severity.
 - Do NOT invent ADR IDs, requirement IDs, or use case IDs. If you

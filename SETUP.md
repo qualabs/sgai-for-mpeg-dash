@@ -1,9 +1,11 @@
 # Setup
 
-This project can be run with zero external dependencies — clone, read,
-and invoke the prompts in `prompts/` from any LLM-driven agent. For
-**better grounding against the MPEG-DASH 6th edition specification**,
-install the optional NotebookLM skill.
+This project is written against a specific edition of MPEG-DASH, and
+the build will not start without a copy of it. That copy is a licensed
+document, so it is not in this repository and you supply your own —
+see **The base standard** below. Everything else — clone, read, invoke
+the prompts in `prompts/` from any LLM-driven agent — needs nothing
+installed.
 
 ## Quick start
 
@@ -18,48 +20,51 @@ install the optional NotebookLM skill.
    `prompts/build-all.prompt`. See `prompts/README.md` for the
    folder layout and a per-prompt usage guide.
 
-Without NotebookLM, the prompts ground the analysis on `context/`
-content alone. Outputs are less authoritative but the build
-completes successfully.
+`bin/check-normative-base.py` runs before anything is generated and
+stops the build if the declared edition does not describe the file you
+supplied. `bin/check-context-coherence.py` runs next and stops it if
+`context/` does not hold together.
 
-## Optional: NotebookLM grounding
+## The base standard
 
-For higher-fidelity validation against the MPEG-DASH 6th edition spec
-(ISO/IEC 23009-1:2025) and other authoritative sources, install the
-NotebookLM skill:
-
-  - Skill repo: https://github.com/PleasePrompto/notebooklm-skill
-  - Follow the install instructions in that repo.
-  - Set up a NotebookLM notebook containing the MPEG-DASH 6th edition
-    spec (and optionally VAST 4.x docs, IAB CTV guidelines).
+Every step that makes a claim about MPEG-DASH grounds it against the
+**primary copy**: the PDF of the edition declared in
+`context/00-normative-base.md`. That file names the edition, the
+filename and the `sha256` that identifies it, and links the ISO
+catalogue page it comes from. It is a licensed single-user document:
+it is not redistributable, it is not in this repository, and where it
+sits on disk is a property of your checkout rather than of the project.
 
 ### Configure `.env.agent`
 
-Once the skill is installed, copy the env example and point it at
-your notebook:
-
     cp .env.agent.example .env.agent
-    # Edit .env.agent and set NOTEBOOK_ID to the UUID of your
-    # NotebookLM notebook. Get the UUID from the URL of your
-    # notebook in notebooklm.google.com — it is the last path
-    # segment, e.g. for
-    # https://notebooklm.google.com/notebook/bb67e20c-9ad1-4a1d-a641-7c7d901f93cb
-    # the UUID is `bb67e20c-9ad1-4a1d-a641-7c7d901f93cb`.
+    # Edit .env.agent and set NORMATIVE_PDF_PATH to the absolute path
+    # of your copy of the standard.
 
-The prompts read `NOTEBOOK_ID` from `.env.agent` and resolve it via
-the skill at runtime. Using the UUID (instead of the notebook's
-display name) gives an exact, robust match that does not break when
-the notebook is renamed. `.env.agent` is gitignored so your personal
-notebook UUID does not leak into the repo.
+`.env.agent` is gitignored, so the path does not leave your machine.
+For a single run the path can be overridden with the
+`SGAI_NORMATIVE_PDF` environment variable; the check announces the
+override every time it takes effect, so a stale variable cannot
+quietly redirect a build.
+
+### Check it before you need it
+
+    bin/check-normative-base.py
+
+It compares the declared edition against the **cover of the document
+you supplied** and against its `sha256`. It fails when the file is
+missing, when it is a different document than the one declared, and
+when it cannot be read — that last case deliberately, because a check
+that passes when it could not look is worse than no check.
 
 ## Why this matters
 
-Without NotebookLM, the prompts rely on the model's training data
-for any reference to MPEG-DASH or VAST internals. That works for
-common patterns but the model may hallucinate attribute names,
-section references, or version numbers. With NotebookLM grounded
-to the actual spec, the analysis and spec cite the canonical source.
+The steps that reason about MPEG-DASH cite clause numbers and quote
+sentences from it. Without the document they would be citing from
+memory, and this project has twice recorded a citation that named a
+real clause about a different subject — which is why quoting the
+sentence, and not only naming the clause, is what the prompts require.
 
-See `prompts/*.prompt` headers — each prompt logs
-`[GROUNDED_BY=notebooklm]` or `[GROUNDED_BY=spec-only]` per run so
-the audit trail is clear.
+Each prompt logs `[GROUNDED_BY=iso-23009-1-2026-pdf]` or
+`[GROUNDED_BY=spec-only]` per run, so the audit trail says which
+claims were checked against the standard and which were not.

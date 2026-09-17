@@ -11,10 +11,12 @@ It never passes when it could not look: an unreadable or missing primary
 copy is an error, not a skipped check.
 
 The primary copy is not in this repository and its location is not
-declared here, because it is a property of the checkout. Point the check at it
-with SGAI_NORMATIVE_PDF, or with a .normative-base-path file at the
-repository root holding the path (gitignored). Without either, the check
-fails rather than passing quietly.
+declared here, because it is a property of the checkout. It is declared
+once, in .env.agent, as NORMATIVE_PDF_PATH — see .env.agent.example.
+SGAI_NORMATIVE_PDF overrides it for a single run and the check says so
+on every run that uses it, in the output as well as on failure: a
+precedence nobody is told about is how one declaration becomes two.
+Without either, the check fails rather than passing quietly.
 
 Usage:  bin/check-normative-base.py [--quiet]
 """
@@ -33,6 +35,22 @@ try:
 except ImportError:
     print("ERROR: PyYAML no esta instalado y hace falta para leer la declaracion")
     sys.exit(2)
+
+
+def read_env_agent():
+    """Read .env.agent as KEY=VALUE. Absent file is not an error here —
+    the caller reports the missing declaration with its own message."""
+    path = os.path.join(ROOT, ".env.agent")
+    values = {}
+    if not os.path.isfile(path):
+        return values
+    for line in open(path, encoding="utf-8"):
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, _, v = line.partition("=")
+        values[k.strip()] = v.strip().strip('"').strip("'")
+    return values
 
 
 def load_declaration(path):
@@ -78,16 +96,24 @@ def main():
     decl = load_declaration(DECL)
     errors, warnings = [], []
 
-    pointer = os.path.join(ROOT, ".normative-base-path")
-    pdf = os.environ.get("SGAI_NORMATIVE_PDF")
-    if not pdf and os.path.isfile(pointer):
-        pdf = open(pointer, encoding="utf-8").read().strip()
+    declared = read_env_agent().get("NORMATIVE_PDF_PATH", "").strip()
+    override = os.environ.get("SGAI_NORMATIVE_PDF", "").strip()
+    pdf = override or declared
+    if override:
+        warnings.append(
+            "SGAI_NORMATIVE_PDF esta seteada y tiene precedencia sobre "
+            "NORMATIVE_PDF_PATH de .env.agent.\n"
+            f"    usando  {override}\n"
+            f"    en vez de {declared or '(sin declarar)'}")
     if not pdf:
         print("ERROR: no se sabe donde esta la copia primaria de "
               f"{decl['primary_copy']['filename']}.\n"
-              "    No vive en este repositorio.\n"
-              "    Indicala con SGAI_NORMATIVE_PDF o con un archivo "
-              ".normative-base-path en la raiz.\n"
+              "    No vive en este repositorio: es una copia licenciada de "
+              "uso personal.\n"
+              "    Declarala en .env.agent como NORMATIVE_PDF_PATH "
+              "(ver .env.agent.example).\n"
+              "    Para una corrida puntual se puede usar la variable "
+              "SGAI_NORMATIVE_PDF, que tiene precedencia.\n"
               "\nFALLA: sin la copia primaria no se puede verificar nada. "
               "El build no debe continuar.")
         return 1

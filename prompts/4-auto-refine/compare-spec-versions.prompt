@@ -1,34 +1,46 @@
-# Compare spec versions (convergence metric for minor refinement)
+# Compare the candidate against the published build
 
 **Inputs**:
-- `../output-analysis/v<N.M>-spec-validation.md`
-- `../output-analysis/v<N.M>-detail-review.md`
-- `../output-analysis/v<N.M>-dash-conformance-audit.md`
-- `../output-analysis/v<N.M+1>-spec-validation.md`
-- `../output-analysis/v<N.M+1>-detail-review.md`
-- `../output-analysis/v<N.M+1>-dash-conformance-audit.md`
+- The **published** sidecars, in `../dist/`:
+  `spec-validation.md`, `detail-review.md`, `dash-conformance-audit.md`
+- The **candidate's** sidecars, in `../output-analysis/`:
+  `v<N.M>-spec-validation.md`, `v<N.M>-detail-review.md`,
+  `v<N.M>-dash-conformance-audit.md`
 
-The two versions (`<N.M>` and `<N.M+1>`) are resolved from the
-filenames of the analysis sidecars present in `../output-analysis/`:
-take the two most recent minor versions for which all three
-sidecars exist. `<N.M+1>` is the just-refined minor; `<N.M>` is the
-predecessor it must beat.
+The candidate is the most recent version in `../output-analysis/` for
+which all three sidecars exist. What it is compared against is **not
+the sibling before it** but whatever is published in `../dist/` — the
+build that was promoted, whenever that was.
 
-**Output**: `../output-analysis/v<N.M+1>-comparison.md`. A compact
-markdown report containing the issue-count table, the verdict line,
-and (optional) per-category notes. Replaces any prior file with the
-same name.
+That is the question worth answering. A candidate beating the file
+generated just before it says nothing about whether it beats what the
+project currently stands behind, and those diverge the moment a
+refinement round produces several candidates in a row without any of
+them being promoted.
 
-**Skip if**: `../output-analysis/v<N.M+1>-comparison.md` exists AND
+**If `../dist/` holds no sidecars**, there is nothing published to beat:
+report that and emit no verdict. A first candidate has no predecessor,
+and inventing a baseline out of a sibling is what this change removes.
+
+**Output**: `../output-analysis/v<N.M>-comparison.md`, named for the
+candidate it judges. A compact markdown report containing the
+issue-count table, the verdict line, and (optional) per-category
+notes. Replaces any prior file with the same name.
+
+**Skip if**: `../output-analysis/v<N.M>-comparison.md` exists AND
 its mtime is newer than ALL of:
-- the six input sidecars listed above,
+- the six input sidecars listed above, the three in `../dist/` included,
 - this prompt (`prompts/4-auto-refine/compare-spec-versions.prompt`).
 
-If any input is newer, regenerate the comparison.
+If any input is newer, regenerate the comparison. A promotion into
+`../dist/` moves the published sidecars, so it invalidates every
+comparison made against the old baseline — which is the intended
+effect and not an accident of mtime.
 
 **Execution mode**: fresh subagent context. This prompt is
 **strictly deterministic** — it parses the existing analysis
-sidecars and computes deltas. It MUST NOT query NotebookLM, MUST
+sidecars and computes deltas. It MUST NOT query any external
+authority, MUST
 NOT consult `../context/`, and MUST NOT read the spec itself. The
 sidecars are the only source.
 
@@ -36,33 +48,56 @@ sidecars are the only source.
 
 ## What this prompt is for
 
-Each minor refinement (`vN.M → vN.M+1`) is supposed to reduce the
-issue count surfaced by the three analyses. Without an explicit
-comparison step, there is no signal whether the refinement actually
-converged, stalled, or regressed. This prompt closes that loop: it
-emits a single table comparing the two versions across every issue
-category, with a verdict.
+Each refinement is supposed to reduce the issue count surfaced by the
+three analyses. Without an explicit comparison step, there is no signal
+whether it converged, stalled, or regressed.
+
+The question this prompt answers is **"is this better than what we
+currently hold to be good?"** — the candidate against the published
+build in `../dist/`, not against whichever file happened to be
+generated before it. The answer is what a promotion decision needs;
+a candidate-beats-its-sibling number is not.
 
 ## Task
 
-### 1. Identify the two versions
+### 1. Identify the candidate and the baseline
 
-Inspect the filenames in `../output-analysis/`. Two consecutive
-minor versions, `v<N.M>` and `v<N.M+1>`, must each have all three
-sidecars present:
+The **candidate** is the highest version in `../output-analysis/` for
+which all three sidecars exist:
 - `v<N.M>-spec-validation.md`,
 - `v<N.M>-detail-review.md`,
-- `v<N.M>-dash-conformance-audit.md`,
-- `v<N.M+1>-spec-validation.md`,
-- `v<N.M+1>-detail-review.md`,
-- `v<N.M+1>-dash-conformance-audit.md`.
+- `v<N.M>-dash-conformance-audit.md`.
 
-If either set is incomplete, abort with a message:
+The **baseline** is what `../dist/` publishes, under stable names:
+- `spec-validation.md`,
+- `detail-review.md`,
+- `dash-conformance-audit.md`.
+
+There is no version to resolve on the baseline side and no history to
+walk: the predecessor is whatever is published, and `../dist/` holds
+one build at a time.
+
+If the candidate set is incomplete, abort with a message:
 
 ```
-ABORT: compare-spec-versions requires all three sidecars for both
-v<N.M> and v<N.M+1>. Missing: <list>.
+ABORT: compare-spec-versions requires all three sidecars for the
+candidate v<N.M>. Missing: <list>.
 ```
+
+If `../dist/` carries none of the three, do not abort and do not pick a
+substitute baseline. Write the output file with the candidate's counts
+in a single column and this line in place of the verdict:
+
+```
+NO BASELINE: nothing is published in dist/, so there is nothing for
+this candidate to beat. Counts recorded, no verdict.
+```
+
+If `../dist/` carries some but not all three, report the missing ones by
+name and compare only the categories the present sidecars cover; the
+absent categories get `?`, not zero. A missing sidecar is an unknown
+count, and scoring it as zero would read as a baseline with no issues —
+the one reading that makes the candidate look worse than it is.
 
 ### 2. Extract counts per category
 
@@ -96,14 +131,14 @@ objects — 33 requirements against 108 criteria is a change of
 denominator, and a delta across it measures the change of unit and not
 a change in the spec.
 
-`Fetch-failed` is the count of items the audit could not verify
-against NotebookLM and tagged `[fetch-failed]`. If the audit does
-not surface this category explicitly, treat it as `0`.
+`Fetch-failed` is the count of items the audit could not locate in the
+primary copy of the base standard and tagged `[fetch-failed]`. If the
+audit does not surface this category explicitly, treat it as `0`.
 
 ### 3. Compute deltas and trends
 
 For each category:
-- `Δ = count(v<N.M+1>) - count(v<N.M>)`.
+- `Δ = count(candidate) - count(dist)`.
 - Trend marker:
   - For **issue** categories (Gaps, Edge cases, Ambiguities,
     obligation coverage force-lost / contradicted / partial / gap,
@@ -120,18 +155,21 @@ convergence number.
 
 ### 4. Emit the report
 
-Write `../output-analysis/v<N.M+1>-comparison.md` with the
-following structure (substitute the version labels and the actual
+Write `../output-analysis/v<N.M>-comparison.md` with the
+following structure (substitute the version label and the actual
 counts):
 
 ```markdown
-# Spec convergence — v<N.M> → v<N.M+1>
+# Candidate v<N.M> against the published build
 
 Generated by `prompts/4-auto-refine/compare-spec-versions.prompt`.
 
+Baseline: `dist/` as published on <date the dist sidecars were last
+written>. Candidate: `output/v<N.M>-sgai-spec.md`.
+
 ## Issue counts
 
-| Category | v<N.M> | v<N.M+1> | Δ | Trend |
+| Category | dist (published) | v<N.M> (candidate) | Δ | Trend |
 |---|---|---|---|---|
 | Gaps | 8 | 5 | -3 | ✅ |
 | Edge cases | 7 | 4 | -3 | ✅ |
@@ -165,17 +203,35 @@ Trend legend:
 
 ## Verdict
 
-<line: "ON TRACK" / "STALLED" / "REGRESSION">
+<line: "BETTER THAN PUBLISHED" / "NO BETTER THAN PUBLISHED" /
+"WORSE THAN PUBLISHED">
 
-- **ON TRACK**: total issues decreased AND no category increased
-  significantly. Continue refining (`vN.M+2`) if material issues
-  remain, or stop if the residual is acceptable.
-- **STALLED**: total issues unchanged. Consider whether the
-  remaining issues need requirement-level changes (escalate to a
-  major build `vN+1`).
-- **REGRESSION**: total issues increased. Review the refined spec
-  for unintended changes; the refinement introduced more problems
-  than it solved.
+- **BETTER THAN PUBLISHED**: total issues decreased AND no category
+  increased significantly. The candidate improves on what the project
+  currently stands behind.
+- **NO BETTER THAN PUBLISHED**: total issues unchanged. Whatever the
+  refinement did, it did not move this measurement; consider whether
+  the remaining issues need requirement-level changes (a major build).
+- **WORSE THAN PUBLISHED**: total issues increased. The candidate
+  costs more than it gains against the published build.
+
+**This verdict does not promote anything.** It measures a candidate
+against the published build and stops there. Whether a candidate
+becomes the published build is a separate decision, made elsewhere,
+against a criterion this project has not yet written — see
+`## Promotion` below.
+
+## Promotion
+
+**Not defined.** No criterion for promoting a candidate into `dist/`
+exists yet, and this prompt does not invent one. A verdict of
+BETTER THAN PUBLISHED is an input to that decision and not the
+decision: it says the candidate has fewer issues, which is not the
+same as saying it is ready to be what the project stands behind.
+
+Until a criterion is written, promotion is a human act. This section
+exists so that the absence is visible rather than inferred from
+silence.
 
 ## Per-category notes
 
@@ -203,27 +259,34 @@ which count was unrecoverable from the sidecar.
 After writing the comparison file, emit a single summary line:
 
 ```
-wrote ../output-analysis/v<N.M+1>-comparison.md, total issues v<N.M>=X → v<N.M+1>=Y (Δ=Z, trend=<on-track|stalled|regression>)
+wrote ../output-analysis/v<N.M>-comparison.md, total issues dist=X → v<N.M>=Y (Δ=Z, verdict=<better|no-better|worse>)
 ```
 
-Where `X`, `Y`, `Z` are the totals from the table and `<trend>` is
-the lowercase form of the verdict.
+Where `X`, `Y`, `Z` are the totals from the table. When `../dist/`
+carries no sidecars, emit instead:
+
+```
+wrote ../output-analysis/v<N.M>-comparison.md, no baseline in dist/ — counts recorded, no verdict
+```
 
 ## What this prompt explicitly does NOT do
 
 - Does NOT modify the spec (`../output/`).
+- Does NOT write anything into `../dist/`, and does NOT promote. The
+  published build is read-only here, in every mode and for every
+  verdict.
 - Does NOT modify any analysis sidecar in `../output-analysis/` —
   the six inputs are strictly read-only.
 - Does NOT consult `../context/` or `../context-analysis/`.
-- Does NOT call NotebookLM or any external authority.
+- Does NOT call any external authority, the primary copy included.
 - Does NOT invent counts — if a number is not extractable from the
   sidecar, write `?` and surface the gap in the verdict.
 - Does NOT touch any file outside
-  `../output-analysis/v<N.M+1>-comparison.md`.
+  `../output-analysis/v<N.M>-comparison.md`.
 
 ## Tone
 
 Tabular, direct, no narrative. The table + verdict line are the
 deliverable; everything else is optional. A reader scanning the
-file should be able to tell in five seconds whether the last
-refinement converged.
+file should be able to tell in five seconds whether the candidate
+beats what is published.

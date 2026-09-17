@@ -19,7 +19,8 @@
   `.github-ai/output-issues/issue-<N>/cycle-<C-1>/impact.md` when
   `cycle_count > 1` — used to avoid re-litigating claims that
   were already validated and to anchor on the OP's new feedback.
-- Optionally NotebookLM grounding — see "Keyword detector" below.
+- The primary copy of the base standard, when the keyword detector
+  trips — see "Keyword detector" below.
 
 **Output**:
 `.github-ai/output-issues/issue-<N>/cycle-<C>/impact.md`.
@@ -57,18 +58,21 @@ these technical keywords:
 - `CMAF`
 - `HLS`
 
-If at least one keyword matches AND the `notebooklm` skill is
-installed AND `.env.agent` defines a non-empty `NOTEBOOK_ID` →
-query the configured notebook for authoritative content relevant
-to the issue's claim. Use the matched keyword(s) to shape the
-NotebookLM query (e.g. an issue mentioning "DASH" + "CMAF" should
-search for both). Log:
+If at least one keyword matches → search the **primary copy** of the
+base standard (the PDF at `NORMATIVE_PDF_PATH` in `.env.agent`, the
+edition declared in `../context/00-normative-base.md`) for the clause
+relevant to the issue's claim, and quote it. Use the matched keyword(s)
+to shape the search. Log:
 
 ```
-[GROUNDED_BY=notebooklm] [KEYWORDS_MATCHED=DASH,CMAF]
+[GROUNDED_BY=iso-23009-1-2026-pdf] [KEYWORDS_MATCHED=DASH,CMAF]
 ```
 
-If no keyword matches OR NotebookLM is unavailable → ground only
+A keyword outside the base standard's scope — `IAB`, `SCTE-35`, `HLS` —
+will not be answered by it. Say so rather than grounding against
+something that does not cover the question.
+
+If no keyword matches → ground only
 against `../context/` and the model's prior knowledge. Tag every
 unverified claim as `[inferred]`. Log:
 
@@ -91,7 +95,7 @@ standard), classify it:
 
 - **`verified`** — matches the canonical source. Cite the source
   inline (`context/03-requirements.md §R7`, or `DASH 6th §5.10.3`
-  if NotebookLM is grounded).
+  if the base standard was consulted).
 - **`refuted-by-spec`** — the canonical source contradicts the
   claim. Cite where. Quote the contradicting passage briefly.
 - **`partially-verified`** — partially correct; usually the
@@ -99,7 +103,7 @@ standard), classify it:
   Cite both what's right and what's off.
 - **`unverifiable`** — cannot be checked against the available
   sources (the claim is about something the spec does not yet
-  cover, or about an external standard that NotebookLM did not
+  cover, or about an external standard the primary copy does not
   surface). Mark it as such; do NOT invent verification.
 
 Skip claims that are subjective ("I think this is confusing") —
@@ -211,7 +215,7 @@ this exact shape:
 ```markdown
 # Impact analysis — issue #<N> (cycle <C>)
 
-Grounding: <notebooklm | spec-only>
+Grounding: <iso-23009-1-2026-pdf | spec-only>
 Keywords matched: <comma-list or "(none)">
 
 ## 1. Claims validation

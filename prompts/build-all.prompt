@@ -13,6 +13,10 @@ does not duplicate them.
 - `output-analysis/v<N>-*.md` — 3 sidecars per major iteration (Steps 7,
   7.5, 8, see `3-post-spec/`). Auto-refine iterations (Step 9) produce
   the same 3 sidecars + a `vN.M-comparison.md` (see `4-auto-refine/`).
+
+Every output above is a **candidate**. This orchestrator never writes
+to `dist/`, which holds the published build and receives a candidate
+only by promotion — a decision outside this pipeline.
 - Versioning: `N` = major (computed once per build-all invocation),
   `M` = minor (incremented by Step 9 for each accepted refinement).
   `N` is computed as `max(existing v*-sgai-spec.md in output/) + 1`
@@ -77,7 +81,7 @@ For each step, log a single line:
 `[BUILT|SKIPPED] <step> → <output>`.
 
 Each downstream prompt also logs its own
-`[GROUNDED_BY=notebooklm]` or `[GROUNDED_BY=spec-only]` line when it
+`[GROUNDED_BY=iso-23009-1-2026-pdf]` or `[GROUNDED_BY=spec-only]` line when it
 runs (skipped steps emit no grounding line). Surface those lines as
 they appear so the full run is auditable.
 
@@ -242,7 +246,8 @@ and `context/` (read-only).
   (e.g. a rename driven by `context/06-naming-and-namespaces.md`)
   are flagged in the log only; the spec is not touched for those.
 
-**Execution mode**: this step is deterministic (no NotebookLM); it
+**Execution mode**: this step is deterministic (it consults no
+external authority); it
 may run inline rather than dispatching a fresh subagent. The skip
 rule is owned by the prompt itself.
 
@@ -319,27 +324,36 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
         `output-analysis/v<N>.<M+1>-dash-conformance-audit.md`.
 
   9.5 Run `prompts/4-auto-refine/compare-spec-versions.prompt`
-      against `v<N>.<M>` ↔ `v<N>.<M+1>`.
+      for the candidate `v<N>.<M+1>`. The baseline is whatever is
+      published in `dist/`, not `v<N>.<M>`.
       - Output: `output-analysis/v<N>.<M+1>-comparison.md` with a
         verdict line.
+      - If `dist/` holds no sidecars there is no baseline: the step
+        emits no verdict. Keep `v<N>.<M+1>` as the head, log
+        `[NO BASELINE] nothing published in dist/, kept
+        v<N>.<M+1>`, break the loop and proceed to Final summary.
+        Do NOT fall back to comparing against `v<N>.<M>` — that is
+        the measurement this build model removed.
 
   9.6 Read the verdict line from the comparison file:
 
-      - **ON TRACK** (net reduction in total issue count across
-        all categories, weighted equally — see "Step 9
-        configuration" below for the criterion):
+      - **BETTER THAN PUBLISHED** (net reduction in total issue
+        count against the published build, across all categories,
+        weighted equally — see "Step 9 configuration" below for the
+        criterion):
           keep `v<N>.<M+1>` plus its four sidecars.
-          Log `[ITER K] ON TRACK, <X> issues fixed, <Y> remaining`.
+          Log `[ITER K] BETTER THAN PUBLISHED, <X> issues below
+          dist/, <Y> remaining`.
           Set `M := M+1`, continue the loop.
 
-      - **STALLED** (issue count unchanged, or no actionable items
-        remain):
-          keep `v<N>.<M+1>` as the converged head.
-          Log `[CONVERGED] at v<N>.<M+1> after K iterations`.
+      - **NO BETTER THAN PUBLISHED** (issue count equal to the
+        published build, or no actionable items remain):
+          keep `v<N>.<M+1>` as the head.
+          Log `[NO BETTER] at v<N>.<M+1> after K iterations`.
           Break the loop and proceed to Final summary.
 
-      - **REGRESSION** (net increase in issue count vs
-        `v<N>.<M>`):
+      - **WORSE THAN PUBLISHED** (net increase in issue count
+        against the published build):
           rollback — delete the five artefacts produced in this
           iteration:
             `output/v<N>.<M+1>-sgai-spec.md`,
@@ -347,12 +361,19 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
             `output-analysis/v<N>.<M+1>-detail-review.md`,
             `output-analysis/v<N>.<M+1>-dash-conformance-audit.md`,
             `output-analysis/v<N>.<M+1>-comparison.md`.
-          Log `[REGRESSION] at iter K, introduced <N> net issues,
+          Log `[WORSE] at iter K, <N> net issues above dist/,
           kept v<N>.<M> as final`.
           Break the loop and proceed to Final summary.
 
-  9.7 If `K == MAX_REFINEMENTS` was reached without STALLED or
-      REGRESSION exit:
+      Accepting a minor here means the loop keeps building on it.
+      **No verdict promotes anything into `dist/`.** Step 9 never
+      writes there, in any branch, including the one where the
+      candidate beats the published build by a wide margin.
+      Promotion is a decision taken outside this pipeline, against
+      a criterion this project has not defined yet.
+
+  9.7 If `K == MAX_REFINEMENTS` was reached without a
+      NO BETTER / WORSE exit:
           log `[MAX_ITER] cap reached at v<N>.<M>, last successful`.
           Break the loop and proceed to Final summary.
 
@@ -371,14 +392,16 @@ artefacts on error — surface them so the operator can inspect.
   Step 9 entirely. Use this for validation-only major builds where
   the operator wants to inspect `v<N>` before committing to the
   refine loop.
-- **ON TRACK criterion**: any net reduction in total issue count,
-  where the total is the sum of all three categories — spec
-  validation issues, detail-review flagged items, and DASH
-  conformance issues — weighted equally. Cross-category trades are
-  accepted as long as the net is negative (e.g. -5 conformance,
-  +2 validation, +1 detail-review = -2 net → ON TRACK).
-- **REGRESSION criterion**: strict. A net increase of `+1` or more
-  triggers rollback. No tolerance for "fixed 5, broke 6 → ok".
+- **BETTER THAN PUBLISHED criterion**: any net reduction in total
+  issue count against the published build, where the total is the
+  sum of all three categories — spec validation issues,
+  detail-review flagged items, and DASH conformance issues —
+  weighted equally. Cross-category trades are accepted as long as
+  the net is negative (e.g. -5 conformance, +2 validation,
+  +1 detail-review = -2 net → better).
+- **WORSE THAN PUBLISHED criterion**: strict. A net increase of
+  `+1` or more triggers rollback. No tolerance for "fixed 5,
+  broke 6 → ok".
 - The total issue count is computed by
   `prompts/4-auto-refine/compare-spec-versions.prompt`; the
   verdict line in the comparison file is the canonical signal
@@ -399,14 +422,17 @@ SGAI build summary (iteration v<N>, head v<N>.<M_final>, YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] validate-spec                   → output-analysis/v<N>-spec-validation.md (mtime: ...)
   [BUILT|SKIPPED] review-spec-details             → output-analysis/v<N>-detail-review.md (mtime: ...)
   [BUILT|SKIPPED] audit-dash-conformance          → output-analysis/v<N>-dash-conformance-audit.md (mtime: ...)
-  [SKIPPED|CONVERGED|REGRESSION|MAX_ITER|ERROR] auto-refine → head=v<N>.<M_final> after <K> iterations
+  [SKIPPED|NO_BETTER|WORSE|NO_BASELINE|MAX_ITER|ERROR] auto-refine → head=v<N>.<M_final> after <K> iterations
 ```
 
 The auto-refine line summarises the Step 9 outcome:
 - `SKIPPED` — `BUILD_ALL_AUTO_REFINE=false`, no iterations ran.
-- `CONVERGED` — a STALLED verdict ended the loop at `v<N>.<M_final>`.
-- `REGRESSION` — a REGRESSION verdict rolled back; head is the last
-  accepted iteration.
+- `NO_BETTER` — a NO BETTER THAN PUBLISHED verdict ended the loop at
+  `v<N>.<M_final>`.
+- `WORSE` — a WORSE THAN PUBLISHED verdict rolled back; head is the
+  last accepted iteration.
+- `NO_BASELINE` — `dist/` publishes no sidecars, so no verdict was
+  possible; head is the last built iteration.
 - `MAX_ITER` — `MAX_REFINEMENTS` cap reached without natural exit.
 - `ERROR` — a sub-step failed; head is the last successful
   iteration.

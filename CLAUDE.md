@@ -26,8 +26,9 @@ projects/sgai-for-mpeg-dash/
 ├── context/              inputs — canonical, human-authored spec
 ├── prompts/              build scripts — .prompt files for LLM agents
 ├── context-analysis/     pre-spec artefacts — derived from context/ and consumed by the spec build
-├── output/               spec only — the principal deliverable per build iteration (versioned, vN-sgai-spec.md)
-├── output-analysis/      per-iteration analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata
+├── dist/                 the published spec + its analyses — unversioned names; arrives by promotion, never by build
+├── output/               candidate specs, one per build iteration (versioned, vN-sgai-spec.md)
+├── output-analysis/      per-candidate analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata
 ├── .github-ai/           GitHub-feedback pipelines (Stages 5 & 6) — prompts + scratch
 │   ├── prompts/
 │   │   ├── issues/       Stage 5 prompts — GitHub issues triage + auto-response
@@ -69,25 +70,59 @@ What does NOT go where:
   `context/00-normative-base.md` still describes the copy of the
   standard on disk. `check-context-coherence.py` is Step 0.5 and
   confirms that `context/` holds together — identifiers defined, no
-  duplicates, links resolving. Each states in its own output what its
-  green does and does not cover, because a check read as answering
-  more than it asks is how a green becomes misleading.
+  duplicates, links resolving. `check-dist-freshness.py` is not a build
+  step: it answers whether what is published in `dist/` was built from
+  the inputs as they stand now, by comparing `context/`,
+  `context-analysis/` and `prompts/` against the hashes in
+  `dist/inputs.sha256`, and it names every file that moved. The
+  comparison is by content, never by date — a touched file with
+  identical bytes changed nothing, and an edit that keeps the mtime
+  changed everything. With no manifest it fails rather than passing:
+  an unrecorded `dist/` is not a fresh one, it is one whose inputs
+  nobody knows. Each check states in its own output what its green
+  does and does not cover, because a check read as answering more
+  than it asks is how a green becomes misleading.
 - `context-analysis/` — only **pre-spec** generated artefacts that
   the spec build consumes as inputs (gap analysis, UC coverage
   matrix, error semantics, conformance assertions). Derived from
   `context/`. No human-authored notes; those go to
   `.project/decisions/` or inside the spec. No post-spec
   artefacts — those go to `output/` or `output-analysis/`.
-- `output/` — the per-iteration spec itself, and only that. One
-  file per iteration: `v<N>-sgai-spec.md`. The spec is the principal
-  deliverable each build produces. Any post-spec artefact — the
-  validation sidecar, the detail-review log, the DASH conformance
-  audit — belongs to `output-analysis/`, not here. No half-built
-  artefacts from intermediate steps — those go to `context-analysis/`.
+- `dist/` — the published spec and its analyses, under names with no
+  version: `sgai-spec.md`, `spec-validation.md`, `detail-review.md`,
+  `dash-conformance-audit.md`, `comparison.md`. This is what the
+  project stands behind; anyone asking "what does the spec say" is
+  answered from here and from nowhere else.
+
+  **No build writes here.** Files arrive by **promotion** — a
+  candidate in `output/` and its sidecars in `output-analysis/` are
+  judged good enough and moved in, replacing what was there. A build
+  step that writes into `dist/` has confused producing a candidate
+  with publishing one, which is the distinction this directory
+  exists to hold.
+
+  **The promotion criterion is not defined.** Nothing in this repo
+  decides when a candidate earns `dist/`; today it is a human call.
+  This is written down so the absence is visible: a reader finding no
+  criterion should conclude there is none, not that they failed to
+  find it.
+
+  The unversioned names are deliberate. A link to the spec has to
+  survive the next build, and the spec's own title carries no version
+  either (`# SGAI for Linear and Non-Linear Ads in MPEG-DASH`), so a
+  versioned filename was the only place the version lived. History
+  lives in git and in `output/`.
+- `output/` — the candidate spec, and only that. One file per build
+  iteration: `v<N>-sgai-spec.md`. A candidate is what a build
+  produced; it becomes what the project publishes only if it is
+  promoted into `dist/`. Any post-spec artefact — the validation
+  sidecar, the detail-review log, the DASH conformance audit —
+  belongs to `output-analysis/`, not here. No half-built artefacts
+  from intermediate steps — those go to `context-analysis/`.
   Never edit by hand; if a build came out wrong, fix the context
   or the prompt and rebuild.
-- `output-analysis/` — every analysis of a specific output
-  iteration. This includes both (a) the per-iteration analyses
+- `output-analysis/` — every analysis of a specific candidate.
+  This includes both (a) the per-candidate analyses
   produced by `build-all` (validation sidecar, detail review,
   DASH conformance audit) and (b) ad-hoc analyses created by hand
   when a specific output needs deeper investigation (research
@@ -150,9 +185,10 @@ What does NOT go where:
    reference inside `build-all.prompt` uses the full path
    `prompts/<stage-folder>/<file>.prompt`.
 4. Decide where the output lives: pre-spec build input →
-   `context-analysis/`, the spec itself → `output/`, per-iteration
+   `context-analysis/`, the candidate spec → `output/`, per-candidate
    analysis of the spec OR ad-hoc post-spec study about a specific
-   iteration → `output-analysis/`.
+   candidate → `output-analysis/`. Never `dist/`: a step writes
+   candidates, and promotion is not a step.
 5. Update `prompts/README.md`: the folder layout if a new
    subfolder appears, the "When to use which prompt" table, and
    the pipeline diagram if the new prompt changes the flow.
@@ -162,7 +198,14 @@ What does NOT go where:
 Edit the file in `context/` directly. Downstream artefacts
 (`context-analysis/`, `output/`, `output-analysis/`) are now stale
 by mtime; re-run `prompts/build-all.prompt` and the orchestrator
-regenerates only the steps whose inputs moved.
+regenerates only the steps whose inputs moved. `dist/` does not go
+stale by mtime and is not regenerated — it stays as published until
+someone promotes a new candidate over it. What it does go stale
+against is its **inputs**, and `bin/check-dist-freshness.py` is what
+says so: it compares the hashes recorded in `dist/inputs.sha256`
+against `context/`, `context-analysis/` and `prompts/` as they are
+now, and names every file that moved since the published build was
+made.
 
 ### How to invoke a build
 
@@ -222,12 +265,11 @@ Two iteration scales coexist in this project:
   annotated with an inline HTML comment
   `<!-- refine: <issue-id> -->` for audit.
 
-  After the refine, optionally re-run `validate-spec`,
-  `review-spec-details`, and `audit-dash-conformance` against the
-  new minor version to check whether the refinement converged
-  (i.e., the new analyses surface fewer or no remaining issues).
+  After the refine, re-run `validate-spec`, `review-spec-details`
+  and `audit-dash-conformance` against the new candidate to produce
+  its three sidecars.
 
-  Then run `compare-spec-versions` to emit the convergence table:
+  Then run `compare-spec-versions`:
 
   ```bash
   claude -p "$(cat prompts/4-auto-refine/compare-spec-versions.prompt)" \
@@ -235,10 +277,18 @@ Two iteration scales coexist in this project:
   ```
 
   This produces `output-analysis/v<N.M+1>-comparison.md` with a
-  per-category issue-count table (vN.M vs vN.M+1, Δ, Trend) and a
-  verdict line (`ON TRACK` / `STALLED` / `REGRESSION`). Use it to
-  decide whether to keep refining (`vN.M+2`) or escalate to a major
-  build (`vN+1`).
+  per-category issue-count table comparing the candidate against
+  **what is published in `dist/`**, and a verdict line
+  (`BETTER THAN PUBLISHED` / `NO BETTER THAN PUBLISHED` /
+  `WORSE THAN PUBLISHED`). The baseline is the published build and
+  not the candidate generated just before, because the useful
+  question is whether this beats what the project currently gives as
+  good — two candidates in a row without a promotion make those
+  diverge.
+
+  Use it to decide whether to keep refining (`vN.M+2`) or escalate to
+  a major build (`vN+1`). It does **not** decide promotion into
+  `dist/`: fewer issues is an input to that call, not the call.
 
 **When to choose minor vs major**:
 
@@ -291,7 +341,7 @@ The six prompts live under `.github-ai/prompts/issues/`:
   **issue disposition** (`RESOLVED-BY-RESPONSE` /
   `NEEDS-NEXT-STEP`, D14) that `propose-response` adopts verbatim
   for the response's `## Issue conclusion` section. Queries
-  NotebookLM only if specific keywords appear in the issue body
+  the base standard only if specific keywords appear in the issue body
   (D6): `DASH`, `ISO 23009`, `IAB`, `SCTE-35`, `SCTE`, `MPEG`,
   `CMAF`, `HLS`.
 - `propose-response.prompt` — drafts a flow-appropriate reply in
@@ -325,7 +375,7 @@ The six prompts live under `.github-ai/prompts/issues/`:
 | D3 | `severity:requirements` (and `severity:architectural` by extension) carry an explicit AI-disclaimer blockquote at the top of the response. |
 | D4 | Language detection falls back to English when inconclusive. |
 | D5 | Anti-loop cap of 3 AI cycles per issue. Enforced by `detect-issues`: when `cycle_count >= 4`, apply label `ai-conversation-cap-hit` and drop the issue before triage. |
-| D6 | NotebookLM is queried only when the keyword detector trips. |
+| D6 | The base standard is consulted only when the keyword detector trips. |
 | D7 | Trigger is manual today. Cron is future work. |
 | D14 | Each Stage 5 response ends with a binary **issue conclusion**: **RESOLVED-BY-RESPONSE** (`conclusion: resolved`) or **NEEDS-NEXT-STEP** (`conclusion: needs-next-step`). Resolved when the AI's response covers what the issue raiser asked (context pointer, decision clarification, duplicate, out-of-scope) AND no change is required to spec / ADRs / docs. Needs-next-step when the issue requires future action (PR against `context/`, ADR under `.project/decisions/`, WG input, follow-up issue, clarification from the raiser, partial-incorporate, defer). For Flow B issues, `analyze-impact.prompt` declares the disposition in `impact.md` under `## Issue disposition`; `propose-response.prompt` adopts it verbatim and writes it into the response's `## Issue conclusion` section plus the machine-readable header `<!-- sgai-issues-meta: ... conclusion: ... conclusion_reason: ... -->`. Flow A and Flow C draftees decide the conclusion directly from the response content. Labels mapped: `issue:can-close` if resolved; `issue:needs-next-step` if needs-next-step — applied by `post-response.prompt` (mutually exclusive). Orthogonal to `flow` (A/B/C) and `severity` — flow and severity characterise what the AI did; the conclusion characterises what the maintainer / WG / raiser does next. Mirrors Stage 6 D11 (MERGEABLE / NEEDS-WORK). |
 
@@ -448,7 +498,7 @@ The six prompts live under `.github-ai/prompts/prs/`:
   `files_touched` (grouped by root), `claim_summary`, and
   `cycle_count` (anti-loop, D5).
 - `analyze-pr.prompt` — walks the four axes (D13): content
-  validation (claims vs `context/` + DASH 6th via NotebookLM when
+  validation (claims vs `context/` + the base standard when
   keywords trip D6), convention compliance (`CLAUDE.md` rules:
   naming, file placement, cross-refs), scope coherence (PR body
   vs actual diff), downstream impact (stale `output/`,
@@ -490,13 +540,13 @@ The six prompts live under `.github-ai/prompts/prs/`:
 | D3 | `severity:requirements` (and `severity:architectural` by extension) carry an explicit AI-disclaimer blockquote at the top of the review. |
 | D4 | Language detection falls back to English when inconclusive. |
 | D5 | Anti-loop cap of 3 AI cycles per PR. Enforced by `detect-prs`: when `cycle_count >= 4`, apply label `pr:ai-conversation-cap-hit` and drop the PR before triage. |
-| D6 | NotebookLM is queried only when the keyword detector trips (against PR body **and** diff text). |
+| D6 | The base standard is consulted only when the keyword detector trips (against PR body **and** diff text). |
 | D7 | Trigger is manual today. Cron is future work. |
 | D8 | Routing is conditional. `comment` (top-level) when verdict is `LGTM` with no line-specific findings or `SUGGESTIONS` with no line-specific findings. `review` (formal `gh pr review --comment`, state=COMMENT) when the review carries line-specific findings (hybrid: summary + inline), or when verdict is `BLOCKERS` / `SCOPE-MISMATCH` (registered as a review for visibility). |
 | D9 | Inline vs generic comments are conditional on finding granularity. A `generic` finding lives in the summary body with a `path:line` text ref. A `line-specific` finding becomes an inline comment via the Pulls API (`event=COMMENT`) anchored to `path` + `line` on the `RIGHT` side of the diff. Hybrid is allowed: line-specific inline + summary body. |
 | D11 | Four verdicts (`LGTM` / `SUGGESTIONS` / `BLOCKERS` / `SCOPE-MISMATCH`) **plus** a binary mergeable conclusion: **MERGEABLE** (`mergeable: true`) or **NEEDS-WORK** (`mergeable: false`). The verdict characterises what the review found; the mergeable conclusion characterises what the author should do next — they are orthogonal. Mergeable defaults to `true` when verdict ∈ {`LGTM`, `SUGGESTIONS`} AND no open points TBD identified AND no unverifiable load-bearing claims AND no broken cross-refs. Else `false`. Labels mapped: `pr:ai-reviewed` always; `pr:has-blockers` if `BLOCKERS`; `pr:scope-mismatch` if `SCOPE-MISMATCH`; `pr:needs-work` if `mergeable: false` AND verdict ∉ {`BLOCKERS`, `SCOPE-MISMATCH`} (the mergeable signal is additive only when neither verdict-driven label already conveys "not ready to merge"). |
 | D12 | The AI MUST NEVER `gh pr review --approve`, `gh pr review --request-changes`, or `gh pr merge`. Approval and merge are exclusively human decisions. `post-review.prompt` enforces this as a hard guard — any draft / routing that requests those actions aborts the post and surfaces in the failed section of the summary. |
-| D13 | Analysis walks four axes: (1) **Content validation** — claims vs `context/` + DASH 6th (NotebookLM if D6 trips). **Sub-step**: identify open points TBD declared by the author (TBD / TODO / FIXME / "open questions" / "deferred" markers in the PR body, in diffed `context/` files, in `.project/decisions/`, in `.project/PROJECT.md` threads; `[?]` placeholders; ADRs left in `Status: proposed`). Each open point becomes a finding with `axis=content`, `severity=info`, `granularity=generic`, and `blocks_merge: true` — flagged for the mergeable decision (D11) even when not a verdict-level blocker. (2) **Convention compliance** — naming, file placement, cross-refs vs `CLAUDE.md`; broken internal cross-refs introduced or modified by the PR are flagged with `blocks_merge: true`. (3) **Scope coherence** — PR body / title vs actual diff (scope creep detection). (4) **Downstream impact** — which artefacts go stale on merge given the dependency arrow `context/ → context-analysis/ → output/ → output-analysis/`. |
+| D13 | Analysis walks four axes: (1) **Content validation** — claims vs `context/` + DASH 6th (the primary copy, if D6 trips). **Sub-step**: identify open points TBD declared by the author (TBD / TODO / FIXME / "open questions" / "deferred" markers in the PR body, in diffed `context/` files, in `.project/decisions/`, in `.project/PROJECT.md` threads; `[?]` placeholders; ADRs left in `Status: proposed`). Each open point becomes a finding with `axis=content`, `severity=info`, `granularity=generic`, and `blocks_merge: true` — flagged for the mergeable decision (D11) even when not a verdict-level blocker. (2) **Convention compliance** — naming, file placement, cross-refs vs `CLAUDE.md`; broken internal cross-refs introduced or modified by the PR are flagged with `blocks_merge: true`. (3) **Scope coherence** — PR body / title vs actual diff (scope creep detection). (4) **Downstream impact** — which artefacts go stale on merge given the dependency arrow `context/ → context-analysis/ → output/ → output-analysis/`. |
 
 ### Scratch directory
 
@@ -627,11 +677,12 @@ nothing about the copy. This has already happened once and was caught
 before publication.
 
 When a prompt needs authoritative content and the primary copy is not
-at hand, invoke the `notebooklm` skill against the relevant notebook
-(currently: "streaming formats / DASH 6th"). It is a derivative of the
-standard, so the PDF outranks it whenever both are available. Cite
-section numbers when available, and tag claims that could not be
-verified against the authoritative source as `[inferred]`.
+at hand, **the step fails rather than proceeding on memory**. Step 0
+of `build-all` already refuses to start a build without it, so a step
+that runs has it; a prompt invoked outside the pipeline says so and
+stops. Cite clause numbers **and quote the sentence**, and tag any
+claim that could not be verified against the primary copy as
+`[inferred]`.
 
 ## ADRs and decisions
 
