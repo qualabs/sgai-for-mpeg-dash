@@ -17,6 +17,30 @@ It is **gitignored from the parent `cto-assistant` repo by design**
 (separate repo lifecycle — see `.project/decisions/`). The repo
 has active git history; commit + push is the standard workflow.
 
+## The two layers, and who is in which
+
+`context/` is the **WHAT**: what the system has to be able to do, what
+obliges whom, what is out of scope. Iterating requirements happens here.
+
+The build is the **HOW**: which construct carries each capability, which
+attribute holds it, how it is expressed in a manifest. An agent
+generating the specification is here.
+
+**A requirement that fixes the carrier has crossed into the other
+layer.** *"The Publisher MAY declare that the window presents only
+once"* is the WHAT; whether that travels in an attribute of our own or
+in a field the base standard already provides is the HOW, and the build
+decides it.
+
+**And delegating the HOW only works when whoever decides knows the
+alternatives.** A carrier named nowhere does not enter the comparison,
+and then the HOW is not chosen — it falls out by default. This has
+already happened once: a capability was carried by a new attribute
+without the base standard's own field ever being weighed, because
+nothing said that field existed. Carrier conventions therefore live in
+`context/06-naming-and-namespaces.md`, which is HOW and not WHAT, and so
+does not contradict this rule.
+
 ## Layout
 
 ```
