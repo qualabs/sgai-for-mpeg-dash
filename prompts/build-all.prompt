@@ -188,8 +188,13 @@ the DASH conformance audit are produced by separate steps
 Before invoking the prompt, resolve the iteration number `N` as
 described in the header (Version numbering): scan
 `output/v*-sgai-spec.md`, parse the integer after the leading `v`
-in each filename, and set `N = max(found) + 1`. If no prior build
-exists, `N = 1`. Pass `N` to the `build-spec` prompt as an input.
+in each filename, and set `N = max(found) + 1`. **`output/` is emptied
+on promotion, so an empty `output/` does not mean no build has
+happened**: read the promoted candidate from `dist/PROVENANCE.md` and
+count from there instead. Only when there is neither a candidate in
+`output/` nor a `dist/PROVENANCE.md` is `N = 1`. Reusing a number git
+history already holds for a different document is the failure this
+guards against. Pass `N` to the `build-spec` prompt as an input.
 
 - Find the newest `output/v*-sgai-spec.md` file (if any). If it
   exists AND its mtime is newer than the newest mtime in `context/`
