@@ -454,8 +454,10 @@ Edge cases worth flagging:
   resulting `ListMPD` simply omits the entry under the silent-skip
   policy.
 - **Empty / no-fill response**: when the decision carries no ads, the
-  APS returns a resolution document with no candidates (R30); the
-  Player continues with the primary content.
+  APS returns a resolution document with no candidates (R30). For the
+  Player that attempt produced no ad, so it is a failed execution and
+  the next overlapping window is attempted if the Publisher declared
+  one (R20.1); with none, the primary content continues.
 - **VAST `<UniversalAdId>`**: intentionally left on the VAST / ADS
   side and out of scope of the DASH carrier defined by this spec (see
   the field mapping above). The universal ad identifier serves ad
@@ -474,7 +476,7 @@ Edge cases worth flagging:
 |------------------|---------------------|----------------|-----------------------------------|-------------------|-----------------|
 | Player           | Publisher CDN     | HTTP/HTTPS     | DASH MPD (XML)                    | request / response (pull) | HTTP status codes; on 4xx/5xx Player retries or aborts session. |
 | Player           | Publisher CDN     | HTTP/HTTPS     | media segments (ISOBMFF, CMAF, …) | request / response (pull) | HTTP status codes; segment-level retry per DASH-IF guidelines. |
-| Player           | APS                 | HTTP/HTTPS     | request: query params (§I.4); response: `ListMPD` (XML) | request / response (pull, sync) | HTTP status codes; a `200` carrying a resolution document with no candidates is the opportunity resolved with no ads (R30); a 4xx/5xx, no response, or a `200` whose body does not parse as a resolution document is the APS unable to answer, and triggers the fallback window if one is declared (R20.1). With no fallback, both end with the Player on the primary content. |
+| Player           | APS                 | HTTP/HTTPS     | request: query params (§I.4); response: `ListMPD` (XML) | request / response (pull, sync) | HTTP status codes; every attempt that produces no ad triggers the fallback window if one is declared (R20.1) — a 4xx/5xx, no response, a `200` whose body does not parse, and a `200` carrying a well-formed resolution document with no candidates (R30) are alike in this. With no fallback declared, all of them end with the Player on the primary content. |
 | Player           | Ad CDN              | HTTP/HTTPS     | media segments                    | request / response (pull) | Same as Publisher CDN; failure of an ad segment skips that ad or aborts the break per Player policy. |
 | Player           | Tracking endpoints  | HTTP/HTTPS     | callback beacons (HTTP GET, body-less) | fire-and-forget (push) | Errors are best-effort logged by the Player; not surfaced to viewer. |
 | APS              | ADS                 | HTTP/HTTPS     | VAST 4.x (XML) request / response | request / response (pull) | VAST `<Error>` element + HTTP status; the APS translates errors into HTTP errors or empty `ListMPD` toward the Player. |

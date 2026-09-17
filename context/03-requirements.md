@@ -654,16 +654,23 @@ the order the resolution document declares.
     rendered length exceeds the cap, the Player MUST trim
     mid-rendering ("trim during play") per R4.
 
-- **R30. An empty resolution is distinguishable from a failed one.**
-  *Gist: A resolution that legitimately returned no ads is expressed as a resolution document carrying no candidates, not as an error.*
+- **R30. An unsold opportunity is expressed as a document, not as an error.**
+  *Gist: A resolution that returned no ads is a well-formed resolution document carrying no candidates; an error response or an absent one means something else and is non-conforming.*
 
   When the APS resolves an opportunity and the ad decision carries no
-  ads, it returns a resolution document that carries no candidates. The
-  Player's behaviour is unchanged — it continues with the primary
-  content, as it does whenever the candidates are exhausted (R5.3). The
-  distinction is not a difference in playback; it is what lets an
-  unfilled opportunity be reported as an unfilled opportunity rather
-  than as a failure to resolve.
+  ads, it returns a resolution document that carries no candidates —
+  not an error response and not an absent one. What the Player then
+  does with that document is R20.1's: the attempt produced no ad, so it
+  is a failed execution and the next overlapping window of the family
+  is attempted. Where there is no further window, the primary content
+  continues uninterrupted.
+
+  This requirement is about **how the unsold opportunity is expressed**,
+  not about what follows from it. Expressing it as a document rather
+  than as an error is what lets an unfilled opportunity be reported as
+  an unfilled opportunity, keeps the APS-to-Player contract free of
+  error codes that mean two different things, and leaves the
+  distinction visible to anyone auditing the exchange.
 
   **What "carrying no candidates" means.** The resolution document is
   **well-formed and complete**: it declares itself a resolution
@@ -686,8 +693,9 @@ the order the resolution document declares.
   fired under the same heading — a case that is correct by design. In
   DASH that heading therefore means *"this event produced no
   alternative presentation this time"*, **not** *"something went
-  wrong"*. R30 names the case from the APS side; it does not change
-  playback.
+  wrong"*. Reading it as an error would be the mistake; reading it as a
+  failed execution, which is what the base specification calls it, is
+  what makes R20.1's fall-through follow.
 
   **The opportunity is not consumed.** The base specification counts
   executions, not attempts: `E.c` is *"Execution counter (number of
@@ -1146,21 +1154,52 @@ screen to a single active non-linear form at any instant.
   **Conformance criteria** (runtime):
   - **R20.1** (Player): When ad opportunity windows of the same family
     overlap in time within the primary `MPD`, the Player MUST select
-    the first overlapping window (R20.3) and attempt to resolve its
-    resolution document. The remaining overlapping windows of the
-    same family are fallback only: the Player MUST resort to a
-    subsequent overlapping window ONLY when it cannot access the
-    resolution document of the first window: the APS does not respond,
-    the request fails at the transport level, the response carries a
-    final HTTP status other than `200`, or the response carries a
-    `200` whose body is not a resolution document the Player can parse.
-    When the first window's resolution document is accessible, the
-    Player MUST NOT fall through to the others. A `200` carrying a
-    resolution document with no candidates per R30 **is** accessible —
-    the opportunity resolved, and it resolved to no ads. A `200`
-    carrying a body that does not parse is **not**: nothing was
-    obtained to resolve the opportunity with, which is the same
-    outcome as no response at all.
+    the first overlapping window (R20.3) and attempt to resolve it. An
+    attempt **on a window** that does not produce an ad is a **failed
+    execution**, and on a failed execution the Player MUST attempt the
+    next overlapping window of the same family. This is the base specification's rule,
+    stated in ISO/IEC 23009-1:2026 **§5.16.2.2.5** (*Playhead-triggered
+    processing*), step 2: *"If execution fails, steps a-c above are
+    repeated for next events in QE, until: — Execution succeeds, or —
+    PRT of the topmost event in the queue is in the future (i.e.
+    PRT > PHP), or — The queue is empty."*
+
+    Each way an attempt can fail maps to a condition **§5.16.2.2.6**
+    (*Execution*) lists, and the Player MUST treat all four alike:
+
+    - the APS does not respond, or the request fails at the transport
+      level — *"Alternative MPD is unavailable"*;
+    - the response carries a final HTTP status other than `200` — the
+      same condition: nothing was obtained;
+    - the response carries a `200` whose body is not a resolution
+      document the Player can parse — *"Alternative MPD is …
+      invalid"*;
+    - the response carries a well-formed resolution document that
+      **carries no candidates** (R30) — *"Alternative MPD is a List
+      MPD, and merge process resulted in no available media"*.
+
+    When every overlapping window of the family has been attempted and
+    none produced an ad, the Player MUST continue with the primary
+    content uninterrupted: *"If no event can be successfully executed,
+    the playback continues uninterrupted"* (§5.16.2.2.5). Where the
+    Publisher declared no fallback window at all, that is the behaviour
+    after the single attempt, which is what it has always been.
+
+    For the **linear family this is adopted unchanged** from the base
+    specification. For the **non-linear families the base specification
+    does not reach** — its execution model is built on Alternative MPD
+    events, and overlay and pause-trigger windows are not those — so
+    this specification **extends the same rule to them**, for the
+    reason R20.3 gives: one behaviour across every family, so that an
+    implementer does not have to learn two.
+
+    **A resolution document that carries candidates is not a failed
+    execution**, whatever the Player then does with them. A candidate
+    skipped because the device can satisfy none of its presentation
+    options is governed by R5.3 and R5.7, which end at the primary
+    content and not at the next window. The base specification's
+    condition is media availability after the merge, not renderability
+    on a device; this specification does not extend it there.
   - **R20.2** (Publisher): All opportunity windows of one family that
     share a `Period` MUST be authored as `<Event>` entries inside a
     **single** `<EventStream>`. DASH admits at most one `EventStream`

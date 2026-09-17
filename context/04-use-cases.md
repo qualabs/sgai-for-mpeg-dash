@@ -24,6 +24,15 @@ should still hold without rewriting. New use cases can be appended
 as they surface; existing ones are not deleted, only marked
 superseded if the design renders them obsolete.
 
+**Quantity is not a cost here.** A case describing a scenario an
+operator actually runs is evidence that this specification was
+designed against the reality of operation rather than against a model
+of it, so a case that surfaces from a real discussion is written down
+when it surfaces rather than noted for later. What a case must be is
+**real**: an invented scenario nobody runs teaches an implementer
+nothing and costs every reader the time to find that out. The bar is
+not how many cases there are — it is whether each one happened.
+
 ## Terminology
 
 For external readers familiar with industry vocabulary:
@@ -72,14 +81,15 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-06 Multi-ad break | Verification | full sequence | full sequence | full sequence on single decoder | full sequence on single decoder | full sequence on single decoder |
 | UC-07 Legacy Player encounters new constructs | Cross-cutting | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) |
 | UC-11 ClickThrough | Interaction | reads carrier, fires click on activation | same | same | same | same |
-| UC-12 Overlapping same-family windows + fallback | Selection | first-window-wins, fallback on resolve failure | same | same | same | same |
+| UC-12 Overlapping same-family windows + fallback | Selection | first window wins; the next window is attempted whenever an attempt produces no ad, including a document with no candidates | same | same | same | same |
 | UC-03 Coexisting overlay | Non-linear | highest-fidelity overlay | video overlay or side-by-side (if allowed) or skip | HTML or image overlay | image overlay | skip (graceful) |
 | UC-05 Pause-triggered ad | Action-triggered | rich pause overlay | video pause overlay (if video form available) or skip | HTML or image pause overlay | image pause overlay | skip (graceful) |
-| UC-04 Hybrid linear + overlay | Mixed | linear + overlay | linear + video overlay (if video form available) or linear only | linear only (overlay skipped) | linear only (overlay skipped) | linear only (overlay skipped) |
+| UC-04 Hybrid linear + overlay | Mixed | linear + overlay | linear + video overlay (if video form available) or linear only | linear + image/HTML overlay on top | linear + image overlay on top (HTML declined) | linear only (overlay skipped) |
 | UC-10 Side-by-side / double-box (three-element R26) | Composition | three-element side-by-side (video or image/HTML ad + background element) | side-by-side declined (background element is a non-video surface) | side-by-side for image/HTML ad; declined for video ad | side-by-side for image ad; declined for video/HTML ad | side-by-side declined (no overlay surface) |
 | UC-08 Overlay window crosses a pause-ad window | Composition | overlay swaps to pause-ad on pause, restores on resume | overlay swaps to video pause-ad if available, else pause-ad declined; overlay restores on resume | overlay swaps to HTML or image pause-ad, restores on resume | overlay swaps to image pause-ad, restores on resume | both opportunities declined gracefully |
 | UC-09 One ad, ordered options across device classes | Worked example | side-by-side (video ad + background) — option 1 | full-screen takeover video — option 4 (image ad/background surfaces unrenderable) | L-shape image full-frame ad creative — option 2 (no second decoder for side-by-side) | L-shape image full-frame ad creative — option 2 (no HTML, no second decoder) | full-screen takeover video — option 4 (no overlay surface) |
 | UC-13 One ad, Player-declared capabilities, APS resolves to one option | Worked example | side-by-side — option 1, emitted alone | full-screen takeover — option 4, emitted alone (non-video surfaces declared absent) | L-shape — option 2, emitted alone (HTML axis omitted, not relied on) | L-shape — option 2, after walking the full list it received (declared nothing) | full-screen takeover — option 4, emitted alone (no overlay surface) |
+| UC-14 Non-linear ad over a replacement that is not advertising | Composition | overlay composited over the slate (video on the second decoder, or image / HTML surface) | video overlay only — no non-video surface over video | image or HTML overlay composited over the slate | image overlay composited; HTML declined | declined — no overlay capability |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -493,14 +503,24 @@ but are independently selected.
   the background creative, which a single-decoder image/HTML-capable
   device (D3) can satisfy; if the full-frame ad creative is **video** the
   layout needs two concurrent decoders and is not satisfiable on D3. A
-  separate HTML/image overlay *on top of* the linear ad's video still
-  requires concurrent composition the single decoder cannot guarantee,
-  and is declined per R5/R3.
+  separate HTML or image overlay *on top of* the linear ad's video is
+  **also satisfiable**, and for the same arithmetic. During an
+  alternative presentation the base specification does not run two
+  presentations at once — it changes which access engine outputs
+  media: *"For the duration of the alternative media presentation, the
+  alternative access engine outputs media to the media engine, while
+  the main client will be paused or be in a listen mode"*, and an
+  access engine in listen mode *"does not output media to the media
+  engine"* (ISO/IEC 23009-1:2026 §4.2). The linear ad occupies the one
+  decoder the primary content has just stopped using. The budget is one
+  decoder plus one overlay surface — the same budget declared
+  satisfiable for the L-shape in the sentence above — and D3 has
+  both.
 - **What the user sees:** either the L-shape (the shrunk primary content
   composited on top of a full-frame image / HTML ad creative that fills
   the rest of the frame) if that option is offered and satisfiable, or —
   if only a top-of-video overlay option exists — a full-screen linear ad
-  with no overlay on top.
+  with an image or HTML overlay composited on top of it.
 
 #### D4 — Single-decoder, image only
 
@@ -511,13 +531,17 @@ but are independently selected.
   primary content plus an image surface for the background creative); an
   HTML full-frame creative is not (D4 cannot render HTML), and a video
   full-frame creative is not (it would need two decoders). A separate
-  HTML/image overlay *on top of* the linear ad's video is declined per
-  R5/R3.
+  **image** overlay *on top of* the linear ad's video is satisfiable on
+  the same arithmetic as D3 — the linear ad holds the one decoder the
+  primary content released (§4.2), leaving one image surface free. An
+  **HTML** overlay is declined, and for a real device property rather
+  than a decoder count: D4 does not render HTML on top of video.
 - **What the user sees:** either the L-shape (the shrunk primary content
   composited on top of a full-frame image ad creative that fills the
   rest of the frame) if that option is offered and satisfiable, or — if
   only a top-of-video overlay option exists — a full-screen linear ad
-  with no overlay on top.
+  with an image overlay composited on top of it, or no overlay at all
+  when the only option offered is an HTML one.
 
 #### D5 — Single-decoder, no overlay (worst case)
 
@@ -532,14 +556,11 @@ but are independently selected.
   X, suppress the overlay") or whether such cross-portion linkage
   is out of scope. Either answer is compatible with the
   four-actor model; the spec must pick one.
-- Whether D3 / D4 must always decline the overlay portion of a
-  hybrid break, or whether the Player is allowed to composite an
-  HTML / image overlay on top of a linear ad video on
-  single-decoder devices that have HTML/image overlay surfaces.
-  The R2-clean answer depends on whether the Publisher considers
-  "overlay on top of linear ad" a renderable layout the Player can
-  satisfy with a single decoder; the spec must declare it
-  explicitly.
+- ~~Whether D3 / D4 must always decline the overlay portion of a
+  hybrid break.~~ **Answered**: they must not. The question assumed a
+  budget of two decoders where the base specification uses one; the
+  device classes above now state the correct arithmetic, and the
+  reasoning is recorded in ADR 0012.
 
 ### UC-05 — Pause-triggered ad
 
@@ -1310,11 +1331,13 @@ encounters and resolves its resolution document. If it cannot access
 that resolution document — the APS does not respond, the request fails
 at the transport level, or the response carries a final HTTP status
 other than `200` — it falls through to the second window as a backup.
-If the first window resolves successfully, the second is ignored; the
-two are never served concurrently (per R20.1). **Resolving to no ads is
-resolving successfully**: a `200` carrying a resolution document with no
-candidates (R30) is an answer, not a failure, so the second window stays
-untouched and the Player continues with the primary content.
+If the first window produces an ad, the second is ignored; the two are
+never served concurrently (per R20.1). **An attempt that produces no ad
+is a failed execution, whatever its shape**: a `200` carrying a
+resolution document with no candidates (R30) is a well-formed answer
+and still a failed execution in the base specification's sense
+(§5.16.2.2.6), so the second window is attempted exactly as it would be
+after a transport failure.
 
 **Publisher intent:**
 - Two overlapping opportunity windows of the same family are declared in
@@ -1328,23 +1351,24 @@ untouched and the Player continues with the primary content.
 
 **Expected behavior:**
 - The Player selects the first overlapping window and attempts to
-  resolve it. On success it serves that window and does not touch the
-  second; when that window resolved to no ads, there is nothing to
-  serve and the Player continues with the primary content, still
-  without touching the second. On failure to access the first window's
-  resolution document, it resorts to the second (per R20.1). Whichever
+  resolve it. When that attempt produces an ad it serves that window
+  and does not touch the second. When it produces none — for any
+  reason, including a well-formed document carrying no candidates — it
+  attempts the second (per R20.1). Whichever
   window is served, the forms inside its resolution document are then
   sequenced per R14: R20 selects which window is served; R14 sequences
   the forms within the chosen window.
-- **The three paths this scenario admits**, all ending with the primary
-  content playing uninterrupted:
+- **The three paths this scenario admits:**
   1. The first window answers with a resolution document carrying no
-     candidates. The opportunity resolved, and it resolved to no ads;
-     the second window is not touched (R20.1, R30) and the Player
-     continues with the primary content.
-  2. The first window cannot be accessed and the second answers with a
-     document carrying no candidates. The fallback is used as declared,
-     and the opportunity still resolves to no ads.
+     candidates, and the second answers with one carrying an ad. The
+     first attempt produced no ad, so it failed (R20.1, R30), the
+     second is attempted, and the viewer sees the fallback window's ad.
+     Nothing distinguishes this path, from the Player's side, from one
+     where the first window could not be reached at all.
+  2. Both windows answer with documents carrying no candidates. Both
+     attempts failed, the chain is exhausted, and the Player continues
+     with the primary content — *"If no event can be successfully
+     executed, the playback continues uninterrupted"*.
   3. Neither window can be accessed and no further fallback is
      declared. The chain is exhausted with no resolution document
      obtained, so no candidate was ever accepted. The Player skips the
@@ -1520,3 +1544,71 @@ silent Player.
   emit a different option on D3 and would be equally conformant
   (R29.7). What does not vary is that the Player checks whatever
   arrives before rendering it.
+
+### UC-14 — A non-linear ad over a replacement that is not advertising
+
+**Scenario:** The Publisher replaces a bounded span of the primary
+timeline with content that is **not an ad** — a regional blackout
+slate, with its own audio — and declares an overlay opportunity window
+covering the same span. The alternative presentation carries no
+advertising; the overlay does.
+
+The base specification does not treat its replacement tool as an
+advertising mechanism. §5.16.1 describes it as *"the ability to switch
+between two independent Media Presentations, for applications such as
+pre-roll and mid-roll advertisement, **as well as blackouts**, during a
+live streaming session"*, and the Advanced Linear profile repeats the
+pair: *"alternate content use cases, such as server guided
+advertisement insertion **and blackouts**"* (§8.13.1).
+
+**This specification does not specify blackouts.** The blackout is here
+because it is the clearest demonstration that the surface underneath a
+non-linear ad need not be an ad, which is a property of the base
+mechanism this specification inherits and must not contradict.
+
+**Publisher intent:**
+- A `ReplacePresentation` window over the blacked-out span, resolving
+  to the Publisher's own slate rather than to an ad decision.
+- An overlay opportunity window covering the same span, with a
+  device-agnostic allowed-layout set and a bounded maximum duration
+  (R4).
+
+**Ad response:** the overlay window resolves normally through the APS
+and yields an ad candidate with image and HTML presentation options.
+The replacement window resolves to the Publisher's slate and involves
+no ADS, no APS and no ad candidate.
+
+**Expected behavior per device class:** identical to the hybrid break
+of UC-04, because the budget is identical. During any alternative
+presentation only one access engine outputs media (§4.2), so the slate
+occupies the one decoder the primary content released, exactly as a
+linear ad would.
+
+- **D1** — overlay composited on top of the slate, on a second decoder
+  for a video form or on an image / HTML surface for the others.
+- **D2** — a video overlay composites on the second decoder; image and
+  HTML forms are declined, because D2 composites no non-video surface
+  over video.
+- **D3** — image or HTML overlay composited over the slate: one
+  decoder plus one surface, which D3 has.
+- **D4** — image overlay composited; an HTML one declined, because D4
+  does not render HTML over video.
+- **D5** — declined: no overlay capability of any kind.
+
+**What this demonstrates:** the device behaviour does not depend on
+what the underlying presentation *depicts*. A Player cannot observe
+whether the video it is decoding is an advertisement, a blackout slate
+or primary content, so no conformance rule can be written against that
+distinction — and this case is the one where the distinction is
+demonstrably absent while the behaviour is unchanged.
+
+**Notes:**
+- **Only one portion is an ad.** The overlay carries the tracking,
+  the ClickThrough carrier (R28) and the slot cap (R4); the
+  replacement carries none of them, because it is not an ad and no ADS
+  or APS took part in producing it. What the two portions share is the
+  screen, not the contract.
+- **Nothing here specifies the blackout.** How the Publisher decides to
+  black out, what the slate contains and how rights are enforced are
+  outside this specification. The window and the slate are the
+  Publisher's, declared with the base specification's own construct.

@@ -59,12 +59,24 @@ through `08-dash-extension-rules.md`.
   several they appear as an ordered list and document order is the
   preference order the Player follows. A candidate carrying exactly one
   leaves the choice with the APS (R5).
-- **InsertPresentation** *(DASH 6th ed)*: signals that an ad
-  presentation is to be **inserted into** the timeline alongside the
-  main content. Used for splice-style insertion.
-- **ReplacePresentation** *(DASH 6th ed)*: signals that an ad
-  presentation **replaces** the primary content for the duration of
-  the event. Used for traditional break-style ads.
+- **InsertPresentation** *(DASH 6th ed, §5.16.3)*: signals an
+  Alternative MPD Insertion event — the alternative Media Presentation
+  is *"inserted in the media time of the Main Presentation, i.e.
+  time-shift the part of the Main Presentation which is played after
+  the alternative Media Presentation"* (§5.16.1). The base
+  specification names no content type for it: *"A **key use case** for
+  this is advertisement"* (§5.16.1), which is one use among others it
+  lists, blackouts included. **This specification uses it for
+  splice-style ad insertion**, and that is a use of the construct, not
+  its definition.
+- **ReplacePresentation** *(DASH 6th ed, §5.16.4)*: signals an
+  Alternative MPD Replace event — the alternative Media Presentation
+  *"may replace a portion of the main Media Presentation. In this case,
+  the main Media Presentation is not being output, but its media time
+  progresses at the same speed as the currently playing alternative
+  Media Presentation"* (§5.16.1). **This specification uses it for
+  break-style ads**; the construct itself carries no such restriction,
+  and UC-14 exercises a replacement that is not advertising at all.
 - **ADS (Ad Decision Server)**: external server that decides which
   ads to serve for a given slot and responds with a **decision
   document** — typically VAST (IAB), though the ADS is not bound to
