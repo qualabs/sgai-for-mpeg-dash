@@ -456,7 +456,18 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     *L-Shape*; see R27) and side-by-side / double-box (IAB *Double Box
     Video* and *Double Box Video + Background*; see R26).
   - **Pause-ad** (IAB *Pause Ad*, `pause`): a non-linear surface shown
-    over the paused primary frame, fullscreen or partial (see R21).
+    over the paused primary frame. Its two visual placements are
+    **fullscreen** (`pause-fullscreen`), occupying the entire screen
+    surface, and **partial overlay** (`pause-partial`), composited over
+    the paused primary frame which remains visible underneath (see
+    R21). Unlike `overlay`, the bare `pause` type is **not** an
+    admissible layout value: every pause ad is one surface or the
+    other, so a declaration naming neither would leave R21's choice
+    undetermined. The two placements are separate for the reason
+    Overlay's and Squeezeback's are — R21 makes the surface a property
+    of the layout the Player selects, and a Publisher can only admit
+    one and exclude the other if the two are distinguishable in
+    `@allowedLayouts`.
 
   **Out of scope: ads outside the video surface.** Any ad rendered in
   the Player chrome or the application UI rather than on the playing or
@@ -815,6 +826,15 @@ squeezeback layouts (side-by-side and L-shape).
   - **R32.3** (Player): When the viewer resumes playback, the Player
     MUST return to the primary content immediately, whether or not an
     ad is mid-presentation.
+  - **R32.4** (spec document): Whether a second resolution request
+    within one pause is the same opportunity or a new one is **out of
+    scope**. The two readings are identical at the Player: it requests,
+    it renders what arrives, and it stops on resume, in both. What
+    differs is accounting between the APS and the ADS, which this
+    specification does not observe (R18), so it is in no position to
+    fix which reading is correct. What the specification does measure
+    is **how much of the paused interval carried an ad** (R33), and
+    that figure is the same however the requests are counted.
 
 - **R19. Ad playback speed follows primary content.**
   *Gist: Ads play at the primary content's speed, so a 10 s ad at 2x is on screen for 5 s of wall-clock; the cap and beacon schedule still use the presentation timeline.*
@@ -852,7 +872,11 @@ squeezeback layouts (side-by-side and L-shape).
   screen surface, OR as a partial overlay composited over the paused
   primary frame. Both presentation surfaces are admissible; which one
   applies is a property of the pause-ad form / layout the Player
-  selects (R5), not a fixed constraint of this requirement. When the
+  selects (R5), not a fixed constraint of this requirement. The two
+  surfaces are separate layout placements — `pause-fullscreen` and
+  `pause-partial` (R12) — so a Publisher that wants only one of them
+  can say so in the slot's `@allowedLayouts`, which is what makes this
+  delegation something a Publisher can actually exercise. When the
   pause-ad is fullscreen, because it replaces the whole visual surface
   for the duration of the pause, the Player MAY release all resources
   held by the primary content and by any pre-existing overlay in order
