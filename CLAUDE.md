@@ -70,7 +70,19 @@ What does NOT go where:
   `context/00-normative-base.md` still describes the copy of the
   standard on disk. `check-context-coherence.py` is Step 0.5 and
   confirms that `context/` holds together — identifiers defined, no
-  duplicates, links resolving. `check-dist-freshness.py` is not a build
+  duplicates, links resolving. `check-promotable.py` is the auto-refine
+  loop's stop condition, and the same script a promotion consults: it
+  reads the candidate's three sidecars, checks that the walk covered
+  every obligation `context/` states, and reports what blocks grouped
+  by **who lifts it**. Three exits, and the third is the point — `0`
+  nothing blocks, `1` blocked, `2` cannot tell; uncertainty wins over
+  both others, because zero blocking rows is also what a walk that
+  never happened looks like. A fourth, `64`, is a wrong command line,
+  kept outside the three so a misspelled flag can never be read as a
+  verdict about the build; `--help` states all four. `--population` prints the units that must
+  be walked, and the validation step reads that list rather than
+  counting on its own, so the two sides cannot drift apart.
+  `check-dist-freshness.py` is not a build
   step: it answers whether what is published in `dist/` was built from
   the inputs as they stand now, by comparing `context/`,
   `context-analysis/` and `prompts/` against the hashes in

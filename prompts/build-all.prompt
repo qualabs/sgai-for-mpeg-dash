@@ -323,7 +323,47 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
       - Output:
         `output-analysis/v<N>.<M+1>-dash-conformance-audit.md`.
 
-  9.5 Run `prompts/4-auto-refine/compare-spec-versions.prompt`
+  9.5 Run `bin/check-promotable.py`. This is the loop's **stop
+      condition**, and it runs before the comparison because a stop
+      makes the comparison unnecessary work.
+
+      It answers one question: **is what remains something the
+      pipeline can fix on its own?** Read its exit code, and its
+      last line for the counts.
+
+      - **exit 0** — nothing blocks. The candidate is as far as the
+        pipeline can take it. Log `[CLEAR] at v<N>.<M+1>, nothing
+        blocks`, break the loop, and proceed to Final summary. Do
+        NOT promote it into `dist/` — this step, like every other,
+        writes no file there.
+
+      - **exit 1 with `NEEDS_HUMAN=0`** — everything that blocks is
+        pipeline work. Log `[ITER K] blocked by <n>, all pipeline`
+        and **continue the loop**: that is exactly what the loop is
+        for, and nobody needs to be told.
+
+      - **exit 1 with `NEEDS_HUMAN>0`** — something needs a decision
+        the pipeline cannot take. **Break the loop** and reproduce
+        the script's `Necesita a Nicolas` group verbatim in the Final
+        summary. That short list is the reason this check exists:
+        what reaches a person is what a person has to resolve, and
+        nothing else.
+
+      - **exit 64** — the invocation was wrong, not the build. The
+        step fails and the loop breaks: nothing was measured, so
+        there is nothing to carry on from. Fix the call.
+
+      - **exit 2** — cannot tell. **Do not continue**, and do not
+        treat it as a stop either: re-run
+        `prompts/3-post-spec/validate-spec.prompt` against
+        `v<N>.<M+1>` once, then run the check again. If it exits 2 a
+        second time, break the loop and surface the script's reasons
+        verbatim. A walk that cannot be trusted is not a build that
+        can be judged, and carrying on would let a truncated walk
+        read as a clean one — which is the failure this whole step
+        exists to make impossible.
+
+  9.6 Run `prompts/4-auto-refine/compare-spec-versions.prompt`
       for the candidate `v<N>.<M+1>`. The baseline is whatever is
       published in `dist/`, not `v<N>.<M>`.
       - Output: `output-analysis/v<N>.<M+1>-comparison.md` with a
@@ -335,7 +375,7 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
         Do NOT fall back to comparing against `v<N>.<M>` — that is
         the measurement this build model removed.
 
-  9.6 Read the verdict line from the comparison file:
+  9.7 Read the verdict line from the comparison file:
 
       - **BETTER THAN PUBLISHED** (net reduction in total issue
         count against the published build, across all categories,
@@ -372,7 +412,7 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
       Promotion is a decision taken outside this pipeline, against
       a criterion this project has not defined yet.
 
-  9.7 If `K == MAX_REFINEMENTS` was reached without a
+  9.8 If `K == MAX_REFINEMENTS` was reached without a
       NO BETTER / WORSE exit:
           log `[MAX_ITER] cap reached at v<N>.<M>, last successful`.
           Break the loop and proceed to Final summary.
@@ -422,11 +462,20 @@ SGAI build summary (iteration v<N>, head v<N>.<M_final>, YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] validate-spec                   → output-analysis/v<N>-spec-validation.md (mtime: ...)
   [BUILT|SKIPPED] review-spec-details             → output-analysis/v<N>-detail-review.md (mtime: ...)
   [BUILT|SKIPPED] audit-dash-conformance          → output-analysis/v<N>-dash-conformance-audit.md (mtime: ...)
-  [SKIPPED|NO_BETTER|WORSE|NO_BASELINE|MAX_ITER|ERROR] auto-refine → head=v<N>.<M_final> after <K> iterations
+  [SKIPPED|CLEAR|NEEDS_HUMAN|UNCERTAIN|NO_BETTER|WORSE|NO_BASELINE|MAX_ITER|ERROR] auto-refine → head=v<N>.<M_final> after <K> iterations
 ```
 
 The auto-refine line summarises the Step 9 outcome:
 - `SKIPPED` — `BUILD_ALL_AUTO_REFINE=false`, no iterations ran.
+- `CLEAR` — `check-promotable.py` found nothing blocking. The
+  candidate is as far as the pipeline takes it; promotion is a
+  separate, human decision.
+- `NEEDS_HUMAN` — the loop stopped because something needs a decision
+  it cannot take. **The short list goes here, verbatim**, one line per
+  item: it is the whole output of the run for whoever reads it.
+- `UNCERTAIN` — `check-promotable.py` exited 2 twice. The reasons go
+  here verbatim; the head is the last built iteration and no verdict
+  about it is claimed.
 - `NO_BETTER` — a NO BETTER THAN PUBLISHED verdict ended the loop at
   `v<N>.<M_final>`.
 - `WORSE` — a WORSE THAN PUBLISHED verdict rolled back; head is the

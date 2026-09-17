@@ -1659,6 +1659,30 @@ and deferring layout to existing primitives.
   absent from a specification says nothing about whether anyone
   considered it.
 
+## Deliberately open
+
+A question this specification has decided **not** to answer yet is
+recorded here, against the unit it concerns. An entry says the silence
+was chosen; the absence of an entry says nothing was chosen, and those
+are the two states a reader must be able to tell apart. A construct
+absent from a specification says nothing about whether anyone
+considered it — which is why an OOS item above states its exclusion,
+and why an open question states its openness instead of being left to
+look like an oversight.
+
+The difference from Out of Scope is what happens next. An OOS item is
+closed: the specification will not address it. An entry here is open:
+the specification will address it, and has not yet.
+
+| Unit | Why it is open | Recorded in |
+|------|----------------|-------------|
+
+The table is empty, and that is a statement: **no silence in this
+specification has been declared deliberate yet.** Adding a row is a
+decision about one question, taken by the owner of the specification,
+and the row carries where that decision is written down — an ADR under
+`.project/decisions/`, or the working-group record that took it.
+
 The remainder of the proposal — Anatomy of the Overlay Resolution
 Document, Ad Tracking, Client Execution Flow, Example
 Implementation — should be read against these requirements.

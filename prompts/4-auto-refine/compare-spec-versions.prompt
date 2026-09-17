@@ -183,10 +183,11 @@ written>. Candidate: `output/v<N.M>-sgai-spec.md`.
 
 (The obligation-coverage figures above are illustrative. What is not
 illustrative is the invariant: the six sub-counts **sum to the total
-number of units the sidecar walked** — 163 in both columns here, being
-108 criteria plus 41 prose obligations plus 14 use cases. A column that
-does not add up means the sidecar skipped units, and that is worth
-saying in the commentary rather than averaging over.)
+number of units the sidecar walked**, which is what
+`bin/check-promotable.py --population` lists. A column that does not add
+up means the sidecar skipped units, and that is worth saying in the
+commentary rather than averaging over — the numbers in the table above
+are illustrative and do not sum to any real population.)
 | Autofixes applied (detail-review) | 6 | 3 | -3 | ⚠️ |
 | Flagged (detail-review) | 5 | 2 | -3 | ✅ |
 | Conforming (audit) | 20 | 24 | +4 | ✅ |
