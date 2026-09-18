@@ -5,10 +5,16 @@
 > The actors are: **Publisher**, **Ad Decision Server (ADS)**,
 > **Ad Presentation Server (APS)**, and **Video Player**.
 
+**This document is informative.** It names the actors and divides the
+responsibilities among them, so that every requirement can say whom it
+binds without re-describing the architecture. It obliges no one by
+itself: each obligation lives as a requirement in
+[`03-requirements.md`](03-requirements.md), and the separation
+described here is normative only through those.
+
 The architecture proposed by this project rests on a **four-actor
-model**. Each actor has a clearly bounded set of responsibilities, and
-the separation is normative: the Publisher declares what can be
-shown, the Ad Decision Server (ADS) decides which ads to serve and returns
+model**. Each actor has a clearly bounded set of responsibilities: the
+Publisher declares what can be shown, the Ad Decision Server (ADS) decides which ads to serve and returns
 them in its own decision format, the Ad Presentation Server (APS)
 converts that decision into the MPD-native resolution document the
 Player understands,

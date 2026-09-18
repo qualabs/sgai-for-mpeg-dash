@@ -616,6 +616,14 @@ def check_malformed_modals(ctx, finding, _cannot_tell):
 def check_normative_force(ctx, finding, _cannot_tell):
     for path in ctx.files:
         text = ctx.text[path]
+        if ctx._declares_itself_illustrative(ctx.lines[path]):
+            # A file that declares itself informative has answered this
+            # question about itself, and the answer is the one that
+            # resolves the finding. Without this, a sentence explaining
+            # HOW the file is not normative — "the separation described
+            # here is normative only through the requirements" — trips
+            # the very check that sentence exists to satisfy.
+            continue
         m = NORMATIVE_SELF_DECLARATION.search(text)
         if not m:
             continue

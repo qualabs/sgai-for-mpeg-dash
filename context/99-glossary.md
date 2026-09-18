@@ -164,3 +164,31 @@ through `08-dash-extension-rules.md`.
 - **Sub-MPD**: an MPD reached via `<ImportedMPD>` from a parent
   ListMPD or primary MPD. SPS-conformant by construction (DR-1 in
   [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+- **Primary content**: the programme the viewer chose to watch — the
+  film, the episode, the live channel — as distinct from any ad. It is
+  what the MPD describes before any SGAI construct is added, and what
+  the Player is playing when it reaches an ad opportunity. This
+  specification uses the term wherever a rule has to say which of the
+  two timelines it governs, because "the content" alone is ambiguous
+  once ads are in the manifest.
+- **Resolution document**: the document an Ad Presentation Server
+  returns when a Player resolves an ad opportunity's URL, describing
+  the ad or ads to render and how. In this specification it is the
+  only thing the Player ever reads about an ad: the Player never talks
+  to an Ad Decision Server, so whatever format the decision arrived in
+  (typically VAST, though the ADS is not bound to it) has already been
+  converted by the APS into this document. For linear ads the
+  resolution document is a `ListMPD` (DASH 6th ed, §8.14).
+- **Document order**: the order in which elements appear in the
+  document as written, which is the order an XML parser reports them
+  in. This specification relies on it wherever a list expresses a
+  preference: the first candidate in document order is the most
+  preferred, and nothing outside the document carries that ranking.
+- **Legacy Player**: a Player conforming to MPEG-DASH 6th edition that
+  does not implement this specification. It is the reader every
+  extension in this specification has to survive: a legacy Player
+  encountering the new constructs ignores them, under the base
+  standard's own rules for unrecognised elements and attributes, and
+  keeps playing the primary content. It is a class of implementation
+  and not a mode — no Player announces itself as legacy, and nothing
+  in this specification can oblige one.
