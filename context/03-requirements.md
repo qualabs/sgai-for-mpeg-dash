@@ -179,8 +179,8 @@ and the boundaries of what this spec does and does not define.
     mechanism that would require an actor to take on a
     responsibility outside its role MUST be rejected or redesigned.
 
-- **R11. No dependency on VAST.**
-  *Gist: The spec never depends on VAST or any specific VAST version; VAST references are illustrative only.*
+- **R11. Independent of VAST, compatible with what VAST expresses.**
+  *Gist: The spec never depends on VAST or any specific VAST version, and covers the ad behaviours a VAST-based ADS can express; VAST references are illustrative only.*
 
   The specification MUST NOT depend on any
   specific version of VAST or on VAST as a protocol. Examples that
@@ -203,6 +203,17 @@ and the boundaries of what this spec does and does not define.
   - **R11.3** (spec document): Any reference to VAST in the spec
     MUST be in an annex or in a non-normative note explicitly
     flagged as illustrative.
+  - **R11.4** (spec document): The spec MUST cover the ad behaviours
+    a VAST-based ADS can express, so that an APS fed by VAST can
+    build a resolution document for each of them using only the
+    semantics this spec defines. Independence from VAST is a
+    constraint on what the spec cites, not a licence to leave
+    uncovered what the deployed ecosystem already does.
+  - **R11.5** (spec document): An annex SHOULD carry a worked
+    example of an APS building a resolution document from a VAST
+    response, because that is how the resolution document is
+    produced in practice. The annex is illustrative: it constrains
+    no implementation and defines no semantics.
 
 - **R18. The APS-to-ADS and ADS-side API contracts are not defined by this spec.**
   *Gist: The spec defines only the Player-visible interface; the APS-to-ADS and ADS-side APIs are out of scope and agreed bilaterally.*

@@ -5,6 +5,15 @@
 > baseline (ISO/IEC 23009-1, §5.16 and §8.14). Terminology follows
 > [`99-glossary.md`](99-glossary.md).
 
+**This document is informative.** It records how the deployed ecosystem
+works today; it constrains no implementation and defines no semantics.
+Everything normative lives in [`03-requirements.md`](03-requirements.md)
+and [`08-dash-extension-rules.md`](08-dash-extension-rules.md). It is
+here, and not in an annex, because the build reads it as an input: the
+VAST-to-ListMPD mapping below is what an APS does in production, and a
+specification written without it would be designing against a market
+that does not exist.
+
 This document is the **reference** for how SGAI is implemented today
 for **linear ads** in **MPEG-DASH 6th edition** (ISO/IEC 23009-1,
 §5.16 *Alternative MPD Insertion / Replacement Events* and §8.14

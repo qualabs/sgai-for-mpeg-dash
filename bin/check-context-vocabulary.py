@@ -114,6 +114,13 @@ CONFINED_TERM_DECLARATION = re.compile(
     r"[Aa]ny reference to ([A-Z][A-Za-z0-9.+-]*)\b[^.]{0,240}?"
     r"MUST be in an annex or in a non-normative note")
 
+# How a FILE declares that all of it is illustrative. Narrower than the
+# generic mark below on purpose: the subject has to be the document, so a
+# passing mention of an annex does not silence a whole file.
+SELF_DECLARED_ILLUSTRATIVE = re.compile(
+    r"\bthis (?:document|clause|chapter|file|annex) is\b[^.]{0,40}?"
+    r"\b(?:illustrative|informative|non-normative)\b", re.I)
+
 # What marks material as illustrative, so a confined term may live in it.
 ILLUSTRATIVE_MARK = re.compile(
     r"\b(?:illustrative|non-normative|informative|annex)\b", re.I)
@@ -304,9 +311,21 @@ class Context(object):
 
     def marked_illustrative(self, path):
         """Line numbers that sit in material flagged as illustrative:
-        under a heading that says so, or in a paragraph that says so."""
+        the whole file when it declares itself so, or under a heading
+        that says so, or in a paragraph that says so.
+
+        The whole-file case is the one a document actually uses. A file
+        whose opening declares that it is informative has declared it
+        about itself, not about its first section — and a mark that
+        stopped at the next heading would report the other 500 lines of
+        a document nobody claims is normative. What counts as the
+        opening is the text before the first subheading, which is where
+        a document says what it is.
+        """
         marked = set()
         lines = self.lines[path]
+        if self._declares_itself_illustrative(lines):
+            return set(range(len(lines)))
         section_ok = False
         for n, line in enumerate(lines):
             if line.startswith("#"):
@@ -325,6 +344,23 @@ class Context(object):
                     marked.update(i for i, _ in para)
                 para = []
         return marked
+
+    @staticmethod
+    def _declares_itself_illustrative(lines):
+        """Does the file's opening say the FILE is illustrative?
+
+        Only the text above the first subheading counts, and only a
+        sentence whose subject is the document. "This document is
+        informative" declares it; a paragraph that merely mentions an
+        annex does not, which is why the generic mark is not enough here.
+        """
+        opening = []
+        for line in lines:
+            if line.startswith("##"):
+                break
+            opening.append(line)
+        text = " ".join(opening)
+        return bool(SELF_DECLARED_ILLUSTRATIVE.search(text))
 
 
 # ------------------------------------------------------------------- checks
