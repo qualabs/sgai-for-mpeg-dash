@@ -287,10 +287,11 @@ layout) it can satisfy.
 
 **Publisher intent:**
 - Non-linear forms allowed.
-- Allowed layouts for this slot are restricted to a subset
-  declared by the Publisher (e.g. banner, corner, L-shape,
-  side-by-side, sidebar). Side-by-side may or may not be in the
-  allowed set; this matters for the D2 sub-section.
+- Allowed layouts for this slot are restricted to a subset declared
+  by the Publisher (e.g. `overlay-lower-third`, `overlay-corner`,
+  `squeezeback-l-shape-upper-left`, `squeezeback-double-box`).
+  `squeezeback-double-box` may or may not be in the allowed set; this
+  matters for the D2 sub-section.
 - Maximum overlay duration is bounded.
 - Maximum number of concurrent overlays for this slot is bounded.
 
@@ -440,7 +441,8 @@ but are independently selected.
 **Publisher intent:**
 - Linear forms allowed for the take-over portion.
 - Non-linear forms allowed concurrently with the linear ad, with
-  a restricted layout set (e.g. banner only — no L-shape on top
+  a restricted layout set (e.g. `overlay-lower-third` only — no
+  squeezeback on top
   of a linear ad).
 - Maximum break duration is bounded.
 
@@ -1009,8 +1011,8 @@ canonical; they exercise R5 differently.
 **Publisher intent:**
 - Non-linear forms allowed.
 - One **device-agnostic** allowed-layout set for the slot, including
-  side-by-side, L-shape / squeezeback, banner overlay, and
-  full-screen takeover. The Publisher does NOT declare a different
+  `squeezeback-double-box`, `squeezeback-l-shape-upper-left`,
+  `overlay-lower-third`, and the `linear` full-screen takeover. The Publisher does NOT declare a different
   layout set per device class: in this scenario neither the ADS nor the
   APS holds a view of the device, so capability is resolved entirely at
   the Player (R5 / R5.4).
@@ -1167,7 +1169,7 @@ one image surface — within reach for D3 / D4.
 ### UC-10 — Side-by-side / double-box (three-element layout, R26 illustration)
 
 **Scenario:** The Publisher has declared an overlay slot whose allowed
-layouts include **side-by-side / double-box**. A candidate is
+layouts include **`squeezeback-double-box`**. A candidate is
 presented whose chosen presentation option is the side-by-side: the
 shrunk primary content sits next to the ad on a 16:9 screen, and the
 two boxes together leave bands / margins uncovered. Per R26 a third
@@ -1180,7 +1182,7 @@ device-class reasoning that follows from the element count and type.
 
 **Publisher intent:**
 - Non-linear forms allowed; the allowed-layout set includes
-  side-by-side / double-box.
+  `squeezeback-double-box`.
 - An advertiser-supplied background element MAY brand the uncovered
   region (R26); the Publisher does not supply a background. When the
   advertiser supplies none, the uncovered region renders as black
@@ -1403,8 +1405,8 @@ leaves it able to do.
 **Publisher intent:**
 - Non-linear forms allowed.
 - The same single **device-agnostic** allowed-layout set as UC-09 —
-  side-by-side, L-shape / squeezeback, banner overlay, and full-screen
-  takeover. The Publisher declares no per-device-class variant.
+  `squeezeback-double-box`, `squeezeback-l-shape-upper-left`,
+  `overlay-lower-third`, and the `linear` full-screen takeover. The Publisher declares no per-device-class variant.
 - Maximum slot / overlay duration is bounded (R4).
 
 **Ad response:**

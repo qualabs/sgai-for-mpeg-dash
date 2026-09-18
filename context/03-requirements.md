@@ -497,14 +497,37 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     placement of the `linear` type, not a separate ad type.
   - **Overlay** (IAB *Overlay*, `overlay`): a non-linear surface
     composited on top of the primary content, which keeps playing. Its
-    named visual placements are corner / bug (IAB *Corner Overlay*) and
-    lower-third (IAB *Lower-Third Overlay*); a plain image or HTML
-    overlay with no named placement is the base `overlay` type.
+    named visual placements are corner / bug (`overlay-corner`, IAB
+    *Corner Overlay*) and lower-third (`overlay-lower-third`, IAB
+    *Lower-Third Overlay*); a plain image or HTML overlay with no named
+    placement is the base `overlay` type. Which corner an
+    `overlay-corner` occupies is not a token and not this
+    specification's business: the Player composites the creative over
+    primary content it does not transform, so the corner follows from
+    the creative and is rendered with HTML5 / CSS (R10.1, R10.3).
   - **Squeezeback** (IAB *Squeezeback*, `squeezeback`): a non-linear
     layout in which the primary content is shrunk to share the frame
-    with the ad. Supported placements are L-shape / squeezeback (IAB
-    *L-Shape*; see R27) and side-by-side / double-box (IAB *Double Box
-    Video* and *Double Box Video + Background*; see R26).
+    with the ad. Supported placements, with the region each one leaves
+    for the primary content:
+
+    | Token | Primary content occupies | IAB type |
+    |---|---|---|
+    | `squeezeback-l-shape-upper-left` | the upper-left 60% of the frame; the ad runs across the bottom and up the right edge | *L-Shape* (see R27) |
+    | `squeezeback-l-shape-upper-right` | the upper-right 60% of the frame; the ad runs across the bottom and up the left edge | *L-Shape* (see R27) |
+    | `squeezeback-double-box` | the centre-left 25% of the frame; the ad occupies the centre-right 25% | *Double Box Video* (see R26) |
+    | `squeezeback-double-box-background` | the centre-left 25% of the frame; the ad occupies the centre-right 25%, over an advertiser-branded background | *Double Box Video + Background* (see R26) |
+
+    **The token carries the geometry because nothing else does.** The
+    Player shrinks and repositions the primary content here, which it
+    does for no other ad form, so it needs the region before it
+    composes. The creative arrives as an underlay whose cutout shows
+    the region to a viewer, but a hole in an image is not a rectangle a
+    Player can compute with, and the IAB guidelines define no field
+    that carries one. Two orientations of an L-shape are therefore two
+    tokens and not one token plus an orientation: they are two
+    compositions. ADR 0014 records this, including why it does not
+    reopen R10.2 — what is enumerated is which composition is in play,
+    not where something sits inside it.
   - **Pause-ad** (IAB *Pause Ad*, `pause`): a non-linear surface shown
     over the paused primary frame. Its two visual placements are
     **fullscreen** (`pause-fullscreen`), occupying the entire screen
@@ -1125,8 +1148,8 @@ squeezeback layouts (side-by-side and L-shape).
   - **R27.2** (Player): The Player MUST composite the two elements of an
     L-shape — the full-frame ad creative in the background and the
     shrunk primary content on top of it — with the ad creative covering
-    the whole frame and the shrunk primary content occupying its
-    declared region.
+    the whole frame and the shrunk primary content scaled into the region
+    its `@layout` token denotes (R12).
   - **R27.3** (Player): The decoder-and-surface budget of an L-shape is
     driven by the media type of the full-frame ad creative. The shrunk
     primary content always consumes **one** video decoder. If the
