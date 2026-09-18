@@ -42,8 +42,8 @@ This folder stays focused on the technical content.
   Reference for how SGAI is implemented today for linear ads in
   MPEG-DASH 6th edition. Inventories the
   actor interfaces, walks the end-to-end message flow with
-  concrete MPD and ListMPD examples, and lays out the VAST → ListMPD
-  adapter mapping performed by the APS.
+  concrete MPD and ListMPD examples, and lays out the adapter
+  mapping the APS performs, worked through for VAST. Informative.
 - **[06-naming-and-namespaces.md](./06-naming-and-namespaces.md)** —
   Naming conventions for new constructs (URN patterns, namespaces,
   versioning) and pointer to the IAB-defined layout vocabulary.

@@ -44,8 +44,8 @@ through `08-dash-extension-rules.md`.
   6th edition linear SGAI flow. The `InsertPresentation` /
   `ReplacePresentation` event in the main MPD points to a URL; that
   URL (served by the APS) returns a `ListMPD` describing the ad
-  presentation. The APS derives the `ListMPD` from the VAST the ADS
-  produced. The presentation options an ad offers appear in the
+  presentation. The APS derives the `ListMPD` from the decision
+  document the ADS produced. The presentation options an ad offers appear in the
   ListMPD; when an ad offers more than one they appear as an ordered
   list whose document order is the Player's preference order (R5).
 - **Capability parameter**: a parameter the Player MAY attach to the
