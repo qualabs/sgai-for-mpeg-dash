@@ -75,6 +75,33 @@ criteria, a gist that describes half of its body, or a citation
 pointing at the neighbouring clause all pass this step. Do not report
 its green as "`context/` is fine".
 
+## Step 0.6 — Confirm `context/` holds its vocabulary (blocking)
+
+After Step 0.5 and before any step that produces anything, run:
+
+```bash
+bin/check-context-vocabulary.py
+```
+
+**A non-zero exit aborts the build**, for the same reason as Step 0.5.
+Exit `2` — cannot tell — aborts as well: it means an anchor the check
+reads its rules from is missing, so zero findings would say nothing.
+
+Same files, the other axis. It reports values used outside the closed
+enumeration that declares them, enumerated items with no token to write
+them with, mentions of a term a requirement confines to illustrative
+material, RFC 2119 modals in constructions that bind no one, a file
+that calls itself normative and obliges no one, frequent multi-word
+terms with no glossary entry, and open questions missing from the
+register.
+
+Every one of those is a defect that reaches the generated spec as
+vocabulary the build has to invent or as an obligation it cannot place.
+Its green says the vocabulary closes and the modals are well formed; it
+says nothing about whether a definition is right or whether two
+requirements contradict each other. Do not report it as "`context/` is
+fine" either.
+
 ## Pipeline
 
 For each step, log a single line:
