@@ -168,10 +168,11 @@ and the boundaries of what this spec does and does not define.
     runtime by the ADS, the APS, or the Player.
   - **R2.2** (ADS + APS): The ADS MUST decide which ads to serve and
     output them as its decision document — typically VAST, though the
-    ADS is not bound to it — ; the APS
-    MUST convert that output into the resolution document carrying
-    the ad candidates. Neither MUST be expected to enforce
-    Publisher-declared constraints (e.g. slot duration cap).
+    ADS is not bound to it. The APS MUST convert that output into the
+    resolution document carrying the ad candidates. Enforcing the
+    Publisher-declared constraints (e.g. the slot duration cap) is the
+    Player's obligation under R2.3, and this specification places no
+    such obligation on the ADS or the APS.
   - **R2.3** (Player): The Player MUST validate the candidates in
     the resolution document against Publisher-declared constraints
     and render only those that satisfy them.
@@ -651,9 +652,11 @@ the order the resolution document declares.
     carries no form renderable on its device and fall through to the
     next candidate; when the candidates are exhausted, the Player MUST
     continue with the primary content.
-  - **R5.4** (ADS + APS): Neither the ADS nor the APS MUST be
-    required to maintain a device-class matrix or a per-Player
-    capability view to produce candidates.
+  - **R5.4** (ADS + APS): This specification MUST NOT be read as
+    obliging the ADS or the APS to maintain a device-class matrix or
+    a per-Player capability view in order to produce candidates. An
+    implementation that keeps one is conformant; one that does not is
+    equally conformant.
   - **R5.5** (APS): An ad candidate MAY carry multiple presentation
     options, each pairing a form with an admissible layout. The
     options form a single ordered list, and their document order is
