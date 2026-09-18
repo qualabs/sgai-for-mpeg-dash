@@ -8,9 +8,10 @@
 The architecture proposed by this project rests on a **four-actor
 model**. Each actor has a clearly bounded set of responsibilities, and
 the separation is normative: the Publisher declares what can be
-shown, the Ad Decision Server (ADS) decides which ads to serve and
-returns them as VAST, the Ad Presentation Server (APS) converts that
-VAST into the MPD-native resolution document the Player understands,
+shown, the Ad Decision Server (ADS) decides which ads to serve and returns
+them in its own decision format, the Ad Presentation Server (APS)
+converts that decision into the MPD-native resolution document the
+Player understands,
 and the Player is the entity that actually decides and composes what
 appears on screen, always validating against what the Publisher
 declared. This document is the canonical statement of that model and
@@ -69,7 +70,7 @@ decision.
   whatever the ADS emits.
 - **Tracking schedule authority.** The ADS is the authority over
   what tracking beacons fire and when. It declares the tracking
-  events in its VAST response; the APS translates those into the
+  events in its decision document; the APS translates those into the
   DASH callback events embedded in the resolution document, and the
   Player executes that schedule. The Player does NOT decide which
   beacons to fire or at what fractions of the ad presentation. The
@@ -117,12 +118,16 @@ resolution document is not itself defined by this spec.
   [`03-requirements.md`](03-requirements.md)). When the playhead reaches
   the event, the Player resolves this URL and receives the resolution
   document.
-- **Convert VAST → MPD-native / SGAI.** On each resolution request,
-  the APS obtains the ad decision from the ADS as VAST and
-  transforms it into the resolution document: it maps VAST media
-  files onto DASH Representations / sub-MPDs, VAST durations onto
-  `Period@duration`, and VAST tracking events onto DASH callback
-  events. The result is the document the Player reads.
+- **Convert the ad decision into the resolution document.** On each
+  resolution request, the APS obtains the decision from the ADS in
+  whatever format the two agreed on — typically VAST — and transforms
+  it into the resolution document: it maps the decision's media files
+  onto DASH Representations / sub-MPDs, its durations onto
+  `Period@duration`, and its tracking events onto DASH callback
+  events. The result is the document the Player reads. The mapping
+  from a VAST response is worked through in
+  [`05-dash-linear-interfaces.md`](05-dash-linear-interfaces.md),
+  which is informative.
 - **Carry the tracking schedule the ADS declared.** The APS does
   not invent the tracking schedule; it translates the ADS-declared
   tracking events into DASH callback events (or equivalent) embedded
@@ -143,7 +148,7 @@ resolution document is not itself defined by this spec.
 The APS is **not** the ad-decisioning authority — it does not decide
 which ads to serve (that is the ADS), and it does not enforce the
 Publisher's slot constraints (that is the Player). It is a
-translation and presentation layer: VAST in (or similar),
+translation and presentation layer: the ADS's decision format in,
 MPD-native / SGAI resolution document out.
 
 ## Video Player
@@ -194,8 +199,8 @@ SGAI flow:
   — **ADS**.
 - *Targeting, frequency capping, brand safety filtering,
   competitive separation, ordering* of the ad pool — **ADS**.
-- *The ad decision output as VAST* — **ADS**.
-- *Converting the VAST into the MPD-native / SGAI resolution
+- *The ad decision, emitted in the ADS's own format* — **ADS**.
+- *Converting that decision into the MPD-native / SGAI resolution
   document the Player reads* — **APS**.
 - *Translating the ADS's tracking events into DASH callback
   events in the resolution document* — **APS**.

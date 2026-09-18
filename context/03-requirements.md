@@ -96,7 +96,7 @@ positions.
 | R2 | Four actors, fixed roles: the Publisher declares, the ADS decides, the APS converts, the Player validates and renders. |
 | R4 | The Publisher declares a maximum on every slot; the Player enforces it even mid-ad, and what it bounds depends on the family. |
 | R5 | Candidates carry one or more renderable options in preference order; the Player renders the first its device can satisfy, and a single-option candidate leaves the choice with the APS. |
-| R11 | No dependency on VAST or any specific VAST version. |
+| R11 | Independent of VAST, and covers what a VAST-based ADS expresses. |
 | R12 | A fixed, closed set of IAB ad types (linear, overlay, squeezeback, pause-ad); nothing else is in scope. |
 | R18 | The Player-visible interface is specified, including what the Player sends on the resolution request; the APS-to-ADS and ADS-side APIs are out of scope. |
 | R22 | At most one non-linear ad form is active on screen at any instant. |
@@ -157,9 +157,9 @@ and the boundaries of what this spec does and does not define.
   The design must
   enforce the separation defined in the Actors and Responsibilities
   section: the Publisher declares constraints, the ADS decides which
-  ads to serve (output as VAST), the APS converts that VAST into the
-  resolution document the Player reads, and the Player validates and
-  renders. New mechanisms must be expressible within this contract.
+  ads to serve and emits its decision document, the APS converts that
+  decision into the resolution document the Player reads, and the
+  Player validates and renders. New mechanisms must be expressible within this contract.
 
   **Conformance criteria** (runtime + document-level):
   - **R2.1** (Publisher): Constraints applicable to an ad slot
@@ -1462,7 +1462,7 @@ carriers for creative metadata and non-AV assets.
     as `<Event>` entries inside an `<EventStream>` of scheme
     `urn:mpeg:dash:event:callback:2015` in the ad `MPD` or sub-`MPD`.
     The APS produces these entries by translating the tracking events
-    the ADS declared in its VAST.
+    the ADS declared in its decision document.
   - **R6.3** (spec document): A new tracking carrier MAY be
     introduced only when the callback scheme cannot express the
     required semantics, and only after a documented gap analysis
@@ -1494,8 +1494,8 @@ carriers for creative metadata and non-AV assets.
   The specification MUST define a tracking mechanism that allows
   the ADS to instruct the Player on which tracking beacons to
   fire, and at which points relative to the ad's presentation. The
-  ADS declares the schedule in its VAST; the APS expresses it in the
-  resolution document using DASH callback events (or an equivalent
+  ADS declares the schedule in its decision document; the APS
+  expresses it in the resolution document using DASH callback events (or an equivalent
   baseline DASH construct); no new tracking event scheme is
   introduced. Beacon timings are **relative to the ad's
   presentation time**, and the **ADS is the authority** over the
