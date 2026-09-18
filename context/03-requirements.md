@@ -167,7 +167,8 @@ and the boundaries of what this spec does and does not define.
     declared by the Publisher in the `MPD`, not inferred at
     runtime by the ADS, the APS, or the Player.
   - **R2.2** (ADS + APS): The ADS MUST decide which ads to serve and
-    output them as its decision document (typically VAST); the APS
+    output them as its decision document — typically VAST, though the
+    ADS is not bound to it — ; the APS
     MUST convert that output into the resolution document carrying
     the ad candidates. Neither MUST be expected to enforce
     Publisher-declared constraints (e.g. slot duration cap).
@@ -200,9 +201,13 @@ and the boundaries of what this spec does and does not define.
     resolution document is performed by the APS and is NOT defined by
     this spec. The ADS-side protocol (VAST or otherwise) is internal
     to the ADS / APS pair, not the spec's Player-facing contract.
-  - **R11.3** (spec document): Any reference to VAST in the spec
-    MUST be in an annex or in a non-normative note explicitly
-    flagged as illustrative.
+  - **R11.3** (spec document): A normative statement MUST NOT require
+    VAST, and MUST NOT describe an actor's behaviour in terms that
+    only a VAST deployment satisfies. Naming VAST as the typical case
+    is permitted where the same sentence states that the actor is not
+    bound to it. Everything beyond a named typical case — a field
+    mapping, a message example, a version — MUST be in an annex or in
+    a non-normative note explicitly flagged as illustrative.
   - **R11.4** (spec document): The spec MUST cover the ad behaviours
     a VAST-based ADS can express, so that an APS fed by VAST can
     build a resolution document for each of them using only the
