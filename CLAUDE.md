@@ -94,7 +94,23 @@ What does NOT go where:
   `context/00-normative-base.md` still describes the copy of the
   standard on disk. `check-context-coherence.py` is Step 0.5 and
   confirms that `context/` holds together — identifiers defined, no
-  duplicates, links resolving. `check-promotable.py` is the auto-refine
+  duplicates, links resolving. `check-context-vocabulary.py` is Step
+  0.6 and asks the other question over the same files: values used
+  outside the closed enumeration that declares them, enumerated items
+  with no token to write them with, a term a requirement confines to
+  illustrative material used outside it, RFC 2119 modals in
+  constructions that bind no one, a file that calls itself normative
+  and obliges no one, frequent multi-word terms with no glossary
+  entry, and open questions missing from the register. Every rule it
+  applies is read off `context/` itself — the closed vocabulary is
+  whatever a requirement enumerates, the confined term whatever a
+  requirement confines — so it ships with no list of what today's
+  `context/` happens to say, and its green means nothing was found
+  rather than that something was excused. Same exits as
+  `check-promotable.py`, and the `2` is the point here too: no
+  enumeration declared, no glossary or no register means the rule
+  never ran, which is not the same as nothing found.
+  `check-promotable.py` is the auto-refine
   loop's stop condition, and the same script a promotion consults: it
   reads the candidate's three sidecars, checks that the walk covered
   every obligation `context/` states, and reports what blocks grouped
