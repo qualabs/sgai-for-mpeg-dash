@@ -24,3 +24,5 @@
 # whitelisted so the empty directory survives checkouts.
 /.github-ai/output-prs/*
 !/.github-ai/output-prs/.gitkeep
+
+__pycache__/
