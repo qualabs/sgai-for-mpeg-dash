@@ -110,9 +110,33 @@ CLOSED_SET_DECLARATION = re.compile(
 
 # How a requirement confines a term to illustrative material. The term it
 # names is the one this check then hunts for; group 1 is that term.
+#
+# Two formulations, because a requirement can confine a term in two ways
+# and the difference is what the requirement means, not how it is phrased:
+# the strict one bars every mention outside illustrative material, and the
+# permissive one bars DEPENDING on the term while letting a normative
+# sentence name it as the typical case. Which one a requirement uses is
+# read off its own text.
 CONFINED_TERM_DECLARATION = re.compile(
     r"[Aa]ny reference to ([A-Z][A-Za-z0-9.+-]*)\b[^.]{0,240}?"
     r"MUST be in an annex or in a non-normative note")
+
+CONFINED_TERM_UNLESS_UNBOUND = re.compile(
+    # The span between the two halves crosses a sentence boundary, so it
+    # cannot be written as "anything but a full stop" the way the strict
+    # formulation's is.
+    r"MUST NOT require ([A-Z][A-Za-z0-9.+-]*)\b[\s\S]{0,400}?"
+    r"[Nn]aming \1 as the typical case is permitted where the same "
+    r"sentence states that the actor is not bound to it")
+
+# What, inside the SAME sentence, releases a mention under the permissive
+# formulation: the sentence itself saying the actor is not tied to the term.
+# Anything vaguer would let "typically VAST" stand alone, which is the
+# phrasing every binding mention already used before it was rewritten.
+NOT_BOUND_CLAUSE = re.compile(
+    r"\bnot bound to\b|\bor otherwise\b|\bor any other\b"
+    r"|\bMAY emit another\b|\b[A-Za-z]+-agnostic\b"
+    r"|\bregardless of whether\b|\bopaque to this spec\b", re.I)
 
 # How a FILE declares that all of it is illustrative. Narrower than the
 # generic mark below on purpose: the subject has to be the document, so a
@@ -479,14 +503,51 @@ def check_enumeration_tokens(ctx, finding, cannot_tell):
             "valor, que es contra lo que se mide si falta el token" % owner)
 
 
+ITEM_START = re.compile(r"^\s*(?:[-*+]\s|\d+[.)]\s|#{1,6}\s|\|)")
+
+
+def sentence_around(lines, n, pattern):
+    """Every sentence on line `n`'s BLOCK that mentions the term, joined.
+
+    Two boundaries, and each one was found by a control that failed:
+
+    A markdown paragraph is hard-wrapped at no particular place, so the
+    releasing clause — "though the ADS is not bound to VAST" — lands on
+    the next line as often as on the same one. Reading a line alone
+    reported two mentions whose release was one line below.
+
+    And a block ends at the next list item, not at the next blank line.
+    Bullets in a list have no blank lines between them, so a paragraph
+    boundary swallowed the whole list: a bullet saying the ADS is not
+    bound released a DIFFERENT bullet that demanded VAST parsing. That
+    mutation went undetected until this boundary was added.
+    """
+    start = n
+    while start > 0 and lines[start].strip() and not ITEM_START.match(lines[start]):
+        start -= 1
+    end = n
+    while (end + 1 < len(lines) and lines[end + 1].strip()
+           and not ITEM_START.match(lines[end + 1])):
+        end += 1
+    block = " ".join(l.strip() for l in lines[start:end + 1])
+    parts = re.split(r"(?<=[.;])\s+", block)
+    hit = [part for part in parts if pattern.search(part)]
+    return hit if hit else [block]
+
+
 def check_confined_term(ctx, finding, cannot_tell):
     """A term a requirement confines to illustrative material, used
     outside it. The requirement writes the rule of its own check."""
     confined = []
     for ident in sorted(ctx.blocks):
-        m = CONFINED_TERM_DECLARATION.search(collapse(ctx.blocks[ident]["text"]))
+        text = collapse(ctx.blocks[ident]["text"])
+        m = CONFINED_TERM_DECLARATION.search(text)
         if m:
-            confined.append((m.group(1), ident))
+            confined.append((m.group(1), ident, False))
+            continue
+        m = CONFINED_TERM_UNLESS_UNBOUND.search(text)
+        if m:
+            confined.append((m.group(1), ident, True))
     if not confined:
         cannot_tell.append(
             "ningun requerimiento confina un termino a material ilustrativo "
@@ -494,7 +555,7 @@ def check_confined_term(ctx, finding, cannot_tell):
             "de anexo. Cero hallazgos aca no dice nada.")
         return
 
-    for term, owner in confined:
+    for term, owner, unbound_ok in confined:
         block = ctx.blocks[owner]
         # The requirement's own statement of the rule is not a use of the
         # term, and neither is its row in the summary table.
@@ -511,18 +572,29 @@ def check_confined_term(ctx, finding, cannot_tell):
                     continue
                 if n in marked:
                     continue
+                if unbound_ok and all(
+                        NOT_BOUND_CLAUSE.search(sent) for sent in
+                        sentence_around(ctx.lines[path], n, pattern)):
+                    # The requirement permits naming the term as the typical
+                    # case when the same sentence says the actor is not tied
+                    # to it. The sentence, not the line: the release and the
+                    # mention routinely sit on different lines of the same
+                    # wrapped paragraph.
+                    continue
                 count = len(pattern.findall(line))
                 if count:
                     total += count
                     hits.setdefault(ctx.name(path), []).append(n + 1)
+        verb = ("prohibe depender de" if unbound_ok
+                else "confina toda mencion de")
         for name, places in hits.items():
             shown = ", ".join(str(p) for p in places[:6])
             if len(places) > 6:
                 shown += " ..."
             finding("termino-confinado",
-                    "%s confina toda mencion de %s a material marcado como "
-                    "ilustrativo; %s la menciona en %d linea/s sin marca"
-                    % (owner, term, name, len(places)),
+                    "%s %s %s fuera de material ilustrativo; %s lo hace en "
+                    "%d linea/s sin decir que no se esta atado"
+                    % (owner, verb, term, name, len(places)),
                     "%s:%s" % (name, shown))
         if total:
             finding("termino-confinado",
