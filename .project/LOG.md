@@ -1923,3 +1923,22 @@ Only the gap analysis was exposed to the stale document — it is the sole
 `[GROUNDED_BY=notebooklm]` artefact. The other four are `spec-only`
 except the IAB catalogue, which reads a live external source and never
 skips.
+
+## 2026-09-21 — La fase 05 cierra con una task sin resolver, a propósito
+
+Doce de las trece tasks quedaron hechas. La treceava —las once lecturas
+ambiguas del transcript del WG, que había que resolver con David— cierra
+**sin resolverse**, por decisión de Nicolás: la fase estaba esperando a un
+tercero desde agosto, y una fase que espera deja de leerse.
+
+Lo que eso cuesta está escrito en `REPORT.md` §4 en vez de quedar implícito:
+cinco de las once lecturas cambian lo que se construyó, y no se resuelven
+por cerrar la fase, se liberan de ella. Las citas textuales siguen en el
+extracto de acuerdos §4, que es de donde arranca quien las reabra.
+
+Lo que sí protege el cierre: ninguna de las tres cosas que quedaron en
+`context/` dependía de una lectura no verificada. T-03 chequeó primero las
+cuatro afirmaciones del extracto contra el transcript y la spec literal, y
+dos de las cuatro estaban mal como estaban escritas — una señalaba además
+al requerimiento equivocado. Sin ese paso, tres de los ocho cambios se
+habrían hecho sobre una mala lectura.
