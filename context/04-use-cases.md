@@ -631,13 +631,14 @@ content continues from the paused position.
 
 - **Player decision:** selects a candidate following document order.
   Walks the presentation options in document order. The video form would need a decoder, and the
-  primary's decoder is currently holding the paused frame; the
-  Player has to decide whether it can re-task the decoder to play
-  an ad video while preserving the paused position. The image and
-  HTML forms are unambiguously renderable on top of the paused
-  frame via the HTML/CSS layer. The Player picks the highest
-  renderable form: HTML (or image, if HTML is not available for
-  the selected candidate).
+  primary's decoder is currently holding the paused frame. The
+  Player MAY re-task it: releasing the primary content and restoring
+  it at the suspended position is a pause (R37). The image and HTML
+  forms are renderable on top of the paused frame via the HTML/CSS
+  layer without touching the decoder. This walk-through takes the
+  conservative route and picks the highest form that needs no
+  decoder — HTML, or image if HTML is not available for the selected
+  candidate — which is one conformant choice among two.
 - **What the user sees:** an HTML or image overlay on top of the
   paused frame, dismissed on resume.
 
@@ -671,17 +672,17 @@ variant applies across device classes on top of each class's D1–D5
 rendering behavior above.
 
 **Notes / open questions:**
-- Whether the Player is allowed to pre-fetch pause-triggered
-  candidates speculatively when the manifest loads, or must defer
-  the APS resolution call to the moment of pause, is an open design
-  decision with latency vs targeting-freshness trade-offs. Both
-  options are compatible with the four-actor model.
-- Whether single-decoder devices (D3, D4) can re-task the decoder
-  to play a video form on top of a paused primary frame — and the
-  precise semantics of "pause" while doing so — is an open device
-  capability question. The conservative default is to skip the
-  video form on single-decoder devices in this scenario; the spec
-  may revisit this.
+- Resolved: the Player may resolve a pause opportunity ahead of the
+  pause, within an offset the Publisher declares, and the resolution
+  declares how long it keeps (R36). The latency-versus-freshness
+  trade-off belongs to the APS, which chooses it per resolution.
+- Resolved: a single-decoder device (D3, D4) may re-task the decoder
+  to play a video form, because a pause is what the viewer
+  experiences and not how the Player achieves it (R37). A Player
+  that leaves the primary content and restores it at the position it
+  was suspended at has paused. The device classes above describe the
+  conservative choice, which remains conformant; it is no longer the
+  only one.
 - Resolved: D2 has video-on-video composition capability (see
   Device classes), so on D2 the pause-ad's video form is the
   renderable option; non-video forms (HTML/image) remain

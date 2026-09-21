@@ -102,6 +102,7 @@ positions.
 | R22 | At most one non-linear ad form is active on screen at any instant. |
 | R35 | The viewer may dismiss a whole ad slot; the APS declares whether that is allowed and after how many seconds. |
 | R36 | An overlay or pause opportunity may be resolved ahead of time, within a Publisher-declared offset, and the APS declares how long that resolution keeps. |
+| R37 | A pause is what the viewer experiences; any mechanism that suspends the content and resumes it where it stopped is one. |
 
 ### Contract foundations
 
@@ -1091,6 +1092,43 @@ squeezeback layouts (side-by-side and L-shape).
     never an obligation. A Player that resolves only when the
     opportunity fires is conformant, and a Publisher who declares no
     offset gets exactly that.
+
+- **R37. A pause is what the viewer experiences, not how the Player achieves it.**
+  *Gist: Any mechanism that leaves the primary content suspended and resumes it where it was suspended is a pause; the specification does not prescribe how a Player implements one.*
+
+  A device with a single video decoder cannot hold the paused frame and
+  play an ad video at the same time. A Player on such a device may
+  therefore leave the primary content — releasing its decoder, or
+  tearing down its pipeline — present the ad, and afterwards restore
+  the primary content at the position it was suspended at. Whether that
+  counts as a pause decides whether a whole class of devices can
+  present a video pause ad at all.
+
+  **It counts.** A pause is a property of what the viewer perceives: the
+  content stopped where they stopped it and continued from there. A
+  Player that leaves the content and reloads it at the same position
+  has produced exactly that experience, and this specification
+  recognises it as a conformant way to pause.
+
+  The reason for saying so rather than leaving it to implementers is
+  that the alternative reading is available and costly. Read as a
+  statement about mechanism, "pause" would exclude the devices that
+  need the mechanism most, and it would do so silently — a Player would
+  simply decline the video form and nobody would know why.
+
+  **Conformance criteria** (runtime):
+  - **R37.1** (Player): A Player MAY implement a pause by any mechanism
+    that suspends the primary content and later resumes it from the
+    position at which it was suspended, including one that releases the
+    primary content's decoding resources for the duration of the pause.
+  - **R37.2** (Player): On resume, the Player MUST continue the primary
+    content from the position at which it was suspended. A mechanism
+    that cannot restore that position is not a pause under this
+    specification, whatever it is called.
+  - **R37.3** (spec document): This specification states no requirement
+    about how a Player implements a pause, and a criterion elsewhere
+    that appears to assume one mechanism is to be read as this
+    requirement defines it.
 
 - **R19. Ad playback speed follows primary content.**
   *Gist: Ads play at the primary content's speed, so a 10 s ad at 2x is on screen for 5 s of wall-clock; the cap and beacon schedule still use the presentation timeline.*
