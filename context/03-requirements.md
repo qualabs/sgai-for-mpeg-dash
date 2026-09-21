@@ -101,6 +101,7 @@ positions.
 | R18 | The Player-visible interface is specified, including what the Player sends on the resolution request; the APS-to-ADS and ADS-side APIs are out of scope. |
 | R22 | At most one non-linear ad form is active on screen at any instant. |
 | R35 | The viewer may dismiss a whole ad slot; the APS declares whether that is allowed and after how many seconds. |
+| R36 | An overlay or pause opportunity may be resolved ahead of time, within a Publisher-declared offset, and the APS declares how long that resolution keeps. |
 
 ### Contract foundations
 
@@ -1019,6 +1020,77 @@ squeezeback layouts (side-by-side and L-shape).
     control, a gesture, a remote button — is out of scope. This
     specification states when it must be available and what it ends,
     and the market decides how it is presented.
+
+- **R36. A non-linear opportunity may be resolved ahead of time, and the resolution declares how long it keeps.**
+  *Gist: The Publisher declares how early a Player may resolve an overlay or pause opportunity, and the APS declares how long that resolution stays good; a stale one is resolved again.*
+
+  The base specification already lets a Player resolve early on the
+  primary timeline: an alternative-MPD event carries an earliest
+  resolution time, computed from the event's presentation time minus a
+  declared offset (§5.16.5), and the Player may fetch from that instant
+  onward. Without the same capability for the non-linear families, the
+  Player can only resolve at the moment the opportunity fires, and the
+  viewer waits for the APS with the ad surface already due.
+
+  **For an overlay the mechanism carries over unchanged**, because an
+  overlay window occupies a region of the primary timeline: the
+  earliest resolution time is computed against the start of the window,
+  exactly as the base specification computes it against an event's
+  presentation time.
+
+  **For a pause it cannot**, and the reason is not an oversight of this
+  specification. A pause opportunity window bounds where and not when
+  (R31): the trigger is the viewer, so there is no presentation time to
+  subtract an offset from. Here the offset is computed against **the
+  start of the opportunity window** — the moment the playhead enters
+  the region in which a pause would produce an ad — which is a point on
+  the timeline the Publisher does author.
+
+  **Resolving early buys latency and spends freshness**, and that trade
+  is not the same for every deployment. A resolution obtained when the
+  playhead entered a half-hour window is half an hour old if the viewer
+  pauses at its end: the targeting is stale and the advertiser's budget
+  may be spent. So the resolution says how long it keeps, and the APS
+  declares it because the APS is the only actor that knows how long its
+  own decision stays good.
+
+  That single mechanism covers the whole range rather than picking a
+  point in it: a resolution declared to keep indefinitely is resolved
+  once per window, and one declared to keep for no time at all is
+  resolved at the moment of the pause. Both are positions a deployment
+  may hold, and neither has to reopen this requirement.
+
+  This requirement declares capabilities, not attribute names. The
+  constructs that carry them are named under the rules of
+  [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md).
+
+  **Conformance criteria** (runtime):
+  - **R36.1** (Publisher): The Publisher MAY declare, on an overlay or
+    pause opportunity window, how far ahead of it a Player may resolve.
+    The declaration is optional; a window that does not carry it is
+    resolved when it fires.
+  - **R36.2** (Player): On an overlay window, the Player MUST NOT
+    resolve earlier than the declared offset before the start of the
+    window.
+  - **R36.3** (Player): On a pause opportunity window, the Player MUST
+    NOT resolve earlier than the declared offset before the start of
+    the window. The offset is computed against the start of the window
+    and never against the pause, which has no authored time (R31).
+  - **R36.4** (APS): Where a resolution may have been obtained ahead of
+    the opportunity, the APS MUST declare how long that resolution
+    remains usable. A resolution document that does not declare it
+    remains usable for as long as its opportunity window lasts.
+  - **R36.5** (Player): When the opportunity fires, the Player MUST
+    check whether the resolution it holds is still usable. If it is
+    not, the Player MUST request a new one and MUST NOT present
+    candidates from the expired resolution.
+  - **R36.6** (Player): A re-resolution that yields no usable candidate
+    is an empty resolution and is treated as R30 defines it, not as a
+    reason to fall back on the expired one.
+  - **R36.7** (spec document): Resolving early is a permission and
+    never an obligation. A Player that resolves only when the
+    opportunity fires is conformant, and a Publisher who declares no
+    offset gets exactly that.
 
 - **R19. Ad playback speed follows primary content.**
   *Gist: Ads play at the primary content's speed, so a 10 s ad at 2x is on screen for 5 s of wall-clock; the cap and beacon schedule still use the presentation timeline.*

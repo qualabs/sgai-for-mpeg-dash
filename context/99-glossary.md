@@ -192,3 +192,13 @@ through `08-dash-extension-rules.md`.
   keeps playing the primary content. It is a class of implementation
   and not a mode — no Player announces itself as legacy, and nothing
   in this specification can oblige one.
+- **Spec document** *(scope label)*: the parenthesised scope on a
+  conformance criterion — `(spec document)` — marking a criterion that
+  binds **this specification's own text** rather than an actor at
+  runtime. A criterion labelled for an actor says what a Publisher, an
+  ADS, an APS or a Player must do while the system runs; one labelled
+  `spec document` says what this document must or must not contain, and
+  its conformance is checked by reading the specification rather than
+  by observing a session. The distinction matters because the two are
+  verified by different people at different moments: an implementer
+  answers for the first, an editor for the second.
