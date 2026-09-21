@@ -1,9 +1,9 @@
 ---
 phase: 05-wg-feedback-round-2
 title: Working-group feedback — round 2 (SVTA Advertising WG, 2026-08-19)
-status: in-progress
+status: closed
 started: 2026-08-19
-closed: null
+closed: 2026-09-21
 ---
 
 # 05-wg-feedback-round-2

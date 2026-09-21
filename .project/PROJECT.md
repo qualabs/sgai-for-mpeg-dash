@@ -188,7 +188,8 @@ the long-range plan and get a folder when they open.
   `0003-multiview-decoder-tiles-agnostic-fixed-layouts.md`. `context/`
   is not yet touched — the phase is in `planning` for the project lead to review.
 
-- **`05-wg-feedback-round-2` — `planning`** (opened 2026-08-19). Processes
+- **`05-wg-feedback-round-2` — `closed`** (2026-08-19 → 2026-09-21,
+  [`REPORT.md`](phases/05-wg-feedback-round-2/REPORT.md)). Processes
   the feedback from the **SVTA Advertising WG call of 2026-08-19** — the
   first round of WG feedback arriving as a group discussion rather than
   one reviewer's marked-up files. The WG chair walked the group through
