@@ -420,14 +420,14 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     R4's Player-side enforcement inert for exactly the slots whose
     declaration is defective.
 
-    **This position is provisional.** It diverges from the base
-    specification, which treats an absent maximum as infinity (R4.8),
-    and it is open with the working group rather than settled here.
-    What is being weighed is which failure is worse: a Publisher who
-    omits the attribute sells nothing from that slot and may take a
-    while to notice, against an advertisement that can run for as long
-    as it likes. A reader finding this criterion should not take it as
-    closed.
+    A Publisher who wants advertising with no fixed end writes it as a
+    chain of bounded slots — N slots of X seconds along the primary
+    content — which this specification already allows and which needs
+    no new construct. Keeping an unbounded slot would buy no capability
+    the chain does not already give, and would cost every
+    cap-dependent requirement a second reading for a shape almost
+    nobody authors. ADR 0015 records the decision and what it
+    deliberately does not change about the pause family (R31).
   - **R4.11** (Player): Cap arithmetic runs on the presentation
     timeline. An interval during which the presentation timeline does
     not advance does not accrue against the cap, so a form suspended
