@@ -2010,6 +2010,26 @@ and deferring layout to existing primitives.
   absent from a specification says nothing about whether anyone
   considered it.
 
+- **OOS-8. Linking the two portions of a hybrid break.** In a hybrid
+  break a linear ad takes the screen and an overlay is composited on
+  top of it, and the two are selected independently. This
+  specification provides no way for the Publisher to declare a
+  constraint between them — *"if the linear ad is from advertiser X,
+  suppress the overlay"* — and a Player is never asked to enforce one.
+
+  The need is real and commercial: an advertiser who bought the full
+  screen does not want a competitor's overlay on top of it. It is
+  excluded because enforcing it in the Player would require the
+  advertiser's identity to reach the Player, putting commercial data
+  into a contract that is about what may be rendered; and because
+  competitive separation is already the ADS's, by name, in R2.
+  Declaring it here would create a second authority over one outcome.
+
+  Exclusivity between portions is obtained from the ADS, which knows
+  about advertisers and competitors and already carries the
+  responsibility. ADR 0016 records the decision, including why the
+  APS is not the answer either.
+
 ## Deliberately open
 
 A question this specification has decided **not** to answer yet is

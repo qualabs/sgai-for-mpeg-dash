@@ -553,11 +553,12 @@ but are independently selected.
   top.
 
 **Notes / open questions:**
-- Whether the Publisher can express constraints linking the two
-  portions of the break (e.g. "if the linear ad is from advertiser
-  X, suppress the overlay") or whether such cross-portion linkage
-  is out of scope. Either answer is compatible with the
-  four-actor model; the spec must pick one.
+- Resolved: cross-portion linkage is out of scope (OOS-8). The
+  Publisher declares no constraint between the linear and the
+  overlay portion, and exclusivity between them is obtained from
+  the ADS, which already owns competitive separation (R2). The
+  reasoning, including why the APS is not the answer either, is in
+  ADR 0016.
 - ~~Whether D3 / D4 must always decline the overlay portion of a
   hybrid break.~~ **Answered**: they must not. The question assumed a
   budget of two decoders where the base specification uses one; the
