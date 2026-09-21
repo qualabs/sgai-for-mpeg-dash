@@ -100,6 +100,7 @@ positions.
 | R12 | A fixed, closed set of IAB ad types (linear, overlay, squeezeback, pause-ad); nothing else is in scope. |
 | R18 | The Player-visible interface is specified, including what the Player sends on the resolution request; the APS-to-ADS and ADS-side APIs are out of scope. |
 | R22 | At most one non-linear ad form is active on screen at any instant. |
+| R35 | The viewer may dismiss a whole ad slot; the APS declares whether that is allowed and after how many seconds. |
 
 ### Contract foundations
 
@@ -957,6 +958,67 @@ squeezeback layouts (side-by-side and L-shape).
     counterpart of the base specification's single-execution bound,
     and is recorded as such. It is not a new kind of control: a reader
     who knows the base construct knows what this one does.
+
+- **R35. The viewer may dismiss an ad slot, and the APS says whether and from when.**
+  *Gist: The APS declares per slot whether the viewer may dismiss it and how many seconds must pass first; dismissing ends the whole slot, never one ad inside it.*
+
+  A viewer who wants their screen back is not the same viewer as one
+  escaping an advertisement, and for a non-linear form the second
+  motivation is weak — the primary content never stopped. The working
+  group agreed on 2026-08-19 that a Player must be able to support a
+  viewer-initiated dismissal. Its granularity and its timing are
+  settled below.
+
+  **The unit of dismissal is the slot.** A viewer dismisses the whole ad
+  slot and never an individual ad inside it. Per-ad dismissal would make
+  a viewer who wants their screen back dismiss the same surface several
+  times in a row, which is a worse experience than the one it is meant
+  to relieve.
+
+  **Whether a slot may be dismissed at all, and how soon, are the APS's
+  to declare.** They are properties of the advertising that was sold —
+  an advertiser who bought guaranteed exposure and one who did not are
+  the same slot to the Publisher — so they travel in the resolution
+  document with the candidates, and not in the `MPD`.
+
+  This requirement applies to **every family this edition defines**,
+  including the pause family. A pause ad is dismissible on the same
+  terms as any other: the viewer is already in control of when it ends
+  by resuming (R25), and dismissal gives them the surface back without
+  resuming.
+
+  This requirement declares a capability, not an attribute name. The
+  construct that carries it is named under the rules of
+  [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md).
+
+  **Conformance criteria** (runtime):
+  - **R35.1** (APS): The APS MUST declare, for each slot it resolves,
+    whether the viewer may dismiss it. A resolution document that does
+    not declare it leaves the slot non-dismissible: the capability is
+    granted and never assumed.
+  - **R35.2** (APS): Where dismissal is allowed, the APS MUST declare
+    the number of seconds that MUST elapse, from the moment the slot
+    begins rendering, before the viewer may dismiss it. A declared
+    delay of zero means the slot is dismissible immediately.
+  - **R35.3** (Player): Before that delay has elapsed, the Player MUST
+    NOT offer the viewer a way to dismiss the slot. After it has, the
+    Player MUST make dismissal available for as long as the slot is on
+    screen.
+  - **R35.4** (Player): A dismissal ends the **whole slot**. The Player
+    MUST stop presenting every ad of that slot and MUST NOT advance to
+    another ad or another form within it.
+  - **R35.5** (Player): A dismissed slot does not shorten the primary
+    content. Where the slot bounded a region of the primary timeline,
+    the Player MUST continue from where the primary content stands, and
+    MUST NOT compress or skip any part of it.
+  - **R35.6** (Player): The Player MUST fire the tracking events the
+    resolution document scheduled up to the moment of the dismissal,
+    and MUST NOT fire those scheduled after it. A dismissal is an
+    outcome of the presentation, not a failure of it.
+  - **R35.7** (spec document): How the dismissal is offered — a
+    control, a gesture, a remote button — is out of scope. This
+    specification states when it must be available and what it ends,
+    and the market decides how it is presented.
 
 - **R19. Ad playback speed follows primary content.**
   *Gist: Ads play at the primary content's speed, so a 10 s ad at 2x is on screen for 5 s of wall-clock; the cap and beacon schedule still use the presentation timeline.*
