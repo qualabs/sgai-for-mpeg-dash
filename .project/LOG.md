@@ -1942,3 +1942,12 @@ cuatro afirmaciones del extracto contra el transcript y la spec literal, y
 dos de las cuatro estaban mal como estaban escritas — una señalaba además
 al requerimiento equivocado. Sin ese paso, tres de los ocho cambios se
 habrían hecho sobre una mala lectura.
+
+## 2026-09-24 — Dos de los tres residuos de la fase 05 se dan por resueltos
+
+Nicolás, por chat: **las APIs para detectar si un dispositivo puede decodificar
+dos videos a la vez no existen** ("eso ya sabemos que no existen"), y **el
+deadline de la reunión de Rennes no importa**. De lo que la fase 05 dejó sin
+resolver (`phases/05-wg-feedback-round-2/REPORT.md` §4) queda sólo el tercer
+punto: las lecturas ambiguas del transcript, en
+`phases/05-wg-feedback-round-2/svta-wg-2026-08-19-agreements.md` §4.
