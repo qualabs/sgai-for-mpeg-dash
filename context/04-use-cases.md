@@ -90,6 +90,7 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-09 One ad, ordered options across device classes | Worked example | side-by-side (video ad + background) — option 1 | full-screen takeover video — option 4 (image ad/background surfaces unrenderable) | L-shape image full-frame ad creative — option 2 (no second decoder for side-by-side) | L-shape image full-frame ad creative — option 2 (no HTML, no second decoder) | full-screen takeover video — option 4 (no overlay surface) |
 | UC-13 One ad, Player-declared capabilities, APS resolves to one option | Worked example | side-by-side — option 1, emitted alone | full-screen takeover — option 4, emitted alone (non-video surfaces declared absent) | L-shape — option 2, emitted alone (HTML axis omitted, not relied on) | L-shape — option 2, after walking the full list it received (declared nothing) | full-screen takeover — option 4, emitted alone (no overlay surface) |
 | UC-14 Non-linear ad over a replacement that is not advertising | Composition | overlay composited over the slate (video on the second decoder, or image / HTML surface) | video overlay only — no non-video surface over video | image or HTML overlay composited over the slate | image overlay composited; HTML declined | declined — no overlay capability |
+| UC-15 Publisher-restricted layouts forwarded to the APS | Selection | L-shape image — the APS chose within the forwarded set | lower-third declined, no allowed option renderable → skip | L-shape image | L-shape image | skip (graceful) — no allowed layout without an overlay surface |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -1616,3 +1617,54 @@ demonstrably absent while the behaviour is unchanged.
   black out, what the slate contains and how rights are enforced are
   outside this specification. The window and the slate are the
   Publisher's, declared with the base specification's own construct.
+
+### UC-15 — Publisher-restricted layouts forwarded to the APS
+
+**Scenario:** A non-linear overlay slot where the Publisher restricts
+the layouts it accepts, and the Player forwards that restriction to the
+APS on the resolution request (R38). The ads chosen upstream are
+already inside the Publisher's set; the Player still checks what it
+receives before rendering.
+
+**Publisher intent:**
+- Non-linear forms allowed, but **only** `overlay-lower-third` and
+  `squeezeback-l-shape-upper-left` in the slot's `@allowedLayouts`.
+  No side-by-side, no full-screen takeover: the Publisher does not want
+  the primary content interrupted or halved on this slot.
+- Maximum slot / overlay duration is bounded (R4).
+
+**Ad response:**
+- The Player sends the declared set, unchanged, on the resolution
+  request (R38.2), next to any capability parameters it declares
+  (R29).
+- The ADS has the same four options as UC-09. The APS removes the two
+  whose layout is outside the set it received (side-by-side and
+  full-screen takeover, R38.4) and, from what remains, the ones the
+  device's declared capabilities rule out (R29). It emits the
+  survivors in the ADS's order (R5.1).
+
+**Expected behavior per device class:**
+
+- **D1** — the APS emits the L-shape image option and the lower-third
+  image banner; the Player checks the first against its capability and
+  the Publisher's set (R38.5), and renders the L-shape.
+- **D2** — no non-video surface over video, so neither allowed layout
+  is renderable. The APS emits no candidate for this device, and the
+  Player skips the slot and continues the primary content (R3). The
+  full-screen takeover it could have played is not offered, because the
+  Publisher excluded it.
+- **D3 / D4** — L-shape image option, emitted first and rendered.
+- **D5** — no overlay surface; no allowed layout is renderable. Skip
+  (graceful).
+
+**A non-conforming APS:** if an APS ignored the forwarded set and
+returned the full-screen takeover first, the Player would find that
+option outside the Publisher's `@allowedLayouts`, discard it without
+rendering (R38.5, R5.6), and move to the next option in document order.
+Forwarding the set moves the choice upstream; it does not move the
+check.
+
+**What this demonstrates:** the Publisher's restriction reaches the
+party that picks the ad, so fewer unusable options travel to the
+Player, and the Player's own check stays as the guarantee.
+

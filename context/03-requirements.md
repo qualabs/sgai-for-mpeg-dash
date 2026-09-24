@@ -103,6 +103,7 @@ positions.
 | R35 | The viewer may dismiss a whole ad slot; the APS declares whether that is allowed and after how many seconds. |
 | R36 | An overlay or pause opportunity may be resolved ahead of time, within a Publisher-declared offset, and the APS declares how long that resolution keeps. |
 | R37 | A pause is what the viewer experiences; any mechanism that suspends the content and resumes it where it stopped is one. |
+| R38 | When a non-linear slot declares its allowed layouts, the Player forwards them to the APS and still checks what comes back. |
 
 ### Contract foundations
 
@@ -254,7 +255,7 @@ and the boundaries of what this spec does and does not define.
     Player's resolution request (R29).
 
 - **R29. Player-declared capability parameters on the resolution request.**
-  *Gist: The Player MAY attach reserved capability parameters — inputs about the device, not conclusions about what can be served — to the resolution request it sends the APS; each is optional, and one the Player cannot or will not populate is omitted rather than sent empty.*
+  *Gist: The Player MAY attach reserved capability parameters — inputs about the device, not conclusions about what can be served — to the resolution request it sends the APS; each is optional except the slot's allowed layouts (R38), and one the Player cannot or will not populate is omitted rather than sent empty.*
 
   This specification defines a set of **reserved parameter names** that a
   Player MAY attach to the resolution request it issues against the MPD
@@ -300,6 +301,9 @@ and the boundaries of what this spec does and does not define.
     specification does not define how an APS resolves an undetermined
     value; that is the APS's decision, and two APSs that resolve it
     differently are both conformant.
+  - **R29.8** (Player): R38.2 is the one exception to R29.2: when a
+    non-linear slot declares allowed layouts, sending that set is
+    MANDATORY. Every other reserved parameter remains optional.
 
 ### Opportunity declaration
 
@@ -1129,6 +1133,33 @@ squeezeback layouts (side-by-side and L-shape).
     about how a Player implements a pause, and a criterion elsewhere
     that appears to assume one mechanism is to be read as this
     requirement defines it.
+
+- **R38. The Player forwards the slot's allowed layouts to the APS.**
+  *Gist: When a non-linear slot declares the layouts the Publisher allows, the Player sends that set to the APS on the resolution request, and checks the options it gets back against it before rendering.*
+
+  A Publisher MAY declare, on a non-linear slot, the layouts it allows
+  (`@allowedLayouts`, R12.2). When it does, the set travels to the APS,
+  so the ads chosen upstream are already among those the Publisher
+  allows. The case is **UC-15** in
+  [`04-use-cases.md`](04-use-cases.md).
+
+  **Conformance criteria** (runtime):
+  - **R38.1** (Publisher): Declaring the allowed layouts on a non-linear
+    slot is OPTIONAL.
+  - **R38.2** (Player): When the slot declares allowed layouts, the Player
+    MUST send the declared set, unchanged, on the resolution request to
+    the APS. When the slot declares none, nothing is sent.
+  - **R38.3** (spec document): The way the set is carried is normative
+    and defined by this specification, as one of the reserved parameters
+    of R29 — for example, a query parameter on the resolution request.
+  - **R38.4** (APS): The APS MUST NOT return an option whose layout is
+    outside the set it received.
+  - **R38.5** (Player): Before rendering, the Player MUST check that the
+    option it selects uses one of the layouts allowed by the Publisher,
+    and MUST NOT render it otherwise (R5.6). Forwarding the set does not
+    remove this check.
+  - **R38.6** (spec document): Linear slots (`InsertPresentation`,
+    `ReplacePresentation`) are outside this requirement.
 
 - **R19. Ad playback speed follows primary content.**
   *Gist: Ads play at the primary content's speed, so a 10 s ad at 2x is on screen for 5 s of wall-clock; the cap and beacon schedule still use the presentation timeline.*
