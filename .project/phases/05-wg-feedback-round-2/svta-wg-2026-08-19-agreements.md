@@ -550,6 +550,11 @@ Yasser's summary of what this achieves, unchallenged: *"that sounds
 like options from the ADS to say which way it wants it to behave"*
 [24:55].
 
+> **Resolved 2026-09-24.** Not adopted as a list of modes. The spec
+> covers its intent with the slot's allowed layouts forwarded to the APS
+> (R38, UC-15, `5244a0b`); linear slots keep the base specification's
+> `InsertPresentation` / `ReplacePresentation`.
+
 ### O2 — Skipping the break when no declared placement type is supported, with tracking
 
 **David.** The consequence of O1, and the case that motivates it.
@@ -795,6 +800,12 @@ at a glance.
    I think the presentation's fine. This was just now adding in a
    placement type."* [19:57]. Read as: no new presentation element,
    only a new placement-type token.
+
+   > **Resolved 2026-09-24.** The spec does not adopt a placement-type
+   > list (O1). What O1 asked for — concurrent with video or with an
+   > image — is expressed through the slot's allowed layouts, which the
+   > Player now forwards to the APS: R38 and UC-15 (`5244a0b`).
+
 8. **The grammar of the placement-type list.** David gives examples of
    permitted combinations [24:08–25:40] but never says whether the list
    is ordered, whether order expresses preference, or whether it is an
@@ -817,3 +828,9 @@ at a glance.
     so limited codes, multiple layout fallback, memorization"* [30:03].
     "limited codes" is limited decoders; "memorization" is probably
     "memoization". The item's real title is not recoverable.
+
+    > **Resolved 2026-09-24, without recovering the title.** The topic is
+    > covered by the spec as it stands: layout fallback by ordered
+    > options (R5), VAST conversion by the APS outside the spec (R11.2),
+    > device capability on the request (R29).
+
