@@ -100,3 +100,11 @@ R35 — dismissal is granted and never assumed — is the requirement.
 - `context/03-requirements.md` — R35.
 - `context/06-naming-and-namespaces.md` — "Naming consistency with baseline
   DASH".
+
+## Note — 2026-09-25
+
+The same day, the carrier rule left `context/03-requirements.md`: R35.8 was
+removed and R35 no longer names either `@skipAfter`, because naming the
+carrier is the build's layer, not the requirements'. The rule this ADR
+records now lives only in `context/06-naming-and-namespaces.md`, "Viewer
+dismissal is a deliberate exception". The decision is unchanged.
