@@ -1985,3 +1985,26 @@ positivo del validador.)
 ## 2026-09-25 — M5 cerrado: los schemes SGAI no usan `@value`
 
 `context/06-naming-and-namespaces.md` declara que las event streams con scheme SGAI no llevan `@value` y que el Player lo ignora si viene; alcanza porque R20.2 junta las ventanas de una familia en un solo `EventStream`. El `@value` del scheme de callback lo sigue fijando la base. Decisión de Nicolás.
+
+## 2026-09-25 — El pipeline suma una escala incremental, entre la minor y la major
+
+Aprobado por Nicolás. Entre `build-all` (regenera la spec, ~3 ventanas de 5 h) y
+`refine-spec` (no toma requerimientos nuevos) no había forma de incorporar un delta
+de `context/` sin regenerar. Ahora hay: `prompts/build-incremental.prompt` corre los
+gates y el pre-spec de `build-all`, aplica `git diff <anchor>..HEAD -- context/` al
+último candidato con `prompts/2-build/apply-context-delta.prompt` (sólo cambian las
+secciones afectadas, y `output-analysis/v<N.M+1>-context-delta.md` dice dónde quedó
+cada cambio), corre los tres análisis sobre la spec entera, la comparación y el loop
+de Step 9.
+
+Lo que no se deja a un prompt vive en `bin/check-incremental.py`: `anchor` (de qué
+commit de `context/` salió un candidato: el `Context head` de su traza, o el commit
+que agregó la major de la que desciende), `scope` (cambió sólo lo declarado y no más
+de `INCREMENTAL_MAX_CHANGED_FRACTION`) y `degradation` (ninguna unidad que el delta
+no tocó pasó de `met` a `contradicted`/`force-lost`/`gap`, y los modales no cayeron
+más que en `context/`). Si falla, el camino dice `MAJOR RECOMMENDED` y para; no
+arranca la major solo.
+
+Contra los candidatos que hay, `degradation` da: v8→v8.1 limpio (dos `met→partial`,
+que no cuentan), v8.1→v9 **13 regresiones y 11 modales menos** — la major v9 perdió
+cosas que el refine de v8.1 había ganado. Todavía no se corrió el camino.

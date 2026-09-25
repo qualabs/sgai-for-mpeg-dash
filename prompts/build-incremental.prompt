@@ -1,0 +1,222 @@
+# Build incrementally: absorb a `context/` delta into the latest candidate (orchestrator)
+
+**Inputs**: `context/` at `HEAD`, committed; the most recent candidate
+in `output/` (`v<N.M>`, the **base**); the commit its `context/` came
+from (`ANCHOR`, from `bin/check-incremental.py anchor v<N.M>`).
+Per-step inputs are declared in each prompt's header and are not
+repeated here.
+
+**Outputs**:
+- `context-analysis/*` — regenerated as needed (Stage 1).
+- `output-analysis/v<N.M>-spec-validation.md` — only if the base has
+  none (Stage 2).
+- `output/v<N.M+1>-sgai-spec.md` and
+  `output-analysis/v<N.M+1>-context-delta.md` — the delta applied, and
+  its trace (Stage 3).
+- `output-analysis/v<N.M+1>-*.md` — the three sidecars and the
+  comparison (Stages 4–5), and those of every minor Stage 6 accepts.
+
+Every output is a **candidate**. Nothing here writes to `dist/`.
+
+**Versioning**: the same scheme as `build-all`. The base is the
+highest `v<N>` / `v<N.M>` in `output/`, compared numerically on both
+components. The candidate is `v<N.M+1>` (rule of
+`prompts/4-auto-refine/refine-spec.prompt`: `v9` → `v9.1`,
+`v9.1` → `v9.2`). The Stage 6 loop continues from there (`v9.3`, ...).
+An incremental never takes a new major number: a new major means the
+spec was regenerated, and this path does not regenerate it.
+
+**Skip if**: each step's own rule, honoured as in `build-all`.
+
+**Execution mode**: run from the project root with
+`CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0`, for the reason `CLAUDE.md`
+gives under "How to invoke a build": Stages 2, 3, 4 and 6 dispatch fresh
+subagents, and without the variable the run is killed while collecting
+work already paid for.
+
+**Configuration** (read from `.env.agent`, defaults as in `build-all`):
+`BUILD_ALL_AUTO_REFINE` (default `true`), `MAX_REFINEMENTS` (default
+`5`), and `INCREMENTAL_MAX_CHANGED_FRACTION` (default `0.30`, read by
+`bin/check-incremental.py scope`).
+
+Why a separate orchestrator and not a mode of `build-all`: `build-all`
+is written as one linear major (new `N`, Step 6 regenerates), and every
+stage here that differs — the anchor, the base, the apply step, the
+scope and degradation exits — would become a conditional threaded
+through it; the stages that are the same are reused from it by
+reference instead of copied.
+
+---
+
+## Stage 0 — Preconditions (blocking)
+
+Log one line per check. Any failure stops the run with the reason
+verbatim.
+
+1. `git status --porcelain -- context/` prints nothing. An uncommitted
+   `context/` is a delta no commit records, so the trace could not say
+   what was applied.
+2. `output/` holds at least one candidate. If it is empty (a promotion
+   empties it), stop: there is no base to increment, and the path does
+   not start from `dist/`.
+3. Resolve the base `v<N.M>` (header, Versioning) and run
+   `bin/check-incremental.py anchor v<N.M>`. **Exit 2 stops the run**
+   and the script's reason is reported verbatim: without an anchor the
+   delta is a guess. Record `ANCHOR`.
+4. `git diff --quiet ANCHOR..HEAD -- context/`. If there is no
+   difference, log `[NOTHING TO APPLY] context/ unchanged since v<N.M>`
+   and stop: what is left to do, if anything, is a minor
+   (`refine-spec`).
+
+## Stage 1 — Gates and pre-spec inputs
+
+Run **Steps 0, 0.5 and 0.6, then Steps 1–5 of
+`prompts/build-all.prompt`, exactly as written there**: the three
+blocking checks, then each pre-spec prompt under its own skip rule
+(Step 5, the IAB mirror, never skips). Same log lines, same grounding
+lines.
+
+## Stage 2 — Baseline validation of the base
+
+Stage 7 compares the new head against the base unit by unit, so the
+base needs its validation sidecar. If
+`output-analysis/v<N.M>-spec-validation.md` exists, log
+`[SKIPPED] baseline validate-spec → v<N.M>` and continue. Otherwise
+dispatch a fresh subagent that follows
+`prompts/3-post-spec/validate-spec.prompt` against `v<N.M>` (at this
+point it is the newest candidate, which is what that prompt selects),
+and log `[BUILT] baseline validate-spec → output-analysis/v<N.M>-spec-validation.md`.
+
+The detail review and the audit of the base are **not** run: nothing
+downstream reads them.
+
+## Stage 3 — Apply the delta
+
+Dispatch a fresh subagent that follows
+`prompts/2-build/apply-context-delta.prompt` with `v<N.M>`, `ANCHOR`
+and `HEAD`. Log `[BUILT] apply-context-delta → output/v<N.M+1>-sgai-spec.md`.
+
+Then, before paying for any analysis, run
+
+```bash
+bin/check-incremental.py scope v<N.M> v<N.M+1>
+```
+
+and branch on its exit and its last line:
+
+- **0, `RESULT=IN_SCOPE`** — continue to Stage 4.
+- **1, `RESULT=REJECT`** — the candidate changed sections its trace does
+  not declare, or declares sections it did not change. The apply step
+  broke its contract. Delete `output/v<N.M+1>-sgai-spec.md` (so it
+  cannot become the next base), keep the trace for inspection, report
+  the script's output verbatim, and stop. Final line: `REJECTED`.
+- **1, `RESULT=MAJOR`** — the change is too large to be an increment
+  (over `INCREMENTAL_MAX_CHANGED_FRACTION` of the base's lines), or the
+  trace lists a `needs-structure` change. Delete the candidate spec,
+  keep the trace (it is the list of what needs the major), report
+  verbatim, and stop. Final line: `MAJOR RECOMMENDED`.
+- **2** — cannot tell. Report verbatim and stop. It is not a pass.
+
+## Stage 4 — Post-spec analyses of the whole candidate
+
+Run **Steps 7, 7.5 and 8 of `prompts/build-all.prompt`** against
+`v<N.M+1>`, with their execution modes (7 and 8 in fresh subagents).
+They walk the **entire** spec, not the delta: an edit in one section
+can break an obligation stated in another, and only a full walk sees
+it.
+
+Step 7.5 may autofix the candidate in place. That is expected; its
+log says what it changed, and the scope check of Stage 3 has already
+recorded what the delta itself did.
+
+## Stage 5 — Comparison
+
+Run `prompts/4-auto-refine/compare-spec-versions.prompt` for
+`v<N.M+1>`, as Step 9.6 of `build-all` does, and record its verdict
+line. **Its baseline is `dist/`, not the base candidate**, and that is
+kept on purpose: the prompt refuses the sibling comparison, and the
+question "did what should not change stay unchanged" against the base
+is answered by the scope check in Stage 3, byte for byte, which a
+count of issues cannot do.
+
+The verdict is reported, and **it does not roll the candidate back**:
+`v<N.M+1>` carries requirements the published build does not, so a
+count against `dist/` is not a like-for-like comparison of the same
+document. It is an input to promotion, as everywhere else.
+
+## Stage 6 — Refinement loop
+
+If `BUILD_ALL_AUTO_REFINE=false`, log `[SKIPPED] auto-refine` and go to
+Stage 7 with head `v<N.M+1>`.
+
+Otherwise run **Step 9 of `prompts/build-all.prompt`** with its
+starting point set to `v<N.M+1>` instead of the major `v<N>`: 9.1 takes
+`v<N.M+1>` and its three sidecars and produces `v<N.M+2>`, and the rest
+of the loop — the `check-promotable.py` stop condition in 9.5, the
+comparison in 9.6, the verdict branches in 9.7, the cap in 9.8, the
+error handling — applies unchanged. The loop's head when it ends is
+the **head** for Stage 7.
+
+`refine-spec` takes no new requirement by contract. By this point the
+new requirements are already in the candidate, so the loop only
+corrects how they, and everything else, are written.
+
+## Stage 7 — Degradation exit
+
+```bash
+bin/check-incremental.py degradation v<N.M> <head>
+```
+
+It compares the head against the base on what the delta did not
+touch, which is what an incremental promised to preserve:
+
+- **regressions** — units whose owner (`R<n>`, `DP-<n>`, `OOS-<n>`,
+  `UC-<n>`) did not change between `ANCHOR` and `HEAD`, that were
+  `met` in the base's validation and are `contradicted`, `force-lost`
+  or `gap` in the head's;
+- **lost force** — the spec's normative modals (`MUST`, `MUST NOT`,
+  `SHALL`, `SHALL NOT`, `REQUIRED`) dropped by more than
+  `context/03-requirements.md` dropped them.
+
+Branch:
+
+- **0, `RESULT=NOT_DEGRADED`** — the head is the result. Final line:
+  `DONE`.
+- **1, `RESULT=MAJOR`, with regressions listed** — a verdict produced
+  by a model can flip without the text changing, so confirm once:
+  re-run `prompts/3-post-spec/validate-spec.prompt` against the head in
+  a fresh subagent and run the check again. If it still exits 1, final
+  line `MAJOR RECOMMENDED` with the script's list verbatim: the
+  document is losing what it had, and patching it further compounds
+  the loss instead of recovering it. If the re-run exits 0, final line
+  `DONE`, and say that the first reading did not reproduce.
+- **1, `RESULT=MAJOR`, lost force only** — no re-run: a modal count
+  does not flip. Final line `MAJOR RECOMMENDED`, verbatim.
+- **2** — cannot tell. Final line `UNCERTAIN`, reasons verbatim. Not a
+  pass.
+
+A `MAJOR RECOMMENDED` is a recommendation to the operator. This path
+does not start `build-all` on its own: a major costs several windows
+of tokens, and choosing to spend them is not a pipeline step.
+
+## Final summary
+
+```
+SGAI incremental summary (base v<N.M>, anchor <ANCHOR short>..<HEAD short>, head <head>, YYYY-MM-DD HH:MM):
+  delta: <c> commits, <p> placed, <e> no spec effect, <u> not placed
+  [BUILT|SKIPPED] <each Stage 1 step>             → <output>
+  [BUILT|SKIPPED] baseline validate-spec          → output-analysis/v<N.M>-spec-validation.md
+  [BUILT]         apply-context-delta             → output/v<N.M+1>-sgai-spec.md
+  [IN_SCOPE|REJECT|MAJOR|UNCERTAIN] scope         → <S> sections changed, <pct>% of base lines
+  [BUILT|SKIPPED] validate / detail / audit       → output-analysis/v<N.M+1>-*.md
+  [<verdict>|NO_BASELINE] compare vs dist/        → output-analysis/v<N.M+1>-comparison.md
+  [<Step 9 outcome>] auto-refine                  → head=<head> after <K> iterations
+  [NOT_DEGRADED|MAJOR|UNCERTAIN] degradation      → <regressions> regressions, modals <base>→<head>
+  RESULT: DONE | MAJOR RECOMMENDED | REJECTED | UNCERTAIN | NOTHING TO APPLY
+```
+
+Reproduce under the block, verbatim: the trace's **Not placed** table,
+and the `Necesita a Nicolas` group of the last `check-promotable.py`
+run if it had one. Those are what a person has to decide.
+
+Language: English.

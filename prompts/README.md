@@ -10,7 +10,8 @@ prompt by relative path.
 ```
 prompts/
 ├── README.md                       this file
-├── build-all.prompt                orchestrator (root) — Stages 1..4
+├── build-all.prompt                orchestrator (root) — major: Stages 1..4
+├── build-incremental.prompt        orchestrator (root) — incremental: a context/ delta into the latest candidate
 ├── 1-pre-spec/                     pre-spec generated inputs
 │   ├── analyze-dash-gap.prompt
 │   ├── build-uc-coverage-matrix.prompt
@@ -18,7 +19,8 @@ prompts/
 │   ├── extract-conformance-assertions.prompt
 │   └── analyze-iab-ad-templates.prompt
 ├── 2-build/                        the spec itself
-│   └── build-spec.prompt
+│   ├── build-spec.prompt
+│   └── apply-context-delta.prompt
 ├── 3-post-spec/                    per-iteration analyses of the spec
 │   ├── validate-spec.prompt
 │   ├── review-spec-details.prompt
@@ -201,12 +203,14 @@ itself.
 | Prompt                              | When to invoke                                                          | Lives in            |
 |-------------------------------------|-------------------------------------------------------------------------|---------------------|
 | `build-all`                         | Full major build from scratch (steps 1-8 + auto-refine loop step 9)     | root                |
+| `build-incremental`                 | `context/` changed by a bounded delta; absorb it into the latest candidate without regenerating it | root |
 | `analyze-dash-gap`                  | `context/` changed; pre-spec gap analysis is stale                      | `1-pre-spec/`       |
 | `build-uc-coverage-matrix`          | `context/03-requirements.md` or `context/04-use-cases.md` changed       | `1-pre-spec/`       |
 | `build-error-semantics`             | `context/03-requirements.md` or `context/05-dash-linear-interfaces.md` changed | `1-pre-spec/` |
 | `extract-conformance-assertions`    | Any `context/` file changed (extractor reads the whole folder)          | `1-pre-spec/`       |
 | `analyze-iab-ad-templates`          | Always (live external source; runs every build)                         | `1-pre-spec/`       |
 | `build-spec`                        | Any of the inputs above changed; produces the next `v<N>-sgai-spec.md`  | `2-build/`          |
+| `apply-context-delta`               | Called by `build-incremental`: applies `git diff <anchor>..HEAD -- context/` to `v<N.M>`, writes `v<N.M+1>` + its `context-delta` trace | `2-build/` |
 | `validate-spec`                     | New spec exists without matching `v<N>-spec-validation.md`              | `3-post-spec/`      |
 | `review-spec-details`               | New spec / validation sidecar / naming-and-namespaces changed           | `3-post-spec/`      |
 | `audit-dash-conformance`            | New spec exists without matching `v<N>-dash-conformance-audit.md`       | `3-post-spec/`      |
@@ -228,27 +232,37 @@ itself.
 Each prompt declares its full **Inputs / Output / Skip if** contract
 in its own header — this table is a quick-pick index, not the spec.
 
-## Minor vs major iteration
+## Three iteration scales
 
-Two iteration scales coexist (see `../CLAUDE.md` for the full rule):
+| Trigger                                                                  | Path        |
+|--------------------------------------------------------------------------|-------------|
+| Requirement added / changed / dropped, the delta bounded                 | Incremental |
+| New architectural decision (new construct, retired construct)            | Major       |
+| A delta too large to be an increment, or one the incremental cannot place| Major       |
+| Wording precision / cross-reference fixes                                | Minor       |
+| DASH conformance remedy for a Marginal or Non-conforming item            | Minor       |
+| Renaming an attribute when a flagged issue says so                       | Minor       |
 
-| Trigger                                                      | Path  |
-|--------------------------------------------------------------|-------|
-| Requirement added / changed / dropped                        | Major |
-| New architectural decision (new construct, retired construct)| Major |
-| Wording precision / cross-reference fixes                    | Minor |
-| DASH conformance remedy for a Marginal or Non-conforming item| Minor |
-| Renaming an attribute when a flagged issue says so           | Minor |
-
-- **Major** runs the whole pipeline (`build-all`): regenerates
-  `1-pre-spec/` outputs as needed, builds a fresh `v<N>-sgai-spec.md`,
-  then re-runs the post-spec analyses against that new spec. After
-  the major, Step 9 (auto-refine) attempts minor iterations
-  automatically.
-- **Minor** can be triggered standalone by running
-  `prompts/4-auto-refine/refine-spec.prompt` and then re-running
-  the three post-spec analyses against the new `v<N>.<M+1>` spec.
-  The orchestrator's Step 9 automates this loop.
+- **Major** (`build-all`) regenerates the spec from `context/`: pre-spec
+  inputs, a fresh `v<N>-sgai-spec.md`, its analyses, then Step 9. It
+  is the expensive one (about three 5-hour token windows the last
+  time).
+- **Incremental** (`build-incremental`) takes the latest candidate
+  `v<N.M>` and the `context/` commits since it was built, and produces
+  `v<N.M+1>` with only the affected sections changed and a trace
+  (`output-analysis/v<N.M+1>-context-delta.md`) mapping each change to
+  where it landed. Then the same analyses on the whole spec, the
+  comparison, and Step 9. "Bounded" is not the operator's guess: the
+  path itself recommends a major, and stops, when
+  `bin/check-incremental.py` finds the change over
+  `INCREMENTAL_MAX_CHANGED_FRACTION` of the spec (default 30%), a change
+  the apply step classes `needs-structure`, or, at the end, a document
+  that lost what it had (a unit the delta did not touch going from `met`
+  to `contradicted` / `force-lost` / `gap`, or fewer normative modals
+  than `context/` accounts for).
+- **Minor** (`4-auto-refine/refine-spec.prompt`, and Step 9 of both
+  orchestrators) fixes what the analyses found, with `context/` fixed;
+  by contract it takes no new requirement.
 
 ## Step 9 — auto-refinement loop
 

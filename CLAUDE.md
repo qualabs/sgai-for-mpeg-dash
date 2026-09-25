@@ -122,6 +122,14 @@ What does NOT go where:
   verdict about the build; `--help` states all four. `--population` prints the units that must
   be walked, and the validation step reads that list rather than
   counting on its own, so the two sides cannot drift apart.
+  `check-incremental.py` holds the three checks of the incremental
+  path: `anchor` (which commit's `context/` a candidate was built
+  from), `scope` (the new candidate changed only the sections its
+  trace declares, and not too many) and `degradation` (units the delta
+  did not touch did not fall from `met` to a blocking verdict, and the
+  modals did not drop). Same
+  exits as `check-promotable.py`, whose coverage-map parser it imports
+  so the two cannot read a sidecar differently.
   `check-dist-freshness.py` is not a build
   step: it answers whether what is published in `dist/` was built from
   the inputs as they stand now, by comparing `context/`,
@@ -291,14 +299,37 @@ When renumbering or renaming files in `context/`:
   reference the old layout — preserve them verbatim; only update
   live navigational references.
 
-## Minor refinement (vN.M+1)
+## Iteration scales: major, incremental, minor
 
-Two iteration scales coexist in this project:
+Three iteration scales coexist in this project:
 
-- **Major (vN+1)** — `context/` changed: new / modified / dropped
-  requirements, new constructs, or a new architectural decision.
-  Re-run `prompts/build-all.prompt`; the orchestrator regenerates
-  the spec and the analyses from scratch.
+- **Major (vN+1)** — a new architectural decision (a construct added
+  or retired), or a `context/` delta too large or too structural for
+  the incremental path. Re-run `prompts/build-all.prompt`; the
+  orchestrator regenerates the spec and the analyses from scratch.
+- **Incremental (vN.M+1)** — `context/` changed by a bounded delta:
+  requirements added, changed or dropped that the existing spec has a
+  place for. Run the incremental orchestrator:
+
+  ```bash
+  CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0 \
+    claude -p "$(cat prompts/build-incremental.prompt)"
+  ```
+
+  It takes the latest candidate `v<N.M>` and
+  `git diff <anchor>..HEAD -- context/`, where the anchor is what
+  `bin/check-incremental.py anchor v<N.M>` prints (never worked out by
+  hand), and `prompts/2-build/apply-context-delta.prompt` writes
+  `v<N.M+1>` with only the affected sections changed, plus
+  `output-analysis/v<N.M+1>-context-delta.md` mapping each change to
+  where it landed. Then the three analyses over the whole spec, the
+  comparison and the Step 9 loop, as in a major. `context/` must be
+  committed first: an uncommitted change is a delta no commit records.
+  The path stops and says `MAJOR RECOMMENDED` when the change exceeds
+  `INCREMENTAL_MAX_CHANGED_FRACTION` of the spec, when a change needs
+  structure the spec does not have, or when the result lost what the
+  base had (see `bin/check-incremental.py --help`). It never starts the
+  major itself.
 - **Minor (vN.M+1)** — `context/` unchanged. The latest analyses
   (`v<N.M>-spec-validation.md`, `v<N.M>-detail-review.md`,
   `v<N.M>-dash-conformance-audit.md`) surfaced issues that can be
@@ -342,20 +373,19 @@ Two iteration scales coexist in this project:
   a major build (`vN+1`). It does **not** decide promotion into
   `dist/`: fewer issues is an input to that call, not the call.
 
-**When to choose minor vs major**:
+**Which scale**:
 
-| Trigger                                                      | Path  |
-|--------------------------------------------------------------|-------|
-| Requirement added / changed / dropped                        | Major |
-| New architectural decision (new construct, retired construct)| Major |
-| Wording precision / cross-reference fixes                    | Minor |
-| DASH conformance remedy for a Marginal or Non-conforming item| Minor |
-| Renaming an attribute when an existing flagged issue says so | Minor |
+| Trigger                                                                  | Path        |
+|--------------------------------------------------------------------------|-------------|
+| Requirement added / changed / dropped, the delta bounded                 | Incremental |
+| New architectural decision (new construct, retired construct)            | Major       |
+| A delta too large to be an increment, or one the incremental cannot place| Major       |
+| Wording precision / cross-reference fixes                                | Minor       |
+| DASH conformance remedy for a Marginal or Non-conforming item            | Minor       |
+| Renaming an attribute when an existing flagged issue says so             | Minor       |
 
-Note: there is no orchestrator auto-detection yet — minor
-refinement is dispatched manually. Future work: have `build-all`
-auto-detect mtime conditions and choose major vs minor. For now,
-the operator decides.
+The operator picks the path. What the incremental path decides on its
+own is only whether it has to give up and hand over to a major.
 
 ## GitHub issues pipeline (Stage 5)
 
