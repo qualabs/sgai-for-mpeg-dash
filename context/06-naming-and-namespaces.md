@@ -162,17 +162,22 @@ the concept.
 The offset of R36 is `@earliestResolutionTimeOffset` (DASH
 §5.16.5.2), carried on overlay and pause opportunity windows with its
 name, its units — those of the parent `EventStream@timescale` — and
-its default of 60 seconds. A window that declares nothing may
-therefore be resolved 60 seconds ahead, as a base event may. ADR 0018
-records why.
+its default of 60 seconds: *"specifies the time interval (in units of
+EventStream@timescale) prior to the Event@presentationTime during
+which the MPD described in the @uri attribute may be requested. The
+default is 60 seconds in units of timescale"* (§5.16.5.2). A window
+that declares nothing may therefore be resolved 60 seconds ahead, as a
+base event may. ADR 0018 records why.
 
 **Viewer dismissal is a deliberate exception.** The dismissal
-declaration of R35 does **not** reuse the base skip control, neither
+declarations of R35 (R35.1 and R35.2) do **not** reuse the base skip control, neither
 `@skipAfter` on the alternative-MPD events (DASH §5.16.5.2) nor
 `PlaybackRestrictions@skipAfter` in the service description (DASH
 Annex K, Tables K.9 and K.18). Both default to zero, which the base
-specification defines as *"skipping is allowed everywhere"*, while
-R35.1 makes a slot nobody declared dismissible non-dismissible.
+specification defines as skippable everywhere: *"Zero duration
+implies that skipping is allowed everywhere … Default value is PT0S"*
+(§5.16.5.2), while R35.1 makes a slot nobody declared dismissible
+non-dismissible.
 Reusing the construct would bring the default with it, and this rule
 does not allow reusing it without. The declaration is therefore a
 field this specification defines in the resolution document, under

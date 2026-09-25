@@ -101,7 +101,7 @@ positions.
 | R18 | The Player-visible interface is specified, including what the Player sends on the resolution request; the APS-to-ADS and ADS-side APIs are out of scope. |
 | R22 | At most one non-linear ad form is active on screen at any instant. |
 | R35 | The viewer may dismiss a whole ad slot; the APS declares whether that is allowed and after how many seconds. |
-| R36 | An overlay or pause opportunity may be resolved ahead of time, within the base offset the Publisher declares or its 60-second default, and the APS declares how long that resolution keeps. |
+| R36 | An overlay or pause opportunity may be resolved ahead of time, within the offset the Publisher declares or 60 seconds when it declares none, and the APS declares how long that resolution keeps. |
 | R37 | A pause is what the viewer experiences; any mechanism that suspends the content and resumes it where it stopped is one. |
 | R38 | When a non-linear slot declares its allowed layouts, the Player forwards them to the APS and still checks what comes back; a slot that declares none admits only its own family's layouts. |
 | R39 | An optional `custom` overlay layout: the APS places the overlay in a rectangle given in percent of the video, inside a region the Publisher may bound. |
@@ -999,20 +999,12 @@ squeezeback layouts (side-by-side and L-shape).
   by resuming (R25), and dismissal gives them the surface back without
   resuming.
 
-  **The carrier is this specification's own, and the base skip control
-  is not reused.** The base specification has a construct for a
-  user-initiated skip — `@skipAfter` on the alternative-MPD events
-  (§5.16.5.2) and `PlaybackRestrictions@skipAfter` in the service
-  description (Annex K, Tables K.9 and K.18) — and both default to
-  skippable everywhere: *"Zero duration implies that skipping is
-  allowed everywhere … Default value is PT0S"* (§5.16.5.2). R35.1's
-  default is the opposite — a slot nobody declared dismissible cannot
-  be dismissed — and reusing the construct would bring its default with it. The
-  declaration is therefore a field this specification defines in the
-  resolution document, named under the rules of
-  [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md), which
-  records it as a deliberate exception to reusing the baseline
-  construct. ADR 0017 records the decision.
+  **Dismissal is granted, never assumed.** A slot nobody declared
+  dismissible cannot be dismissed (R35.1), so whatever carries the
+  declaration has to leave an undeclared slot non-dismissible. The
+  carrier is named under the rules of
+  [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md), and
+  ADR 0017 records the decision.
 
   **Conformance criteria** (runtime):
   - **R35.1** (APS): The APS MUST declare, for each slot it resolves,
@@ -1042,15 +1034,9 @@ squeezeback layouts (side-by-side and L-shape).
     control, a gesture, a remote button — is out of scope. This
     specification states when it must be available and what it ends,
     and the market decides how it is presented.
-  - **R35.8** (spec document): The declarations of R35.1 and R35.2 MUST
-    be carried by a construct this specification defines in the
-    resolution document, and MUST NOT be carried by the base
-    specification's `@skipAfter` or `PlaybackRestrictions@skipAfter`,
-    whose default of zero makes an undeclared slot skippable and so
-    contradicts R35.1.
 
 - **R36. A non-linear opportunity may be resolved ahead of time, and the resolution declares how long it keeps.**
-  *Gist: The Publisher declares how early a Player may resolve an overlay or pause opportunity with the base `@earliestResolutionTimeOffset`, whose 60-second default applies when it declares nothing, and the APS declares how long that resolution stays good; a stale one is resolved again.*
+  *Gist: The Publisher may declare how early a Player may resolve an overlay or pause opportunity, 60 seconds when it declares nothing, and the APS declares how long that resolution stays good; a stale one is resolved again.*
 
   The base specification already lets a Player resolve early on the
   primary timeline: an alternative-MPD event carries an earliest
@@ -1062,14 +1048,8 @@ squeezeback layouts (side-by-side and L-shape).
   window that opens only once its resolution has arrived loses, to
   that delay, part of the time the Publisher gave it.
 
-  **The offset is the base specification's own, default included.**
-  The construct is `@earliestResolutionTimeOffset`: *"specifies the
-  time interval (in units of EventStream@timescale) prior to the
-  Event@presentationTime during which the MPD described in the @uri
-  attribute may be requested. The default is 60 seconds in units of
-  timescale"* (§5.16.5.2). This specification reuses it on overlay and
-  pause opportunity windows with the same name, units and default, so a
-  window that declares no offset may be resolved up to 60 seconds
+  **The offset behaves as the base specification's, default included.**
+  A window that declares no offset may be resolved up to 60 seconds
   ahead, exactly as a base event that declares none. The reason is the
   one ADR 0011 applies: a Player implementing this specification and a
   Player implementing the base specification behave the same on the
@@ -1103,19 +1083,17 @@ squeezeback layouts (side-by-side and L-shape).
   resolved at the moment of the pause. Both are positions a deployment
   may hold, and neither has to reopen this requirement.
 
-  The offset's construct is fixed above. The construct that carries how
-  long a resolution keeps is a capability and not an attribute name,
-  and is named under the rules of
+  The constructs that carry the offset and how long a resolution keeps
+  are named under the rules of
   [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md).
 
   **Conformance criteria** (runtime):
   - **R36.1** (Publisher): The Publisher MAY declare, on an overlay or
-    pause opportunity window, how far ahead of it a Player may resolve,
-    with the base specification's `@earliestResolutionTimeOffset`
-    (§5.16.5.2), in units of the parent `EventStream@timescale`. A
-    window that does not carry it takes the base default of 60
-    seconds. A Publisher who wants a window resolved only when it
-    fires declares an offset of zero.
+    pause opportunity window, how far ahead of it a Player may resolve.
+    A window that declares nothing may be resolved up to 60 seconds
+    ahead, the base specification's default for early resolution. A
+    Publisher who wants a window resolved only when it fires declares
+    an offset of zero.
   - **R36.2** (Player): On an overlay window, the Player MUST NOT
     resolve earlier than the offset — declared, or the default of
     R36.1 — before the start of the window.
