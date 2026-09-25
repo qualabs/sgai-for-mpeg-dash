@@ -1,9 +1,9 @@
 ---
 phase: 03-custom-layout
 title: Custom layout — an advanced, opt-in layout type
-status: planning
+status: superseded
 started: 2026-07-13
-closed: null
+closed: 2026-09-25
 ---
 
 # 03-custom-layout
