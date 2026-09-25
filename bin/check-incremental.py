@@ -211,11 +211,14 @@ def scope(base, head, max_fraction):
     header, rows = trace_table(trace, "sections changed")
     if rows is None:
         raise CannotTell("la traza no tiene la tabla `## Sections changed`")
-    declared = set(promotable.strip_marks(r[0]).lstrip("# ").strip() for r in rows if r)
+    def name(s):
+        return promotable.strip_marks(s).lstrip("# ").strip()
+
+    declared = set(name(r[0]) for r in rows if r)
 
     changed = set(k for k in set(old) | set(new) if old.get(k) != new.get(k))
-    undeclared = sorted(changed - declared)
-    phantom = sorted(declared - changed)
+    undeclared = sorted(set(name(k) for k in changed) - declared)
+    phantom = sorted(declared - set(name(k) for k in changed))
 
     base_lines = sum(s.count("\n") + 1 for s in old.values())
     touched_lines = sum(old[k].count("\n") + 1 for k in changed if k in old)

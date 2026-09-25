@@ -120,7 +120,9 @@ chapter level. To propose a new layout, the editor works with the
 IAB directly — this specification does not own the vocabulary.
 Per **R12** in [`03-requirements.md`](./03-requirements.md), the
 layout vocabulary MUST map 1:1 to IAB-defined ad-type values; no
-publisher-private or spec-private layout names are admissible.
+publisher-private or spec-private layout names are admissible. The one
+exception is the optional `custom` overlay layout of **R39**, the only
+layout name this spec defines itself.
 
 ## A family name and a layout token are different things
 
