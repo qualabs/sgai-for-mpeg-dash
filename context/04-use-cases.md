@@ -295,7 +295,8 @@ layout) it can satisfy.
   `squeezeback-double-box` may or may not be in the allowed set; this
   matters for the D2 sub-section.
 - Maximum overlay duration is bounded.
-- Maximum number of concurrent overlays for this slot is bounded.
+- At most one overlay is on screen at a time (R22); the slot declares
+  no concurrency limit of its own.
 
 **Ad response:**
 - One or more candidates eligible for this slot.
@@ -338,9 +339,9 @@ layout) it can satisfy.
 #### D1 — Top-tier (2+ video decoders, image and HTML overlays)
 
 - **Player decision:** reads Publisher slot rules (allowed
-  layouts, duration cap, concurrency cap). Selects a candidate whose
-  presentation options conform to the allowed layouts and concurrency
-  cap and are renderable on this device, following document order.
+  layouts, duration cap). Selects a candidate whose
+  presentation options conform to the allowed layouts and are
+  renderable on this device, following document order.
   For the selected candidate, per R3, walks the presentation options
   in document order and renders the first option (form + layout) it
   can satisfy. On D1 every form is renderable, so the choice follows
@@ -585,7 +586,8 @@ content continues from the paused position.
   primary frame.
 - Allowed layouts typically include full-screen image, HTML, and
   possibly video over the paused frame.
-- Maximum display duration before automatic dismissal is bounded.
+- No maximum display duration: a pause slot has no declared duration
+  for a cap to bound, and the viewer ends it by resuming (R4, R31).
 
 **Ad response:**
 - Candidates with one or more renderable presentation options (image,
@@ -676,8 +678,9 @@ rendering behavior above.
 
 **Notes / open questions:**
 - Resolved: the Player may resolve a pause opportunity ahead of the
-  pause, within an offset the Publisher declares, and the resolution
-  declares how long it keeps (R36). The latency-versus-freshness
+  pause, within an offset the Publisher declares or, when it declares
+  none, the base specification's default of 60 seconds before the
+  window starts, and the resolution declares how long it keeps (R36). The latency-versus-freshness
   trade-off belongs to the APS, which chooses it per resolution.
 - Resolved: a single-decoder device (D3, D4) may re-task the decoder
   to play a video form, because a pause is what the viewer
@@ -1015,7 +1018,7 @@ canonical; they exercise R5 differently.
 **Publisher intent:**
 - Non-linear forms allowed.
 - One **device-agnostic** allowed-layout set for the slot, including
-  `squeezeback-double-box`, `squeezeback-l-shape-upper-left`,
+  `squeezeback-double-box-background`, `squeezeback-l-shape-upper-left`,
   `overlay-lower-third`, and the `linear` full-screen takeover. The Publisher does NOT declare a different
   layout set per device class: in this scenario neither the ADS nor the
   APS holds a view of the device, so capability is resolved entirely at
@@ -1409,7 +1412,7 @@ leaves it able to do.
 **Publisher intent:**
 - Non-linear forms allowed.
 - The same single **device-agnostic** allowed-layout set as UC-09 —
-  `squeezeback-double-box`, `squeezeback-l-shape-upper-left`,
+  `squeezeback-double-box-background`, `squeezeback-l-shape-upper-left`,
   `overlay-lower-third`, and the `linear` full-screen takeover. The Publisher declares no per-device-class variant.
 - Maximum slot / overlay duration is bounded (R4).
 

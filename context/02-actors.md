@@ -39,9 +39,9 @@ The Publisher owns the primary content and the viewer's screen.
     [`03-requirements.md`](03-requirements.md) (e.g. corner / bug,
     lower-third, L-shape / squeezeback, side-by-side / double-box), or
     unrestricted, and
-  - other slot-level constraints such as maximum overlay duration,
-    maximum number of concurrent overlays, or mutually exclusive
-    layouts.
+  - other slot-level constraints such as maximum overlay duration or
+    mutually exclusive layouts. The number of overlays on screen at
+    once is not one of them: R22 fixes it at one.
 - Encode these constraints within the MPD event so they are
   normative for the slot. Specific positions inside a layout are
   out of scope here — they follow from the IAB CTV ad type that the
@@ -173,8 +173,7 @@ the final viewer experience.
   empty.
 - Validate each candidate against the slot constraints declared in
   the MPD. Any candidate that violates the constraints (disallowed
-  layout, exceeded duration, more concurrent overlays than allowed,
-  etc.) is discarded.
+  layout, exceeded duration, etc.) is discarded.
 - Select the ad to render from the candidates that passed
   validation. The Player may apply additional client-side criteria
   (ranking, ordering, deduplication, simultaneity caps), but it
@@ -198,7 +197,7 @@ SGAI flow:
 
 - *When* ad opportunities appear in the timeline — **Publisher**.
 - *Which types of ads* are allowed per slot (allowed forms,
-  layouts, duration cap, concurrency cap) — **Publisher**.
+  layouts, duration cap) — **Publisher**.
 - *How many ads* fill a multi-ad opportunity (within the
   Publisher's duration cap) — **ADS**.
 - *Which ads are available* to serve to the slot for this viewer

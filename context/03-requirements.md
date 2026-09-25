@@ -101,9 +101,9 @@ positions.
 | R18 | The Player-visible interface is specified, including what the Player sends on the resolution request; the APS-to-ADS and ADS-side APIs are out of scope. |
 | R22 | At most one non-linear ad form is active on screen at any instant. |
 | R35 | The viewer may dismiss a whole ad slot; the APS declares whether that is allowed and after how many seconds. |
-| R36 | An overlay or pause opportunity may be resolved ahead of time, within a Publisher-declared offset, and the APS declares how long that resolution keeps. |
+| R36 | An overlay or pause opportunity may be resolved ahead of time, within the base offset the Publisher declares or its 60-second default, and the APS declares how long that resolution keeps. |
 | R37 | A pause is what the viewer experiences; any mechanism that suspends the content and resumes it where it stopped is one. |
-| R38 | When a non-linear slot declares its allowed layouts, the Player forwards them to the APS and still checks what comes back. |
+| R38 | When a non-linear slot declares its allowed layouts, the Player forwards them to the APS and still checks what comes back; a slot that declares none admits only its own family's layouts. |
 | R39 | An optional `custom` overlay layout: the APS places the overlay in a rectangle given in percent of the video, inside a region the Publisher may bound. |
 
 ### Contract foundations
@@ -555,7 +555,7 @@ admissible ad-type vocabulary, and the admissible creative carriers.
   the Player chrome or the application UI rather than on the playing or
   paused video is out of scope for this specification. This includes
   menu ads (IAB *Menu Ad*: home screen, content menu, guide / EPG),
-  home-screen / launcher ads, screensaver ads (IAB *Screensaver Ad*),
+  home-screen / launcher ads, screen saver ads (IAB *Screen Saver Ad*),
   and companion / multi-screen ads (IAB *Companion Ad*). These are
   concerns of the application's ad integration, not of the
   Player-facing SGAI contract this specification defines. Because the
@@ -697,8 +697,9 @@ the order the resolution document declares.
     the preference order the Player follows.
   - **R5.6** (Player): The Player MUST resolve presentation-option
     selection by walking the options in document order and, for each,
-    checking it against (a) device capabilities and (b) the
-    Publisher-declared allowed layouts on the slot. The Player renders
+    checking it against (a) device capabilities and (b) the layouts the
+    slot admits — the Publisher-declared allowed layouts, or those of
+    the slot's own family when it declares none (R38.1). The Player renders
     the first option that satisfies both; an option that fails either
     MUST NOT be rendered and the Player moves to the next option in
     document order.
@@ -998,9 +999,20 @@ squeezeback layouts (side-by-side and L-shape).
   by resuming (R25), and dismissal gives them the surface back without
   resuming.
 
-  This requirement declares a capability, not an attribute name. The
-  construct that carries it is named under the rules of
-  [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md).
+  **The carrier is this specification's own, and the base skip control
+  is not reused.** The base specification has a construct for a
+  user-initiated skip — `@skipAfter` on the alternative-MPD events
+  (§5.16.5.2) and `PlaybackRestrictions@skipAfter` in the service
+  description (Annex K, Tables K.9 and K.18) — and both default to
+  skippable everywhere: *"Zero duration implies that skipping is
+  allowed everywhere … Default value is PT0S"* (§5.16.5.2). R35.1's
+  default is the opposite — a slot nobody declared dismissible cannot
+  be dismissed — and reusing the construct would bring its default with it. The
+  declaration is therefore a field this specification defines in the
+  resolution document, named under the rules of
+  [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md), which
+  records it as a deliberate exception to reusing the baseline
+  construct. ADR 0017 records the decision.
 
   **Conformance criteria** (runtime):
   - **R35.1** (APS): The APS MUST declare, for each slot it resolves,
@@ -1030,9 +1042,15 @@ squeezeback layouts (side-by-side and L-shape).
     control, a gesture, a remote button — is out of scope. This
     specification states when it must be available and what it ends,
     and the market decides how it is presented.
+  - **R35.8** (spec document): The declarations of R35.1 and R35.2 MUST
+    be carried by a construct this specification defines in the
+    resolution document, and MUST NOT be carried by the base
+    specification's `@skipAfter` or `PlaybackRestrictions@skipAfter`,
+    whose default of zero makes an undeclared slot skippable and so
+    contradicts R35.1.
 
 - **R36. A non-linear opportunity may be resolved ahead of time, and the resolution declares how long it keeps.**
-  *Gist: The Publisher declares how early a Player may resolve an overlay or pause opportunity, and the APS declares how long that resolution stays good; a stale one is resolved again.*
+  *Gist: The Publisher declares how early a Player may resolve an overlay or pause opportunity with the base `@earliestResolutionTimeOffset`, whose 60-second default applies when it declares nothing, and the APS declares how long that resolution stays good; a stale one is resolved again.*
 
   The base specification already lets a Player resolve early on the
   primary timeline: an alternative-MPD event carries an earliest
@@ -1040,7 +1058,22 @@ squeezeback layouts (side-by-side and L-shape).
   declared offset (§5.16.5), and the Player may fetch from that instant
   onward. Without the same capability for the non-linear families, the
   Player can only resolve at the moment the opportunity fires, and the
-  viewer waits for the APS with the ad surface already due.
+  viewer waits for the APS with the ad surface already due — and a
+  window that opens only once its resolution has arrived loses, to
+  that delay, part of the time the Publisher gave it.
+
+  **The offset is the base specification's own, default included.**
+  The construct is `@earliestResolutionTimeOffset`: *"specifies the
+  time interval (in units of EventStream@timescale) prior to the
+  Event@presentationTime during which the MPD described in the @uri
+  attribute may be requested. The default is 60 seconds in units of
+  timescale"* (§5.16.5.2). This specification reuses it on overlay and
+  pause opportunity windows with the same name, units and default, so a
+  window that declares no offset may be resolved up to 60 seconds
+  ahead, exactly as a base event that declares none. The reason is the
+  one ADR 0011 applies: a Player implementing this specification and a
+  Player implementing the base specification behave the same on the
+  same manifest. ADR 0018 records the decision.
 
   **For an overlay the mechanism carries over unchanged**, because an
   overlay window occupies a region of the primary timeline: the
@@ -1070,22 +1103,27 @@ squeezeback layouts (side-by-side and L-shape).
   resolved at the moment of the pause. Both are positions a deployment
   may hold, and neither has to reopen this requirement.
 
-  This requirement declares capabilities, not attribute names. The
-  constructs that carry them are named under the rules of
+  The offset's construct is fixed above. The construct that carries how
+  long a resolution keeps is a capability and not an attribute name,
+  and is named under the rules of
   [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md).
 
   **Conformance criteria** (runtime):
   - **R36.1** (Publisher): The Publisher MAY declare, on an overlay or
-    pause opportunity window, how far ahead of it a Player may resolve.
-    The declaration is optional; a window that does not carry it is
-    resolved when it fires.
+    pause opportunity window, how far ahead of it a Player may resolve,
+    with the base specification's `@earliestResolutionTimeOffset`
+    (§5.16.5.2), in units of the parent `EventStream@timescale`. A
+    window that does not carry it takes the base default of 60
+    seconds. A Publisher who wants a window resolved only when it
+    fires declares an offset of zero.
   - **R36.2** (Player): On an overlay window, the Player MUST NOT
-    resolve earlier than the declared offset before the start of the
-    window.
+    resolve earlier than the offset — declared, or the default of
+    R36.1 — before the start of the window.
   - **R36.3** (Player): On a pause opportunity window, the Player MUST
-    NOT resolve earlier than the declared offset before the start of
-    the window. The offset is computed against the start of the window
-    and never against the pause, which has no authored time (R31).
+    NOT resolve earlier than the offset — declared, or the default of
+    R36.1 — before the start of the window. The offset is computed
+    against the start of the window and never against the pause, which
+    has no authored time (R31).
   - **R36.4** (APS): Where a resolution may have been obtained ahead of
     the opportunity, the APS MUST declare how long that resolution
     remains usable. A resolution document that does not declare it
@@ -1099,8 +1137,8 @@ squeezeback layouts (side-by-side and L-shape).
     and MUST NOT fall back on the expired one.
   - **R36.7** (spec document): Resolving early is a permission and
     never an obligation. A Player that resolves only when the
-    opportunity fires is conformant, and a Publisher who declares no
-    offset gets exactly that.
+    opportunity fires is conformant, whatever offset the window
+    carries.
 
 - **R37. A pause is what the viewer experiences, not how the Player achieves it.**
   *Gist: Any mechanism that leaves the primary content suspended and resumes it where it was suspended is a pause; the specification does not prescribe how a Player implements one.*
@@ -1140,7 +1178,7 @@ squeezeback layouts (side-by-side and L-shape).
     requirement defines it.
 
 - **R38. The Player forwards the slot's allowed layouts to the APS.**
-  *Gist: When a non-linear slot declares the layouts the Publisher allows, the Player sends that set to the APS on the resolution request, and checks the options it gets back against it before rendering.*
+  *Gist: When a non-linear slot declares the layouts the Publisher allows, the Player sends that set to the APS on the resolution request, and checks the options it gets back against it before rendering; a slot that declares none admits only its own family's layouts.*
 
   A Publisher MAY declare, on a non-linear slot, the layouts it allows
   (`@allowedLayouts`, R12.2). When it does, the set travels to the APS,
@@ -1150,18 +1188,27 @@ squeezeback layouts (side-by-side and L-shape).
 
   **Conformance criteria** (runtime):
   - **R38.1** (Publisher): Declaring the allowed layouts on a non-linear
-    slot is OPTIONAL.
+    slot is OPTIONAL. A slot that declares none admits only the layout
+    tokens R12 enumerates for its own family: on an overlay slot those
+    of the Overlay and Squeezeback entries, on a pause slot those of the
+    Pause-ad entry. It admits no token of another family — an overlay slot
+    that declares nothing does not admit the `linear` full-screen
+    takeover — and it does not admit `custom`, which a slot admits only
+    by listing it (R39.2).
   - **R38.2** (Player): When the slot declares allowed layouts, the Player
     MUST send the declared set, unchanged, on the resolution request to
-    the APS. When the slot declares none, nothing is sent.
+    the APS. When the slot declares none, nothing is sent, and the set
+    that binds the APS and the Player is the one R38.1 admits.
   - **R38.3** (spec document): The way the set is carried is normative
     and defined by this specification, as one of the reserved parameters
     of R29 — for example, a query parameter on the resolution request.
   - **R38.4** (APS): The APS MUST NOT return an option whose layout is
-    outside the set it received.
+    outside the set it received or, when it received none, outside the
+    set R38.1 admits for the slot's family.
   - **R38.5** (Player): Before rendering, the Player MUST check that the
-    option it selects uses one of the layouts allowed by the Publisher,
-    and MUST NOT render it otherwise (R5.6). Forwarding the set does not
+    option it selects uses one of the layouts the slot admits — the
+    declared set, or the one R38.1 admits when none is declared — and
+    MUST NOT render it otherwise (R5.6). Forwarding the set does not
     remove this check.
   - **R38.6** (spec document): Linear slots (`InsertPresentation`,
     `ReplacePresentation`) are outside this requirement.
@@ -1632,20 +1679,18 @@ screen to a single active non-linear form at any instant.
     stopped separating them.
   - **R20.4** (Player): A resolution document whose family does not
     match the slot that requested it is not a resolution of that slot.
-    The Player MUST treat it as a failure to resolve and continue down
-    the chain of R20.1. It MUST NOT be treated as a resolution carrying
-    no candidates, which ends the chain — the two produce opposite
-    outcomes from the same `200`.
+    The Player MUST treat it as a failed execution, MUST NOT present any
+    of its candidates in the slot, and MUST continue down the chain of
+    R20.1 to the next overlapping window of the slot's family.
 
-    The distinction is the one ADR 0011 settled, applied to a second
-    case. A resolution carrying no candidates is an **answer**: the
-    opportunity was offered and nothing filled it, which is why the
-    chain ends there rather than asking again. A document of the wrong
-    family answers a question nobody asked — it cannot fill this slot
-    whatever it contains, because its candidates are of a kind this
-    slot does not admit. Reading it as an empty resolution would let a
-    misrouted response silence every remaining window, which is the
-    failure mode the fallback chain exists to prevent.
+    It ends the way a resolution carrying no candidates ends, and for
+    the reason ADR 0011 gives for that case: the attempt produced no ad
+    for this slot. A document of the wrong family cannot fill the slot
+    whatever it contains, because its candidates are of a kind the slot
+    does not admit. It is stated separately because it does carry
+    candidates, and R20.1 holds that a resolution document carrying
+    candidates is not a failed execution; this criterion is the
+    exception, since none of those candidates belongs to the slot.
   - **R20.5** (Player): The Player MUST bind the candidates each window
     in a fallback chain serves with **that window's own** declarations:
     its allowed layouts and its maximum duration. The Player MUST NOT

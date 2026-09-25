@@ -110,7 +110,7 @@ through `08-dash-extension-rules.md`.
 - **Publisher**: the entity that owns the primary content and the
   viewer's screen. Declares ad opportunities in the MPD (where in
   the timeline, what kind of slot, what layouts are allowed, what
-  duration / concurrency constraints apply). (Previously named
+  duration constraints apply). (Previously named
   "Broadcaster / Content Owner".)
 - **IAB CTV Ad Standard**: the IAB's spec for ad units in connected
   TV environments; describes flexible-ratio formats (e.g. 8:1, 6:1,

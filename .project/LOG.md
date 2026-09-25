@@ -2017,3 +2017,30 @@ del viewport y una región opcional del Publisher que el APS no puede exceder y 
 Player valida (R39, UC-16). La fase 03 (N elementos, orden Z, píxeles contra un
 viewport de referencia) nunca se ejecutó y queda `superseded`, con su ADR 0002
 propuesta. En su plan Nicolás había elegido píxeles; ahora eligió porcentaje.
+
+## 2026-09-25 — Decisiones sobre lo que la corrida incremental no pudo ubicar
+
+La corrida incremental sobre v9.1 dejó tres cambios de `context/` sin ubicar porque
+`context/` se contradecía. Nicolás decidió:
+
+- **R35 (descartar un slot):** lo lleva un campo propio de esta spec en el documento
+  de resolución del APS, no el `@skipAfter` de DASH (ni el de eventos, §5.16.5.2, ni
+  `PlaybackRestrictions@skipAfter`, Anexo K). Los dos tienen default "se puede saltear
+  en cualquier momento", lo contrario de R35.1. R35.8 lo hace criterio y 06 lo
+  registra como excepción a la regla de reusar. ADR 0017.
+- **R36.1 (resolver antes):** se adopta `@earliestResolutionTimeOffset` de DASH con su
+  default de 60 s; una ventana que no declara nada se puede resolver hasta 60 s antes,
+  y quien quiera resolver al disparar declara 0. En sus palabras: *"hagamos lo que dice
+  dash!! Si lo hace al momento de llegar el anuncio no se va a usar toda la ventana por
+  la demora del proceso"*. Mismo criterio que la ADR 0011. ADR 0018.
+- **R38.1 (slot sin layouts declarados):** admite sólo los tokens de su propia familia;
+  un slot de overlay no admite el takeover `linear` ni `custom` si no los lista. Sin
+  ADR: es la lectura por defecto de un campo opcional, no una decisión de arquitectura.
+
+Además se corrigió, sin decisión nueva: R20.4 decía que una resolución sin candidatos
+corta la cadena, contra la ADR 0011 y R20.1; ahora un documento de otra familia es un
+fallo que sigue por R20.1, igual que el vacío. Y defectos de `context/`: el tope de
+overlays concurrentes de UC-03 (y de 02-actors y el glosario) contra R22, el tope de
+duración de UC-05 contra R4/R31, "Screen Saver Ad" en R12, el token
+`squeezeback-double-box-background` en UC-09 y UC-13, y la cita del `@value` en 06
+(§5.10.2.2, Tabla 43).
