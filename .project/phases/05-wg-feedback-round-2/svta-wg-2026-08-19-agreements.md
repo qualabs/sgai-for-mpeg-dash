@@ -812,6 +812,13 @@ at a glance.
    unordered set the Player intersects with its capabilities. Our own
    R5 makes document order the preference order; whether the placement
    list inherits that convention is not addressed.
+
+   > **Resolved 2026-09-24.** There is no placement-type list (O1 not
+   > adopted). The list that exists is the slot's `@allowedLayouts`: a
+   > closed set of tokens (R12), used as a membership test (R5.6) and
+   > forwarded to the APS as a set (R38). Preference among options is
+   > the order of the resolution document (R5), not of this list.
+
 9. **Where exactly the declaration goes.** *"you think about it in the
    top low in the — the primary playlist, right, in this case, like the
    MPD, you know, you're specifying, essentially — was it, like, a
