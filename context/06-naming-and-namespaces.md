@@ -40,7 +40,7 @@ backward-compatibility rules in that edition's spec.
 
 **`@value` on these schemes.** The base specification asks the owner of
 a scheme to define the value space of `EventStream@value` (DASH
-§5.10.2.1). The SGAI event schemes define none: an `EventStream`
+§5.10.2.2, Table 43). The SGAI event schemes define none: an `EventStream`
 carrying an SGAI scheme MUST NOT carry `@value`, and a Player MUST
 ignore one if present. One family's windows in a Period share a single
 `EventStream` (R20.2), so nothing needs to tell two such streams apart.
@@ -157,6 +157,26 @@ construct with all its characteristics — name, default values,
 permitted value domain, units, semantics. The spec does NOT
 introduce a new identifier when an existing one already covers
 the concept.
+
+**Early resolution reuses the baseline construct, default included.**
+The offset of R36 is `@earliestResolutionTimeOffset` (DASH
+§5.16.5.2), carried on overlay and pause opportunity windows with its
+name, its units — those of the parent `EventStream@timescale` — and
+its default of 60 seconds. A window that declares nothing may
+therefore be resolved 60 seconds ahead, as a base event may. ADR 0018
+records why.
+
+**Viewer dismissal is a deliberate exception.** The dismissal
+declaration of R35 does **not** reuse the base skip control, neither
+`@skipAfter` on the alternative-MPD events (DASH §5.16.5.2) nor
+`PlaybackRestrictions@skipAfter` in the service description (DASH
+Annex K, Tables K.9 and K.18). Both default to zero, which the base
+specification defines as *"skipping is allowed everywhere"*, while
+R35.1 makes a slot nobody declared dismissible non-dismissible.
+Reusing the construct would bring the default with it, and this rule
+does not allow reusing it without. The declaration is therefore a
+field this specification defines in the resolution document, under
+the extension namespace above. ADR 0017 records why.
 
 ## Preferred encoding patterns
 
