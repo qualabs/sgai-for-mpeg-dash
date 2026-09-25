@@ -104,7 +104,10 @@ R35 — dismissal is granted and never assumed — is the requirement.
 ## Note — 2026-09-25
 
 The same day, the carrier rule left `context/03-requirements.md`: R35.8 was
-removed and R35 no longer names either `@skipAfter`, because naming the
+removed (a later R35.8 is a different criterion, ADR 0019) and R35 no longer names either `@skipAfter`, because naming the
 carrier is the build's layer, not the requirements'. The rule this ADR
 records now lives only in `context/06-naming-and-namespaces.md`, "Viewer
 dismissal is a deliberate exception". The decision is unchanged.
+
+The case left **Not decided here** was decided the same day by ADR 0019:
+a base `@skipAfter` on a linear event is honoured.
