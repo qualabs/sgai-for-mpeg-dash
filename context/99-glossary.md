@@ -36,6 +36,9 @@ through `08-dash-extension-rules.md`.
 - **MPEG-DASH 6th edition**: revision of ISO/IEC 23009-1 that
   introduced the `InsertPresentation` and `ReplacePresentation`
   constructs for linear SGAI.
+- **Base specification**: MPEG-DASH 6th edition (ISO/IEC 23009-1),
+  the standard this specification extends. "Base" is used when the
+  point is that a rule comes from that standard and not from this one.
 - **MPD (Media Presentation Description) / Manifest**: the XML
   document a DASH player consumes to play media. It describes
   Periods, AdaptationSets, Representations and (with 6th edition)
