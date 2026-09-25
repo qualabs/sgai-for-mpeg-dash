@@ -166,9 +166,16 @@ The baseline is the published build rather than the candidate
 generated just before, because that is the question a promotion
 needs answered: not "did this round move", but "is this better
 than what we currently give as good". The verdict is an input to
-the promotion decision and not the decision itself. Major vs minor
-is currently a manual call — see `CLAUDE.md` for the decision
-rule.
+the promotion decision and not the decision itself.
+
+### Incremental (v\<N.M+1\>)
+
+When `context/` changed by a bounded delta, `prompts/build-incremental.prompt`
+applies it to the latest candidate instead of regenerating the spec:
+only the affected sections change, and
+`output-analysis/v<N.M+1>-context-delta.md` maps each change to where
+it landed. Which of the three scales (major, incremental, minor) to
+use is the operator's call — see `CLAUDE.md` for the decision rule.
 
 ## GitHub issues pipeline (Stage 5)
 
