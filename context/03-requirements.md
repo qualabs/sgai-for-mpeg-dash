@@ -301,9 +301,10 @@ and the boundaries of what this spec does and does not define.
     specification does not define how an APS resolves an undetermined
     value; that is the APS's decision, and two APSs that resolve it
     differently are both conformant.
-  - **R29.8** (Player): R38.2 is the one exception to R29.2: when a
-    non-linear slot declares allowed layouts, sending that set is
-    MANDATORY. Every other reserved parameter remains optional.
+  - **R29.8** (spec document): R38.2 is the one exception to R29.2:
+    when a non-linear slot declares allowed layouts, R38.2 requires the
+    Player to send that set. Every other reserved parameter remains
+    optional.
 
 ### Opportunity declaration
 
@@ -435,9 +436,9 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     cap-dependent requirement a second reading for a shape almost
     nobody authors. ADR 0015 records the decision and what it
     deliberately does not change about the pause family (R31).
-  - **R4.11** (Player): Cap arithmetic runs on the presentation
-    timeline. An interval during which the presentation timeline does
-    not advance does not accrue against the cap, so a form suspended
+  - **R4.11** (Player): The Player MUST compute the cap on the
+    presentation timeline. An interval during which the presentation
+    timeline does not advance MUST NOT accrue against the cap, so a form suspended
     under R17 resumes with the remaining cap it had when it was
     suspended. The only suspension this specification defines happens
     while the viewer is paused (R17.1), and a pause does not advance
@@ -957,9 +958,10 @@ squeezeback layouts (side-by-side and L-shape).
     Player MUST present at most one pause ad for that window for the
     duration of the session. A later qualifying pause inside the same
     window MUST leave the primary content uninterrupted.
-  - **R34.3** (Player): The window is consumed when a pause ad
-    **begins rendering**, and not when the pause occurs. A pause that
-    resolves to no renderable candidate leaves the window available.
+  - **R34.3** (Player): The Player MUST treat the window as consumed
+    when a pause ad **begins rendering**, and not when the pause
+    occurs. A pause that resolves to no renderable candidate MUST leave
+    the window available.
   - **R34.4** (spec document): The capability is the pause family's
     counterpart of the base specification's single-execution bound,
     and is recorded as such. It is not a new kind of control: a reader
@@ -1089,9 +1091,9 @@ squeezeback layouts (side-by-side and L-shape).
     check whether the resolution it holds is still usable. If it is
     not, the Player MUST request a new one and MUST NOT present
     candidates from the expired resolution.
-  - **R36.6** (Player): A re-resolution that yields no usable candidate
-    is an empty resolution and is treated as R30 defines it, not as a
-    reason to fall back on the expired one.
+  - **R36.6** (Player): When a re-resolution yields no usable
+    candidate, the Player MUST treat it as an empty resolution (R30)
+    and MUST NOT fall back on the expired one.
   - **R36.7** (spec document): Resolving early is a permission and
     never an obligation. A Player that resolves only when the
     opportunity fires is conformant, and a Publisher who declares no
@@ -1453,21 +1455,22 @@ screen to a single active non-linear form at any instant.
   **Conformance criteria** (runtime):
   - **R17.1** (Player): While the viewer is paused inside a
     pause-ad window AND an overlay is active, the Player
-    renders the pause-ad form and suspends the overlay
+    MUST render the pause-ad form and MUST suspend the overlay
     rendering.
   - **R17.2** (Player): On resume from pause, the Player
-    dismisses the pause-ad (per R16) and restores the overlay
+    MUST dismiss the pause-ad (per R16) and MUST restore the overlay
     rendering if the overlay slot window is still active.
   - **R17.3** (Player): If the overlay slot window expired
-    during the pause, the Player keeps the overlay surface clear
+    during the pause, the Player MUST keep the overlay surface clear
     on resume; the overlay is over.
   - **R17.4** (spec document): The specification carries no
     construct that lets the Publisher, the ADS, or the APS invert
     this priority.
   - **R17.5** (Player): When a viewer pause begins inside a pause
     opportunity window while a linear ad occupies the screen, the
-    Player presents the pause ad and suspends the linear ad, resuming
-    it from where it was suspended when the viewer resumes. The pause
+    Player MUST present the pause ad and MUST suspend the linear ad,
+    and MUST resume it from where it was suspended when the viewer
+    resumes. The pause
     ad is dismissed on resume (R16). The cross-family priority of this
     requirement therefore holds against the linear family as well as
     against an overlay.
@@ -1568,10 +1571,10 @@ screen to a single active non-linear form at any instant.
     type shall be clustered in one Event Stream"* — so two sibling
     streams carrying the same SGAI scheme in one `Period` is not a
     conformant document.
-  - **R20.3** (Player): Overlapping windows of one family are ordered
-    by **presentation time, oldest first**. Where two windows carry
-    the same presentation time, the order is the order in which they
-    appear inside the `EventStream`.
+  - **R20.3** (Player): The Player MUST order overlapping windows of
+    one family by **presentation time, oldest first**. Where two
+    windows carry the same presentation time, the Player MUST take them
+    in the order in which they appear inside the `EventStream`.
 
     For the linear family this is the base standard's own rule: the
     execution queue is *"a priority queue ... ordered by the
@@ -1605,10 +1608,10 @@ screen to a single active non-linear form at any instant.
     slot does not admit. Reading it as an empty resolution would let a
     misrouted response silence every remaining window, which is the
     failure mode the fallback chain exists to prevent.
-  - **R20.5** (Player): Each window in a fallback chain binds the
-    candidates it serves with **its own** declarations: its allowed
-    layouts and its maximum duration. A window does not inherit the
-    declarations of the window it stands in for. This follows from
+  - **R20.5** (Player): The Player MUST bind the candidates each window
+    in a fallback chain serves with **that window's own** declarations:
+    its allowed layouts and its maximum duration. The Player MUST NOT
+    apply the declarations of the window it stands in for. This follows from
     R20's ownership model — a declaration belongs to the window that
     carries it — and the alternative, binding the chain to the first
     window's declarations, contradicts it.
@@ -1720,10 +1723,10 @@ carriers for creative metadata and non-AV assets.
     in two different candidates of one resolution document are two
     distinct beacons and the Player MUST fire both.
   - **R6.6** (Player): When the beacon carrier is an `<EventStream>`
-    hosted as foreign-namespace open content inside a candidate, its
-    presentation times are resolved against **that candidate's own
-    presentation**, not against a `<Period>` the element does not sit
-    in.
+    hosted as foreign-namespace open content inside a candidate, the
+    Player MUST resolve its presentation times against **that
+    candidate's own presentation**, not against a `<Period>` the
+    element does not sit in.
   - **R6.7** (spec document): The specification MUST state how a
     resolution document carrying the candidate-level beacon carrier is
     validated. A validation procedure that reports such a document
