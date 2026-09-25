@@ -1959,3 +1959,12 @@ Resueltas y marcadas en el extracto (`phases/05-wg-feedback-round-2/svta-wg-2026
 ## 2026-09-24 — Las once lecturas del WG quedan cerradas
 
 La 10: no hay regla entre familias; R22 lo dice en una nota informativa, con la advertencia de buena práctica de no mezclar dos formatos de publicidad a la vez, y lo que la aplicación dibuja por fuera del mecanismo no se trata a propósito (Nicolás). La 9: fuera del alcance de los requerimientos; el scheme y los elementos concretos los fija quien escriba la norma (Nicolás). **No queda ninguna lectura abierta.**
+
+## 2026-09-24 — Estado: no queda nada pendiente
+
+Hasta acá no queda nada abierto: las lecturas del WG están cerradas y la spec
+(`context/`) está al día. **Las fases 03 (custom layout) y 04 (multiview) siguen en
+`planning` a propósito: no se arrancan** hasta que Nicolás lo pida. El próximo paso
+del proyecto va a ser construir la norma a partir de estos requerimientos, **pero
+todavía no**: un agente que llegue no tiene que abrir ni proponer trabajo nuevo por
+su cuenta.
