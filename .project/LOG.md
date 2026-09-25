@@ -1981,3 +1981,7 @@ R33.3, R28.3, R10.3. Un validador que los marque `source-has-no-modal` no está
 señalando un pendiente. (El "17" del build-state del 2026-09-18 no coincidía con
 los sidecars, que listaban 23; el v9 marcaba además R27.1, que sí tiene MUST: falso
 positivo del validador.)
+
+## 2026-09-25 — M5 cerrado: los schemes SGAI no usan `@value`
+
+`context/06-naming-and-namespaces.md` declara que las event streams con scheme SGAI no llevan `@value` y que el Player lo ignora si viene; alcanza porque R20.2 junta las ventanas de una familia en un solo `EventStream`. El `@value` del scheme de callback lo sigue fijando la base. Decisión de Nicolás.
