@@ -1951,3 +1951,7 @@ deadline de la reunión de Rennes no importa**. De lo que la fase 05 dejó sin
 resolver (`phases/05-wg-feedback-round-2/REPORT.md` §4) queda sólo el tercer
 punto: las lecturas ambiguas del transcript, en
 `phases/05-wg-feedback-round-2/svta-wg-2026-08-19-agreements.md` §4.
+
+## 2026-09-24 — De las once lecturas del WG quedan dos abiertas
+
+Resueltas y marcadas en el extracto (`phases/05-wg-feedback-round-2/svta-wg-2026-08-19-agreements.md` §4): la 7 y la O1 (R38, UC-15), la 8 (`@allowedLayouts` es un conjunto: R12, R5.6, R38) y la 11 (cubierta por R5, R11.2 y R29). La 1 (deadline) dejó de importar; la 2 a la 6 son nombres y no tocan la spec. **Quedan abiertas la 9** (el scheme y el elemento concretos de la declaración no lineal) **y la 10** (si la regla de una experiencia a la vez cruza familias y alcanza sólo a lo que declara este mecanismo).
