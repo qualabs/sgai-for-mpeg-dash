@@ -118,11 +118,13 @@ maintained by the IAB, not by this spec. The spec MUST reference
 those IAB-defined values without inventing new layout names at
 chapter level. To propose a new layout, the editor works with the
 IAB directly — this specification does not own the vocabulary.
-Per **R12** in [`03-requirements.md`](./03-requirements.md), the
-layout vocabulary MUST map 1:1 to IAB-defined ad-type values; no
-publisher-private or spec-private layout names are admissible. The one
-exception is the optional `custom` overlay layout of **R39**, the only
-layout name this spec defines itself.
+The layout vocabulary is the closed list of tokens in **R12.2** of
+[`03-requirements.md`](./03-requirements.md). Each token names one
+IAB-defined ad type or placement, but the list is not the IAB
+catalogue: an IAB value that R12.2 does not list is not admissible. No
+publisher-private or spec-private layout names are admissible either,
+with one exception: the optional `custom` overlay layout of **R39**, the
+only layout name this spec defines itself.
 
 ## A family name and a layout token are different things
 

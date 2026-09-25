@@ -566,10 +566,17 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     NOT accept a value outside the enumeration, and MUST cite the IAB
     source for the values it accepts.
   - **R12.2** (Publisher): Publishers declaring allowed layouts MUST use
-    names drawn from the enumerated set, each of which maps 1:1 to an
-    IAB-defined ad type or visual placement, except `custom` (R39). Publisher-private layout
-    names, and IAB values outside the enumerated set, MUST NOT appear in
-    the allowed-layouts declaration on the slot.
+    only these tokens, which are the complete list: `linear`, `overlay`,
+    `overlay-corner`, `overlay-lower-third`,
+    `squeezeback-l-shape-upper-left`, `squeezeback-l-shape-upper-right`,
+    `squeezeback-double-box`, `squeezeback-double-box-background`,
+    `pause-fullscreen`, `pause-partial`, and the optional `custom` (R39).
+    Every token except `custom` names one IAB ad type or visual
+    placement; the IAB catalogue holds many more, and none of them is
+    admissible. The bare `squeezeback` and `pause` are not tokens,
+    because neither says which composition the Player builds.
+    Publisher-private layout names MUST NOT appear in the
+    allowed-layouts declaration on the slot either.
   - **R12.3** (APS): The ad-type set originates in the ADS's decision.
     The APS MUST NOT emit, in the resolution document, form metadata
     for an ad type or visual placement outside the enumerated set.
