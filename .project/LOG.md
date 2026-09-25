@@ -2044,3 +2044,13 @@ overlays concurrentes de UC-03 (y de 02-actors y el glosario) contra R22, el top
 duración de UC-05 contra R4/R31, "Screen Saver Ad" en R12, el token
 `squeezeback-double-box-background` en UC-09 y UC-13, y la cita del `@value` en 06
 (§5.10.2.2, Tabla 43).
+
+## 2026-09-25 — Lo que DASH ya contesta tiene prioridad (R1.5), y el `@skipAfter` lineal se respeta
+
+Decisión de Nicolás: *"lo que hace ya DASH es prioridad para tomar decisiones"*.
+El criterio estaba en la ADR 0006 pero no en `context/`, así que el build no lo
+leía; ahora es R1.5. Aplicado al caso que la ADR 0017 había dejado abierto: un
+`@skipAfter` de la base en un evento lineal se respeta con su significado de base y
+gobierna el slot (R35.8, ADR 0019). También quedaron hoy OOS-9 (avisos fuera de la
+superficie del video y dentro de la escena) y la lista explícita de tokens en R12.2
+en lugar del "mapea 1:1 a IAB".

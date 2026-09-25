@@ -92,7 +92,7 @@ positions.
 
 | Req | Core invariant (one line) |
 |---|---|
-| R1 | SGAI extends MPEG-DASH 6th edition without breaking it; a legacy Player ignores the new constructs and keeps playing. |
+| R1 | SGAI extends MPEG-DASH 6th edition without breaking it; a legacy Player ignores the new constructs and keeps playing, and where the base already answers a question its answer wins. |
 | R2 | Four actors, fixed roles: the Publisher declares, the ADS decides, the APS converts, the Player validates and renders. |
 | R4 | The Publisher declares a maximum on every slot; the Player enforces it even mid-ad, and what it bounds depends on the family. |
 | R5 | Candidates carry one or more renderable options in preference order; the Player renders the first its device can satisfy, and a single-option candidate leaves the choice with the APS. |
@@ -113,7 +113,7 @@ must respect — the MPEG-DASH baseline, the actor responsibilities,
 and the boundaries of what this spec does and does not define.
 
 - **R1. MPEG-DASH 6th edition compliance and graceful degradation.**
-  *Gist: SGAI extends MPEG-DASH 6th edition without breaking it; a Player that does not implement the new constructs ignores them and keeps playing the primary content.*
+  *Gist: SGAI extends MPEG-DASH 6th edition without breaking it; a Player that does not implement the new constructs ignores them and keeps playing the primary content, and where the base specification already answers a question, its answer is the one adopted.*
 
   The solution MUST extend MPEG-DASH 6th edition without breaking
   existing semantics. Backward compatibility is mandatory: a Player
@@ -155,6 +155,14 @@ and the boundaries of what this spec does and does not define.
     matches what the base specification already requires of its own
     execution model (§5.16.2.2.6); the criterion states it for the
     constructs added here rather than introducing it.
+  - **R1.5** (spec document): Where the base specification already
+    defines a behaviour, a default or a construct for a question this
+    specification has to answer, the base specification's answer takes
+    precedence: this specification adopts it and cites it. It defines
+    its own answer only where the base specification gives none, and
+    declares that answer as an extension. A decision that departs from
+    the base answer anyway is an exception recorded with its reason.
+    ADR 0006 records the principle.
 
 - **R2. Honour the actor's responsibilities.**
   *Gist: Four actors with fixed roles: the Publisher declares constraints, the ADS decides which ads to serve, the APS converts that into the resolution document, and the Player validates and renders.*
@@ -1033,6 +1041,13 @@ squeezeback layouts (side-by-side and L-shape).
     control, a gesture, a remote button — is out of scope. This
     specification states when it must be available and what it ends,
     and the market decides how it is presented.
+  - **R35.8** (Player): On a linear slot whose event already carries the
+    base specification's own skip declaration, the Player MUST honour
+    that declaration as the base specification defines it, and it
+    governs the slot. R35.1's default applies only where neither the
+    event nor the resolution document declares anything. This is R1.5
+    applied: a Player of this specification and a base Player treat the
+    same linear event the same way.
 
 - **R36. A non-linear opportunity may be resolved ahead of time, and the resolution declares how long it keeps.**
   *Gist: The Publisher may declare how early a Player may resolve an overlay or pause opportunity, 60 seconds when it declares nothing, and the APS declares how long that resolution stays good; a stale one is resolved again.*

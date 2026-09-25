@@ -184,6 +184,9 @@ Reusing the construct would bring the default with it, and this rule
 does not allow reusing it without. The declaration is therefore a
 field this specification defines in the resolution document, under
 the extension namespace above. ADR 0017 records why.
+The exception covers where R35's declaration travels, not the base
+attribute itself: a `@skipAfter` a Publisher writes on a linear event
+keeps its base meaning, and the Player honours it (R35.8, ADR 0019).
 
 ## Preferred encoding patterns
 
