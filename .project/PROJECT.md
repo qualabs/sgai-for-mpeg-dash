@@ -168,19 +168,11 @@ the long-range plan and get a folder when they open.
   follow-up. The phase's primary work product is the cross-reference
   report (`phases/02-wg-feedback-round-1/hassoun-feedback-crossref.md`);
   the closure report is `phases/02-wg-feedback-round-1/REPORT.md`.
-- **`03-custom-layout` — `planning`** (opened 2026-07-13). Scaffold for
-  the **custom layout** advanced extension: a new, additional layout
-  type (alongside overlay / side-by-side R26 / L-shape R27 / takeover)
-  with a reference-viewport pixel coordinate model and an N-element model
-  (arbitrary position / size / Z-order, overlap permitted, one
-  primary-content reference element). Publisher enables it, ADS/APS
-  supplies the positions; degrades via the R5 ordered fallback and the R3
-  decoder budget. Custom layout is an **opt-in, advanced** feature — its
-  requirement and use-cases go in self-contained advanced-extension
-  sections, not the core. Deliverables scaffolded: `PHASE.md`,
-  `TASKS.md`, `T-01-PLAN.md`, and proposed ADR
-  `0002-custom-layout-viewport-pixel-model.md`. `context/` is not yet
-  touched — the phase is in `planning` for Nicolás to review.
+- **`03-custom-layout` — `superseded`** (2026-07-13 to 2026-09-25). A custom
+  layout with N elements, Z-order and pixel coordinates against a reference
+  viewport, from David Hassoun's request. Never executed: replaced by R39, a
+  single optional `custom` overlay placed in percent of the viewport inside a
+  region the Publisher may bound. Its proposed ADR 0002 is superseded with it.
 - **`04-multiview` — `planning`** (opened 2026-07-13). Scaffold for the
   **multiview** advanced extension: 2 up to 4 videos at once in a **fixed**
   collection of named `multiview-*` layouts, for **alternative content**

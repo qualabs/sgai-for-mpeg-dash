@@ -2008,3 +2008,12 @@ arranca la major solo.
 Contra los candidatos que hay, `degradation` da: v8→v8.1 limpio (dos `met→partial`,
 que no cuentan), v8.1→v9 **13 regresiones y 11 modales menos** — la major v9 perdió
 cosas que el refine de v8.1 había ganado. Todavía no se corrió el camino.
+
+## 2026-09-25 — R39 reemplaza a la fase 03
+
+Nicolás definió el layout custom en una versión más chica que la de la fase 03:
+un solo overlay, opcional para todos los actores, con el rectángulo en porcentaje
+del viewport y una región opcional del Publisher que el APS no puede exceder y el
+Player valida (R39, UC-16). La fase 03 (N elementos, orden Z, píxeles contra un
+viewport de referencia) nunca se ejecutó y queda `superseded`, con su ADR 0002
+propuesta. En su plan Nicolás había elegido píxeles; ahora eligió porcentaje.
