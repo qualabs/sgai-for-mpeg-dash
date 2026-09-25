@@ -38,6 +38,16 @@ auditable. A Player implementing edition N + 1 SHOULD recognise
 both `:N:` and `:N+1:` URIs and treat them per the
 backward-compatibility rules in that edition's spec.
 
+**`@value` on these schemes.** The base specification asks the owner of
+a scheme to define the value space of `EventStream@value` (DASH
+§5.10.2.1). The SGAI event schemes define none: an `EventStream`
+carrying an SGAI scheme MUST NOT carry `@value`, and a Player MUST
+ignore one if present. One family's windows in a Period share a single
+`EventStream` (R20.2), so nothing needs to tell two such streams apart.
+A later edition that needs to distinguish them defines a value space
+then. This does not apply to the tracking callback scheme below, whose
+`@value` the base specification fixes.
+
 ### Tracking callback event scheme
 
 The spec does **not** introduce a new tracking scheme. Per **R13**
