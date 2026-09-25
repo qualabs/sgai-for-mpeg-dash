@@ -551,17 +551,9 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     one and exclude the other if the two are distinguishable in
     `@allowedLayouts`.
 
-  **Out of scope: ads outside the video surface.** Any ad rendered in
-  the Player chrome or the application UI rather than on the playing or
-  paused video is out of scope for this specification. This includes
-  menu ads (IAB *Menu Ad*: home screen, content menu, guide / EPG),
-  home-screen / launcher ads, screen saver ads (IAB *Screen Saver Ad*),
-  and companion / multi-screen ads (IAB *Companion Ad*). These are
-  concerns of the application's ad integration, not of the
-  Player-facing SGAI contract this specification defines. Because the
-  supported set above is closed, anything not enumerated there is
-  already out of scope; this paragraph makes the off-video-surface
-  category unambiguous.
+  **Out of scope: ads outside the video surface.** The supported set
+  above is closed. Ads the application renders outside the video
+  surface are excluded by OOS-9.
 
   Reference (live link, not snapshotted):
   https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
@@ -2134,6 +2126,18 @@ and deferring layout to existing primitives.
   about advertisers and competitors and already carries the
   responsibility. ADR 0016 records the decision, including why the
   APS is not the answer either.
+
+- **OOS-9. Ads outside the video surface.** This specification covers
+  only ads the video Player renders on the playing or paused video,
+  because the contract it defines is between a manifest and the Player
+  that plays it. An ad the application renders in its own interface is
+  outside that contract and outside this specification, whatever IAB
+  calls it: menu ads (IAB *Menu Ad*: home screen, content menu, guide /
+  EPG), home-screen and launcher ads, screen saver ads (IAB *Screen
+  Saver Ad*), and companion or multi-screen ads (IAB *Companion Ad*).
+  They are not candidates for a later phase and are not raised as gaps
+  in the specification: no requirement, use case or layout value
+  covers them, and none is to be added.
 
 ## Deliberately open
 

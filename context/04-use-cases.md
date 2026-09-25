@@ -111,13 +111,9 @@ The following scenarios are deliberately not covered by this document:
 - **Server-side ad insertion / stitching (SSAI / SSR)** — the
   foundation phase covers client-side ad rendering only.
 - **Post-roll slots** — candidate for a future phase.
-- **Ads rendered outside the video surface** (menu / guide / EPG ads,
-  home-screen / launcher ads, screensaver ads, and companion /
-  multi-screen ads) live in the Player chrome or the application UI,
-  not on the playing or paused video, so they are out of scope for the
-  SGAI contract. See R12 in
-  [`03-requirements.md`](03-requirements.md) for the supported ad-type
-  enumeration and this exclusion.
+- **Ads rendered outside the video surface** (menu, home-screen,
+  screen saver and companion ads) are out of scope for this
+  specification: see OOS-9 in [`03-requirements.md`](03-requirements.md).
 
 ### UC-01 — Slot at start of session (pre-roll)
 
