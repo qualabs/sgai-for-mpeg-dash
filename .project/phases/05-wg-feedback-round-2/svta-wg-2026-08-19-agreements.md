@@ -824,6 +824,14 @@ at a glance.
    MPD, you know, you're specifying, essentially — was it, like, a
    period? You need to spend—"* [46:16]. David appears to be asking
    whether it is declared on a Period, and the sentence breaks off.
+
+   > **Resolved 2026-09-24.** Out of scope for the requirements. Linear
+   > slots are placed by the base specification (`<Event>` in an
+   > `<EventStream>` in the `<Period>`); the concrete scheme URIs and
+   > elements for non-linear declarations are fixed by whoever writes the
+   > normative specification, which is why `06-naming-and-namespaces.md`
+   > gives them only as illustrations.
+
 10. **The scope of the one-at-a-time rule.** Nicolás: *"or not not to
     add experiences inside the player, let's say, controlled by this
     mechanism"* [42:42]. Reads as "not two ad experiences inside the
@@ -831,6 +839,13 @@ at a glance.
     this spec controls, and an application-drawn banner outside the
     mechanism is not in scope. Worth confirming, because it materially
     bounds A6.
+
+    > **Resolved 2026-09-24.** No cross-family rule: a linear presentation
+    > and a non-linear form may coexist (UC-04), and a `ReplacePresentation`
+    > may not be advertising (UC-14). R22 now says so in an informative
+    > note, with a best-practice caution against combining two ad formats.
+    > Application-drawn content outside this mechanism is left unaddressed
+    > on purpose.
 11. **The name of the agenda item behind A3.** *"Multi-layout fallback,
     so limited codes, multiple layout fallback, memorization"* [30:03].
     "limited codes" is limited decoders; "memorization" is probably

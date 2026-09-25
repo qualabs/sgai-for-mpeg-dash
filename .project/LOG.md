@@ -1955,3 +1955,7 @@ punto: las lecturas ambiguas del transcript, en
 ## 2026-09-24 — De las once lecturas del WG quedan dos abiertas
 
 Resueltas y marcadas en el extracto (`phases/05-wg-feedback-round-2/svta-wg-2026-08-19-agreements.md` §4): la 7 y la O1 (R38, UC-15), la 8 (`@allowedLayouts` es un conjunto: R12, R5.6, R38) y la 11 (cubierta por R5, R11.2 y R29). La 1 (deadline) dejó de importar; la 2 a la 6 son nombres y no tocan la spec. **Quedan abiertas la 9** (el scheme y el elemento concretos de la declaración no lineal) **y la 10** (si la regla de una experiencia a la vez cruza familias y alcanza sólo a lo que declara este mecanismo).
+
+## 2026-09-24 — Las once lecturas del WG quedan cerradas
+
+La 10: no hay regla entre familias; R22 lo dice en una nota informativa, con la advertencia de buena práctica de no mezclar dos formatos de publicidad a la vez, y lo que la aplicación dibuja por fuera del mecanismo no se trata a propósito (Nicolás). La 9: fuera del alcance de los requerimientos; el scheme y los elementos concretos los fija quien escriba la norma (Nicolás). **No queda ninguna lectura abierta.**

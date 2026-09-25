@@ -1660,6 +1660,15 @@ screen to a single active non-linear form at any instant.
     bound exists so the device never needs more than main content plus
     one ad form's video decoder concurrently (R3).
 
+  **Across families (informative).** R22 bounds non-linear forms only.
+  This specification does not forbid a linear presentation
+  (`InsertPresentation`, `ReplacePresentation`) and a non-linear form on
+  screen at the same time (UC-04), and a `ReplacePresentation` need not
+  be advertising at all — a blackout slate is one (UC-14). As a matter of
+  practice, Publishers and ADSs should be careful when combining two ad
+  formats at once: it is rarely what an advertising experience wants,
+  even though it is permitted.
+
 ### Tracking
 
 Requirements governing what is reported back and through which carrier
