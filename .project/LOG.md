@@ -1968,3 +1968,16 @@ Hasta acá no queda nada abierto: las lecturas del WG están cerradas y la spec
 del proyecto va a ser construir la norma a partir de estos requerimientos, **pero
 todavía no**: un agente que llegue no tiene que abrir ni proponer trabajo nuevo por
 su cuenta.
+
+## 2026-09-25 — Los criterios sin verbo normativo quedan decididos
+
+De los 30 criterios de `context/03-requirements.md` sin MUST/SHOULD/MAY, **10 pasan a
+obligar** (R17.1, R17.2, R17.3, R17.5, R20.3, R20.5, R34.3, R4.11, R6.6, R36.6;
+`774e7b6`), por decisión de Nicolás. **Los otros 20 quedan descriptivos a
+propósito**: son alcance, registros sobre la base spec o encargos a la propia
+especificación, y no conducta de un actor. Son R18.1, R18.2, R29.1, R29.7, R29.8,
+R4.7, R4.8, R12.4, R32.4, R34.4, R35.7, R36.7, R37.3, R38.3, R38.6, R17.4, R13.5,
+R33.3, R28.3, R10.3. Un validador que los marque `source-has-no-modal` no está
+señalando un pendiente. (El "17" del build-state del 2026-09-18 no coincidía con
+los sidecars, que listaban 23; el v9 marcaba además R27.1, que sí tiene MUST: falso
+positivo del validador.)
