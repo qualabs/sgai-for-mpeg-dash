@@ -91,6 +91,7 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-13 One ad, Player-declared capabilities, APS resolves to one option | Worked example | side-by-side — option 1, emitted alone | full-screen takeover — option 4, emitted alone (non-video surfaces declared absent) | L-shape — option 2, emitted alone (HTML axis omitted, not relied on) | L-shape — option 2, after walking the full list it received (declared nothing) | full-screen takeover — option 4, emitted alone (no overlay surface) |
 | UC-14 Non-linear ad over a replacement that is not advertising | Composition | overlay composited over the slate (video on the second decoder, or image / HTML surface) | video overlay only — no non-video surface over video | image or HTML overlay composited over the slate | image overlay composited; HTML declined | declined — no overlay capability |
 | UC-15 Publisher-restricted layouts forwarded to the APS | Selection | L-shape image — the APS chose within the forwarded set | lower-third declined, no allowed option renderable → skip | L-shape image | L-shape image | skip (graceful) — no allowed layout without an overlay surface |
+| UC-16 Custom overlay inside a Publisher region (optional) | Selection | custom overlay inside the region, if the Player supports `custom` | same | same | same | skip (no overlay surface) |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -1667,4 +1668,36 @@ check.
 **What this demonstrates:** the Publisher's restriction reaches the
 party that picks the ad, so fewer unusable options travel to the
 Player, and the Player's own check stays as the guarantee.
+
+### UC-16 — Custom overlay inside a Publisher region (optional)
+
+**Scenario:** An overlay slot admits the optional `custom` layout
+(R39) and bounds where it may go. The APS places the overlay by
+coordinates; the Player checks them before rendering.
+
+**Publisher intent:**
+- `@allowedLayouts` lists `custom` and `overlay-lower-third`.
+- A custom region on the slot: x 60%, y 5%, width 35%, height 30% — the
+  upper-right area, where the content's own graphics never go.
+- Maximum overlay duration bounded (R4).
+
+**Ad response:**
+- The Player sends the allowed layouts and the region on the resolution
+  request (R38.2, R39.3).
+- The APS returns two options, in order: a `custom` overlay at x 65%,
+  y 8%, width 25%, height 20% (inside the region, smaller than it), and
+  a `overlay-lower-third` fallback.
+
+**Expected behavior:**
+- **A Player that supports `custom`** checks that the rectangle lies
+  inside the region (R39.5), and renders the overlay there.
+- **A Player that does not support `custom`** treats that option as not
+  renderable and renders the lower-third instead — which is why the APS
+  offered a fallback. Both Players are conformant (R39.1).
+- **D5** has no overlay surface and skips the slot, as in every overlay
+  case.
+
+**A rectangle outside the region:** if an APS returned x 50%, width 40%
+(reaching 90% but starting left of the region's 60%), the Player would
+discard it without rendering (R39.5) and move to the next option.
 

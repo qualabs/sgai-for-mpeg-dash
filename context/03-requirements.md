@@ -104,6 +104,7 @@ positions.
 | R36 | An overlay or pause opportunity may be resolved ahead of time, within a Publisher-declared offset, and the APS declares how long that resolution keeps. |
 | R37 | A pause is what the viewer experiences; any mechanism that suspends the content and resumes it where it stopped is one. |
 | R38 | When a non-linear slot declares its allowed layouts, the Player forwards them to the APS and still checks what comes back. |
+| R39 | An optional `custom` overlay layout: the APS places the overlay in a rectangle given in percent of the video, inside a region the Publisher may bound. |
 
 ### Contract foundations
 
@@ -301,10 +302,10 @@ and the boundaries of what this spec does and does not define.
     specification does not define how an APS resolves an undetermined
     value; that is the APS's decision, and two APSs that resolve it
     differently are both conformant.
-  - **R29.8** (spec document): R38.2 is the one exception to R29.2:
-    when a non-linear slot declares allowed layouts, R38.2 requires the
-    Player to send that set. Every other reserved parameter remains
-    optional.
+  - **R29.8** (spec document): R38.2 and R39.3 are the exceptions to
+    R29.2: when a non-linear slot declares allowed layouts, or a custom
+    region, the Player is required to send them. Every other reserved
+    parameter remains optional.
 
 ### Opportunity declaration
 
@@ -568,11 +569,13 @@ admissible ad-type vocabulary, and the admissible creative carriers.
   **Conformance criteria**:
   - **R12.1** (spec document): The accepted ad-type and visual-placement
     values are exactly those enumerated in this requirement, each mapped
-    to its IAB definition. The spec MUST NOT accept a value outside the
-    enumeration, and MUST cite the IAB source for the values it accepts.
+    to its IAB definition, plus the optional `custom` overlay layout of
+    R39, which is the one value with no IAB counterpart. The spec MUST
+    NOT accept a value outside the enumeration, and MUST cite the IAB
+    source for the values it accepts.
   - **R12.2** (Publisher): Publishers declaring allowed layouts MUST use
     names drawn from the enumerated set, each of which maps 1:1 to an
-    IAB-defined ad type or visual placement. Publisher-private layout
+    IAB-defined ad type or visual placement, except `custom` (R39). Publisher-private layout
     names, and IAB values outside the enumerated set, MUST NOT appear in
     the allowed-layouts declaration on the slot.
   - **R12.3** (APS): The ad-type set originates in the ADS's decision.
@@ -1162,6 +1165,41 @@ squeezeback layouts (side-by-side and L-shape).
     remove this check.
   - **R38.6** (spec document): Linear slots (`InsertPresentation`,
     `ReplacePresentation`) are outside this requirement.
+
+- **R39. The `custom` overlay layout (optional).**
+  *Gist: An optional layout, `custom`, lets the APS place an overlay in a rectangle given in percent of the video viewport, inside a region the Publisher may bound; it is the only layout with no IAB counterpart.*
+
+  `custom` is an **optional mode**: an implementation that does not
+  support it is conformant to this specification. It is the one
+  declared exception to the IAB mapping of R12 and to R10.2 / R10.3,
+  and it applies to the overlay family only. The case is **UC-16** in
+  [`04-use-cases.md`](04-use-cases.md).
+
+  **Conformance criteria** (runtime):
+  - **R39.1** (spec document): Supporting `custom` is OPTIONAL for every
+    actor. The layout carries no IAB ad type; it is the only exception
+    to R12.1's mapping, and the only layout for which this
+    specification defines a position (an exception to R10.2 and
+    R10.3). It applies only to non-linear overlay slots.
+  - **R39.2** (Publisher): A Publisher that admits `custom` on a slot
+    lists it in `@allowedLayouts`. It MAY also declare a **custom
+    region** on the slot: a rectangle — x, y, width, height, in percent
+    of the video viewport, origin top-left — within which a `custom`
+    overlay must lie. With no region declared, the region is the whole
+    viewport.
+  - **R39.3** (Player): When the slot declares a custom region, the
+    Player MUST send it on the resolution request together with the
+    allowed layouts (R38.2), carried the way R38.3 defines.
+  - **R39.4** (APS): An option with layout `custom` MUST carry the
+    overlay's rectangle in the same units, and that rectangle MUST lie
+    entirely inside the region it received. It MAY be smaller than the
+    region; it MUST NOT extend beyond it.
+  - **R39.5** (Player): Before rendering a `custom` option, the Player
+    MUST check that its rectangle lies inside the slot's region (or the
+    viewport when no region is declared), and MUST NOT render it
+    otherwise; the option is then not renderable and the Player moves
+    to the next one (R5.6). A Player that does not support `custom`
+    treats every `custom` option as not renderable.
 
 - **R19. Ad playback speed follows primary content.**
   *Gist: Ads play at the primary content's speed, so a 10 s ad at 2x is on screen for 5 s of wall-clock; the cap and beacon schedule still use the presentation timeline.*
@@ -1993,7 +2031,8 @@ and deferring layout to existing primitives.
     type that the `@layout` token names (R12.2, R12.4) and is
     rendered with HTML5 / CSS primitives (R10.1). This specification
     declares no positioning vocabulary of its own, which is what
-    R10.2 forbids.
+    R10.2 forbids. The one exception is the optional `custom` overlay
+    layout (R39), whose rectangle is a position by definition.
 
 ## Out of Scope
 
