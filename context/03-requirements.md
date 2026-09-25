@@ -2135,7 +2135,10 @@ and deferring layout to existing primitives.
   calls it: menu ads (IAB *Menu Ad*: home screen, content menu, guide /
   EPG), home-screen and launcher ads, screen saver ads (IAB *Screen
   Saver Ad*), and companion or multi-screen ads (IAB *Companion Ad*).
-  They are not candidates for a later phase and are not raised as gaps
+  In-scene ads are excluded for the same reason from the other side:
+  a product or sign placed inside the scene itself (virtual product
+  placement) is part of the video frames, not something the Player
+  renders over them. They are not candidates for a later phase and are not raised as gaps
   in the specification: no requirement, use case or layout value
   covers them, and none is to be added.
 
