@@ -196,17 +196,22 @@ that is free-form prose instead of the tabular form.
 
 ## Style rule for obligations
 
-When writing requirements, conformance criteria, MUST/SHOULD/MAY
-statements, or obligation-bearing prose for any actor, state the
-positive obligation only — what the actor does. Do NOT enumerate
-prohibitions ("MUST NOT", "shall not", "is forbidden"). Per DP-2
-in `context/03-requirements.md`, the positive obligation defines
-the contract; what is outside the positive obligation is
-implicitly out of scope.
+**Every obligation `context/` states with an RFC 2119 keyword keeps that
+keyword in the spec.** A `context/` MUST, MUST NOT, SHOULD, SHOULD NOT or
+MAY is written in the spec with the same keyword, in uppercase, bound to
+the same actor: *"The Player MUST NOT execute those events"* stays a MUST
+NOT, and *"The Player MUST present the window"* is never written as *"The
+Player presents the window"*. A description of what an actor does is not
+an obligation, and the validation step counts an obligation written as a
+description as `force-lost`. Rewriting a `context/` MUST NOT as a positive
+sentence changes what the actor is bound to, so it is not a style choice.
 
-If a current spec section contains a list of prohibitions (e.g.
-"obligations" sections in chapter B of v4.x), refactor to express
-the equivalent positive statement.
+**DP-2 governs what the spec adds, not the modals `context/` already
+states.** Per DP-2 in `context/03-requirements.md`, the spec does not
+enumerate prohibitions of its own: where the spec states an obligation
+that `context/` does not, it states the positive obligation, and what is
+outside it is implicitly out of scope. Do not invent lists of "MUST NOT"
+items that `context/` does not contain.
 
 ## Output rules
 
