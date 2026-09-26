@@ -175,9 +175,8 @@ the final viewer experience.
   the MPD. Any candidate that violates the constraints (disallowed
   layout, exceeded duration, etc.) is discarded.
 - Select the ad to render from the candidates that passed
-  validation. The Player may apply additional client-side criteria
-  (ranking, ordering, deduplication, simultaneity caps), but it
-  must operate within the validated subset.
+  validation, in the order the resolution document gives them (R7);
+  the Player does not re-order or deduplicate them.
 - Compose and render the ad over the primary content using the
   workflow that matches the slot type: replace, insert, or overlay.
 
