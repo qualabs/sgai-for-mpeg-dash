@@ -191,8 +191,10 @@ and the boundaries of what this spec does and does not define.
     ADS is not bound to it. The APS MUST convert that output into the
     resolution document carrying the ad candidates. Enforcing the
     Publisher-declared constraints (e.g. the slot duration cap) is the
-    Player's obligation under R2.3, and this specification places no
-    such obligation on the ADS or the APS.
+    Player's obligation under R2.3. This specification places no such
+    obligation on the ADS, and on the APS only the layout and region
+    constraints the Player forwards on the resolution request (R38.4,
+    R39.4).
   - **R2.3** (Player): The Player MUST validate the candidates in
     the resolution document against Publisher-declared constraints
     and render only those that satisfy them.
