@@ -7,7 +7,7 @@ Final Release May 2026.
 Google Doc:
 https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
 
-**Fetch timestamp (UTC)**: 2026-09-25T19:26:09Z
+**Fetch timestamp (UTC)**: 2026-09-25T23:50:54Z
 
 **Fetch method**: `mcp__claude_ai_Google_Drive__read_file_content` against the
 document ID above (authenticated Google Drive connector).
@@ -68,25 +68,29 @@ inside the single format's Creative Size / Placement rows. They appear in the
 Spec chapter 3 does **not** accept the whole IAB catalogue. Per **R12** in
 [`../context/03-requirements.md`](../context/03-requirements.md), this edition
 supports an explicit, **closed** subset of four IAB ad types, all rendered on or
-within the video surface; anything rendered in the player chrome or the
-application UI is out of scope. The enumeration is edition-scoped by design — an
-IAB type published later does not enter scope automatically.
+within the video surface; ads outside the video surface are excluded by
+**OOS-9**. The enumeration is edition-scoped by design — an IAB type published
+later does not enter scope automatically.
 
-The spec-side identifiers are the layout tokens R12 enumerates, each mapped 1:1
-to an IAB ad type or IAB visual placement (R12.2). The one value with no IAB
-counterpart is the optional `custom` overlay layout of **R39**; it is not an
-IAB ad type and therefore has no row below.
+The spec-side identifiers are the layout tokens R12.2 lists as the complete
+set: `linear`, `overlay`, `overlay-corner`, `overlay-lower-third`,
+`squeezeback-l-shape-upper-left`, `squeezeback-l-shape-upper-right`,
+`squeezeback-double-box`, `squeezeback-double-box-background`,
+`pause-fullscreen`, `pause-partial`, and the optional `custom`. Every token
+except `custom` names one IAB ad type or visual placement. `custom` (**R39**)
+is the one value with no IAB counterpart; it is not an IAB ad type and
+therefore has no row below.
 
 | IAB ad-type (verbatim) | Spec chapter 3 value(s) | Rationale |
 |------------------------|-------------------------|-----------|
 | Linear Ad | `linear` | Accepted. Full-viewport takeover of the primary content surface for the slot. Pre-roll, mid-roll and multi-ad breaks are timing positions of the one type; the full-screen takeover fallback (UC-09) is a placement of `linear`, not a separate type. |
 | Overlay | `overlay`, `overlay-corner`, `overlay-lower-third` | Accepted. `overlay-corner` maps IAB *Corner Overlay*, `overlay-lower-third` maps IAB *Lower Third Overlay*; a plain overlay with no named placement is the base `overlay`. Which corner is not a token (R10.1, R10.3). |
-| Squeezeback | `squeezeback-l-shape-upper-left`, `squeezeback-l-shape-upper-right`, `squeezeback-double-box`, `squeezeback-double-box-background` | Accepted. The two L-shape tokens map IAB *L-Shape* in its two orientations (upper left / upper right, R27); the double-box tokens map IAB *Double Box Video* and *Double Box Video + Background* (R26). The token carries the primary-content region because the IAB defines no field that does (ADR 0014). IAB *Frame* is not among the enumerated placements. |
+| Squeezeback | `squeezeback-l-shape-upper-left`, `squeezeback-l-shape-upper-right`, `squeezeback-double-box`, `squeezeback-double-box-background` | Accepted. The two L-shape tokens map IAB *L-Shape* in its two orientations (upper left / upper right, R27); the double-box tokens map IAB *Double Box Video* and *Double Box Video + Background* (R26). The token carries the primary-content region because the IAB defines no field that does (ADR 0014). Bare `squeezeback` is not a token (R12.2). IAB *Frame* is not among the enumerated placements. |
 | Pause Ad | `pause-fullscreen`, `pause-partial` | Accepted as the `pause` type, but bare `pause` is not an admissible layout value: R12 splits it into the IAB *Fullscreen* and *Partial Screen* placements so a Publisher can admit one and exclude the other in `@allowedLayouts`, and so R21's surface choice is determined. |
-| Menu Ad | — (out of scope) | Rendered in the platform UI (home screen, content menu), not on the playing or paused video. Named explicitly as out of scope in R12. |
-| Screen Saver Ad | — (out of scope) | OS / app-initiated after inactivity, off the video surface. Named explicitly as out of scope in R12. |
-| Companion Ad | — (out of scope) | Rendered outside the player. Named explicitly as out of scope in R12 (companion / multi-screen ads). |
-| In Scene Ads | — (out of scope) | Not in R12's closed supported set. The creative is composited into the content upstream of the Player rather than presented as a Player-side ad surface, and the format carries no interactivity. Because the set is closed, it is out of scope without a separate exclusion clause. |
+| Menu Ad | — (out of scope) | Rendered in the platform UI (home screen, content menu), not on the playing or paused video. Named explicitly in OOS-9. |
+| Screen Saver Ad | — (out of scope) | OS / app-initiated after inactivity, off the video surface. Named explicitly in OOS-9. |
+| Companion Ad | — (out of scope) | Rendered outside the player. Named explicitly in OOS-9 (companion or multi-screen ads). |
+| In Scene Ads | — (out of scope) | Named explicitly in OOS-9 (in-scene ads, virtual product placement): the creative is part of the video frames, not something the Player renders over them. OOS-9 also states it is not a candidate for a later phase and is not raised as a gap. |
 
 R12.4 binds each accepted layout to the spatial bound the IAB declares for it
 (e.g. Corner Overlay no more than 25% of the frame, Squeezeback L-Shape primary
