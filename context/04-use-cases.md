@@ -89,9 +89,10 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-08 Overlay window crosses a pause-ad window | Composition | overlay swaps to pause-ad on pause, restores on resume | overlay swaps to video pause-ad if available, else pause-ad declined; overlay restores on resume | overlay swaps to HTML or image pause-ad, restores on resume | overlay swaps to image pause-ad, restores on resume | both opportunities declined gracefully |
 | UC-09 One ad, ordered options across device classes | Worked example | side-by-side (video ad + background) — option 1 | full-screen takeover video — option 4 (image ad/background surfaces unrenderable) | L-shape image full-frame ad creative — option 2 (no second decoder for side-by-side) | L-shape image full-frame ad creative — option 2 (no HTML, no second decoder) | full-screen takeover video — option 4 (no overlay surface) |
 | UC-13 One ad, Player-declared capabilities, APS resolves to one option | Worked example | side-by-side — option 1, emitted alone | full-screen takeover — option 4, emitted alone (non-video surfaces declared absent) | L-shape — option 2, emitted alone (HTML axis omitted, not relied on) | L-shape — option 2, after walking the full list it received (declared nothing) | full-screen takeover — option 4, emitted alone (no overlay surface) |
-| UC-14 Non-linear ad over a replacement that is not advertising | Composition | overlay composited over the slate (video on the second decoder, or image / HTML surface) | video overlay only — no non-video surface over video | image or HTML overlay composited over the slate | image overlay composited; HTML declined | declined — no overlay capability |
+| UC-14 Non-linear ad over a replacement that is not advertising (window in the replacement's own presentation) | Composition | overlay composited over the slate (video on the second decoder, or image / HTML surface) | video overlay only — no non-video surface over video | image or HTML overlay composited over the slate | image overlay composited; HTML declined | declined — no overlay capability |
 | UC-15 Publisher-restricted layouts forwarded to the APS | Selection | L-shape image — the APS chose within the forwarded set | lower-third declined, no allowed option renderable → skip | L-shape image | L-shape image | skip (graceful) — no allowed layout without an overlay surface |
 | UC-16 Custom overlay inside a Publisher region (optional) | Selection | custom overlay inside the region, if the Player supports `custom` | same | same | same | skip (no overlay surface) |
+| UC-17 Non-linear window supersedes a linear break, kept as fallback | Mixed | L-shape image over the programme; break not played | break played — no allowed option renderable | L-shape image; break not played | L-shape image; break not played | break played — no overlay surface |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -443,6 +444,11 @@ but are independently selected.
   a restricted layout set (e.g. `overlay-lower-third` only — no
   squeezeback on top
   of a linear ad).
+- The overlay window declares that it is composited **on top** of the
+  linear break (R40.5). The composition is intended, and the
+  declaration is what says so: without it a Player of this
+  specification plays the break and presents the overlay only over the
+  primary content (R40.4).
 - Maximum break duration is bounded.
 
 **Ad response:**
@@ -458,8 +464,8 @@ but are independently selected.
 
 #### D1 — Top-tier (2+ video decoders, image and HTML overlays)
 
-- **Player decision:** reads slot rules — linear allowed,
-  concurrent overlay allowed with a restricted layout set.
+- **Player decision:** reads slot rules — linear allowed, overlay
+  declared on top of it with a restricted layout set.
   Validates linear candidates against the linear rules and overlay
   candidates against the overlay rules independently. Selects one
   of each. Plays the linear ad while compositing the overlay on
@@ -809,19 +815,23 @@ trigger the request.
     treat the opportunity as a loss on legacy Players (see Notes).
   - **Non-live / VOD content** → the Publisher MAY (and SHOULD, where
     monetising the opportunity matters) author a **standard linear
-    break** alongside the SGAI construct, using only baseline
+    break** over the same span as the SGAI window, using only baseline
     MPEG-DASH 6th edition constructs that a legacy Player already
-    renders. The legacy Player skips the SGAI construct it does not
+    renders, and declare on the window that it **supersedes** the break
+    (R40). The legacy Player skips the SGAI window it does not
     understand and plays the standard break it does understand, so the
-    opportunity is still monetised instead of lost. A current Player
-    recognises the SGAI construct and uses it; the standard break is
-    the legacy fallback only. Because VOD is not bound to a live edge,
-    inserting a standard break costs no real content.
+    opportunity is still monetised instead of lost. A Player of this
+    specification presents the window and does not execute the break,
+    and executes the break after all when the window presents no ad
+    (UC-17). Because VOD is not bound to a live edge, inserting a
+    standard break costs no real content.
 
   The Publisher cannot detect a viewer's Player version from the
   manifest (see Notes), so the standard-break fallback is authored
-  unconditionally for VOD and is simply ignored by current Players
-  that take the richer SGAI path.
+  unconditionally for VOD. The supersede declaration is what keeps a
+  Player of this specification from presenting both the break and the
+  non-linear ad; without it, that Player plays the break and presents
+  the window only over the primary content (R40.4).
 - **What the user sees:**
   - Live content, or VOD with no standard-break fallback authored →
     the primary content plays uninterrupted, no ad is rendered, and no
@@ -852,8 +862,9 @@ the fallback.
   must therefore treat ad opportunities that fall through to UC-07 as
   expected losses, not as errors. For **VOD** the Publisher MAY avoid
   the loss by authoring a standard linear break as the legacy
-  fallback (using baseline constructs a legacy Player renders): a
-  current Player takes the SGAI path and a legacy Player plays the
+  fallback (using baseline constructs a legacy Player renders) and
+  declaring that the SGAI window supersedes it: a Player of this
+  specification takes the SGAI path and a legacy Player plays the
   standard break, so the opportunity is monetised in both cases.
 
 ### UC-08 — Overlay window crosses a pause-ad window
@@ -1556,11 +1567,14 @@ silent Player.
 
 ### UC-14 — A non-linear ad over a replacement that is not advertising
 
-**Scenario:** The Publisher replaces a bounded span of the primary
-timeline with content that is **not an ad** — a regional blackout
-slate, with its own audio — and declares an overlay opportunity window
-covering the same span. The alternative presentation carries no
-advertising; the overlay does.
+**Scenario:** The Publisher replaces a span of the primary timeline
+with content that is **not an ad** — a regional blackout slate, with
+its own audio — and wants an overlay ad shown during it. The
+replacement is a presentation of its own, with its own `MPD`, and the
+overlay opportunity window is declared **there**, over the slate's own
+timeline (R40.6). The primary timeline carries no window over the
+blacked-out span, because the primary content cannot know what the
+replacement contains (R40.2).
 
 The base specification does not treat its replacement tool as an
 advertising mechanism. §5.16.1 describes it as *"the ability to switch
@@ -1576,22 +1590,26 @@ non-linear ad need not be an ad, which is a property of the base
 mechanism this specification inherits and must not contradict.
 
 **Publisher intent:**
-- A `ReplacePresentation` window over the blacked-out span, resolving
-  to the Publisher's own slate rather than to an ad decision.
-- An overlay opportunity window covering the same span, with a
+- A `ReplacePresentation` event over the blacked-out span, resolving
+  to the Publisher's own slate rather than to an ad decision. Its
+  maximum duration is optional: a blackout whose end is not known in
+  advance declares none, and the slate then runs until it terminates
+  (§5.16.5, R4.8).
+- An overlay opportunity window in the **slate's** `MPD`, with a
   device-agnostic allowed-layout set and a bounded maximum duration
   (R4).
 
-**Ad response:** the overlay window resolves normally through the APS
-and yields an ad candidate with image and HTML presentation options.
-The replacement window resolves to the Publisher's slate and involves
+**Ad response:** the slate's overlay window resolves normally through
+the APS and yields an ad candidate with image and HTML presentation
+options. The replacement resolves to the Publisher's slate and involves
 no ADS, no APS and no ad candidate.
 
-**Expected behavior per device class:** identical to the hybrid break
-of UC-04, because the budget is identical. During any alternative
-presentation only one access engine outputs media (§4.2), so the slate
-occupies the one decoder the primary content released, exactly as a
-linear ad would.
+**Expected behavior per device class:** the Player executes the
+replacement with its base semantics and processes the slate's own
+window over the slate's content (R40.4, R40.6). The budget is that of
+the hybrid break of UC-04: during any alternative presentation only one
+access engine outputs media (§4.2), so the slate occupies the one
+decoder the primary content released, exactly as a linear ad would.
 
 - **D1** — overlay composited on top of the slate, on a second decoder
   for a video form or on an image / HTML surface for the others.
@@ -1603,13 +1621,36 @@ linear ad would.
 - **D4** — image overlay composited; an HTML one declined, because D4
   does not render HTML over video.
 - **D5** — declined: no overlay capability of any kind.
+- **Legacy Player** — plays the slate, ignores the window it does not
+  recognise (UC-07): the blackout holds and no ad is shown.
+
+**A window on the primary timeline over the same span.** If the
+Publisher also declared an overlay window on the primary timeline
+covering the blacked-out span:
+
+- **Declaring nothing**, the window is presented only over the primary
+  content (R40.4). A Player of this specification executes the
+  replacement as the base specification defines and composites nothing
+  from that window over the slate; a form already on screen when the
+  slate begins ends there.
+- **Declaring on top**, the window is composited over the slate
+  (R40.5), with the device behaviour above. That is the Publisher's
+  explicit choice to put an ad from the primary timeline over the
+  replacement, whatever the replacement contains.
+- **Declaring supersede** is written for a break that is an ad: a
+  Player of this specification would present the overlay over the
+  primary content and not execute the replacement (R40.3), showing the
+  programme the Publisher blacked out. The Player cannot see that the
+  replacement is a blackout, which is why the declaration is the
+  Publisher's.
 
 **What this demonstrates:** the device behaviour does not depend on
 what the underlying presentation *depicts*. A Player cannot observe
 whether the video it is decoding is an advertisement, a blackout slate
 or primary content, so no conformance rule can be written against that
-distinction — and this case is the one where the distinction is
-demonstrably absent while the behaviour is unchanged.
+distinction. What R40 turns on instead is which presentation declared
+the window and whether an alternative presentation is active, and a
+Player observes both.
 
 **Notes:**
 - **Only one portion is an ad.** The overlay carries the tracking,
@@ -1619,7 +1660,7 @@ demonstrably absent while the behaviour is unchanged.
   screen, not the contract.
 - **Nothing here specifies the blackout.** How the Publisher decides to
   black out, what the slate contains and how rights are enforced are
-  outside this specification. The window and the slate are the
+  outside this specification. The event and the slate are the
   Publisher's, declared with the base specification's own construct.
 
 ### UC-15 — Publisher-restricted layouts forwarded to the APS
@@ -1704,3 +1745,60 @@ coordinates; the Player checks them before rendering.
 (reaching 90% but starting left of the region's 60%), the Player would
 discard it without rendering (R39.5) and move to the next option.
 
+### UC-17 — A non-linear ad supersedes a linear break, which stays as the fallback
+
+**Scenario:** A VOD mid-content opportunity at which the Publisher
+prefers a non-linear ad, so the programme keeps playing, and keeps a
+standard linear break for every case in which the non-linear ad cannot
+be shown. The Publisher authors both over the same span: a linear
+insertion event (`InsertPresentation`) carrying the break, and an
+overlay opportunity window whose span contains the event's
+presentation time and which declares that it **supersedes** the event
+(R40).
+
+**Publisher intent:**
+- A linear break of at most 30 s, declared with the base
+  specification's own insertion event.
+- An overlay window over the same span, maximum duration 30 s (R4),
+  allowed layouts `squeezeback-l-shape-upper-left` and
+  `overlay-lower-third`, declaring supersede.
+
+**Ad response:**
+- The overlay window resolves through the APS to one candidate with two
+  options in order: an L-shape with an **image** full-frame creative,
+  then an **HTML** lower-third banner.
+- The break, when it is executed, resolves through its own request to
+  linear candidates, as in UC-02.
+
+**Expected behavior per device class:** the Player resolves the
+window, ahead of the break when early resolution applies (R36), and
+the break is executed only when the window presents no ad (R40.3).
+
+- **D1** — renders the L-shape. The break is not executed; the
+  programme plays in the shrunk region and returns to full screen when
+  the window ends.
+- **D2** — composites no non-video surface over video, so neither
+  option is renderable and the window presents no ad. The Player
+  executes the break: a full-screen linear break of at most 30 s, then
+  the programme resumes where it was paused.
+- **D3** — renders the L-shape (one decoder for the shrunk programme,
+  one image surface for the creative, R27). The break is not executed.
+- **D4** — renders the L-shape, whose creative is an image. The break
+  is not executed.
+- **D5** — no overlay surface; the window presents no ad and the Player
+  executes the break.
+- **Legacy Player** — does not recognise the window and plays the
+  break (UC-07).
+
+**When the window fails to resolve** — the APS does not answer, answers
+with an error or an unparsable body, or returns a resolution document
+with no candidates (R20.1) — every device class executes the break, as
+the base specification defines it.
+
+**What this demonstrates:** one declaration settles, for every Player,
+which of two ads covering the same span is shown. No Player presents
+both; a Player of this specification presents the non-linear ad where
+it can and the break where it cannot, and a legacy Player presents the
+break. Without the declaration a Player of this specification would
+execute the break and present the overlay only over the primary content
+around it (R40.4).

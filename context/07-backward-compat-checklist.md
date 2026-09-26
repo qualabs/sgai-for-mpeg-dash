@@ -97,11 +97,13 @@ chapter 10 modelled on UC-07
   primary content continues uninterrupted (the opportunity is an
   expected loss on legacy Players); for **non-live / VOD** content the
   Publisher MAY author a standard linear break — using only baseline
-  constructs a legacy Player renders — alongside C, in which case the
-  legacy Player skips C and plays the standard break. The standard
-  break is itself a baseline construct, so it is out of scope of C's
-  per-construct skip test; the test still asserts only that C is
-  skipped silently.
+  constructs a legacy Player renders — over the same span as C, and
+  declare on C that it supersedes the break (R40), in which case the
+  legacy Player skips C and plays the standard break, and a Player of
+  this specification presents C and plays the break only when C
+  presents no ad (UC-17). The standard break is itself a baseline
+  construct, so it is out of scope of C's per-construct skip test; the
+  test still asserts only that C is skipped silently.
 - Pass criteria: C is skipped silently; no errors logged at FATAL
   level; observable playback continues (either the primary content for
   live, or the Publisher-authored standard break for VOD).
