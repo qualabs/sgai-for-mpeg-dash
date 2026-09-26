@@ -58,9 +58,10 @@ edition mechanisms:
   on-demand or pre-recorded operation.
 - **`ReplacePresentation`** substitutes a bounded span of the
   primary timeline with the ad. The primary content under the ad
-  span is effectively skipped. Appropriate for live or linear
-  content where there is no meaningful "frame 0" of the primary
-  stream to preserve.
+  span is effectively skipped. Per §5.16.4 it *"can be used with both
+  static and dynamic MPDs"*, so it is the mechanism for live
+  content: §5.16.1 describes it as replacing *"a portion of the
+  timeline in a main live presentation"*.
 
 The choice is captured in the slot's MPD declaration and is
 Publisher-decided per content type and intent. The Use Cases in
@@ -121,8 +122,8 @@ Numbered steps:
    ERT), the Player picks a randomised instant between the ERT and
    the event's `presentationTime` and resolves the APS:
    (4a) `GET <event @uri>` augmented with the query parameters
-   declared by the `UrlParamInfo` descriptor on the MPD (§I.4) — see
-   the example below for the wiring.
+   declared by a `RequestParam` element (Annex I.3) — see the
+   example below for the wiring.
    (4b) APS replies `200 OK` with a `ListMPD` body (or a single-period
    alt MPD for single-ad slots). The response is the **resolution
    document**.
@@ -169,47 +170,40 @@ slot window the Publisher declared in the MPD event.
 
 ## Reference XML: main MPD with SGAI events
 
-The main MPD below is the **Publisher's side** of the contract. It
-contains one primary content Period with one AdaptationSet, one
-`InsertPresentation` event (pre-roll style, `presentationTime=0`)
-and one `ReplacePresentation` event (live mid-roll style,
-`presentationTime=PT6M`). At the MPD level, a `UrlParamInfo`
-descriptor (§I.4) wires up the query parameters the Player will
-append to the APS resolution request.
+The main MPD below is the **Publisher's side** of the contract for a
+**live** service. It contains one primary content Period with one
+AdaptationSet and two `ReplacePresentation` events: a first break at
+`presentationTime=PT2M` and a mid-roll at `presentationTime=PT6M`.
+Both are replacement events because the MPD is `type="dynamic"`: an
+`InsertPresentation` *"shall not appear if the MPD type is
+"dynamic""* (§5.16.3), while the replacement event *"can be used
+with both static and dynamic MPDs"* (§5.16.4). The two events share
+one `EventStream`, because a Period holds *"at most one EventStream
+element with the same value of the @schemeIdUri attribute and the
+value of the @value attribute"* (§5.10.2.1). A `RequestParam` on
+that `EventStream` wires up the query parameters the Player will
+append to the APS resolution request (Annex I.3).
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xmlns:up="urn:mpeg:dash:schema:urlparam:2025"
-     xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 DASH-MPD.xsd
-                         urn:mpeg:dash:schema:urlparam:2025 DASH-MPD-UP.xsd"
+     xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 DASH-MPD.xsd"
      type="dynamic"
      minimumUpdatePeriod="PT2S"
      minBufferTime="PT2S"
      profiles="urn:mpeg:dash:profile:advanced-linear:2025">
 
-  <!-- §I.4: Extended URL parameterisation for APS resolution requests -->
-  <EssentialProperty schemeIdUri="urn:mpeg:dash:urlparam:2025">
-    <up:UrlParamInfo includeInRequests="altmpd"
-                     queryTemplate="video_profile=$urn:mpeg:dash:state:video$&amp;session_id=$urn:mpeg:dash:state:cmcd#sid$"/>
-  </EssentialProperty>
-
   <Period id="1" start="PT0S">
 
-    <!-- §5.16.3: InsertPresentation — pre-roll at the start of the timeline -->
-    <EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:insert:2025"
-                 timescale="1000">
-      <Event id="101" presentationTime="0" duration="15000">
-        <InsertPresentation uri="https://ads.example.com/decision/preroll"
-                            earliestResolutionTimeOffset="0"
-                            maxDuration="15000"/>
-      </Event>
-    </EventStream>
-
-    <!-- §5.16.4: ReplacePresentation — mid-roll on live -->
+    <!-- §5.16.4: ReplacePresentation — the only alternative-MPD event a dynamic MPD admits -->
     <EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:replace:2025"
                  timescale="1000">
+      <Event id="101" presentationTime="120000" duration="15000">
+        <ReplacePresentation uri="https://ads.example.com/decision/break-1"
+                             earliestResolutionTimeOffset="30000"
+                             maxDuration="15000"/>
+      </Event>
       <Event id="102" presentationTime="360000" duration="30000">
         <ReplacePresentation uri="https://ads.example.com/decision/midroll"
                              earliestResolutionTimeOffset="60000"
@@ -218,6 +212,9 @@ append to the APS resolution request.
                              clip="true"
                              startWithOffset="false"/>
       </Event>
+      <!-- Annex I.3: URL parameters for the APS resolution request -->
+      <RequestParam includeInRequests="altmpd"
+                    queryTemplate="video_profile=$urn:mpeg:dash:state:video$&amp;session_id=$urn:mpeg:dash:state:cmcd#sid$"/>
     </EventStream>
 
     <!-- Primary content -->
@@ -231,39 +228,51 @@ append to the APS resolution request.
     </AdaptationSet>
 
   </Period>
+
+  <!-- Annex I.3.1: the URL-parameter scheme, declared with no content -->
+  <SupplementalProperty schemeIdUri="urn:mpeg:dash:urlparam:2025"/>
 </MPD>
 ```
 
 What the Player does with this manifest:
 
-- The two `EventStream` elements expose the SGAI opportunities. The
-  scheme URIs `urn:mpeg:dash:event:alternativeMPD:insert:2025` and
-  `urn:mpeg:dash:event:alternativeMPD:replace:2025` (§5.16) declare
-  the event semantics; a Player that recognises them will resolve
-  them, a Player that does not will ignore them (R1).
-- For event `101` (`InsertPresentation`), the Player stops the main
-  timeline at `presentationTime=0` and switches to the alternative
-  presentation returned by the APS. When the alternative ends, the
-  main timeline resumes from the position where it paused (§5.16.3).
-- For event `102` (`ReplacePresentation`), the Player computes the
-  Earliest Resolution Time as `presentationTime − earliestResolutionTimeOffset`
-  = `360000 − 60000 = 300000 ms`. At a randomised instant between the
-  ERT and the event's `presentationTime`, the Player issues the APS
-  request. When the ad plays, main media time keeps advancing in
-  the background, and at the end the Player resumes at the playhead
-  position determined by `@returnOffset` (§5.16.4).
+- The `EventStream` exposes the SGAI opportunities. The scheme URI
+  `urn:mpeg:dash:event:alternativeMPD:replace:2025` (§5.16.4)
+  declares the event semantics; a Player that recognises it will
+  resolve the events, a Player that does not will ignore them (R1).
+- For each event the Player computes the Earliest Resolution Time as
+  `presentationTime − earliestResolutionTimeOffset`: `120000 − 30000
+  = 90000 ms` for event `101`, `360000 − 60000 = 300000 ms` for event
+  `102`. At a randomised instant between the ERT and the event's
+  `presentationTime`, the Player issues the APS request. While the ad
+  plays, main media time keeps advancing in the background, and at the
+  end the Player resumes at the playhead position determined by
+  `@returnOffset` (§5.16.4).
 - `@clip` on `ReplacePresentation` is a boolean, default `true`: when
   set, an ad whose event executes late is trimmed so that it does not
   exceed `@maxDuration` (§5.16.4). It carries no duration of its own.
   `@startWithOffset` controls whether a delayed ad starts from its
   first frame or skips into the corresponding offset to stay aligned
   with the wall clock.
-- The MPD-level `UrlParamInfo` descriptor (§I.4) is consulted at
-  resolution time: the Player substitutes the state-vocabulary
-  variables (`$urn:mpeg:dash:state:video$`,
-  `$urn:mpeg:dash:state:cmcd#sid$`) with live values and appends the
-  resulting query string to the `@uri`. `@includeInRequests="altmpd"`
-  is what scopes this descriptor to the APS resolution request.
+- The `RequestParam` element (Annex I.3, of type
+  `ExtendedUrlInfoType`) is consulted at resolution time: the Player
+  substitutes the state-vocabulary variables of Annex I.4
+  (`$urn:mpeg:dash:state:video$`, `$urn:mpeg:dash:state:cmcd#sid$`)
+  with live values and appends the resulting query string to the
+  `@uri`. `@includeInRequests="altmpd"` is what scopes it to the APS
+  resolution request, and the Advanced Linear profile admits it on an
+  `EventStream` carrying alternative-MPD events (§8.13.2.4).
+  `RequestParam` is defined in the main DASH schema, so it needs no
+  namespace of its own. The MPD-level descriptor names the scheme and
+  has no content (Annex I.3.1); it is a `SupplementalProperty` so that
+  a Player that does not recognise the scheme drops the descriptor and
+  not the MPD (see [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md)).
+- In a **static** (on-demand) MPD the same breaks could be authored as
+  `InsertPresentation` events under
+  `urn:mpeg:dash:event:alternativeMPD:insert:2025` (§5.16.3). The
+  Player then stops the main timeline at the event's
+  `presentationTime`, plays the alternative presentation, and resumes
+  the main timeline from the position where it paused.
 
 > **Spec attribute pin**: `InsertPresentation` and
 > `ReplacePresentation` share `@uri`, `@maxDuration`,
@@ -486,7 +495,7 @@ Edge cases worth flagging:
 |------------------|---------------------|----------------|-----------------------------------|-------------------|-----------------|
 | Player           | Publisher CDN     | HTTP/HTTPS     | DASH MPD (XML)                    | request / response (pull) | HTTP status codes; on 4xx/5xx Player retries or aborts session. |
 | Player           | Publisher CDN     | HTTP/HTTPS     | media segments (ISOBMFF, CMAF, …) | request / response (pull) | HTTP status codes; segment-level retry per DASH-IF guidelines. |
-| Player           | APS                 | HTTP/HTTPS     | request: query params (§I.4); response: `ListMPD` (XML) | request / response (pull, sync) | HTTP status codes; every attempt that produces no ad triggers the fallback window if one is declared (R20.1) — a 4xx/5xx, no response, a `200` whose body does not parse, and a `200` carrying a well-formed resolution document with no candidates (R30) are alike in this. With no fallback declared, all of them end with the Player on the primary content. |
+| Player           | APS                 | HTTP/HTTPS     | request: query params (Annex I.3); response: `ListMPD` (XML) | request / response (pull, sync) | HTTP status codes; every attempt that produces no ad triggers the fallback window if one is declared (R20.1) — a 4xx/5xx, no response, a `200` whose body does not parse, and a `200` carrying a well-formed resolution document with no candidates (R30) are alike in this. With no fallback declared, all of them end with the Player on the primary content. |
 | Player           | Ad CDN              | HTTP/HTTPS     | media segments                    | request / response (pull) | Same as Publisher CDN; failure of an ad segment skips that ad or aborts the break per Player policy. |
 | Player           | Tracking endpoints  | HTTP/HTTPS     | callback beacons (HTTP GET, body-less) | fire-and-forget (push) | Errors are best-effort logged by the Player; not surfaced to viewer. |
 | APS              | ADS                 | HTTP/HTTPS     | VAST 4.x (XML) request / response | request / response (pull) | VAST `<Error>` element + HTTP status; the APS translates errors into HTTP errors or empty `ListMPD` toward the Player. |
@@ -521,8 +530,9 @@ of HTTPS per DASH-IF guidelines.
   `ReplacePresentation`, §5.16.5 `@maxDuration` trimming rule);
   §8.14 List MPD profile (`urn:mpeg:dash:profile:list:2024`);
   §5.10 EventStream and callback event scheme
-  (`urn:mpeg:dash:event:callback:2015`, §4.7 / §5.10.4.5); §I.4
-  Extended HTTP GET parametrisation.
+  (`urn:mpeg:dash:event:callback:2015`, §4.7 / §5.10.4.5); Annex I.3
+  Extended HTTP GET parametrisation and Annex I.4 state vocabulary;
+  §8.13 Advanced Linear profile.
 - **IAB Tech Lab, VAST 4.x** (Video Ad Serving Template). The exact
   4.x version pin used by current industry practice (4.0 / 4.1 /
   4.2 / 4.3) could not be confirmed against the NotebookLM source
