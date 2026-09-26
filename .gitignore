@@ -26,3 +26,4 @@
 !/.github-ai/output-prs/.gitkeep
 
 __pycache__/
+.claude/worktrees/
