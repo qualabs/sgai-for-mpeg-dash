@@ -19,7 +19,7 @@ or `P03` (requirement prose, Out of Scope). Other files: `IN01`
 (`07-backward-compat-checklist.md`), `D08`
 (`08-dash-extension-rules.md`), `G99` (`99-glossary.md`).
 `00-normative-base.md` carries no RFC 2119 keyword. IDs are stable
-across rebuilds: `UC04.3` and `N06.13` are unused, because the sentences
+across rebuilds: `UC04.3`, `N06.13` and `B07.11` are unused, because the sentences
 they carried no longer hold a keyword or no longer exist.
 
 **Actors.** Publisher, ADS, APS, Player (`../context/02-actors.md`),
@@ -37,20 +37,20 @@ conformance, so they stay testable, but no keyword is invented for them.
 of the same file): `03-requirements.md` requirement prose at `:124`,
 `:128` (R1.1), `:207`, `:211` (R11.1, R11.3a), `:277` (R29.2), `:340`
 (R4.2, R4.3), `:669`, `:671`, `:689`, `:690` (R5.2, R5.3a, R5.5,
-R5.6a), `:743`, `:746`, `:748`, `:756` (R7.1–R7.3), `:1196` (R38.1a),
-`:1267` (R19.1), `:1301`, `:1311` (R21.1a, R21.1b), `:1344` (R25.1a),
-`:1871`, `:1873`, `:1878`, `:1880` (R6.1–R6.4), `:2001`, `:2003`
-(R24.1a, R24.1b), `:2087` (R28.1); `:1725` restates P03.5; OOS-1 at
-`:2195` restates R10.2. The R40 prose (`:1771`–`:1812`) and the R22
+R5.6a), `:743`, `:746`, `:748`, `:756` (R7.1–R7.3), `:1204` (R38.1a),
+`:1275` (R19.1), `:1309`, `:1319` (R21.1a, R21.1b), `:1352` (R25.1a),
+`:1884`, `:1886`, `:1891`, `:1893` (R6.1–R6.4), `:2014`, `:2016`
+(R24.1a, R24.1b), `:2100` (R28.1); `:1738` restates P03.5; OOS-1 at
+`:2208` restates R10.2. The R40 prose (`:1784`–`:1825`) and the R22
 "Across families" paragraph restate R40.1–R40.6 without a keyword.
 `04-use-cases.md:863` restates UC04.5; `:1204` restates UC04.9.
-`05-dash-linear-interfaces.md:443` restates I05.4; `:476` restates
-I05.5. `08-dash-extension-rules.md:209` restates D08.9.
+`05-dash-linear-interfaces.md:452` restates I05.4; `:485` restates
+I05.5. `08-dash-extension-rules.md:227` restates D08.9.
 
 **Excluded**: `03-requirements.md:50`, `:54`, `:59`, `:60` (DP-2 quoting
-MUST / MUST NOT to illustrate a style, imposing nothing); `:1751` (a
+MUST / MUST NOT to illustrate a style, imposing nothing); `:1764` (a
 permission to a future edition, binding nothing in this one); `:274`,
-`:1298` (the R29 gist and the R21 heading, restated by R29.2 and
+`:1306` (the R29 gist and the R21 heading, restated by R29.2 and
 R21.1a).
 
 | Assertion ID | Source | Actor | Condition | Obligation |
@@ -159,159 +159,159 @@ R21.1a).
 | R34.3a | context/03-requirements.md:991 | Player | Given a once-per-session window | MUST treat it as consumed when a pause ad begins rendering, not when the pause occurs. |
 | R34.3b | context/03-requirements.md:993 | Player | Given a pause that resolves to no renderable candidate | MUST leave the window available. |
 | R34.4 | context/03-requirements.md:995 | spec document | (unconditional) | The capability is recorded as the pause-family counterpart of the base single-execution bound. `[no RFC 2119 keyword]` |
-| R35.1a | context/03-requirements.md:1036 | APS | Given each slot it resolves | MUST declare whether the viewer may dismiss it. |
-| R35.1b | context/03-requirements.md:1037 | Player | Given a resolution document with no dismissal declaration | The slot is non-dismissible. `[no RFC 2119 keyword]` |
-| R35.2a | context/03-requirements.md:1040 | APS | Given dismissal is allowed | MUST declare the seconds that MUST elapse, from the moment the slot begins rendering, before the viewer may dismiss. |
-| R35.2b | context/03-requirements.md:1042 | Player | Given a declared dismissal delay of zero | The slot is dismissible immediately. `[no RFC 2119 keyword]` |
-| R35.3a | context/03-requirements.md:1044 | Player | Given the declared delay has not elapsed | MUST NOT offer the viewer a way to dismiss the slot. |
-| R35.3b | context/03-requirements.md:1046 | Player | Given the declared delay has elapsed | MUST make dismissal available for as long as the slot is on screen. |
-| R35.4a | context/03-requirements.md:1049 | Player | Given a viewer dismissal | MUST stop presenting every ad of that slot. |
-| R35.4b | context/03-requirements.md:1049 | Player | Given a viewer dismissal | MUST NOT advance to another ad or another form within the slot. |
-| R35.5 | context/03-requirements.md:1053 | Player | Given a dismissed slot that bounded a region of the primary timeline | MUST continue from where the primary content stands, without compressing or skipping any part. |
-| R35.6a | context/03-requirements.md:1055 | Player | Given a dismissal | MUST fire the tracking events scheduled up to the moment of dismissal. |
-| R35.6b | context/03-requirements.md:1057 | Player | Given tracking events scheduled after the dismissal | MUST NOT fire them. |
-| R35.7 | context/03-requirements.md:1059 | spec document | (unconditional) | How dismissal is offered (control, gesture, remote button) is out of scope. `[no RFC 2119 keyword]` |
-| R35.8a | context/03-requirements.md:1065 | Player | Given a linear slot whose event carries the base specification's own skip declaration | MUST honour that declaration as the base specification defines it; it governs the slot. |
-| R35.8b | context/03-requirements.md:1066 | Player | Given a linear slot where neither the event nor the resolution document declares dismissal | R35.1's default (non-dismissible) applies, and only then. `[no RFC 2119 keyword]` |
-| R36.1a | context/03-requirements.md:1126 | Publisher | Given an overlay or pause opportunity window | MAY declare how far ahead of it a Player may resolve. |
-| R36.1b | context/03-requirements.md:1126 | Player | Given an overlay or pause window that declares no offset | It may be resolved up to 60 seconds ahead of the window start, the base specification's default. `[no RFC 2119 keyword]` |
-| R36.1c | context/03-requirements.md:1128 | Publisher | Given a window the Publisher wants resolved only when it fires | It declares an offset of zero. `[no RFC 2119 keyword]` |
-| R36.2 | context/03-requirements.md:1132 | Player | Given an overlay window | MUST NOT resolve earlier than the offset — declared, or the 60-second default of R36.1 — before the window start. |
-| R36.3 | context/03-requirements.md:1135 | Player | Given a pause opportunity window | MUST NOT resolve earlier than the offset — declared, or the 60-second default of R36.1 — before the window start; the offset is computed against the window start, never the pause. |
-| R36.4a | context/03-requirements.md:1141 | APS | Given a resolution that may have been obtained ahead of the opportunity | MUST declare how long it remains usable. |
-| R36.4b | context/03-requirements.md:1140 | Player | Given a resolution document with no usability declaration | It remains usable for as long as its window lasts. `[no RFC 2119 keyword]` |
-| R36.5a | context/03-requirements.md:1144 | Player | Given the opportunity fires with a held resolution | MUST check whether that resolution is still usable. |
-| R36.5b | context/03-requirements.md:1144 | Player | Given the held resolution is no longer usable | MUST request a new one. |
-| R36.5c | context/03-requirements.md:1144 | Player | Given an expired resolution | MUST NOT present candidates from it. |
-| R36.6a | context/03-requirements.md:1149 | Player | Given a re-resolution yielding no usable candidate | MUST treat it as an empty resolution (R30). |
-| R36.6b | context/03-requirements.md:1149 | Player | Given a re-resolution yielding no usable candidate | MUST NOT fall back on the expired resolution. |
-| R36.7 | context/03-requirements.md:1151 | spec document | (unconditional) | Resolving early is a permission, never an obligation; a Player resolving only on firing is conformant whatever offset the window carries. `[no RFC 2119 keyword]` |
-| R37.1 | context/03-requirements.md:1180 | Player | Given a pause | MAY implement it by any mechanism that suspends the primary content and resumes it from the suspended position, including releasing its decoding resources. |
-| R37.2 | context/03-requirements.md:1184 | Player | Given resume from a pause | MUST continue the primary content from the position at which it was suspended. |
-| R37.3 | context/03-requirements.md:1188 | spec document | (unconditional) | No requirement is stated on how a Player implements a pause; criteria appearing to assume one are read per R37. `[no RFC 2119 keyword]` |
-| R38.1a | context/03-requirements.md:1204 | Publisher | Given a non-linear slot | Declaring allowed layouts is OPTIONAL. |
-| R38.1b | context/03-requirements.md:1203 | all (APS, Player) | Given a non-linear slot declaring no allowed layouts | It admits only the R12 tokens of its own family — overlay slot: the Overlay and Squeezeback entries; pause slot: the Pause-ad entry — no token of another family (an overlay slot does not admit `linear`), and not `custom`, which is admitted only by listing it (R39.2). `[no RFC 2119 keyword]` |
-| R38.2a | context/03-requirements.md:1212 | Player | Given a slot declaring allowed layouts | MUST send the declared set, unchanged, on the resolution request to the APS. |
-| R38.2b | context/03-requirements.md:1211 | Player | Given a slot declaring no allowed layouts | Nothing is sent; the set binding the APS and the Player is the one R38.1b admits. `[no RFC 2119 keyword]` |
-| R38.3 | context/03-requirements.md:1215 | spec document | (unconditional) | The carriage of the set is normative and defined by this spec as a reserved R29 parameter. `[no RFC 2119 keyword]` |
-| R38.4 | context/03-requirements.md:1218 | APS | Given a resolution request for a non-linear slot | MUST NOT return an option whose layout is outside the set it received or, when it received none, outside the set R38.1b admits for the slot's family. |
-| R38.5a | context/03-requirements.md:1221 | Player | Given a selected option, before rendering | MUST check that it uses a layout the slot admits — the declared set, or the one R38.1b admits when none is declared. |
-| R38.5b | context/03-requirements.md:1224 | Player | Given a selected option whose layout the slot does not admit | MUST NOT render it, even though the set was forwarded. |
-| R38.6 | context/03-requirements.md:1226 | spec document | Given linear slots (`InsertPresentation`, `ReplacePresentation`) | Outside R38. `[no RFC 2119 keyword]` |
-| R39.1 | context/03-requirements.md:1239 | spec document | (unconditional) | Supporting `custom` is OPTIONAL for every actor; it applies only to non-linear overlay slots and is the sole exception to R12.1, R10.2 and R10.3. |
-| R39.2a | context/03-requirements.md:1244 | Publisher | Given a slot admitting `custom` | Lists `custom` in `@allowedLayouts`. `[no RFC 2119 keyword]` |
-| R39.2b | context/03-requirements.md:1245 | Publisher | Given a slot admitting `custom` | MAY declare a custom region (x, y, width, height in percent of the video viewport, origin top-left); absent, the region is the whole viewport. |
-| R39.3 | context/03-requirements.md:1251 | Player | Given a slot declaring a custom region | MUST send it on the resolution request together with the allowed layouts, carried as R38.3 defines. |
-| R39.4a | context/03-requirements.md:1253 | APS | Given an option with layout `custom` | MUST carry the overlay's rectangle in the same percent units. |
-| R39.4b | context/03-requirements.md:1254 | APS | Given a `custom` option's rectangle | MUST lie entirely inside the region received; MUST NOT extend beyond it. |
-| R39.4c | context/03-requirements.md:1253 | APS | Given a `custom` option's rectangle | MAY be smaller than the region. |
-| R39.5a | context/03-requirements.md:1258 | Player | Given a `custom` option, before rendering | MUST check its rectangle lies inside the slot's region (or the viewport when none is declared). |
-| R39.5b | context/03-requirements.md:1258 | Player | Given a `custom` rectangle outside the region | MUST NOT render it; the option is not renderable and the Player moves to the next (R5.6). |
-| R39.5c | context/03-requirements.md:1259 | Player | Given a Player that does not support `custom` | Treats every `custom` option as not renderable. `[no RFC 2119 keyword]` |
-| R19.1 | context/03-requirements.md:1280 | Player | Given any ad form, linear or non-linear | MUST render it at the primary content's playback speed at the moment it is presented. |
-| R19.2 | context/03-requirements.md:1283 | Player | Given primary content playing at a speed other than 1x | MUST NOT force the ad to 1x. |
-| R19.3a | context/03-requirements.md:1286 | Player | Given an ad form's declared duration | MUST compute its wall-clock on-screen duration as `duration / playback_speed`. |
-| R19.3b | context/03-requirements.md:1287 | Player | Given cap enforcement (R4) and beacon scheduling (R13) | Operate on the presentation-timeline `duration`, not the wall-clock value. `[no RFC 2119 keyword]` |
-| R19.4 | context/03-requirements.md:1294 | Player | Given a form with no intrinsic media (`image`, `html`) | MUST derive its wall-clock length as `duration / playback_speed`. |
-| R21.1a | context/03-requirements.md:1330 | Player | Given a pause-ad form | MAY present it fullscreen or as a partial overlay over the paused frame. |
-| R21.1b | context/03-requirements.md:1333 | Player | Given a fullscreen pause-ad | MAY release resources held by the primary content and any pre-existing overlay. |
-| R21.1c | context/03-requirements.md:1336 | Player | Given a partial-overlay pause-ad | MUST keep at most one non-linear ad form active during the pause; any coexisting overlay is suspended (R17). |
-| R25.1a | context/03-requirements.md:1362 | Player | Given live content and the viewer paused inside a pause-ad window | MUST keep presentation time frozen inside that window for the whole pause, regardless of the live edge. |
-| R25.1b | context/03-requirements.md:1365 | Player | Given a decision to resume at the live edge | MUST treat it as a Player action after the resume, outside the pause-ad window. |
-| R26.1 | context/03-requirements.md:1391 | all (APS, Publisher) | Given a side-by-side / double-box background element | MUST be carried as a composition attribute of the slot / layout, not as a presentation option. |
-| R26.2a | context/03-requirements.md:1393 | Player | Given a side-by-side / double-box layout | MUST composite the primary content and the ad as its two boxes. |
-| R26.2b | context/03-requirements.md:1393 | Player | Given an advertiser-supplied background element | MUST place it in the uncovered bands. |
-| R26.2c | context/03-requirements.md:1394 | Player | Given no background element supplied | The uncovered region renders as black. `[no RFC 2119 keyword]` |
-| R26.3a | context/03-requirements.md:1407 | Player | Given a side-by-side whose ad is video | MUST NOT select it on a single-decoder device. |
-| R26.3b | context/03-requirements.md:1413 | Player | Given a non-video element (image/HTML ad, or image background) | MUST NOT select it on a device that cannot composite that surface type on top of video. |
-| R27.1 | context/03-requirements.md:1447 | all (APS, Publisher) | Given an L-shape / squeezeback presentation option | MUST carry exactly one ad creative — the full-frame background — as image, video or HTML. |
-| R27.2 | context/03-requirements.md:1451 | Player | Given an L-shape option | MUST composite the creative full-frame in the background and the shrunk primary content on top, scaled into the region its `@layout` token denotes. |
-| R27.3a | context/03-requirements.md:1459 | Player | Given an L-shape whose full-frame creative is video | Not satisfiable on a single-decoder device. `[no RFC 2119 keyword]` |
-| R27.3b | context/03-requirements.md:1467 | Player | Given an L-shape whose full-frame creative is image or HTML | MUST NOT select it on a device that cannot composite that surface type together with video. |
-| R14.1 | context/03-requirements.md:1510 | Player | Given a non-linear slot's resolution document declaring more than one candidate | MUST present them in sequence in document order, each starting when the previous ends. |
-| R14.2 | context/03-requirements.md:1514 | Player | Given a sequence of non-linear candidates | MUST enforce the slot cap against their cumulative duration, trimming or dropping per R4 / R7. |
-| R14.3 | context/03-requirements.md:1519 | spec document | (unconditional) | MUST NOT introduce a construct implying or requiring parallel rendering of two or more non-linear forms; no "render-then" primitive beyond candidate order. |
-| R17.1a | context/03-requirements.md:1556 | Player | Given the viewer paused inside a pause-ad window AND an overlay active | MUST render the pause-ad form. |
-| R17.1b | context/03-requirements.md:1556 | Player | Given the viewer paused inside a pause-ad window AND an overlay active | MUST suspend the overlay rendering. |
-| R17.2a | context/03-requirements.md:1559 | Player | Given resume from pause | MUST dismiss the pause-ad (R16). |
-| R17.2b | context/03-requirements.md:1559 | Player | Given resume from pause with the overlay slot window still active | MUST restore the overlay rendering. |
-| R17.3 | context/03-requirements.md:1562 | Player | Given the overlay slot window expired during the pause | MUST keep the overlay surface clear on resume. |
-| R17.4 | context/03-requirements.md:1564 | spec document | (unconditional) | Carries no construct letting the Publisher, the ADS or the APS invert the pause-over-overlay priority. `[no RFC 2119 keyword]` |
-| R17.5a | context/03-requirements.md:1569 | Player | Given a viewer pause beginning inside a pause window while a linear ad occupies the screen | MUST present the pause ad. |
-| R17.5b | context/03-requirements.md:1569 | Player | Given the same situation | MUST suspend the linear ad. |
-| R17.5c | context/03-requirements.md:1570 | Player | Given the viewer resumes after R17.5b | MUST resume the linear ad from where it was suspended. |
-| R20.1a | context/03-requirements.md:1618 | Player | Given same-family windows overlapping in time within the primary `MPD` | MUST select the first overlapping window (R20.3) and attempt to resolve it. |
-| R20.1b | context/03-requirements.md:1621 | Player | Given an attempt on a window that produced no ad (failed execution) | MUST attempt the next overlapping window of the same family (§5.16.2.2.5 step 2). |
-| R20.1c | context/03-requirements.md:1630 | Player | Given no response or transport failure, a final HTTP status other than `200`, a `200` body that is not a parseable resolution document, or a well-formed resolution document carrying no candidates | MUST treat all four alike as a failed execution. |
-| R20.1d | context/03-requirements.md:1644 | Player | Given every overlapping window of the family attempted with none producing an ad | MUST continue with the primary content uninterrupted. |
-| R20.1e | context/03-requirements.md:1656 | Player | Given a resolution document that carries candidates, none renderable on the device | Not a failed execution; handled by R5.3 / R5.7, ending at primary content, not at the next window. `[no RFC 2119 keyword]` |
-| R20.2 | context/03-requirements.md:1666 | Publisher | Given windows of one family sharing a `Period` | MUST author them as `<Event>` entries inside a single `<EventStream>`. |
-| R20.3a | context/03-requirements.md:1672 | Player | Given overlapping windows of one family | MUST order them by presentation time, oldest first. |
-| R20.3b | context/03-requirements.md:1672 | Player | Given two overlapping windows with the same presentation time | MUST take them in their order inside the `EventStream`. |
-| R20.4a | context/03-requirements.md:1695 | Player | Given a resolution document whose family does not match the requesting slot | MUST treat it as a failed execution and continue down the R20.1 chain to the next overlapping window of the slot's family. |
-| R20.4b | context/03-requirements.md:1695 | Player | Given a resolution document whose family does not match the requesting slot | MUST NOT present any of its candidates in the slot. |
-| R20.5 | context/03-requirements.md:1707 | Player | Given a window in a fallback chain serving candidates | MUST bind them with that window's own allowed layouts and maximum duration, not those of the window it stands in for. |
-| R20.6 | context/03-requirements.md:1714 | spec document | (unconditional) | R20.5 MUST be carried as a normative Player obligation, not only in informative material. |
-| R22.1 | context/03-requirements.md:1756 | Player | At any instant `t` | MUST keep at most one non-linear ad form active on screen; MUST NOT present two or more simultaneously. |
-| R40.1a | context/03-requirements.md:1816 | Publisher | Given a non-linear window | Declaring a relation (supersede or on top) on it is OPTIONAL. |
-| R40.1b | context/03-requirements.md:1816 | Publisher | Given a non-linear window declaring a relation | It declares at most one relation, supersede or on top. `[no RFC 2119 keyword]` |
-| R40.1c | context/03-requirements.md:1817 | all (Publisher, Player) | Given a non-linear window declaring neither relation | It has the default relation (R40.4). `[no RFC 2119 keyword]` |
-| R40.2 | context/03-requirements.md:1819 | Publisher | Given the Publisher wants a non-linear ad presented during an alternative presentation | MUST declare it either by a window in that alternative presentation's own `MPD`, or by a window of the triggering presentation that declares on top. |
-| R40.3a | context/03-requirements.md:1823 | Player | Given a window declaring supersede | MUST present the window. |
-| R40.3b | context/03-requirements.md:1823 | Player | Given a window declaring supersede | MUST NOT execute the inherited linear events whose presentation time falls within its span. |
-| R40.3c | context/03-requirements.md:1827 | Player | Given a window declaring supersede that presents no ad (every resolution attempt a failed execution under R20.1, or no candidate renderable on the device, R5) | MUST execute those inherited linear events as the base specification defines, including its rules for an execution starting after an event's presentation time. |
-| R40.4a | context/03-requirements.md:1831 | Player | Given a window declaring no relation | MUST present its forms only while the content of the presentation whose `MPD` declares the window is being output. |
-| R40.4b | context/03-requirements.md:1832 | Player | Given a window declaring no relation | MUST execute every inherited linear event it overlaps with its base semantics. |
-| R40.4c | context/03-requirements.md:1834 | Player | Given a window declaring no relation with a form on screen when an alternative presentation begins | The form ends there and the window presents nothing further. `[no RFC 2119 keyword]` |
-| R40.5a | context/03-requirements.md:1836 | Player | Given a window declaring on top and an alternative presentation that starts within its span is active | MUST present the window also during it, composited over that presentation, within the device's capability (R3, R5) and R22. |
-| R40.5b | context/03-requirements.md:1839 | Player | Given a window declaring on top | The inherited linear event it overlaps executes with its base semantics. `[no RFC 2119 keyword]` |
-| R40.6 | context/03-requirements.md:1841 | Player | Given non-linear windows declared in an alternative presentation's `MPD` | MUST process them as that presentation's own: presented over its content, with R40.3–R40.5 applied against the alternative presentations it triggers in turn. |
-| R40.7a | context/03-requirements.md:1846 | spec document | Given the R40 relation | It is declared on the non-linear window this spec defines; its carrier is decided under `06-naming-and-namespaces.md`. `[no RFC 2119 keyword]` |
-| R40.7b | context/03-requirements.md:1848 | spec document | Given the R40 relation | MUST NOT add anything to the inherited linear events (or their `EventStream`s) to carry it. |
-| R40.8 | context/03-requirements.md:1852 | spec document | (unconditional) | R40.3 is recorded as an exception to R1.5, with its reason (Publisher-declared departure on an SGAI construct; a non-implementing Player executes the base event unchanged). `[no RFC 2119 keyword]` |
-| R6.1 | context/03-requirements.md:1892 | spec document | (unconditional) | MUST specify how in-band ad tracking beacons are carried in the resolution document. |
-| R6.2 | context/03-requirements.md:1894 | APS | Given tracking beacons in the resolution document | SHOULD carry them as `<Event>` entries in an `<EventStream>` of scheme `urn:mpeg:dash:event:callback:2015` in the ad `MPD` or sub-`MPD`. |
-| R6.3 | context/03-requirements.md:1899 | spec document | Given the callback scheme cannot express the required semantics | A new tracking carrier MAY be introduced only after a documented gap analysis per R9. |
-| R6.4 | context/03-requirements.md:1903 | Player | Given unknown namespaces on tracking-related extension elements | MUST safely ignore them. |
-| R6.5a | context/03-requirements.md:1906 | all (APS, Player) | Given beacons within one candidate sharing an `@id`, or the same URL at the same presentation time | They fire once; the de-duplication key is scoped to the candidate. `[no RFC 2119 keyword]` |
-| R6.5b | context/03-requirements.md:1911 | Player | Given two beacons with the same `@id` in two different candidates of one resolution document | MUST fire both. |
-| R6.5c | context/03-requirements.md:1911 | Player | Given beacons carried as `Event`s of a `ListMPD`, including streams merged from its sub-MPDs | The base scope applies (R1.5): `Event@id` is scoped to its `@schemeIdUri` / `@value` pair over the whole media presentation (Table 44), so the ads of one `ListMPD` share one de-duplication scope. `[no RFC 2119 keyword]` |
-| R6.6 | context/03-requirements.md:1919 | Player | Given a beacon `<EventStream>` hosted as foreign-namespace open content inside a candidate | MUST resolve its presentation times against that candidate's own presentation. |
-| R6.7 | context/03-requirements.md:1922 | spec document | (unconditional) | MUST state how a resolution document carrying the candidate-level beacon carrier is validated. |
-| R13.1 | context/03-requirements.md:1947 | APS | Given a resolution document carrying tracking instructions | MUST express them with DASH callback events (or an equivalent baseline construct), timed relative to the ad's presentation timeline. |
-| R13.2 | context/03-requirements.md:1954 | Player | Given an ad accepted for rendering | MUST execute the tracking schedule read from the resolution document, firing each beacon at its relative time. |
-| R13.3 | context/03-requirements.md:1959 | Player | Given R4 trims the ad before a scheduled beacon time | MUST stop firing remaining beacons at the trim boundary. |
-| R13.4 | context/03-requirements.md:1961 | spec document | (unconditional) | MUST NOT introduce a new tracking event scheme; reuse of the baseline callback mechanism is mandatory. |
-| R13.5 | context/03-requirements.md:1964 | all (APS, ADS) | Given the ADS-declared beacon schedule | Transcription fidelity is part of the APS-to-ADS contract, outside this spec. `[no RFC 2119 keyword]` |
-| R23.1a | context/03-requirements.md:1990 | spec document | (unconditional) | MUST define, in the SVTA Ads WG namespace, extension elements carrying generic metadata with no native DASH carrier (`AdSystem`, `AdTitle`, etc.). |
-| R23.1b | context/03-requirements.md:1993 | spec document | (unconditional) | MUST state that emitting and reading those elements are both optional. |
-| R24.1a | context/03-requirements.md:2011 | APS | Given a non-AV ad form (`html`, `image`, …) in the resolution document | The asset URL MUST NOT be expressed as `@mimeType` on an AdaptationSet or Representation reached through any RFC 4337-bound path. |
-| R24.1b | context/03-requirements.md:2015 | APS | Given a non-AV ad form in the resolution document | The asset URL MUST be carried via one of the DR-6 carriers (§5.2.1 / §5.10 / §5.8.4.x). |
-| R33.1 | context/03-requirements.md:2063 | spec document | (unconditional) | MUST NOT define a metric of its own for pause-ad delivery. |
-| R33.2a | context/03-requirements.md:2068 | Player | Given a Player that reports metrics | MUST derive the paused interval from the `PlayList` metric entries (Annex D.4.6). |
-| R33.2b | context/03-requirements.md:2068 | Player | Given a playback period that stopped on `Rebuffering` | MUST NOT count it as a pause opportunity. |
-| R33.3 | context/03-requirements.md:2072 | spec document | (unconditional) | Measurement transport to Publisher, APS or ADS is out of scope (§5.9.1). `[no RFC 2119 keyword]` |
-| R33.4 | context/03-requirements.md:2076 | Publisher | Given content carrying pause opportunity windows | MUST request the `PlayList` metric through the `Metrics` element. |
-| R28.1 | context/03-requirements.md:2105 | APS | Given an ad candidate carrying a ClickThrough | The ClickThrough URL and any accompanying click-tracking URLs MUST be carried in this spec's normative carrier and not elsewhere. |
-| R28.2a | context/03-requirements.md:2112 | Player | Given the viewer activates the ClickThrough | MUST read the ClickThrough URL from the normative carrier. |
-| R28.2b | context/03-requirements.md:2112 | Player | Given the viewer activates the ClickThrough | MUST fire the associated click-tracking. |
-| R28.3 | context/03-requirements.md:2115 | all (APS, ADS) | Given an ADS-declared ClickThrough | Whether it reaches the resolution document is part of the APS-to-ADS contract, outside this spec. `[no RFC 2119 keyword]` |
-| R8.1 | context/03-requirements.md:2140 | spec document | Given a new construct | MUST be accompanied by an inline justification of why no existing MPEG-DASH construct could be reused. |
-| R8.2 | context/03-requirements.md:2144 | spec document | Given a deliberate omission of an existing construct a reader might expect reused | MUST be documented inline with the design decision. |
-| R9.1 | context/03-requirements.md:2157 | spec document | (unconditional) | MUST reuse existing MPEG-DASH machinery (events, manifests, presentations, schemes) wherever possible. |
-| R9.2 | context/03-requirements.md:2160 | spec document | Given a candidate new construct | MUST NOT be introduced unless an existing one cannot be made to fit. |
-| R9.3a | context/03-requirements.md:2163 | spec document | Before introducing a new construct | MUST consider whether an extension to an existing construct would suffice. |
-| R9.3b | context/03-requirements.md:2164 | spec document | Before introducing a new construct | MUST document the outcome of that consideration. |
-| R10.1 | context/03-requirements.md:2178 | spec document | (unconditional) | MUST delegate the spatial arrangement of overlays to HTML5 / CSS layout primitives. |
-| R10.2 | context/03-requirements.md:2180 | spec document | (unconditional) | MUST NOT define a parallel layout standard for overlay placement. |
-| R10.3 | context/03-requirements.md:2182 | spec document | (unconditional) | Position semantics inside a layout are out of scope, except the `custom` rectangle (R39). `[no RFC 2119 keyword]` |
+| R35.1a | context/03-requirements.md:1045 | APS | Given each overlay or pause slot it resolves | MUST declare whether the viewer may dismiss it. |
+| R35.1b | context/03-requirements.md:1046 | Player | Given an overlay or pause slot whose resolution document does not declare dismissal | The slot is non-dismissible. `[no RFC 2119 keyword]` |
+| R35.2a | context/03-requirements.md:1049 | APS | Given dismissal is allowed | MUST declare the seconds that MUST elapse, from the moment the slot begins rendering, before the viewer may dismiss. |
+| R35.2b | context/03-requirements.md:1051 | Player | Given a declared dismissal delay of zero | The slot is dismissible immediately. `[no RFC 2119 keyword]` |
+| R35.3a | context/03-requirements.md:1053 | Player | Given the declared delay has not elapsed | MUST NOT offer the viewer a way to dismiss the slot. |
+| R35.3b | context/03-requirements.md:1055 | Player | Given the declared delay has elapsed | MUST make dismissal available for as long as the slot is on screen. |
+| R35.4a | context/03-requirements.md:1058 | Player | Given a viewer dismissal | MUST stop presenting every ad of that slot. |
+| R35.4b | context/03-requirements.md:1058 | Player | Given a viewer dismissal | MUST NOT advance to another ad or another form within the slot. |
+| R35.5 | context/03-requirements.md:1062 | Player | Given a dismissed slot that bounded a region of the primary timeline | MUST continue from where the primary content stands, without compressing or skipping any part. |
+| R35.6a | context/03-requirements.md:1064 | Player | Given a dismissal | MUST fire the tracking events scheduled up to the moment of dismissal. |
+| R35.6b | context/03-requirements.md:1066 | Player | Given tracking events scheduled after the dismissal | MUST NOT fire them. |
+| R35.7 | context/03-requirements.md:1068 | spec document | (unconditional) | How dismissal is offered (control, gesture, remote button) is out of scope. `[no RFC 2119 keyword]` |
+| R35.8a | context/03-requirements.md:1072 | Player | Given a linear slot | MUST apply the base specification's own skip declaration and its default as the base specification defines them; they govern the slot. |
+| R35.8b | context/03-requirements.md:1074 | Player | Given a linear slot on which nothing is declared | The base default applies and the slot is skippable as the base specification makes it; R35.1's default does not apply. `[no RFC 2119 keyword]` |
+| R36.1a | context/03-requirements.md:1134 | Publisher | Given an overlay or pause opportunity window | MAY declare how far ahead of it a Player may resolve. |
+| R36.1b | context/03-requirements.md:1134 | Player | Given an overlay or pause window that declares no offset | It may be resolved up to 60 seconds ahead of the window start, the base specification's default. `[no RFC 2119 keyword]` |
+| R36.1c | context/03-requirements.md:1136 | Publisher | Given a window the Publisher wants resolved only when it fires | It declares an offset of zero. `[no RFC 2119 keyword]` |
+| R36.2 | context/03-requirements.md:1140 | Player | Given an overlay window | MUST NOT resolve earlier than the offset — declared, or the 60-second default of R36.1 — before the window start. |
+| R36.3 | context/03-requirements.md:1143 | Player | Given a pause opportunity window | MUST NOT resolve earlier than the offset — declared, or the 60-second default of R36.1 — before the window start; the offset is computed against the window start, never the pause. |
+| R36.4a | context/03-requirements.md:1149 | APS | Given a resolution that may have been obtained ahead of the opportunity | MUST declare how long it remains usable. |
+| R36.4b | context/03-requirements.md:1148 | Player | Given a resolution document with no usability declaration | It remains usable for as long as its window lasts. `[no RFC 2119 keyword]` |
+| R36.5a | context/03-requirements.md:1152 | Player | Given the opportunity fires with a held resolution | MUST check whether that resolution is still usable. |
+| R36.5b | context/03-requirements.md:1152 | Player | Given the held resolution is no longer usable | MUST request a new one. |
+| R36.5c | context/03-requirements.md:1152 | Player | Given an expired resolution | MUST NOT present candidates from it. |
+| R36.6a | context/03-requirements.md:1157 | Player | Given a re-resolution yielding no usable candidate | MUST treat it as an empty resolution (R30). |
+| R36.6b | context/03-requirements.md:1157 | Player | Given a re-resolution yielding no usable candidate | MUST NOT fall back on the expired resolution. |
+| R36.7 | context/03-requirements.md:1159 | spec document | (unconditional) | Resolving early is a permission, never an obligation; a Player resolving only on firing is conformant whatever offset the window carries. `[no RFC 2119 keyword]` |
+| R37.1 | context/03-requirements.md:1188 | Player | Given a pause | MAY implement it by any mechanism that suspends the primary content and resumes it from the suspended position, including releasing its decoding resources. |
+| R37.2 | context/03-requirements.md:1192 | Player | Given resume from a pause | MUST continue the primary content from the position at which it was suspended. |
+| R37.3 | context/03-requirements.md:1196 | spec document | (unconditional) | No requirement is stated on how a Player implements a pause; criteria appearing to assume one are read per R37. `[no RFC 2119 keyword]` |
+| R38.1a | context/03-requirements.md:1212 | Publisher | Given a non-linear slot | Declaring allowed layouts is OPTIONAL. |
+| R38.1b | context/03-requirements.md:1211 | all (APS, Player) | Given a non-linear slot declaring no allowed layouts | It admits only the R12 tokens of its own family — overlay slot: the Overlay and Squeezeback entries; pause slot: the Pause-ad entry — no token of another family (an overlay slot does not admit `linear`), and not `custom`, which is admitted only by listing it (R39.2). `[no RFC 2119 keyword]` |
+| R38.2a | context/03-requirements.md:1220 | Player | Given a slot declaring allowed layouts | MUST send the declared set, unchanged, on the resolution request to the APS. |
+| R38.2b | context/03-requirements.md:1219 | Player | Given a slot declaring no allowed layouts | Nothing is sent; the set binding the APS and the Player is the one R38.1b admits. `[no RFC 2119 keyword]` |
+| R38.3 | context/03-requirements.md:1223 | spec document | (unconditional) | The carriage of the set is normative and defined by this spec as a reserved R29 parameter. `[no RFC 2119 keyword]` |
+| R38.4 | context/03-requirements.md:1226 | APS | Given a resolution request for a non-linear slot | MUST NOT return an option whose layout is outside the set it received or, when it received none, outside the set R38.1b admits for the slot's family. |
+| R38.5a | context/03-requirements.md:1229 | Player | Given a selected option, before rendering | MUST check that it uses a layout the slot admits — the declared set, or the one R38.1b admits when none is declared. |
+| R38.5b | context/03-requirements.md:1232 | Player | Given a selected option whose layout the slot does not admit | MUST NOT render it, even though the set was forwarded. |
+| R38.6 | context/03-requirements.md:1234 | spec document | Given linear slots (`InsertPresentation`, `ReplacePresentation`) | Outside R38. `[no RFC 2119 keyword]` |
+| R39.1 | context/03-requirements.md:1247 | spec document | (unconditional) | Supporting `custom` is OPTIONAL for every actor; it applies only to non-linear overlay slots and is the sole exception to R12.1, R10.2 and R10.3. |
+| R39.2a | context/03-requirements.md:1252 | Publisher | Given a slot admitting `custom` | Lists `custom` in `@allowedLayouts`. `[no RFC 2119 keyword]` |
+| R39.2b | context/03-requirements.md:1253 | Publisher | Given a slot admitting `custom` | MAY declare a custom region (x, y, width, height in percent of the video viewport, origin top-left); absent, the region is the whole viewport. |
+| R39.3 | context/03-requirements.md:1259 | Player | Given a slot declaring a custom region | MUST send it on the resolution request together with the allowed layouts, carried as R38.3 defines. |
+| R39.4a | context/03-requirements.md:1261 | APS | Given an option with layout `custom` | MUST carry the overlay's rectangle in the same percent units. |
+| R39.4b | context/03-requirements.md:1262 | APS | Given a `custom` option's rectangle | MUST lie entirely inside the region received; MUST NOT extend beyond it. |
+| R39.4c | context/03-requirements.md:1261 | APS | Given a `custom` option's rectangle | MAY be smaller than the region. |
+| R39.5a | context/03-requirements.md:1266 | Player | Given a `custom` option, before rendering | MUST check its rectangle lies inside the slot's region (or the viewport when none is declared). |
+| R39.5b | context/03-requirements.md:1266 | Player | Given a `custom` rectangle outside the region | MUST NOT render it; the option is not renderable and the Player moves to the next (R5.6). |
+| R39.5c | context/03-requirements.md:1267 | Player | Given a Player that does not support `custom` | Treats every `custom` option as not renderable. `[no RFC 2119 keyword]` |
+| R19.1 | context/03-requirements.md:1288 | Player | Given any ad form, linear or non-linear | MUST render it at the primary content's playback speed at the moment it is presented. |
+| R19.2 | context/03-requirements.md:1291 | Player | Given primary content playing at a speed other than 1x | MUST NOT force the ad to 1x. |
+| R19.3a | context/03-requirements.md:1294 | Player | Given an ad form's declared duration | MUST compute its wall-clock on-screen duration as `duration / playback_speed`. |
+| R19.3b | context/03-requirements.md:1295 | Player | Given cap enforcement (R4) and beacon scheduling (R13) | Operate on the presentation-timeline `duration`, not the wall-clock value. `[no RFC 2119 keyword]` |
+| R19.4 | context/03-requirements.md:1302 | Player | Given a form with no intrinsic media (`image`, `html`) | MUST derive its wall-clock length as `duration / playback_speed`. |
+| R21.1a | context/03-requirements.md:1338 | Player | Given a pause-ad form | MAY present it fullscreen or as a partial overlay over the paused frame. |
+| R21.1b | context/03-requirements.md:1341 | Player | Given a fullscreen pause-ad | MAY release resources held by the primary content and any pre-existing overlay. |
+| R21.1c | context/03-requirements.md:1344 | Player | Given a partial-overlay pause-ad | MUST keep at most one non-linear ad form active during the pause; any coexisting overlay is suspended (R17). |
+| R25.1a | context/03-requirements.md:1370 | Player | Given live content and the viewer paused inside a pause-ad window | MUST keep presentation time frozen inside that window for the whole pause, regardless of the live edge. |
+| R25.1b | context/03-requirements.md:1373 | Player | Given a decision to resume at the live edge | MUST treat it as a Player action after the resume, outside the pause-ad window. |
+| R26.1 | context/03-requirements.md:1399 | all (APS, Publisher) | Given a side-by-side / double-box background element | MUST be carried as a composition attribute of the slot / layout, not as a presentation option. |
+| R26.2a | context/03-requirements.md:1401 | Player | Given a side-by-side / double-box layout | MUST composite the primary content and the ad as its two boxes. |
+| R26.2b | context/03-requirements.md:1401 | Player | Given an advertiser-supplied background element | MUST place it in the uncovered bands. |
+| R26.2c | context/03-requirements.md:1402 | Player | Given no background element supplied | The uncovered region renders as black. `[no RFC 2119 keyword]` |
+| R26.3a | context/03-requirements.md:1415 | Player | Given a side-by-side whose ad is video | MUST NOT select it on a single-decoder device. |
+| R26.3b | context/03-requirements.md:1421 | Player | Given a non-video element (image/HTML ad, or image background) | MUST NOT select it on a device that cannot composite that surface type on top of video. |
+| R27.1 | context/03-requirements.md:1455 | all (APS, Publisher) | Given an L-shape / squeezeback presentation option | MUST carry exactly one ad creative — the full-frame background — as image, video or HTML. |
+| R27.2 | context/03-requirements.md:1459 | Player | Given an L-shape option | MUST composite the creative full-frame in the background and the shrunk primary content on top, scaled into the region its `@layout` token denotes. |
+| R27.3a | context/03-requirements.md:1467 | Player | Given an L-shape whose full-frame creative is video | Not satisfiable on a single-decoder device. `[no RFC 2119 keyword]` |
+| R27.3b | context/03-requirements.md:1475 | Player | Given an L-shape whose full-frame creative is image or HTML | MUST NOT select it on a device that cannot composite that surface type together with video. |
+| R14.1 | context/03-requirements.md:1518 | Player | Given a non-linear slot's resolution document declaring more than one candidate | MUST present them in sequence in document order, each starting when the previous ends. |
+| R14.2 | context/03-requirements.md:1522 | Player | Given a sequence of non-linear candidates | MUST enforce the slot cap against their cumulative duration, trimming or dropping per R4 / R7. |
+| R14.3 | context/03-requirements.md:1527 | spec document | (unconditional) | MUST NOT introduce a construct implying or requiring parallel rendering of two or more non-linear forms; no "render-then" primitive beyond candidate order. |
+| R17.1a | context/03-requirements.md:1564 | Player | Given the viewer paused inside a pause-ad window AND an overlay active | MUST render the pause-ad form. |
+| R17.1b | context/03-requirements.md:1564 | Player | Given the viewer paused inside a pause-ad window AND an overlay active | MUST suspend the overlay rendering. |
+| R17.2a | context/03-requirements.md:1567 | Player | Given resume from pause | MUST dismiss the pause-ad (R16). |
+| R17.2b | context/03-requirements.md:1567 | Player | Given resume from pause with the overlay slot window still active | MUST restore the overlay rendering. |
+| R17.3 | context/03-requirements.md:1570 | Player | Given the overlay slot window expired during the pause | MUST keep the overlay surface clear on resume. |
+| R17.4 | context/03-requirements.md:1572 | spec document | (unconditional) | Carries no construct letting the Publisher, the ADS or the APS invert the pause-over-overlay priority. `[no RFC 2119 keyword]` |
+| R17.5a | context/03-requirements.md:1577 | Player | Given a viewer pause beginning inside a pause window while a linear ad occupies the screen | MUST present the pause ad. |
+| R17.5b | context/03-requirements.md:1577 | Player | Given the same situation | MUST suspend the linear ad. |
+| R17.5c | context/03-requirements.md:1578 | Player | Given the viewer resumes after R17.5b | MUST resume the linear ad from where it was suspended. |
+| R20.1a | context/03-requirements.md:1626 | Player | Given same-family windows overlapping in time within the primary `MPD` | MUST select the first overlapping window (R20.3) and attempt to resolve it. |
+| R20.1b | context/03-requirements.md:1629 | Player | Given an attempt on a window that produced no ad (failed execution) | MUST attempt the next overlapping window of the same family (§5.16.2.2.5 step 2). |
+| R20.1c | context/03-requirements.md:1638 | Player | Given no response or transport failure, a final HTTP status other than `200`, a `200` body that is not a parseable resolution document, or a well-formed resolution document carrying no candidates | MUST treat all four alike as a failed execution. |
+| R20.1d | context/03-requirements.md:1652 | Player | Given every overlapping window of the family attempted with none producing an ad | MUST continue with the primary content uninterrupted. |
+| R20.1e | context/03-requirements.md:1664 | Player | Given a resolution document that carries candidates, none renderable on the device | Not a failed execution; handled by R5.3 / R5.7, ending at primary content, not at the next window. `[no RFC 2119 keyword]` |
+| R20.2 | context/03-requirements.md:1674 | Publisher | Given windows of one family sharing a `Period` | MUST author them as `<Event>` entries inside a single `<EventStream>`. |
+| R20.3a | context/03-requirements.md:1685 | Player | Given overlapping windows of one family | MUST order them by presentation time, oldest first. |
+| R20.3b | context/03-requirements.md:1685 | Player | Given two overlapping windows with the same presentation time | MUST take them in their order inside the `EventStream`. |
+| R20.4a | context/03-requirements.md:1708 | Player | Given a resolution document whose family does not match the requesting slot | MUST treat it as a failed execution and continue down the R20.1 chain to the next overlapping window of the slot's family. |
+| R20.4b | context/03-requirements.md:1708 | Player | Given a resolution document whose family does not match the requesting slot | MUST NOT present any of its candidates in the slot. |
+| R20.5 | context/03-requirements.md:1720 | Player | Given a window in a fallback chain serving candidates | MUST bind them with that window's own allowed layouts and maximum duration, not those of the window it stands in for. |
+| R20.6 | context/03-requirements.md:1727 | spec document | (unconditional) | R20.5 MUST be carried as a normative Player obligation, not only in informative material. |
+| R22.1 | context/03-requirements.md:1769 | Player | At any instant `t` | MUST keep at most one non-linear ad form active on screen; MUST NOT present two or more simultaneously. |
+| R40.1a | context/03-requirements.md:1829 | Publisher | Given a non-linear window | Declaring a relation (supersede or on top) on it is OPTIONAL. |
+| R40.1b | context/03-requirements.md:1829 | Publisher | Given a non-linear window declaring a relation | It declares at most one relation, supersede or on top. `[no RFC 2119 keyword]` |
+| R40.1c | context/03-requirements.md:1830 | all (Publisher, Player) | Given a non-linear window declaring neither relation | It has the default relation (R40.4). `[no RFC 2119 keyword]` |
+| R40.2 | context/03-requirements.md:1832 | Publisher | Given the Publisher wants a non-linear ad presented during an alternative presentation | MUST declare it either by a window in that alternative presentation's own `MPD`, or by a window of the triggering presentation that declares on top. |
+| R40.3a | context/03-requirements.md:1836 | Player | Given a window declaring supersede | MUST present the window. |
+| R40.3b | context/03-requirements.md:1836 | Player | Given a window declaring supersede | MUST NOT execute the inherited linear events whose presentation time falls within its span. |
+| R40.3c | context/03-requirements.md:1840 | Player | Given a window declaring supersede that presents no ad (every resolution attempt a failed execution under R20.1, or no candidate renderable on the device, R5) | MUST execute those inherited linear events as the base specification defines, including its rules for an execution starting after an event's presentation time. |
+| R40.4a | context/03-requirements.md:1844 | Player | Given a window declaring no relation | MUST present its forms only while the content of the presentation whose `MPD` declares the window is being output. |
+| R40.4b | context/03-requirements.md:1845 | Player | Given a window declaring no relation | MUST execute every inherited linear event it overlaps with its base semantics. |
+| R40.4c | context/03-requirements.md:1847 | Player | Given a window declaring no relation with a form on screen when an alternative presentation begins | The form ends there and the window presents nothing further. `[no RFC 2119 keyword]` |
+| R40.5a | context/03-requirements.md:1849 | Player | Given a window declaring on top and an alternative presentation that starts within its span is active | MUST present the window also during it, composited over that presentation, within the device's capability (R3, R5) and R22. |
+| R40.5b | context/03-requirements.md:1852 | Player | Given a window declaring on top | The inherited linear event it overlaps executes with its base semantics. `[no RFC 2119 keyword]` |
+| R40.6 | context/03-requirements.md:1854 | Player | Given non-linear windows declared in an alternative presentation's `MPD` | MUST process them as that presentation's own: presented over its content, with R40.3–R40.5 applied against the alternative presentations it triggers in turn. |
+| R40.7a | context/03-requirements.md:1859 | spec document | Given the R40 relation | It is declared on the non-linear window this spec defines; its carrier is decided under `06-naming-and-namespaces.md`. `[no RFC 2119 keyword]` |
+| R40.7b | context/03-requirements.md:1861 | spec document | Given the R40 relation | MUST NOT add anything to the inherited linear events (or their `EventStream`s) to carry it. |
+| R40.8 | context/03-requirements.md:1865 | spec document | (unconditional) | R40.3 is recorded as an exception to R1.5, with its reason (Publisher-declared departure on an SGAI construct; a non-implementing Player executes the base event unchanged). `[no RFC 2119 keyword]` |
+| R6.1 | context/03-requirements.md:1905 | spec document | (unconditional) | MUST specify how in-band ad tracking beacons are carried in the resolution document. |
+| R6.2 | context/03-requirements.md:1907 | APS | Given tracking beacons in the resolution document | SHOULD carry them as `<Event>` entries in an `<EventStream>` of scheme `urn:mpeg:dash:event:callback:2015` in the ad `MPD` or sub-`MPD`. |
+| R6.3 | context/03-requirements.md:1912 | spec document | Given the callback scheme cannot express the required semantics | A new tracking carrier MAY be introduced only after a documented gap analysis per R9. |
+| R6.4 | context/03-requirements.md:1916 | Player | Given unknown namespaces on tracking-related extension elements | MUST safely ignore them. |
+| R6.5a | context/03-requirements.md:1919 | all (APS, Player) | Given beacons within one candidate sharing an `@id`, or the same URL at the same presentation time | They fire once; the de-duplication key is scoped to the candidate. `[no RFC 2119 keyword]` |
+| R6.5b | context/03-requirements.md:1924 | Player | Given two beacons with the same `@id` in two different candidates of one resolution document | MUST fire both. |
+| R6.5c | context/03-requirements.md:1924 | Player | Given beacons carried as `Event`s of a `ListMPD`, including streams merged from its sub-MPDs | The base scope applies (R1.5): `Event@id` is scoped to its `@schemeIdUri` / `@value` pair over the whole media presentation (Table 44), so the ads of one `ListMPD` share one de-duplication scope. `[no RFC 2119 keyword]` |
+| R6.6 | context/03-requirements.md:1932 | Player | Given a beacon `<EventStream>` hosted as foreign-namespace open content inside a candidate | MUST resolve its presentation times against that candidate's own presentation. |
+| R6.7 | context/03-requirements.md:1935 | spec document | (unconditional) | MUST state how a resolution document carrying the candidate-level beacon carrier is validated. |
+| R13.1 | context/03-requirements.md:1960 | APS | Given a resolution document carrying tracking instructions | MUST express them with DASH callback events (or an equivalent baseline construct), timed relative to the ad's presentation timeline. |
+| R13.2 | context/03-requirements.md:1967 | Player | Given an ad accepted for rendering | MUST execute the tracking schedule read from the resolution document, firing each beacon at its relative time. |
+| R13.3 | context/03-requirements.md:1972 | Player | Given R4 trims the ad before a scheduled beacon time | MUST stop firing remaining beacons at the trim boundary. |
+| R13.4 | context/03-requirements.md:1974 | spec document | (unconditional) | MUST NOT introduce a new tracking event scheme; reuse of the baseline callback mechanism is mandatory. |
+| R13.5 | context/03-requirements.md:1977 | all (APS, ADS) | Given the ADS-declared beacon schedule | Transcription fidelity is part of the APS-to-ADS contract, outside this spec. `[no RFC 2119 keyword]` |
+| R23.1a | context/03-requirements.md:2003 | spec document | (unconditional) | MUST define, in the SVTA Ads WG namespace, extension elements carrying generic metadata with no native DASH carrier (`AdSystem`, `AdTitle`, etc.). |
+| R23.1b | context/03-requirements.md:2006 | spec document | (unconditional) | MUST state that emitting and reading those elements are both optional. |
+| R24.1a | context/03-requirements.md:2024 | APS | Given a non-AV ad form (`html`, `image`, …) in the resolution document | The asset URL MUST NOT be expressed as `@mimeType` on an AdaptationSet or Representation reached through any RFC 4337-bound path. |
+| R24.1b | context/03-requirements.md:2028 | APS | Given a non-AV ad form in the resolution document | The asset URL MUST be carried via one of the DR-6 carriers (§5.2.1 / §5.10 / §5.8.4.x). |
+| R33.1 | context/03-requirements.md:2076 | spec document | (unconditional) | MUST NOT define a metric of its own for pause-ad delivery. |
+| R33.2a | context/03-requirements.md:2081 | Player | Given a Player that reports metrics | MUST derive the paused interval from the `PlayList` metric entries (Annex D.4.6). |
+| R33.2b | context/03-requirements.md:2081 | Player | Given a playback period that stopped on `Rebuffering` | MUST NOT count it as a pause opportunity. |
+| R33.3 | context/03-requirements.md:2085 | spec document | (unconditional) | Measurement transport to Publisher, APS or ADS is out of scope (§5.9.1). `[no RFC 2119 keyword]` |
+| R33.4 | context/03-requirements.md:2089 | Publisher | Given content carrying pause opportunity windows | MUST request the `PlayList` metric through the `Metrics` element. |
+| R28.1 | context/03-requirements.md:2118 | APS | Given an ad candidate carrying a ClickThrough | The ClickThrough URL and any accompanying click-tracking URLs MUST be carried in this spec's normative carrier and not elsewhere. |
+| R28.2a | context/03-requirements.md:2125 | Player | Given the viewer activates the ClickThrough | MUST read the ClickThrough URL from the normative carrier. |
+| R28.2b | context/03-requirements.md:2125 | Player | Given the viewer activates the ClickThrough | MUST fire the associated click-tracking. |
+| R28.3 | context/03-requirements.md:2128 | all (APS, ADS) | Given an ADS-declared ClickThrough | Whether it reaches the resolution document is part of the APS-to-ADS contract, outside this spec. `[no RFC 2119 keyword]` |
+| R8.1 | context/03-requirements.md:2153 | spec document | Given a new construct | MUST be accompanied by an inline justification of why no existing MPEG-DASH construct could be reused. |
+| R8.2 | context/03-requirements.md:2157 | spec document | Given a deliberate omission of an existing construct a reader might expect reused | MUST be documented inline with the design decision. |
+| R9.1 | context/03-requirements.md:2170 | spec document | (unconditional) | MUST reuse existing MPEG-DASH machinery (events, manifests, presentations, schemes) wherever possible. |
+| R9.2 | context/03-requirements.md:2173 | spec document | Given a candidate new construct | MUST NOT be introduced unless an existing one cannot be made to fit. |
+| R9.3a | context/03-requirements.md:2176 | spec document | Before introducing a new construct | MUST consider whether an extension to an existing construct would suffice. |
+| R9.3b | context/03-requirements.md:2177 | spec document | Before introducing a new construct | MUST document the outcome of that consideration. |
+| R10.1 | context/03-requirements.md:2191 | spec document | (unconditional) | MUST delegate the spatial arrangement of overlays to HTML5 / CSS layout primitives. |
+| R10.2 | context/03-requirements.md:2193 | spec document | (unconditional) | MUST NOT define a parallel layout standard for overlay placement. |
+| R10.3 | context/03-requirements.md:2195 | spec document | (unconditional) | Position semantics inside a layout are out of scope, except the `custom` rectangle (R39). `[no RFC 2119 keyword]` |
 | P03.1 | context/03-requirements.md:210 | all | (unconditional) | Conformant implementations MUST be VAST-version-agnostic. |
 | P03.2 | context/03-requirements.md:629 | APS | Given an HTML creative carried as `text/html` | MAY contain inline `<script>`, which runs under the device's HTML capability contract and is not a separate carrier. |
-| P03.3 | context/03-requirements.md:1375 | APS | Given a side-by-side / double-box layout | An advertiser background element MAY fill the uncovered bands. |
-| P03.4 | context/03-requirements.md:1438 | APS | Given an ad candidate | MAY list the L-shape among its ordered presentation options. |
-| P03.5 | context/03-requirements.md:1481 | APS | Given a non-linear ad slot | MAY be filled by more than one candidate played in sequence. |
-| P03.6 | context/03-requirements.md:1932 | spec document | (unconditional) | MUST define a tracking mechanism that lets the ADS instruct the Player which beacons to fire and at which points relative to the ad's presentation. |
-| P03.7 | context/03-requirements.md:2211 | APS | Given a sender needing a scripted creative | MUST wrap the script in an HTML document and use `text/html`. |
+| P03.3 | context/03-requirements.md:1383 | APS | Given a side-by-side / double-box layout | An advertiser background element MAY fill the uncovered bands. |
+| P03.4 | context/03-requirements.md:1446 | APS | Given an ad candidate | MAY list the L-shape among its ordered presentation options. |
+| P03.5 | context/03-requirements.md:1489 | APS | Given a non-linear ad slot | MAY be filled by more than one candidate played in sequence. |
+| P03.6 | context/03-requirements.md:1945 | spec document | (unconditional) | MUST define a tracking mechanism that lets the ADS instruct the Player which beacons to fire and at which points relative to the ad's presentation. |
+| P03.7 | context/03-requirements.md:2224 | APS | Given a sender needing a scripted creative | MUST wrap the script in an HTML document and use `text/html`. |
 | IN01.1 | context/01-intro.md:51 | spec document | Given each new construct the spec introduces | MUST apply the verification checklist of `07-backward-compat-checklist.md`. |
 | A2.1 | context/02-actors.md:55 | ADS | Given its decision document | MAY emit a format other than VAST. |
 | UC04.1 | context/04-use-cases.md:305 | APS | Given a candidate's presentation option | MAY be a partial-screen layout (L-shape / squeezeback or side-by-side / double-box). |
@@ -323,10 +323,10 @@ R21.1a).
 | UC04.8 | context/04-use-cases.md:877 | Player | Given a pause-ad form during a pause with a coexisting overlay | MAY present it fullscreen or as a partial overlay; either way it is the only ad surface visible. |
 | UC04.9 | context/04-use-cases.md:1193 | APS | Given a side-by-side / double-box layout | An advertiser background element (still image only) MAY fill the uncovered region. |
 | I05.1 | context/05-dash-linear-interfaces.md:43 | APS | Given an APS with a view of the device | MAY send a single form, the choice then sitting with it. |
-| I05.2 | context/05-dash-linear-interfaces.md:392 | spec document | Given non-AV asset URLs (HTML, image, other) in the non-linear chapters | MUST carry them outside the AdaptationSet axis, via a DR-6 carrier. |
-| I05.3 | context/05-dash-linear-interfaces.md:442 | Player | Given a Player conformant to this spec and a ClickThrough carrier | MUST read the ClickThrough carrier. |
-| I05.4 | context/05-dash-linear-interfaces.md:442 | Player | Given R23 metadata (`AdSystem`, `AdTitle`, `Advertiser`) | MAY ignore it. |
-| I05.5 | context/05-dash-linear-interfaces.md:444 | APS | Given a VAST `<UniversalAdId>` | MAY propagate it on a best-effort SVTA-namespaced attribute / element (R23); no carrier is mandated. |
+| I05.2 | context/05-dash-linear-interfaces.md:401 | spec document | Given non-AV asset URLs (HTML, image, other) in the non-linear chapters | MUST carry them outside the AdaptationSet axis, via a DR-6 carrier. |
+| I05.3 | context/05-dash-linear-interfaces.md:451 | Player | Given a Player conformant to this spec and a ClickThrough carrier | MUST read the ClickThrough carrier. |
+| I05.4 | context/05-dash-linear-interfaces.md:451 | Player | Given R23 metadata (`AdSystem`, `AdTitle`, `Advertiser`) | MAY ignore it. |
+| I05.5 | context/05-dash-linear-interfaces.md:453 | APS | Given a VAST `<UniversalAdId>` | MAY propagate it on a best-effort SVTA-namespaced attribute / element (R23); no carrier is mandated. |
 | N06.1 | context/06-naming-and-namespaces.md:4 | spec document | Given any new construct | MUST follow the naming conventions of `06-naming-and-namespaces.md`. |
 | N06.2 | context/06-naming-and-namespaces.md:22 | spec document | Given a new event scheme | MUST use the year-pinned pattern `urn:svta:dash:<construct>:<year>`. |
 | N06.3 | context/06-naming-and-namespaces.md:37 | Player | Given a Player implementing edition N + 1 | SHOULD recognise both `:N:` and `:N+1:` URIs and treat them per that edition's backward-compatibility rules. |
@@ -350,28 +350,27 @@ R21.1a).
 | B07.8 | context/07-backward-compat-checklist.md:67 | spec document | Given a construct chapter | The legacy-Player walk-through MUST be present as an explicit prose paragraph. |
 | B07.9 | context/07-backward-compat-checklist.md:79 | spec document | Given a document containing construct C | Removing C MUST leave a document that parses and plays. |
 | B07.10 | context/07-backward-compat-checklist.md:84 | spec document | Given each new construct | MUST have a chapter-10 test case modelled on UC-07. |
-| B07.11 | context/07-backward-compat-checklist.md:91 | Player | Given a legacy Player and construct C | MUST ignore C in every case. |
-| B07.12 | context/07-backward-compat-checklist.md:99 | Publisher | Given non-live / VOD content containing C | MAY author a standard linear break of baseline constructs over the same span as C, declaring on C that it supersedes the break (R40). |
-| B07.13 | context/07-backward-compat-checklist.md:129 | spec document | Given a construct chapter | MUST link to the checklist and confirm each item is satisfied. |
-| B07.14 | context/07-backward-compat-checklist.md:130 | spec document | Given a construct chapter omitting the checklist confirmation | Reviewers SHOULD reject it. |
-| B07.15 | context/07-backward-compat-checklist.md:156 | spec document | Given carrier classes (c1) and (c2) | MUST NOT be classified together. |
-| B07.16 | context/07-backward-compat-checklist.md:162 | spec document | Given a construct fitting none of (a) / (b) / (c1) / (c2) | MUST justify invoking Annex F (DR-4) and name the Interoperability Point URI published. |
-| B07.17 | context/07-backward-compat-checklist.md:164 | spec document | Given a construct chapter | MUST state the carrier classification explicitly. |
-| B07.18 | context/07-backward-compat-checklist.md:169 | spec document | (unconditional) | SHOULD ship an audit table summarising checklist status for every new construct. |
-| B07.19 | context/07-backward-compat-checklist.md:181 | spec document | Given the listed anti-patterns | Reviewers MUST flag them. |
-| B07.20 | context/07-backward-compat-checklist.md:196 | APS | Given non-AV ad assets | MUST be carried via one of the DR-6 carriers. |
+| B07.12 | context/07-backward-compat-checklist.md:103 | Publisher | Given non-live / VOD content containing C | MAY author a standard linear break of baseline constructs over the same span as C, declaring on C that it supersedes the break (R40). |
+| B07.13 | context/07-backward-compat-checklist.md:133 | spec document | Given a construct chapter | MUST link to the checklist and confirm each item is satisfied. |
+| B07.14 | context/07-backward-compat-checklist.md:134 | spec document | Given a construct chapter omitting the checklist confirmation | Reviewers SHOULD reject it. |
+| B07.15 | context/07-backward-compat-checklist.md:160 | spec document | Given carrier classes (c1) and (c2) | MUST NOT be classified together. |
+| B07.16 | context/07-backward-compat-checklist.md:166 | spec document | Given a construct fitting none of (a) / (b) / (c1) / (c2) | MUST justify invoking Annex F (DR-4) and name the Interoperability Point URI published. |
+| B07.17 | context/07-backward-compat-checklist.md:168 | spec document | Given a construct chapter | MUST state the carrier classification explicitly. |
+| B07.18 | context/07-backward-compat-checklist.md:173 | spec document | (unconditional) | SHOULD ship an audit table summarising checklist status for every new construct. |
+| B07.19 | context/07-backward-compat-checklist.md:185 | spec document | Given the listed anti-patterns | Reviewers MUST flag them. |
+| B07.20 | context/07-backward-compat-checklist.md:200 | APS | Given non-AV ad assets | MUST be carried via one of the DR-6 carriers. |
 | D08.1 | context/08-dash-extension-rules.md:14 | spec document | Given an edition bump | `08-dash-extension-rules.md` MUST be re-validated section by section. |
 | D08.2 | context/08-dash-extension-rules.md:25 | all (Publisher, APS) | Given a sub-MPD rooted in the SPS profile | MAY append a vendor profile URI in `@profiles`, still satisfying the SPS intersection. |
 | D08.3 | context/08-dash-extension-rules.md:33 | APS | Given non-AV ad assets in a sub-MPD referenced via `<ImportedMPD>` | MUST be carried via one of the DR-6 carriers. |
-| D08.4 | context/08-dash-extension-rules.md:41 | all (Publisher, APS) | Given any DASH container | A foreign-namespace element MAY appear as its child. |
-| D08.5 | context/08-dash-extension-rules.md:44 | all (Publisher, APS) | Given an MPD carrying foreign-namespace content | MUST be authored so that, with foreign attributes and elements removed, it is still a valid DASH document. |
-| D08.6 | context/08-dash-extension-rules.md:89 | spec document | Given a construct nesting a baseline element inside an SGAI element | MUST still satisfy §5.2.1 once the foreign-namespace parent is removed. |
-| D08.7 | context/08-dash-extension-rules.md:134 | all (Publisher, APS) | Given an AdaptationSet `@profiles` | MUST be a subset of MPD-level `@profiles` (§5.3.7.2). |
-| D08.8 | context/08-dash-extension-rules.md:190 | all (Publisher, APS) | Given a Period with non-zero duration | MUST contain at least one AdaptationSet (§5.3.2.2). |
-| D08.9 | context/08-dash-extension-rules.md:196 | APS | Given a slot whose tracking needs presentation-time alignment across non-zero duration | MUST carry at least one AdaptationSet in that Period, or carry asset and tracking outside any non-zero-duration Period. |
-| D08.10 | context/08-dash-extension-rules.md:254 | Player | Given the R28 ClickThrough carrier | MUST read it. |
-| D08.11 | context/08-dash-extension-rules.md:254 | Player | Given R23 metadata | MAY ignore it. |
-| D08.12 | context/08-dash-extension-rules.md:299 | spec document | Given a construct using either vendor descriptor element (§5.8.4.8 / §5.8.4.9) | MUST state which one it uses and why. |
+| D08.4 | context/08-dash-extension-rules.md:46 | all (Publisher, APS) | Given `<MPD>`, `<Period>` or `<Event>` (types declaring both `xs:any` and `xs:anyAttribute`) | A foreign-namespace element or attribute MAY appear on it. |
+| D08.5 | context/08-dash-extension-rules.md:57 | all (Publisher, APS) | Given an MPD carrying foreign-namespace content | MUST be authored so that, with foreign attributes and elements removed, it is still a valid DASH document. |
+| D08.6 | context/08-dash-extension-rules.md:102 | spec document | Given a construct nesting a baseline element inside an SGAI element | MUST still satisfy §5.2.1 once the foreign-namespace parent is removed. |
+| D08.7 | context/08-dash-extension-rules.md:147 | all (Publisher, APS) | Given an AdaptationSet `@profiles` | MUST be a subset of MPD-level `@profiles` (§5.3.7.2). |
+| D08.8 | context/08-dash-extension-rules.md:208 | all (Publisher, APS) | Given a Period with non-zero duration | MUST contain at least one AdaptationSet (§5.3.2.2). |
+| D08.9 | context/08-dash-extension-rules.md:214 | APS | Given a slot whose tracking needs presentation-time alignment across non-zero duration | MUST carry at least one AdaptationSet in that Period, or carry asset and tracking outside any non-zero-duration Period. |
+| D08.10 | context/08-dash-extension-rules.md:272 | Player | Given the R28 ClickThrough carrier | MUST read it. |
+| D08.11 | context/08-dash-extension-rules.md:272 | Player | Given R23 metadata | MAY ignore it. |
+| D08.12 | context/08-dash-extension-rules.md:317 | spec document | Given a construct using either vendor descriptor element (§5.8.4.8 / §5.8.4.9) | MUST state which one it uses and why. |
 | G99.1 | context/99-glossary.md:54 | Player | Given a reserved capability parameter | MAY attach it to the resolution request. |
 | G99.2 | context/99-glossary.md:89 | ADS | Given its decision document | MAY emit a format other than VAST. |
 
@@ -418,14 +417,14 @@ R21.1a).
 - R39: 10
 - R40: 16
 
-Total in R blocks: 245. Outside R blocks: DP03 5, P03 7, other files 62. Grand total: 319.
+Total in R blocks: 245. Outside R blocks: DP03 5, P03 7, other files 61. Grand total: 318.
 
 ## 2. Assertions per actor
 
 - Publisher: 22
 - ADS: 4
 - APS: 34
-- Player: 142
+- Player: 141
 - spec document: 96
 - all: 21
 
@@ -438,7 +437,7 @@ Total in R blocks: 245. Outside R blocks: DP03 5, P03 7, other files 62. Grand t
 - `context/04-use-cases.md`: 8
 - `context/05-dash-linear-interfaces.md`: 5
 - `context/06-naming-and-namespaces.md`: 13
-- `context/07-backward-compat-checklist.md`: 20
+- `context/07-backward-compat-checklist.md`: 19
 - `context/08-dash-extension-rules.md`: 12
 - `context/99-glossary.md`: 2
 
@@ -452,12 +451,11 @@ absorbs them cleanly.
 | UC04.4 | context/04-use-cases.md:814 | On live content, the Publisher SHOULD treat an SGAI opportunity as a loss on legacy Players. | No R binds the Publisher on the legacy path; R1 would need a Publisher criterion for it. |
 | UC04.5 | context/04-use-cases.md:816 | On VOD, the Publisher MAY author a baseline linear break over the SGAI window's span, declaring supersede on the window. | R40.1 / R40.3 carry the supersede declaration and its runtime effect, but no criterion states the Publisher's permission to author the fallback break itself; R40 would absorb it as a Publisher criterion. |
 | UC04.6 | context/04-use-cases.md:816 | On VOD, where monetising matters, the Publisher SHOULD author that break. | Same R40 Publisher criterion as UC04.5. |
-| B07.12 | context/07-backward-compat-checklist.md:99 | Restates UC04.5 for any construct C. | Same R40 Publisher criterion as UC04.5. |
-| B07.11 | context/07-backward-compat-checklist.md:91 | The legacy Player MUST ignore C in every case. | R1.1 is now a property of the document (DR-8, ADR 0009) and binds no legacy Player; this sentence still puts the MUST on the Player. It is the observation of R1.1's test, and would be reworded as such rather than absorbed. |
+| B07.12 | context/07-backward-compat-checklist.md:103 | Restates UC04.5 for any construct C. | Same R40 Publisher criterion as UC04.5. |
 | N06.1 | context/06-naming-and-namespaces.md:4 | New constructs MUST follow the naming conventions of `06`. | No R imposes the naming policy (R34, R35, R36, R40 only delegate to it); a governance R, or R9, would need to absorb it. |
 | N06.2 | context/06-naming-and-namespaces.md:22 | New event schemes MUST use `urn:svta:dash:<construct>:<year>`. | Same governance gap as N06.1. |
 | N06.3 | context/06-naming-and-namespaces.md:37 | An edition-N+1 Player SHOULD recognise both `:N:` and `:N+1:` URIs. | A runtime Player obligation with no R and no UC; implies a new cross-edition criterion, arguably under R1. |
-| N06.4 | context/06-naming-and-namespaces.md:44 | An SGAI-scheme `EventStream` MUST NOT carry `@value`. | No R; closest is R20.2 (one `EventStream` per family per Period). |
+| N06.4 | context/06-naming-and-namespaces.md:44 | An SGAI-scheme `EventStream` MUST NOT carry `@value`. | R20.2 relies on it (every stream of one SGAI scheme has the same `@schemeIdUri`/`@value` pair) but states it without a keyword; R20.2 would absorb it as a Publisher criterion. |
 | N06.5 | context/06-naming-and-namespaces.md:44 | A Player MUST ignore `@value` on an SGAI-scheme `EventStream`. | No R; same as N06.4. |
 | N06.6 | context/06-naming-and-namespaces.md:58 | Tracking beacons MUST reuse the baseline callback scheme. | Maps to R13.4 by content, but the keyword conflicts with R6.2, which only says SHOULD for the same carrier. |
 | N06.7 | context/06-naming-and-namespaces.md:65 | Qualabs-private extensions MUST use `urn:qualabs:<feature>:<year>`. | Binds extensions that are outside the spec; no R, and arguably outside the conformance set. |
@@ -472,18 +470,18 @@ absorbs them cleanly.
 | B07.7 | context/07-backward-compat-checklist.md:53 | An Annex F construct chapter MUST name its IOP URI and justify it. | Documentation half of R1.2c; R1.2c states admissibility, not what the chapter says. |
 | B07.8 | context/07-backward-compat-checklist.md:67 | The legacy walk-through MUST be explicit prose. | Same as IN01.1. |
 | B07.10 | context/07-backward-compat-checklist.md:84 | Each construct MUST have a UC-07-style test in chapter 10. | Same as IN01.1. |
-| B07.13 | context/07-backward-compat-checklist.md:129 | Each construct chapter MUST link to the checklist and confirm each item. | Same as IN01.1. |
-| B07.16 | context/07-backward-compat-checklist.md:162 | A construct outside (a)/(b)/(c1)/(c2) MUST justify Annex F. | Same as B07.7. |
+| B07.13 | context/07-backward-compat-checklist.md:133 | Each construct chapter MUST link to the checklist and confirm each item. | Same as IN01.1. |
+| B07.16 | context/07-backward-compat-checklist.md:166 | A construct outside (a)/(b)/(c1)/(c2) MUST justify Annex F. | Same as B07.7. |
 | B07.4 | context/07-backward-compat-checklist.md:19 | Unanswered checklist items SHOULD block publication. | Binds a review process no R establishes; a governance R (extension of R8), or explicitly outside the conformance set. |
-| B07.14 | context/07-backward-compat-checklist.md:130 | Reviewers SHOULD reject chapters missing the confirmation. | Same as B07.4. |
-| B07.18 | context/07-backward-compat-checklist.md:169 | The spec SHOULD ship an aggregated audit table. | Same as B07.4. |
-| B07.19 | context/07-backward-compat-checklist.md:181 | Reviewers MUST flag the listed anti-patterns. | Same as B07.4. |
-| B07.15 | context/07-backward-compat-checklist.md:156 | (c1) and (c2) carriers MUST NOT be classified together. | R1.2a admits both vendor descriptor elements without distinguishing them; R1.2 needs a criterion requiring the distinction. |
-| B07.17 | context/07-backward-compat-checklist.md:164 | The carrier classification MUST be explicit in the chapter. | Same as B07.15. |
-| D08.12 | context/08-dash-extension-rules.md:299 | A construct using a vendor descriptor MUST state which element and why. | Same as B07.15. |
+| B07.14 | context/07-backward-compat-checklist.md:134 | Reviewers SHOULD reject chapters missing the confirmation. | Same as B07.4. |
+| B07.18 | context/07-backward-compat-checklist.md:173 | The spec SHOULD ship an aggregated audit table. | Same as B07.4. |
+| B07.19 | context/07-backward-compat-checklist.md:185 | Reviewers MUST flag the listed anti-patterns. | Same as B07.4. |
+| B07.15 | context/07-backward-compat-checklist.md:160 | (c1) and (c2) carriers MUST NOT be classified together. | R1.2a admits both vendor descriptor elements without distinguishing them; R1.2 needs a criterion requiring the distinction. |
+| B07.17 | context/07-backward-compat-checklist.md:168 | The carrier classification MUST be explicit in the chapter. | Same as B07.15. |
+| D08.12 | context/08-dash-extension-rules.md:317 | A construct using a vendor descriptor MUST state which element and why. | Same as B07.15. |
 | D08.1 | context/08-dash-extension-rules.md:14 | `08` MUST be re-validated on an edition bump. | Governs maintenance of `context/`, not the spec; no R, and arguably outside the conformance set (enforced by `bin/check-normative-base.py`). |
-| D08.8 | context/08-dash-extension-rules.md:190 | A non-zero-duration Period MUST contain an AdaptationSet. | No R cites DR-7 (R1.2b cites only DR-1 and DR-5); R1.2b or R6 should absorb it. |
-| D08.9 | context/08-dash-extension-rules.md:196 | Tracking needing presentation-time alignment MUST share a Period with an AdaptationSet or sit outside non-zero-duration Periods. | Same as D08.8; constrains the R6 carrier for non-AV ads. |
+| D08.8 | context/08-dash-extension-rules.md:208 | A non-zero-duration Period MUST contain an AdaptationSet. | No R cites DR-7 (R1.2b cites only DR-1 and DR-5); R1.2b or R6 should absorb it. |
+| D08.9 | context/08-dash-extension-rules.md:214 | Tracking needing presentation-time alignment MUST share a Period with an AdaptationSet or sit outside non-zero-duration Periods. | Same as D08.8; constrains the R6 carrier for non-AV ads. |
 
 These non-R assertions map cleanly and are not orphans: A2.1 → R2.2a;
 UC04.1 → R5.5 / R27; UC04.2 → R37.1; UC04.7 → R1.1 / R1.2a;
