@@ -77,9 +77,9 @@ away just the same, and hides it.
   regenerated section fails that check even when it reads the same.
 - **The same rules as `prompts/2-build/build-spec.prompt`** for every
   byte that is new: self-contained, no R-numbers, no reference to
-  `../context-analysis/`, attribute tables in chapter 5, positive
-  obligations only (DP-2), RFC 2119 vocabulary. **A criterion that
-  says MUST arrives as MUST**: restating an obligation in the
+  `../context-analysis/`, attribute tables in chapter 5, no
+  prohibitions of the spec's own (DP-2), RFC 2119 vocabulary. **A
+  criterion that says MUST or MUST NOT arrives with that keyword**: restating an obligation in the
   indicative is the `force-lost` defect the validation step exists to
   catch, and an incremental that introduces it has degraded the
   document.
