@@ -786,9 +786,10 @@ trigger the request.
 **Expected behavior (uniform across device classes D1..D5):**
 
 - **Player decision:** the Player encounters an unrecognized event
-  type or construct in the manifest. Per **R1**, the legacy Player
-  MUST skip the unknown construct and continue playing the primary
-  content as if the construct were not present. The new proposal
+  type or construct in the manifest. Under the base rules for
+  unrecognised constructs the legacy Player skips the unknown construct
+  and continues playing the primary content as if it were not present
+  (R1 places every construct where this holds; DR-8). The new proposal
   achieves this by expressing all new mechanisms via MPEG-DASH 6th
   edition extension points whose normative semantics already let a
   non-conforming Player ignore them silently. The legacy Player's

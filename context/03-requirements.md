@@ -40,7 +40,12 @@ concrete requirements that follow are constrained by them.
   others MUST be derived from it (computed at runtime by the
   implementer, not duplicated in the markup). Duplicating a
   value across attributes invites silent drift when one is
-  modified and the other forgotten.
+  modified and the other forgotten. Two declarations the base
+  specification itself provides, and reconciles by its own rule, are
+  not a duplication under this principle; the base rule is adopted
+  (R1.5). A Linked Period's `@duration` and its Imported Period's
+  `Period@duration` are such a pair: DASH §5.3.2.6.3 step 3)d)iii keeps
+  the smaller of the two.
 - **DP-2. Obligations are positive.** When the spec states what an
   actor MUST do, it states the positive obligation — the action,
   the construct, the value. The spec does NOT enumerate
@@ -116,21 +121,22 @@ and the boundaries of what this spec does and does not define.
   *Gist: SGAI extends MPEG-DASH 6th edition without breaking it; a Player that does not implement the new constructs ignores them and keeps playing the primary content, and where the base specification already answers a question, its answer is the one adopted.*
 
   The solution MUST extend MPEG-DASH 6th edition without breaking
-  existing semantics. Backward compatibility is mandatory: a Player
-  that does not implement the new mechanisms introduced by this
-  proposal MUST skip them and continue playing the primary content
-  uninterrupted. Any new construct introduced by the proposal MUST
-  be expressed using MPEG-DASH 6th edition extension points whose
-  "ignore-if-unknown" semantics already enable this behavior on
-  conforming legacy Players. The expected behavior of a legacy
+  existing semantics. Backward compatibility is mandatory, and it is a
+  property of the document rather than an obligation on a Player this
+  specification cannot bind (DR-8, ADR 0009): every new construct
+  introduced by this proposal MUST be placed at an MPEG-DASH 6th
+  edition extension point whose base semantics let a Player that does
+  not implement this specification ignore it and continue playing the
+  primary content uninterrupted. The expected behavior of a legacy
   Player encountering the new constructs is captured as **UC-07**
   in [`04-use-cases.md`](04-use-cases.md).
 
-  **Conformance criteria** (runtime):
-  - **R1.1** (Player): Given an `MPD` containing an SGAI construct
-    introduced by this proposal that the Player does not implement,
-    a conforming legacy Player MUST ignore the unknown construct
-    and continue playing the primary content uninterrupted.
+  **Conformance criteria** (runtime + document-level):
+  - **R1.1** (spec document): Every SGAI construct introduced by this
+    proposal MUST sit at an extension point where removing it, as a
+    Player that does not implement this specification does under the
+    base rules for unrecognised elements and attributes (§5.2.1),
+    leaves a valid MPD whose primary content plays uninterrupted.
   - **R1.2** (Publisher / spec document): Every new SGAI construct
     introduced by this proposal MUST be expressed using one of the
     extension points enumerated in
@@ -1798,7 +1804,12 @@ carriers for creative metadata and non-AV assets.
     candidate, beacons sharing an `@id`, or the same URL at the same
     presentation time, fire once. Two beacons carrying the same `@id`
     in two different candidates of one resolution document are two
-    distinct beacons and the Player MUST fire both.
+    distinct beacons and the Player MUST fire both. On a `ListMPD` the
+    base scope applies unchanged (R1.5): `Event@id` is scoped to its
+    `@schemeIdUri` / `@value` pair over the whole media presentation
+    (DASH Table 44), so the ads of one `ListMPD`, streams merged from
+    their sub-MPDs included, share one scope. The per-candidate scope
+    above governs the candidates of a non-linear resolution document.
   - **R6.6** (Player): When the beacon carrier is an `<EventStream>`
     hosted as foreign-namespace open content inside a candidate, the
     Player MUST resolve its presentation times against **that
