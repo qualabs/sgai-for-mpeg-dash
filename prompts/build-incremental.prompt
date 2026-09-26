@@ -152,8 +152,8 @@ Stage 7 with head `v<N.M+1>`.
 Otherwise run **Step 9 of `prompts/build-all.prompt`** with its
 starting point set to `v<N.M+1>` instead of the major `v<N>`: 9.1 takes
 `v<N.M+1>` and its three sidecars and produces `v<N.M+2>`, and the rest
-of the loop — the `check-promotable.py` stop condition in 9.5, the
-comparison in 9.6, the verdict branches in 9.7, the cap in 9.8, the
+of the loop — the `check-promotable.py` stop condition in 9.5 and its
+re-check before stopping in 9.5a, the comparison in 9.6, the verdict branches in 9.7, the cap in 9.8, the
 error handling — applies unchanged. The loop's head when it ends is
 the **head** for Stage 7.
 
@@ -216,7 +216,9 @@ SGAI incremental summary (base v<N.M>, anchor <ANCHOR short>..<HEAD short>, head
 ```
 
 Reproduce under the block, verbatim: the trace's **Not placed** table,
-and the `Necesita a Nicolas` group of the last `check-promotable.py`
-run if it had one. Those are what a person has to decide.
+and the `Necesita a Nicolas` and `Lo aplica el coordinador` groups of
+the last `check-promotable.py` run if it had them. The first is what a
+person has to decide; the second is what the invoker applies to
+`context/` before relaunching.
 
 Language: English.

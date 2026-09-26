@@ -22,7 +22,10 @@ the step looked.
 Exit codes, and the precedence between them:
 
   0  nothing blocks. Promotable.
-  1  blocked, with the list of what blocks and who lifts it.
+  1  blocked, with the list of what blocks and who lifts it: the
+     pipeline (5.a), the coordinator applying a `context/` change a
+     written source dictates (5.d), or Nicolas (5.b, 5.c). Only the
+     last is NEEDS_HUMAN; the other two block without calling anyone.
   2  CANNOT TELL — a sidecar is missing or unparseable, the population
      arithmetic does not close, or a blocking row was never routed.
 
@@ -60,7 +63,12 @@ AUDIT_BLOCKS = {"non-conforming"}
 AUDIT_OPEN = {"marginal"}
 AUDIT_CLEAR = {"conforming"}
 
-WHO = {"5.a": "pipeline", "5.b": "nicolas", "5.c": "nicolas"}
+WHO = {"5.a": "pipeline", "5.b": "nicolas", "5.c": "nicolas", "5.d": "coordinator"}
+
+# Buckets whose rows are a known fix, so a Marginal audit item or a
+# detail-review flag routed to one of them blocks instead of travelling
+# as open: 5.a the spec edit, 5.d the `context/` edit a source dictates.
+KNOWN_FIX = {"5.a", "5.d"}
 
 ID = re.compile(
     r"\b(?:R\d+\.\d+|R\d+#p\d+|DP-[\d.]+#p\d+|OOS-\d+#p\d+|UC-\d+"
@@ -215,10 +223,14 @@ def flagged_rows(detail):
 
 
 def dispositions(validation):
-    """id -> 5.a / 5.b / 5.c, from the routing tables the step already emits."""
+    """id -> 5.a / 5.b / 5.c / 5.d, from the routing tables the step emits.
+
+    The routing-rules subsection (5.e) carries no table of findings, so
+    it is not a bucket and is not read.
+    """
     out = {}
     for heading, header, rows in tables(validation):
-        m = re.search(r"5\.([abc])\b", heading)
+        m = re.search(r"5\.([abcd])\b", heading)
         if not m:
             continue
         bucket = "5." + m.group(1)
@@ -252,8 +264,10 @@ Reads a build's three analysis sidecars (spec-validation, detail-review,
 dash-conformance-audit), checks that the validation walked every
 obligation `context/` states, and reports what blocks — grouped by who
 lifts it, because that is the split the auto-refine loop acts on: what
-only the pipeline has to fix it keeps fixing, and what needs a person
-stops the loop and becomes the message that reaches them.
+only the pipeline has to fix it keeps fixing, what needs a person
+stops the loop and becomes the message that reaches them, and what is
+a `context/` change a written source already dictates (§5.d of the
+validation) is applied by the coordinator, who relaunches and informs.
 
 It is not a score. Nothing is compared against a threshold or against
 the previous build.
@@ -274,7 +288,12 @@ OTHER
 
 EXIT CODES
   0   nothing blocks
-  1   blocked — the list says what, and who lifts it
+  1   blocked — the list says what, and who lifts it, in three groups:
+      "Necesita a Nicolas" (5.b, 5.c), "Lo aplica el coordinador" (5.d,
+      a context/ change a written source dictates) and "Lo destraba el
+      pipeline" (5.a). The last line counts each: NEEDS_HUMAN,
+      CONTEXT_CHANGE, PIPELINE. Only NEEDS_HUMAN calls a person; a 5.d
+      row blocks promotion without doing so.
   2   cannot tell — a sidecar is missing or unparseable, the population
       arithmetic does not close, or a blocking row was never routed.
       2 wins over 1 and 1 over 0: zero blocking rows is also what a walk
@@ -419,8 +438,8 @@ def main(args):
                 if verdict in AUDIT_BLOCKS:
                     blockers.append((unit, "non-conforming", disp.get(unit)))
                 elif verdict in AUDIT_OPEN:
-                    if disp.get(unit) == "5.a":
-                        blockers.append((unit, "marginal con arreglo conocido", "5.a"))
+                    if disp.get(unit) in KNOWN_FIX:
+                        blockers.append((unit, "marginal con arreglo conocido", disp[unit]))
                     else:
                         open_items.append(("marginal", unit, ""))
                 elif verdict not in AUDIT_CLEAR and verdict:
@@ -442,8 +461,9 @@ def main(args):
         else:
             for unit in rows:
                 tag = "flag %s" % unit
-                if disp.get(tag) == "5.a" or disp.get(unit) == "5.a":
-                    blockers.append((tag, "flag con arreglo conocido", "5.a"))
+                bucket = disp.get(tag) or disp.get(unit)
+                if bucket in KNOWN_FIX:
+                    blockers.append((tag, "flag con arreglo conocido", bucket))
                 else:
                     open_items.append(("flagged", tag, ""))
 
@@ -456,6 +476,7 @@ def main(args):
 
     needs_human = [b for b in blockers if WHO.get(b[2]) == "nicolas"]
     by_pipeline = [b for b in blockers if WHO.get(b[2]) == "pipeline"]
+    by_coordinator = [b for b in blockers if WHO.get(b[2]) == "coordinator"]
 
     # --- print -------------------------------------------------------------
     code = 2 if uncertain else (1 if blockers else 0)
@@ -476,11 +497,17 @@ def main(args):
             print("\n  Necesita a Nicolas (%d)" % len(needs_human))
             for unit, verdict, bucket in needs_human:
                 print("    %-8s %-30s %s" % (unit, verdict, bucket))
+        if by_coordinator:
+            print("\n  Lo aplica el coordinador (%d) — cambio en context/ que ya dicta"
+                  " una fuente escrita (§5.d)" % len(by_coordinator))
+            for unit, verdict, bucket in by_coordinator:
+                print("    %-8s %-30s %s" % (unit, verdict, bucket))
         if by_pipeline:
             print("\n  Lo destraba el pipeline (%d)" % len(by_pipeline))
             for unit, verdict, bucket in by_pipeline:
                 print("    %-8s %-30s %s" % (unit, verdict, bucket))
-        rest = [b for b in blockers if b not in needs_human and b not in by_pipeline]
+        rest = [b for b in blockers
+                if b not in needs_human and b not in by_pipeline and b not in by_coordinator]
         if rest:
             print("\n  Sin rutear (%d) — no se sabe quien los destraba" % len(rest))
             for unit, verdict, _ in rest:
@@ -498,9 +525,10 @@ def main(args):
     print("    no dice lo que el criterio exige es indistinguible de uno real.")
     print("    Esto mide el mapa, no el spec, y nada aca valida context/.")
 
-    print("\nPROMOTABLE=%s BLOCKERS=%d NEEDS_HUMAN=%d PIPELINE=%d OPEN=%d UNCERTAIN=%d"
+    print("\nPROMOTABLE=%s BLOCKERS=%d NEEDS_HUMAN=%d PIPELINE=%d CONTEXT_CHANGE=%d"
+          " OPEN=%d UNCERTAIN=%d"
           % ("si" if code == 0 else "no", len(blockers), len(needs_human),
-             len(by_pipeline), len(open_items), len(uncertain)))
+             len(by_pipeline), len(by_coordinator), len(open_items), len(uncertain)))
     return code
 
 

@@ -369,16 +369,30 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
         NOT promote it into `dist/` — this step, like every other,
         writes no file there.
 
-      - **exit 1 with `NEEDS_HUMAN=0`** — everything that blocks is
-        pipeline work. Log `[ITER K] blocked by <n>, all pipeline`
-        and **continue the loop**: that is exactly what the loop is
-        for, and nobody needs to be told.
+      - **exit 1 with `NEEDS_HUMAN=0` and `PIPELINE>0`** — what
+        blocks is pipeline work, plus possibly `context/` changes a
+        written source dictates (`CONTEXT_CHANGE`). Log `[ITER K]
+        blocked by <n>, <p> pipeline, <c> context change` and
+        **continue the loop**: that is exactly what the loop is for,
+        and nobody needs to be told.
 
-      - **exit 1 with `NEEDS_HUMAN>0`** — something needs a decision
-        the pipeline cannot take. **Break the loop** and reproduce
-        the script's `Necesita a Nicolas` group verbatim in the Final
-        summary. That short list is the reason this check exists:
-        what reaches a person is what a person has to resolve, and
+      - **exit 1 with `NEEDS_HUMAN=0` and `PIPELINE=0`** — all that
+        blocks is `context/` changes a written source dictates
+        (validation §5.d). The loop cannot apply them: nothing in it
+        edits `context/`. **Break the loop** with outcome
+        `CONTEXT_CHANGE` and reproduce the script's `Lo aplica el
+        coordinador` group verbatim in the Final summary. Whoever
+        invoked this build applies each replacement text, relaunches
+        (`build-incremental`), and informs the owner.
+
+      - **exit 1 with `NEEDS_HUMAN>0`** — run 9.5a first, then read
+        the check again and branch on its new result — without
+        running 9.5a a second time. Only if `NEEDS_HUMAN>0` still
+        holds, **break the loop** and reproduce the script's
+        `Necesita a Nicolas` group verbatim in the Final summary,
+        together with its `Lo aplica el coordinador` group if it has
+        one. That short list is the reason this check exists: what
+        reaches a person is what a person has to resolve, and
         nothing else.
 
       - **exit 64** — the invocation was wrong, not the build. The
@@ -394,6 +408,31 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
         can be judged, and carrying on would let a truncated walk
         read as a clean one — which is the failure this whole step
         exists to make impossible.
+
+  9.5a **Re-check before stopping.** Dispatch a **fresh subagent** —
+      it did not write the validation, so it is not defending its
+      routing — over `output-analysis/v<N>.<M+1>-spec-validation.md`
+      and the `Necesita a Nicolas` list of 9.5. For each item, it
+      runs the resolution chain of
+      `prompts/3-post-spec/validate-spec.prompt` §5: `context/`
+      (R1.5, the DP principles, the carrier conventions of
+      `context/06-naming-and-namespaces.md`), then
+      `.project/decisions/`, then the base standard (clause and
+      quoted sentence, per "Grounding against the standard" in
+      `CLAUDE.md`). An item a source answers is moved, in the
+      sidecar itself, out of its §5.b / §5.c table and into:
+      - **§5.a** when the fix leaves `context/` untouched — a row
+        with its concrete edit and the source as Citation, into the
+        overflow table if the five-row cap is full;
+      - **§5.d** when the fix is a `context/` edit the source
+        dictates — a row with the replacement text and the source.
+      It also sets the item's `Disposition` in the coverage map, and
+      the heading counts, to the new bucket, and deletes the old row:
+      `bin/check-promotable.py` reads the bucket from the §5 tables,
+      so a row left in two tables is routed by whichever comes last.
+      An item no source answers stays where it is, with its
+      recommendation. Log `[RECHECK] <m> of <n> answered by a source:
+      <a> to 5.a, <d> to 5.d`, then re-run `bin/check-promotable.py`.
 
   9.6 Run `prompts/4-auto-refine/compare-spec-versions.prompt`
       for the candidate `v<N>.<M+1>`. The baseline is whatever is
@@ -494,7 +533,7 @@ SGAI build summary (iteration v<N>, head v<N>.<M_final>, YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] validate-spec                   → output-analysis/v<N>-spec-validation.md (mtime: ...)
   [BUILT|SKIPPED] review-spec-details             → output-analysis/v<N>-detail-review.md (mtime: ...)
   [BUILT|SKIPPED] audit-dash-conformance          → output-analysis/v<N>-dash-conformance-audit.md (mtime: ...)
-  [SKIPPED|CLEAR|NEEDS_HUMAN|UNCERTAIN|NO_BETTER|WORSE|NO_BASELINE|MAX_ITER|ERROR] auto-refine → head=v<N>.<M_final> after <K> iterations
+  [SKIPPED|CLEAR|NEEDS_HUMAN|CONTEXT_CHANGE|UNCERTAIN|NO_BETTER|WORSE|NO_BASELINE|MAX_ITER|ERROR] auto-refine → head=v<N>.<M_final> after <K> iterations
 ```
 
 The auto-refine line summarises the Step 9 outcome:
@@ -503,8 +542,12 @@ The auto-refine line summarises the Step 9 outcome:
   candidate is as far as the pipeline takes it; promotion is a
   separate, human decision.
 - `NEEDS_HUMAN` — the loop stopped because something needs a decision
-  it cannot take. **The short list goes here, verbatim**, one line per
-  item: it is the whole output of the run for whoever reads it.
+  it cannot take, and the re-check of 9.5a found no source answering
+  it. **The short list goes here, verbatim**, one line per item: it is
+  the whole output of the run for whoever reads it.
+- `CONTEXT_CHANGE` — all that blocks is `context/` changes a written
+  source dictates. The `Lo aplica el coordinador` group goes here
+  verbatim; the invoker applies it, relaunches and informs the owner.
 - `UNCERTAIN` — `check-promotable.py` exited 2 twice. The reasons go
   here verbatim; the head is the last built iteration and no verdict
   about it is claimed.

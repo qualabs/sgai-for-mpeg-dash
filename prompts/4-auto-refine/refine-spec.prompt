@@ -144,7 +144,7 @@ proposes a change to the spec:
     must carry a `See Actionable TODO Tk`, `See Flagged f-k`, or
     `See Deferred d-k` back-reference; if no back-reference is
     present, the validator left it unrouted — treat as Flagged
-    (apply the §5.d tie-breaker). Historic behaviour for unrouted
+    (apply the §5.e tie-breaker). Historic behaviour for unrouted
     gaps: most are requirement-level → record as Refinement gaps
     (see step 4) UNLESS the spec already states the rule
     elsewhere and just needs the cross-reference made explicit.
@@ -153,7 +153,7 @@ proposes a change to the spec:
     the sidecar must carry a `See Actionable TODO Tk`, `See
     Flagged f-k`, or `See Deferred d-k` back-reference; if no
     back-reference is present, the validator left it unrouted —
-    treat as Flagged (apply the §5.d tie-breaker). Historic
+    treat as Flagged (apply the §5.e tie-breaker). Historic
     behaviour for unrouted edge cases: if handling requires a new
     construct, defer to Refinement gaps; if it requires only
     tightening an existing sentence, apply.
@@ -162,7 +162,7 @@ proposes a change to the spec:
     the sidecar must carry a `See Actionable TODO Tk`, `See
     Flagged f-k`, or `See Deferred d-k` back-reference; if no
     back-reference is present, the validator left it unrouted —
-    treat as Flagged (apply the §5.d tie-breaker).
+    treat as Flagged (apply the §5.e tie-breaker).
 
 - From `v<N.M>-spec-validation.md` §5 (Disposition of findings):
   - **§5.a Actionable TODOs**: MUST apply every row, in table
@@ -179,9 +179,13 @@ proposes a change to the spec:
   - **§5.b Flagged for review**: MUST NOT touch. These belong to
     the human review pass. Carrying them forward to Refinement
     gaps is OK; editing the spec around them is NOT.
-  - **§5.c Deferred to context/**: MUST NOT touch (same as
-    today's "Refinement gaps" outcome). Carry forward in the
-    trailing table.
+  - **§5.a Overflow (next pass)**: MUST NOT touch in this pass —
+    it is pipeline work held back by the 5-row cap, and the next
+    validation routes it again.
+  - **§5.c Deferred to context/** and **§5.d `context/` change,
+    predictable**: MUST NOT touch (same as today's "Refinement
+    gaps" outcome) — both are fixed in `context/`, which this
+    prompt never edits. Carry forward in the trailing table.
   - **Conflict resolution**: if a row in §5.a points at the
     same spec section as a flag from `v<N.M>-detail-review.md`
     with a different remedy, **§5.a takes precedence** —

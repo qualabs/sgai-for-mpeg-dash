@@ -114,7 +114,10 @@ What does NOT go where:
   loop's stop condition, and the same script a promotion consults: it
   reads the candidate's three sidecars, checks that the walk covered
   every obligation `context/` states, and reports what blocks grouped
-  by **who lifts it**. Three exits, and the third is the point — `0`
+  by **who lifts it** — the pipeline, the coordinator applying a
+  `context/` change a written source dictates, or a person — as the
+  validation routed it (§5 of `validate-spec.prompt` owns the routing
+  rule). Three exits, and the third is the point — `0`
   nothing blocks, `1` blocked, `2` cannot tell; uncertainty wins over
   both others, because zero blocking rows is also what a walk that
   never happened looks like. A fourth, `64`, is a wrong command line,
