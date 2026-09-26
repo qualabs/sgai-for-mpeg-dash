@@ -1041,11 +1041,13 @@ squeezeback layouts (side-by-side and L-shape).
     control, a gesture, a remote button — is out of scope. This
     specification states when it must be available and what it ends,
     and the market decides how it is presented.
-  - **R35.8** (Player): On a linear slot whose event already carries the
-    base specification's own skip declaration, the Player MUST honour
-    that declaration as the base specification defines it, and it
-    governs the slot. R35.1's default applies only where neither the
-    event nor the resolution document declares anything. This is R1.5
+  - **R35.8** (Player): On a linear slot whose event carries the base
+    specification's own skip declaration, written explicitly by the
+    Publisher, the Player MUST honour that declaration as the base
+    specification defines it, and it governs the slot. The base default
+    that applies when the event writes nothing is not a declaration:
+    where neither the event nor the resolution document declares
+    anything, R35.1's default applies and the slot is non-dismissible. This is R1.5
     applied: a Player of this specification and a base Player treat the
     same linear event the same way.
 
