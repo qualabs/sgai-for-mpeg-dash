@@ -188,6 +188,48 @@ The exception covers where R35's declaration travels, not the base
 attribute itself: a `@skipAfter` a Publisher writes on a linear event
 keeps its base meaning, and the Player honours it (R35.8, ADR 0019).
 
+## The window's relation to a linear event travels on the window
+
+The relation of **R40** — supersede, on top, or nothing declared — is
+carried by the non-linear opportunity window this specification
+defines. Nothing is added to the inherited alternative-MPD events
+(`InsertPresentation`, `ReplacePresentation`) or to their
+`EventStream`s (R40.7), for two reasons. Marking the base event would
+give a base construct a second meaning that only a Player of this
+specification reads, which is what R1.3 exists to prevent. And the
+linear events may be written by a packager or an upstream system that
+knows nothing of the non-linear offering, while the relation belongs to
+the Publisher that authors the window.
+
+**There is no base construct to reuse.** The rule above on naming
+consistency asks for the base construct when one expresses the same
+concept, and none does: the alternative-MPD events carry `@uri`,
+`@earliestResolutionTimeOffset`, `@serviceDescriptionId`,
+`@maxDuration`, `@executeOnce`, `@noJump` and `@skipAfter` (§5.16.5.2,
+Table 63), and the replacement adds `@returnOffset`, `@clip` and
+`@startWithOffset` (§5.16.4, Table 62). None of them says what an event
+is or how another construct relates to it, and neither event scheme
+defines a value space for `EventStream@value` (Tables 59 and 61).
+
+**The alternatives the build weighs:**
+
+- **An attribute on the window**, in the `urn:svta:dash:sgai:<year>`
+  namespace, whose absence is the default relation and whose closed
+  set of values names the other two.
+- **A descriptor on the window** — a child element in the same
+  namespace carrying `@schemeIdUri` and `@value`, following the base
+  descriptor pattern.
+- **A value space of our own** on the window's event scheme. This
+  collides with the rule above that an `EventStream` carrying an SGAI
+  scheme carries no `@value`, which would have to be revised; and
+  since one family's windows in a Period share one `EventStream`
+  (R20.2), a stream-level value would bind every window in the stream
+  at once, where R40 declares the relation per window.
+
+These conventions do not choose between the first two. The encoding
+preference below concerns list-shaped properties, and the relation is
+a single value. The build chooses, and records why under R8.
+
 ## Preferred encoding patterns
 
 When this spec introduces a list-shaped property whose elements are

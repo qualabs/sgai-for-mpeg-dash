@@ -2054,3 +2054,26 @@ leía; ahora es R1.5. Aplicado al caso que la ADR 0017 había dejado abierto: un
 gobierna el slot (R35.8, ADR 0019). También quedaron hoy OOS-9 (avisos fuera de la
 superficie del video y dentro de la escena) y la lista explícita de tokens en R12.2
 en lugar del "mapea 1:1 a IAB".
+
+## 2026-09-26 — Una ventana no lineal declara su relación con el evento lineal que pisa (R40)
+
+La base lleva avisos y blackouts por el mismo `InsertPresentation` /
+`ReplacePresentation` y no deja distinguirlos (§5.16.1, Tablas 59 y 61). Dos
+consecuencias en `context/`: un corte lineal de base (el fallback de UC-07) y una
+ventana no lineal en el mismo lugar daban dos avisos, y R4.10 salteaba un blackout
+sin `@maxDuration` y mostraba el programa bloqueado. Nicolás aprobó el diseño:
+*"hay que escribir todo esto como requerimientos y todos estos casos son re
+importantes. Y el anidado especial"*.
+
+- **R40:** la ventana declara *supersede* (reemplaza al evento de base; si no
+  presenta aviso se ejecuta el evento, y un Player legacy siempre lo juega), *on
+  top* (el híbrido de UC-04) o nada (default: sólo sobre el contenido de la
+  presentación que la declara). Los avisos durante un reemplazo van en el MPD del
+  reemplazo, anidados. El carrier lo elige el build; 06 lista las alternativas.
+  R40.8 registra la excepción a R1.5.
+- **R4.1 / R4.8 / R4.10** quedan para overlay y pausa; el evento lineal heredado
+  sigue la base (sin `@maxDuration` = sin tope). R22 deja el "no está prohibido /
+  cuidado" y apunta a R40.
+- **Casos:** UC-07 (fallback VOD con supersede), UC-04 (on top), UC-14 (anidado y
+  qué pasa con una ventana del timeline primario) y UC-17 nuevo (supersede por
+  clase de dispositivo). ADR 0020, que reemplaza en parte a la 0012 y a la 0015.

@@ -99,7 +99,7 @@ positions.
 |---|---|
 | R1 | SGAI extends MPEG-DASH 6th edition without breaking it; a legacy Player ignores the new constructs and keeps playing, and where the base already answers a question its answer wins. |
 | R2 | Four actors, fixed roles: the Publisher declares, the ADS decides, the APS converts, the Player validates and renders. |
-| R4 | The Publisher declares a maximum on every slot; the Player enforces it even mid-ad, and what it bounds depends on the family. |
+| R4 | The Publisher declares a maximum on every overlay and pause slot; the Player enforces it even mid-ad, and what it bounds depends on the family. An inherited linear event keeps the base rule: its maximum is optional and unbounded when absent. |
 | R5 | Candidates carry one or more renderable options in preference order; the Player renders the first its device can satisfy, and a single-option candidate leaves the choice with the APS. |
 | R11 | Independent of VAST, and covers what a VAST-based ADS expresses. |
 | R12 | A fixed, closed set of IAB ad types (linear, overlay, squeezeback, pause-ad); nothing else is in scope. |
@@ -110,6 +110,7 @@ positions.
 | R37 | A pause is what the viewer experiences; any mechanism that suspends the content and resumes it where it stopped is one. |
 | R38 | When a non-linear slot declares its allowed layouts, the Player forwards them to the APS and still checks what comes back; a slot that declares none admits only its own family's layouts. |
 | R39 | An optional `custom` overlay layout: the APS places the overlay in a rectangle given in percent of the video, inside a region the Publisher may bound. |
+| R40 | A non-linear window is presented only over the presentation that declares it, unless the Publisher declares on it that it supersedes the linear event it overlaps or is composited on top of it. |
 
 ### Contract foundations
 
@@ -328,11 +329,13 @@ an ad opportunity before any ad is selected — the slot cap, the
 admissible ad-type vocabulary, and the admissible creative carriers.
 
 - **R4. Publisher-declared max slot duration, Player-enforced.**
-  *Gist: The Publisher declares a maximum on every ad slot and the Player enforces it, cutting mid-ad rather than overrunning; what the maximum bounds depends on the slot's family, and the ADS is not responsible for it either way.*
+  *Gist: The Publisher declares a maximum on every overlay and pause slot, and the Player enforces the maximum a slot declares, cutting mid-ad rather than overrunning; what it bounds depends on the family, an inherited linear event keeps the base rule that an absent maximum is unbounded, and the ADS is not responsible for it.*
 
-  The Publisher declares a maximum on each ad slot, covering both
-  linear slots (start-of-session, mid-content, multi-ad break) and
-  non-linear overlay slots. The ADS may return one or more ad
+  The Publisher declares a maximum on each ad slot. On the non-linear
+  slots this specification defines the declaration is required; on an
+  inherited linear slot (start-of-session, mid-content, multi-ad break)
+  it is the base specification's own maximum, which the base
+  specification makes optional (R4.8). The ADS may return one or more ad
   candidates to fill that slot, but the ADS is **not** responsible for
   respecting the cap. The Player MUST enforce it, stopping at the
   bound even when the stop falls mid-ad. R4 is a concrete instance of
@@ -380,15 +383,17 @@ admissible ad-type vocabulary, and the admissible creative carriers.
   what follows from that.
 
   So "the cap" names one Publisher declaration and two things it can
-  bound. The criteria below are written against that: R4.1, R4.4 and
-  R4.5 hold in every family, R4.2 is the cumulative-duration rule, and
+  bound. The criteria below are written against that: R4.4 and R4.5
+  hold in every family, R4.1 in the families this specification
+  defines, R4.2 is the cumulative-duration rule, and
   R4.6 is what replaces it where the base specification bounds an end
   instead.
 
   **Conformance criteria** (runtime):
   - **R4.1** (Publisher): The Publisher MUST declare a maximum
-    duration on every ad slot (linear or non-linear) defined in the
-    `MPD`.
+    duration on every overlay and pause slot defined in the `MPD`. On
+    an inherited linear event the maximum is the base specification's
+    `@maxDuration`, which the Publisher MAY omit (R4.8).
   - **R4.2** (Player): Where the cap bounds cumulative duration — the
     non-linear families, and linear insertion — the Player MUST stop
     rendering once the cumulative duration of the accepted candidates
@@ -418,15 +423,20 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     directly — *"If the value of `@maxDuration` is zero, the event is
     not executed"* (§5.16.5) — and this specification adds nothing to
     it: a zero cap is not a very short slot.
-  - **R4.8** (spec document): R4.1's requirement that every slot
-    declare a cap is a **deliberate narrowing** of the base
-    specification, which treats an absent `@maxDuration` as infinity,
-    *"in which case the current presentation resumes only when the
-    alternative presentation terminates"* (§5.16.5). The narrowing
-    restricts which documents conform and changes no construct's
-    semantics, which is what a profile does (§8.1). It is recorded
-    here so that a reader who finds the unbounded default in the base
-    specification knows it was excluded on purpose.
+  - **R4.8** (spec document): R4.1 requires a cap on the slots this
+    specification defines and on no inherited linear event. For those
+    the base answer stands (R1.5): an absent `@maxDuration` *"is
+    assumed to be infinity, in which case the current presentation
+    resumes only when the alternative presentation terminates"*
+    (§5.16.5). An alternative presentation need not be an ad — the
+    base specification names blackouts beside advertising (§5.16.1)
+    and a Player cannot tell the two apart (R40) — and a blackout with
+    no known end is written exactly that way. Requiring a cap there
+    would make a Player of this specification refuse the blackout and
+    show the programme the Publisher had blacked out. On an overlay or
+    pause slot every declaration is an advertising opportunity, and a
+    missing cap costs a slot that sells nothing, which the Publisher
+    sees and fixes with one attribute.
   - **R4.9** (Player): The cap and a candidate's declared duration are
     stated in different timebases — the cap in the units of the parent
     `<EventStream>@timescale`, a candidate's duration as an ISO 8601
@@ -435,22 +445,25 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     the converted value **up** to the next whole unit of that
     timescale. A candidate whose converted duration equals the cap
     exactly is admitted.
-  - **R4.10** (Player): A slot declaration carrying no maximum
-    duration is not a slot this specification defines (R4.1, R4.8).
-    The Player MUST NOT present ads from such a slot and MUST continue
-    with the primary content. Reading the absence as the base
-    specification's unbounded default is not admissible: it would make
-    R4's Player-side enforcement inert for exactly the slots whose
-    declaration is defective.
+  - **R4.10** (Player): An overlay or pause slot declaration carrying
+    no maximum duration is not a slot this specification defines
+    (R4.1). The Player MUST NOT present ads from such a slot and MUST
+    continue with the primary content. Reading the absence as an
+    unbounded default is not admissible: it would make R4's
+    Player-side enforcement inert for exactly the slots whose
+    declaration is defective. An inherited linear event with no maximum
+    is outside this criterion: the Player executes it with its base
+    semantics (R4.8).
 
-    A Publisher who wants advertising with no fixed end writes it as a
-    chain of bounded slots — N slots of X seconds along the primary
-    content — which this specification already allows and which needs
-    no new construct. Keeping an unbounded slot would buy no capability
+    A Publisher who wants non-linear advertising with no fixed end
+    writes it as a chain of bounded slots — N slots of X seconds along
+    the primary content — which this specification already allows and
+    which needs no new construct. Keeping an unbounded slot would buy no capability
     the chain does not already give, and would cost every
     cap-dependent requirement a second reading for a shape almost
     nobody authors. ADR 0015 records the decision and what it
-    deliberately does not change about the pause family (R31).
+    deliberately does not change about the pause family (R31); ADR
+    0020 records why inherited linear events are outside it.
   - **R4.11** (Player): The Player MUST compute the cap on the
     presentation timeline. An interval during which the presentation
     timeline does not advance MUST NOT accrue against the cap, so a form suspended
@@ -1746,14 +1759,105 @@ screen to a single active non-linear form at any instant.
     bound exists so the device never needs more than main content plus
     one ad form's video decoder concurrently (R3).
 
-  **Across families (informative).** R22 bounds non-linear forms only.
-  This specification does not forbid a linear presentation
-  (`InsertPresentation`, `ReplacePresentation`) and a non-linear form on
-  screen at the same time (UC-04), and a `ReplacePresentation` need not
-  be advertising at all — a blackout slate is one (UC-14). As a matter of
-  practice, Publishers and ADSs should be careful when combining two ad
-  formats at once: it is rarely what an advertising experience wants,
-  even though it is permitted.
+  **Across families.** R22 bounds non-linear forms only. Whether a
+  non-linear form is composited over a linear presentation
+  (`InsertPresentation`, `ReplacePresentation`) is governed by R40: by
+  default it is not, and it is when the window declares that it is
+  composited on top (UC-04). A non-linear ad shown during a replacement
+  that is not advertising, such as a blackout, is declared inside the
+  replacement's own presentation (UC-14).
+
+- **R40. A non-linear window declares how it relates to the linear events it overlaps.**
+  *Gist: A non-linear window is presented only over the content of the presentation that declares it; it neither replaces an inherited linear event nor is composited over an alternative presentation, unless the Publisher declares on the window that it supersedes the linear event it overlaps or that it is composited on top of it.*
+
+  The base specification carries advertising and blackouts through the
+  same alternative-presentation events. §5.16.1 describes the tool as
+  *"the ability to switch between two independent Media Presentations,
+  for applications such as pre-roll and mid-roll advertisement, as well
+  as blackouts"*, and neither event scheme gives `EventStream@value` a
+  value space that could tell them apart (*"This value is currently not
+  required"*, Table 59; *"This value is currently not used"*, Table
+  61). Whether an alternative presentation is an ad is therefore not
+  observable by a Player (ADR 0012), and no rule here depends on it.
+  Whether one is **active** is observable: a Player of this
+  specification executes it.
+
+  The Publisher knows what each of its events is. This requirement lets
+  it declare, on the non-linear window, the one fact the Player needs,
+  in one of three relations:
+
+  - **Default (nothing declared).** The window is presented only over
+    the content of the presentation whose `MPD` declares it. It does not
+    replace an inherited linear event, and it is not composited over an
+    alternative presentation. Two ads on screen at once never come from
+    an overlap nobody declared.
+  - **Supersede.** The window stands in for the inherited linear events
+    whose presentation time falls within its span. A Player of this
+    specification presents the window and does not execute those
+    events, and executes them after all when the window presents no ad.
+    A Player that does not implement this specification ignores the
+    window and plays the linear events, so the linear break is the
+    legacy fallback of a non-linear offering (UC-07, UC-17).
+  - **On top.** The window is presented also while an alternative
+    presentation that starts within its span is active, composited over
+    it: a hybrid break (UC-04).
+
+  **The content of an alternative presentation is a presentation of its
+  own.** The primary content cannot know what a replacement contains, so
+  a non-linear ad shown during it is declared by a window in the
+  replacement's own `MPD`, over the replacement's content. The base
+  specification already runs the alternative presentation as a second
+  instance of the same client: *"there are two instances of DASH access
+  engine, main and the alternative, both working as described above"*
+  (§4.2). A blackout is the case (UC-14).
+
+  **Conformance criteria** (runtime + document-level):
+  - **R40.1** (Publisher): Declaring a relation on a non-linear window
+    is OPTIONAL. A window declares at most one relation, supersede or
+    on top; a window that declares neither has the default relation.
+  - **R40.2** (Publisher): A Publisher that wants a non-linear ad
+    presented during an alternative presentation MUST declare it either
+    by a window in that alternative presentation's own `MPD`, or by a
+    window of the triggering presentation that declares on top.
+  - **R40.3** (Player): When a window declares supersede, the Player
+    MUST present the window and MUST NOT execute the inherited linear
+    events whose presentation time falls within its span. When the
+    window presents no ad — every attempt to resolve it is a failed
+    execution under R20.1, or the device can render none of its
+    candidates (R5) — the Player MUST execute those events as the base
+    specification defines, including its rules for an execution that
+    starts after an event's presentation time.
+  - **R40.4** (Player): When a window declares no relation, the Player
+    MUST present its forms only while the content of the presentation
+    whose `MPD` declares the window is being output, and MUST execute
+    every inherited linear event it overlaps with its base semantics. A
+    form on screen when an alternative presentation begins ends there,
+    and the window presents nothing further.
+  - **R40.5** (Player): When a window declares on top, the Player MUST
+    present it also while an alternative presentation that starts
+    within its span is active, composited over that presentation,
+    within the device's capability (R3, R5) and R22. The inherited
+    linear event executes with its base semantics.
+  - **R40.6** (Player): The Player MUST process the non-linear windows
+    declared in an alternative presentation's `MPD` as that
+    presentation's own: they are presented over its content, and
+    R40.3–R40.5 apply to them against the alternative presentations it
+    triggers in turn.
+  - **R40.7** (spec document): The relation is declared on the
+    non-linear window this specification defines. The specification
+    MUST NOT add anything to the inherited linear events to carry it:
+    the same base event means the same thing to every Player. How the
+    declaration is carried is decided under the conventions of
+    [`06-naming-and-namespaces.md`](06-naming-and-namespaces.md).
+  - **R40.8** (spec document): R40.3 is a recorded exception to R1.5:
+    a Player of this specification does not execute a base event that
+    the base specification would execute. The reason is that the
+    departure is declared explicitly by the Publisher, who authored
+    both the event and the window, on a construct this specification
+    defines; and that a Player that does not implement this
+    specification, which does not recognise the window, executes the
+    base event exactly as the base specification defines. ADR 0020
+    records the decision.
 
 ### Tracking
 

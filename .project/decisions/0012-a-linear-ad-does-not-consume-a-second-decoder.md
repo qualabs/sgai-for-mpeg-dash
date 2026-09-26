@@ -162,3 +162,14 @@ needs no help.
   question) and UC-14.
 - `context/02-actors.md` and R2.1 — why the Publisher, not this
   specification, holds the lever.
+
+## Note — 2026-09-26
+
+ADR 0020 supersedes this record in part. The first rejected alternative
+stands as reasoning — nothing prohibits stacking two ads — but the
+default changed: a non-linear window is composited over an alternative
+presentation only when it declares so (on top, R40.5), and not stacking
+is obtained from whether an alternative presentation is active, which a
+Player observes, rather than from whether it is an ad, which it does
+not. The decoder arithmetic and the reading that a replacement need not
+be an ad are unchanged.

@@ -97,3 +97,14 @@ special case to the one requirement whose value is that it has none, and
 the reason for the decision above was to avoid exactly that kind of
 branch. Declaring a cap that bounds nothing costs one attribute; a
 carve-out costs a reading of R4.1 in every family.
+
+## Note — 2026-09-26
+
+ADR 0020 supersedes the linear part of this record. R4.1 and R4.10 now
+bind the overlay and pause families only; an inherited linear event
+keeps the base default, under which an absent `@maxDuration` is
+unbounded (R4.8). The argument that the failure mode is visible and
+cheap holds for an ad slot and not for a blackout, which the base
+standard carries on the same events and which R4.10 would have skipped.
+The non-linear decision, the chain of bounded slots and the pause family
+are unchanged.

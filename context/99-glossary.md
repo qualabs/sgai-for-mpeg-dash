@@ -80,6 +80,9 @@ through `08-dash-extension-rules.md`.
   Media Presentation"* (§5.16.1). **This specification uses it for
   break-style ads**; the construct itself carries no such restriction,
   and UC-14 exercises a replacement that is not advertising at all.
+  Neither this nor InsertPresentation tells a Player whether its
+  alternative presentation is an ad; how a non-linear window relates to
+  either is declared on the window (R40).
 - **ADS (Ad Decision Server)**: external server that decides which
   ads to serve for a given slot and responds with a **decision
   document** — typically VAST (IAB), though the ADS is not bound to
