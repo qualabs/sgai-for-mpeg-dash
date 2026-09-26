@@ -2,7 +2,7 @@
 
 > See [`02-actors.md`](02-actors.md) for the four-actor model
 > (Publisher / ADS / APS / Player) and [`03-requirements.md`](03-requirements.md)
-> for R1–R10 that ground these scenarios.
+> for the requirements that ground these scenarios.
 
 ## Frame
 
@@ -1172,7 +1172,8 @@ one image surface — within reach for D3 / D4.
 ### UC-10 — Side-by-side / double-box (three-element layout, R26 illustration)
 
 **Scenario:** The Publisher has declared an overlay slot whose allowed
-layouts include **`squeezeback-double-box`**. A candidate is
+layouts include **`squeezeback-double-box`** and
+**`squeezeback-double-box-background`**. A candidate is
 presented whose chosen presentation option is the side-by-side: the
 shrunk primary content sits next to the ad on a 16:9 screen, and the
 two boxes together leave bands / margins uncovered. Per R26 a third
@@ -1185,7 +1186,9 @@ device-class reasoning that follows from the element count and type.
 
 **Publisher intent:**
 - Non-linear forms allowed; the allowed-layout set includes
-  `squeezeback-double-box`.
+  `squeezeback-double-box` and `squeezeback-double-box-background`
+  (R12.2): the first token is the case with no background, the second
+  the case with an advertiser background.
 - An advertiser-supplied background element MAY brand the uncovered
   region (R26); the Publisher does not supply a background. When the
   advertiser supplies none, the uncovered region renders as black

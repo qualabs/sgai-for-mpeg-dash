@@ -64,7 +64,7 @@ WHO = {"5.a": "pipeline", "5.b": "nicolas", "5.c": "nicolas"}
 
 ID = re.compile(
     r"\b(?:R\d+\.\d+|R\d+#p\d+|DP-[\d.]+#p\d+|OOS-\d+#p\d+|UC-\d+"
-    r"|NC\d+|M\d+|G-\d+|EC-\d+|A-\d+|DL-\d+|F-\d+)\b"
+    r"|NC\d+|M\d+|C\d+|G-\d+|EC-\d+|A-\d+|DL-\d+|F-\d+)\b"
 )
 
 
