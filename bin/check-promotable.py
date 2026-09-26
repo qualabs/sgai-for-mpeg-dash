@@ -174,7 +174,10 @@ def verdict_of(cell):
     what follows the word qualifies the rationale, not the judgement.
     `non-conforming` is tested first because it contains the other.
     """
-    low = strip_marks(cell).lower()
+    # A leading symbol (an emoji such as ⚠ or ✅) decorates the verdict; the
+    # word is the verdict. v12.1's audit wrote "⚠ marginal" and every such row
+    # came out as a verdict nobody knew.
+    low = re.sub(r"^[^a-z]+", "", strip_marks(cell).lower())
     for word in ("non-conforming", "conforming", "marginal"):
         if low.startswith(word):
             return word
