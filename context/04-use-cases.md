@@ -1771,8 +1771,10 @@ presentation time and which declares that it **supersedes** the event
   linear candidates, as in UC-02.
 
 **Expected behavior per device class:** the Player resolves the
-window, ahead of the break when early resolution applies (R36), and
-the break is executed only when the window presents no ad (R40.3).
+window, ahead of the break when early resolution applies (R36),
+sending the window's two allowed layouts, unchanged, on the resolution
+request (R38.2); the break is executed only when the window presents
+no ad (R40.3).
 
 - **D1** — renders the L-shape. The break is not executed; the
   programme plays in the shrunk region and returns to full screen when

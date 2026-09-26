@@ -171,22 +171,95 @@ default is 60 seconds in units of timescale"* (§5.16.5.2). A window
 that declares nothing may therefore be resolved 60 seconds ahead, as a
 base event may. ADR 0018 records why.
 
-**Viewer dismissal is a deliberate exception.** The dismissal
-declarations of R35 (R35.1 and R35.2) do **not** reuse the base skip control, neither
-`@skipAfter` on the alternative-MPD events (DASH §5.16.5.2) nor
+**Viewer dismissal on overlay and pause is a deliberate exception.**
+The dismissal declarations of R35 (R35.1 and R35.2), which govern the
+overlay and pause families, do **not** reuse the base skip control,
+neither `@skipAfter` on the alternative-MPD events (DASH §5.16.5.2) nor
 `PlaybackRestrictions@skipAfter` in the service description (DASH
 Annex K, Tables K.9 and K.18). Both default to zero, which the base
-specification defines as skippable everywhere: *"Zero duration
-implies that skipping is allowed everywhere … Default value is PT0S"*
-(§5.16.5.2), while R35.1 makes a slot nobody declared dismissible
-non-dismissible.
-Reusing the construct would bring the default with it, and this rule
-does not allow reusing it without. The declaration is therefore a
-field this specification defines in the resolution document, under
-the extension namespace above. ADR 0017 records why.
-The exception covers where R35's declaration travels, not the base
-attribute itself: a `@skipAfter` a Publisher writes on a linear event
-keeps its base meaning, and the Player honours it (R35.8, ADR 0019).
+specification defines as skippable everywhere: *"Zero duration implies
+that skipping is allowed everywhere"* and *"Default value is PT0S"*
+(§5.16.5.2, Table 63), while R35.1 makes an overlay or pause slot
+nobody declared dismissible non-dismissible. Reusing the construct
+would bring the default with it, and this rule does not allow reusing
+it without. The declaration is therefore a field this specification
+defines in the resolution document, under the extension namespace
+above. ADR 0017 records why.
+
+**On a linear slot there is no exception: the base skip control
+applies, default included.** A `@skipAfter` a Publisher writes on a
+linear event keeps its base meaning, and a linear event that writes
+none is skippable everywhere, because that is what the base default
+says (R35.8). Nothing of this specification's own is added to the
+linear event or to its resolution document to carry dismissal. ADR 0019
+records the decision and the date its default was brought in line with
+R1.5.
+
+## A descriptor a non-implementing Player must survive is a `SupplementalProperty`
+
+The base specification offers two descriptor elements with the same
+shape and opposite consequences for a Player that does not recognise
+the scheme (DR-9):
+
+> §5.8.4.8, NOTE 1: *"If the scheme or the value for this descriptor is
+> not recognized, the DASH Client is expected to ignore the parent
+> element that contains the descriptor."*
+>
+> §5.8.4.9, NOTE: *"If the scheme or the value for this descriptor is
+> not recognized, the DASH Client is expected to ignore the
+> descriptor."*
+
+At MPD level the parent is the whole presentation: *"If one or more
+EssentialProperty elements sharing the same @id appear at the MPD
+level, this means that successful processing of at least one of these
+descriptors is essential to properly access and/or present the content
+described by this MPD"*, and when none can be processed *"the DASH
+Client is expected to terminate the media presentation"* (§5.8.4.8,
+NOTE 2).
+
+**The convention.** A descriptor that a Player not implementing this
+specification must be able to ignore is a `SupplementalProperty`. An
+`EssentialProperty` is used only where dropping its parent element is
+the behaviour intended for such a Player, and the construct that uses
+it says so (DR-9). R1.1 requires the primary content to keep playing
+when a construct is removed, so an `EssentialProperty` whose parent is
+the MPD, a `Period` of primary content, or anything else on the primary
+content path is never that case.
+
+**The URL-parameter descriptor at MPD level is a `SupplementalProperty`.**
+Annex I.3.1 signals the extended parameters *"through the use of
+EssentialProperty or SupplementalProperty descriptors"*, and for the
+scheme `urn:mpeg:dash:urlparam:2025` it adds: *"An MPD.EssentialProperty
+element with the attribute @schemeIdUri having value of
+"urn:mpeg:dash:urlparam:2025" shall be present and have no content,
+unless the scheme is explicity allowed in a profile (e.g. ISO-BMFF
+Advanced Linear Profile defined in 8.13)"*. The Advanced Linear profile
+allows it: *"Extended HTTP GET request parametrization (I.3) may be
+used"* (§8.13.2.1). An unrecognised `EssentialProperty` at MPD level
+would make a legacy Player discard the whole MPD, against R1.1, so a
+document of this specification that uses the scheme declares a profile
+that allows it and carries the MPD-level descriptor as a
+`SupplementalProperty` with no content. Where no such profile is
+declared, the base leaves only the `EssentialProperty`, and the scheme
+is not used. The parameters themselves travel in `RequestParam`, the
+scheme's single element (*"The scheme uses a single element,
+RequestParam"*, Annex I.3.1), never as content of the descriptor.
+
+## A value the base already carries is not restated
+
+When the base specification already carries a value, no attribute of
+this specification repeats it (DP-1.2). The value is read where the base
+puts it; an attribute of ours carries only what the base does not.
+
+The case the build meets most is duration. The duration of a video ad
+carried by a sub-MPD is that sub-MPD's `Period@duration`, in a linear
+break and wherever else a sub-MPD carries the ad. No `@duration` of this
+specification, for example on an ad element of the extension namespace,
+restates it for that ad. A duration attribute of ours is for what has no
+sub-MPD to carry it, such as an image or HTML form. The base's own pair,
+a Linked Period's `@duration` and its Imported Period's
+`Period@duration`, is not a restatement: the base reconciles it by its
+own rule (DP-1.2).
 
 ## The window's relation to a linear event travels on the window
 

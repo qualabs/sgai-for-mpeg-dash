@@ -36,16 +36,29 @@ SPS for non-MP4 MIME types.
 ## DR-2 — Foreign-namespace open content is DASH's normative extension point for new XML constructs
 
 DASH §5.2.1 is the normative extension point for new XML elements
-and attributes drawn from non-DASH namespaces. The MPD schema
-declares `<xs:any namespace='##other' processContents='lax'/>` on
-every container, so a foreign-namespace element MAY appear as a
-child of any DASH container (including `<Period>`,
-`<AdaptationSet>`, `<Event>`, and other foreign-namespace
-elements). The MPD MUST be authored such that, after foreign-
-namespace attributes and elements are removed, the result is still
-a valid DASH document conforming to this specification.
+and attributes drawn from non-DASH namespaces. What each DASH
+element admits is read off its type in the Annex B schema, and the
+types do not all admit the same thing. Most container types declare
+both `<xs:any namespace="##other" processContents="lax"/>` (foreign
+child elements) and `<xs:anyAttribute namespace="##other"
+processContents="lax"/>` (foreign attributes) — `MPDtype`,
+`PeriodType`, `EventType` among them, so a foreign-namespace element
+or attribute MAY appear on `<MPD>`, `<Period>` or `<Event>`. Not every
+type does:
 
-- **Source**: §5.2.1.
+- `EventStreamType` declares `xs:any` and no `xs:anyAttribute`: an
+  `<EventStream>` admits foreign child elements and no foreign
+  attributes.
+- `ImportedMpdType` is a simple-content extension of `xs:anyURI` that
+  declares `xs:anyAttribute` and no `xs:any`: an `<ImportedMPD>` admits
+  foreign attributes and no child elements.
+
+A construct placed on a DASH element therefore uses a form that
+element's type admits. The MPD MUST be authored such that, after
+foreign-namespace attributes and elements are removed, the result is
+still a valid DASH document conforming to this specification.
+
+- **Source**: §5.2.1; Annex B, the type definitions named above.
 - **Implication for SGAI**: new XML constructs introduced by SGAI
   under the SVTA Ads WG namespace (`urn:svta:dash:sgai:<year>`)
   operate within §5.2.1. The construction does not need a new
@@ -172,10 +185,15 @@ non-AV (non-MP4) ad assets are:
   wants everywhere else. Naming them as one option hides the only
   difference that matters.
 
-  Both share the placement constraint: they sit on AdaptationSet /
-  Representation / Sub-Representation, so both inherit DR-5's MIME
-  constraint unless hosted inside a foreign-namespace parent, which
-  collapses them into (a) with worse readability.
+  Where a descriptor sits decides what constrains it. The schema
+  admits both elements on `MPD`, `EventStream` and `Event`, as well as
+  on `AdaptationSet`, `Representation` and `SubRepresentation`; it
+  admits only `SupplementalProperty` on `Period` and on the
+  `InsertPresentation` / `ReplacePresentation` element
+  (`AlternativeMPDEventType`). On an `AdaptationSet`, `Representation`
+  or `SubRepresentation` a descriptor describes media and inherits
+  DR-5's MIME constraint. On the other elements it describes no
+  Representation, and DR-5 does not reach it.
 
 - **Source**: §5.2.1, §5.10, §5.8.4.8, §5.8.4.9 read against DR-1 /
   DR-4 / DR-5.
@@ -303,12 +321,19 @@ this specification has already decided what it will never do.
   (c2); this rule is what that split rests on, and it reaches the
   constructs DR-6 does not cover.
 
-## DR-10 — `MPD@type="list"` is a profile, not an attribute value: declaring it enrols the document in the List profile
+## DR-10 — The non-linear resolution document declares no profile: the List profile belongs to the Alternative MPD path
 
-A suggestion to declare `MPD@type="list"` on the non-linear resolution
-document does not survive reading §8.14. That value is not a free
-choice of presentation type; it is rule 1 of the **ISO Base media file
-format List profile**, and the rules travel together:
+A suggestion to make the non-linear resolution document a List MPD, by
+declaring `MPD@type="list"` and the List profile, does not survive
+reading §5.3.1.4 and §8.14 together.
+
+**The value and the profile are two things.** §5.3.1.4 defines the
+presentation type on its own: *"For Media Presentations with MPD@type
+set to "list" the constraints of a static Media Presentation shall
+apply"*, *"the attributes from namespace @xlink shall not be present"*, and such MPDs *"may
+contain Linked Periods"*. The **ISO Base media file format List
+profile** requires the value, and the requirement runs in one
+direction only:
 
 > The ISO-BMFF List profile is an extension of the ISO-BMFF CMAF
 > Profile (see subclause 8.12), with the following requirements
@@ -319,14 +344,14 @@ format List profile**, and the rules travel together:
 >    `"urn:mpeg:dash:profile:list:2024"`. This URN shall appear in the
 >    `MPD@profiles` attribute.
 
-So declaring the attribute without the URN produces a document that
-claims a profile's type and does not declare the profile, and
-declaring both enrols the non-linear resolution document in a profile
-built for the linear path — an extension of the CMAF profile, intended
-*"for use in conjunction with the Alternative MPD event (see subclause
-5.16)"*. The overlay resolution document is not reached by an
-Alternative MPD event and carries no `ImportedMPD`; it would be
-declaring conformance to a family it does not belong to.
+A List-profile MPD has `type="list"`; a document with `type="list"` is
+not thereby in the profile.
+
+**The profile is the part that does not fit.** It is intended *"for use
+in conjunction with the Alternative MPD event (see subclause 5.16)"*
+(§8.14). The non-linear resolution document is not reached by an
+Alternative MPD event and carries no `ImportedMPD`; declaring the URN
+would be declaring conformance to a family it does not belong to.
 
 **The non-linear resolution document therefore declares no profile**,
 and the cost of that is stated rather than hidden: a validator has no
@@ -337,13 +362,15 @@ for it is a decision this specification has not taken; it would mean
 defining the restrictions, publishing the URI and getting implementers
 to declare it.
 
-- **Source**: §8.14, rules 1 and 2, quoted above, and §8.14's opening
-  sentence for what the profile is for.
+- **Source**: §5.3.1.4 for the presentation type on its own; §8.14,
+  rules 1 and 2, quoted above, and §8.14's opening sentence for what the
+  profile is for.
 - **Implication for SGAI**: the choice is between no profile and a new
-  one, never between no profile and an existing one. `type="list"` is
-  not available as a shorthand for "this document is static and
-  carries no XLink", which is what the suggestion was reaching for;
-  those properties are declared directly.
+  one, never between no profile and an existing one. `type="list"` is a
+  separate question: §5.3.1.4 makes it available without the profile,
+  with the constraints of a static presentation and no XLink, and
+  whether the non-linear resolution document declares it is the build's
+  decision.
 
 ## Cross-refs
 

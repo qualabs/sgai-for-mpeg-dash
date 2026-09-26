@@ -47,3 +47,21 @@ the build applies it without reading the ADRs.
 - `context/03-requirements.md` — R1.5, R35.8.
 - `context/06-naming-and-namespaces.md` — "Viewer dismissal is a
   deliberate exception".
+
+## Note (2026-09-26): the default part is reversed
+
+The part of the decision that kept R35.1's default on a linear slot
+that declares nothing is reversed, by Nicolás Levy's decision of
+2026-09-26, so that R1.5 is applied whole. On a linear slot the base
+skip declaration applies as the base specification defines it,
+**default included**: `@skipAfter` absent means *"Default value is
+PT0S"*, and *"Zero duration implies that skipping is allowed
+everywhere"* (ISO/IEC 23009-1:2026 §5.16.5.2, Table 63). R35.1's
+"non-dismissible unless declared" default now applies only to the
+families this specification defines, overlay and pause. R35.8, the R35
+prose and the "Viewer dismissal" paragraph of
+`context/06-naming-and-namespaces.md` carry the new reading. The rest of
+the decision stands: a `@skipAfter` the Publisher writes keeps its base
+meaning and governs the slot. The consequence *"A Player of this
+specification and a base Player treat the same linear event the same
+way"* now holds for a linear event that writes no `@skipAfter` too.

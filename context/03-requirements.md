@@ -105,7 +105,7 @@ positions.
 | R12 | A fixed, closed set of IAB ad types (linear, overlay, squeezeback, pause-ad); nothing else is in scope. |
 | R18 | The Player-visible interface is specified, including what the Player sends on the resolution request; the APS-to-ADS and ADS-side APIs are out of scope. |
 | R22 | At most one non-linear ad form is active on screen at any instant. |
-| R35 | The viewer may dismiss a whole ad slot; the APS declares whether that is allowed and after how many seconds. |
+| R35 | The viewer may dismiss a whole ad slot; on overlay and pause the APS declares whether that is allowed and after how many seconds, and a linear slot follows the base specification's own skip declaration and its default. |
 | R36 | An overlay or pause opportunity may be resolved ahead of time, within the offset the Publisher declares or 60 seconds when it declares none, and the APS declares how long that resolution keeps. |
 | R37 | A pause is what the viewer experiences; any mechanism that suspends the content and resumes it where it stopped is one. |
 | R38 | When a non-linear slot declares its allowed layouts, the Player forwards them to the APS and still checks what comes back; a slot that declares none admits only its own family's layouts. |
@@ -535,7 +535,7 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     composited on top of the primary content, which keeps playing. Its
     named visual placements are corner / bug (`overlay-corner`, IAB
     *Corner Overlay*) and lower-third (`overlay-lower-third`, IAB
-    *Lower-Third Overlay*); a plain image or HTML overlay with no named
+    *Lower Third Overlay*); a plain image or HTML overlay with no named
     placement is the base `overlay` type. Which corner an
     `overlay-corner` occupies is not a token and not this
     specification's business: the Player composites the creative over
@@ -998,7 +998,7 @@ squeezeback layouts (side-by-side and L-shape).
     who knows the base construct knows what this one does.
 
 - **R35. The viewer may dismiss an ad slot, and the APS says whether and from when.**
-  *Gist: The APS declares per slot whether the viewer may dismiss it and how many seconds must pass first; dismissing ends the whole slot, never one ad inside it.*
+  *Gist: The APS declares per overlay or pause slot whether the viewer may dismiss it and how many seconds must pass first, a linear slot follows the base specification's own skip declaration and its default, and dismissing ends the whole slot, never one ad inside it.*
 
   A viewer who wants their screen back is not the same viewer as one
   escaping an advertisement, and for a non-linear form the second
@@ -1019,22 +1019,31 @@ squeezeback layouts (side-by-side and L-shape).
   the same slot to the Publisher — so they travel in the resolution
   document with the candidates, and not in the `MPD`.
 
-  This requirement applies to **every family this edition defines**,
-  including the pause family. A pause ad is dismissible on the same
-  terms as any other: the viewer is already in control of when it ends
-  by resuming (R25), and dismissal gives them the surface back without
-  resuming.
+  The declarations of R35.1 and R35.2 apply to **the two families this
+  specification defines, overlay and pause**. A pause ad is dismissible
+  on the same terms as an overlay: the viewer is already in control of
+  when it ends by resuming (R25), and dismissal gives them the surface
+  back without resuming.
 
-  **Dismissal is granted, never assumed.** A slot nobody declared
-  dismissible cannot be dismissed (R35.1), so whatever carries the
-  declaration has to leave an undeclared slot non-dismissible. The
-  carrier is named under the rules of
+  **A linear slot is the base specification's question, and its answer
+  stands.** The base specification already declares whether and from
+  when the rest of an alternative presentation may be skipped, and gives
+  that declaration a default. Under R1.5 its answer is adopted whole,
+  default included, so a linear slot on which nothing is declared is
+  skippable as the base specification makes it (R35.8).
+
+  **On overlay and pause, dismissal is granted, never assumed.** A slot
+  of those families that nobody declared dismissible cannot be
+  dismissed (R35.1), so whatever carries the declaration has to leave
+  an undeclared slot non-dismissible. The base specification has no
+  declaration for these families, so this default is this
+  specification's own. The carrier is named under the rules of
   [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md), and
   ADR 0017 records the decision.
 
   **Conformance criteria** (runtime):
-  - **R35.1** (APS): The APS MUST declare, for each slot it resolves,
-    whether the viewer may dismiss it. A resolution document that does
+  - **R35.1** (APS): The APS MUST declare, for each overlay or pause
+    slot it resolves, whether the viewer may dismiss it. A resolution document that does
     not declare it leaves the slot non-dismissible: the capability is
     granted and never assumed.
   - **R35.2** (APS): Where dismissal is allowed, the APS MUST declare
@@ -1060,15 +1069,14 @@ squeezeback layouts (side-by-side and L-shape).
     control, a gesture, a remote button — is out of scope. This
     specification states when it must be available and what it ends,
     and the market decides how it is presented.
-  - **R35.8** (Player): On a linear slot whose event carries the base
-    specification's own skip declaration, written explicitly by the
-    Publisher, the Player MUST honour that declaration as the base
-    specification defines it, and it governs the slot. The base default
-    that applies when the event writes nothing is not a declaration:
-    where neither the event nor the resolution document declares
-    anything, R35.1's default applies and the slot is non-dismissible. This is R1.5
-    applied: a Player of this specification and a base Player treat the
-    same linear event the same way.
+  - **R35.8** (Player): On a linear slot, the Player MUST apply the
+    base specification's own skip declaration and its default as the
+    base specification defines them, and they govern the slot: where
+    nothing is declared, the base default applies and the slot is
+    skippable as the base specification makes it. R35.1's default does
+    not apply to a linear slot. This is R1.5 applied: a Player of this
+    specification and a base Player treat the same linear event the same
+    way.
 
 - **R36. A non-linear opportunity may be resolved ahead of time, and the resolution declares how long it keeps.**
   *Gist: The Publisher may declare how early a Player may resolve an overlay or pause opportunity, 60 seconds when it declares nothing, and the APS declares how long that resolution stays good; a stale one is resolved again.*
@@ -1665,10 +1673,15 @@ screen to a single active non-linear form at any instant.
   - **R20.2** (Publisher): All opportunity windows of one family that
     share a `Period` MUST be authored as `<Event>` entries inside a
     **single** `<EventStream>`. DASH admits at most one `EventStream`
-    per `Period` for a given scheme — §5.10.2.1: *"all Events of one
-    type shall be clustered in one Event Stream"* — so two sibling
-    streams carrying the same SGAI scheme in one `Period` is not a
-    conformant document.
+    per `Period` for a given scheme and `@value` — §5.10.2.1: *"A
+    Period shall contain at most one EventStream element with the same
+    value of the @schemeIdUri attribute and the value of the @value
+    attribute, i.e. all Events of one type shall be clustered in one
+    Event Stream"*. An `EventStream` carrying an SGAI scheme carries no
+    `@value` ([`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md)
+    defines no value space for these schemes), so every stream of one SGAI scheme in a `Period` has the
+    same pair, and two sibling streams carrying it are not a conformant
+    document.
   - **R20.3** (Player): The Player MUST order overlapping windows of
     one family by **presentation time, oldest first**. Where two
     windows carry the same presentation time, the Player MUST take them

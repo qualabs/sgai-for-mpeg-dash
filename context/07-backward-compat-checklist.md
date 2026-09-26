@@ -88,8 +88,12 @@ chapter 10 modelled on UC-07
 - A representative MPD/ListMPD containing C.
 - A legacy Player implementation harness.
 - The expected behaviour: silent skip of C + no tracking beacon for
-  C. The legacy Player MUST ignore C in every case; this is the
-  invariant the test verifies.
+  C. The invariant the test verifies is a property of the document:
+  once C is removed, as a Player that does not implement this
+  specification removes it under the base rules, what remains is a
+  valid MPD whose primary content plays uninterrupted (R1.1). It
+  places no obligation on a legacy Player, which this specification
+  cannot bind (DR-8, ADR 0009).
 - What the viewer experiences around the skipped C is
   **content-dependent** and is the Publisher's authoring choice, not a
   property of C (see UC-07 in

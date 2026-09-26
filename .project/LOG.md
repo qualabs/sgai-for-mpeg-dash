@@ -2077,3 +2077,38 @@ importantes. Y el anidado especial"*.
 - **Casos:** UC-07 (fallback VOD con supersede), UC-04 (on top), UC-14 (anidado y
   qué pasa con una ventana del timeline primario) y UC-17 nuevo (supersede por
   clase de dispositivo). ADR 0020, que reemplaza en parte a la 0012 y a la 0015.
+
+## 2026-09-26 — context/ corregido contra la base con lo que encontraron los análisis de v11.1
+
+Nicolás aprobó hoy arreglar en `context/` los defectos que señalaron el
+gap analysis (§5.2), la auditoría de conformidad DASH y la validación de
+v11.1. Cada cita se verificó contra la copia de la norma.
+
+- **05, MPD de referencia**: el MPD es `type="dynamic"` y llevaba un
+  `InsertPresentation`, que §5.16.3 prohíbe ahí. Ahora son dos
+  `ReplacePresentation` en un único `EventStream` (§5.10.2.1). Los
+  parámetros de URL van en `RequestParam` y el descriptor de MPD
+  `urn:mpeg:dash:urlparam:2025` queda sin contenido (Annex I.3.1).
+- **08**: DR-2 ya no dice "todo contenedor" (`EventStreamType` no admite
+  atributos ajenos, `ImportedMpdType` sólo admite atributos); DR-6 lista
+  todos los lugares donde el schema admite descriptores; DR-10 cambia de
+  razón (§5.3.1.4 define `type="list"` por su cuenta) y conserva su
+  conclusión: el documento no lineal no declara perfil.
+- **03**: R20.2 aplica la regla por esquema y `@value`, como §5.10.2.1.
+- **R35.8 sigue a DASH (opción A de Nicolás)**: en un slot lineal rige la
+  declaración de skip de la base, incluido su default (PT0S: se puede
+  saltear en todo momento). El default "no descartable salvo que se
+  declare" de R35.1 queda sólo para overlay y pausa. Se agregó una nota
+  fechada a ADR 0019.
+- **06, dos convenciones de HOW nuevas**: un descriptor que un Player
+  que no implementa esta spec tiene que poder ignorar es
+  `SupplementalProperty` (el de URL params a nivel MPD incluido), y un
+  valor que la base ya lleva no se repite en un atributo nuestro (la
+  duración de un anuncio de video es el `Period@duration` de su sub-MPD).
+- **07**: el invariante del test de legacy es una propiedad del
+  documento (R1.1, DR-8, ADR 0009), no una obligación del Player legacy.
+- Menores: R12 escribe *Lower Third Overlay* como el IAB; UC-17 nombra
+  R38.2.
+
+Sigue abierto: ningún criterio de R40 autoriza al Publisher a escribir el
+break de respaldo (UC04.5, UC04.6, B07.12).
