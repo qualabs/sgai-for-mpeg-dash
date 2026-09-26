@@ -279,6 +279,11 @@ Per iteration `K`, the loop:
    `3-post-spec/review-spec-details.prompt`, and
    `3-post-spec/audit-dash-conformance.prompt` against the new
    minor version → three fresh sidecars.
+   Then runs `../bin/check-promotable.py`, the loop's stop condition
+   (`build-all` 9.5 and 9.5a own the branches): pipeline work keeps
+   the loop going; a `context/` change a written source dictates
+   stops it for the invoker to apply; a decision for a person stops
+   it only after a fresh re-check found no source that answers it.
 3. Calls `4-auto-refine/compare-spec-versions.prompt` → emits
    `v<N>.<M+1>-comparison.md` with a verdict line, measured against
    the published build in `../dist/`.

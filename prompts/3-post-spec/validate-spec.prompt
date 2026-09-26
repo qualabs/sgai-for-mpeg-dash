@@ -10,6 +10,9 @@
 - `../context/` (the source of truth — used to check obligation coverage).
 - `../context-analysis/` (intermediate analyses — used to
   cross-check conformance assertions, error semantics, etc.).
+- `../.project/decisions/` (the ADRs) and the base standard's primary
+  copy — read only by the resolution chain of §5, to find out whether
+  a finding is already answered before routing it to a person.
 
 **Output**: `../output-analysis/v<N>-spec-validation.md`, where `<N>` is the
 iteration version that matches the spec under validation.
@@ -99,11 +102,12 @@ Verdicts:
 `Kind` is one of `runtime`, `document`, `scope`, `use-case` (§4.2),
 and it is what says which of the two questions were asked.
 
-`Disposition` is `5.a`, `5.b` or `5.c` per §5, and it is **mandatory on
-every row whose verdict is not `met` or `governance`**. It is what says
-who resolves the row: `5.a` the pipeline on its own, `5.b` and `5.c` a
-person. A row that blocks and carries no disposition cannot be routed,
-and a caller that cannot route it cannot decide whether to stop —
+`Disposition` is `5.a`, `5.b`, `5.c` or `5.d` per §5, and it is
+**mandatory on every row whose verdict is not `met` or `governance`**.
+It is what says who resolves the row: `5.a` the pipeline on its own,
+`5.d` the coordinator applying a `context/` edit a written source
+dictates, `5.b` and `5.c` a person. A row that blocks and carries no
+disposition cannot be routed, and a caller that cannot route it cannot decide whether to stop —
 `bin/check-promotable.py` reports that as "cannot tell", not as "clear".
 
 **Every verdict except `gap` and `governance` requires a quoted
@@ -203,12 +207,12 @@ which case each unit is:
 One worked row, from a defect this step actually reported and that
 nothing acted on:
 
-| `R26.1` | `runtime` | `contradicted` | `5.b` | §5.3.7 *Layout composition*, L1761: *"It is carried as a `<svta:BackgroundElement>` child of the `<svta:RenderableAsset>` whose `@layout` is …"* | R26.1 requires it "as a composition attribute of the slot / layout, **not** as a separate presentation option (R5)". The spec hangs it off the option. |
+| `R26.1` | `runtime` | `contradicted` | `5.a` | §5.3.7 *Layout composition*, L1761: *"It is carried as a `<svta:BackgroundElement>` child of the `<svta:RenderableAsset>` whose `@layout` is …"* | R26.1 requires it "as a composition attribute of the slot / layout, **not** as a separate presentation option (R5)". The spec hangs it off the option. |
 
 ### 5. Disposition of findings
 
 Every Gap, Edge case, and Ambiguity above MUST be routed to exactly
-one of three buckets. The bucket determines what refine-spec
+one of four buckets. The bucket determines what refine-spec
 (`prompts/4-auto-refine/refine-spec.prompt`) does with it on the
 next minor iteration.
 
@@ -230,10 +234,11 @@ that covers a third of what a build produces is not a routing: the
 classification of the v7.2 findings had to be redone by hand for
 exactly the rows this list adds.
 
-Reading the other two sidecars is the one exception to this step's
+Reading the other two sidecars is an exception to this step's
 spec-only grounding, and it is narrow: **their verdicts and ids, never
 their reasoning.** This step does not re-judge a conformance verdict;
-it says who resolves it.
+it says who resolves it. The other exception is the resolution chain
+below, which reads the sources a finding may already be answered in.
 
 The bucket is also what says **who** resolves the finding, which is
 what the loop reads:
@@ -241,8 +246,38 @@ what the loop reads:
 | Bucket | Who closes it |
 |--------|---------------|
 | `5.a` | the pipeline — nobody has to decide anything |
+| `5.d` | the coordinator — applies a `context/` edit a written source dictates, relaunches, and informs the owner |
 | `5.b` | the owner of the specification |
 | `5.c` | the owner, then a major build |
+
+**The routing rule.** Everything whose fix does **not** require
+changing `context/` is the pipeline's — `5.a`, always: form, carrier,
+examples, wording, schema placement, and the choice among several
+spec-only remedies, which is the HOW and belongs to the build. If the
+spec is wrong and `context/` suffices to know what right looks like,
+it is `5.a`. Only a finding whose fix requires changing `context/` can
+leave the pipeline, and then it goes to `5.d` or to a person depending
+on whether a written source already dictates the change.
+
+**The resolution chain — run it before routing anything to `5.b` or
+`5.c`.** "The spec alone does not let me decide" is not a reason to
+call a person: most such findings are answered by a source that is
+already written. Look, in this order:
+
+1. **`../context/`** — including R1.5 (where the base standard
+   already answers, its answer wins), the design principles (DP-1,
+   DP-2, …), and the carrier conventions of
+   `../context/06-naming-and-namespaces.md`;
+2. **`../.project/decisions/`** — the ADRs;
+3. **the base standard**, per "Grounding against the standard" in
+   `../CLAUDE.md` — the clause number **and the quoted sentence**.
+
+If any of them answers the finding, it is not a person's: route it to
+`5.a` (the answer fixes the spec) or `5.d` (the answer fixes
+`context/`), with the source in the Citation / Source column. Only
+when none answers is it `5.b` or `5.c`, and then it carries a
+recommendation. Record in each `5.b` / `5.c` row which of the three
+you searched, so the reader can see what was looked at.
 
 One consequence worth stating, because it is where the disposition
 decides something the verdict cannot: a `Marginal` audit item routed
@@ -252,11 +287,10 @@ open question and is not.
 
 #### 5.a Actionable TODOs (high-certainty, refine-spec MUST apply)
 
-Findings where the fix-direction is unambiguous and lies entirely
-inside the spec (no `context/` edit required). Refine-spec applies
-these unconditionally — no human in the loop. A finding qualifies
-ONLY if it meets at least one of the four criteria below AND the
-remedy can be expressed as a concrete byte-level edit to
+Findings whose fix lies entirely inside the spec (no `context/` edit
+required). Refine-spec applies these unconditionally — no human in the
+loop. A finding qualifies if it meets at least one of the criteria
+below AND the remedy can be expressed as a concrete byte-level edit to
 `../output/v<N>-sgai-spec.md`:
 
 1. **DP-X violation cited by ID**: the finding cites an explicit
@@ -293,12 +327,20 @@ remedy can be expressed as a concrete byte-level edit to
    NOT qualify: nothing is written, so there is no edit to apply and
    the remedy is authoring, which belongs to §5.b. This is the
    distinction the two verdicts exist to carry, and routing them to
-   the same bucket would undo it.
+   the same bucket would undo it. A `gap` whose missing text a source
+   of the resolution chain dictates qualifies under criterion 7.
+7. **Answered by the resolution chain**: a `context/` rule, an ADR or
+   a base-standard clause says what right looks like, and the spec
+   can be made to say it without editing `context/`. The Citation is
+   that source.
 
 Hard cap: at most **5 Actionable TODOs per sidecar**. If more
-findings qualify, prioritise by leverage and route the rest to
-§5.b. The cap prevents destructive cascades where one TODO
-removes the anchor another TODO targets.
+findings qualify, prioritise by leverage and list the rest in a
+`#### 5.a Overflow (next pass)` table with the same columns. They stay
+the pipeline's — never route them to §5.b to respect the cap, which
+would hand a person work nobody has to decide. The cap prevents
+destructive cascades where one TODO removes the anchor another TODO
+targets.
 
 Format — one row per TODO:
 
@@ -306,9 +348,10 @@ Format — one row per TODO:
 |----|-------------|-----------|--------------|---------------|----------|
 
 The **Citation** column is MANDATORY for every row and MUST cite
-a real rule (DP-X / R-X.Y / IETF RFC reference / IAB document
-section). A row without a verifiable citation is invalid and
-MUST be moved to §5.b instead.
+a real source (DP-X / R-X.Y / ADR number / base-standard clause with
+the quoted sentence / IETF RFC reference / IAB document section). A
+row without a verifiable citation is invalid: run the resolution
+chain for it, and only if nothing answers it move it to §5.b.
 
 If a finding from §1 / §2 / §3 above qualifies for §5.a, it
 appears here AND a back-reference appears in its original section
@@ -316,30 +359,52 @@ appears here AND a back-reference appears in its original section
 
 #### 5.b Flagged for review (uncertain, refine-spec MUST NOT touch)
 
-Findings where the remedy is not unique, the fix would change the
-meaning of a requirement, or multiple resolutions have material
-trade-offs. Refine-spec leaves these alone; they surface on the
-owner's next review pass.
+Findings whose fix would change the meaning of a requirement, and
+for which the resolution chain found no source saying which meaning is
+right. Several spec-only remedies to choose from is **not** this
+bucket: that choice is the HOW, and it is `5.a`. Refine-spec leaves
+these alone; they surface on the owner's next review pass.
 
 Format — one row per flag:
 
-| #  | Finding ref | Spec section | Why uncertain | Resolutions considered |
-|----|-------------|--------------|---------------|------------------------|
+| #  | Finding ref | Spec section | Why uncertain | Resolutions considered | Recommended | Searched |
+|----|-------------|--------------|---------------|------------------------|-------------|----------|
 
 #### 5.c Deferred to `context/` (requirement-level changes)
 
 Findings that genuinely require editing `context/` — a gap in the
-requirements doc, a missing use case, a new architectural choice.
+requirements doc, a missing use case, a new architectural choice —
+and for which no source of the resolution chain dictates the edit.
 Refine-spec defers these; they wait for a major build (vN+1).
 
 Format — one row per deferral, ordered by leverage (top 3-5):
 
-| #  | Finding ref | `context/` file to edit | Suggested edit | Leverage rationale |
-|----|-------------|-------------------------|----------------|--------------------|
+| #  | Finding ref | `context/` file to edit | Suggested edit | Leverage rationale | Searched |
+|----|-------------|-------------------------|----------------|--------------------|----------|
 
-#### 5.d Routing rules (decision tree)
+#### 5.d `context/` change, predictable (the coordinator applies it)
 
-For each Gap / Edge case / Ambiguity, walk this tree IN ORDER:
+Findings whose fix requires editing `context/`, where a written
+decision already dictates the text — for instance a criterion that
+obliges a legacy Player to do something an ADR has since scoped out,
+or two `context/` passages of which one is superseded by a recorded
+decision. Nobody has to decide anything: the edit follows from the
+source. Refine-spec does not touch these (it never edits `context/`);
+the coordinator that ran the build applies the replacement text,
+relaunches, and informs the owner.
+
+Format — one row per change:
+
+| #  | Finding ref | `context/` file and passage | Replacement text | Source |
+|----|-------------|-----------------------------|------------------|--------|
+
+The **Source** column is MANDATORY: the ADR, `context/` rule or
+base-standard clause (with the quoted sentence) that dictates the
+replacement. A row whose source only *suggests* the edit is `5.c`.
+
+#### 5.e Routing rules (decision tree)
+
+For each item to route, walk this tree IN ORDER:
 
 1. Does the finding cite a DP-X / R-X.Y / IAB rule AND can the
    spec be edited to stop violating it without changing the rule
@@ -351,13 +416,21 @@ For each Gap / Edge case / Ambiguity, walk this tree IN ORDER:
 4. Is the finding a micro-consistency item from the
    `review-spec-details` taxonomy that slipped through? → **5.a**
    (criterion 4).
-5. Does the remedy require choosing between two or more
-   defensible interpretations? → **5.b**.
-6. Does the remedy require editing `context/`? → **5.c**.
+5. Does the fix leave `context/` untouched? → **5.a** (criteria 5-7):
+   the routing rule above, whatever the number of remedies.
+6. The fix requires editing `context/`. Run the resolution chain:
+   does a written source dictate the replacement text? → **5.d**.
+7. Does the remedy require choosing between two or more
+   defensible meanings of a requirement, with no source picking one?
+   → **5.b**, with a recommendation.
+8. Otherwise (a missing requirement, use case or architectural
+   choice) → **5.c**, with a suggested edit.
 
-If a finding is borderline between 5.a and 5.b, route to **5.b**.
-A false 5.b is cheaper than a wrong 5.a (mirrors the
-`review-spec-details` tie-breaker).
+A finding borderline between 5.a and 5.b is settled by the resolution
+chain, not by a default: a cited answer makes it 5.a. A false 5.b is
+not the cheap side — it stops the loop and spends a person's decision
+on a question already answered, while a wrong 5.a is an edit the next
+validation pass sees.
 
 ### Validation doc structure
 
@@ -379,6 +452,7 @@ Built against:
 ### 5.a Actionable TODOs (<count>)
 ### 5.b Flagged for review (<count>)
 ### 5.c Deferred to context/ (<count>)
+### 5.d context/ change, predictable (<count>)
 ```
 
 ### Tone
