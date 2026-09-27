@@ -387,8 +387,12 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
 
       - **exit 1 with `NEEDS_HUMAN>0`** — run 9.5a first, then read
         the check again and branch on its new result — without
-        running 9.5a a second time. Only if `NEEDS_HUMAN>0` still
-        holds, **break the loop** and reproduce the script's
+        running 9.5a a second time. If `NEEDS_HUMAN>0` still holds
+        but `PIPELINE>0` too, **continue the loop**: the pipeline's
+        items get fixed while the person's items wait, carried
+        unchanged into each new sidecar, and are not re-checked by 9.5a
+        again. Only when `NEEDS_HUMAN>0` and `PIPELINE=0`, **break the
+        loop** and reproduce the script's
         `Necesita a Nicolas` group verbatim in the Final summary,
         together with its `Lo aplica el coordinador` group if it has
         one. That short list is the reason this check exists: what
