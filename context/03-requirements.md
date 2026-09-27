@@ -65,7 +65,13 @@ concrete requirements that follow are constrained by them.
   subordinate always to one hard invariant: applying this
   specification MUST NEVER break primary-content playback, so when
   an opportunity cannot be honoured, graceful skip-and-continue is
-  mandatory. This invariant is not this specification's invention. The
+  mandatory. The first consequence: **an opportunity is given up only
+  after every way of filling it that the manifest declares has been
+  tried.** When one fails — the resolution yields nothing, or the
+  device can render none of its candidates — the next overlapping
+  window or the declared fallback is attempted (R20.1, R40.3) before
+  the Player continues with the primary content.
+  This invariant is not this specification's invention. The
   base specification states it for its own execution model — *"If no
   event can be successfully executed, the playback continues
   uninterrupted"* (§5.16.2.2.5), and *"A failed execution results in
