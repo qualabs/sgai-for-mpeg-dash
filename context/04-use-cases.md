@@ -1125,7 +1125,7 @@ canonical; they exercise R5 differently.
   images together with video, so: **satisfiable** (R27.3). The Player
   renders option 2. (Had option 2's full-frame ad creative been HTML,
   D4 — which cannot render HTML — would have skipped it and fallen to
-  option 4.)
+  option 3, the image banner overlay.)
 - **What the user sees:** same as D3 — the primary content shrinks into
   one region composited on top of the image ad creative that fills the
   whole frame (the L-shape / squeezeback).

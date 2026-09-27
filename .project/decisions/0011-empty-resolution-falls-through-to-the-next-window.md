@@ -124,3 +124,18 @@ paragraphs earlier, and an implementer would have to learn both.
   as open.
 - `context/03-requirements.md` — R20.1, R20.3, R30.
 - `context/04-use-cases.md` — UC-12.
+
+## Note — 2026-09-26
+
+The adjacent case the last consequence left undecided is now decided,
+by R1.5 rather than by a new decision: where the base standard answers,
+its answer takes precedence. §5.16.2.2.6 lists *"The playback of the
+alternative presentation cannot start"* among the conditions under
+which execution fails, and states that its reasons *"include (but are
+not limited to)"* the ones it names, so the condition is not only media
+availability after the merge. A resolution document whose candidates
+the device can render none of is a failed execution, and the Player
+attempts the next overlapping window. For the non-linear families the
+same rule is extended, for the reason this record gives for rejecting a
+linear-only rule. It is written in `context/03-requirements.md`, R5.3,
+R5.7, R20.1 (last paragraph) and R20.4.
