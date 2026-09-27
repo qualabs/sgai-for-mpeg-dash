@@ -81,7 +81,7 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-06 Multi-ad break | Verification | full sequence | full sequence | full sequence on single decoder | full sequence on single decoder | full sequence on single decoder |
 | UC-07 Legacy Player encounters new constructs | Cross-cutting | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) | primary continues (legacy) |
 | UC-11 ClickThrough | Interaction | reads carrier, fires click on activation | same | same | same | same |
-| UC-12 Overlapping same-family windows + fallback | Selection | first window wins; the next window is attempted whenever an attempt produces no ad, including a document with no candidates | same | same | same | same |
+| UC-12 Overlapping same-family windows + fallback | Selection | first window wins; the next window is attempted whenever an attempt produces no ad, including a document with no candidates or with none the device can render | same | same | same | same |
 | UC-03 Coexisting overlay | Non-linear | highest-fidelity overlay | video overlay or side-by-side (if allowed) or skip | HTML or image overlay | image overlay | skip (graceful) |
 | UC-05 Pause-triggered ad | Action-triggered | rich pause overlay | video pause overlay (if video form available) or skip | HTML or image pause overlay | image pause overlay | skip (graceful) |
 | UC-04 Hybrid linear + overlay | Mixed | linear + overlay | linear + video overlay (if video form available) or linear only | linear + image/HTML overlay on top | linear + image overlay on top (HTML declined) | linear only (overlay skipped) |
@@ -1395,11 +1395,25 @@ after a transport failure.
      opportunity and continues with the primary content: applying this
      specification never breaks primary-content playback, and an
      opportunity that cannot be honoured is skipped (DP-3).
+  4. The first window answers with a document whose only candidate is a
+     video overlay, and the second with one carrying an image overlay.
+     A device that can render the video overlay serves the first
+     window. A device that cannot render any candidate of the first
+     document has not produced an ad either: that attempt is a failed
+     execution too (R5.3, R20.1; *"The playback of the alternative
+     presentation cannot start"*, §5.16.2.2.6), so it attempts the
+     second window and the viewer sees the image overlay. The
+     opportunity is given up only after both were tried (DP-3).
 
-**Device classes:** this is window selection, not rendering, so it is
-largely device-agnostic. D1–D5 select and fall back identically; the
-device class affects only how the forms inside the chosen window render
-(per UC-03), not which window is chosen.
+**Device classes:** window selection itself is device-agnostic: D1–D5
+select and fall back identically. The device class decides which
+candidates are renderable, and therefore, in path 4, whether the first
+window produces an ad or the Player falls through to the second. D1
+and D2, which can composite a second video, serve the first window's
+video overlay. D3 and D4, with a single decoder but able to render
+images over video, cannot render the first window's only candidate and
+serve the second window's image overlay. D5 can render neither, so both
+attempts fail and it continues with the primary content.
 
 ### UC-13 — One ad, Player-declared capabilities, resolved by the APS to a single option
 
