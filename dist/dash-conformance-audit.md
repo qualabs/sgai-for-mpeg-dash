@@ -1,433 +1,242 @@
 [GROUNDED_BY=iso-23009-1-2026-pdf]
 
-# DASH conformance audit — v7.2 (2026-09-16)
+# DASH conformance audit — v12.6 (2026-09-27)
 
-**Audit target**: `output/v7.2-sgai-spec.md` (4802 lines; chapters 1–8,
-Annexes A–N, trailing `## Refinement gaps` table).
-**Reference**: MPEG-DASH 6th edition — ISO/IEC 23009-1:2026(en), Sixth
-edition 2026-07, read from the primary copy on disk
-(`sandbox/vertex-rag/ISO_IEC_23009-1_2026(en) (1).pdf`), extracted
-read-only with `pdftotext -layout`.
-**Method**: construct inventory + clause-by-clause grounding against the
-published standard + per-construct verdict.
+**Audit target**: `../output/v12.6-sgai-spec.md`.
+**Reference**: the edition declared in
+`../context/00-normative-base.md` (ISO/IEC 23009-1:2026, sixth edition).
+**Method**: inventory + clause searches against the primary copy +
+per-construct verdict.
+
+The key words MUST, SHOULD and MAY in suggested fixes are used as in
+IETF RFC 2119.
 
 ## Scope
 
-Every construct the spec introduces or modifies relative to the base
-specification: scheme and profile URIs, foreign-namespace elements and
-their placement, attributes narrowed or reused from baseline types, the
-two resolution-document shapes, the two cross-namespace nestings, the
-reserved query parameters, and the one declared divergence from the
-baseline execution model. Design quality is out of scope — this is
-conformance to ISO/IEC 23009-1:2026 only.
+This audit covers every construct v12.6 introduces or modifies in a DASH
+document, and the inherited base constructs whose semantics v12.6 restates
+or constrains: the two window schemes and their child elements and
+attributes, the List MPD additions, the empty linear resolution, the
+sub-MPDs, both tracking carriers, the standalone `<svta:OverlayList>` and its
+schema, the request-parameter rules, the profile declarations, the
+pause-delivery `Metrics` request, and the Player rules that restate the base
+Alternative-MPD processing model. Design quality is out of scope.
+
+No audit was produced for v12.5, so this one covers the two incremental
+steps since v12.4 together. v12.5 reverses PLY-41: a resolution document
+whose candidates the device can render none of is now a failed execution in
+every family, grounded for the linear family on §5.16.2.2.6 (§3.1, §4.5.6,
+§6.3, §6.5, §7.12, §8.1, §8.2, C.6, L.7, R.2.4, R.6); §8.13 item 14 is
+removed. v12.5 also rewrites PLY-20 and PLY-86 so that an attempt which ends
+with no candidate rendered returns to the fallback chain (DP-3; §1.4, §4.1,
+§4.5.3, §4.5.17, §8.2 E7/E8/E11, §8.3). v12.6 reshapes §7.12 path 4, Annex
+L.7 and L.8 to UC-12 and adds one `<svta:OverlayList>` example in L.7. No
+DASH construct is added or removed. K-1 to K-36 keep their constructs; K-37
+is the PLY-86 rule as rewritten in v12.5.
 
 ## Method summary
 
-- Inventory built from §2.1, §4.7.1, §4.7.3, §5.1–§5.8, and every XML
-  example in Annexes A–M.
-- Grounded against the primary copy. NotebookLM was **not** queried:
-  `the notebooklm skill's ask_question.py:176` sets
-  `deadline = time.time() + 120`, a 2-minute cap against answers that
-  take 3–6 minutes, so the tool returns `None` on essentially every
-  call. The PDF is the primary source the notebook is a RAG derivative
-  of, so nothing is lost; no verdict below is tagged `[fetch-failed]`.
-- Each construct assessed Conforming / Marginal / Non-conforming.
+- **Inventory.** Carried from the v12.4 audit and re-checked against the
+  full `diff` of v12.4 and v12.6 (243 lines), read line by line, together
+  with `v12.5-context-delta.md` and `v12.6-context-delta.md`. The §8.13 item
+  numbers the verdicts cite (1, 9, 10, 11, 12) are unchanged; item 14 is gone.
+- **Primary copy.** The PDF whose SHA-256 equals `primary_copy.sha256`
+  (`a7274eb2…be100`); `bin/check-normative-base.py` exited 0. Extracted once
+  with `pdftotext -layout` into a private RAM directory. The licence header
+  and footer lines were stripped before any search; a grep for them
+  afterwards returned 0 (the same grep on the unstripped extraction returned
+  1152). Whitespace was flattened so that phrases spanning line breaks match.
+- **Quotations.** A script extracted the 99 distinct italic quotations of
+  v12.6, split them at ellipses, and looked each fragment up in the
+  flattened text with case, quotes and dashes normalised. A known-present
+  phrase (*"The queue is empty"*) matched and an invented one did not. 98
+  matched. The other is the `@skipAfter` sentence of Table 63, split in the
+  extraction by the table's *Default* column, as in v12.4. Against v12.4 one
+  quotation is added and one removed: PLY-41 now quotes *"The reasons for
+  this include (but are not limited to)"*, the longer form of the fragment
+  §8.13 item 14 quoted.
+- **Clause searches for the changed rules.** Six, each quoted below:
+  the §5.16.2.2.6 failure conditions and their open list of reasons; the
+  §5.16.2.2.5 step 2 b to d queue processing; the E.c definition (Table 58);
+  the NOTE 2 sentence PLY-86 quotes; the §5.16.2.2.7 playhead reset; and a
+  search for any base rule on a failure after alternative playback has
+  started (`execution succeed`, `successful execution`, `successfully
+  executed`, `(error|fail) during playback of the alternative`), which
+  found the step 2 c and dual-client sentences and no such rule.
+- **Structural checks.** v12.6 has 84 `xml` blocks: the 83 of v12.4
+  byte-identical, plus the new L.7 document. All 84 parse as well-formed; a
+  malformed control document was rejected. The new document was checked by
+  hand against the §5.10.1 schema: `family` (required, `FamilyType`
+  `overlay`), `dismissAfter`, one `Ad` with one `RenderableAsset` carrying the
+  three required attributes, `layout` a `LayoutTokenType` value.
+- Each construct is assessed Conforming / Marginal / Non-conforming.
 
 ## Inventory + verdicts
 
 | ID | Construct | Type | Placement | Verdict | Rationale |
 |----|-----------|------|-----------|---------|-----------|
-| C01 | `urn:svta:dash:sgai:2026` | XML namespace | extension namespace | Conforming | §5.2.1: foreign-namespace elements admitted; every DASH complex type used here ends its `xs:sequence` with `<xs:any namespace="##other" processContents="lax"/>`. |
-| C02 | `urn:svta:dash:event:sgai-overlay:2026` | `EventStream@schemeIdUri` | `<Period>` child, main MPD | Conforming | §5.10.2.1: "It is up to the application that employs DASH formats to instantiate the description elements with appropriate scheme information." Per-scheme skip is the baseline behaviour. |
-| C03 | `urn:svta:dash:event:sgai-pause-trigger:2026` | `EventStream@schemeIdUri` | `<Period>` child, main MPD | Conforming | Same as C02. |
-| C04 | `urn:svta:dash:profile:sgai-overlay-list:2026` | `MPD@profiles` | resolution document | Conforming | §8.1: external parties may define Interoperability Points signalled in `@profiles`; identifier carries no comma. |
-| C05 | `<svta:OverlayPresentation>` | element | `<Event>` child | Conforming | `EventType`'s sequence ends with `<xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>` (§5.10.2.3). Sole child, so sequence order is satisfied. |
-| C06 | `<svta:PauseAdPresentation>` | element | `<Event>` child | Conforming | Same as C05. |
-| C07 | `@allowedLayouts` whitespace token list | attribute | on C05 / C06 | Conforming | Foreign-namespace attribute on a foreign-namespace element; encoding mirrors the base spec's own `StringVectorType` usage. |
-| C08 | `@maxDuration` on C05 / C06 | attribute | on C05 / C06 | Conforming | Name/units/termination semantics copied from Table 63 (`@maxDuration`, units of `EventStream@timescale`, terminate at the cap). Foreign namespace, so no baseline type is altered. |
-| C09 | `@earliestResolutionTimeOffset` on C05 / C06 | attribute | on C05 / C06 | Conforming | Table 63 default "60 seconds in units of timescale" restated correctly; §5.1.1's note that the XSD in §5.16.6 carries **no** schema default is exact (`<xs:attribute name="earliestResolutionTimeOffset" type="xs:unsignedLong"/>`). |
-| C10 | `@executeOnce` on C05 / C06 | attribute | on C05 / C06 | Conforming | Type and default match §5.16.6 (`xs:boolean`, `false`). |
-| C11 | `<InsertPresentation>` reuse (§5.1.1) | baseline element | `<Event>` child | Conforming | All seven attributes, types and defaults match §5.16.6 verbatim, including `maxDuration` default `2251799813685247`. §5.16.3's "shall not appear if the MPD type is 'dynamic'" is carried; the single `type="dynamic"` example (Annex B.2) uses `<ReplacePresentation>`. |
-| C12 | `<ReplacePresentation>` reuse (§5.1.2) | baseline element | `<Event>` child | Conforming | `@returnOffset` / `@clip` / `@startWithOffset` match `AlternativeMPDReplaceEventType`; §5.1.2 defers all conditional restrictions of §5.16.4 and §5.16.5.2 unchanged. |
-| C13 | Hybrid slot: two `<Event>`s at one `presentationTime` (§5.1.5) | authoring shape | two `<EventStream>`s, different schemes | Conforming | Distinct `@schemeIdUri` values, so §5.10.2.1's one-stream-per-(scheme,value) rule is satisfied. |
-| C14 | Overlapping same-family windows as two `<EventStream>`s (Annex L.2) | authoring shape | one `<Period>` | **Non-conforming** | See NC1. |
-| C15 | `@value` value space for C02 / C03 | scheme definition | — | **Marginal** | See M5. |
-| C16 | `ListMPD` reuse (§5.2.1) | resolution document | — | Conforming | §8.14 items 1–5 all honoured: `@type="list"`, profile URN in `@profiles`, no XLink, Linked Periods via `<ImportedMPD>`, no Alternative MPD events. |
-| C17 | `<ImportedMPD>` in a `ListMPD` `<Period>` (§5.2.1.3) | baseline element | `<Period>` child | Conforming | `ImportedMpdType` is `xs:extension base="xs:anyURI"` with `@earliestResolutionTimeOffset` `xs:double` default `60.0` — §5.2.1.3 restates it exactly, including the seconds-vs-timescale unit note. |
-| C18 | Empty `ListMPD` no-fill shape (§5.2.3) | document shape | — | Conforming *as a document* | `Period` `minOccurs` defaults to 1 in `MPDtype`, so zero Periods would not validate; Table 4's "At least one Adaptation Set shall be present in each Period unless the value of the `@duration` attribute of the Period is set to zero" licenses the `PT0S` Period. §8.1's at-least-one-Representation-per-Period rule sits on the **Media Presentation** ladder, not the MPD ladder, which is the distinction §5.2.2.1 draws. (Its *runtime treatment* is NC2.) |
-| C19 | Overlay Resolution Document shape (§5.2.2.1) | document shape | — | Conforming | Same Table-4 zero-duration licence; `@profiles` and `@minBufferTime` are `use="required"` in `MPDtype` and both are declared; `@mediaPresentationDuration` is optional in the base and declared unconditionally here, which §8.1 permits (a profile adds constraints). |
-| C20 | `<svta:OverlayList>` | element | `<Period>` child | Conforming | `PeriodType`'s sequence ends with `<xs:any namespace="##other" processContents="lax"/>`; it is the Period's only child in every example, so sequence position holds. |
-| C21 | `<svta:Candidate>` | element | `<svta:OverlayList>` child | Conforming | Inside a foreign subtree; content model is this specification's to define. |
-| C22 | `<svta:RenderableAsset>` (`@form`, `@layout`, `@assetUrl`) | element | `<svta:Candidate>` child | Conforming | Same as C21. Keeping image/HTML URLs off `@mimeType` is required, not optional: §7.3 "The `@mimeType` attribute of each Representation shall be provided according to IETF RFC 4337", inherited by §8.15 via its "The rules for the MPD as defined in subclause 7.3 shall apply". |
-| C23 | `<svta:BackgroundElement>` | element | `<svta:RenderableAsset>` child | Conforming | Same as C21. |
-| C24 | `<ImportedMPD>` inside `<svta:RenderableAsset>` (§5.3.4) | core-ns element in foreign parent | `<svta:RenderableAsset>` child | **Marginal** | See M2. |
-| C25 | Callback `<EventStream>` inside `<svta:Candidate>` (§5.5.2) | core-ns element in foreign parent | `<svta:Candidate>` child | **Marginal** | See M1. |
-| C26 | Callback `<EventStream>` in a sub-MPD `<Period>` (§5.5.2) | baseline placement | `<Period>` child | Conforming | Table 4 `Period.EventStream 0...N`; Table 47 fixes `EventStream@schemeIdUri` and `EventStream@value = 1`, both declared in every example. |
-| C27 | `<Event>@id` narrowed optional → required (§5.5.1) | attribute narrowing | callback `<Event>` | Conforming | Table 44 has `@id` as `O` with type `xs:unsignedLong` (§5.10.2.3). Narrowing to required adds a constraint. All 51 `@id` values on `<Event>` elements in the document's examples are numeric — checked exhaustively (`grep -oP '<Event\s[^>]*\bid="\K[^"]*' | grep -vcE '^[0-9]+$'` → `0`). |
-| C28 | `EventStream@value` narrowed to required (§5.5.1) | attribute narrowing | callback `<EventStream>` | Conforming | Table 47 fixes the value to `1`; making its presence mandatory adds a constraint. |
-| C29 | Callback beacon timebase relative to the ad's own presentation (§5.5.3) | semantics | callback `<Event>` | Conforming | §5.10.4.5.3 leaves the `Event` value space to the scheme user; §5.10.2.1 anchors `@presentationTime` to the start of the Period, which inside a sub-MPD *is* the ad's own origin. |
-| C30 | `<svta:Click>` as `<svta:Candidate>` child (§5.6.1) | element | `<svta:Candidate>` child | Conforming | Inside a foreign subtree; the SGAI profile URI declares the namespace, so §8.1 step 4 retains it. |
-| C31 | `<svta:Click>` as a `ListMPD` `<Period>` child (§5.6) | element | `<Period>` child | **Marginal** | See M4. |
-| C32 | `<svta:ClickTracking>` | element | `<svta:Click>` child | Conforming | Same as C30. |
-| C33 | `<svta:AdSystem>`, `<svta:AdTitle>`, `<svta:Advertiser>`, `<svta:UniversalAdId>` | elements | `<svta:Candidate>` children | Conforming | Same as C30; no Player behaviour depends on them. |
-| C34 | Sub-MPD bound to Single-Period Static (§5.4) | profile binding | imported document | Conforming | §5.3.2.6.1: "MPDs referenced in the `ImportedMPD` element shall be restricted to the constraints of a single period profile as defined in 8.15." §8.15.2 forbids `MPD@mediaPresentationDuration` and `MPD@availabilityStartTime` and requires `@type="static"` with one `<Period>` carrying `@duration` — Annexes A.5 and C.5 satisfy all four. |
-| C35 | Reserved capability query parameters (§5.8.2) | HTTP query parameters | resolution request URL | Conforming | Not an MPD construct; the base specification constrains nothing on a URL the content author supplied. §5.8.3's `x-<vendor>-` prefix rule keeps the reserved space clean. |
-| C36 | `<EssentialProperty schemeIdUri="urn:mpeg:dash:urlparam:2025"/>` placement (§5.8.1) | baseline descriptor | `<MPD>` child, after the last `</Period>` | Conforming | Annex I.3.1: "An `MPD.EssentialProperty` element with the attribute `@schemeIdUri` having value of `urn:mpeg:dash:urlparam:2025` shall be present and have no content." `MPDtype`'s `xs:sequence` places `EssentialProperty` after `Period`, so the post-Period position is the only valid one — and it is what the examples do. |
-| C37 | `<RequestParam>` inside the slot's `<EventStream>` (§5.8.1) | baseline element | `<EventStream>` child | Conforming | Annex I.3.1: "The `RequestParam` element(s) may be present in elements such as but not limited to MPD, Period, AdaptationSet, Representation, Preselection, or **EventStream**." `EventStreamType`'s sequence is `Event, BaseURL, RequestParam, …`, and the examples place it after the `<Event>`. `@includeInRequests` is "a white spaced concatenated list of keys defined in I.3.6" ✓. |
-| C38 | `@includeInRequests="altmpd"` scoping (§5.8.1) | request-type key | `<RequestParam>` | **Marginal** | See M3. |
-| C39 | `$urn:mpeg:dash:state:video$`, `$urn:mpeg:dash:state:cmcd#sid$` | state vocabulary | `@queryTemplate` | Conforming | Both suffixes are in Table I.5 (`video`; `cmcd#[key]`). |
-| C40 | §4.7.1 "removes the **entire** XML node including its subtree" | document-level conformance claim | — | **Marginal** | See M6. |
-| C41 | §2 clause table listing base Annex F under "Clauses referenced normatively"; DR-4 | citation | — | **Marginal** | See M7. |
-| C42 | §4.6.8 narrowing of the §5.16.2.2.6 fall-through condition | execution-model divergence | inherited linear schemes | **Non-conforming** | See NC2. |
-| C43 | §4.6.9 live pause-ad freeze bounded by `MPD@timeShiftBufferDepth` | Player behaviour | — | Conforming | §5.16.2.2.6 step 5: on live, the resumption point "is 'trimmed' such that it occurs at live edge if it is in the future, or at the earliest available media segment if it is earlier than the timeshift buffer start" — the spec's ceiling is that rule, not a new one. |
-| C44 | §4.6.12 rendering the ad at the primary content's playback speed | Player behaviour | — | Conforming | The base specification places no rate constraint on an alternative presentation; `@maxPlayoutRate` (§5.3.7.2) scopes trick-play decoding, not ad playout. |
+| K-1 | Namespace `urn:svta:dash:sgai:2026` | Extension namespace | Elements and attributes in MPDs, List MPDs, standalone document | Conforming | §5.2.1: *"the MPD shall be authored such that, after XML attributes or elements in the other namespaces than the DASH namespace are removed, the result is a valid XML document formatted according to that schema and that conforms to this document."* Every MPD example stays valid after removal (Annex G.3 shows it). |
+| K-2 | Scheme `urn:svta:dash:sgai-overlay:2026` | Event scheme | `Period/EventStream@schemeIdUri` | Conforming | An application scheme. §5.10.1 lets a client *"subscribe to an Event Stream of interest and ignore Event Streams that are of no relevance or interest."* See K-35 for the URN form. |
+| K-3 | Scheme `urn:svta:dash:sgai-pause-trigger:2026` | Event scheme | `Period/EventStream@schemeIdUri` | Conforming | As K-2. A trigger shaped as a span is scheme semantics: Table 44 says of `@duration` that *"The interpretation of the value of this attribute is defined by the scheme owner"*. |
+| K-4 | `EventStream`/`Event` used for windows (§5.1.3) | Base element usage | `Period` | Conforming | One stream per family and no `@value` fits *"A Period shall contain at most one EventStream element with the same value of the @schemeIdUri attribute and the value of the @value attribute"* (§5.10.2.1). A unique `Event@id` fits *"Each EventStream element shall not contain two Event elements with the same value of Event@id"* (Table 44). The §5.1.3 types match `EventType`. `EventStreamType` has no `xs:anyAttribute`, and no example puts a foreign attribute on it. |
+| K-5 | `<svta:OverlayPresentation>` | Foreign element | Child of `Event` | Conforming | `EventType` ends its sequence with `<xs:any namespace="##other" processContents="lax" …/>`. Table 44: *"XML content, possibly using elements external to the MPD namespace"*. |
+| K-6 | `<svta:PauseAdPresentation>` | Foreign element | Child of `Event` | Conforming | As K-5. |
+| K-7 | `@durationCap` | Attribute (own name) | On K-5/K-6 | Conforming | A new name, so the base `@maxDuration` default (*"If absent, the value is assumed to be infinity"*, Table 63) is not inherited. The attribute is required on a pause window and bounds nothing there (§4.5.4, PLY-24, PLY-32, the §5.1.4 attribute table, and in v12.4 also §7 and Annex E.7). An own attribute with no semantics on one family breaks no base rule. |
+| K-8 | `@earliestResolutionTimeOffset` on windows | Attribute (reused name) | On K-5/K-6 | Conforming | Name, units, type (`xs:unsignedLong`, as in `AlternativeMPDEventType`) and default match Table 63: *"The default is 60 seconds in units of timescale"*. |
+| K-9 | `@executeOnce` on the pause window | Attribute (reused name) | On K-6 | Conforming | It reuses the E.c rule (*"Execution counter (number of times alternative MPD playback successfully started)"*, §5.16.2.2.2; §5.16.2.2.6 NOTE 3), with the base type and default. |
+| K-10 | `@allowedLayouts`, `@customRegion` | Attributes (own) | On K-5 (K-6 for `@allowedLayouts`) | Conforming | Attributes of an extension-namespace element, with their own list types. The base describes its list attributes as *"whitespace-separated list"* (`@dependencyId`). |
+| K-11 | `@linearRelation` (`supersede`, `on-top`) | Attribute (own) | On K-5/K-6 | Conforming | The departure `supersede` makes (PLY-48) from *"a set of normative conditions which hold for any sequence of Alternative MPD events"* (§5.16.2.2.1) is declared in §4.8.3, and the MPD author opts into it. A legacy Player executes the base event unchanged. |
+| K-12 | Dispatch mode of the two window schemes | Scheme definition | §5.1.3/§5.1.4 | Conforming | Both declared on-receive, as the base schemes: *"The dispatch mode of this event scheme is "on-receive""* (§5.16.3, §5.16.4). A.13.7 (informative) gives the on-receive reading of `@duration`. |
+| K-13 | Inherited `InsertPresentation` (§5.1.1) | Base event | `Event` of `…:insert:2025` | Conforming | Attribute types match `AlternativeMPDEventType`. *"The event shall not appear if the MPD type is "dynamic""* (§5.16.3), and `Event@status` is not used; both hold in every example. |
+| K-14 | Inherited `ReplacePresentation` (§5.1.2) | Base event | `Event` of `…:replace:2025` | Conforming | *"This attribute shall not be present if the @maxDuration attribute is absent"* (Table 62, `@clip`) holds in every example. |
+| K-15 | List MPD shape (§5.2.1, Annexes A/B/D/F/G/K) | Base document | `MPD@type="list"` | Conforming | The §8.14 rules hold. `ImportedMPD` is first in `PeriodType` and `ServiceDescription` follows `EventStream`. `ImportedMpdType` has `earliestResolutionTimeOffset` `xs:double`, default 60.0. `ServiceDescription` survives the merge (§5.3.2.6.3 step 3 b iv). |
+| K-16 | `<svta:ClickThrough>`, `<svta:AdSystem>`, `<svta:AdTitle>`, `<svta:Advertiser>` in a List MPD | Foreign elements | Children of a candidate `Period` | Conforming | `PeriodType` ends in `xs:any ##other`, and the merge keeps them: *"ix) any elements from a different namespace"* (§5.3.2.6.3, step 3 b). |
+| K-17 | Empty linear resolution (§5.2.3) | Base document shape | List MPD, one `Period duration="PT0S"`, no children | **Marginal** | See detail. §8.13 item 9 cites the governing condition; the List-profile question remains. |
+| K-18 | SPS sub-MPD (§5.4) | Base document | Target of `ImportedMPD` / `@src` | Conforming | *"MPDs referenced in the ImportedMPD element shall be restricted to the constraints of a single period profile as defined in 8.15"* (§5.3.2.6.1). Every sub-MPD example satisfies §8.15.2. |
+| K-19 | Sub-MPD `@profiles` = SPS **and** `isoff-live:2011` | Profile declaration | Sub-MPD root | Conforming | §4.8.5 states the consequence: *"The information in the @profiles parameters is merged into the MPD@profiles attribute"* (§5.3.2.6.3 step 3 a i), and under that profile *"The elements and attributes listed in subclause 5.2.3.2 may be ignored"* (§8.4.2), a list that contains `Period.EventStream`. |
+| K-20 | Callback tracking in the sub-MPD (§5.5.1) | Base scheme reuse | `Period/EventStream` of the sub-MPD | Conforming | Table 47 gives `EventStream@value` `1`. The imported stream overrides the Linked Period's (step 3 c iv, *"EventStream@schemeIdUri and EventStream@value"*). Unique beacon numbering fits the Table 44 `@id` scope. |
+| K-21 | `<svta:Tracking>` of type `dash:EventStreamType` (§5.5.2) | Foreign element reusing a base type | Child of `<svta:Ad>` | Conforming | The schema reuse is valid (K-31). §5.5.2 re-anchors the timebase, the `@id` scope and the no-duplicate-`@id` rule as this specification's own. The sentence that the one candidate-level carrier reuses the callback scheme and `EventStreamType` whole is consistent with it. |
+| K-22 | `<svta:OverlayList>` standalone document (§5.2.2) | New document type | HTTP response to a window `@uri` | Conforming | Not an MPD, and no document a legacy Player reads refers to it, so neither `MPDtype`'s required `profiles` nor the List-profile binding applies. Whether it counts as an extension point is a project reading (§8.13 item 10), not a base rule. |
+| K-23 | `<svta:Ad>`, `<svta:RenderableAsset>` (non-AV carrier) | Foreign elements | In K-22 | Conforming | No image or HTML asset reaches an `AdaptationSet`/`Representation`, so §7.3.1 and §8.12.4.3 (*"The @mimeType shall be set to "<contentType>/mp4""*) are respected. The v12.4 rule that a scripted creative is wrapped in an HTML document and carried as `text/html` (§3.5, §5.2.2) keeps it on this side. |
+| K-24 | Video option referencing an SPS MPD by `@src` | Reference to a base document | `<svta:RenderableAsset>` | Conforming | An ordinary §8.15 MPD. `ImportedMPD` is not used outside a Period. |
+| K-25 | `@family`, `@dismissAfter`, `@validFor`, `@onExhausted` | Attributes (own) | On K-22 | Conforming | Extension-namespace document. `@dismissAfter` does not reuse `@skipAfter`, whose default is PT0S (Table 63). |
+| K-26 | Reserved query parameters `sgai-*` (§5.8) | Request parameters | Query of a window `@uri` | Conforming | Not an MPD construct; Annex I.3 is not used for windows. §8.13.2.7 names *"callback, altmpd and mpdlink"* for `@includeInRequests`. |
+| K-27 | `RequestParam` on inherited linear events (PUB-18) | Base mechanism usage | `EventStream`/MPD of the main MPD | Conforming | *"This extended scheme is signalled through the use of EssentialProperty or SupplementalProperty descriptors"* (I.3.1). §8.13.2.4 permits `RequestParam` with `altmpd` in an `EventStream` of Alternative MPD events. |
+| K-28 | Main MPDs under `isoff-live:2011` (§4.8.5) | Profile declaration | Main MPD root | Conforming | §8.4.2: *"The elements and attributes listed in subclause 5.2.3.2 may be ignored."* The spec states the consequence. |
+| K-29 | SGAI event streams in an Advanced Linear MPD | Profile interaction | Main MPD | **Marginal** | See detail. Recorded in §8.13 item 1. |
+| K-30 | `Metrics metrics="PlayList"` + `Reporting` (§5.9, PUB-13) | Base element usage | MPD level, after `Period` | Conforming | `Metrics` follows `Period` in `MPDtype`; *"No reporting scheme is specified in this document"* (§5.9.4); kept out of sub-MPDs (§8.15.2). |
+| K-31 | Schema of §5.10.1 | XML Schema | Extension namespace | Conforming | Imports `DASH-MPD.xsd`; valid XSD 1.0 simple types; `##other` wildcards with no Unique Particle Attribution conflict; `Event` children of `<svta:Tracking>` are DASH-namespace (`elementFormDefault="qualified"`), and every example declares it. Unchanged since v12.2. |
+| K-32 | `PercentRectType` / SRD notation | Notation reuse | `@customRegion`, `@rect` | Conforming | Only the notation is reused (*"the x-axis is oriented from left to right"*, H.2.2). SRD placement (H.1) is untouched. |
+| K-33 | Fallback, failed execution, E.c (PLY-38, -39, -40, -44) | Player restatement of the base model | §4.5.6 | Conforming | These quote §5.16.2.2.5 step 2 d, §5.16.2.2.6 and NOTE 3 verbatim, and the PLY-39 table maps each of the four ways the resolution itself can fail to a §5.16.2.2.6 condition (reworded in v12.5, same mapping). The tie-break by document order is an addition to a queue *"ordered by the presentation time PRT"* (§5.16.2.2.2). |
+| K-34 | Drop-before-play of a List MPD Period (PLY-35) | Player rule on an inherited event | §4.5.5 | **Marginal** | See detail. §8.13 item 11; refinement gap 2 (validation F-2). |
+| K-35 | URN form `urn:svta:…` of the three URIs of §2.1 | URI syntax | Scheme and namespace identifiers | **Marginal** | See detail. §8.13 item 12. |
+| K-36 | PLY-41 applied to a linear resolution document (§4.5.6) | Player rule on an inherited event | §4.5.6 | Conforming | v12.5 makes a document with no candidate the device can render a failed execution under PLY-38 in every family. On the linear family that is the base: *"The playback of the alternative presentation cannot start. The reasons for this include (but are not limited to) the following"*, among them *"Alternative MPD is a List MPD, and merge process resulted in no available media"* (§5.16.2.2.6), followed by *"If execution fails, steps a-c above are repeated for next events in QE"* (§5.16.2.2.5 step 2 d). §6.5, §7.12 path 4, §8.2 E7, C.6, L.7 and R-PLY-20 follow it. DOC-3 and §4.8.3 (one departure, PLY-48) are consistent with it again. |
+| K-37 | PLY-86 / E11: a runtime failure that leaves "no candidate rendered" returns to the fallback chain (§4.5.17, §8.2, §8.3) | Player rule on an inherited event | §4.5.17 | **Marginal** | See detail. Conforming on the linear family only if "rendered" means that playback of the candidate started. |
 
-## Grounding findings (highlights)
+## Base-standard findings (highlights)
 
-- **`EventStream` placement.** `name="EventStream"` occurs exactly once
-  in the schema, inside `<xs:complexType name="PeriodType">`;
-  `MPDtype` has no `EventStream` particle. §5.5.2's note that the base
-  specification places `<EventStream>` "only as a child of `<Period>`"
-  is exact.
-- **Foreign-namespace admission is structural, not a favour.** Every
-  type the spec hangs an `svta:` element off — `MPDtype`, `PeriodType`,
-  `EventType`, `EventStreamType`, `AlternativeMPDEventType` — closes its
-  `xs:sequence` with `<xs:any namespace="##other" processContents="lax"
-  minOccurs="0" maxOccurs="unbounded"/>`. Position matters: a foreign
-  element must follow every named particle of its parent, which every
-  example satisfies.
-- **The closed media axis is doubly bound.** §7.3's RFC 4337 rule
-  reaches the sub-MPD through §8.15.2 ("The rules for the MPD as defined
-  in subclause 7.3 shall apply") and reaches an inline List-MPD
-  `AdaptationSet` through §8.14's "extension of the ISO-BMFF CMAF
-  Profile". §4.7.2's two-reason argument holds on both legs.
-- **The `EssentialProperty` termination risk is real and correctly
-  cited.** §5.8.4.8 NOTE 1: "If the scheme or the value for this
-  descriptor is not recognized, the DASH Client is expected to ignore
-  the parent element". NOTE 2: "In the case when none of the
-  `EssentialProperty` elements sharing the same `@id` can be
-  successfully processed, the DASH Client is expected to terminate the
-  media presentation." §4.7.3's last row and its bounding paragraph
-  reproduce both accurately.
-- **`urn:mpeg:dash:fallback:2016` is §5.11.3.** The base specification's
-  own URI index (Table 1) says 5.11.2, but 5.11.2 is "Regular Chaining"
-  and 5.11.3 is "Fallback Chaining". The spec's §5.11.3 citation is
-  right and the base spec's index is wrong. Its quoted ordering rule —
-  "the content author expresses the preferences of using one of those by
-  the order with the first one having the highest preference" — is
-  verbatim.
-- **The base spec's fall-through conditions are three, not two.**
-  §5.16.2.2.6: execution fails if "APDA is determined to be 0", or
-  `@executeOnce` is true with `E.c > 0`, or "the playback of the
-  alternative presentation cannot start", whose enumerated reasons
-  include "Alternative MPD is a List MPD, and merge process resulted in
-  no available media". The empty `ListMPD` of §5.2.3 trips the first
-  **and** the last.
+- **Failed execution.** *"Execution fails if at least one of the conditions
+  below is true at PRTA"*; one is *"The playback of the alternative
+  presentation cannot start"*, whose reasons *"include (but are not limited
+  to)"* *"Media playback is impossible due to missing media or
+  initialization segments"* (§5.16.2.2.6). The conditions are evaluated at
+  PRTA.
+- **After a successful start.** *"If execution succeeds, processing stops
+  here"* (§5.16.2.2.5 step 2 c), and E.c counts *"number of times
+  alternative MPD playback successfully started"* (Table 58). No clause
+  found returns the Player to QE because an alternative presentation that
+  started then failed.
+- **Extension points and profiles.** Unchanged from v12.4: `EventType`,
+  `PeriodType` and `EventStreamType` admit `xs:any ##other`; the List profile
+  *"is an extension of the ISO-BMFF CMAF Profile"* (§8.14); §8.13.2.2 names
+  Alternative MPD and Callback schemes for Advanced Linear `EventStream`s.
 
 ## Non-conforming items detail
 
-### NC1 — Annex L.2 declares two `<EventStream>`s of the same scheme in one `<Period>`
-
-**Where**: `output/v7.2-sgai-spec.md` Annex L.2 (lines 4385–4419).
-**Base clause**: §5.10.2.1.
-
-> A Period shall contain at most one EventStream element with the same
-> value of the `@schemeIdUri` attribute and the value of the `@value`
-> attribute, i.e. all Events of one type shall be clustered in one Event
-> Stream.
-
-The example declares two sibling `<EventStream>` elements in one
-`<Period>`, both with
-`schemeIdUri="urn:svta:dash:event:sgai-overlay:2026"` and both with
-`@value` absent. That is the same (scheme, value) pair twice in one
-Period — a direct violation of a `shall`.
-
-Verified exhaustively across every XML block in the document: this is
-the only occurrence. A per-block counter of same-scheme `<EventStream>`
-elements, run over all four event schemes, reports a count greater than
-one for exactly one block:
-
-````
-BLOCK at line 4384: overlay=2 pause=0 insert=0 replace=0 callback=0
-````
-
-The counter was validated against a case it should catch: a copy of the
-file with a duplicate callback `<EventStream>` injected after every
-existing one makes it report all 11 blocks that carry a callback stream,
-where the unmodified file reports none. A count of one on every other
-block is therefore a measurement, not a silent parser failure.
-
-**Suggested fix** (minor-refinement scope): carry both `<Event>`
-elements inside **one** `<EventStream>`. §4.6.8's "the Player selects
-the first window it encounters" then reads off document order inside
-that stream, which §5.10.2.1 already fixes — "all active events are
-dispatched … in the order they appear in the EventStream element" —
-so the chain semantics are unchanged and become better grounded. Add a
-sentence to §5.1.6 stating the clustering rule, so an author cannot
-re-derive the broken shape.
-
-### NC2 — §4.6.8 narrows a §5.16.2.2.6 execution-failure condition on the inherited linear schemes
-
-**Where**: §4.6.8, blockquote "Divergence from the base specification,
-stated inline"; the shape it protects is §5.2.3's empty `ListMPD`.
-**Base clause**: §5.16.2.2.6.
-
-The base specification's failure list at PRTA includes "APDA is
-determined to be 0" and, under "the playback of the alternative
-presentation cannot start", the reason "Alternative MPD is a List MPD,
-and merge process resulted in no available media". §5.2.3's no-fill
-`ListMPD` — one `<Period>` with `@duration="PT0S"` and no
-`<ImportedMPD>` — satisfies both. The base specification therefore
-requires a failed execution, which per §5.16.2.2.5 falls through to the
-next event in queue order. §4.6.8 instructs the Player to do the
-opposite: treat it as an answer and leave the remaining windows
-untouched.
-
-Because this rule is applied on the **inherited** scheme URIs
-`urn:mpeg:dash:event:alternativeMPD:insert:2025` and
-`:replace:2025`, two Players reading the same scheme URI behave
-differently on the same document. That is the property a scheme URI
-exists to prevent, and it is also what §4.1 claims as a document-level
-obligation ("no pre-existing base specification semantics are altered
-other than the single narrowing declared in §4.6.8") — the claim is
-honest, but the narrowing is still a divergence from the base
-specification.
-
-Two secondary defects in the declaration itself, both fixable now:
-
-- It says the base model "falls through on two triggers". There are
-  three (the third is `@executeOnce` with `E.c > 0`).
-- Of the two it names, "a zero-duration alternative presentation" is
-  only one of the two conditions the no-fill `ListMPD` actually trips;
-  "Alternative MPD is a List MPD, and merge process resulted in no
-  available media" is the one that most directly describes the shape
-  and is not named.
-
-**Suggested fix**: the structural remedy is to scope the narrowing to
-the SGAI schemes and give the linear no-fill a different encoding —
-which is a requirements-level change and is already carried in the
-`## Refinement gaps` table (row 23, and its root D-2). Within minor
-scope, correct the blockquote's enumeration so it names all three base
-triggers and both conditions the empty `ListMPD` satisfies; a declared
-divergence that under-states what it diverges from is harder to audit
-than the divergence itself.
+None. K-36, Non-conforming in v12.4, is Conforming in v12.6 (see its row).
 
 ## Marginal items detail
 
-### M1 — Callback `<EventStream>` directly inside `<svta:Candidate>`
+### K-17 — Empty linear resolution vs the List profile's CMAF base
 
-**Where**: §5.5.2; every non-linear resolution-document example.
-**Base clause**: §5.3.2.3 (`PeriodType`), §5.10.2.1, §5.10.2.3.
+§8.13 item 9 names *"The playback of the alternative presentation cannot
+start"* as the condition the empty shape falls under, with the merge
+condition as its closest analogue; §5.2.3 and PLY-39 say the same. The
+document is schema-valid, and Table 4 admits it (*"At least one Adaptation
+Set shall be present in each Period unless the value of the @duration
+attribute of the Period is set to zero."*). But the List profile *"is an
+extension of the ISO-BMFF CMAF Profile"* (§8.14), and a Media Presentation
+conforms to a profile only if *"There is at least one Representation in each
+Period in the profile-specific MPD"* (§8.1). §8.13 item 9 records this, so
+it is an open question and not a conflict.
 
-`EventStream` has no global element declaration in Annex B — it exists
-only as a local particle of `PeriodType`. Inside
-`<svta:Candidate>`, `processContents="lax"` finds no declaration and
-skips validation, so the element carries the callback scheme's name
-without being schema-bound to `EventStreamType`. Separately, §5.10.2.1
-scopes events to their Period ("Events shall terminate at the end of a
-Period"), and a candidate is not a Period, so the scheme's own dispatch
-scoping has no anchor here. §5.5.2's tooling note and §8.8 both
-acknowledge the novelty; neither closes the schema gap.
+**Suggested clarification.** None beyond §8.13 item 9.
 
-**Suggested clarification**: state in §5.5.2 that a Player reads the
-element by name and scheme rather than by schema binding, and that the
-ad's presentation timeline — not the enclosing Period — is the event
-scope. The durable remedy (an `svta:`-namespace carrier mirroring the
-callback shape) is a new construct and belongs to a major build; it is
-already carried as `## Refinement gaps` row 24.
+### K-29 — SGAI event streams under Advanced Linear
 
-### M2 — `<ImportedMPD>` inside `<svta:RenderableAsset>`
+§8.13.1 announces *"Support for a restricted set of DASH events"*.
+§8.13.2.2 says *"EventStream elements may indicate Alternative MPD (5.16)
+and Callback (5.10.4.5) event schemes"*. §8.13.2.1 says *"Periods and
+Representations which do not conform to the constraints in this subclause
+may not be presented."* The base's own K.6.4 example carries a scheme
+§8.13.2.2 does not name, which suggests the list is not exhaustive; that
+does not settle it for application schemes.
 
-**Where**: §5.3.4, §5.2.2.1 skeleton, Annex C.4 and the other
-video-form candidates.
-**Base clause**: §5.3.2.6.1, §5.3.2.6.3, Table 4.
+**Suggested clarification.** Keep it open and route it to the base editors
+(§8.13 item 1).
 
-Three separate soft edges:
+### K-34 — Drop-before-play of a List MPD Period (PLY-35)
 
-1. §5.3.2.6.1 defines the construct as "Linked Periods are indicated by
-   the `ImportedMPD` element **in a Period element**". The spec's
-   claim that "§5.3.2.6 does not constrain the parent of
-   `<ImportedMPD>`" is a reading of silence, not of text.
-2. The §5.3.2.6.3 reference processing model merges the imported MPD
-   into the **Linked Period**. Outside a Period there is no merge
-   target, so the element is reused for its syntax only, with the
-   spec supplying its own resolution semantics.
-3. Table 4's `Period.ImportedMPD` row says "This element shall not
-   appear if the value of `MPD@type` is not 'list'". The Overlay
-   Resolution Document declares `type="static"`. The rule is stated
-   about `Period.ImportedMPD`, so it does not literally bind a nested
-   one — but a validator applying it document-wide flags the document.
+For insertion the base trims: *"For insertion events, APDA = min(APD,
+APDmax)"* (Table 57). It has no rule that drops a Period of a successfully
+merged List MPD because of its declared duration, and PLY-35 permits that
+(MAY). This is Marginal and not Non-conforming because the base states no
+explicit obligation to play every Period: step 2 of the merge already
+removes invalid Periods. §4.5.5 and §8.13 item 11 acknowledge it without
+recording it in §4.8.3.
 
-**Suggested clarification**: declare `MPD@type="list"` on the Overlay
-Resolution Document. `type="list"` inherits the static constraints
-(§5.3.1.4) and forbids XLink, which this profile wants anyway, and it
-removes edge 3 outright and softens edge 2 by putting the document in
-the family the base specification associates with `ImportedMPD`. The
-full remedy (an SGAI-namespace element in place of `ImportedMPD`) is
-`## Refinement gaps` row 25.
+**Suggested clarification.** Either restrict PLY-35 (R7.3) to the non-linear
+families, or record it in §4.8.3 as a departure scoped to List MPDs.
 
-### M3 — No request-type key covers a non-linear resolution request
+### K-35 — `urn:svta:` is not a registered URN namespace
 
-**Where**: §5.8, §5.8.1.
-**Base clause**: Annex I, Table I.4.
+Table 43 asks only that *"The string may use URN or URL syntax"*. A URN with
+an unregistered NID has URN syntax but is not a formal URN. No base rule is
+violated, and §8.13 item 12 records it.
 
-Table I.4 binds `altmpd` to "all requests for MPDs representing the
-alternative Media Presentation, **as defined in subclause 5.16**". An
-overlay or pause-ad resolution request is triggered by an
-`urn:svta:dash:event:sgai-*` event, not by a §5.16 event, so `altmpd`
-does not name it, and no other key in Table I.4 does either. §5.8 opens
-by saying the Publisher's template and the Player's parameters both
-contribute to "the resolution request" without qualification, but
-§5.8.1 supplies a key only for the linear case — so a Publisher who
-wants an author-declared query template on the edition's principal new
-slot families has nothing to write.
+**Suggested clarification.** None beyond §8.13 item 12.
 
-Table I.4 provides the escape already: `<URN / tag URI>` — "a URN or tag
-URI, where the request type semantics is understood by the client and
-specified by the URN / tag URI owner. The client shall drop unknown
-URIs from the `@includeInRequests` … strings prior to processing them".
-Unknown-URI-drop makes it safe on legacy Players by construction.
+### K-37 — PLY-86 and a linear ad that fails after it started
 
-**Suggested clarification**: mint one request-type URN (e.g.
-`urn:svta:dash:request:sgai-resolution:2026`), register it in §2.1, and
-say in §5.8.1 which key applies to which slot family. This is a new URI
-and a registry entry, so it is a major-build item —
-`## Refinement gaps` row 26. Within minor scope, §5.8.1 should at least
-state explicitly that the template mechanism reaches the linear
-families only.
+**What the spec says.** PLY-86 covers resolving *or rendering* an accepted
+ad failing at runtime, "for example a decode error, a malformed candidate,
+or a mid-ad network loss": the Player aborts the ad, and "When the attempt
+ends with no candidate rendered, it produced no ad and PLY-20 governs what
+follows", which through PLY-20 and PLY-38 is the next overlapping window.
+E11 in §8.2 and step 4 of §8.3 say the same, and E11 names "an ad segment
+returns an error" among its triggers. PLY-86 applies to every family.
 
-### M4 — `<svta:Click>` on a `ListMPD` `<Period>` is removed by the §8.1 profile procedure
+**Why it is Marginal.** On the linear family the base evaluates failure
+*"at PRTA"*, and *"Media playback is impossible due to missing media or
+initialization segments"* is one of its reasons, so a linear ad that cannot
+start is a failed execution and the next event in QE is tried: PLY-86 agrees
+with that. But once playback has started, the base counts the execution as
+successful (*"If execution succeeds, processing stops here"*, §5.16.2.2.5
+step 2 c; E.c counts playback that *"successfully started"*, Table 58), and
+no clause found sends the Player back to QE when that presentation later
+fails. The spec does not define "rendered". If a candidate aborted by a
+mid-ad network loss counts as not rendered, a Player of this specification
+executes the next queued linear event where the base would continue with the
+main presentation, a second departure that §4.8.3 and DOC-3 do not record.
+If "rendered" means "its playback started", PLY-86 conforms. The spec
+already uses the base's "successfully started" for the pause window's
+counter (PLY-64, §4.5.10), so the conforming reading is
+available but not stated.
 
-**Where**: §5.6, "Note on profile signalling".
-**Base clause**: §8.1, profile-specific MPD step 4.
-
-> All elements or attributes that are either (i) in this document and
-> explicitly excluded by ProfA, or (ii) **in an extension namespace and
-> not explicitly included by ProfA**, are removed from the
-> profile-specific MPD.
-
-A `ListMPD` whose `@profiles` names only
-`urn:mpeg:dash:profile:list:2024` therefore loses its `<svta:Click>`
-for conformance purposes, and a client bound to the list profile alone
-is entitled to drop it. §2.1 mints a profile URI for the non-linear
-document only, so there is nothing for the linear document to declare
-that would explicitly include the namespace. The consequence is that
-the ClickThrough's cross-Player guarantee — the whole reason §5.6
-exists as a normative carrier rather than best-effort metadata like
-§5.7 — does not hold on the linear path.
-
-The spec's note states the mechanism accurately and does not claim
-otherwise, which is why this is Marginal rather than Non-conforming.
-
-**Suggested clarification**: mint a linear-family profile URI in §2.1
-so a `ListMPD` carrying SGAI extensions can declare it alongside
-`urn:mpeg:dash:profile:list:2024`. Major-build item —
-`## Refinement gaps` rows 3 and 27.
-
-### M5 — The SGAI event schemes define no `@value` value space
-
-**Where**: §2.1, §5.1.3, §5.1.4.
-**Base clause**: §5.10.2.1, §5.10.2.2 Table 43.
-
-Table 43 makes `EventStream@value` optional with scheme-specific
-semantics, and §5.10.2.1 asks the scheme owner to define it: "A DASH
-application that uses one of these elements defines a Scheme Identifier
-in the form of a URI and then defines the value space for the element
-when that Scheme Identifier is used." This edition defines the two
-scheme URIs and never says what `@value` means for them; every example
-omits it.
-
-Omission is legal, so this is not a violation on its own. It becomes
-load-bearing because §5.10.2.1's clustering rule keys on the
-(`@schemeIdUri`, `@value`) **pair**: with no defined value space an
-author has no conformant way to carry two SGAI event streams of one
-family in one Period — which is exactly the shape Annex L.2 reaches for
-(NC1).
-
-**Suggested clarification**: state in §2.1 that `@value` is unused by
-these schemes and shall be absent, and pair that with NC1's one-stream
-fix. Both fit inside a minor refinement.
-
-### M6 — "Removes the entire XML node including its subtree" is stronger than §5.2.1's text
-
-**Where**: §4.7.1; the legacy-Player guarantee of §5.3.4 rests on it.
-**Base clause**: §5.2.1 and its NOTE 2.
-
-§5.2.1 states two authoring requirements and a note, all phrased as
-removal **by namespace**:
-
-> In addition, the MPD shall be authored such that, after XML attributes
-> or elements in the other namespaces than the DASH namespace are
-> removed, the result is a valid XML document formatted according to
-> that schema and that conforms to this document.
->
-> NOTE 2 … if DASH Clients remove all XML attributes and elements from
-> the MPD in the DASH namespace and in other namespaces that are not in
-> the XML schema documented in Annex B, the MPD results in a valid XML
-> document which complies with this document.
-
-Neither sentence says "including its subtree", and neither addresses a
-**DASH-namespace** element nested inside a foreign-namespace parent —
-which is precisely the shape of `<ImportedMPD>` inside
-`<svta:RenderableAsset>` (§5.3.4) and of the callback `<EventStream>`
-inside `<svta:Candidate>` (§5.5.2). The whole-subtree reading is the
-natural XML one and the only implementable one; under a literal
-element-by-element reading the surviving `<ImportedMPD>` would land as
-a `Period` child of a `type="static"` MPD, which Table 4 forbids, and
-the §5.2.1 authoring requirement would then be unmet.
-
-The exposure is asymmetric and confined to `<ImportedMPD>`: a promoted
-`<EventStream>` would still be a legal `Period` child.
-
-**Suggested clarification**: say in §4.7.1 that the whole-subtree
-reading is the one this specification assumes, name the two nested
-core-namespace elements it protects, and note that the §5.2.1
-authoring requirement is what makes the reading obligatory rather than
-conventional. M2's `type="list"` fix removes the residual exposure
-independently.
-
-### M7 — Base Annex F is informative but is cited among "Clauses referenced normatively"
-
-**Where**: §2 clause table; §4.7.1's DR-4 label.
-**Base clause**: Annex F, "Guidelines for extending DASH with other
-delivery formats" — headed `(informative)`.
-
-The §2 table is introduced as "Clauses referenced normatively" and
-includes an informative annex; DR-4 then calls it an "extension rule"
-alongside six normative ones. Nothing rests on it — §4.7.1 explicitly
-declares that "this edition introduces none" — so the cost is
-auditability, not behaviour.
-
-**Suggested clarification**: mark the Annex F row informative, or move
-DR-4's justification to a note. Minor-refinement scope. (All other
-annex letters check out: H = Spatial Relationship Description
-(normative), I = Flexible Insertion of URL Parameters (normative),
-K = DASH Service Description (normative, and Table K.12 does define the
-`PlaybackRate` element), L = Implementation of Nonlinear Playback
-(normative).)
+**Suggested clarification.** In PLY-20 and PLY-86 (R5.3 and the DP-3
+consequence in `context/`), state that a candidate counts as rendered once
+its presentation started, and that for the linear family this is E.c's
+*"successfully started"*; a failure after that point continues with the
+primary content. Alternatively, scope the return to the fallback chain after
+a runtime failure to the non-linear families.
 
 ## Open questions surfaced
 
-None arising from an unresolvable source. Every verdict above is
-grounded in quoted text from ISO/IEC 23009-1:2026. Two items are
-decidable only by the SVTA Ads WG rather than by the base
-specification, and are recorded as such above rather than as
-conformance findings: whether NC2's divergence is accepted as a
-deliberate profile-level exception or retracted, and whether M3 and M4
-justify minting two further URIs in §2.1.
-
-NotebookLM was not queried; the grounding token reflects that
-truthfully.
+- **`StringVectorType` as an XML Schema list** (§5.0, §4.8.2). The type
+  definition is not in the PDF body: a search for
+  `simpleType name="StringVectorType"` returns 0, while `simpleType name="`
+  alone finds other base types. The type sits in the separately published
+  `DASH-MPD.xsd`. The prose (*"whitespace-separated list"* for
+  `@dependencyId`) supports the claim, and it bears on no verdict.
+- **A base rule for failure after an alternative presentation started**
+  (K-37). Searched for `execution succeed`, `successful execution`,
+  `successfully executed` and `(error|fail) during/while playback of the
+  alternative`; the hits were §5.16.2.2.5 step 2 c and the dual-client NOTE,
+  neither of which addresses it. The absence is what K-37 rests on.
 
 ## Summary
 
-- Total constructs audited: **44**
-- Conforming: **35**
-- Marginal: **7** (M1–M7)
-- Non-conforming: **2** (NC1, NC2)
-- `[fetch-failed]`: **0**
-
-NC1 is new and fixable inside a minor refinement. NC2 and M1–M4 are the
-same items the `## Refinement gaps` table already carries forward
-(rows 23–27), re-derived independently here against the published
-standard; M5–M7 are additions, all within minor scope.
+- Total constructs audited: 37
+- Conforming: 32
+- Marginal: 5 (K-17, K-29, K-34, K-35, K-37)
+- Non-conforming: 0
