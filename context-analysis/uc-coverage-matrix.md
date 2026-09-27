@@ -2,9 +2,9 @@
 
 # UC × R coverage matrix
 
-Inputs: `../context/03-requirements.md` (mtime 2026-09-26 15:44:42 -0300) and
-`../context/04-use-cases.md` (mtime 2026-09-26 15:44:34 -0300), both as of
-commit `536351f`. 17 use cases (UC-01..UC-17), 40 requirements (R1..R40).
+Inputs: `../context/03-requirements.md` (mtime 2026-09-26 20:09:15 -0300,
+commit `e89f486`) and `../context/04-use-cases.md` (mtime 2026-09-26
+15:44:34 -0300, unchanged since `536351f`). 17 use cases (UC-01..UC-17), 40 requirements (R1..R40).
 `A` = the UC cites the R or its scenario directly exercises the R's
 obligation; `·` otherwise (conservative).
 
@@ -112,6 +112,13 @@ addition if the fallback window's document carries several candidates.
 Both matrices are generated from one UC→R set and parsed back from this file:
 17 × 40 cells, per-R and per-UC counts and tags compared — **no mismatch**.
 Coherence issues found in the inputs while building the matrix:
+
+- **R2.2 and the APS.** R2.2 now places on the APS the layout and region
+  constraints the Player forwards (R38.4, R39.4). The UCs that exercise
+  them are UC-15 (APS drops the options outside the set) and UC-16 (APS
+  rectangle inside the region), both already `A` on R2. UC-17 forwards
+  the set (R38.2) but its scenario never shows the APS filtering; R2
+  stays `·`.
 
 - **UC-17 and R38.** UC-17 now states the Player sends the window's allowed
   layouts on the resolution request (R38.2); marked `A`. Its linear break

@@ -18,9 +18,10 @@ primary copy of the edition declared in
 text and searched. Each claim carries a clause number and a quoted sentence.
 Negative claims ("the edition has no construct for X") rest on a search of the
 term over the whole extraction; where the negative is load-bearing the search and
-its hit count are stated, next to a control term known to be present
-(`ImportedMPD` as a whole word: 17 hits; `timeShiftBufferDepth`: 31 hits), so a
-zero reads as the absence of the term and not as a broken search. Claims not
+its hit count (occurrences, not lines) are stated, next to a control term known to
+be present (`ImportedMPD` as a whole word: 21 occurrences on 17 lines;
+`timeShiftBufferDepth`: 31), so a zero reads as the absence of the term and not as
+a broken search. Claims not
 verified against the primary copy are tagged `[inferred]`.
 
 ## 1. Scope
@@ -59,7 +60,7 @@ Cell values in §2:
 | Req | DASH 6th capability | Cell | Note |
 |---|---|---|---|
 | R1 | Foreign-namespace open content (§5.2.1), descriptors (§5.8.4.8 / §5.8.4.9), application event schemes (§5.10); failed execution continues playback (§5.16.2.2.6) | full | The extension points exist and are sufficient. R1.4 is the base rule for linear, extended by the spec to non-linear (G1). |
-| R2 | Author declares in the MPD, client executes (`@maxDuration`, §5.16.5.2) | partial | No actor model in the base. The declare-in-MPD / enforce-in-client split exists for linear only. |
+| R2 | Author declares in the MPD, client executes (`@maxDuration`, §5.16.5.2) | partial | No actor model in the base. The declare-in-MPD / enforce-in-client split exists for linear only. R2.2's one APS obligation — stay within the forwarded layouts and region (R38.4, R39.4) — has no base counterpart (G6). |
 | R11 | Callback scheme aligned with VAST (§5.10.4.5.1 NOTE 1) | N/A | The base does not depend on VAST. R11.4 coverage is the spec's obligation. |
 | R18 | Event `@uri` + returned MPD / List MPD (§5.16.5.2, §8.14) | partial | The Player-visible interface exists for linear; the non-linear resolution document and the request parameters of R29 do not (G1, G6). |
 | R29 | `RequestParam` (Annex I.3) with the state vocabulary of Annex I.4 | gap | The base mechanism is author-declared, and its vocabulary has no device-capability axis (G6). |
@@ -78,7 +79,7 @@ Cell values in §2:
 | Req | DASH 6th capability | Cell | Note |
 |---|---|---|---|
 | R5 | — | gap | No ordered form+layout options per candidate (G3). |
-| R7 | Periods of a List MPD played in sequence (§8.14, §5.3.2.1) | partial | Order holds for linear. Drop-before-play and the non-linear sequence are the spec's (G3). |
+| R7 | Periods of a List MPD played in sequence (§8.14, §5.3.1.1) | partial | Order holds for linear. Drop-before-play and the non-linear sequence are the spec's (G3). |
 | R30 | "merge process resulted in no available media" is a failed execution; `E.c` not incremented (§5.16.2.2.6, NOTE 3) | partial | Semantics are the base's for linear. The shape of an empty non-linear document is the spec's (G8). |
 
 ### Presentation
@@ -132,7 +133,7 @@ Cell values in §2:
 **Note on method.** Negative cells rest on these searches over the whole
 extraction (case-insensitive unless stated):
 
-| Term | Hits | Where |
+| Term | Occurrences | Where |
 |---|---|---|
 | `overlay` | 1 | Annex K.3.2, Table K.2, `MinimumLatency`: *"to avoid inconsistencies with second screen applications, overlays, etc."* — not an ad construct |
 | `layout` / `layouts` (whole word) | 0 | — |
@@ -233,8 +234,10 @@ contains alternate Representations, i.e. only one Representation within an
 Adaptation Set is expected to be presented at a time."* (§5.3.3.1). Those are
 perceptually equivalent encodings of one content, not different forms and
 layouts of one ad, and the axis is closed to non-MP4 media (G4). A List MPD
-orders ads, not options: its Periods are played in sequence (§8.14 rule 4,
-§5.3.2.1).
+orders ads, not options: *"A Media Presentation as described in the MPD consists of
+a sequence of one or more Periods"* (§5.3.1.1), and a List MPD's Periods are Linked
+or regular Periods (§8.14 rule 4: *"List MPDs may contain one or more Linked Periods
+(see 5.3.2.6), however it may also contain regular Periods."*).
 
 What must be added: a candidate containing an ordered list of options, document
 order being the preference order (R5.1, R5.5), each option pairing a form (R15)
@@ -324,9 +327,21 @@ alternative and the build has to weigh it (R8.2):
   (§5.8.4.8 NOTE 2: *"the DASH Client is expected to terminate the media
   presentation"*).
 
+The receiving side has no base rule either. Annex I.3 specifies how the client
+builds and attaches the parameters (I.3.4, *"Extended parameter generation"*) and
+states nothing about what the server that receives them returns: over I.3, `server`
+occurs only for Content Steering (*"Content Steering server request"*) and
+`respon` only for the header sources of `@headerParamSource` [inferred from that
+search]. R2.2 places on the APS exactly one obligation toward Publisher-declared
+constraints — return only options inside the layouts and the region it received
+(R38.4, R39.4) — and the spec states it without a base construct to lean on; the
+Player's own check (R38.5, R39.5) stays, so a non-conforming APS costs options, not
+correctness.
+
 What must be added: the reserved parameter set of R29 (at least one parameter
 per R3 axis, R29.6), the vendor-prefix rule (R29.4), the forwarding of
-`@allowedLayouts` unchanged (R38.2) and of the custom region (R39.3).
+`@allowedLayouts` unchanged (R38.2) and of the custom region (R39.3), and the APS
+obligations of R38.4 and R39.4.
 
 ### G7 — The fallback chain is the base's for linear and has no anchor for the other two families (R20)
 
@@ -654,6 +669,17 @@ with the wording `context/` gives.
   compares the status quo of MPEG-DASH 6th edition against those use cases"*.
   `context/` holds no gap analysis; it lives here, in `context-analysis/`, which
   `context/` must not reference. The sentence should be removed or reworded.
+- R2.2 places an obligation on the APS toward Publisher-declared constraints: the
+  layout and region constraints forwarded on the resolution request (R38.4,
+  R39.4). Three informative passages still deny the APS any such binding:
+  `02-actors.md`, APS section (*"it does not enforce the Publisher's slot
+  constraints (that is the Player)"*), its Boundary Summary (*"The ADS decides
+  which ads to serve and the APS presents them as the resolution document, but
+  neither is normatively bound by the slot constraints"*), and the APS entry of
+  `99-glossary.md` (*"not the constraint enforcer"*). Staying inside a forwarded
+  set is not the Player's validation, so the first and third can be read as
+  consistent; the Boundary Summary cannot. 02 is informative and R2.2 governs, but
+  the build should not copy that sentence.
 
 ## References
 
