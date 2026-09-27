@@ -2,9 +2,9 @@
 
 # UC × R coverage matrix
 
-Inputs: `../context/03-requirements.md` (mtime 2026-09-26 20:09:15 -0300,
-commit `e89f486`) and `../context/04-use-cases.md` (mtime 2026-09-26
-15:44:34 -0300, unchanged since `536351f`). 17 use cases (UC-01..UC-17), 40 requirements (R1..R40).
+Inputs: `../context/03-requirements.md` (mtime 2026-09-26 21:52:34 -0300,
+commit `58c1bf7`) and `../context/04-use-cases.md` (mtime 2026-09-26
+22:00:34 -0300, commit `0b82b92`). 17 use cases (UC-01..UC-17), 40 requirements (R1..R40).
 `A` = the UC cites the R or its scenario directly exercises the R's
 obligation; `·` otherwise (conservative).
 
@@ -23,7 +23,7 @@ obligation; `·` otherwise (conservative).
 | UC-09 | · | A | A | A | A | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | A | A | · | A | · | · | · | · | · | · | · | · | · | · | · | 8 |
 | UC-10 | · | · | A | A | A | · | · | · | · | · | · | A | · | · | A | · | · | · | · | · | · | · | · | · | · | A | A | · | · | · | · | · | · | · | · | · | · | · | · | · | 7 |
 | UC-11 | A | · | · | · | · | A | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | 4 |
-| UC-12 | · | · | · | · | · | · | · | · | · | · | · | · | · | A | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | 3 |
+| UC-12 | · | · | A | · | A | · | · | · | · | · | · | · | · | A | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | 5 |
 | UC-13 | · | A | A | A | A | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | A | A | · | A | · | · | · | · | · | · | · | · | · | · | · | 8 |
 | UC-14 | A | · | A | A | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | A | 6 |
 | UC-15 | · | A | A | A | A | · | · | · | · | · | · | A | · | · | · | · | · | · | · | · | · | · | · | · | · | · | A | · | A | A | · | · | · | · | · | · | · | A | · | · | 9 |
@@ -43,9 +43,9 @@ in).
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | R1 | · | · | · | · | · | · | A | · | · | · | A | · | · | A | · | · | A | 4 | (covered) |
 | R2 | · | · | · | A | · | A | · | · | A | · | · | · | A | · | A | A | · | 6 | (covered) |
-| R3 | A | A | A | A | A | A | · | A | A | A | · | · | A | A | A | A | A | 14 | (covered) |
+| R3 | A | A | A | A | A | A | · | A | A | A | · | A | A | A | A | A | A | 15 | (covered) |
 | R4 | A | A | A | A | A | A | · | A | A | A | · | · | A | A | A | A | A | 14 | (covered) |
-| R5 | A | A | A | A | A | · | · | · | A | A | · | · | A | A | A | A | A | 12 | (covered) |
+| R5 | A | A | A | A | A | · | · | · | A | A | · | A | A | A | A | A | A | 13 | (covered) |
 | R6 | · | · | · | · | · | · | · | · | · | · | A | · | · | · | · | · | · | 1 | (covered) |
 | R7 | A | A | A | A | A | A | · | · | · | · | · | · | · | · | · | · | · | 6 | (covered) |
 | R8 | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | · | 0 | (governance) |
@@ -104,8 +104,6 @@ UC-02 (linear).
 |---|---|---|
 | UC-07 | 2 | R1 and R40 (supersede as the VOD legacy fallback). R1.4 (abort-and-continue) and R1.5 (base answer wins) are the plausible additions; R8 / R9 are the document-level side of the same contract. The thinness is inherent to a cross-cutting legacy scenario, not an under-constraint. |
 
-UC-12 (3) sits at the threshold; R7 (drop, never reorder) is the plausible
-addition if the fallback window's document carries several candidates.
 
 ### Bidirectional sanity check
 
@@ -120,6 +118,16 @@ Coherence issues found in the inputs while building the matrix:
   the set (R38.2) but its scenario never shows the APS filtering; R2
   stays `·`.
 
+- **UC-12 path 4 and R5 / R3.** A first-window document whose only
+  candidate the device cannot render is now a failed execution (R5.3 →
+  R20.1), so the device class decides which window is served (D1–D2 the
+  first, D3–D4 the second, D5 neither). UC-12 cites R5.3 and runs the
+  per-device outcome; marked `A` on R5 and R3. R7 stays `·`: each
+  document carries one candidate, so no drop-versus-reorder arises.
+- **R5.3 and the single-window UCs.** UC-03, 05, 09, 10, 13 and 15 end
+  the unrenderable device at "skip (graceful)". With one window declared,
+  R20.1 finds no fallback and continues with the primary content, so the
+  outcomes stay consistent with the new R5.3 wording.
 - **UC-17 and R38.** UC-17 now states the Player sends the window's allowed
   layouts on the resolution request (R38.2); marked `A`. Its linear break
   resolves "as in UC-02" without naming R7; marked `·`.
