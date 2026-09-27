@@ -192,6 +192,10 @@ categories; autofixes applied in place, flags reported here.
 | 1 | naming reuse with different semantics | L:317 | `context/06` Naming consistency with baseline DASH | `@earliestResolutionTimeOffset` on `<OverlayPresentation>` uses `EventStream@timescale` units, baseline uses seconds | Rename to e.g. `@earliestResolutionTimeTicks` or attach an explicit unit suffix | Rename — unit collision is invisible otherwise |
 | ... | ... | ... | ... | ... | ... | ... |
 
+With nothing flagged, keep the header and separator and write no rows.
+`bin/check-promotable.py` reads this table, and a missing one is a review
+it cannot confirm happened, not a review that found nothing.
+
 ## Open questions surfaced
 [Optional. Use only for issues the reviewer noticed that do not
 fit any of the eight categories but are worth a human look. Keep

@@ -72,7 +72,7 @@ KNOWN_FIX = {"5.a", "5.d"}
 
 ID = re.compile(
     r"\b(?:R\d+\.\d+|R\d+#p\d+|DP-[\d.]+#p\d+|OOS-\d+#p\d+|UC-\d+"
-    r"|NC\d+|M\d+|C\d+|G-\d+|EC-\d+|A-\d+|DL-\d+|F-\d+)\b"
+    r"|NC\d+|M\d+|C\d+|K-\d+|G-\d+|EC-\d+|A-\d+|DL-\d+|F-\d+)\b"
 )
 
 

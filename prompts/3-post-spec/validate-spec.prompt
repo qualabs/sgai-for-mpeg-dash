@@ -225,7 +225,7 @@ every one of:
    also appears in the §5 table its bucket names;
 3. **every `Non-conforming` and every `Marginal` item of the DASH
    conformance audit** (`../output-analysis/v<N>-dash-conformance-audit.md`),
-   by its audit id (`NC1`, `M3`, …);
+   by its audit id (`K-36`, …);
 4. **every flagged item of the detail review**
    (`../output-analysis/v<N>-detail-review.md`), by its flag number.
 

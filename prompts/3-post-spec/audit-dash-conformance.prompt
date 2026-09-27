@@ -138,6 +138,10 @@ per-construct verdict.
 |----|-----------|------|-----------|---------|-----------|
 | ... | ... | ... | ... | ... | ... |
 
+The `ID` is `K-<n>` (`K-1`, `K-2`, …), numbered in inventory order.
+The validation routes each Non-conforming and Marginal item by this id,
+and `bin/check-promotable.py` recognises it only in this form.
+
 ## Base-standard findings (highlights)
 [2-4 lines summarising what the source said per substantive query]
 
