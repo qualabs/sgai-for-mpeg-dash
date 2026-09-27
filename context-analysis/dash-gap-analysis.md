@@ -78,7 +78,7 @@ Cell values in §2:
 
 | Req | DASH 6th capability | Cell | Note |
 |---|---|---|---|
-| R5 | — | gap | No ordered form+layout options per candidate (G3). |
+| R5 | — | gap | No ordered form+layout options per candidate (G3). Exhausting the candidates with none rendered hands over to R20.1 (G7). |
 | R7 | Periods of a List MPD played in sequence (§8.14, §5.3.1.1) | partial | Order holds for linear. Drop-before-play and the non-linear sequence are the spec's (G3). |
 | R30 | "merge process resulted in no available media" is a failed execution; `E.c` not incremented (§5.16.2.2.6, NOTE 3) | partial | Semantics are the base's for linear. The shape of an empty non-linear document is the spec's (G8). |
 
@@ -106,8 +106,8 @@ Cell values in §2:
 | Req | DASH 6th capability | Cell | Note |
 |---|---|---|---|
 | R14 | Sequential Periods of a List MPD (§8.14) | partial | Linear sequencing exists; the non-linear sequence is the spec's (G1, G3). |
-| R17 | Main client paused or in listen mode during an alternative presentation (§4.2) | gap | No cross-family priority. R17.5 touches base timing (G9, G14). |
-| R20 | Execution queue ordered by PRT; fail-over to the next event; one `EventStream` per scheme and value (§5.16.2.2.2, §5.16.2.2.5, §5.10.2.1) | partial | Linear adopted unchanged; non-linear extension is the spec's (G7). |
+| R17 | Main client paused or in listen mode during an alternative presentation (§4.2) | gap | No cross-family priority. R17.5 applies only to windows R40.5 / R40.6 make applicable, and touches base timing (G9, G14). |
+| R20 | Execution queue ordered by PRT; fail-over to the next event; open-ended failure condition *"cannot start"*; one `EventStream` per scheme and value (§5.16.2.2.2, §5.16.2.2.5, §5.16.2.2.6, §5.10.2.1) | partial | Linear adopted unchanged, including a document none of whose candidates the device can render. Non-linear extension is the spec's (G7). |
 | R22 | — | gap | No non-linear forms in the base; the single-form bound is the spec's (G1). |
 | R40 | Two access engines, main and alternative (§4.2); event attributes of Tables 62–63 | gap | No construct relates a window to a linear event (G14). |
 
@@ -177,7 +177,8 @@ What must be added:
 - **A non-linear resolution document** — the document the APS returns for those
   windows, carrying ordered candidates (R14), each with ordered presentation
   options (R5), the slot-level declarations of R32, R35 and R36.4, the R26
-  background attribute, tracking (R6) and click-through (R28). DR-10 fixes that
+  background as an attribute of the layout an option declares (R26.1), tracking
+  (R6) and click-through (R28). DR-10 fixes that
   it declares no existing profile: *"The ISO-BMFF List profile is intended for
   use in conjunction with the Alternative MPD event (see subclause 5.16)"*
   (§8.14).
@@ -192,7 +193,8 @@ What must be added:
   execution results in smooth continued playback of the main media
   presentation."* (§5.16.2.2.6).
 
-The cap for non-linear (R4.2) bounds cumulative duration; the base has no
+On the overlay family the cap bounds cumulative duration (R4.2); a pause slot has
+no declared duration for it to bound (R4, R31). The base has no
 cumulative-duration model to reuse because its cap bounds one alternative
 presentation (Table 63, `@maxDuration`: *"If the Alternative Presentation
 initiated by this event has a longer duration than specified in this element, it
@@ -243,6 +245,9 @@ What must be added: a candidate containing an ordered list of options, document
 order being the preference order (R5.1, R5.5), each option pairing a form (R15)
 with a layout (R12); the Player walk of R5.6 / R5.7; the ordering contract of R7
 and its non-linear counterpart R14.1; the device-class table required by R3.1.
+The walk ends in one of two places (R5.3): if at least one candidate was rendered,
+the primary content resumes; if none was, the attempt produced no ad and the
+fallback chain of R20.1 takes over (G7).
 
 For linear, R7 is already the base's behaviour for a List MPD, and the spec adds
 only the Player's permission to drop before play (R7.3) and the trim-during-play
@@ -362,9 +367,23 @@ order, which the base defines separately: *"all active events are dispatched
 (according to their dispatch mode) in the order they appear in the EventStream
 element."* (§5.10.2.1).
 
+A resolution document whose candidates the device can render none of is a failed
+execution under R20.1, and for linear that too is the base's. The condition that
+heads the list is open-ended: *"The playback of the alternative presentation
+cannot start. The reasons for this include (but are not limited to) the following
+(at time PRTA):"* (§5.16.2.2.6), and one of the listed reasons is already a
+playback condition rather than a resolution one: *"Media playback is impossible
+due to missing media or initialization segments."* A device that can render none
+of the candidates cannot start the alternative presentation, so the base covers
+the case without extension. This is what DP-3's first consequence rests on: an
+opportunity is given up only after every declared way of filling it — the next
+overlapping window, or the superseded linear events of R40.3 — has been tried.
+UC-12 path 4 is the behavioural check across D1–D5.
+
 What must be added: the extension of the queue and fail-over to overlay and
 pause windows (R20.1, R20.3), which have no `AlternativeMPDEventType` and are
-outside §5.16; the document-position tie-break the base does not give (R20.3);
+outside §5.16, including the no-renderable-candidate condition, which for the
+non-linear families is the spec's and not the base's; the document-position tie-break the base does not give (R20.3);
 the wrong-family rule (R20.4); and per-window binding of declarations stated as
 a normative Player obligation (R20.5, R20.6).
 
@@ -402,7 +421,10 @@ on the base's merge-failure condition (open question Q4).
   presentation's duration on media time (Table 57, `APDA`; §5.16.2.2.5 step 1 a,
   *"PHP ≥ PRTA + APDA"*), so a pause of the ad does not consume its cap. The spec
   extends the same accounting to non-linear forms suspended under R17.
-- **Pause over a linear ad (R17.5).** The base foresees a viewer pausing the
+- **Pause over a linear ad (R17.5).** R17.5 applies only to a pause window
+  applicable to the presentation being output — one declared in the linear ad's
+  own `MPD` (R40.6) or one of the triggering presentation that declares on top
+  (R40.5) — so it depends on the relation of G14. The base foresees a viewer pausing the
   alternative presentation and states the consequence for resumption: *"If RT is
   in the past, the playback shall start from the oldest available media segment
   (the edge of the timeshift buffer)."* and *"The above can happen in case a user
@@ -524,7 +546,8 @@ as described above."* (§4.2).
 
 What must be added: the relation declared on the non-linear window (default /
 supersede / on top, R40.1), the Player rules R40.3–R40.6, and the R1.5 exception
-record for supersede (R40.8, ADR 0020). 06 names the three carriers to weigh; an
+record for supersede (R40.8, ADR 0020). R17.5 inherits its scope from R40.5 and
+R40.6, so the pause-over-linear rule cannot be stated before the relation is. 06 names the three carriers to weigh; an
 attribute on `<EventStream>` is excluded by schema (G10), and a stream-level
 value would bind every window in the stream (06).
 
@@ -669,17 +692,15 @@ with the wording `context/` gives.
   compares the status quo of MPEG-DASH 6th edition against those use cases"*.
   `context/` holds no gap analysis; it lives here, in `context-analysis/`, which
   `context/` must not reference. The sentence should be removed or reworded.
-- R2.2 places an obligation on the APS toward Publisher-declared constraints: the
-  layout and region constraints forwarded on the resolution request (R38.4,
-  R39.4). Three informative passages still deny the APS any such binding:
-  `02-actors.md`, APS section (*"it does not enforce the Publisher's slot
-  constraints (that is the Player)"*), its Boundary Summary (*"The ADS decides
-  which ads to serve and the APS presents them as the resolution document, but
-  neither is normatively bound by the slot constraints"*), and the APS entry of
-  `99-glossary.md` (*"not the constraint enforcer"*). Staying inside a forwarded
-  set is not the Player's validation, so the first and third can be read as
-  consistent; the Boundary Summary cannot. 02 is informative and R2.2 governs, but
-  the build should not copy that sentence.
+- R26.1 places the side-by-side background on *"the layout the presentation
+  option declares"*. The R26 prose (*"an attribute of the slot / layout
+  composition"*) and UC-09 (*"a composition attribute of the slot / layout"*) still
+  admit the slot as its home. R26.1 governs; the build should follow it and not the
+  prose.
+- R20's rationale paragraph illustrates the fallback only with resolution failures
+  (*"the APS is unreachable, the event URL fails"*). R20.1 also makes a document
+  with no renderable candidate a failed execution; the paragraph is an
+  illustration and does not contradict it, but it should not be read as the list.
 
 ## References
 
