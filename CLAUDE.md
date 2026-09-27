@@ -164,11 +164,14 @@ What does NOT go where:
   with publishing one, which is the distinction this directory
   exists to hold.
 
-  **The promotion criterion is not defined.** Nothing in this repo
-  decides when a candidate earns `dist/`; today it is a human call.
-  This is written down so the absence is visible: a reader finding no
-  criterion should conclude there is none, not that they failed to
-  find it.
+  **The promotion criterion** (Nicolás, 2026-09-27): a candidate is
+  promoted when `bin/check-promotable.py` exits `0` on its sidecars
+  (nothing blocks, nothing uncertain) **and** its
+  `output-analysis/v<N.M>-comparison.md` verdict is `BETTER THAN
+  PUBLISHED`. When both hold, the coordinator promotes it (copies the
+  candidate and its sidecars into `dist/` under the unversioned names,
+  rewrites `dist/inputs.sha256`) and tells Nicolás; it does not ask.
+  Anything short of both stays a candidate.
 
   The unversioned names are deliberate. A link to the spec has to
   survive the next build, and the spec's own title carries no version
