@@ -2112,3 +2112,25 @@ v11.1. Cada cita se verificó contra la copia de la norma.
 
 Sigue abierto: ningún criterio de R40 autoriza al Publisher a escribir el
 break de respaldo (UC04.5, UC04.6, B07.12).
+
+## 2026-09-26 — context/: los cambios que la validación de v12.4 marca como dictados por una fuente escrita (P-1, P-2, P-4, P-6, P-7, P-8)
+
+- **P-8 (K-36)**: si el dispositivo no puede renderizar ninguno de los
+  candidatos de una resolución, es una ejecución fallida y toda familia
+  pasa a la siguiente ventana solapada. Lo decide R1.5: §5.16.2.2.6 falla la
+  ejecución cuando *"The playback of the alternative presentation cannot
+  start"*, con razones que *"include (but are not limited to)"* las que
+  nombra (cita verificada contra la copia de la norma). Cambian R5.3, R5.7,
+  el último párrafo de R20.1 y R20.4; la prosa de R20 y su gist dicen
+  "produce no ad" en lugar de "no se pudo obtener el documento". Nota
+  fechada en ADR 0011, que había dejado el caso sin decidir.
+- **P-1**: R4.2 acota la duración acumulada a la familia overlay y a la
+  inserción lineal (ADR 0015, R31.2: en pausa el tope no acota nada).
+- **P-2**: R17.5 aplica sólo a una ventana de pausa aplicable a lo que se
+  está mostrando (R40.4–R40.6).
+- **P-4**: R26.1 lleva el fondo en el layout de la opción, no en el slot
+  (es creatividad del anunciante).
+- **P-6**: UC-09 D4, el contrafáctico cae en la opción 3 (R5.7).
+- **P-7**: R7.2 deja de ser un MAY frente al MUST de R5.3.
+- **02-actors**: el APS está obligado por los layouts y la región que el
+  Player le reenvía (R2.2, R38.4, R39.4).

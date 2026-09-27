@@ -397,7 +397,7 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     an inherited linear event the maximum is the base specification's
     `@maxDuration`, which the Publisher MAY omit (R4.8).
   - **R4.2** (Player): Where the cap bounds cumulative duration — the
-    non-linear families, and linear insertion — the Player MUST stop
+    overlay family, and linear insertion — the Player MUST stop
     rendering once the cumulative duration of the accepted candidates
     would exceed it, even if the stop falls mid-ad.
   - **R4.3** (Player): The Player MUST NOT extend a slot beyond what
@@ -712,8 +712,10 @@ the order the resolution document declares.
     device.
   - **R5.3** (Player): The Player MUST skip any candidate that
     carries no form renderable on its device and fall through to the
-    next candidate; when the candidates are exhausted, the Player MUST
-    continue with the primary content.
+    next candidate. When the candidates are exhausted and none was
+    rendered, the attempt produced no ad and R20.1 governs what
+    follows; when at least one was rendered, the Player MUST continue
+    with the primary content.
   - **R5.4** (ADS + APS): This specification MUST NOT be read as
     obliging the ADS or the APS to maintain a device-class matrix or
     a per-Player capability view in order to produce candidates. An
@@ -735,7 +737,7 @@ the order the resolution document declares.
     candidate satisfies R5.6, the Player MUST skip that
     candidate and fall through to the next candidate in the
     resolution document (preserving the order required by R7) or,
-    when exhausted, to primary content.
+    when exhausted, as R5.3 states.
 
 - **R7. Respect the order of the resolution document.**
   *Gist: The Player plays candidates in the order the resolution document declares, only dropping (never reordering) ones it cannot render or that would exceed the slot cap.*
@@ -768,8 +770,9 @@ the order the resolution document declares.
     than one ad candidate, the Player MUST play the candidates in
     the order the resolution document declares, except
     for candidates dropped under R7.2 or R7.3.
-  - **R7.2** (Player): The Player MAY drop a candidate that has no
-    form renderable on its device (R3 / R5).
+  - **R7.2** (Player): A candidate that has no form renderable on its
+    device is dropped as R5.3 requires (R3 / R5); the drop is not a
+    rearrangement under R7.4.
   - **R7.3** (Player): The Player MAY drop a candidate before
     playback ("drop before play") when its declared duration would
     push the cumulative slot duration past the cap (R4).
@@ -1399,7 +1402,8 @@ squeezeback layouts (side-by-side and L-shape).
   **Conformance criteria** (runtime + document-level):
   - **R26.1** (APS + Publisher): The background element of a side-by-side
     / double-box layout MUST be carried as a composition attribute of the
-    slot / layout, not as a separate presentation option (R5).
+    layout the presentation option declares, not as a separate
+    presentation option (R5).
   - **R26.2** (Player): The Player MUST composite the primary content
     and the ad as the two boxes of a side-by-side / double-box layout.
     When the advertiser supplies a background element, the Player MUST
@@ -1575,8 +1579,11 @@ screen to a single active non-linear form at any instant.
     construct that lets the Publisher, the ADS, or the APS invert
     this priority.
   - **R17.5** (Player): When a viewer pause begins inside a pause
-    opportunity window while a linear ad occupies the screen, the
-    Player MUST present the pause ad and MUST suspend the linear ad,
+    opportunity window applicable to the presentation being output — a
+    window declared in the linear ad's own `MPD` (R40.6), or a window of
+    the triggering presentation that declares on top (R40.5) — while a
+    linear ad occupies the screen, the Player MUST present the pause ad
+    and MUST suspend the linear ad,
     and MUST resume it from where it was suspended when the viewer
     resumes. The pause
     ad is dismissed on resume (R16). The cross-family priority of this
@@ -1584,7 +1591,7 @@ screen to a single active non-linear form at any instant.
     against an overlay.
 
 - **R20. Overlapping same-family opportunity windows: first-window-wins with fallback.**
-  *Gist: When same-family opportunity windows overlap, the Player serves the first and treats the rest as fallback, used only if the first fails to resolve.*
+  *Gist: When same-family opportunity windows overlap, the Player serves the first and treats the rest as fallback, used only if the first produces no ad.*
 
   How the Player handles **multiple overlapping opportunity windows of
   the same family in the primary `MPD`** (the families are linear,
@@ -1594,9 +1601,8 @@ screen to a single active non-linear form at any instant.
   identifies — and resolves its resolution document; that one
   resolution document may itself carry a sequence of candidates
   governed by the in-slot rule of R14. The remaining overlapping
-  windows are FALLBACK: the Player resorts to them only when it cannot
-  obtain the first window's resolution document at all, and R20.1
-  enumerates exactly when that is. The two levels are independent:
+  windows are FALLBACK: the Player resorts to them only when the first
+  window produces no ad, and R20.1 enumerates exactly when that is. The two levels are independent:
   this requirement (R20) selects which window is served; R14 governs
   the sequence of candidates inside the selected window's resolution
   document.
@@ -1636,7 +1642,7 @@ screen to a single active non-linear form at any instant.
     PRT of the topmost event in the queue is in the future (i.e.
     PRT > PHP), or — The queue is empty."*
 
-    Each way an attempt can fail maps to a condition **§5.16.2.2.6**
+    Each way the resolution itself can fail maps to a condition **§5.16.2.2.6**
     (*Execution*) lists, and the Player MUST treat all four alike:
 
     - the APS does not respond, or the request fails at the transport
@@ -1665,13 +1671,14 @@ screen to a single active non-linear form at any instant.
     reason R20.3 gives: one behaviour across every family, so that an
     implementer does not have to learn two.
 
-    **A resolution document that carries candidates is not a failed
-    execution**, whatever the Player then does with them. A candidate
-    skipped because the device can satisfy none of its presentation
-    options is governed by R5.3 and R5.7, which end at the primary
-    content and not at the next window. The base specification's
-    condition is media availability after the merge, not renderability
-    on a device; this specification does not extend it there.
+    A resolution document carrying candidates none of which the device
+    can render (R5.3, R5.7) produced no ad, and is a failed execution.
+    For the linear family this is the base specification's own
+    condition: §5.16.2.2.6 lists *"The playback of the alternative
+    presentation cannot start"* among the conditions under which
+    execution fails, and states that its reasons *"include (but are not
+    limited to)"* those it names. For the non-linear families it is the
+    extension this criterion makes.
   - **R20.2** (Publisher): All opportunity windows of one family that
     share a `Period` MUST be authored as `<Event>` entries inside a
     **single** `<EventStream>`. DASH admits at most one `EventStream`
@@ -1715,10 +1722,8 @@ screen to a single active non-linear form at any instant.
     the reason ADR 0011 gives for that case: the attempt produced no ad
     for this slot. A document of the wrong family cannot fill the slot
     whatever it contains, because its candidates are of a kind the slot
-    does not admit. It is stated separately because it does carry
-    candidates, and R20.1 holds that a resolution document carrying
-    candidates is not a failed execution; this criterion is the
-    exception, since none of those candidates belongs to the slot.
+    does not admit. It is stated separately because its candidates may
+    be renderable on the device; none of them belongs to the slot.
   - **R20.5** (Player): The Player MUST bind the candidates each window
     in a fallback chain serves with **that window's own** declarations:
     its allowed layouts and its maximum duration. The Player MUST NOT

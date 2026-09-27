@@ -185,8 +185,10 @@ the final viewer experience.
 Authority over the on-screen experience is held jointly by the
 Publisher (who declares) and the Player (who enforces). The ADS
 decides which ads to serve and the APS presents them as the
-resolution document, but neither is normatively bound by the slot
-constraints. This separation lets a single ADS serve multiple
+resolution document. Neither enforces the slot constraints: the ADS
+is not normatively bound by them, and the APS only by the layout and
+region constraints the Player forwards on the resolution request (R38.4
+and R39.4 in [`03-requirements.md`](03-requirements.md)). This separation lets a single ADS serve multiple
 Publishers (through their APSs) with heterogeneous policies, and
 lets a Player guarantee the Publisher's constraints even when the
 ADS and APS are external, non-audited services.
