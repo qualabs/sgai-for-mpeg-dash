@@ -2,12 +2,23 @@
 
 | | |
 |---|---|
-| **Candidate promoted** | `v7.2` |
-| **Promoted on** | 2026-09-17 |
-| **Promoted by** | manual — no criterion was applied |
+| **Candidate promoted** | `v12.6` |
+| **Promoted on** | 2026-09-27 |
+| **Promoted by** | the coordinator, applying the criterion in `CLAUDE.md` |
+| **Previously published** | `v7.2`, promoted manually on 2026-09-17 with no criterion |
 
-The files in this directory are `output/v7.2-sgai-spec.md` and its three
-`output-analysis/v7.2-*` sidecars, renamed without the version prefix.
+The files in this directory are `output/v12.6-sgai-spec.md` and its
+sidecars `output-analysis/v12.6-{spec-validation,detail-review,dash-conformance-audit,comparison}.md`,
+renamed without the version prefix. `inputs.sha256` records the inputs
+(`context/`, `context-analysis/`, `prompts/`) the candidate was built from;
+`bin/check-dist-freshness.py` compares against it.
+
+**Why it was promoted.** Both halves of the criterion held:
+`bin/check-promotable.py` exited `0` on the v12.6 sidecars
+(`PROMOTABLE=si BLOCKERS=0 NEEDS_HUMAN=0 PIPELINE=0 CONTEXT_CHANGE=0
+UNCERTAIN=0`, 10 items open and not blocking, published in the
+sidecars), and `comparison.md` gives `BETTER THAN PUBLISHED` against
+`v7.2`.
 
 **This record exists for two readers.**
 
@@ -15,16 +26,6 @@ A person asking "which build is this?" — the unversioned filenames are
 deliberate, so the answer is not in the name, and git history alone does
 not distinguish a promotion from an edit.
 
-And the build orchestrator, which numbers the next candidate. It scans
-`output/` for `v<N>-sgai-spec.md` and takes `max(N) + 1`. `output/` is
-emptied on promotion, so without this record the counter restarts at 1
-and reuses names that git history already holds for unrelated documents.
-The next candidate is numbered from the value above.
-
-**It was promoted without a criterion.** No check decided that `v7.2`
-had earned publication: the restructure that created this directory had
-to put something in it, and `v7.2` was the newest candidate. The
-promotion criterion is `bin/check-promotable.py`, and run against what
-is published here it exits `2` — the sidecars predate the per-criterion
-coverage map, so it cannot tell. That is the honest state and it is
-recorded rather than left to be discovered.
+And the build orchestrator, which numbers the next candidate from
+`output/`. `output/` was kept at this promotion, so the next major is
+`v13`.
