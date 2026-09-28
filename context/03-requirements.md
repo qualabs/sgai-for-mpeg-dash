@@ -2372,6 +2372,74 @@ carriers for creative metadata and non-AV assets.
   - **R47.3** (spec document): The annex of R11.5 MUST show how a VAST
     viewability declaration maps to the three outcomes.
 
+- **R48. Regulatory ad disclosure.**
+  *Gist: Where regulation or industry programmes require an ad to disclose information to the viewer, the resolution document can carry it, and the Player presents it in whatever way its device can.*
+
+  **Why this requirement exists.** Regulation (EU) 2022/2065 (Digital
+  Services Act), Article 26(1), requires *"Providers of online platforms
+  that present advertisements on their online interfaces"* to ensure
+  that, *"for each specific advertisement presented to each individual
+  recipient"*, the recipients can identify *"in a clear, concise and
+  unambiguous manner and in real time"*:
+
+  - (a) *"that the information is an advertisement"*;
+  - (b) *"the natural or legal person on whose behalf the advertisement
+    is presented"*;
+  - (c) *"the natural or legal person who paid for the advertisement if
+    that person is different from the natural or legal person referred
+    to in point (b)"*;
+  - (d) *"meaningful information directly and easily accessible from the
+    advertisement about the main parameters used to determine the
+    recipient to whom the advertisement is presented"*.
+
+  Industry programmes answer the same need; AdChoices is one. The fields of R48.1 exist to cover those four
+  points: the label covers (a), the two party names cover (b) and (c),
+  and the visual indicator with its destination URL covers (d). Without
+  a carrier, a Publisher bound by the article could not meet it for an
+  ad delivered through this specification, so this requirement is not
+  optional decoration.
+
+  Article 26 obliges providers of online platforms. This specification
+  does not decide whether a given service is one: it provides where the
+  information travels and what the Player does with it.
+
+  **The carrier is per candidate** (this note on the source is
+  informative) because that is where VAST carries it: *"The structure for Linear icons uses the `<Icons>` element
+  (plural) as a container for one or more `<Icon>` elements"*, whose
+  parent is *"Linear in both InLine and Wrapper formats"*, and each
+  `<Icon>` names *"The program represented in the icon (e.g.
+  "AdChoices")"* (VAST 4.3, §3.11 and §3.11.1). A candidate is one ad
+  creative, and its options are renditions of it (R5.8), so the
+  disclosure belongs to the candidate and not to an option. VAST offers
+  icons only on linear creatives, *"because icons can be easily
+  inserted in NonLinear ads and companion creative using existing
+  features"* (§3.11); this specification carries the disclosure on
+  every candidate, because a Player that has to present it on a device
+  that cannot render the creative's own icon needs it as data. The
+  rule of R48.3 against fetching an indicator that is not rendered is
+  also VAST's: *"Pre-fetching the icon resource may cause the icon
+  provider to falsely record an icon view when the icon may not have
+  been displayed"* (§2.3.7.2).
+
+  **Conformance criteria** (runtime + document-level):
+  - **R48.1** (spec document): The specification MUST define a carrier,
+    per candidate, for the disclosure information the ADS declared for
+    that ad: an identifier of the disclosure programme, and optionally
+    a visual indicator, a destination URL, the name of the party on
+    whose behalf the ad is presented and, when different, of the party
+    that paid for it, and a short label identifying the content as
+    advertising.
+  - **R48.2** (APS): When the ADS declared disclosure information for
+    an ad, the APS MUST carry it in that carrier. Fidelity is part of
+    the APS-to-ADS contract (R18).
+  - **R48.3** (Player): When the candidate it renders carries disclosure
+    information, the Player MUST make it available to the viewer by the
+    means its device has. How is up to the Player: rendering the visual
+    indicator, a device-native indicator, or a remote-control action
+    that shows the destination URL on screen all conform. A Player MUST
+    NOT fetch a visual indicator it cannot render, because fetching it
+    can be counted as a view of it.
+
 ### Governance
 
 Requirements that constrain how the proposal itself is authored —
@@ -2544,12 +2612,6 @@ and deferring layout to existing primitives.
   and the APS writes the complete URL. A beacon of a carrier this
   specification defines follows the same rule, so that every beacon is
   fired the same way.
-- **OOS-11. Ad icons, including AdChoices.** The icons that VAST
-  `<Icons>`, or any other decision format, attaches to an ad —
-  AdChoices among them — have no carrier in this edition, and the
-  Player renders none. They are out of scope until the working
-  group asks for them: no current use case needs them. Anyone can
-  reopen this item by proposing a use case that does.
 
 ## Deliberately open
 
