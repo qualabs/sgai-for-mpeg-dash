@@ -95,7 +95,7 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-13 One ad, Player-declared capabilities, APS resolves to one option | Worked example | side-by-side — option 1, emitted alone | full-screen takeover — option 4, emitted alone (non-video surfaces declared absent) | L-shape — option 2, emitted alone (HTML axis omitted, not relied on) | L-shape — option 2, after walking the full list it received (declared nothing) | full-screen takeover — option 4, emitted alone (no overlay surface) |
 | UC-14 Non-linear ad over a replacement that is not advertising (window in the replacement's own presentation) | Composition | overlay composited over the slate (video on the second decoder, or image / HTML surface) | video overlay only — no non-video surface over video | image or HTML overlay composited over the slate | image overlay composited; HTML declined | declined — no overlay capability |
 | UC-15 Publisher-restricted layouts forwarded to the APS | Selection | L-shape image — the APS chose within the forwarded set | lower-third declined, no allowed option renderable → skip | L-shape image | L-shape image | skip (graceful) — no allowed layout without an overlay surface |
-| UC-16 Custom overlay inside a Publisher region (optional) | Selection | custom overlay inside the region, if the Player supports `custom` | same | same | same | skip (no overlay surface) |
+| UC-16 Custom overlay inside a Publisher region (optional) | Selection | custom overlay inside the region, if the Player supports `custom` | skip (no non-video surface over video) | same as D1 | same as D1 | skip (no overlay surface) |
 | UC-17 Non-linear window supersedes a linear break, kept as fallback | Mixed | L-shape image over the programme; break not played | break played — no allowed option renderable | L-shape image; break not played | L-shape image; break not played | break played — no overlay surface |
 | UC-18 Squeezeback with the ad's audio during a sports lull | Presentation | video L-shape with the ad's audio if the device can switch the audio, else image L-shape, silent | video L-shape with the ad's audio if the device can switch the audio, else nothing | image L-shape, silent | image L-shape, silent | skip (graceful) |
 | UC-19 UC-09 candidate on a device whose protected playback admits one decoder | Selection | walks the options as D3 while the content is protected: L-shape image — option 2 | — | — | — | — |
@@ -146,12 +146,12 @@ use case below references the industry-standard term where applicable
 
 **Ad response:**
 - One or more candidates eligible for this slot.
-- Each candidate carries one or more renderable presentation options
-  — typically a video form, optionally with an image or HTML form as
-  a fallback for devices that cannot render video — as an ordered
-  list, where document order is the preference order. Each form has
-  its own intrinsic duration declared by the ADS; the actual rendered
-  stream length governs R4 enforcement.
+- Each candidate carries a video form. Every device class renders a
+  linear video ad on its one decoder, and a linear candidate carries
+  no image or HTML form as a fallback. Each ad has its own intrinsic
+  duration declared by the ADS; the actual rendered stream length
+  governs R4 enforcement, and an ad that would overrun the cap is
+  played and cut at the cap (R7.3).
 - The candidates appear in document order across the slot, and the
   presentation options within a candidate appear in document order.
 
@@ -220,12 +220,12 @@ leaves it intact and resumes at the same point
 
 **Ad response:**
 - One or more candidates eligible for this slot.
-- Each candidate carries one or more renderable presentation options
-  — typically a video form, optionally with an image or HTML form as
-  a fallback for devices that cannot render video — as an ordered
-  list, where document order is the preference order. Each form has
-  its own intrinsic duration declared by the ADS; the actual rendered
-  stream length governs R4 enforcement.
+- Each candidate carries a video form. Every device class renders a
+  linear video ad on its one decoder, and a linear candidate carries
+  no image or HTML form as a fallback. Each ad has its own intrinsic
+  duration declared by the ADS; the actual rendered stream length
+  governs R4 enforcement, and an ad that would overrun the cap is
+  played and cut at the cap (R7.3).
 
 **Expected behavior per device class:**
 
@@ -938,10 +938,9 @@ expires (per R4).
 - The overlay candidate was already supplied (the ADS decided it
   and the APS presented it) per the UC-03 flow.
 - On pause-ad trigger, the Player resolves the APS again for the
-  pause-ad slot (which consults the ADS) per the UC-05 flow, unless
-  the Publisher's MPD signals that the overlay candidate doubles as
-  the pause-ad candidate. The resolution contract is the same as
-  UC-05.
+  pause-ad slot (which consults the ADS) per the UC-05 flow. No
+  construct lets the overlay candidate double as the pause-ad
+  candidate. The resolution contract is the same as UC-05.
 
 **Expected behavior per device class:**
 
@@ -1792,9 +1791,9 @@ coordinates; the Player checks them before rendering.
 **Ad response:**
 - The Player sends the allowed layouts and the region on the resolution
   request (R38.2, R39.3).
-- The APS returns two options, in order: a `custom` overlay at x 65%,
-  y 8%, width 25%, height 20% (inside the region, smaller than it), and
-  a `overlay-lower-third` fallback.
+- The APS returns two options, in order, both image forms: a `custom`
+  overlay at x 65%, y 8%, width 25%, height 20% (inside the region,
+  smaller than it), and a `overlay-lower-third` fallback.
 
 **Expected behavior:**
 - **A Player that supports `custom`** checks that the rectangle lies
@@ -1802,8 +1801,9 @@ coordinates; the Player checks them before rendering.
 - **A Player that does not support `custom`** treats that option as not
   renderable and renders the lower-third instead — which is why the APS
   offered a fallback. Both Players are conformant (R39.1).
-- **D5** has no overlay surface and skips the slot, as in every overlay
-  case.
+- **D2** composites no non-video surface over video, so neither image
+  option is renderable and it skips the slot. **D5** has no overlay
+  surface and skips the slot, as in every overlay case.
 
 **A rectangle outside the region:** if an APS returned x 50%, width 40%
 (reaching 90% but starting left of the region's 60%), the Player would
