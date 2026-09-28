@@ -2138,9 +2138,9 @@ break de respaldo (UC04.5, UC04.6, B07.12).
 ## 2026-09-28 — context/: lo que se trae de SVTA2053 v3 y de "Edge Cases", F-1 cerrada, y P-1/P-2
 
 Decisiones de Nicolás del 2026-09-28 sobre
-`.project/knowledge/svta2053-aportes-para-dash.md` y
-`.project/knowledge/hls-gap-svta2053.md`, que entran al repo con este
-cambio. Los números R43, R45 y R46 quedan sin asignar a propósito: son
+los dos análisis del draft SVTA2053 v3 (los aportes para DASH y el gap
+contra HLS). Viven en el repo privado `sgai-for-hls`, porque citan un draft
+de SVTA que no está publicado. Los números R43, R45 y R46 quedan sin asignar a propósito: son
 del repo `sgai-for-hls`, que usa la misma numeración, y en DASH no
 tienen contenido.
 
