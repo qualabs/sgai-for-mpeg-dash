@@ -2239,3 +2239,16 @@ El carrier va por candidato porque VAST pone `<Icons>` bajo `<Linear>`
 (VAST 4.3 §3.11, §3.11.1, leído hoy del PDF de IAB). OOS-11 se saca de
 `context/`. Mapeo de `<Icons>` en 05 y UC-20 nuevo (web, Smart TV,
 set-top box sin imágenes).
+
+## 2026-09-28 — El break de respaldo de R40 no es un hueco
+
+Queda cerrado el pendiente que venía del 2026-09-26: *"ningún criterio de
+R40 autoriza al Publisher a escribir el break de respaldo (UC04.5, UC04.6,
+B07.12)"*. Decisión de Nicolás: no es un hueco. El Publisher ya puede
+escribir un evento lineal de la base en cualquier lugar, porque lo
+permite DASH, y por R1.5 no se repite acá. Lo que hace el Player cuando
+encuentra *supersede* más el evento está en R40.3, y el patrón completo
+está en UC-07 y UC-17. Un criterio del lado del Publisher repetiría el
+mismo hecho, y un "SHOULD escribirlo para monetizar" es una
+recomendación de negocio, no una regla de interoperabilidad. No cambia
+`context/`.
