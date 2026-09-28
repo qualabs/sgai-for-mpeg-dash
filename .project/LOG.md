@@ -2225,3 +2225,17 @@ Decisiones de Nicolás del 2026-09-28 sobre lo que el §5.b y el §5.c de
 - **OOS-11**: la razón pasa a ser que ningún caso de uso actual lo
   necesita, y que cualquiera puede reabrirlo proponiendo uno. La de "en
   TV no hay clic" contradecía R28 y UC-11.
+
+## 2026-09-28 — R48, la divulgación regulatoria del aviso, reemplaza a OOS-11
+
+Decisión de Nicolás: los íconos no quedan fuera de alcance. R48 lleva,
+por candidato, la información de divulgación que el ADS declaró
+(programa, indicador visual, URL, en nombre de quién, quién pagó, la
+etiqueta de aviso), y el Player la muestra como su dispositivo pueda. El
+requerimiento dice por qué existe: Regulation (EU) 2022/2065 (DSA),
+Art. 26(1), puntos (a) a (d), citados del texto de EUR-Lex leído hoy, y
+aclara que esta spec no decide si un servicio es una "online platform".
+El carrier va por candidato porque VAST pone `<Icons>` bajo `<Linear>`
+(VAST 4.3 §3.11, §3.11.1, leído hoy del PDF de IAB). OOS-11 se saca de
+`context/`. Mapeo de `<Icons>` en 05 y UC-20 nuevo (web, Smart TV,
+set-top box sin imágenes).

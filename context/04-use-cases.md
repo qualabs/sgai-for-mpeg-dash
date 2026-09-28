@@ -99,6 +99,7 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-17 Non-linear window supersedes a linear break, kept as fallback | Mixed | L-shape image over the programme; break not played | break played — no allowed option renderable | L-shape image; break not played | L-shape image; break not played | break played — no overlay surface |
 | UC-18 Squeezeback with the ad's audio during a sports lull | Presentation | video L-shape with the ad's audio if the device can switch the audio, else image L-shape, silent | video L-shape with the ad's audio if the device can switch the audio, else nothing | image L-shape, silent | image L-shape, silent | skip (graceful) |
 | UC-19 UC-09 candidate on a device whose protected playback admits one decoder | Selection | walks the options as D3 while the content is protected: L-shape image — option 2 | — | — | — | — |
+| UC-20 One ad with AdChoices disclosure on three devices | Presentation | web player: the icon, and a click opens the link | — | Smart TV: the icon, and a remote button shows the URL on screen | same as D3 | set-top box: a device-native indicator, and a remote button shows the URL |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -1931,3 +1932,36 @@ and have to end the ad (R1.6).
 
 **What this demonstrates:** the device class is the one the device has
 in the session, not the one on its datasheet.
+
+### UC-20 — One ad carrying AdChoices disclosure, on three devices
+
+**Scenario:** An ad is sold with AdChoices, the industry programme for
+interest-based advertising, and reaches three devices. The Publisher
+presents it on a service that has to let the viewer see that it is an
+ad and why it was shown to them (R48).
+
+**Publisher intent:** a mid-content linear break, as in UC-02.
+
+**Ad response:**
+- One candidate, a video ad. Its disclosure information names the
+  programme (AdChoices), a visual indicator (the AdChoices icon, an
+  image), the destination URL of the advertiser's AdChoices page, the
+  party on whose behalf the ad is shown, and the label "Ad" (R48.1). The
+  APS carries it from the ADS's decision (R48.2).
+
+**Expected behavior:**
+- **A web player** (D1-like, with a pointer) renders the icon over the
+  ad. A click opens the destination URL.
+- **A Smart TV** (D3 or D4) renders the icon over the ad. There is no
+  pointer: a button on the remote shows the destination URL on screen,
+  where the viewer can read it or open it on another device.
+- **A set-top box that cannot render images over video** (D5) does not
+  fetch the icon (R48.3). It shows its own native "Ad" indicator with
+  the label, and a remote button shows the destination URL on screen.
+
+All three conform: each makes the information available by the means
+its device has (R48.3).
+
+**What this demonstrates:** the disclosure is data, not a picture. A
+device that cannot draw the icon still has what it needs to meet the
+obligation the icon exists for.
