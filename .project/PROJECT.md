@@ -16,7 +16,7 @@ status: ongoing
 type: research
 owner: qualabs
 started: 2026-05-06
-last_update: 2026-08-19
+last_update: 2026-09-28
 tags: [dash, sgai, non-linear-ads, mpeg, svta, overlays, dynamic-presentation, prototype, spec, server-guided-ads]
 related_processes: [preparacion-working-group]
 related_wgs: [industry-sgai, svta-ads]
