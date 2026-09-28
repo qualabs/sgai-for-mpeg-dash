@@ -52,8 +52,12 @@ For external readers familiar with industry vocabulary:
 The device class captures only the rendering capabilities relevant
 to this spec: how many simultaneous video decoders the device can
 run, and what kinds of surfaces it can composite on top of video. It
-does not address codec support, DRM, or network conditions — those
-are orthogonal and handled elsewhere in the player.
+does not address codec support or network conditions — those are
+orthogonal and handled elsewhere in the player. Content protection is
+not orthogonal in the same way, because on some devices it changes how
+many decoders are available: the class a device belongs to is the one
+it has in the session, with the primary content as it is being played,
+and getting that right is the Player's (R29.10, UC-19).
 
 - **D1 — Top-tier**: 2 or more video decoders; can render images on
   top of video; can render HTML on top of video.
@@ -93,6 +97,8 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-15 Publisher-restricted layouts forwarded to the APS | Selection | L-shape image — the APS chose within the forwarded set | lower-third declined, no allowed option renderable → skip | L-shape image | L-shape image | skip (graceful) — no allowed layout without an overlay surface |
 | UC-16 Custom overlay inside a Publisher region (optional) | Selection | custom overlay inside the region, if the Player supports `custom` | same | same | same | skip (no overlay surface) |
 | UC-17 Non-linear window supersedes a linear break, kept as fallback | Mixed | L-shape image over the programme; break not played | break played — no allowed option renderable | L-shape image; break not played | L-shape image; break not played | break played — no overlay surface |
+| UC-18 Squeezeback with the ad's audio during a sports lull | Presentation | video L-shape with the ad's audio if the device can switch the audio, else image L-shape, silent | video L-shape with the ad's audio if the device can switch the audio, else nothing | image L-shape, silent | image L-shape, silent | skip (graceful) |
+| UC-19 UC-09 candidate on a device whose protected playback admits one decoder | Selection | walks the options as D3 while the content is protected: L-shape image — option 2 | — | — | — | — |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -100,8 +106,11 @@ device, the Player declines the slot and continues with the primary
 content uninterrupted. The same continuity guarantee holds at
 runtime: if an accepted ad fails while being resolved or rendered — a
 decode error, a malformed candidate, a mid-ad network loss — the
-Player aborts that ad and continues the primary content uninterrupted
-(per R1.4).
+Player aborts that ad; when nothing of the attempt was rendered, the
+attempt produced no ad and R20.1 governs what follows, and otherwise
+the primary content continues uninterrupted (per R1.4). An ad that
+degrades the primary content while it plays is ended the same way
+(per R1.6).
 
 ## Scenarios
 
@@ -429,6 +438,25 @@ layout) it can satisfy.
 its wall-clock on-screen time is `duration / playback_speed` (per R19);
 the duration cap (R4) and the beacon schedule (R13) stay on the
 presentation timeline.
+
+**Audio:** the window does not allow the ad's audio, so on every class
+the programme's audio keeps playing under the overlay and the ad is
+silent (per R41.1).
+
+**Verification:** the candidate carries one verification resource. D1
+runs the vendor's SDK and hands it the resource, the creative's
+identifier when the candidate carries one, and the overlay's region
+(per R44.3, R23.2); a Player that runs no SDK renders the same overlay
+and ignores the resource. D5 skips the candidate as above.
+
+**Degradation:** on D2 the video overlay makes the primary content drop
+below its expected frame rate. The Player ends the overlay, fires the
+failure beacon the candidate carries, and the programme continues
+(per R1.6, R42).
+
+**Dismissal:** when the slot is dismissible and the viewer dismisses the
+overlay, the Player fires the dismissal beacon the candidate carries,
+and no beacon scheduled after it (per R35, R42).
 
 ### UC-04 — Hybrid linear + concurrent overlay
 
@@ -758,6 +786,13 @@ primary content resumes.
 - **Player decision:** same as D3.
 - **What the user sees:** same as D3.
 
+**Slot beacons:** the resolution document carries a slot-start and a
+slot-end beacon. On every class the slot-start beacon fires once, when
+the first ad the Player renders begins, and the slot-end beacon once,
+when the break ends — after the last ad, or at the cap. In live, a
+viewer who joins after the break started fires the slot-start beacon
+with the first ad rendered for them (per R13.7).
+
 **Notes:**
 - The Player's behaviour when the sequence's total duration exceeds
   the Publisher's declared cap is governed by **R4** in
@@ -806,13 +841,22 @@ trigger the request.
   authored for the opportunity, and the Publisher's choice is
   **content-dependent**:
 
-  - **Live / real-time content** → the opportunity falls through as
-    skip-and-continue and the ad is an expected loss on the legacy
-    Player. Live content cannot be paused or held to splice in a
-    standard linear break without losing real content, so per **R1**
-    the only safe outcome is to let the legacy Player ignore the SGAI
-    construct and keep playing the live edge. The Publisher SHOULD
-    treat the opportunity as a loss on legacy Players (see Notes).
+  - **Live / real-time content** → the Publisher MAY author a
+    **standard linear break by replacement** over the same span as the
+    SGAI window, and declare on the window that it **supersedes** the
+    break (R40). Live content cannot be held to *insert* a break —
+    the base forbids the insertion event on a dynamic MPD (*"The event
+    shall not appear if the MPD type is "dynamic""*, §5.16.3) — but a
+    replacement does not hold it: *"This event can be used with both
+    static and dynamic MPDs"* (§5.16.4), and while it plays the main
+    presentation's playhead keeps moving, so playback returns to the
+    live timeline when it ends. A replacement over a stretch of the
+    programme is how a linear ad already runs in live. The legacy
+    Player skips the SGAI window and plays the replacement break; a
+    Player of this specification presents the window and executes the
+    break only when the window presents no ad (UC-17). Without that
+    break authored, the opportunity is an expected loss on the legacy
+    Player, which keeps playing the live edge.
   - **Non-live / VOD content** → the Publisher MAY (and SHOULD, where
     monetising the opportunity matters) author a **standard linear
     break** over the same span as the SGAI window, using only baseline
@@ -827,28 +871,28 @@ trigger the request.
     standard break costs no real content.
 
   The Publisher cannot detect a viewer's Player version from the
-  manifest (see Notes), so the standard-break fallback is authored
-  unconditionally for VOD. The supersede declaration is what keeps a
+  manifest (see Notes), so the standard-break fallback, where it is
+  authored, is authored unconditionally. The supersede declaration is
+  what keeps a
   Player of this specification from presenting both the break and the
   non-linear ad; without it, that Player plays the break and presents
   the window only over the primary content (R40.4).
 - **What the user sees:**
-  - Live content, or VOD with no standard-break fallback authored →
-    the primary content plays uninterrupted, no ad is rendered, and no
-    error surfaces.
-  - VOD with a standard-break fallback authored → the legacy Player
-    plays the standard linear break (the fallback the Publisher
-    authored), then resumes the primary content; no error surfaces.
+  - No standard-break fallback authored → the primary content plays
+    uninterrupted, no ad is rendered, and no error surfaces.
+  - A standard-break fallback authored → the legacy Player plays the
+    standard linear break (the fallback the Publisher authored), then
+    resumes the primary content — where it was, on VOD with an
+    insertion, or at the live timeline, on a replacement; no error
+    surfaces.
 
 Behavior does not vary across device classes because the
-graceful-degradation outcome depends on Player version and on the
-content type (live vs VOD), not on device hardware capabilities. A
-device with rich rendering caps running a legacy Player produces the
-same outcome as a worst-case device running a legacy Player. What
-differs is the content type, not the device: for live content the
-legacy Player skips and the opportunity is lost; for VOD the legacy
-Player plays whatever standard linear break the Publisher authored as
-the fallback.
+graceful-degradation outcome depends on Player version and on what the
+Publisher authored, not on device hardware capabilities. A device with
+rich rendering caps running a legacy Player produces the same outcome
+as a worst-case device running a legacy Player. What the content type
+decides is which break can be authored: a replacement in live, an
+insertion or a replacement on VOD.
 
 **Notes:**
 - This scenario is the cornerstone of the proposal's extensibility
@@ -858,12 +902,13 @@ the fallback.
   MPEG-DASH semantics, or that would error on legacy Players, are
   out of scope (R1).
 - The Publisher cannot detect from the manifest whether a viewer's
-  Player is legacy or current. For **live** content the Publisher
-  must therefore treat ad opportunities that fall through to UC-07 as
-  expected losses, not as errors. For **VOD** the Publisher MAY avoid
-  the loss by authoring a standard linear break as the legacy
-  fallback (using baseline constructs a legacy Player renders) and
-  declaring that the SGAI window supersedes it: a Player of this
+  Player is legacy or current. An opportunity with no fallback authored
+  that falls through to UC-07 is therefore an expected loss, not an
+  error. The Publisher MAY avoid the loss by authoring a standard
+  linear break as the legacy fallback (using baseline constructs a
+  legacy Player renders: a replacement in live, an insertion or a
+  replacement on VOD) and declaring that the SGAI window supersedes
+  it: a Player of this
   specification takes the SGAI path and a legacy Player plays the
   standard break, so the opportunity is monetised in both cases.
 
@@ -1065,6 +1110,11 @@ canonical; they exercise R5 differently.
      surface and no second decoder.
 - The ADS is unaware of the device class; it returns this same
   ordered list for every viewer.
+- The advertiser allowed all four formats for this ad, in this order of
+  preference, so the four options are the formats it allowed (R5.8).
+- The L-shape image option (2) carries its own impression beacon, so
+  the ADS learns which format each device showed: D3 and D4 fire it,
+  and D1, D2 and D5 do not (R13.6).
 
 **Expected behavior per device class:**
 
@@ -1378,7 +1428,7 @@ after a transport failure.
   window is served, the forms inside its resolution document are then
   sequenced per R14: R20 selects which window is served; R14 sequences
   the forms within the chosen window.
-- **The three paths this scenario admits:**
+- **The four paths this scenario admits:**
   1. The first window answers with a resolution document carrying no
      candidates, and the second answers with one carrying an ad. The
      first attempt produced no ad, so it failed (R20.1, R30), the
@@ -1818,3 +1868,66 @@ it can and the break where it cannot, and a legacy Player presents the
 break. Without the declaration a Player of this specification would
 execute the break and present the overlay only over the primary content
 around it (R40.4).
+
+### UC-18 — A squeezeback with the ad's audio, during a lull in a sports broadcast
+
+**Scenario:** A live sports broadcast reaches a lull — a stoppage, a
+break in play — and the Publisher opens an overlay window in which a
+squeezeback becomes the viewer's focus and the ad's audio may replace
+the programme's. The IAB guidelines name this case: *"audio is usually
+requested when there is a lull in sports content and the squeeze back
+becomes the user's focus"*. Everywhere else the default holds and the
+ad is silent (R41.1).
+
+**Publisher intent:**
+- An overlay window over the lull, maximum duration 30 s (R4), allowed
+  layout `squeezeback-l-shape-upper-left`, declaring that the ad's
+  audio is allowed (R41.2).
+
+**Ad response:**
+- The Player sends the allowance on the resolution request (R41.5). The
+  APS returns one candidate with two options in order: an L-shape with
+  a **video** full-frame creative that declares its audio (R41.3), then
+  an L-shape with an **image** full-frame creative that declares none.
+
+**Expected behavior per device class:**
+
+- **D1** — on a device that can render the ad's audio in place of the
+  programme's while the programme keeps playing, renders option 1: the
+  programme plays shrunk and silent, the ad's audio is heard at the
+  viewer's volume, and the programme's audio returns when the option
+  ends, whether it completed, reached the cap or was dismissed (R41.4,
+  R41.7). On a device that cannot switch the audio, option 1 is not
+  satisfiable (R41.6) and the Player renders option 2, silent, with the
+  programme's audio.
+- **D2** — option 1 needs two decoders, which D2 has; it renders it
+  when the device can switch the audio. Otherwise option 2 needs an
+  image surface D2 cannot composite over video, and the window presents
+  no ad.
+- **D3**, **D4** — option 1 needs a second decoder; the Player renders
+  option 2, silent, with the programme's audio.
+- **D5** — no overlay surface; the window presents no ad.
+
+**What this demonstrates:** an ad sold with audio is never rendered
+without it: the Player falls to the next option instead (R41.6).
+
+### UC-19 — The UC-09 candidate on a device whose protected playback admits one decoder
+
+**Scenario:** The UC-09 candidate, unchanged, reaches a device that runs
+two video decoders when the primary content is unprotected and only one
+when it is protected, because its secure decode path admits no second
+decoder. The primary content is protected.
+
+**Publisher intent and ad response:** as in UC-09.
+
+**Expected behavior:** the Player declares and checks the capability it
+has in this session, with the primary content protected: one video
+decoder, with image and HTML surfaces (R29.10). It walks the options as
+D3 does and renders option 2, the L-shape with an image full-frame
+creative. On the same device with unprotected primary content it walks
+them as D1 does and renders option 1. A Player that relied on the
+nominal two decoders would start option 1, degrade the primary content,
+and have to end the ad (R1.6).
+
+**What this demonstrates:** the device class is the one the device has
+in the session, not the one on its datasheet.

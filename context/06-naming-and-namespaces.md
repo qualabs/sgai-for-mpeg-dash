@@ -303,6 +303,46 @@ These conventions do not choose between the first two. The encoding
 preference below concerns list-shaped properties, and the relation is
 a single value. The build chooses, and records why under R8.
 
+## Carriers for audio, identifiers, verification and occurrence beacons
+
+The requirements added for these (R13.6, R13.7, R23.2, R41, R42, R44,
+R47) state what travels, not where. What the build weighs:
+
+- **The creative identifier (R23.2).** The base specification has one:
+  *"The AssetIdentifier is used to identify the asset on Period level"*
+  (§5.8.4.10), a descriptor (`DescriptorType`, so `@schemeIdUri` plus
+  `@value`) at `0...1` per Period (Table of Period elements). On a
+  candidate carried by a sub-MPD, R1.5 makes it the first alternative,
+  on that sub-MPD's Period. Two limits the build resolves: the base
+  admits one per Period where R23.2 admits as many as the ADS
+  declared; and on a List MPD the merge removes the Linked Period's
+  elements except those it enumerates, and `AssetIdentifier` is not
+  among them (§5.3.2.6.3, step 3 b), so the identifier goes on the
+  sub-MPD's Period and not on the List MPD's. On a non-linear candidate, which is not a Period, the
+  alternative is an element of the extension namespace of the same
+  `DescriptorType`, as the tracking carrier reuses `EventStreamType`.
+- **The ad-audio allowance (R41.2) and the option's audio (R41.3).**
+  The allowance travels on the window, like the relation of R40, with
+  the same two alternatives: an attribute or a descriptor on the
+  window. The option's declaration travels on the option.
+- **Occurrence beacons (R42, R47).** The base has no carrier: its
+  events are timeline-scheduled and the callback fires at a
+  presentation time. The alternatives are an element of the extension
+  namespace per occurrence, or one element carrying the occurrence as
+  a token of a closed set. The same carrier holds the viewability
+  outcomes of R47.
+- **Beacons of one option (R13.6).** The candidate's tracking carrier,
+  placed on the option instead of on the candidate. No new construct.
+- **Slot beacons (R13.7).** On a List MPD, an `EventStream` of the
+  Imported Period replaces the Linked Period's one when both carry the
+  same `@schemeIdUri` and `@value` (§5.3.2.6.3, step 3 c iv), so a
+  slot-level callback stream placed on a Linked Period is lost in the
+  merge whenever the sub-MPD carries its own; where it lives follows
+  from that.
+- **Verification resources (R44).** An element of the extension
+  namespace per resource, on the candidate. The base has nothing for
+  it.
+
 ## Preferred encoding patterns
 
 When this spec introduces a list-shaped property whose elements are

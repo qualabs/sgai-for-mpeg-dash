@@ -2134,3 +2134,62 @@ break de respaldo (UC04.5, UC04.6, B07.12).
 - **P-7**: R7.2 deja de ser un MAY frente al MUST de R5.3.
 - **02-actors**: el APS está obligado por los layouts y la región que el
   Player le reenvía (R2.2, R38.4, R39.4).
+
+## 2026-09-28 — context/: lo que se trae de SVTA2053 v3 y de "Edge Cases", F-1 cerrada, y P-1/P-2
+
+Decisiones de Nicolás del 2026-09-28 sobre
+`.project/knowledge/svta2053-aportes-para-dash.md` y
+`.project/knowledge/hls-gap-svta2053.md`, que entran al repo con este
+cambio. Los números R43, R45 y R46 quedan sin asignar a propósito: son
+del repo `sgai-for-hls`, que usa la misma numeración, y en DASH no
+tienen contenido.
+
+- **R41, audio** (aporte 1), alineado con IAB: por default el aviso no
+  lineal no lleva audio, y el Publisher lo habilita en la ventana. Sin
+  volumen numérico. Entra en R2.2, en R29.8 (el Player tiene que
+  reenviar el permiso), en R29.9 y en 02-actors. UC-18 nuevo, el caso
+  que IAB nombra: una pausa en el deporte.
+- **R42**, beacons de acciones del espectador y de error (aporte 2);
+  **R13.6**, beacons por opción (aporte 3); **R13.7**, beacons del
+  slot, que salen con el primer aviso renderizado aunque se entre
+  tarde (aporte 4). Se corrige en 05 la fila que mandaba `pause` y
+  `mute` a callbacks con media time.
+- **Macros** (aporte 5): no van. OOS-10: el callback de la base es un
+  GET a una URL fija (§5.10.4.5.1), y el APS escribe la URL completa.
+- **F-1 cerrada entera**: verificación en R44 (aporte 6), viewability
+  en R47 (los tres beacons de VAST en el carrier de R42), y los íconos,
+  AdChoices incluido, como OOS-11: en TV no hay clic sobre un ícono.
+  Se reabre si el WG lo pide.
+- **R5.8** (aporte 7), con la redacción de Nicolás: el anunciante
+  permite sólo los formatos que quiere, eso restringe lo que el Player
+  puede elegir, las opciones van en su orden de preferencia y el Player
+  toma la primera que el dispositivo puede renderizar. En R5, *"Several
+  options is the form this requirement asks for"* pasa a decir que las
+  dos formas se admiten por igual.
+- **R29.10** (aporte 8), con el encuadre de Nicolás: se asume que lo
+  que el Player declara es la capacidad real de la sesión, y darla bien
+  (DRM, camino seguro, ruteo externo) es del Player. 04 deja de excluir
+  DRM de la clase de dispositivo. UC-19 nuevo.
+- **R1.6** (aporte 9): el Player termina un aviso que degrada el
+  contenido (fps por debajo de lo esperado, clics en el audio); cómo lo
+  detecta es suyo.
+- **R23.2** (aporte 10): identificador del creativo, opcional, atado a
+  la verificación (R44.3 se lo pasa al SDK). Revierte la decisión de 05
+  de dejar `UniversalAdId` sin carrier, que no era una ADR. En 06
+  queda el `AssetIdentifier` de la base (§5.8.4.10) como alternativa
+  del build, con sus dos límites (uno por Period; el merge del List MPD
+  lo saca del Linked Period).
+- **`squeezeback-frame`** (aporte 11) entra en R12 y R27. Nota fechada
+  en la ADR 0004 (D-1).
+- **P-1** (R1.4) y **P-2** (UC-12, "four paths") del §5.d de
+  `v12.6-spec-validation.md`, con el texto que traía.
+- **UC-07 en live**: un Player legacy sí tiene fallback, por reemplazo.
+  `ReplacePresentation` vale en MPD dinámico (§5.16.4) y no retiene el
+  contenido; la inserción es la que está prohibida en live (§5.16.3).
+  Cambian UC-07 y la sección 5 de 07.
+
+Sin tocar: F-2 a F-6 y D-1, que esperan decisión de Nicolás.
+
+Sigue abierto: ningún criterio de R40 autoriza al Publisher a escribir el
+break de respaldo (UC04.5, UC04.6, B07.12). Con el cambio de UC-07 el
+permiso sin criterio ahora cubre también el reemplazo en live.

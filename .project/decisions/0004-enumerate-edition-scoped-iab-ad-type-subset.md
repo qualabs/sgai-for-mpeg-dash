@@ -127,6 +127,18 @@ does not re-define the formats and does not invent categories.
   position but points to R12 for the edition-scoped set, so the
   documents no longer contradict each other.
 
+## Note (2026-09-28): `squeezeback-frame` enters the enumeration
+
+D-1 is amended by Nicolás Levy's decision of 2026-09-28: the IAB
+*Frame* squeezeback is added to R12 as `squeezeback-frame` — the
+primary content in the centre 60% of the frame, the ad surrounding it
+on every side. It is an IAB layout, and D-1 selects IAB layouts; D-1
+gave no reason for leaving it out, and ADR 0001 already listed its
+spatial bound. Its geometry is carried by the token (ADR 0014) and its
+composition is R27's: one full-frame creative underneath, the shrunk
+primary content on top. D-2 is read as governing the set after this
+edition is published, not the draft of this edition.
+
 ## Links
 
 - `../../context/03-requirements.md`: R12 (this decision), R21 (pause-ad
