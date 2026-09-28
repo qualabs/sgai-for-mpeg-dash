@@ -164,10 +164,12 @@ and the boundaries of what this spec does and does not define.
   - **R1.4** (Player): When resolving or rendering an accepted ad
     fails at runtime (for example a decode error, a malformed
     candidate, or a mid-ad network loss), the Player MUST abort that
-    ad and continue playing the primary content uninterrupted. This
-    matches what the base specification already requires of its own
-    execution model (§5.16.2.2.6); the criterion states it for the
-    constructs added here rather than introducing it.
+    ad. When the attempt ends with no candidate rendered, it produced
+    no ad and R20.1 governs what follows; otherwise the Player MUST
+    continue playing the primary content uninterrupted. This matches
+    what the base specification already requires of its own execution
+    model (§5.16.2.2.6); the criterion states it for the constructs
+    added here rather than introducing it.
   - **R1.5** (spec document): Where the base specification already
     defines a behaviour, a default or a construct for a question this
     specification has to answer, the base specification's answer takes
@@ -176,6 +178,13 @@ and the boundaries of what this spec does and does not define.
     declares that answer as an extension. A decision that departs from
     the base answer anyway is an exception recorded with its reason.
     ADR 0006 records the principle.
+  - **R1.6** (Player): When presenting a non-linear ad degrades the
+    playback of the primary content — for example the primary content
+    renders at a frame rate below the expected one, or its audio
+    carries clicks — the Player MUST end that ad and treat it as a
+    runtime failure under R1.4, firing its failure beacon when it
+    carries one (R42). How the Player detects the degradation is the
+    Player's own decision.
 
 - **R2. Honour the actor's responsibilities.**
   *Gist: Four actors with fixed roles: the Publisher declares constraints, the ADS decides which ads to serve, the APS converts that into the resolution document, and the Player validates and renders.*
@@ -199,8 +208,8 @@ and the boundaries of what this spec does and does not define.
     Publisher-declared constraints (e.g. the slot duration cap) is the
     Player's obligation under R2.3. This specification places no such
     obligation on the ADS, and on the APS only the layout and region
-    constraints the Player forwards on the resolution request (R38.4,
-    R39.4).
+    constraints and the audio allowance the Player forwards on the
+    resolution request (R38.4, R39.4, R41.5).
   - **R2.3** (Player): The Player MUST validate the candidates in
     the resolution document against Publisher-declared constraints
     and render only those that satisfy them.
@@ -279,7 +288,7 @@ and the boundaries of what this spec does and does not define.
     Player's resolution request (R29).
 
 - **R29. Player-declared capability parameters on the resolution request.**
-  *Gist: The Player MAY attach reserved capability parameters — inputs about the device, not conclusions about what can be served — to the resolution request it sends the APS; each is optional except the slot's allowed layouts (R38), and one the Player cannot or will not populate is omitted rather than sent empty.*
+  *Gist: The Player MAY attach reserved capability parameters — inputs about the device, not conclusions about what can be served — to the resolution request it sends the APS; each is optional except what the slot itself declares (R38, R39, R41), and one the Player cannot or will not populate is omitted rather than sent empty.*
 
   This specification defines a set of **reserved parameter names** that a
   Player MAY attach to the resolution request it issues against the MPD
@@ -325,10 +334,24 @@ and the boundaries of what this spec does and does not define.
     specification does not define how an APS resolves an undetermined
     value; that is the APS's decision, and two APSs that resolve it
     differently are both conformant.
-  - **R29.8** (spec document): R38.2 and R39.3 are the exceptions to
-    R29.2: when a non-linear slot declares allowed layouts, or a custom
-    region, the Player is required to send them. Every other reserved
-    parameter remains optional.
+  - **R29.8** (spec document): R38.2, R39.3 and R41.5 are the
+    exceptions to R29.2: when a non-linear slot declares allowed
+    layouts, a custom region, or the ad-audio allowance, the Player is
+    required to send them. Every other reserved parameter remains
+    optional.
+  - **R29.9** (spec document): The reserved set MUST be able to express
+    whether the device can render an ad's audio in place of the primary
+    content's audio while the primary video keeps playing (R41.6).
+  - **R29.10** (Player): The capability the Player declares on the
+    resolution request, and the one it checks options against (R5.6),
+    is assumed to be the device's real capability in that session, with
+    the primary content as it is being played. Getting it right in every
+    situation — with or without content protection, on a secure decode
+    path, while the output is routed to an external device — is the
+    responsibility of the Player, or of whoever implements it. A device
+    that can run a second decoder only while the primary content is
+    unprotected MUST NOT declare, or rely on, that decoder while the
+    primary content is protected.
 
 ### Opportunity declaration
 
@@ -560,6 +583,7 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     | `squeezeback-l-shape-upper-right` | the upper-right 60% of the frame; the ad runs across the bottom and up the left edge | *L-Shape* (see R27) |
     | `squeezeback-double-box` | the centre-left 25% of the frame; the ad occupies the centre-right 25% | *Double Box Video* (see R26) |
     | `squeezeback-double-box-background` | the centre-left 25% of the frame; the ad occupies the centre-right 25%, over an advertiser-branded background | *Double Box Video + Background* (see R26) |
+    | `squeezeback-frame` | the centre 60% of the frame; the ad surrounds it on every side | *Frame* (see R27) |
 
     **The token carries the geometry because nothing else does.** The
     Player shrinks and repositions the primary content here, which it
@@ -605,7 +629,8 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     `overlay-corner`, `overlay-lower-third`,
     `squeezeback-l-shape-upper-left`, `squeezeback-l-shape-upper-right`,
     `squeezeback-double-box`, `squeezeback-double-box-background`,
-    `pause-fullscreen`, `pause-partial`, and the optional `custom` (R39).
+    `squeezeback-frame`, `pause-fullscreen`, `pause-partial`, and the
+    optional `custom` (R39).
     Every token except `custom` names one IAB ad type or visual
     placement; the IAB catalogue holds many more, and none of them is
     admissible. The bare `squeezeback` and `pause` are not tokens,
@@ -683,11 +708,11 @@ the order the resolution document declares.
   the responsibility the ADS and APS do not have — and a direct
   contributor to R3.
 
-  **Several options is the form this requirement asks for**: a candidate
+  **Several options and a single option are equally admissible; which
+  one fits depends on what the advertiser allows (R5.8).** A candidate
   that carries more than one resolves on devices the ADS and the APS know
   nothing about, which is what makes a single decision serve a
-  heterogeneous population. **Carrying exactly one option is equally
-  admissible.** An implementation that does not want the Player choosing
+  heterogeneous population. An implementation that does not want the Player choosing
   among options sends a single option, and the Player then renders that
   one or skips the candidate — that is the path to take when the decision
   is meant to sit upstream. When a candidate carries one option, that
@@ -744,6 +769,16 @@ the order the resolution document declares.
     candidate and fall through to the next candidate in the
     resolution document (preserving the order required by R7) or,
     when exhausted, as R5.3 states.
+  - **R5.8** (spec document): The advertiser is expected to allow only
+    the formats it wants for its ad, and the ADS that serves the ad
+    returns only those (R2). The presentation options of a
+    candidate are therefore the formats the advertiser allowed, and
+    that alone restricts what the Player can choose from: the Player
+    never renders a format that is not among the candidate's options.
+    The options are ordered by the advertiser's preference, and the
+    Player takes the first one its device can render (R5.6). An
+    advertiser that wants one specific format allows only that one,
+    and the candidate carries a single option.
 
 - **R7. Respect the order of the resolution document.**
   *Gist: The Player plays candidates in the order the resolution document declares, only dropping (never reordering) ones it cannot render or that would exceed the slot cap.*
@@ -1458,6 +1493,11 @@ squeezeback layouts (side-by-side and L-shape).
   (an ad candidate MAY list it among its ordered presentation options),
   not a slot-composition attribute.
 
+  R27 applies to `squeezeback-frame` as it does to the L-shape tokens:
+  one full-frame creative underneath, the shrunk primary content on
+  top, in the region the token denotes. What differs is only that
+  region, which the token carries (R12).
+
   Reference: IAB Tech Lab — "Ad Format Guidelines for Digital Video
   and CTV" (public comment, Dec 2025). "Squeezeback", p.12.
   https://iabtechlab.com/standards/ctv-ad-portfolio/
@@ -1486,6 +1526,54 @@ squeezeback layouts (side-by-side and L-shape).
     type underneath / around video can render it. An image / HTML
     full-frame creative MUST NOT be selected on a device that cannot
     composite that surface type together with video (R3 / R5).
+
+- **R41. Which audio is heard while a non-linear ad is presented.**
+  *Gist: By default a non-linear ad is presented without its audio, as in the IAB guidelines; the Publisher may allow the ad's audio on the window, and then an option may declare it. One audio source is heard at a time, at the level the viewer set.*
+
+  The IAB guidelines this specification references (R12) state for
+  each non-linear format that *"The default execution does not require
+  audio"*, and for the squeezeback that *"The publisher will signal in
+  the bid request if audio is required"*, for example during a lull in
+  a sports broadcast. The default here is the IAB's, and the one who
+  lifts it is the Publisher, because what is lost is the audio of its
+  programme. The base specification defines nothing about an ad's
+  audio, so this is an extension (R1.5). No volume level is defined:
+  with one audio source heard at a time there is nothing for a level to
+  express, and the loudness of the creative is the advertiser's under
+  the IAB guidelines.
+
+  **Conformance criteria** (runtime + document-level):
+  - **R41.1** (Player): While an overlay or squeezeback form is
+    presented, the Player MUST keep rendering the audio of the
+    presentation the form is composited over and MUST NOT render the
+    ad's audio, unless R41.4 applies. While a pause-ad form is
+    presented, the Player MUST NOT render the ad's audio unless R41.4
+    applies.
+  - **R41.2** (Publisher): The Publisher MAY declare, on an overlay or
+    pause window, that the ad's audio is allowed. A window that does
+    not declare it does not allow it.
+  - **R41.3** (APS): When the window allows it, the APS MAY declare on
+    a presentation option that its audio is to be heard.
+  - **R41.4** (Player): When the option it renders declares its audio,
+    the Player MUST render the ad's audio, in place of the primary
+    content's audio on an overlay or squeezeback form, for as long as
+    that option is presented, and MUST restore the primary content's
+    audio when the option ends, whatever ends it.
+  - **R41.5** (Player + APS): When the window declares the allowance,
+    the Player MUST send it on the resolution request (R29). The APS
+    MUST NOT return an option that declares its audio when it did not
+    receive the allowance.
+  - **R41.6** (Player): An overlay or squeezeback option that declares
+    its audio is satisfiable only on a device that can render that
+    audio in place of the primary content's while the primary video
+    keeps playing. On any other device the Player MUST treat the option
+    as not satisfiable and move to the next option (R5.6); it MUST NOT
+    render the option without its audio, because an ad sold with audio
+    is not the same ad without it.
+  - **R41.7** (Player): The Player MUST render at most one audio source
+    at any instant, at the volume and mute state the viewer set on the
+    device. This specification defines no mixing, ducking or gain
+    level.
 
 ### Interaction & composition rules
 
@@ -1986,7 +2074,9 @@ carriers for creative metadata and non-AV assets.
     at the trim boundary.
   - **R13.4** (spec document): The specification MUST NOT introduce
     a new tracking event scheme; reuse of the DASH baseline
-    callback mechanism is mandatory.
+    callback mechanism is mandatory for beacons bound to a time.
+    Beacons bound to an occurrence rather than to a time are governed
+    by R42.
   - **R13.5** (APS + ADS): The fidelity of the transcription — that
     the APS neither adds, removes, nor reorders the beacons the ADS
     declared — is part of the APS-to-ADS contract those parties
@@ -1994,6 +2084,20 @@ carriers for creative metadata and non-AV assets.
     declares the schedule and receives the beacons, so it is in a
     position to enforce that fidelity; the resolution document is
     not, because it does not show what was declared.
+  - **R13.6** (APS + Player): Beacons MAY be attached to a single
+    presentation option instead of to the candidate. The Player MUST
+    fire the beacons of the option it renders and MUST NOT fire those
+    of any option it did not render. Beacons attached to the candidate
+    fire whichever option renders. This is what lets the ADS learn
+    which of the formats the advertiser allowed (R5.8) was shown.
+  - **R13.7** (APS + Player): The resolution document MAY carry beacons
+    scoped to the slot rather than to one ad: one for the slot's start
+    and one for its end. The Player MUST fire the slot-start beacon
+    once, when the first ad it renders in the slot begins, including
+    when playback joins the slot after its start, and the slot-end
+    beacon once, when the slot ends, whatever ends it (last ad
+    completed, cap reached, dismissal). A slot in which no ad was
+    rendered fires neither.
 
 - **R23. Application-level ad metadata carrier.**
   *Gist: The specification defines an SVTA-namespaced place for creative metadata with no native DASH carrier; emitting it and reading it are both optional.*
@@ -2018,6 +2122,16 @@ carriers for creative metadata and non-AV assets.
     application-level metadata with no native DASH carrier
     (`AdSystem`, `AdTitle`, etc.), and MUST state that emitting them
     and reading them are both optional.
+  - **R23.2** (spec document): A candidate MAY carry identifiers of its
+    creative, each a scheme and a value, as many as the ADS declared.
+    Emitting them and reading them are both optional. What they serve
+    on the client side is verification: a Player that runs a
+    verification SDK hands it the identifiers of the candidate it
+    renders together with its verification resources (R44.3). Where
+    the base specification provides a construct that identifies the
+    asset a Period belongs to, R1.5 applies. The Player decides nothing
+    from an identifier, so this does not bring the advertiser's
+    identity into the Player's rendering decisions (OOS-8).
 
 - **R24. Non-AV creative asset carrier (RFC 4337 avoidance).**
   *Gist: URLs for non-AV creatives (image, HTML) must use a DASH-conformant carrier, never an @mimeType path bound by RFC 4337.*
@@ -2145,6 +2259,84 @@ carriers for creative metadata and non-AV assets.
     the click-tracking, so it is in a position to enforce that it
     travels; the resolution document is not, because it does not show
     what was declared.
+
+- **R42. Beacons bound to a viewer action or to a failure, not to a time.**
+  *Gist: The resolution document can carry beacons that fire on a viewer action or on a failure of the ad, which the callback scheme cannot express because they have no presentation time.*
+
+  The callback scheme fires a beacon at a presentation time, and the
+  base specification defines no event triggered by the viewer. A pause,
+  a mute or a dismissal has no presentation time, so R6.3 admits a
+  carrier of its own for them, as R28 does for the click. It is a
+  carrier and not a tracking event scheme, so R13.4 is not contradicted.
+  A beacon URL is fired as the ADS wrote it and the APS carried it: a
+  value the ADS needs in it is written into the URL by the APS when it
+  builds the resolution document (OOS-10).
+
+  **Conformance criteria** (runtime + document-level):
+  - **R42.1** (spec document): The specification MUST define a
+    normative carrier for beacons bound to an occurrence rather than to
+    a presentation time, for this closed set of occurrences on an
+    accepted ad: the viewer dismisses or skips it (R35); the viewer
+    pauses it and resumes it; the viewer mutes or unmutes it; it fails
+    at runtime (R1.4, R1.6). The set is closed for this edition.
+  - **R42.2** (APS): When the ADS declared beacons for any of these
+    occurrences, the APS MUST carry them in that carrier and not in the
+    callback scheme. Whether they reach the resolution document at all
+    is part of the APS-to-ADS contract (R18), as in R28.3.
+  - **R42.3** (Player): A Player conformant to this specification MUST
+    fire each such beacon once per occurrence, when the occurrence
+    happens on the ad that carries it, and never from the timeline.
+  - **R42.4** (spec document): The annex that maps a VAST response to a
+    resolution document (R11.5) MUST show which VAST tracking events map
+    to each occurrence.
+
+- **R44. Ad verification resources.**
+  *Gist: The resolution document carries the verification resources the ADS declared for an ad, opaque to this specification; a Player that runs a verification SDK hands them over for the ad it renders.*
+
+  An ADS can declare verification resources for an ad — a VAST-based
+  one does, though the ADS is not bound to VAST — and R11.4 requires
+  the resolution document to have a place for what such an ADS
+  expresses. The resources are opaque here: what a vendor does with
+  them is the vendor's, and running a verification SDK does not affect
+  playback, so it is not required of the Player.
+
+  **Conformance criteria** (runtime + document-level):
+  - **R44.1** (spec document): The specification MUST define a carrier,
+    per candidate, for the verification resources the ADS declared: for
+    each, a vendor identifier, an optional resource locator and
+    optional opaque parameters. Their meaning belongs to the vendor, not
+    to this specification.
+  - **R44.2** (APS): When the ADS declared verification resources for
+    an ad, the APS MUST carry them in that carrier. Fidelity is part of
+    the APS-to-ADS contract (R18).
+  - **R44.3** (Player): Running a verification SDK is OPTIONAL. A Player
+    that runs one MUST hand it the verification resources and the
+    creative identifiers (R23.2) of the candidate it renders, and the
+    region the ad occupies on screen, which on a squeezeback is not the
+    region of the primary content.
+
+- **R47. Viewability beacons.**
+  *Gist: The resolution document can carry the beacons an ADS declares for whether an ad was viewable; the Player fires the one that matches what it could determine.*
+
+  An ADS can declare three beacons for an impression — a VAST-based one
+  does, though the ADS is not bound to VAST: one for an
+  ad that was viewable, one for an ad that was not, and one for when
+  viewability could not be determined. R11.4 requires a place for them.
+  Each is bound to a determination the Player makes, not to a
+  presentation time, so they are occurrences in the sense of R42 and
+  ride its carrier. What counts as viewable is not defined here.
+
+  **Conformance criteria** (runtime + document-level):
+  - **R47.1** (APS): When the ADS declared viewability beacons for an
+    ad, the APS MUST carry them in the carrier of R42.1, each marked
+    with which of the three outcomes it reports. Fidelity is part of the
+    APS-to-ADS contract (R18).
+  - **R47.2** (Player): A Player that determines whether the ad it
+    rendered was viewable MUST fire, once per impression, the beacon of
+    the outcome it determined. A Player that does not determine it MUST
+    fire the undetermined beacon when the candidate carries one.
+  - **R47.3** (spec document): The annex of R11.5 MUST show how a VAST
+    viewability declaration maps to the three outcomes.
 
 ### Governance
 
@@ -2306,6 +2498,24 @@ and deferring layout to existing primitives.
   renders over them. They are not candidates for a later phase and are not raised as gaps
   in the specification: no requirement, use case or layout value
   covers them, and none is to be added.
+- **OOS-10. Placeholders in beacon URLs that the Player substitutes.**
+  A tracking URL in VAST, or any other decision format, can carry
+  macros that the party firing it replaces. This specification defines none, for the beacons of any
+  carrier. A callback of the base specification asks the client *"to
+  issue an HTTP GET request to a given URL and ignore the HTTP
+  response"* (§5.10.4.5.1), and giving that
+  URL a substitution step would change the semantics of a base
+  construct (R1.3). The resolution is per session, so what the ADS
+  needs in a beacon URL is known when the resolution document is built,
+  and the APS writes the complete URL. A beacon of a carrier this
+  specification defines follows the same rule, so that every beacon is
+  fired the same way.
+- **OOS-11. Ad icons, including AdChoices.** VAST, or any other
+  decision format, can give an ad icons that the viewer clicks,
+  AdChoices among them. This edition carries
+  none. An icon exists for that click, and on a TV there is no click
+  interaction on an icon. The item is reopened if the working group
+  asks for it.
 
 ## Deliberately open
 
