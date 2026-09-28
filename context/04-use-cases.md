@@ -49,27 +49,17 @@ For external readers familiar with industry vocabulary:
 
 ## Device classes
 
-The device class captures only the rendering capabilities relevant
-to this spec: how many simultaneous video decoders the device can
-run, and what kinds of surfaces it can composite on top of video. It
-does not address codec support or network conditions — those are
-orthogonal and handled elsewhere in the player. Content protection is
-not orthogonal in the same way, because on some devices it changes how
-many decoders are available: the class a device belongs to is the one
-it has in the session, with the primary content as it is being played,
-and getting that right is the Player's (R29.10, UC-19).
-
-- **D1 — Top-tier**: 2 or more video decoders; can render images on
-  top of video; can render HTML on top of video.
-- **D2**: 2 video decoders; cannot composite **non-video** content
-  (images, HTML) on top of video — but **can composite a second video
-  on top of primary** using its dual decoders.
-- **D3**: 1 video decoder; can render images on top of video; can
-  render HTML on top of video.
-- **D4**: 1 video decoder; can render images on top of video;
-  cannot render HTML on top of video.
-- **D5 — Worst case**: 1 video decoder; no overlay capability of
-  any kind (no images, no HTML on top of video).
+The device classes D1 to D5 are defined in R3 of
+[`03-requirements.md`](03-requirements.md), as combinations of the
+capability axes of R29.1: how many video streams the device can decode
+and composite at once, and whether it can composite an image or HTML
+together with video. That table is the only definition; the
+sub-section titles of each use case below are labels for it. Codec
+support and network conditions are not axes (OOS-12). Content
+protection is not orthogonal in the same way, because on some devices
+it changes how many decoders are available: the class a device belongs
+to is the one it has in the session, with the primary content as it is
+being played, and getting that right is the Player's (R29.10, UC-19).
 
 ## Coverage
 
@@ -1618,10 +1608,9 @@ silent Player.
   the Player renders it or skips the candidate. What a declaration
   changes is the basis on which the APS chose that option, not what the
   Player does with it.
-- **The capability axes are named here in prose.** Which parameters the
-  reserved set contains, and how each is written, is fixed when the
-  syntax is specified (R29.1). A use case that named them would fix
-  them early and would age against a decision that has not been taken.
+- **The capability axes are the parameters of R29.1.** The Player sends
+  each axis on its own, never a class name; the APS reads the class, if
+  it needs one, from the combination (R3).
 - **The policy for an undetermined axis is the APS's, not this
   specification's.** The APS in this scenario resolves an undetermined
   axis conservatively. One that assumed the most capable case would
