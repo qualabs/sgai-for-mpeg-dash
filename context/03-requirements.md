@@ -317,9 +317,9 @@ and the boundaries of what this spec does and does not define.
 
   **Conformance criteria** (runtime + document-level):
   - **R29.1** (spec document): The reserved capability parameters are
-    the three below and the audio parameter of R29.9, and no others.
-    Each is an **input about the device** — what the
-    device can do — and not a conclusion about which ad experiences can
+    the four below and the audio parameter of R29.9, and no others.
+    Each is an **input about the device** — what the device, or the
+    Player on it, can do — and not a conclusion about which ad experiences can
     be served; deriving the second from the first is the APS's.
 
     | Parameter | Values | Meaning |
@@ -327,6 +327,7 @@ and the boundaries of what this spec does and does not define.
     | `sgai-video-decoders` | `1`, `2`, `3` | How many video streams the device can decode and composite at once, the primary content included. `3` means three or more. A second video over the primary content, or beside it, needs `2` or more. |
     | `sgai-image-over-video` | `1`, `0` | Whether the device can composite an image together with playing video: over it, or around it as in a squeezeback. No image format is named. |
     | `sgai-html-over-video` | `1`, `0` | Whether the device can composite HTML together with playing video, in the same sense. |
+    | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional `custom` layout (R39). |
 
     Codec support is not an axis (OOS-12).
   - **R29.2** (Player): Sending a reserved parameter is OPTIONAL. A
@@ -344,8 +345,8 @@ and the boundaries of what this spec does and does not define.
     any of them. An APS that requires a parameter in order to answer
     would make R29.2 unattainable for the Player.
   - **R29.6** (spec document): The device classes this specification
-    enumerates are defined as combinations of the parameters of R29.1
-    (R3), so the set tells every enumerated class apart by construction.
+    enumerates are defined as combinations of the first three parameters
+    of R29.1 (R3), so the set tells every enumerated class apart by construction.
     A combination that is not a named class is declared the same way.
   - **R29.7** (spec document): A reserved parameter absent from the
     resolution request means its value is **undetermined** — the

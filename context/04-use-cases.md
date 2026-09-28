@@ -53,8 +53,7 @@ The device classes D1 to D5 are defined in R3 of
 [`03-requirements.md`](03-requirements.md), as combinations of the
 capability axes of R29.1: how many video streams the device can decode
 and composite at once, and whether it can composite an image or HTML
-together with video. That table is the only definition; the
-sub-section titles of each use case below are labels for it. Codec
+together with video. That table is the only definition. Codec
 support and network conditions are not axes (OOS-12). Content
 protection is not orthogonal in the same way, because on some devices
 it changes how many decoders are available: the class a device belongs
@@ -148,7 +147,7 @@ use case below references the industry-standard term where applicable
 
 **Expected behavior per device class:**
 
-#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+#### D1
 
 - **Player decision:** reads the Publisher's slot rules
   (linear-only, bounded duration). Selects the first
@@ -162,14 +161,14 @@ use case below references the industry-standard term where applicable
   duration. When the ad completes, the primary content starts from
   its first frame.
 
-#### D2 — Dual-decoder, video-on-video only
+#### D2
 
 - **Player decision:** same as D1. The absence of non-video overlay
   capability does not change behavior here because the slot is
   linear-only.
 - **What the user sees:** same as D1.
 
-#### D3 — Single-decoder, image and HTML capable
+#### D3
 
 - **Player decision:** selects the first renderable
   candidate following document order. Plays the candidate's video
@@ -180,12 +179,12 @@ use case below references the industry-standard term where applicable
 - **What the user sees:** same as D1 and D2 — a full-screen ad
   before the primary content starts.
 
-#### D4 — Single-decoder, image only
+#### D4
 
 - **Player decision:** same as D3.
 - **What the user sees:** same as D3.
 
-#### D5 — Single-decoder, no overlay (worst case)
+#### D5
 
 - **Player decision:** same as D3. Linear ads are sequential, not
   concurrent; they do not need overlay capability or a second
@@ -220,7 +219,7 @@ leaves it intact and resumes at the same point
 
 **Expected behavior per device class:**
 
-#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+#### D1
 
 - **Player decision:** reads the Publisher's slot rules at the
   slot position. Selects the first renderable candidate
@@ -235,7 +234,7 @@ leaves it intact and resumes at the same point
   then transitions back to the primary content at (or near) the
   slot position.
 
-#### D2 — Dual-decoder, video-on-video only
+#### D2
 
 - **Player decision:** same as D1. Slot rules are device-agnostic;
   the Publisher does not declare different rules for D2 than for
@@ -246,7 +245,7 @@ leaves it intact and resumes at the same point
   content on top of video, but linear ads do not need that
   capability.
 
-#### D3 — Single-decoder, image and HTML capable
+#### D3
 
 - **Player decision:** selects the first renderable
   candidate following document order. Plays the candidate's video
@@ -255,12 +254,12 @@ leaves it intact and resumes at the same point
   playback.
 - **What the user sees:** same as D1 and D2.
 
-#### D4 — Single-decoder, image only
+#### D4
 
 - **Player decision:** same as D3.
 - **What the user sees:** same as D3.
 
-#### D5 — Single-decoder, no overlay (worst case)
+#### D5
 
 - **Player decision:** same as D3.
 - **What the user sees:** same as D3.
@@ -333,7 +332,7 @@ layout) it can satisfy.
 
 **Expected behavior per device class:**
 
-#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+#### D1
 
 - **Player decision:** reads Publisher slot rules (allowed
   layouts, duration cap). Selects a candidate whose
@@ -352,7 +351,7 @@ layout) it can satisfy.
   disappears. The user sees the highest-fidelity form available
   (typically the HTML or video rendering).
 
-#### D2 — Dual-decoder, video-on-video only
+#### D2
 
 - **Player decision:** selects a candidate whose presentation
   options conform to the allowed layouts and are renderable on this
@@ -378,7 +377,7 @@ layout) it can satisfy.
   satisfiable for any candidate. The primary content keeps playing
   in all cases.
 
-#### D3 — Single-decoder, image and HTML capable
+#### D3
 
 - **Player decision:** selects a candidate following document order.
   For the selected candidate, walks the presentation options in
@@ -392,7 +391,7 @@ layout) it can satisfy.
   top of the primary content, rendered via HTML or as a static
   image, for the declared duration, then disappears.
 
-#### D4 — Single-decoder, image only
+#### D4
 
 - **Player decision:** selects a candidate following document order.
   For the selected candidate, walks the presentation options in
@@ -411,7 +410,7 @@ layout) it can satisfy.
   the ADS returned one — that is invisible to the user and to the
   Publisher's rules.
 
-#### D5 — Single-decoder, no overlay (worst case)
+#### D5
 
 - **Player decision:** reads slot rules. For each candidate, walks
   the presentation options and finds none renderable: HTML needs an HTML overlay
@@ -481,7 +480,7 @@ but are independently selected.
 
 **Expected behavior per device class:**
 
-#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+#### D1
 
 - **Player decision:** reads slot rules — linear allowed, overlay
   declared on top of it with a restricted layout set.
@@ -495,7 +494,7 @@ but are independently selected.
   (e.g. branding tied to the same campaign or a different brand
   entirely, depending on what the ADS returns for each portion).
 
-#### D2 — Dual-decoder, video-on-video only
+#### D2
 
 - **Player decision:** the linear portion is satisfied normally
   (one decoder for the linear ad). The overlay portion: if the
@@ -517,7 +516,7 @@ but are independently selected.
     a full-screen linear ad of bounded duration with no overlay on
     top; on completion, primary content resumes.
 
-#### D3 — Single-decoder, image and HTML capable
+#### D3
 
 - **Player decision:** for an L-shape / squeezeback option, the layout
   composes two elements — the full-frame ad creative in the background
@@ -548,7 +547,7 @@ but are independently selected.
   if only a top-of-video overlay option exists — a full-screen linear ad
   with an image or HTML overlay composited on top of it.
 
-#### D4 — Single-decoder, image only
+#### D4
 
 - **Player decision:** same reasoning as D3, except this device
   cannot render HTML. An L-shape / squeezeback option (two elements
@@ -569,7 +568,7 @@ but are independently selected.
   with an image overlay composited on top of it, or no overlay at all
   when the only option offered is an HTML one.
 
-#### D5 — Single-decoder, no overlay (worst case)
+#### D5
 
 - **Player decision:** the linear portion plays normally. The
   overlay portion is declined (no overlay capability of any kind).
@@ -617,7 +616,7 @@ content continues from the paused position.
 
 **Expected behavior per device class:**
 
-#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+#### D1
 
 - **Player decision:** if the user pauses inside the
   Publisher-declared window of validity, the Player applies the
@@ -637,7 +636,7 @@ content continues from the paused position.
   the overlay is dismissed and playback continues from the paused
   position.
 
-#### D2 — Dual-decoder, video-on-video only
+#### D2
 
 - **Player decision:** the primary is paused, which leaves the
   primary decoder holding the paused frame. The second decoder is
@@ -653,7 +652,7 @@ content continues from the paused position.
   - Candidate has only HTML/image forms → nothing; the paused
     frame stays on screen until the user resumes.
 
-#### D3 — Single-decoder, image and HTML capable
+#### D3
 
 - **Player decision:** selects a candidate following document order.
   Walks the presentation options in document order. The video form would need a decoder, and the
@@ -668,7 +667,7 @@ content continues from the paused position.
 - **What the user sees:** an HTML or image overlay on top of the
   paused frame, dismissed on resume.
 
-#### D4 — Single-decoder, image only
+#### D4
 
 - **Player decision:** same logic as D3, but HTML is not
   renderable on this device. Walks the presentation options in document order and picks the image form.
@@ -679,7 +678,7 @@ content continues from the paused position.
 - **What the user sees:** a static image overlay on top of the
   paused frame, dismissed on resume.
 
-#### D5 — Single-decoder, no overlay (worst case)
+#### D5
 
 - **Player decision:** no overlay capability of any kind. Per R3,
   declines the pause-ad opportunity entirely.
@@ -739,7 +738,7 @@ primary content resumes.
 
 **Expected behavior per device class:**
 
-#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+#### D1
 
 - **Player decision:** reads slot rules. Plays each candidate in
   order, switching the decoder source between ads. The second
@@ -752,14 +751,14 @@ primary content resumes.
   back-to-back, with no primary content between them. After the
   last ad, the primary content resumes.
 
-#### D2 — Dual-decoder, video-on-video only
+#### D2
 
 - **Player decision:** same as D1. The break is linear-only, so
   the absence of non-video overlay capability does not change
   behavior.
 - **What the user sees:** same as D1.
 
-#### D3 — Single-decoder, image and HTML capable
+#### D3
 
 - **Player decision:** same logic as D1, but the single decoder is
   reused sequentially across the ads and the primary content. No
@@ -767,12 +766,12 @@ primary content resumes.
   have a second decoder for that.
 - **What the user sees:** same as D1.
 
-#### D4 — Single-decoder, image only
+#### D4
 
 - **Player decision:** same as D3.
 - **What the user sees:** same as D3.
 
-#### D5 — Single-decoder, no overlay (worst case)
+#### D5
 
 - **Player decision:** same as D3.
 - **What the user sees:** same as D3.
@@ -935,7 +934,7 @@ expires (per R4).
 
 **Expected behavior per device class:**
 
-#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+#### D1
 
 - **Player decision:** the overlay is currently rendered (per
   UC-03 / D1). When the viewer pauses inside the pause-ad window,
@@ -960,7 +959,7 @@ expires (per R4).
   slot window is still active, the original overlay reappears and
   continues until its declared window expires.
 
-#### D2 — Dual-decoder, video-on-video only
+#### D2
 
 - **Player decision:** identical to D1 in the pause/resume
   sequencing per R17. The pause-ad rendering follows UC-05 / D2
@@ -984,7 +983,7 @@ expires (per R4).
   the overlay reappears and continues until its declared window
   expires.
 
-#### D3 — Single-decoder, image and HTML capable
+#### D3
 
 - **Player decision:** the overlay is rendered via the HTML/CSS
   layer (per UC-03 / D3). On pause, the Player suspends the
@@ -1004,7 +1003,7 @@ expires (per R4).
   original overlay reappears and continues until its declared
   window expires.
 
-#### D4 — Single-decoder, image only
+#### D4
 
 - **Player decision:** the overlay was an image (per UC-03 / D4).
   On pause, the Player suspends the image overlay (per R17.1) and
@@ -1021,7 +1020,7 @@ expires (per R4).
   overlay slot window is still active, the original image overlay
   reappears and continues until its declared window expires.
 
-#### D5 — Single-decoder, no overlay (worst case)
+#### D5
 
 - **Player decision:** the overlay was declined per UC-03 / D5
   (the device has no overlay surface, no second decoder). The
@@ -1108,7 +1107,7 @@ canonical; they exercise R5 differently.
 
 **Expected behavior per device class:**
 
-#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+#### D1
 
 - **Player decision:** walks the options in document order (R5.2 /
   R5.6). Option 1 (side-by-side video + background) requires two
@@ -1120,7 +1119,7 @@ canonical; they exercise R5 differently.
   the ad video plays in the other, and the advertiser's background
   image fills the bands around them.
 
-#### D2 — Dual-decoder, video-on-video only
+#### D2
 
 - **Player decision:** walks the options in document order. Option 1
   (side-by-side video + **image** background) — D2 has the two
@@ -1141,7 +1140,7 @@ canonical; they exercise R5 differently.
   non-video surface (the background or the image ad) that D2 cannot
   composite.
 
-#### D3 — Single-decoder, image and HTML capable
+#### D3
 
 - **Player decision:** walks the options in document order. Option 1
   (side-by-side video + background) — needs **two** decoders (primary
@@ -1156,7 +1155,7 @@ canonical; they exercise R5 differently.
   around the shrunk primary content forms the "L". Both elements are
   present per R27.
 
-#### D4 — Single-decoder, image only
+#### D4
 
 - **Player decision:** walks the options in document order. Option 1
   — two decoders: fails. Option 2 (L-box with an **image** full-frame
@@ -1170,7 +1169,7 @@ canonical; they exercise R5 differently.
   one region composited on top of the image ad creative that fills the
   whole frame (the L-shape / squeezeback).
 
-#### D5 — Single-decoder, no overlay (worst case)
+#### D5
 
 - **Player decision:** walks the options in document order. Option 1
   — two decoders plus an image surface: fails on both counts. Option 2
@@ -1263,7 +1262,7 @@ device-class reasoning that follows from the element count and type.
 
 **Expected behavior per device class:**
 
-#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+#### D1
 
 - **Player decision:** the side-by-side is in the allowed set and the
   device can composite three elements. If the ad form is **video**, D1
@@ -1276,7 +1275,7 @@ device-class reasoning that follows from the element count and type.
   the ad plays / displays in the other, and the advertiser's background
   image fills the bands around the two boxes.
 
-#### D2 — Dual-decoder, video-on-video only
+#### D2
 
 - **Player decision:** D2 can composite **video on video** but cannot
   composite **non-video** surfaces alongside / on top of video. The
@@ -1291,7 +1290,7 @@ device-class reasoning that follows from the element count and type.
   if none renders). The three-element background is the blocker, not
   the decoder count.
 
-#### D3 — Single-decoder, image and HTML capable
+#### D3
 
 - **Player decision:** if the ad form is **image or HTML**, the
   side-by-side needs **one** decoder (the primary content) plus an image
@@ -1304,7 +1303,7 @@ device-class reasoning that follows from the element count and type.
   the background image fills the bands around them. For a video ad on
   D3, the side-by-side is skipped.
 
-#### D4 — Single-decoder, image only
+#### D4
 
 - **Player decision:** same reasoning as D3 restricted to the image
   case — D4 cannot render HTML. An **image** ad in the side-by-side
@@ -1317,7 +1316,7 @@ device-class reasoning that follows from the element count and type.
   image fills the bands around them. For a video or HTML ad, the
   side-by-side is skipped.
 
-#### D5 — Single-decoder, no overlay (worst case)
+#### D5
 
 - **Player decision:** D5 has no overlay capability of any kind — no
   image surface, no HTML surface, and only one decoder. The
@@ -1508,7 +1507,7 @@ leaves it able to do.
 
 **Expected behavior per device class:**
 
-#### D1 — Top-tier (2+ video decoders, image and HTML overlays)
+#### D1
 
 - **Player decision:** declares its full capability set on the
   resolution request — two or more concurrent video decoders, image and
@@ -1520,7 +1519,7 @@ leaves it able to do.
   ad video plays in the other, and the advertiser's background image
   fills the bands around them. The same rendered result as UC-09 on D1.
 
-#### D2 — Dual-decoder, video-on-video only
+#### D2
 
 - **Player decision:** declares two concurrent video decoders and **no
   non-video compositing surface**. The APS rules out option 1 on its
@@ -1533,7 +1532,7 @@ leaves it able to do.
   after which the primary content resumes. The same rendered result as
   UC-09 on D2.
 
-#### D3 — Single-decoder, image and HTML capable
+#### D3
 
 - **Player decision:** declares one video decoder and an image surface,
   and **omits** the HTML-surface axis, whose value it cannot determine
@@ -1550,7 +1549,7 @@ leaves it able to do.
   visible band of the creative forming the "L". The same rendered
   result as UC-09 on D3.
 
-#### D4 — Single-decoder, image only
+#### D4
 
 - **Player decision:** declares **nothing**. Sending a reserved
   parameter is optional, and a Player conformant to this specification
@@ -1565,7 +1564,7 @@ leaves it able to do.
   into one region with the image ad creative full-frame behind it. The
   same rendered result as UC-09 on D4.
 
-#### D5 — Single-decoder, no overlay (worst case)
+#### D5
 
 - **Player decision:** declares one video decoder and **no overlay
   surface of any kind**. The APS rules out options 1, 2 and 3, each of
