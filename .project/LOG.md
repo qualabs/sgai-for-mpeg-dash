@@ -2272,3 +2272,13 @@ specified".
   el principal o al lado es `2` o más.
 - Codecs fuera de alcance por ahora (OOS-12), a revisar con el WG.
   OOS-11 no se reusa.
+
+## 2026-09-28 — Fase 06-document-first abierta, en diseño
+
+Nicolás aprobó abrir la fase para reestructurar `03-requirements.md` con la
+regla "el documento primero": la semántica de cada interfaz se escribe una
+vez, del lado del documento, y el comportamiento de un actor sólo donde no
+se deduce. Sale de `output-analysis/v12.6-requirements-redundancy-review.md`.
+La v12.7 no se corre: la fase termina en una v13 mayor con una sola corrida.
+Por ahora hay sólo `DESIGN.md`, que Nicolás revisa antes de generar
+`PHASE.md`, `TASKS.md` y las ADRs.
