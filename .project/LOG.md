@@ -2193,3 +2193,35 @@ Sin tocar: F-2 a F-6 y D-1, que esperan decisión de Nicolás.
 Sigue abierto: ningún criterio de R40 autoriza al Publisher a escribir el
 break de respaldo (UC04.5, UC04.6, B07.12). Con el cambio de UC-07 el
 permiso sin criterio ahora cubre también el reemplazo en live.
+
+## 2026-09-28 — F-2, F-3, D-1 decididas; OOS-11 con otra razón
+
+Decisiones de Nicolás del 2026-09-28 sobre lo que el §5.b y el §5.c de
+`v12.6-spec-validation.md` dejaban para él.
+
+- **F-3**: una ventana de pausa declara sólo *on top* (R40.1); nota
+  fechada en ADR 0020. R40 dice además, en frases simples, a qué está
+  "pegado" cada anuncio no lineal: overlay y squeezeback al rango de
+  media time que declaran, la pausa a la pausa del espectador dentro de
+  su rango. Entrada nueva en el glosario ("Anchored").
+- **F-2, al revés de lo recomendado**: se hace lo que hace DASH. Un
+  anuncio que se pasaría del tope se reproduce y se corta en el tope
+  (Table 57, *"For insertion events, APDA = min(APD, APDmax)."*); ya no
+  se descarta antes de reproducir. Razones: R1.5, y que mostrar parte de
+  un anuncio monetiza algo (DP-3). Cambian R7 (gist, prosa, R7.1, R7.3,
+  R7.4), R14.2, y UC-01 y UC-02.
+- **D-1**: el registro "Deliberately open" tiene tres filas, las que
+  dependen de otros: Advanced Linear (K-29/F-5) y el documento vacío bajo
+  el perfil List (K-17/F-4), que decide MPEG, y el NID `svta`
+  (K-35/F-6), que decide SVTA. ADR 0021. Las otras diez preguntas del
+  §8.13 se cierran con la respuesta que ya tenían, ahora escrita en
+  `context/`: R40.3 (qué tan temprano se resuelve un supersede), R40.5
+  (el tope de una ventana *on top*), R37.2 (pausa en live más larga que
+  el buffer), R35.8 (sin precedencia entre los dos skip de la base),
+  R33.4 (la métrica la pide el MPD que declara la ventana de pausa),
+  R17.5 (ya estaba), R40.1 (F-3), R1.2 (el documento no lineal y los
+  parámetros quedan fuera de la enumeración), R7.3 (F-2), y UC-01,
+  UC-02, UC-08 y UC-16 alineados con lo que un construct lleva.
+- **OOS-11**: la razón pasa a ser que ningún caso de uso actual lo
+  necesita, y que cualquiera puede reabrirlo proponiendo uno. La de "en
+  TV no hay clic" contradecía R28 y UC-11.

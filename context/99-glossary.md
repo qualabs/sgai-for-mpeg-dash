@@ -21,6 +21,11 @@ through `08-dash-extension-rules.md`.
 - **Non-linear ad**: ad that *coexists* with the primary content; it
   does not interrupt playback. Rendered as an overlay or as a
   side-by-side composition.
+- **Anchored (non-linear window)**: what a non-linear ad is tied to on
+  the timeline while it is shown. An overlay or squeezeback window is
+  anchored to the media-time range it declares; a pause window is
+  anchored to a viewer pause that happens inside its range. See R40 in
+  [`03-requirements.md`](03-requirements.md).
 - **Overlay**: umbrella term for any non-linear ad surface (a surface
   composited on top of the primary content, or a squeezeback that
   shrinks the primary content to share the frame). The concrete ad

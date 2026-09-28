@@ -164,6 +164,16 @@ ADR 0015 itself used against defaulting a cap.
   the pause family is untouched. An inherited linear event no longer has
   to declare one: the base default stands.
 
+## Note (2026-09-28): a pause window declares only on top
+
+Nicolás Levy's decision of 2026-09-28 restricts the relation on a pause
+window: it declares only on top, never supersede (R40.1). Whether a pause
+window presents an ad depends on a viewer pause that is unknown at the
+presentation time of the linear event it would stand in for, so it could
+not be the ad a legacy fallback replaces. R40 now also states what each
+window is anchored to: an overlay or squeezeback window to the media-time
+range it declares, a pause window to a viewer pause inside its range.
+
 ## Links
 
 - ADR 0006 and R1.5 — the base answer takes precedence; R40.8 records the

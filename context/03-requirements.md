@@ -157,7 +157,12 @@ and the boundaries of what this spec does and does not define.
     Period (DR-5). Annex F (DR-4) is admissible only when (a) the
     construct genuinely requires DASH segment-delivery semantics
     for a non-ISO-BMFF format, and (b) the spec is willing to
-    publish a new Interoperability Point URI.
+    publish a new Interoperability Point URI. The enumeration governs
+    constructs added to a document a Player that does not implement
+    this specification reads. The non-linear resolution document
+    (DR-10) and the reserved parameters of the resolution request
+    (R29) are reached only through a construct at one of those
+    extension points, and are outside the enumeration.
   - **R1.3** (Publisher / spec document): The specification MUST NOT alter
     or override the semantics of any pre-existing MPEG-DASH 6th
     edition construct.
@@ -781,7 +786,7 @@ the order the resolution document declares.
     and the candidate carries a single option.
 
 - **R7. Respect the order of the resolution document.**
-  *Gist: The Player plays candidates in the order the resolution document declares, only dropping (never reordering) ones it cannot render or that would exceed the slot cap.*
+  *Gist: The Player plays candidates in the order the resolution document declares, only dropping (never reordering) ones it cannot render; one that would exceed the slot cap is played and cut at the cap, as the base specification does.*
 
   When the resolution document
   the APS returns contains more than one ad (e.g. a `ListMPD`
@@ -789,37 +794,36 @@ the order the resolution document declares.
   in the order the resolution document declares,
   **as long as this is possible given the other Player constraints**.
   Specifically, the Player MAY drop a candidate that violates R3 (no
-  renderable form for the device) or that would push the cumulative
-  duration past the slot cap (R4), but it MUST NOT re-order,
+  renderable form for the device), but it MUST NOT re-order,
   deduplicate, or otherwise rearrange the remaining candidates. Ad
   selection and ordering happen upstream of the Player (R2); the
   order the resolution document carries is the one the Player honours,
   unless a hard constraint blocks it.
 
-  Order of evaluation when a candidate's declared duration would
-  push the cumulative slot duration past the cap (R4 / max slot
-  duration): the Player MAY skip that candidate entirely based on
-  declared duration ("drop before play"). If the Player accepts a
-  candidate and only discovers at playback that its actual rendered
-  length exceeds the cap, R4 applies and the Player trims
-  mid-rendering ("trim during play"). In summary: drop-before-play
-  based on declared duration is permitted; trim-during-play based
-  on actual length is mandatory.
+  A candidate whose declared duration would push the cumulative slot
+  duration past the cap is not dropped: the Player plays it and stops
+  at the cap. The base specification does the same for an insertion —
+  *"For insertion events, APDA = min(APD, APDmax)."* (Table 57) — and
+  R1.5 makes its answer ours. It is also the answer DP-3 asks for: part
+  of an ad shown is part of the opportunity used, and a dropped ad
+  leaves the rest of the slot empty.
 
   **Conformance criteria** (runtime):
   - **R7.1** (Player): Given a resolution document with more
     than one ad candidate, the Player MUST play the candidates in
     the order the resolution document declares, except
-    for candidates dropped under R7.2 or R7.3.
+    for candidates dropped under R7.2.
   - **R7.2** (Player): A candidate that has no form renderable on its
     device is dropped as R5.3 requires (R3 / R5); the drop is not a
     rearrangement under R7.4.
-  - **R7.3** (Player): The Player MAY drop a candidate before
-    playback ("drop before play") when its declared duration would
-    push the cumulative slot duration past the cap (R4).
+  - **R7.3** (Player): When a candidate's declared duration would push
+    the cumulative slot duration past the cap, the Player MUST play the
+    candidate and stop at the cap (R4.2), as the base specification
+    does for an insertion (Table 57). A declared duration is not a
+    reason to drop a candidate.
   - **R7.4** (Player): The Player MUST NOT re-order, deduplicate,
     or otherwise rearrange the remaining candidates after applying
-    R7.2 / R7.3.
+    R7.2.
   - **R7.5** (Player): If a candidate is accepted and its actual
     rendered length exceeds the cap, the Player MUST trim
     mid-rendering ("trim during play") per R4.
@@ -1122,7 +1126,11 @@ squeezeback layouts (side-by-side and L-shape).
     skippable as the base specification makes it. R35.1's default does
     not apply to a linear slot. This is R1.5 applied: a Player of this
     specification and a base Player treat the same linear event the same
-    way.
+    way. The base specification has two skip controls — `@skipAfter` on
+    the alternative-presentation events and `@skipAfter` in the service
+    description's playback restrictions — and states no precedence
+    between them when both apply to one ad; this specification adds
+    none.
 
 - **R36. A non-linear opportunity may be resolved ahead of time, and the resolution declares how long it keeps.**
   *Gist: The Publisher may declare how early a Player may resolve an overlay or pause opportunity, 60 seconds when it declares nothing, and the APS declares how long that resolution stays good; a stale one is resolved again.*
@@ -1238,7 +1246,12 @@ squeezeback layouts (side-by-side and L-shape).
   - **R37.2** (Player): On resume, the Player MUST continue the primary
     content from the position at which it was suspended. A mechanism
     that cannot restore that position is not a pause under this
-    specification, whatever it is called.
+    specification, whatever it is called. In live content, where the
+    suspended position is no longer available on resume because it has
+    left the time-shift buffer, resuming where the base specification
+    resumes a replacement in that case — *"at the earliest available
+    media segment if it is earlier than the timeshift buffer start"*
+    (§5.16.2.2) — satisfies this criterion.
   - **R37.3** (spec document): This specification states no requirement
     about how a Player implements a pause, and a criterion elsewhere
     that appears to assume one mechanism is to be read as this
@@ -1621,9 +1634,9 @@ screen to a single active non-linear form at any instant.
     linear candidates), each starting when the previous one ends.
   - **R14.2** (Player): The Player MUST enforce the Publisher-declared
     slot cap (R4) against the cumulative duration of the sequence of
-    non-linear candidates it presents, trimming or dropping per R4 / R7
-    when the cumulative duration would exceed the slot's opportunity
-    window.
+    non-linear candidates it presents, trimming at the cap per R4 and
+    R7.3 when the cumulative duration would exceed the slot's
+    opportunity window.
   - **R14.3** (spec document): The specification MUST NOT introduce a
     construct that implies or requires the parallel (simultaneous)
     rendering of two or more non-linear ad forms. Sequencing of forms
@@ -1916,6 +1929,16 @@ screen to a single active non-linear form at any instant.
     presentation that starts within its span is active, composited over
     it: a hybrid break (UC-04).
 
+  **What a non-linear ad is anchored to.** A non-linear ad is shown
+  over the primary content, and its window says when. An overlay or
+  squeezeback window is anchored to the media-time range it declares:
+  its ad is shown while the presentation plays through that range, and
+  not outside it. A pause window is anchored to the viewer's pause: its
+  ad is shown when the viewer pauses inside the window's range (R31),
+  and lasts as long as the pause does (R16). That is why only an overlay
+  or squeezeback window can stand in for a linear event: it occupies a
+  known stretch of the timeline, and a pause window does not.
+
   **The content of an alternative presentation is a presentation of its
   own.** The primary content cannot know what a replacement contains, so
   a non-linear ad shown during it is declared by a window in the
@@ -1928,7 +1951,10 @@ screen to a single active non-linear form at any instant.
   **Conformance criteria** (runtime + document-level):
   - **R40.1** (Publisher): Declaring a relation on a non-linear window
     is OPTIONAL. A window declares at most one relation, supersede or
-    on top; a window that declares neither has the default relation.
+    on top; a window that declares neither has the default relation. A
+    pause window declares only on top: whether it presents an ad
+    depends on a viewer pause, which is unknown at the presentation
+    time of any linear event it would stand in for.
   - **R40.2** (Publisher): A Publisher that wants a non-linear ad
     presented during an alternative presentation MUST declare it either
     by a window in that alternative presentation's own `MPD`, or by a
@@ -1940,7 +1966,9 @@ screen to a single active non-linear form at any instant.
     execution under R20.1, or the device can render none of its
     candidates (R5) — the Player MUST execute those events as the base
     specification defines, including its rules for an execution that
-    starts after an event's presentation time.
+    starts after an event's presentation time. How early the Player
+    resolves the window so that the fallback stays reachable is the
+    Player's decision, within the offset of R36.
   - **R40.4** (Player): When a window declares no relation, the Player
     MUST present its forms only while the content of the presentation
     whose `MPD` declares the window is being output, and MUST execute
@@ -1951,7 +1979,10 @@ screen to a single active non-linear form at any instant.
     present it also while an alternative presentation that starts
     within its span is active, composited over that presentation,
     within the device's capability (R3, R5) and R22. The inherited
-    linear event executes with its base semantics.
+    linear event executes with its base semantics. While composited
+    over the alternative presentation, the window's cap accrues on that
+    presentation's timeline (R4.11), and a form on screen ends when that
+    presentation ends.
   - **R40.6** (Player): The Player MUST process the non-linear windows
     declared in an alternative presentation's `MPD` as that
     presentation's own: they are presented over its content, and
@@ -2214,7 +2245,10 @@ carriers for creative metadata and non-AV assets.
     is for the base specification's own metrics (§5.9.1).
   - **R33.4** (Publisher): Content carrying pause opportunity windows
     MUST request the `PlayList` metric through the base
-    specification's `Metrics` element. Collection is triggered by the
+    specification's `Metrics` element, in the `MPD` that declares the
+    windows. An alternative presentation that declares pause windows
+    of its own (R40.6) requests the metric in its own `MPD`; the
+    request of the presentation that triggered it does not cover it. Collection is triggered by the
     service provider and not by the Player — *"The trigger mechanism
     is based on the `Metrics` element in the MPD"* (§5.9.1) — so
     without this declaration R33.2 defines how to derive a quantity
@@ -2510,12 +2544,12 @@ and deferring layout to existing primitives.
   and the APS writes the complete URL. A beacon of a carrier this
   specification defines follows the same rule, so that every beacon is
   fired the same way.
-- **OOS-11. Ad icons, including AdChoices.** VAST, or any other
-  decision format, can give an ad icons that the viewer clicks,
-  AdChoices among them. This edition carries
-  none. An icon exists for that click, and on a TV there is no click
-  interaction on an icon. The item is reopened if the working group
-  asks for it.
+- **OOS-11. Ad icons, including AdChoices.** The icons that VAST
+  `<Icons>`, or any other decision format, attaches to an ad —
+  AdChoices among them — have no carrier in this edition, and the
+  Player renders none. They are out of scope until the working
+  group asks for them: no current use case needs them. Anyone can
+  reopen this item by proposing a use case that does.
 
 ## Deliberately open
 
@@ -2534,12 +2568,17 @@ the specification will address it, and has not yet.
 
 | Unit | Why it is open | Recorded in |
 |------|----------------|-------------|
+| R1.1, R1.2 — an SGAI event stream under the base Advanced Linear profile | The base names only its own schemes in that profile's restricted set of events (§8.13.2.2), and its own Advanced Linear example carries a scheme the list does not name. Whether the list is exhaustive, and so whether a Period carrying an SGAI stream conforms, is for the base specification's editors. Decided by MPEG. | ADR 0021 |
+| R30 — the empty resolution document under the base List profile | The base admits a zero-duration Period with no Adaptation Set, and also requires a Representation in each Period for profile conformance (§8.1). Whether a document with no candidates is a conforming Media Presentation under that profile is for the base specification's editors. Decided by MPEG. | ADR 0021 |
+| The `urn:svta:` scheme URIs of [`06-naming-and-namespaces.md`](06-naming-and-namespaces.md) | `svta` is not a registered formal URN namespace identifier; the base asks only for URN or URL syntax in a scheme identifier (§5.10.2.2, Table 43). Registering it, or moving to a URL under an SVTA domain, is SVTA's decision. Decided by SVTA. | ADR 0021 |
 
-The table is empty, and that is a statement: **no silence in this
-specification has been declared deliberate yet.** Adding a row is a
-decision about one question, taken by the owner of the specification,
-and the row carries where that decision is written down — an ADR under
-`.project/decisions/`, or the working-group record that took it.
+Adding a row is a decision about one question, taken by the owner of the
+specification, and the row carries where that decision is written down —
+an ADR under `.project/decisions/`, or the working-group record that
+took it. The three rows above are the only questions this edition
+leaves open: each depends on a body other than this project. Every
+other question the specification raised has its answer in the
+requirements.
 
 The remainder of the proposal — Anatomy of the Overlay Resolution
 Document, Ad Tracking, Client Execution Flow, Example
