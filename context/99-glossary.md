@@ -56,12 +56,10 @@ through `08-dash-extension-rules.md`.
   document the ADS produced. The presentation options an ad offers appear in the
   ListMPD; when an ad offers more than one they appear as an ordered
   list whose document order is the Player's preference order (R5).
-- **Capability parameter**: a parameter the Player MAY attach to the
-  resolution request it sends the APS, describing what its device can
-  render. The names are reserved by this specification; sending any of
-  them is optional, and one the Player cannot or will not populate is
-  omitted rather than sent empty; an absent parameter means its value
-  is **undetermined**, not that the device lacks the capability (R29).
+- **Capability parameter**: one of the closed set of parameters R29
+  reserves (R29.1, R29.9), which the Player MAY attach to the resolution
+  request to state one capability axis of its device. Its rules are in
+  R29; the device classes are combinations of these axes (R3).
 - **Presentation option**: a (form + layout) pairing offered for an
   ad candidate. A candidate carries one or more; when it carries
   several they appear as an ordered list and document order is the

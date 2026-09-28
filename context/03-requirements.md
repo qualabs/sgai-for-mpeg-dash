@@ -293,11 +293,11 @@ and the boundaries of what this spec does and does not define.
     Player's resolution request (R29).
 
 - **R29. Player-declared capability parameters on the resolution request.**
-  *Gist: The Player MAY attach reserved capability parameters — inputs about the device, not conclusions about what can be served — to the resolution request it sends the APS; each is optional except what the slot itself declares (R38, R39, R41), and one the Player cannot or will not populate is omitted rather than sent empty.*
+  *Gist: The Player MAY attach reserved capability parameters — inputs about the device, not conclusions about what can be served — to the resolution request it sends the APS; the set is closed and enumerated here, each parameter is optional except what the slot itself declares (R38, R39, R41), and one the Player cannot or will not populate is omitted rather than sent empty.*
 
-  This specification defines a set of **reserved parameter names** that a
-  Player MAY attach to the resolution request it issues against the MPD
-  event URL. Which of them travel is the Player's decision, taken at
+  This specification defines a closed set of **reserved parameters** that
+  a Player MAY attach to the resolution request it issues against the
+  MPD event URL. Which of them travel is the Player's decision, taken at
   runtime; no declaration by the Publisher, the APS or the ADS is
   required before a Player sends them.
 
@@ -306,14 +306,29 @@ and the boundaries of what this spec does and does not define.
   MPD-declared URL-parameter template mechanism of MPEG-DASH 6th
   edition, whose contents are declared by the content author.
 
+  Each parameter states one capability axis of the device, and the
+  Player sends the axes separately: there is no parameter that names a
+  device class. The device classes are combinations of these axes, and
+  R3 defines them.
+
+  *Informative note:* the values describe the device, so whoever
+  implements the Player for a given device is expected to fix them for
+  that device, adjusted only where the session changes them (R29.10).
+
   **Conformance criteria** (runtime + document-level):
-  - **R29.1** (spec document): The reserved parameters are **inputs
-    about the device** — statements of what the device supports — and
-    not conclusions about which ad experiences can be served; deriving
-    the second from the first is the APS's. Device capability has more
-    than one axis, so what this specification reserves is a set and not
-    a single value. Which parameters the set contains, and how each is
-    written, is fixed when the syntax is specified.
+  - **R29.1** (spec document): The reserved capability parameters are
+    the three below and the audio parameter of R29.9, and no others.
+    Each is an **input about the device** — what the
+    device can do — and not a conclusion about which ad experiences can
+    be served; deriving the second from the first is the APS's.
+
+    | Parameter | Values | Meaning |
+    |---|---|---|
+    | `sgai-video-decoders` | `1`, `2`, `3` | How many video streams the device can decode and composite at once, the primary content included. `3` means three or more. A second video over the primary content, or beside it, needs `2` or more. |
+    | `sgai-image-over-video` | `1`, `0` | Whether the device can composite an image together with playing video: over it, or around it as in a squeezeback. No image format is named. |
+    | `sgai-html-over-video` | `1`, `0` | Whether the device can composite HTML together with playing video, in the same sense. |
+
+    Codec support is not an axis (OOS-12).
   - **R29.2** (Player): Sending a reserved parameter is OPTIONAL. A
     Player conformant to this specification MAY send all of them, some
     of them, or none.
@@ -328,10 +343,10 @@ and the boundaries of what this spec does and does not define.
     parameter and MUST be able to produce ad candidates without receiving
     any of them. An APS that requires a parameter in order to answer
     would make R29.2 unattainable for the Player.
-  - **R29.6** (spec document): The reserved set MUST be able to express
-    the capability axes that distinguish the device classes this
-    specification enumerates (R3.1). A set that cannot tell two
-    enumerated device classes apart does not satisfy this requirement.
+  - **R29.6** (spec document): The device classes this specification
+    enumerates are defined as combinations of the parameters of R29.1
+    (R3), so the set tells every enumerated class apart by construction.
+    A combination that is not a named class is declared the same way.
   - **R29.7** (spec document): A reserved parameter absent from the
     resolution request means its value is **undetermined** — the
     Player did not determine it, or did not disclose it. Absence does
@@ -344,9 +359,11 @@ and the boundaries of what this spec does and does not define.
     layouts, a custom region, or the ad-audio allowance, the Player is
     required to send them. Every other reserved parameter remains
     optional.
-  - **R29.9** (spec document): The reserved set MUST be able to express
-    whether the device can render an ad's audio in place of the primary
-    content's audio while the primary video keeps playing (R41.6).
+  - **R29.9** (spec document): The reserved set also carries
+    `sgai-ad-audio`, `1` or `0`: whether the device can render an ad's
+    audio in place of the primary content's audio while the primary
+    video keeps playing. It is the capability R41.6 checks an option
+    against.
   - **R29.10** (Player): The capability the Player declares on the
     resolution request, and the one it checks options against (R5.6),
     is assumed to be the device's real capability in that session, with
@@ -906,11 +923,26 @@ squeezeback layouts (side-by-side and L-shape).
   real CTV / streaming deployments — from devices that can render
   multiple concurrent video decoders plus image and HTML overlays on
   top of video, down to devices with a single video decoder and no
-  overlay capability at all. The supported device classes and the
-  expected behaviour for each combination of device class and ad
-  opportunity are enumerated in the **Use Cases** section. The capability
-  axes that separate those classes are what the reserved parameter set
-  of R29 must be able to express.
+  overlay capability at all.
+
+  **The device classes.** A device class is a named combination of the
+  capability axes of R29.1. This table is the only definition of the
+  classes; the use cases and every other document refer to it.
+
+  | Class | `sgai-video-decoders` | `sgai-image-over-video` | `sgai-html-over-video` |
+  |---|---|---|---|
+  | D1 — top tier | `2` or `3` | `1` | `1` |
+  | D2 | `2` | `0` | `0` |
+  | D3 | `1` | `1` | `1` |
+  | D4 | `1` | `1` | `0` |
+  | D5 — worst case | `1` | `0` | `0` |
+
+  No two rows overlap. A device whose combination is not in the table
+  (two decoders with image and without HTML, for example) belongs to no
+  named class; it declares its axes the same way, and its behaviour
+  follows from them as for any other. The expected behaviour for each
+  class and each ad opportunity is enumerated in the **Use Cases**
+  section.
 
   **Conformance criteria** (runtime + document-level):
   - **R3.1** (spec document): The specification MUST enumerate the supported
@@ -2612,6 +2644,10 @@ and deferring layout to existing primitives.
   and the APS writes the complete URL. A beacon of a carrier this
   specification defines follows the same rule, so that every beacon is
   fired the same way.
+- **OOS-12. Codec support as a capability axis.** Which video codecs
+  the device can decode (AV1, VP9 and others) is not one of the
+  parameters of R29.1, and no device class depends on it. It is out of
+  scope for now, and is to be reviewed with the working group.
 
 ## Deliberately open
 

@@ -2252,3 +2252,23 @@ está en UC-07 y UC-17. Un criterio del lado del Publisher repetiría el
 mismo hecho, y un "SHOULD escribirlo para monetizar" es una
 recomendación de negocio, no una regla de interoperabilidad. No cambia
 `context/`.
+
+## 2026-09-28 — R29 enumera los parámetros de capacidad; las clases D1-D5 se definen en R3
+
+Decisión de Nicolás: la norma enumera el set de parámetros con
+identificadores cerrados, en lugar de dejarlo "fixed when the syntax is
+specified".
+
+- R29.1 enumera tres ejes: `sgai-video-decoders` (`1`, `2`, `3` = tres
+  o más), `sgai-image-over-video` y `sgai-html-over-video` (`1`/`0`,
+  sin formatos). R29.9 agrega `sgai-ad-audio`. El Player manda los ejes
+  por separado y nunca una clase. Hay una nota informativa: quien
+  implementa el Player para un dispositivo fija esos valores.
+- Las clases D1 a D5 pasan a ser una tabla en R3, que es la única
+  definición. El párrafo de 04 apunta a ella y el glosario apunta a R29.
+  R29.6 queda satisfecho por construcción.
+- D2 = `2`, `0`, `0`. Sale exacto porque el eje de decodificadores se
+  define como "decodificar y componer a la vez": el segundo video sobre
+  el principal o al lado es `2` o más.
+- Codecs fuera de alcance por ahora (OOS-12), a revisar con el WG.
+  OOS-11 no se reusa.
