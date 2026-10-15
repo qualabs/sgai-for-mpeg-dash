@@ -22,6 +22,7 @@ last_update: 2026-09-28
 tags: [dash, sgai, non-linear-ads, mpeg, comcast, svta, overlays, dynamic-presentation, prototype, spec, server-guided-ads]
 related_processes: [preparacion-working-group]
 related_wgs: [comcast-sgai, svta-ads]
+structure: 2
 ---
 
 # SGAI for MPEG-DASH
@@ -146,91 +147,6 @@ actively scoped has a folder — future phases are described here in
 the long-range plan and get a folder when they open.
 
 ### Current state
-
-- **`01-setup` — `closed`** (2026-05-11). Bootstrap of the project:
-  repo layout, build pipeline (3 prompts), governance scaffolding
-  under `.project/`, a first iteration of the spec set in `context/`
-  (6 files), first generated artefact
-  (`analysis/dash-gap-analysis.md`), operational config (`SETUP.md`,
-  `.env.agent.example`, `.gitignore`), and `git init` with an
-  initial commit. See `phases/01-setup/` for PHASE.md and TASKS.md
-  (the close report is embedded in PHASE.md).
-- **`02-wg-feedback-round-1` — `closed`** (2026-07-13). Processed
-  working-group feedback round 1 on the SGAI spec, centred on **David
-  Hassoun's** review (the 3 `context/` files he edited and commented
-  during the 2026-05-20 WG session, plus a round-2 Slack thread on
-  2026-05-29). His 10 feedback items were classified as
-  already-addressed (✅) / change-needed (🔧) / open-for-discussion (❓)
-  against the current spec, and all resolved and incorporated into
-  `context/`. T-08 (confirm the ADS+APS split matches David's intent)
-  is `done`: the split is in the committed spec; the explicit
-  confirmation with David carries over as an external, non-blocking
-  follow-up. The phase's primary work product is the cross-reference
-  report (`phases/02-wg-feedback-round-1/hassoun-feedback-crossref.md`);
-  the closure report is `phases/02-wg-feedback-round-1/REPORT.md`.
-- **`03-custom-layout` — `superseded`** (2026-07-13 to 2026-09-25). A custom
-  layout with N elements, Z-order and pixel coordinates against a reference
-  viewport, from David Hassoun's request. Never executed: replaced by R39, a
-  single optional `custom` overlay placed in percent of the viewport inside a
-  region the Publisher may bound. Its proposed ADR 0002 is superseded with it.
-- **`04-multiview` — `planning`** (opened 2026-07-13). Scaffold for the
-  **multiview** advanced extension: 2 up to 4 videos at once in a **fixed**
-  collection of named `multiview-*` layouts, for **alternative content**
-  (another feed / angle / match), explicitly **not** an ad experience
-  (a conscious scope widening). Implementation stays **agnostic** between
-  multi-decoder and HEVC tiles; R3 is extended to express two-or-more
-  decoders and the tiles single-decoder path. Default audio is the
-  primary content, with audio selection left open. Live content MUST be
-  possible (open point: `<ImportedMPD>` live carriage). Independent of
-  phase 03 (fixed layouts, not custom layout). Deliverables scaffolded:
-  `PHASE.md`, `TASKS.md`, `T-01-PLAN.md` (with the proposed `multiview-*`
-  set derived from the WOXCON SCU41 reference image), and proposed ADR
-  `0003-multiview-decoder-tiles-agnostic-fixed-layouts.md`. `context/`
-  is not yet touched — the phase is in `planning` for Nicolás to review.
-
-- **`05-wg-feedback-round-2` — `closed`** (2026-08-19 → 2026-09-21,
-  [`REPORT.md`](phases/05-wg-feedback-round-2/REPORT.md)). Processes
-  the feedback from the **SVTA Advertising WG call of 2026-08-19** — the
-  first round of WG feedback arriving as a group discussion rather than
-  one reviewer's marked-up files. David Hassoun walked the group through
-  a document collecting every concern raised so far about the non-linear
-  work; the call produced **15 agreements** (A1–A15), **7 open
-  proposals** (O1–O7), and a set of items mentioned without conclusion.
-  The phase material is the agreements extract
-  (`phases/05-wg-feedback-round-2/svta-wg-2026-08-19-agreements.md`),
-  which attributes and timestamps every item against the transcript and
-  carries a section of **eleven readings the transcript does not
-  support** rather than resolving them by inference. The phase's work
-  product is **a task per proposed change**: `T-01` is a task that
-  generates tasks, so the changes can be decided one at a time; `T-02`
-  settles the eleven open readings with David; `T-03` **verifies, against
-  the primary sources, the four places where the extract claims the WG's
-  position breaks against the committed spec** — A2 vs R5, A6 vs R22, A7
-  vs R17, A8 vs the Player-dismiss vocabulary — and **gates T-01** on
-  those items. The claims are a reading of an automatic transcript, and
-  three of the eleven open readings land on A2's mechanics, so
-  `compatible` and `indeterminate` are admissible verdicts alongside
-  `contradiction`; where the transcript cannot settle it, the output is a
-  question for the WG rather than a spec change. `T-04` makes **R5's
-  designed flexibility explicit in `context/`** — a **drafting** task,
-  not a design one: R5's author has confirmed it was written as a
-  superset (the APS may send ordered options; the device may send
-  capabilities, optionally; an implementation may send a single option and
-  keep control at the APS), and that the text does not make that legible,
-  which is how it came to be read as prescriptive both in the call and in
-  this phase's own extract. `T-05` **states outright what the text never
-  says — that an APS may return exactly one presentation option** — as a
-  new requirement
-  and/or, per Nicolás's stated preference, a **use case** carrying the
-  motivation, which would pair with UC-09 (device chooses) to teach the
-  superset by example. The two remedies divide the problem deliberately:
-  **T-04 clarifies what is written, T-05 adds what is not.** Both are
-  deliberately **independent of T-03**, and if either lands, several of
-  T-01's candidate items stop being design changes and collapse into
-  them. Execution order is not numbering order:
-  T-03 runs before T-01 emits anything, and T-04 can run at any time.
-  `context/` is not touched by the phase's planning; T-04 is the one task
-  that will edit it, and only its wording.
 
 Phases 03 and 04 are **independent** of each other; either can be
 executed first. Neither has started execution — both await Nicolás's

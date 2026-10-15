@@ -2282,3 +2282,7 @@ se deduce. Sale de `output-analysis/v12.6-requirements-redundancy-review.md`.
 La v12.7 no se corre: la fase termina en una v13 mayor con una sola corrida.
 Por ahora hay sólo `DESIGN.md`, que Nicolás revisa antes de generar
 `PHASE.md`, `TASKS.md` y las ADRs.
+
+## 2026-10-15 — Migración a structure 2
+
+El índice de fases del PROJECT.md pasó al `description` de cada PHASE.md (create-project structure 2). Candidatas a roadmap sin mover: 04-multiview, 06-document-first.
