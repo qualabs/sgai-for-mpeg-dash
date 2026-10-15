@@ -1,3 +1,9 @@
+---
+description: "Reescribir context/03-requirements.md para que la semántica de cada interfaz se escriba una sola vez, del lado del documento, y cerrar con una v13 mayor."
+status: designing
+origin: "Nicolás, 2026-09-28, abierta como fase 06 en diseño (de output-analysis/v12.6-requirements-redundancy-review.md); phase 06, returned to the roadmap 2026-10-15"
+---
+
 # Fase 06: el documento primero
 
 Diseño de la fase. Lo revisa Nicolás antes de que se escriban `PHASE.md`,

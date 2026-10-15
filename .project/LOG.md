@@ -2286,3 +2286,11 @@ Por ahora hay sólo `DESIGN.md`, que Nicolás revisa antes de generar
 ## 2026-10-15 — Migración a structure 2
 
 El índice de fases del PROJECT.md pasó al `description` de cada PHASE.md (create-project structure 2). Candidatas a roadmap sin mover: 04-multiview, 06-document-first.
+
+## 2026-10-15 — document-first vuelve al roadmap
+
+La fase 06 nunca arrancó: tenía sólo `DESIGN.md`, sin `PHASE.md` ni tareas. Pasa a `roadmap/document-first/` (`designing`); el número 06 no se reusa. Aprobado por Nicolás.
+
+## 2026-10-15 — multiview vuelve al roadmap
+
+La fase 04 apenas arrancó (1/8 tareas, el plan de T-01). Pasa a `roadmap/multiview/` (`ready`) con su `PHASE.md`, `TASKS.md` y `T-01-PLAN.md` intactos como procedencia; el número 04 no se reusa. Aprobado por Nicolás.
