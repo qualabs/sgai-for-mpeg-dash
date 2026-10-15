@@ -1,6 +1,7 @@
 ---
 phase: 04-multiview
 title: Multiview — an advanced, opt-in fixed-layout feature
+description: "Scaffold for the multiview advanced extension: 2 up to 4 videos at once in a fixed collection of named `multiview-*` layouts, for alternative content (another feed / angle / match), explicitly not an ad experience (a conscious scope widening)."
 status: planning
 started: 2026-07-13
 closed: null

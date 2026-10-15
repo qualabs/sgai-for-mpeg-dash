@@ -1,6 +1,7 @@
 ---
 phase: 03-custom-layout
 title: Custom layout — an advanced, opt-in layout type
+description: "A custom layout with N elements, Z-order and pixel coordinates against a reference viewport, from the WG chair's request."
 status: superseded
 started: 2026-07-13
 closed: 2026-09-25

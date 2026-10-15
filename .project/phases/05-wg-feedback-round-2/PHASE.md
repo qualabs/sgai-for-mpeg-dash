@@ -1,6 +1,7 @@
 ---
 phase: 05-wg-feedback-round-2
 title: Working-group feedback — round 2 (SVTA Advertising WG, 2026-08-19)
+description: "Processes the feedback from the SVTA Advertising WG call of 2026-08-19 — the first round of WG feedback arriving as a group discussion rather than one reviewer's marked-up files."
 status: closed
 started: 2026-08-19
 closed: 2026-09-21
