@@ -19,7 +19,7 @@ type: research
 owner: nicolas-levy
 started: 2026-05-06
 last_update: 2026-09-28
-tags: [dash, sgai, non-linear-ads, mpeg, comcast, svta, overlays, dynamic-presentation, prototype, spec, server-guided-ads]
+tags: [research, svta, video]
 related_processes: [preparacion-working-group]
 related_wgs: [comcast-sgai, svta-ads]
 structure: 2
