@@ -22,3 +22,27 @@ accepted ADR, so its prose is not rewritten. It opens with a `# ADR 0001 -- `
 heading and carries no relation to any other ADR, so there is nothing for the
 pair rules to check and nothing another file can contradict. Backfilling a
 frontmatter block would be an edit to an accepted ADR that buys no assertion.
+
+## 0002-custom-layout-viewport-pixel-model.md — superseded-without-successor
+
+- file: `0002-custom-layout-viewport-pixel-model.md`
+- rule: `superseded-without-successor`
+- detail: `status is superseded and superseded_by is null`
+
+La ADR 0002 nunca se adoptó: la fase 03 se abandonó y la reemplazó el requisito R39 (LOG del 2026-09-25), no otra ADR, así que no hay sucesor que nombrar. Aceptado en la pasada de structure 3.
+
+## phases/06-multiview/TASKS.md — decision-deferred-to-a-person
+
+- file: `phases/06-multiview/TASKS.md`
+- rule: `decision-deferred-to-a-person`
+- detail: `T-08 defers a decision to somebody who is not running it ('validate the `code` set with Nicolás'): R3 extension coherent with D1–D5 and R22 / R26 / R27 decoder reasoning; verify the advanced-extension framing is explicit and self-contained; validate the `multiview-*` set with Nicolás against the reference image | pend`
+
+Las dos revisiones de Nicolás (validar el set contra la imagen de referencia, y revisar la ADR 0003 propuesta) son parte del producto de esta fase, no una decisión que la frena. Aceptado en la pasada de structure 3, por el coordinador, salvo que Nicolás diga otra cosa.
+
+## phases/06-multiview/TASKS.md — decision-deferred-to-a-person
+
+- file: `phases/06-multiview/TASKS.md`
+- rule: `decision-deferred-to-a-person`
+- detail: `(before the first task) defers a decision to somebody who is not running it ('so Nicolás can review'): T-02** — ADR 0003 is drafted in `.project/decisions/` in `status: proposed` so Nicolás can review the decision as recorded.`
+
+Las dos revisiones de Nicolás (validar el set contra la imagen de referencia, y revisar la ADR 0003 propuesta) son parte del producto de esta fase, no una decisión que la frena. Aceptado en la pasada de structure 3, por el coordinador, salvo que Nicolás diga otra cosa.

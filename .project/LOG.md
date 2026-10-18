@@ -2306,3 +2306,7 @@ La pasada de create-project (fase 04 de ai-toolkit), con el OK de Nicolás: `mig
 - phases/06-multiview/PHASE.md: priority high, category feature
 - roadmap/document-first/DESIGN.md: priority medium, category chore
 - phases/01-setup/PHASE.md: priority low, category feature
+
+## 2026-10-18 — Los hallazgos que ya estaban, resueltos
+
+Con el OK de Nicolás, en la pasada de structure 3 (fase 04 de ai-toolkit): La 0020 reemplazaba sólo en parte a la 0012 y la 0015, así que sale de `supersedes` y lo dice en una nota; la 0002, que nunca se adoptó (la reemplazó R39), y las dos revisiones de Nicolás en la fase 06-multiview se aceptan en EXCEPTIONS.md.

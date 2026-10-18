@@ -4,7 +4,7 @@ title: A non-linear window declares whether it supersedes the linear event it ov
 status: accepted
 scope: core
 date: 2026-09-26
-supersedes: "0012 (in part), 0015 (in part)"
+supersedes: null
 superseded_by: null
 ---
 
@@ -184,3 +184,5 @@ range it declares, a pause window to a viewer pause inside its range.
 - `context/04-use-cases.md` — UC-04, UC-07, UC-14, UC-17.
 - `context/06-naming-and-namespaces.md` — "The window's relation to a
   linear event travels on the window".
+
+> **Nota 2026-10-18** (pasada de structure 3): reemplaza en parte a los ADR 0012 y 0015; lo demás de los dos sigue en pie, por eso no es un supersede en los campos de relación.

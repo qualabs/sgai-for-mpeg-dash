@@ -130,3 +130,5 @@ the base layouts and their IAB posture untouched.
 - `0001-defer-to-iab-ctv-for-spatial-caps.md` — the IAB spatial-cap
   deferral this ADR consciously steps outside of for the custom-layout
   type only.
+
+> **Nota 2026-10-18** (pasada de structure 3): nunca se adoptó: la fase 03 se abandonó y la reemplazó el requisito R39 (LOG del 2026-09-25), no otra ADR; por eso no tiene superseded_by.
