@@ -1,3 +1,6 @@
+---
+closed: 2026-07-13
+---
 # Phase 02 — Working-group feedback round 1 — Closure report
 
 **Phase:** `02-wg-feedback-round-1`

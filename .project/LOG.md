@@ -2294,3 +2294,15 @@ La fase 06 nunca arrancó: tenía sólo `DESIGN.md`, sin `PHASE.md` ni tareas. P
 ## 2026-10-15 — multiview vuelve al roadmap
 
 La fase 04 apenas arrancó (1/8 tareas, el plan de T-01). Pasa a `roadmap/multiview/` (`ready`) con su `PHASE.md`, `TASKS.md` y `T-01-PLAN.md` intactos como procedencia; el número 04 no se reusa. Aprobado por Nicolás.
+
+## 2026-10-18 — El proyecto pasa a structure 3
+
+La pasada de create-project (fase 04 de ai-toolkit), con el OK de Nicolás: `migrate.sh --to 3 --apply` (los estados salen de la evidencia, el cierre vive en el REPORT, el front matter en un archivo por carpeta), las decisiones de la tabla de la pasada, y la prioridad, la categoría y el impacto de lo abierto.
+
+- phases/01-setup/REPORT.md written from PHASE.md, TASKS.md and the LOG
+- mechanical changes: 10; left for a person: 2
+- 03-custom-layout: abandoned_because
+- phases/05-wg-feedback-round-2/TASKS.md: T-02 -> abandoned (quedó `closed-unresolved`, sin resolver)
+- phases/06-multiview/PHASE.md: priority high, category feature
+- roadmap/document-first/DESIGN.md: priority medium, category chore
+- phases/01-setup/PHASE.md: priority low, category feature

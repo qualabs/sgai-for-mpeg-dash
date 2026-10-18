@@ -1,10 +1,7 @@
 ---
-phase: 02-wg-feedback-round-1
 title: Working-group feedback — round 1
 description: "Processed working-group feedback round 1 on the SGAI spec, centred on David Hassoun's review (the 3 `context/` files he edited and commented during the 2026-05-20 WG session, plus a round-2 Slack thread on 2026-05-29)."
-status: closed
 started: 2026-05-27
-closed: 2026-07-13
 ---
 
 # 02-wg-feedback-round-1

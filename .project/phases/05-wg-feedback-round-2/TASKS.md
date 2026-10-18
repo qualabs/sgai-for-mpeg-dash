@@ -3,7 +3,7 @@
 | id   | brief                                                                                          | status  | plan | evidence |
 | ---- | ---------------------------------------------------------------------------------------------- | ------- | ---- | -------- |
 | T-01 | Compare `context/` against the WG agreements extract and **emit one task per proposed change**  | done    | —    | T-06..T-13 below, emitted after the fact — see the note under the table |
-| T-02 | Settle the eleven unresolved transcript readings (§4) with David, starting with the deadline    | closed-unresolved | —    | Not settled. Closed 2026-09-21 on Nicolás's instruction rather than kept waiting on an external party since August; the eleven readings and their citations stay in the agreements extract §4, and the cost is in `REPORT.md` §4 |
+| T-02 | Settle the eleven unresolved transcript readings (§4) with David, starting with the deadline    | abandoned | —    | Not settled. Closed 2026-09-21 on Nicolás's instruction rather than kept waiting on an external party since August; the eleven readings and their citations stay in the agreements extract §4, and the cost is in `REPORT.md` §4 |
 | T-03 | **Verify the four claimed spec contradictions against the primary sources** (gates T-01)        | done    | —    | [`tasks/T-03/verdicts.md`](tasks/T-03/verdicts.md) — A2 `spec-does-not-express-its-intent` (drafting), A6 `contradiction` (lands on UC-04, not R22), A7 `contradiction`, A8 `compatible` (an addition); corrections written back into the extract |
 | T-04 | **Make R5's flexibility explicit in `context/`** — drafting, not design                          | done    | —    | `context/03-requirements.md` R5 gist + prose + core-invariant row; `context/02-actors.md` APS section; `context/99-glossary.md` two entries. The R18 scope question resolved via R18.2 + R29 |
 | T-05 | **State that an APS may return exactly one option** — new requirement and/or use case             | done    | —    | The explicit statement is in `context/03-requirements.md` R5 and `context/02-actors.md`; the paired use case is UC-13 in `context/04-use-cases.md` |
@@ -727,3 +727,5 @@ boundary so they do not overlap.
   return exactly one presentation option and decide the layout itself?"
   with "yes", and can point at the sentence that says so. No requirement
   changed what it permits or forbids.
+
+Pasada de structure 3 (2026-10-18, con el OK de Nicolás): T-02 pasa a `abandoned`: quedó `closed-unresolved`, sin resolver.

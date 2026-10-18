@@ -14,15 +14,13 @@ description: >
   Collaboration with SVTA Ads WG and MPEG-DASH contributors
   (Alex Giladi from Netflix, Thasso from Castlabs, Thomas
   Stockhammer chair of MPEG-DASH).
-status: ongoing
 type: research
 owner: nicolas-levy
 started: 2026-05-06
-last_update: 2026-09-28
 tags: [research, svta, video]
 related_processes: [preparacion-working-group]
 related_wgs: [comcast-sgai, svta-ads]
-structure: 2
+structure: 3
 ---
 
 # SGAI for MPEG-DASH

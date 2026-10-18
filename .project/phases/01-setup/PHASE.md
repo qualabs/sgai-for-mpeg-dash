@@ -1,10 +1,9 @@
 ---
-phase: 01-setup
 title: Project setup
 description: "Bootstrap of the project: repo layout, build pipeline (3 prompts), governance scaffolding under `.project/`, a first iteration of the spec set in `context/` (6 files), first generated artefact (`analysis/dash-gap-analysis.md`), operational config (`SETUP.md`, `.env.agent.example`, `.gitignore`), and `git init` with an initial commit."
-status: closed
 started: 2026-05-11
-closed: 2026-05-11
+priority: low
+category: feature
 ---
 
 # 01-setup
