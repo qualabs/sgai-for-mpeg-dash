@@ -12,15 +12,13 @@ description: >
   linear flow under the same architecture. Dual output: spec
   (working doc shared with the industry) + working prototype.
   Collaboration with SVTA Ads WG and MPEG-DASH contributors.
-status: ongoing
 type: research
 owner: qualabs
 started: 2026-05-06
-last_update: 2026-09-28
 tags: [research, svta, video]
 related_processes: [preparacion-working-group]
 related_wgs: [industry-sgai, svta-ads]
-structure: 2
+structure: 3
 ---
 
 # SGAI for MPEG-DASH
