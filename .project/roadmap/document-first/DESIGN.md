@@ -1,16 +1,7 @@
----
-description: "Reescribir context/03-requirements.md para que la semántica de cada interfaz se escriba una sola vez, del lado del documento, y validar la reescritura sobre context/ antes del build v13."
-status: designing
-origin: "Nicolás, 2026-09-28, abierta como fase 06 en diseño (de output-analysis/v12.6-requirements-redundancy-review.md); phase 06, returned to the roadmap 2026-10-15"
-priority: medium
-category: chore
----
-
 # El documento primero
 
-Diseño del ítem. Lo revisa Nicolás antes de que se escriban `PHASE.md`,
-`TASKS.md` y las ADRs, y antes de tocar `context/`. Está hecho sobre
-`context/` en `44cfff4`, el último commit que lo cambió.
+Diseño del ítem, hecho sobre `context/` en `44cfff4`, el último commit que
+lo cambió.
 
 ## Para qué es
 
@@ -70,7 +61,7 @@ El build es uno solo, el v13 (D-1). Si corriera sobre la estructura de hoy,
 el build siguiente tendría que volver a validarla entera. Y ningún build
 protege una reescritura: la comparación de degradación de
 `check-incremental` saltea las unidades que el delta tocó, así que no
-miraría justo los 82 criterios que cambian, y el camino incremental sobre
+miraría justo los 83 criterios que cambian, y el camino incremental sobre
 v12.6 ya terminó en `MAJOR RECOMMENDED` (`output-analysis/v12.7-context-delta.md`).
 La protección es a nivel de `context/`, comparando la versión vieja con la
 nueva (D-12), y el v13 corre después sobre una entrada estable.
@@ -149,8 +140,8 @@ la validación de D-12 (cada obligación, con la misma fuerza) no puede pasar.
 
 **Una nota de privacidad de DP-4 sigue a la definición.** DP-4 pide la nota
 donde se define la información que describe, así que se mueve con ella: la de
-R29.2 pasa a R29.1, donde quedan definidos los parámetros, y la de R47.2 pasa
-a R47.1.
+R29.2 pasa a R29.1, donde quedan definidos los parámetros. La de R47.2 se
+queda en R47.2, que sigue como garantía (D-7).
 
 La semántica que hoy vive sólo en la prosa sube a un criterio. Son nueve
 requerimientos: R3, R12, R26, R27, R28, R29, R31, R32 y R40 (Anexo A.5).
@@ -159,6 +150,13 @@ layout) y R40.9 (a qué se ancla una ventana y qué significa cada relación).
 Hay que subirla porque `check-promotable` sólo recorre criterios y modales
 de la prosa, y una semántica que está en una tabla de la prosa no entra en
 la validación.
+
+**R33 sigue el mismo patrón aunque no es de ninguna interfaz.** R33.2 obliga
+a derivar el intervalo de pausa "as described above", y esa derivación (del
+fin de un período detenido por `UserRequest` al `start` del siguiente
+`Resume`) está sólo en la prosa de R33. Sube a R33.2 sin cambiar de
+contenido, por la misma razón: fuera de un criterio, la validación no la
+ve.
 
 ### D-4. El comportamiento de un actor se escribe sólo cuando no se deduce
 
@@ -207,10 +205,10 @@ El orden 00 a 08 y 99 sigue como está. Revisado contra la convención:
 - 02, 03 y 04 ya siguen el orden actores, requerimientos y casos de uso.
 - 06 es el cómo, y no se toca: no cita ningún id que se va.
 - 05 describe la interfaz lineal de base con el mapeo VAST, y se superpone
-  con I-RES en lo lineal. Queda como pregunta abierta (P-6), no como
-  cambio de este trabajo.
+  con I-RES en lo lineal. No se toca en este trabajo. Si pasa a ser el
+  anexo ilustrativo de R11.5 se decide aparte.
 
-### D-7. Dos excepciones de fondo: R28.2 y R20.5/R20.6
+### D-7. Las garantías de interoperabilidad quedan escritas: R28.2, R42.3 y R47.2; R20.5 y R20.6 sin cambios
 
 - **R28.2 queda.** R28.1 recibe la semántica: el click-tracking se dispara
   cuando el espectador activa el ClickThrough. R28.2 queda como garantía
@@ -219,6 +217,11 @@ El orden 00 a 08 y 99 sigue como está. Revisado contra la convención:
   los Players y no sobre el documento. Si se deduce, deja de ser una
   promesa. Lo que sale de R28.2 es la semántica repetida: queda como
   remisión a R28.1.
+- **R42.3 y R47.2 quedan igual que R28.2.** Tienen la misma forma y la misma
+  razón: son carriers nuevos que un Player legacy ignora, y la semántica sola
+  no obliga a ningún Player a leerlos. R42.1 y R47.1 reciben la semántica;
+  R42.3 y R47.2 quedan como la garantía, con remisión. Cuesta dos criterios,
+  y la nota de privacidad de R47.2 se queda donde está.
 - **R20.5 y R20.6 quedan sin cambios.** R20.5 se deduce del documento,
   pero R20.6 exige a propósito que sea una obligación normativa del Player,
   porque *"a rule that selects which presentation option reaches the
@@ -299,8 +302,8 @@ nada.
 
 ### D-11. Las ADRs no se tocan
 
-Hay 22 menciones a ids que se retiran en 8 ADRs (0011, 0014, 0018, 0022,
-0023, 0024, 0026 y 0028), todas `accepted`. Las ADRs aceptadas son
+Hay 19 menciones a ids que se retiran en 7 ADRs (0011, 0014, 0018, 0022,
+0023, 0024 y 0028), todas `accepted`. Las ADRs aceptadas son
 registro. La tabla de retirados resuelve esas citas sin editarlas, así que no
 llevan nota.
 
@@ -324,7 +327,11 @@ La ejecución se reparte en cuatro tareas:
      obligación, con la misma fuerza. Un script lista los pares y el
      validador los lee; el script no juzga significado. La prueba del
      instrumento: se borra a propósito una obligación del texto nuevo, y el
-     validador la tiene que encontrar.
+     validador la tiene que encontrar. Tres cambios de fuerza o de
+     contenido son decisiones de este diseño y no pérdidas, y el validador
+     los da por buenos sólo en su lugar: el carrier de los beacons con
+     tiempo pasa de SHOULD a MUST (D-14), R29.1 nombra tres parámetros
+     (D-13) y R28.1 dice qué pasa con la URL de destino (D-16).
    - **Que 04 y 99 sólo cambien ids.** El diff de cada uno, con los ids
      viejos reemplazados por su destino en la tabla de retirados, es vacío.
      La prueba: se cambia a propósito una palabra de un caso de uso y el
@@ -343,7 +350,7 @@ La ejecución se reparte en cuatro tareas:
 
 - `check-incremental degradation` no aplica: el v13 es mayor. Su función
   (que no se pierda lo que había) la cumple la validación de la tarea 4.
-- La población de `check-promotable` baja de 199 a 162 criterios y cambia
+- La población de `check-promotable` baja de 199 a 164 criterios y cambia
   en las 32 unidades de prosa, porque la semántica que estaba en la prosa
   sube a criterios. Eso es correcto, siempre que cada unidad que sale figure
   en el mapa con su destino. Se deja escrito en la evidencia: población
@@ -351,6 +358,50 @@ La ejecución se reparte en cuatro tareas:
 
 Con la tarea 4 en verde el trabajo termina. El build y la promoción son de
 `major-build-v13`, con el criterio de siempre.
+
+### D-13. Los tres parámetros que reenvían lo que el slot declara tienen nombre, y R29.1 los enumera
+
+R29.1 dice "the four below and the audio parameter of R29.9, and no others",
+pero los layouts permitidos (R38), la región custom (R39) y el permiso de
+audio (R41.5) también son parámetros reservados, R38.3 lo dice, y no tienen
+nombre en `context/`. La contradicción entró con la enumeración de R29
+(`94ef488`).
+
+R29.1 pasa a tener dos tablas: la de capacidad (los cuatro de hoy y
+`sgai-ad-audio`) y la de lo que el slot declara y el Player reenvía. Los
+nombres de las dos primeras filas de la segunda son los de la spec
+publicada, `sgai-allowed-layouts` y `sgai-custom-region`, y el permiso de
+audio es `sgai-ad-audio-allowed`. La lista cerrada de R29.1 cuenta las dos
+tablas.
+
+| Alternativa | Por qué no |
+|---|---|
+| Una sola tabla con los ocho | Mezcla lo que el Player dice de sí con lo que reenvía del MPD, y R29.2 trata distinto a cada grupo (opcional frente a obligatorio). |
+| Nombres nuevos para los tres | Los dos primeros ya están publicados en `dist/` y en ejemplos de pedido; cambiarlos sólo agrega una diferencia con lo publicado. |
+
+### D-14. El carrier de los beacons con tiempo es MUST
+
+R6.2 lo dice como SHOULD y R13.1 como MUST, y la fusión en R13.1 obliga a
+elegir uno. Es MUST, que es lo que ya dicen R13.1 y R13.4 (*"mandatory"*).
+R6.3 sigue siendo la salida para lo que el callback no puede expresar. Es el
+único cambio de fuerza de la reestructura, y D-12 lo registra como tal.
+
+### D-15. Los dos tokens de double-box dicen si hay fondo
+
+R26 dice que el fondo es opcional, y hay dos tokens,
+`squeezeback-double-box` y `squeezeback-double-box-background`, sin que esté
+dicho si el primero puede llevar fondo ni si el segundo puede no llevarlo. El
+token dice la composición: `-background` lleva fondo y el otro no lo lleva.
+Va en R12.5 (qué denota cada token) y en R26.1. Es lo que UC-10 ya ilustra
+(*"the first token is the case with no background, the second the case with
+an advertiser background"*), así que 04 no cambia.
+
+### D-16. La URL de destino del ClickThrough sigue el modelo de R48.3
+
+Ningún criterio dice qué hace el Player con la URL de destino del
+ClickThrough: sólo que dispara el click-tracking. Sigue el modelo de R48.3:
+el Player hace disponible el destino al espectador por los medios de su
+dispositivo, y cómo es suyo. Va en R28.
 
 ## Impacto fuera de 03
 
@@ -361,78 +412,19 @@ Con la tarea 4 en verde el trabajo termina. El build y la promoción son de
 - **06:** 0 menciones a ids que se van. Sus citas (entre ellas R13.6, R13.7,
   R34.9, R35.2 y R41.2) apuntan a ids que se conservan.
 - **02, 05, 07 y 08:** 0 menciones.
-- **ADRs:** 22 menciones, que no se editan (D-11).
+- **ADRs:** 19 menciones, que no se editan (D-11).
 
 ## Qué no se hace
 
-- **Decisiones de fondo nuevas.** Donde la reescritura encuentra una
-  ambigüedad, la anota como pregunta y no la resuelve.
+- **Decisiones de fondo fuera de D-13 a D-16.** Donde la reescritura
+  encuentra otra ambigüedad, la anota como pregunta y no la resuelve.
 - **Renumerar archivos de `context/`**, o mover requerimientos entre
   secciones de 03.
 - **Cambiar 05, 06, 07 u 08**, salvo citas a ids.
 - **Editar ADRs.**
 - **Correr un build.** Es de `major-build-v13`.
-- **Renombrar parámetros o atributos.** Si algo necesita nombre, es una
-  pregunta (P-1).
-
-## Preguntas abiertas, cada una con recomendación
-
-### P-1. Tres parámetros reservados no tienen nombre y la lista de R29.1 los excluye
-
-R29.1 dice "the four below and the audio parameter of R29.9, and no others".
-Pero los layouts permitidos (R38), la región custom (R39) y el permiso de
-audio (R41.5) también son parámetros reservados, R38.3 lo dice, y no
-tienen nombre en `context/`. La contradicción entró con la enumeración de
-R29 (`94ef488`).
-
-**Recomendación:** R29.1 con dos tablas, la de capacidad y la de lo que el
-slot declara. Los nombres de las dos primeras se toman de la spec publicada
-(`sgai-allowed-layouts` y `sgai-custom-region`), y para el permiso de audio
-se usa `sgai-ad-audio-allowed`. Es una decisión de nombres, y es de
-Nicolás.
-
-### P-2. El carrier de los beacons con tiempo es SHOULD en R6.2 y MUST en R13.1
-
-La fusión en R13.1 obliga a elegir uno. **Recomendación:** MUST, que es lo
-que ya dicen R13.1 y R13.4 (*"mandatory"*). R6.3 sigue siendo la salida para
-lo que el callback no puede expresar.
-
-### P-3. Qué significan los dos tokens de double-box respecto del fondo
-
-R26 dice que el fondo es opcional, y hay dos tokens:
-`squeezeback-double-box` y `squeezeback-double-box-background`. No está
-dicho si el primero puede llevar fondo, ni si el segundo puede no llevarlo.
-**Recomendación:** el token dice la composición. `-background` lleva fondo,
-y el otro no lo lleva.
-
-### P-4. Qué hace el Player con la URL de destino del ClickThrough
-
-Ningún criterio lo dice: sólo que dispara el click-tracking.
-**Recomendación:** el mismo modelo de R48.3. El Player hace disponible el
-destino por los medios de su dispositivo, y cómo es suyo.
-
-### P-5. ¿R42.3 y R47.2 son garantías como R28.2?
-
-El mapa los fusiona en R42.1 y R47.1. Tienen la misma forma que R28.2, y la
-misma razón: son carriers nuevos que un Player legacy ignora.
-**Recomendación:** conservarlos como garantías, igual que R28.2, por
-coherencia. Cuesta dos criterios, y la nota de privacidad de R47.2 se queda
-donde está.
-
-### P-6. 05 se superpone con I-RES en lo lineal
-
-05 mapea VAST al List MPD, que es I-RES para el caso lineal.
-**Recomendación:** no tocarlo en este trabajo. Ver después si pasa a ser el
-anexo ilustrativo de R11.5.
-
-### P-7. La derivación del intervalo de pausa de R33 está sólo en la prosa
-
-R33.2 obliga a derivar el intervalo de pausa "as described above", y esa
-derivación (del fin de un período detenido por `UserRequest` al `start` del
-siguiente `Resume`) está sólo en la prosa de R33. No es de ninguna de las
-tres interfaces, pero tiene el mismo patrón que D-3.
-**Recomendación:** incluirla en la reestructura. Sube a R33.2 y no cambia
-de contenido.
+- **Renombrar parámetros o atributos.** Los tres de D-13 se nombran porque
+  no tenían nombre; ninguno existente cambia.
 
 ## Anexo A. El mapa de obligaciones
 
@@ -453,14 +445,14 @@ id queda retirado. En los dos últimos casos el id no se reasigna.
 |---|---:|
 | Criterios hoy | 199 |
 | Criterios cuyo rol es sólo el Player | 95 |
-| Quedan | 117 |
-| Se reescriben | 43 |
-| Se fusionan | 33 |
+| Quedan | 116 |
+| Se reescriben | 46 |
+| Se fusionan | 31 |
 | Se retiran | 6 |
-| Cambian (reescriben, fusionan o retiran) | 82 |
+| Cambian (reescriben, fusionan o retiran) | 83 |
 | Nuevos (R12.5, R40.9) | 2 |
-| Criterios después de la reestructura | 162 |
-| Menciones fuera de 03 a ids que se van (04 / 99 / ADRs) | 24 / 2 / 22 |
+| Criterios después de la reestructura | 164 |
+| Menciones fuera de 03 a ids que se van (04 / 99 / ADRs) | 24 / 2 / 19 |
 | Referencias internas de 03 a ids que se van | 12 |
 
 ```
@@ -483,8 +475,13 @@ extraídos del archivo y aborta si falta o sobra una decisión:
 
 ```
 missing [] extra []
-199 {'queda': 117, 'se reescribe': 43, 'se fusiona': 33, 'se retira': 6}
+199 {'se reescribe': 46, 'se fusiona': 31, 'se retira': 6, 'queda': 116}
+gone 37 03-internal 12 04 24 99 2 ADR 19
+after 164
 ```
+
+Con R33.1 borrado a propósito de la lista de A.3, el mismo script da
+`missing ['R33.1']`.
 
 Las citas se cuentan por id y archivo con
 `grep -oP "\b${id//./\\.}(?![0-9])" <archivo> | wc -l`, y para las ADRs
@@ -510,13 +507,13 @@ context/03-requirements.md:2126:R40.3–R40.5
 
 Los dos abarcan sólo ids que se conservan.
 
-### A.2. Los 82 criterios que cambian
+### A.2. Los 83 criterios que cambian
 
 En el orden del archivo.
 
 | # | id | rol actual | interfaz | acción | lugar nuevo |
 |---:|---|---|---|---|---|
-| 1 | R29.1 | spec document | I-REQ | se reescribe | R29.1: una sola tabla con todos los parámetros del pedido y su significado: los cuatro de capacidad, `sgai-ad-audio` (de R29.9) y los tres que reenvían declaraciones del slot (layouts permitidos, región custom, permiso de audio, hoy en R38.3); viajan como query parameters y no por el template de URL del MPD (hoy sólo en la prosa). La nota de privacidad de R29.2 pasa a R29.1, que es donde queda la definición de los parámetros (DP-4). |
+| 1 | R29.1 | spec document | I-REQ | se reescribe | R29.1: los parámetros del pedido y su significado, en dos tablas (D-13): la de capacidad, con los cuatro de hoy y `sgai-ad-audio` (de R29.9), y la de lo que el slot declara y el Player reenvía, con `sgai-allowed-layouts`, `sgai-custom-region` y `sgai-ad-audio-allowed` (hoy sin nombre, en R38.3); viajan como query parameters y no por el template de URL del MPD (hoy sólo en la prosa). La nota de privacidad de R29.2 pasa a R29.1, que es donde queda la definición de los parámetros (DP-4). |
 | 2 | R29.2 | Player | I-REQ | se reescribe | R29.2: todo parámetro reservado es opcional, salvo los que el slot declara, que R38.2, R39.3 y R41.5 obligan a enviar (absorbe R29.8). |
 | 3 | R29.6 | spec document | gobierno | se fusiona en R3.1 | R3.1 dice que las clases son las combinaciones de los tres primeros ejes de R29.1 que da la tabla de R3, y que una combinación sin nombre se declara igual. |
 | 4 | R29.8 | spec document | I-REQ | se fusiona en R29.2 | R29.2 nombra las tres excepciones a la opcionalidad. |
@@ -569,7 +566,7 @@ En el orden del archivo.
 | 51 | R19.3 | Player | I-RES | se reescribe | R19.3: la duración declarada de toda forma, imagen y HTML incluidas, es un valor de la línea de tiempo de presentación, y su largo en reloj es duración / velocidad (absorbe R19.4; la parte del tope va a R4.11 y la de beacons ya está en R13.1). |
 | 52 | R19.4 | Player | I-RES | se fusiona en R19.3 | R19.3 lleva "toda forma, imagen y HTML incluidas". |
 | 53 | R21.1 | Player | comportamiento | se reescribe | R21.1: sólo el MAY de liberar recursos cuando el layout es `pause-fullscreen`; la superficie la fija el token (R12.5) y la forma única activa ya es R22.1 y R17.1. |
-| 54 | R26.1 | APS + Publisher | I-RES | se reescribe | R26.1: el fondo es un atributo de composición del layout, opcional, siempre imagen fija, creativo del anunciante, llena las bandas que dejan las dos cajas, y sin fondo las bandas son negras (hoy la imagen y el negro están en la prosa) (absorbe R26.2). |
+| 54 | R26.1 | APS + Publisher | I-RES | se reescribe | R26.1: el fondo es un atributo de composición del layout, presente con `squeezeback-double-box-background` y ausente con `squeezeback-double-box` (D-15), siempre imagen fija, creativo del anunciante, llena las bandas que dejan las dos cajas, y sin fondo las bandas son negras (hoy la imagen y el negro están en la prosa) (absorbe R26.2). |
 | 55 | R26.2 | Player | comportamiento | se fusiona en R26.1 | R26.1 lleva la composición y el negro por defecto; la geometría de las dos cajas la da el token (R12.5). |
 | 56 | R27.1 | APS + Publisher | I-RES | se reescribe | R27.1: la opción lleva un solo creativo, que cubre todo el cuadro por debajo, y el contenido principal achicado va encima en la región que denota el token; vale para los dos L-shape y para `squeezeback-frame` (esto último hoy sólo en la prosa); no hay un tercer elemento (absorbe R27.2). |
 | 57 | R27.2 | Player | comportamiento | se fusiona en R27.1 | R27.1 lleva la composición. |
@@ -587,21 +584,22 @@ En el orden del archivo.
 | 69 | R6.4 | Player | comportamiento | se retira | Nada que mover: es la regla de la base para namespaces desconocidos (§5.2.1), que R1.1 y R1.5 ya adoptan. |
 | 70 | R6.5 | Player + APS | I-RES | se reescribe | R6.5 como semántica del documento: el alcance de `@id` de un beacon es su candidato en un documento no lineal y el de la base en un ListMPD; "disparar los dos" queda como consecuencia. |
 | 71 | R6.6 | Player | I-RES | se fusiona en R13.1 | R13.1 lleva el ancla temporal: el tiempo del beacon es relativo a la presentación propia del candidato que lo aloja. |
-| 72 | R13.1 | APS | I-RES | se reescribe | R13.1: carrier (callback de la base), tiempos relativos a la presentación propia del candidato que los aloja, y significado: cada beacon se dispara cuando la presentación del aviso llega a su tiempo (absorbe R6.2, R6.6 y R13.2). |
+| 72 | R13.1 | APS | I-RES | se reescribe | R13.1: carrier (callback de la base), MUST (D-14), tiempos relativos a la presentación propia del candidato que los aloja, y significado: cada beacon se dispara cuando la presentación del aviso llega a su tiempo (absorbe R6.2, R6.6 y R13.2). |
 | 73 | R13.2 | Player | comportamiento | se fusiona en R13.1 | R13.1 lleva la semántica del disparo. |
 | 74 | R13.3 | Player | comportamiento | se reescribe | R13.3: un beacon cuyo tiempo cae después de que terminó la presentación del aviso, por recorte (R4), cierre (R35) o reanudación (R16), no se dispara (absorbe R16.2 y R35.6). |
 | 75 | R13.6 | APS + Player | I-RES | se reescribe | R13.6 como semántica del documento: un beacon adjunto a una opción informa esa opción y se dispara sólo si esa opción se presenta; uno adjunto al candidato, cualquiera que se presente. |
 | 76 | R13.7 | APS + Player | I-RES | se reescribe | R13.7 como semántica del documento: el beacon de inicio del slot corresponde al primer aviso que empieza en cada ejecución (R34.6), también en una ejecución tardía; el de fin, al fin de la ejecución termine como termine; una ejecución sin avisos no tiene ni uno ni otro. |
-| 77 | R28.1 | APS | I-RES | se reescribe | R28.1: además de dónde va, qué significa: las URLs de click-tracking se disparan cuando el espectador activa el ClickThrough (hoy no lo dice ningún criterio del lado del documento). Ver D-7. |
-| 78 | R28.2 | Player | comportamiento | se reescribe | R28.2 se queda como la garantía explícita: todo Player conforme lee el carrier de R28.1 con esa semántica. Ver D-7. |
-| 79 | R42.1 | spec document | I-RES | se reescribe | R42.1: carrier, conjunto cerrado (incluida la falla de R5.9) y significado: cada beacon se dispara una vez por ocurrencia en el aviso que lo lleva, nunca desde la línea de tiempo (absorbe R42.3). |
-| 80 | R42.3 | Player | comportamiento | se fusiona en R42.1 | R42.1 lleva la semántica. |
-| 81 | R47.1 | APS | I-RES | se reescribe | R47.1: cada beacon marcado con su resultado se dispara una vez por impresión cuando se determina ese resultado, e "indeterminado" es el resultado de un Player que no lo determina (absorbe R47.2, con su nota de privacidad, DP-4). |
-| 82 | R47.2 | Player | comportamiento | se fusiona en R47.1 | R47.1 lleva la semántica. |
+| 77 | R33.2 | Player | comportamiento | se reescribe | R33.2 recibe la derivación del intervalo de pausa que hoy está sólo en la prosa de R33 (del fin de un período detenido por `UserRequest` al `start` del siguiente `Resume`), sin cambiar de contenido (D-3). |
+| 78 | R28.1 | APS | I-RES | se reescribe | R28.1: además de dónde va, qué significa: las URLs de click-tracking se disparan cuando el espectador activa el ClickThrough (hoy no lo dice ningún criterio del lado del documento), y el destino se hace disponible al espectador con el modelo de R48.3 (D-16). Ver D-7. |
+| 79 | R28.2 | Player | comportamiento | se reescribe | R28.2 se queda como la garantía explícita: todo Player conforme lee el carrier de R28.1 con esa semántica. Ver D-7. |
+| 80 | R42.1 | spec document | I-RES | se reescribe | R42.1: carrier, conjunto cerrado (incluida la falla de R5.9) y significado: cada beacon se dispara una vez por ocurrencia en el aviso que lo lleva, nunca desde la línea de tiempo. R42.3 queda como garantía (D-7). |
+| 81 | R42.3 | Player | comportamiento | se reescribe | R42.3 se queda como la garantía explícita: todo Player conforme dispara los beacons de R42.1 con esa semántica; la semántica repetida queda como remisión a R42.1. Ver D-7. |
+| 82 | R47.1 | APS | I-RES | se reescribe | R47.1: cada beacon marcado con su resultado se dispara una vez por impresión cuando se determina ese resultado, e "indeterminado" es el resultado de un Player que no lo determina. R47.2 queda como garantía, con su nota de privacidad (D-7). |
+| 83 | R47.2 | Player | comportamiento | se reescribe | R47.2 se queda como la garantía explícita: todo Player que determina la viewability dispara el beacon de R47.1 con esa semántica, y conserva su nota de privacidad; la semántica repetida queda como remisión a R47.1. Ver D-7. |
 
-### A.3. Los 117 que quedan
+### A.3. Los 116 que quedan
 
-R1.1, R1.2, R1.3, R1.4, R1.5, R1.6, R2.1, R2.2, R2.3, R2.4, R11.1, R11.2, R11.3, R11.4, R11.5, R18.1, R18.2, R29.3, R29.4, R29.5, R29.7, R29.10, R4.4, R4.5, R4.7, R4.8, R4.9, R4.10, R31.2, R12.1, R12.2, R12.3, R12.4, R15.1, R15.2, R15.3, R5.4, R5.8, R5.9, R30.1, R30.2, R3.2, R32.2, R32.4, R34.3, R34.4, R34.10, R35.1, R35.4, R35.5, R35.7, R36.7, R37.1, R37.2, R37.3, R38.2, R38.4, R38.6, R39.1, R39.2, R39.3, R39.4, R19.1, R25.1, R26.3, R27.3, R41.2, R41.5, R41.6, R41.7, R14.3, R17.1, R17.4, R17.5, R20.1, R20.2, R20.3, R20.4, R20.5, R20.6, R22.1, R40.1, R40.2, R40.6, R40.7, R40.8, R6.1, R6.3, R6.7, R13.4, R13.5, R13.8, R23.1, R23.2, R24.1, R33.1, R33.2, R33.3, R33.4, R28.3, R42.2, R42.4, R44.1, R44.2, R44.3, R47.3, R48.1, R48.2, R48.3, R8.1, R8.2, R9.1, R9.2, R9.3, R10.1, R10.2, R10.3.
+R1.1, R1.2, R1.3, R1.4, R1.5, R1.6, R2.1, R2.2, R2.3, R2.4, R11.1, R11.2, R11.3, R11.4, R11.5, R18.1, R18.2, R29.3, R29.4, R29.5, R29.7, R29.10, R4.4, R4.5, R4.7, R4.8, R4.9, R4.10, R31.2, R12.1, R12.2, R12.3, R12.4, R15.1, R15.2, R15.3, R5.4, R5.8, R5.9, R30.1, R30.2, R3.2, R32.2, R32.4, R34.3, R34.4, R34.10, R35.1, R35.4, R35.5, R35.7, R36.7, R37.1, R37.2, R37.3, R38.2, R38.4, R38.6, R39.1, R39.2, R39.3, R39.4, R19.1, R25.1, R26.3, R27.3, R41.2, R41.5, R41.6, R41.7, R14.3, R17.1, R17.4, R17.5, R20.1, R20.2, R20.3, R20.4, R20.5, R20.6, R22.1, R40.1, R40.2, R40.6, R40.7, R40.8, R6.1, R6.3, R6.7, R13.4, R13.5, R13.8, R23.1, R23.2, R24.1, R33.1, R33.3, R33.4, R28.3, R42.2, R42.4, R44.1, R44.2, R44.3, R47.3, R48.1, R48.2, R48.3, R8.1, R8.2, R9.1, R9.2, R9.3, R10.1, R10.2, R10.3.
 
 Cinco de ellos cambian sólo una remisión o reciben una frase, sin cambio de
 fondo: R14.3 (su remisión a R14.1 pasa a R7.1), R39.3 (la de R38.3 pasa a
@@ -616,7 +614,7 @@ R14.3), R14.2 (1) y R13.2 (1, en R34.8).
 
 ### A.4. Criterios nuevos
 
-- **R12.5** (spec document, I-MPD e I-RES). Qué composición denota cada token de layout: para los squeezeback, la región que ocupa el contenido principal según la tabla de R12; para `pause-fullscreen` y `pause-partial`, la superficie; para los overlay, que el creativo se compone sobre un contenido que no se transforma. Hoy la tabla está en la prosa de R12 y el efecto se repite en R21.1, R26.2 y R27.2. Es el siguiente sub-id libre de R12.
+- **R12.5** (spec document, I-MPD e I-RES). Qué composición denota cada token de layout: para los squeezeback, la región que ocupa el contenido principal según la tabla de R12; para los dos double-box, si llevan fondo (D-15); para `pause-fullscreen` y `pause-partial`, la superficie; para los overlay, que el creativo se compone sobre un contenido que no se transforma. Hoy la tabla está en la prosa de R12 y el efecto se repite en R21.1, R26.2 y R27.2. Es el siguiente sub-id libre de R12.
 - **R40.9** (spec document, I-MPD). La semántica de la ventana no lineal: a qué está anclada (una ventana overlay o squeezeback a su rango de tiempo de medio, una de pausa a la pausa del espectador dentro de su rango) y qué significa cada una de las tres relaciones con el evento lineal: la por defecto (la ventana se suspende mientras se ejecuta un evento lineal heredado que pisa, y se retoma en la misma ejecución si la presentación vuelve dentro de su rango; ADR 0025), supersede con su fallback, y on top. Hoy vive sólo en la prosa de R40 y, repartida, en R40.3, R40.4 y R40.5 como obligaciones del Player. Es el siguiente sub-id libre de R40.
 
 ### A.5. Semántica que hoy vive sólo en la prosa
@@ -633,13 +631,13 @@ R14.3), R14.2 (1) y R13.2 (1, en R34.8).
 | R3 | La tabla de clases de dispositivo, que la prosa llama "the only definition of the classes" y ningún criterio carga (R29.6 remite a ella) | R3.1, reescrito |
 | R31 | Qué es una ventana de pausa (dispara el pedido si la pausa empieza dentro). Hoy está en la prosa y en R31.1 como obligación del Player | R31.1, reescrito |
 
-Fuera de las tres interfaces, R33 tiene el mismo patrón (P-7).
+Fuera de las tres interfaces, R33 tiene el mismo patrón y sube a R33.2 (D-3).
 
-### A.6. Los 39 ids que se van, y quién los cita
+### A.6. Los 37 ids que se van, y quién los cita
 
 06, 02, 05, 07 y 08 no citan ninguno. Las ADRs que citan alguno: 0011
 (R5.7), 0014 (R27.2), 0018 (R36.2, R36.3), 0022 (R5.7), 0023 (R34.7), 0024
-(R34.5), 0026 (R47.2) y 0028 (R34.8, R14.1, R13.2), todas `accepted`.
+(R34.5) y 0028 (R34.8, R14.1, R13.2), todas `accepted`.
 
 | id | acción | 03 | 04 | 99 | ADR |
 |---|---|---:|---:|---:|---:|
@@ -680,9 +678,7 @@ Fuera de las tres interfaces, R33 tiene el mismo patrón (P-7).
 | R6.4 | se retira | 0 | 0 | 0 | 0 |
 | R6.6 | se fusiona en R13.1 | 0 | 0 | 0 | 0 |
 | R13.2 | se fusiona en R13.1 | 1 | 0 | 0 | 1 |
-| R42.3 | se fusiona en R42.1 | 0 | 0 | 0 | 0 |
-| R47.2 | se fusiona en R47.1 | 0 | 0 | 0 | 3 |
-| **Total** | | **12** | **24** | **2** | **22** |
+| **Total** | | **12** | **24** | **2** | **19** |
 
 ### A.7. Las tres interfaces
 
@@ -739,9 +735,9 @@ Criterio de conteo: "una" es una sola definición en un criterio; "más de una" 
 | 5 | `sgai-html-over-video` | R29.1 | una | doc | R29.1 |
 | 6 | `sgai-custom-layout` | R29.1 | una | doc | R29.1 |
 | 7 | `sgai-ad-audio` | R29.9, fuera de la tabla de R29.1 | una | doc | R29.1 (quinta fila) |
-| 8 | Layouts permitidos reenviados | R38.2, R38.3 y R29.8; sin nombre de parámetro y fuera de la lista cerrada de R29.1 | más de una | Player + doc | fila de R29.1; R38.2 queda como obligación de reenviar |
-| 9 | Región custom reenviada | R39.3 y R29.8; sin nombre de parámetro | más de una | Player + doc | fila de R29.1; R39.3 queda |
-| 10 | Permiso de audio reenviado | R41.5 y R29.8; sin nombre de parámetro | más de una | Player + doc | fila de R29.1; R41.5 queda |
+| 8 | Layouts permitidos reenviados | R38.2, R38.3 y R29.8; sin nombre de parámetro y fuera de la lista cerrada de R29.1 | más de una | Player + doc | `sgai-allowed-layouts`, fila de R29.1 (D-13); R38.2 queda como obligación de reenviar |
+| 9 | Región custom reenviada | R39.3 y R29.8; sin nombre de parámetro | más de una | Player + doc | `sgai-custom-region`, fila de R29.1 (D-13); R39.3 queda |
+| 10 | Permiso de audio reenviado | R41.5 y R29.8; sin nombre de parámetro | más de una | Player + doc | `sgai-ad-audio-allowed`, fila de R29.1 (D-13); R41.5 queda |
 | 11 | Opcionalidad de los parámetros | R29.2 y R29.8 | más de una | Player + doc | R29.2 |
 | 12 | Ausencia significa indeterminado | R29.7 | una | doc | R29.7 |
 | 13 | Omitir en lugar de mandar vacío | R29.3 | una | Player | R29.3 |
@@ -766,16 +762,16 @@ Criterio de conteo: "una" es una sola definición en un criterio; "más de una" 
 | 11 | Fondo del double-box | R26.1 y R26.2; "sólo imagen" y "negro por defecto" en la prosa | más de una | doc + Player | R26.1 reescrito |
 | 12 | Creativo del L-shape y del frame | R27.1 y R27.2; que vale para `squeezeback-frame` sólo en la prosa | más de una | doc + Player | R27.1 reescrito |
 | 13 | Audio declarado en la opción | R41.1 (default), R41.3 (declaración), R41.4 (efecto) | más de una | doc + Player | R41.3 reescrito; R41.4 sólo la restauración |
-| 14 | Carrier de los beacons con tiempo | R6.2 (SHOULD), R13.1 (MUST) y R13.4 (mandatory) | más de una | doc + gobierno | R13.1 (R13.4 queda como gobierno) |
+| 14 | Carrier de los beacons con tiempo | R6.2 (SHOULD), R13.1 (MUST) y R13.4 (mandatory) | más de una | doc + gobierno | R13.1, MUST (D-14); R13.4 queda como gobierno |
 | 15 | Ancla temporal y disparo de los beacons con tiempo | R6.6, R13.1 y R13.2 | más de una | doc + Player | R13.1 |
 | 16 | Alcance de `@id` de un beacon | R6.5 | una | Player + doc | R6.5 reescrito del lado del documento |
 | 17 | Beacons adjuntos a una opción o al candidato | R13.6 | una | Player + doc | R13.6 reescrito del lado del documento |
 | 18 | Beacons de inicio y fin de slot, por ejecución | R13.7 | una | Player + doc | R13.7 reescrito del lado del documento |
-| 19 | Beacons por ocurrencia (incluida la falla de R5.9) | R42.1 y R42.3; R5.9 repite el caso de la falla | más de una | doc + Player | R42.1 |
-| 20 | Beacons de viewability | R47.1 y R47.2 | más de una | doc + Player | R47.1 |
+| 19 | Beacons por ocurrencia (incluida la falla de R5.9) | R42.1 y R42.3; R5.9 repite el caso de la falla | más de una | doc + Player | R42.1 (R42.3 queda como garantía, D-7) |
+| 20 | Beacons de viewability | R47.1 y R47.2 | más de una | doc + Player | R47.1 (R47.2 queda como garantía, D-7) |
 | 21 | Carrier del ClickThrough y su click-tracking | R28.1 | una | doc | R28.1 |
 | 22 | Click-tracking disparado al activar | R28.2 | una | Player | R28.1 (semántica) y R28.2 (garantía) |
-| 23 | Qué significa activar el ClickThrough respecto de su URL de destino | ninguno | ninguna | - | no lo decide este inventario: hoy ningún criterio dice qué hace el Player con la URL |
+| 23 | Qué significa activar el ClickThrough respecto de su URL de destino | ninguno | ninguna | - | R28.1, con el modelo de R48.3 (D-16) |
 | 24 | Cerrable o no | R35.1 | una | doc | R35.1 |
 | 25 | Demora antes de poder cerrar | R35.2 y R35.3 | más de una | doc + Player | R35.2 |
 | 26 | Comportamiento al agotar la pausa: declaración y default | R32.1 | una | doc + Player | R32.1 |
@@ -801,6 +797,6 @@ I-RES 32 {'una': 17, 'más de una': 13, 'ninguna': 2} una-Player 2
   Los números valen para esa lista. Otra partición (por ejemplo, separar el
   offset en valor, ancla y default) cambia los conteos, aunque no cuáles
   elementos están duplicados o faltan.
-- Que las 48 menciones de 04, 99 y las ADRs sigan teniendo sentido con el id
+- Que las 45 menciones de 04, 99 y las ADRs sigan teniendo sentido con el id
   destino no se verificó una por una. Se ve al reescribirlas, y la
   validación de 04 y 99 (D-12) lo controla para esos dos archivos.
