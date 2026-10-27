@@ -2334,3 +2334,7 @@ Nicolás aprobó el diseño de `roadmap/svta2053-v3-alignment` con sus respuesta
 ## 2026-10-27 — Arranca el diseño de multi-asset-options-profile
 
 `roadmap/multi-asset-options-profile` pasa a `designing`. El diseño propone varios assets por opción (SVTA2053 v3, la L de dos barras) como un modo opcional en el mismo documento, con el molde de R39 (`custom`): token `multi-asset` en overlay, parámetro de capacidad propio, degradación por R5.6, excepción declarada en R10.3 y R12.1. R22, R27.1 y R41.7 no cambian; topes de tres elementos de aviso y tres decodificadores. `context/` no se toca hasta que Nicolás apruebe el diseño.
+
+## 2026-10-27 — Fix: huecos E1, E5 y E11 de error-semantics
+
+Nicolás decidió los tres huecos que el build anotó en `context-analysis/error-semantics.md`. `context/03-requirements.md` gana OOS-13 (reintentos del pedido de resolución: implementación), R34.10 (una resolución que llega con la ventana terminada no se presenta) y R13.8 (la spec define qué se reporta y cuándo, no cómo se interpretan las métricas). Detalle en `fixes/2026-10-27-error-semantics-gaps/FIX.md`.
