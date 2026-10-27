@@ -787,6 +787,10 @@ short paragraphs, explicit grounding (section references where
 verifiable), tables only when comparing something. No marketing
 language, no apologies, no filler.
 
+Requirements follow the writing rule at the top of
+`context/03-requirements.md` ("How requirements are written"); it is not
+restated here.
+
 Requirements are self-contained and concise. State what a requirement
 mandates, not how it differs from other requirements. Do not compare
 one requirement to another (no decorative "unlike R_x" / "R_y, by

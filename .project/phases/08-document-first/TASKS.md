@@ -3,7 +3,7 @@
 | id   | brief                                                                                     | status  | who   | plan | evidence |
 | ---- | ----------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
 | T-01 | El mapa de obligaciones queda congelado y legible por script, criterios y prosa            | done    | agent | —    | `tasks/T-01/obligation-map.tsv`, `tasks/T-01/build-map.py` |
-| T-02 | 03 está reescrito según el mapa, con la regla, el índice de interfaces y los retirados     | planned | agent | —    | —        |
+| T-02 | 03 está reescrito según el mapa, con la regla, el índice de interfaces y los retirados     | done    | agent | —    | `tasks/T-02/notes.md` |
 | T-03 | Un check en `bin/` hace cumplir la parte estructural de la regla, como Step 0.7            | planned | agent | —    | —        |
 | T-04 | Las pruebas del check: cada una de sus cinco condiciones, rota a propósito, sale en rojo   | planned | agent | —    | —        |
 | T-05 | La versión nueva conserva cada obligación de la vieja, y `context/` cierra                 | planned | agent | —    | —        |
@@ -115,7 +115,10 @@
   se borra a propósito una obligación del texto nuevo en una copia y el
   validador la encuentra. Cambios aceptados sólo en su lugar: R6.2 de SHOULD a
   MUST en R13.1 (ADR 0041), los nombres de R29.1 (ADR 0040), la URL de destino
-  en R28 (ADR 0043). (2) El diff de 04 y de 99 con los ids viejos reemplazados
+  en R28 (ADR 0043), los tokens de double-box en R12.5 y R26.1 (ADR
+  0042), y la frase de R1.4 sobre el candidato abortado (LOG del
+  2026-10-27). Los apartamientos del mapa están en `tasks/T-02/notes.md`.
+  (2) El diff de 04 y de 99 con los ids viejos reemplazados
   por su destino es vacío; se admite colapsar un id repetido que la
   sustitución deja ("R5.1 / R5.1") y, en 99, sólo las entradas que
   `check-context-vocabulary` pida para términos nuevos de T-02, listadas.

@@ -12,6 +12,130 @@ discussions; any design choice that conflicts with one must explicitly
 state the conflict and the justification. This section mirrors the
 working doc verbatim.
 
+## How requirements are written
+
+This specification defines three interfaces: what the Publisher writes in
+the MPD, the request the Player sends the APS, and the resolution document
+the APS returns. The "Interfaces" section lists every element of each, and
+the criterion that defines it.
+
+1. The meaning of an element is written once, in a criterion held by the
+   party that writes the element (the Publisher, the APS, or the
+   specification document; for the request, the Player), including its
+   effect, with the strength of the obligation it states. Every other
+   criterion, and every use case, cites it by identifier and does not
+   restate it.
+2. A criterion on what an actor does is written only when it does not
+   follow from the meaning of what the document carries: an order, a
+   fallback, what to do when something fails, is missing, does not
+   conform or arrives late, a device limit, a computation, when something
+   happens, a chain between actors, or a guarantee of interoperability
+   that has to be stated to hold.
+3. Identifiers are stable. A criterion that is merged into another, or
+   withdrawn, keeps its identifier out of use, and the "Retired
+   identifiers" table says where its content went.
+
+Inside each requirement, the criteria on the document come first and the
+criteria on behaviour after them.
+
+## Interfaces
+
+Each table is an index: one row per element, and the criterion that
+defines its meaning. The meaning is in the criterion and nowhere here.
+
+### I-MPD — what the Publisher writes in the MPD
+
+| Element | Defined in |
+|---|---|
+| Family of a non-linear window | R40.9 |
+| Media-time range of an overlay or squeezeback window | R40.9 |
+| Range of a pause window | R31.1 |
+| Maximum duration of an overlay or pause slot | R4.1 |
+| `@maxDuration` of an inherited linear event | R4.8 |
+| A maximum duration of zero | R4.7 |
+| `@clip` of an inherited linear replacement | R4.6 |
+| Timeline the cap is measured on | R4.11 |
+| The cap on a pause slot | R31.2 |
+| `@allowedLayouts`, declared | R38.1 |
+| `@allowedLayouts`, absent | R38.1 |
+| Layout token vocabulary | R12.2 |
+| Composition each layout token denotes | R12.5 |
+| Custom region | R39.2 |
+| Once-per-session declaration | R34.1 |
+| When a once-per-session window is consumed | R34.4 |
+| Earliest-resolution offset: value, anchor and default | R36.1 |
+| Ad-audio allowance | R41.2 |
+| Relation to the inherited linear events: what each relation means | R40.9 |
+| Relation to the inherited linear events: optional, at most one, pause only on top | R40.1 |
+| Windows declared in an alternative presentation's `MPD` | R40.2 |
+| One `EventStream` per family and Period | R20.2 |
+| `PlayList` metric request (`Metrics`) | R33.4 |
+| `@skipAfter` of an inherited linear event | R35.8 |
+| `@executeOnce` and an execution that produces no ad | R34.4 |
+| Executions of an overlay or squeezeback window | R34.6 |
+| Late execution: default and start-with-offset | R34.9 |
+
+`EventStream@value` on an SGAI scheme has no meaning this file defines:
+[`06-naming-and-namespaces.md`](06-naming-and-namespaces.md) fixes it.
+
+### I-REQ — the request the Player sends the APS
+
+| Element | Defined in |
+|---|---|
+| Event URL the request is sent to | R18.1 |
+| Transport: query parameters, not the MPD URL-parameter template | R29.1 |
+| `sgai-video-decoders` | R29.1 |
+| `sgai-image-over-video` | R29.1 |
+| `sgai-html-over-video` | R29.1 |
+| `sgai-custom-layout` | R29.1 |
+| `sgai-ad-audio` | R29.1 |
+| `sgai-allowed-layouts` | R29.1 |
+| `sgai-custom-region` | R29.1 |
+| `sgai-ad-audio-allowed` | R29.1 |
+| Which parameters are optional | R29.2 |
+| An absent capability parameter | R29.7 |
+| A parameter with no value is omitted | R29.3 |
+| Vendor prefix on a non-reserved parameter | R29.4 |
+| A capability value is the device's real capability in the session | R29.10 |
+| Device class (derived from the parameters; does not travel) | R3.1 |
+
+### I-RES — the resolution document the APS returns
+
+| Element | Defined in |
+|---|---|
+| Family of the document against the slot's | R20.4 |
+| A document with no candidates | R30.1 |
+| Order of the candidates | R7.1 |
+| Presentation options of a candidate, and their order | R5.1 |
+| What the options represent | R5.8 |
+| An option's `@layout` and ad-type metadata | R12.3 |
+| Creative form and `mimeType` | R15.2 |
+| URL of a non-AV asset | R24.1 |
+| Declared duration of a form | R19.3 |
+| Rectangle of a `custom` option | R39.4 |
+| Background of a double-box | R26.1 |
+| Creative of an L-shape and of the frame | R27.1 |
+| Audio declared on an option | R41.3 |
+| Carrier of time-bound beacons | R13.1 |
+| Time anchor and firing of time-bound beacons | R13.1 |
+| Scope of a beacon's `@id` | R6.5 |
+| Beacons attached to an option or to the candidate | R13.6 |
+| Slot-start and slot-end beacons | R13.7 |
+| Occurrence beacons | R42.1 |
+| Viewability beacons | R47.1 |
+| ClickThrough carrier and its click-tracking | R28.1 |
+| Click-tracking fired when the ClickThrough is activated | R28.1 |
+| The ClickThrough destination, on activation | R28.1 |
+| Whether the slot is dismissible | R35.1 |
+| Delay before the slot is dismissible | R35.2 |
+| Behaviour when pause candidates are exhausted: declaration and default | R32.1 |
+| What `repeat`, `request-again` and `stop` mean | R32.1 |
+| How long the resolution remains usable | R36.4 |
+| Application metadata (`AdSystem`, `AdTitle`) | R23.1 |
+| Creative identifiers | R23.2 |
+| Verification resources | R44.1 |
+| Regulatory disclosure | R48.1 |
+
 ## Design principles
 
 The following principles govern any decision made when authoring the
@@ -174,16 +298,6 @@ and the boundaries of what this spec does and does not define.
   - **R1.3** (Publisher / spec document): The specification MUST NOT alter
     or override the semantics of any pre-existing MPEG-DASH 6th
     edition construct.
-  - **R1.4** (Player): When rendering an accepted ad fails at runtime
-    after it has begun (for example a decode error, or a mid-ad network
-    loss), or its candidate is malformed, the Player MUST abort that ad.
-    A resource of an option that fails on its first request is not a
-    runtime failure: R5.9 governs it. When the attempt ends with no candidate rendered, it produced
-    no ad and R20.1 governs what follows; otherwise the Player MUST
-    continue playing the primary content uninterrupted. This matches
-    what the base specification already requires of its own execution
-    model (§5.16.2.2.6); the criterion states it for the constructs
-    added here rather than introducing it.
   - **R1.5** (spec document): Where the base specification already
     defines a behaviour, a default or a construct for a question this
     specification has to answer, the base specification's answer takes
@@ -192,6 +306,18 @@ and the boundaries of what this spec does and does not define.
     declares that answer as an extension. A decision that departs from
     the base answer anyway is an exception recorded with its reason.
     ADR 0006 records the principle.
+  - **R1.4** (Player): When rendering an accepted ad fails at runtime
+    after it has begun (for example a decode error, or a mid-ad network
+    loss), or its candidate is malformed, the Player MUST abort that ad.
+    A resource of an option that fails on its first request is not a
+    runtime failure: R5.9 governs it. When the attempt ends with no candidate rendered, it produced
+    no ad and R20.1 governs what follows; otherwise the Player MUST
+    continue playing the primary content uninterrupted. A candidate that
+    began rendering and was then aborted counts as rendered: the Player
+    continues with the primary content, and R20.1 does not apply. This matches
+    what the base specification already requires of its own execution
+    model (§5.16.2.2.6); the criterion states it for the constructs
+    added here rather than introducing it.
   - **R1.6** (Player): When presenting a non-linear ad degrades the
     playback of the primary content — for example the primary content
     renders at a frame rate below the expected one, or its audio
@@ -224,13 +350,13 @@ and the boundaries of what this spec does and does not define.
     obligation on the ADS, and on the APS only the layout and region
     constraints and the audio allowance the Player forwards on the
     resolution request (R38.4, R39.4, R41.5).
-  - **R2.3** (Player): The Player MUST validate the candidates in
-    the resolution document against Publisher-declared constraints
-    and render only those that satisfy them.
   - **R2.4** (spec document): Every new mechanism introduced by the
     specification MUST be expressible within the four-actor contract; any
     mechanism that would require an actor to take on a
     responsibility outside its role MUST be rejected or redesigned.
+  - **R2.3** (Player): The Player MUST validate the candidates in
+    the resolution document against Publisher-declared constraints
+    and render only those that satisfy them.
 
 - **R11. Independent of VAST, compatible with what VAST expresses.**
   *Gist: The spec never depends on VAST or any specific VAST version, and covers the ad behaviours a VAST-based ADS can express; VAST references are illustrative only.*
@@ -245,14 +371,6 @@ and the boundaries of what this spec does and does not define.
   **Conformance criteria**:
   - **R11.1** (spec document): The normative chapters of the spec
     MUST NOT cite a specific VAST version as required.
-  - **R11.2** (Player): A Player MUST be able to operate regardless
-    of whether the ADS uses VAST. The Player never talks to the ADS
-    directly; it reads only the resolution document the APS produces.
-    This spec starts from the resolution document — the conversion
-    from the ADS's decision format (VAST or otherwise) into the
-    resolution document is performed by the APS and is NOT defined by
-    this spec. The ADS-side protocol (VAST or otherwise) is internal
-    to the ADS / APS pair, not the spec's Player-facing contract.
   - **R11.3** (spec document): A normative statement MUST NOT require
     VAST, and MUST NOT describe an actor's behaviour in terms that
     only a VAST deployment satisfies. Naming VAST as the typical case
@@ -271,6 +389,14 @@ and the boundaries of what this spec does and does not define.
     response, because that is how the resolution document is
     produced in practice. The annex is illustrative: it constrains
     no implementation and defines no semantics.
+  - **R11.2** (Player): A Player MUST be able to operate regardless
+    of whether the ADS uses VAST. The Player never talks to the ADS
+    directly; it reads only the resolution document the APS produces.
+    This spec starts from the resolution document — the conversion
+    from the ADS's decision format (VAST or otherwise) into the
+    resolution document is performed by the APS and is NOT defined by
+    this spec. The ADS-side protocol (VAST or otherwise) is internal
+    to the ADS / APS pair, not the spec's Player-facing contract.
 
 - **R18. The APS-to-ADS and ADS-side API contracts are not defined by this spec.**
   *Gist: The spec defines only the Player-visible interface; the APS-to-ADS and ADS-side APIs are out of scope and agreed bilaterally.*
@@ -305,17 +431,13 @@ and the boundaries of what this spec does and does not define.
   *Gist: The Player MAY attach reserved capability parameters — inputs about the device, not conclusions about what can be served — to the resolution request it sends the APS; the set is closed and enumerated here, each parameter is optional except what the slot itself declares (R38, R39, R41), and one the Player cannot or will not populate is omitted rather than sent empty.*
 
   This specification defines a closed set of **reserved parameters** that
-  a Player MAY attach to the resolution request it issues against the
-  MPD event URL. Which of them travel is the Player's decision, taken at
-  runtime; no declaration by the Publisher, the APS or the ADS is
-  required before a Player sends them.
+  a Player attaches to the resolution request it issues against the
+  MPD event URL (R29.1). Which capability parameters travel is the
+  Player's decision, taken at runtime; no declaration by the Publisher,
+  the APS or the ADS is required before a Player sends them. The slot
+  parameters travel when the slot declares their value.
 
-  These parameters are carried as query parameters on the resolution
-  request. They are defined here and are NOT expressed through the
-  MPD-declared URL-parameter template mechanism of MPEG-DASH 6th
-  edition, whose contents are declared by the content author.
-
-  Each parameter states one capability axis of the device, and the
+  Each capability parameter states one capability axis of the device, and the
   Player sends the axes separately: there is no parameter that names a
   device class. The device classes are combinations of these axes, and
   R3 defines them.
@@ -325,11 +447,17 @@ and the boundaries of what this spec does and does not define.
   that device, adjusted only where the session changes them (R29.10).
 
   **Conformance criteria** (runtime + document-level):
-  - **R29.1** (spec document): The reserved capability parameters are
-    the four below and the audio parameter of R29.9, and no others.
-    Each is an **input about the device** — what the device, or the
-    Player on it, can do — and not a conclusion about which ad experiences can
-    be served; deriving the second from the first is the APS's.
+  - **R29.1** (spec document): The reserved parameters are those of the
+    two tables below, and no others. They are carried as query
+    parameters on the resolution request; they are defined here and are
+    NOT expressed through the MPD-declared URL-parameter template
+    mechanism of MPEG-DASH 6th edition, whose contents are declared by
+    the content author.
+
+    The **capability parameters** are each an **input about the
+    device** — what the device, or the Player on it, can do — and not a
+    conclusion about which ad experiences can be served; deriving the
+    second from the first is the APS's.
 
     | Parameter | Values | Meaning |
     |---|---|---|
@@ -337,17 +465,28 @@ and the boundaries of what this spec does and does not define.
     | `sgai-image-over-video` | `1`, `0` | Whether the device can composite an image together with playing video: over it, or around it as in a squeezeback. No image format is named. |
     | `sgai-html-over-video` | `1`, `0` | Whether the device can composite HTML together with playing video, in the same sense. |
     | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional `custom` layout (R39). |
+    | `sgai-ad-audio` | `1`, `0` | Whether the device can render an ad's audio in place of the primary content's audio while the primary video keeps playing. It is the capability R41.6 checks an option against. |
 
     Codec support is not an axis (OOS-12).
-  - **R29.2** (Player): Sending a reserved parameter is OPTIONAL. A
-    Player conformant to this specification MAY send all of them, some
-    of them, or none.
 
-    *Privacy note:* the reserved parameters describe the device, and
+    *Privacy note:* the capability parameters describe the device, and
     each one adds to the information that can single out a device or a
     viewer (fingerprinting). Whether a Player sends them is subject to
     the privacy and personal-data policies that apply to whoever deploys
     it; this specification requires none of them (DP-4).
+
+    The **slot parameters** each carry a value the slot declares in the
+    `MPD`, so that the APS answers within what the Publisher allows.
+
+    | Parameter | Value | Meaning |
+    |---|---|---|
+    | `sgai-allowed-layouts` | The slot's declared allowed layouts (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). |
+    | `sgai-custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a `custom` option's rectangle lies in (R39.4). |
+    | `sgai-ad-audio-allowed` | `1`: the slot declares the ad-audio allowance (R41.2). | The APS may return an option that declares its audio (R41.5). |
+  - **R29.2** (Player): Sending a capability parameter is OPTIONAL. A
+    Player conformant to this specification MAY send all of them, some
+    of them, or none. A slot parameter is sent when the slot declares
+    its value, as R38.2, R39.3 and R41.5 require, and not otherwise.
   - **R29.3** (Player): When the Player has no value for a reserved
     parameter, or does not disclose its value, the Player MUST omit that
     parameter entirely rather than send it with an empty or placeholder
@@ -359,11 +498,7 @@ and the boundaries of what this spec does and does not define.
     parameter and MUST be able to produce ad candidates without receiving
     any of them. An APS that requires a parameter in order to answer
     would make R29.2 unattainable for the Player.
-  - **R29.6** (spec document): The device classes this specification
-    enumerates are defined as combinations of the first three parameters
-    of R29.1 (R3), so the set tells every enumerated class apart by construction.
-    A combination that is not a named class is declared the same way.
-  - **R29.7** (spec document): A reserved parameter absent from the
+  - **R29.7** (spec document): A capability parameter absent from the
     resolution request means its value is **undetermined** — the
     Player did not determine it, or did not disclose it. Absence does
     NOT assert that the device lacks the capability. This
@@ -375,16 +510,6 @@ and the boundaries of what this spec does and does not define.
     return every option the advertiser allowed and leave the choice to
     the Player's check (R5.6), which keeps every device that could
     render one of them.
-  - **R29.8** (spec document): R38.2, R39.3 and R41.5 are the
-    exceptions to R29.2: when a non-linear slot declares allowed
-    layouts, a custom region, or the ad-audio allowance, the Player is
-    required to send them. Every other reserved parameter remains
-    optional.
-  - **R29.9** (spec document): The reserved set also carries
-    `sgai-ad-audio`, `1` or `0`: whether the device can render an ad's
-    audio in place of the primary content's audio while the primary
-    video keeps playing. It is the capability R41.6 checks an option
-    against.
   - **R29.10** (Player): The capability the Player declares on the
     resolution request, and the one it checks options against (R5.6),
     is assumed to be the device's real capability in that session, with
@@ -411,8 +536,8 @@ admissible ad-type vocabulary, and the admissible creative carriers.
   it is the base specification's own maximum, which the base
   specification makes optional (R4.8). The ADS may return one or more ad
   candidates to fill that slot, but the ADS is **not** responsible for
-  respecting the cap. The Player MUST enforce it, stopping at the
-  bound even when the stop falls mid-ad. R4 is a concrete instance of
+  respecting the cap. The Player enforces it, stopping at the bound
+  even when the stop falls mid-ad (R4.2). R4 is a concrete instance of
   R2 — Publisher declares the constraint, Player enforces it, ADS does
   not.
 
@@ -451,7 +576,7 @@ admissible ad-type vocabulary, and the admissible creative carriers.
 
   On the non-linear families this specification defines there is no
   `PRT` / `PRTA` model to preserve an end against, and the cap bounds
-  the cumulative duration of what the slot presents (R4.2, R14.2) —
+  the cumulative duration of what the slot presents (R4.2) —
   with one exception. A **pause** slot has no declared duration for a
   cap to bound: the viewer decides how long it lasts, and R31 states
   what follows from that.
@@ -467,31 +592,24 @@ admissible ad-type vocabulary, and the admissible creative carriers.
   - **R4.1** (Publisher): The Publisher MUST declare a maximum
     duration on every overlay and pause slot defined in the `MPD`. On
     an inherited linear event the maximum is the base specification's
-    `@maxDuration`, which the Publisher MAY omit (R4.8).
-  - **R4.2** (Player): Where the cap bounds cumulative duration — the
-    overlay family, and linear insertion — the Player MUST stop
-    rendering once the cumulative duration of the accepted candidates
-    would exceed it, even if the stop falls mid-ad.
-  - **R4.3** (Player): The Player MUST NOT extend a slot beyond what
-    the cap bounds for that slot's family (R4.6), regardless of ADS
-    metadata or candidate count. On a replacement slot the bound is
-    the scheduled end, so an event declaring `@clip="false"` ends
-    later than that end without violating this criterion — it is the
-    base specification moving the bound, not the Player exceeding it.
+    `@maxDuration`, which the Publisher MAY omit (R4.8). The maximum is
+    the bound the slot's presentation does not pass: a slot MUST NOT
+    extend beyond what its cap bounds for its family, regardless of ADS
+    metadata or candidate count — a cumulative duration (R4.2), the
+    scheduled end of a replacement (R4.6), and nothing on a pause slot
+    (R31.2).
   - **R4.4** (ADS): The ADS is NOT required to respect the cap when
     selecting candidates; a conformance check on the ADS MUST NOT
     fail solely because the cumulative duration of its returned
     candidates exceeds the cap.
-  - **R4.5** (Player): When the actual rendered length of an
-    accepted candidate exceeds its declared duration, the Player
-    MUST enforce the cap against actual length, not declared
-    length ("trim during play").
-  - **R4.6** (Player): On an inherited linear replacement slot, the
-    Player MUST honour the base specification's clip semantics: unless
-    the event declares otherwise, the presentation ends at the
-    scheduled end of the slot and a late start shortens it rather
-    than moving that end. Insertion has no clip semantics to honour
-    and falls under R4.2.
+  - **R4.6** (spec document): On an inherited linear replacement slot
+    the cap bounds the scheduled end, under the base specification's
+    clip semantics (`@clip`, default `"true"`): the presentation MUST
+    end no later than the scheduled end of the slot, and a late start
+    shortens it rather than moving that end. An event declaring
+    `@clip="false"` ends at `PRTA + APDmax`, later than the scheduled
+    end — the base specification moving the bound, not the Player
+    exceeding it. Insertion has no `@clip` and falls under R4.2.
   - **R4.7** (Publisher + Player): A declared cap of zero means the
     opportunity does not fire. The base specification states it
     directly — *"If the value of `@maxDuration` is zero, the event is
@@ -511,6 +629,26 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     pause slot every declaration is an advertising opportunity, and a
     missing cap costs a slot that sells nothing, which the Publisher
     sees and fixes with one attribute.
+  - **R4.11** (spec document): The cap MUST be computed on the
+    presentation timeline, the timeline every form's declared duration
+    is on (R19.3). An interval during which the presentation timeline
+    does not advance MUST NOT accrue against the cap, and the interval
+    during which a form is suspended — during a viewer pause (R17.1), or
+    while an inherited linear event is executed (R40.4) — MUST NOT accrue
+    against it either, so a suspended form resumes with the remaining
+    cap it had when it was suspended.
+  - **R4.2** (Player): Where the cap bounds cumulative duration — an
+    overlay slot, a sequence of non-linear candidates (R7.1), and linear
+    insertion — the Player MUST stop rendering once the cumulative
+    duration of the accepted candidates would exceed it, even if the
+    stop falls mid-ad. A candidate whose declared duration would push
+    the cumulative duration past the cap is played and stopped at the
+    cap, as the base specification does for an insertion (Table 57): a
+    declared duration is not a reason to drop a candidate.
+  - **R4.5** (Player): When the actual rendered length of an
+    accepted candidate exceeds its declared duration, the Player
+    MUST enforce the cap against actual length, not declared
+    length ("trim during play").
   - **R4.9** (Player): The cap and a candidate's declared duration are
     stated in different timebases — the cap in the units of the parent
     `<EventStream>@timescale`, a candidate's duration as an ISO 8601
@@ -538,13 +676,6 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     nobody authors. ADR 0015 records the decision and what it
     deliberately does not change about the pause family (R31); ADR
     0020 records why inherited linear events are outside it.
-  - **R4.11** (Player): The Player MUST compute the cap on the
-    presentation timeline. An interval during which the presentation
-    timeline does not advance MUST NOT accrue against the cap, so a form suspended
-    under R17 resumes with the remaining cap it had when it was
-    suspended. The interval during which a form is suspended — during a
-    viewer pause (R17.1), or while an inherited linear event is executed
-    (R40.4) — MUST NOT accrue against the cap.
 
 - **R31. A pause opportunity window bounds where, not how long.**
   *Gist: The window marks the region of the primary timeline in which a viewer pause triggers a resolution request; the duration of the resulting slot is set by the viewer and is unknown in advance.*
@@ -562,10 +693,10 @@ admissible ad-type vocabulary, and the admissible creative carriers.
   among them — do not bound a pause slot: the viewer bounds it.
 
   **Conformance criteria** (runtime):
-  - **R31.1** (Player): The Player MUST request a resolution document
-    when a viewer pause begins inside a pause opportunity window, and
-    MUST NOT request one for a pause that begins outside every such
-    window.
+  - **R31.1** (spec document): A viewer pause that begins inside a
+    pause opportunity window MUST trigger a resolution request for that
+    window, and a pause that begins outside every such window MUST NOT
+    trigger one.
   - **R31.2** (Publisher + Player): The Publisher-declared slot cap
     (R4) MUST NOT be interpreted as bounding the duration of a pause
     slot. R4's cap bounds an end on a replacement slot and a
@@ -617,16 +748,13 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     the creative and is rendered with HTML5 / CSS (R10.1, R10.3).
   - **Squeezeback** (IAB *Squeezeback*, `squeezeback`): a non-linear
     layout in which the primary content is shrunk to share the frame
-    with the ad. Supported placements, with the region each one leaves
-    for the primary content:
-
-    | Token | Primary content occupies | IAB type |
-    |---|---|---|
-    | `squeezeback-l-shape-upper-left` | the upper-left 60% of the frame; the ad runs across the bottom and up the right edge | *L-Shape* (see R27) |
-    | `squeezeback-l-shape-upper-right` | the upper-right 60% of the frame; the ad runs across the bottom and up the left edge | *L-Shape* (see R27) |
-    | `squeezeback-double-box` | the centre-left 25% of the frame; the ad occupies the centre-right 25% | *Double Box Video* (see R26) |
-    | `squeezeback-double-box-background` | the centre-left 25% of the frame; the ad occupies the centre-right 25%, over an advertiser-branded background | *Double Box Video + Background* (see R26) |
-    | `squeezeback-frame` | the centre 60% of the frame; the ad surrounds it on every side | *Frame* (see R27) |
+    with the ad. Supported placements: two L-shapes
+    (`squeezeback-l-shape-upper-left`, `squeezeback-l-shape-upper-right`,
+    IAB *L-Shape*), two double-boxes (`squeezeback-double-box`, IAB
+    *Double Box Video*; `squeezeback-double-box-background`, IAB *Double
+    Box Video + Background*) and a frame (`squeezeback-frame`, IAB
+    *Frame*). The region each one leaves for the primary content is
+    given by R12.5.
 
     **The token carries the geometry because nothing else does.** The
     Player shrinks and repositions the primary content here, which it
@@ -693,6 +821,29 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     re-declaring them MPD-side; no dimensional attribute is introduced
     on the slot declaration. See
     `../.project/decisions/0001-defer-to-iab-ctv-for-spatial-caps.md`.
+  - **R12.5** (spec document): Each layout token denotes a composition,
+    and an option rendered with a token MUST be composed as the token
+    denotes:
+
+    - `overlay`, `overlay-corner`, `overlay-lower-third` and `custom`
+      (R39): the creative is composited over primary content that is not
+      transformed;
+    - the squeezeback tokens: the primary content is shrunk into the
+      region the table below gives, and the ad occupies the rest of the
+      frame as R26 and R27 state;
+    - `pause-fullscreen`: the pause-ad occupies the entire screen
+      surface; `pause-partial`: it is composited over the paused primary
+      frame, which remains visible underneath (R21);
+    - `linear`: the ad takes over the primary content surface for the
+      slot.
+
+    | Token | Primary content occupies | IAB type |
+    |---|---|---|
+    | `squeezeback-l-shape-upper-left` | the upper-left 60% of the frame; the ad runs across the bottom and up the right edge | *L-Shape* (see R27) |
+    | `squeezeback-l-shape-upper-right` | the upper-right 60% of the frame; the ad runs across the bottom and up the left edge | *L-Shape* (see R27) |
+    | `squeezeback-double-box` | the centre-left 25% of the frame; the ad occupies the centre-right 25%; no background | *Double Box Video* (see R26) |
+    | `squeezeback-double-box-background` | the centre-left 25% of the frame; the ad occupies the centre-right 25%, over an advertiser-branded background | *Double Box Video + Background* (see R26) |
+    | `squeezeback-frame` | the centre 60% of the frame; the ad surrounds it on every side | *Frame* (see R27) |
 
 - **R15. Admissible creative carrier formats.**
   *Gist: Ad creatives come in exactly three carrier formats: video, image, and HTML.*
@@ -742,11 +893,11 @@ the order the resolution document declares.
   **renderable presentation options**, each a **form (video, image,
   HTML) together with its layout**. The options appear as an
   **ordered list — document order IS the preference order; there is
-  no separate priority or ranking attribute**. The Player MUST render
+  no separate priority or ranking attribute** (R5.1). The Player renders
   the **first presentation option whose form and layout its device
-  can satisfy**, and MUST skip candidates with no satisfiable option,
+  can satisfy**, and skips a candidate with no satisfiable option,
   falling through to the next candidate and continuing with the primary
-  content only once every candidate is exhausted. R5 is a concrete
+  content only once every candidate is exhausted (R5.3). R5 is a concrete
   instance of R2 — Player owns
   the responsibility the ADS and APS do not have — and a direct
   contributor to R3.
@@ -763,13 +914,10 @@ the order the resolution document declares.
   to the APS, and the responsibility for its suitability sits there.
 
   The resolution document MAY carry candidates with multiple
-  presentation options. The Player MUST select per device
-  capabilities and the Publisher's allowed layouts, taking options
-  **in document order and rendering the first that passes**. When none
-  of a candidate's options is satisfiable, the Player skips that
-  candidate and moves to the next candidate; continuing with the primary
-  content is the last resort, reached only once every candidate has been
-  exhausted.
+  presentation options (R5.1). The Player checks them against device
+  capabilities and the layouts the slot admits (R5.6), **in document
+  order, rendering the first that passes**; a candidate with none
+  satisfiable is skipped (R5.3).
 
   **Conformance criteria** (runtime):
   - **R5.1** (APS): Each ad candidate in the resolution document the
@@ -779,39 +927,16 @@ the order the resolution document declares.
     candidate carries is the APS's decision: this specification sets
     no maximum, and no minimum beyond one. Conformance is checked
     against the APS's resolution document, which is the only artefact
-    on the path to the Player that this specification defines.
-  - **R5.2** (Player): The Player MUST evaluate the presentation
-    options of an accepted candidate **in document order** and render
-    the **first option** whose form and layout it can satisfy on its
-    device.
-  - **R5.3** (Player): The Player MUST skip any candidate that
-    carries no form renderable on its device and fall through to the
-    next candidate. When the candidates are exhausted and none was
-    rendered, the attempt produced no ad and R20.1 governs what
-    follows; when at least one was rendered, the Player MUST continue
-    with the primary content.
+    on the path to the Player that this specification defines. A
+    candidate MAY carry several options, each pairing a form with an
+    admissible layout, and they form a single list. The order is the
+    preference: the option presented MUST be the **first one, in
+    document order,** that satisfies R5.6 and R5.9.
   - **R5.4** (ADS + APS): This specification MUST NOT be read as
     obliging the ADS or the APS to maintain a device-class matrix or
     a per-Player capability view in order to produce candidates. An
     implementation that keeps one is conformant; one that does not is
     equally conformant.
-  - **R5.5** (APS): An ad candidate MAY carry multiple presentation
-    options, each pairing a form with an admissible layout. The
-    options form a single ordered list, and their document order is
-    the preference order the Player follows.
-  - **R5.6** (Player): The Player MUST resolve presentation-option
-    selection by walking the options in document order and, for each,
-    checking it against (a) device capabilities and (b) the layouts the
-    slot admits — the Publisher-declared allowed layouts, or those of
-    the slot's own family when it declares none (R38.1). The Player renders
-    the first option that satisfies both; an option that fails either
-    MUST NOT be rendered and the Player moves to the next option in
-    document order.
-  - **R5.7** (Player): If no presentation option on a
-    candidate satisfies R5.6 and R5.9, the Player MUST skip that
-    candidate and fall through to the next candidate in the
-    resolution document (preserving the order required by R7) or,
-    when exhausted, as R5.3 states.
   - **R5.8** (spec document): The advertiser is expected to allow only
     the formats it wants for its ad, and the ADS that serves the ad
     returns only those (R2). The presentation options of a
@@ -822,6 +947,20 @@ the order the resolution document declares.
     Player takes the first one its device can render (R5.6). An
     advertiser that wants one specific format allows only that one,
     and the candidate carries a single option.
+  - **R5.3** (Player): A candidate none of whose options satisfies R5.6
+    and R5.9 MUST be skipped, and the Player falls through to the next
+    candidate in document order (R7.1). When the candidates are
+    exhausted and none was rendered, the attempt produced no ad and
+    R20.1 governs what follows; when at least one was rendered, the
+    Player MUST continue with the primary content.
+  - **R5.6** (Player): The Player MUST check each option against (a)
+    device capabilities — it MUST NOT attempt to render an ad form
+    (video, image, HTML) its device cannot render — and (b) the layouts
+    the slot admits: the declared allowed layouts, or those R38.1 admits
+    when none is declared. An option that fails either MUST NOT be
+    rendered, and the Player moves to the next option in document order
+    (R5.1). Forwarding the allowed layouts to the APS (R38.2) does not
+    remove check (b).
   - **R5.9** (Player): The first request the Player makes for each
     resource an option references decides whether that option is
     satisfiable. When that request fails — a final HTTP status outside
@@ -839,15 +978,11 @@ the order the resolution document declares.
 
   When the resolution document
   the APS returns contains more than one ad (e.g. a `ListMPD`
-  with multiple `<Period>` entries), the Player MUST play the ads
-  in the order the resolution document declares,
-  **as long as this is possible given the other Player constraints**.
-  Specifically, the Player MAY drop a candidate that violates R3 (no
-  renderable form for the device), but it MUST NOT re-order,
-  deduplicate, or otherwise rearrange the remaining candidates. Ad
+  with multiple `<Period>` entries), the order it declares is the order
+  of presentation (R7.1). A candidate with no renderable form for the
+  device is skipped (R5.3), which is not a rearrangement. Ad
   selection and ordering happen upstream of the Player (R2); the
-  order the resolution document carries is the one the Player honours,
-  unless a hard constraint blocks it.
+  order the resolution document carries is the one the Player honours.
 
   A candidate whose declared duration would push the cumulative slot
   duration past the cap is not dropped: the Player plays it and stops
@@ -858,24 +993,13 @@ the order the resolution document declares.
   leaves the rest of the slot empty.
 
   **Conformance criteria** (runtime):
-  - **R7.1** (Player): Given a resolution document with more
-    than one ad candidate, the Player MUST play the candidates in
-    the order the resolution document declares, except
-    for candidates dropped under R7.2.
-  - **R7.2** (Player): A candidate that has no form renderable on its
-    device is dropped as R5.3 requires (R3 / R5); the drop is not a
-    rearrangement under R7.4.
-  - **R7.3** (Player): When a candidate's declared duration would push
-    the cumulative slot duration past the cap, the Player MUST play the
-    candidate and stop at the cap (R4.2), as the base specification
-    does for an insertion (Table 57). A declared duration is not a
-    reason to drop a candidate.
-  - **R7.4** (Player): The Player MUST NOT re-order, deduplicate,
-    or otherwise rearrange the remaining candidates after applying
-    R7.2.
-  - **R7.5** (Player): If a candidate is accepted and its actual
-    rendered length exceeds the cap, the Player MUST trim
-    mid-rendering ("trim during play") per R4.
+  - **R7.1** (spec document): The order of the candidates in a
+    resolution document, linear and non-linear alike, is their order of
+    presentation: they MUST be presented in that order, each starting
+    when the previous one ends, and MUST NOT be re-ordered,
+    deduplicated or otherwise rearranged. A candidate skipped under
+    R5.3 is not a rearrangement and occupies no time: the next one
+    starts where the skipped one would have started.
 
 - **R30. An unsold opportunity is expressed as a document, not as an error.**
   *Gist: A resolution that returned no ads is a well-formed resolution document carrying no candidates; an error response or an absent one means something else and is non-conforming.*
@@ -957,35 +1081,34 @@ squeezeback layouts (side-by-side and L-shape).
   top of video, down to devices with a single video decoder and no
   overlay capability at all.
 
-  **The device classes.** A device class is a named combination of the
-  capability axes of R29.1. This table is the only definition of the
-  classes; the use cases and every other document refer to it.
-
-  | Class | `sgai-video-decoders` | `sgai-image-over-video` | `sgai-html-over-video` |
-  |---|---|---|---|
-  | D1 — top tier | `2` or `3` | `1` | `1` |
-  | D2 | `2` | `0` | `0` |
-  | D3 | `1` | `1` | `1` |
-  | D4 | `1` | `1` | `0` |
-  | D5 — worst case | `1` | `0` | `0` |
-
-  No two rows overlap. A device whose combination is not in the table
-  (two decoders with image and without HTML, for example) belongs to no
-  named class; it declares its axes the same way, and its behaviour
-  follows from them as for any other. The expected behaviour for each
-  class and each ad opportunity is enumerated in the **Use Cases**
-  section.
+  The device classes are defined once, in R3.1; the use cases and every
+  other document refer to them. The expected behaviour for each class
+  and each ad opportunity is enumerated in the **Use Cases** section.
 
   **Conformance criteria** (runtime + document-level):
-  - **R3.1** (spec document): The specification MUST enumerate the supported
-    device classes and, for each class, the expected behaviour for
-    each ad opportunity type covered by the use cases.
+  - **R3.1** (spec document): A device class is a named combination of
+    the first three capability parameters of R29.1, so the parameters
+    tell every class apart by construction. The classes are the rows of
+    this table, and this table is their only definition:
+
+    | Class | `sgai-video-decoders` | `sgai-image-over-video` | `sgai-html-over-video` |
+    |---|---|---|---|
+    | D1 — top tier | `2` or `3` | `1` | `1` |
+    | D2 | `2` | `0` | `0` |
+    | D3 | `1` | `1` | `1` |
+    | D4 | `1` | `1` | `0` |
+    | D5 — worst case | `1` | `0` | `0` |
+
+    No two rows overlap. A device whose combination is not in the table
+    (two decoders with image and without HTML, for example) belongs to
+    no named class; it declares its parameters the same way, and its
+    behaviour follows from them as for any other. The specification
+    MUST give, for each class, the expected behaviour for each ad
+    opportunity type covered by the use cases.
   - **R3.2** (Player): A Player on any supported device class MUST
     produce a defined behaviour (render, fall back, or skip) for
     every ad opportunity type defined in the spec; undefined
     behaviour is non-conforming.
-  - **R3.3** (Player): A Player MUST NOT attempt to render an ad
-    form (video, image, HTML) that its device class cannot render.
 
 - **R16. Pause-ad lifecycle bound to pause state.**
   *Gist: A pause-ad exists only while playback is paused, and the Player dismisses it the instant the viewer resumes.*
@@ -1006,12 +1129,9 @@ squeezeback layouts (side-by-side and L-shape).
   **Conformance criteria** (runtime):
   - **R16.1** (Player): Upon a pause-to-play transition by the
     viewer, the Player MUST remove any rendered pause-ad form
-    from the screen within one rendering frame.
-  - **R16.2** (Player): Upon the same transition, the Player MUST
-    cease firing tracking beacons scheduled for the dismissed
-    pause-ad; beacons scheduled at relative times after the
-    transition fall outside the pause-ad's active window and are
-    therefore out of scope.
+    from the screen within one rendering frame and return to the
+    primary content immediately, whether or not an ad is
+    mid-presentation. The beacons of the dismissed pause-ad are R13.3's.
 
 - **R32. Exhausted pause-ad candidates while the viewer is still paused.**
   *Gist: When the pause-ad candidates run out and the pause continues, the APS declares which of three behaviours applies: repeat, request again, or stop.*
@@ -1022,17 +1142,8 @@ squeezeback layouts (side-by-side and L-shape).
   undefined, and R5.3's fall-through to primary content does not
   apply: the primary content is paused.
 
-  The resolution document declares which of three behaviours the
-  Player applies:
-
-  - **repeat** — the Player presents the sequence again from the
-    start, for as long as the pause lasts.
-  - **request-again** — the Player requests a new resolution document
-    for the same pause.
-  - **stop** — the Player presents no further ad; the paused primary
-    frame is shown.
-
-  The declaration belongs to the APS and not to the Publisher. A
+  The resolution document declares which of three behaviours applies
+  (R32.1). The declaration belongs to the APS and not to the Publisher. A
   Publisher-declared limit on how many documents may be served would
   be answered by APS implementations returning defensively long
   candidate lists, since a single response would be their only
@@ -1045,14 +1156,18 @@ squeezeback layouts (side-by-side and L-shape).
 
   **Conformance criteria** (runtime):
   - **R32.1** (APS): A resolution document for a pause slot MUST
-    declare which of the three behaviours applies. Absent the
-    declaration, the Player MUST apply `stop`.
-  - **R32.2** (Player): Under `request-again`, a resolution document
-    carrying no candidates (R30) MUST be treated as `stop` for the
-    remainder of that pause.
-  - **R32.3** (Player): When the viewer resumes playback, the Player
-    MUST return to the primary content immediately, whether or not an
-    ad is mid-presentation.
+    declare which of three behaviours applies once its candidates are
+    exhausted while the viewer is still paused:
+
+    - **`repeat`** — the sequence is presented again from the start,
+      for as long as the pause lasts;
+    - **`request-again`** — a new resolution document is requested for
+      the same pause;
+    - **`stop`** — no further ad is presented; the paused primary frame
+      is shown.
+
+    A document that declares none means `stop`, and `stop` MUST then
+    apply.
   - **R32.4** (spec document): Whether a second resolution request
     within one pause is the same opportunity or a new one is **out of
     scope**. The two readings are identical at the Player: it requests,
@@ -1062,6 +1177,9 @@ squeezeback layouts (side-by-side and L-shape).
     fix which reading is correct. What the specification does measure
     is **how much of the paused interval carried an ad** (R33), and
     that figure is the same however the requests are counted.
+  - **R32.2** (Player): Under `request-again`, a resolution document
+    carrying no candidates (R30) MUST be treated as `stop` for the
+    remainder of that pause.
 
 - **R34. A non-linear opportunity window is executed each time it is entered, and may be declared once-per-session.**
   *Gist: Every entry of the playhead into an overlay or squeezeback window is a new execution, resolved anew, and a late one starts from the first candidate unless the window declares the base specification's offset; the Publisher may declare that an overlay, squeezeback or pause window yields ads at most once in the session.*
@@ -1120,15 +1238,17 @@ squeezeback layouts (side-by-side and L-shape).
     squeezeback or pause opportunity window as once-per-session. The
     declaration is optional; a window that does not carry it is executed
     each time the playhead enters it (R34.6), and a pause window that
-    does not carry it yields a pause ad on every qualifying pause.
-  - **R34.2** (Player): On a pause window declared once-per-session, the
-    Player MUST present at most one pause ad for that window for the
-    duration of the session. A later qualifying pause inside the same
-    window MUST leave the primary content uninterrupted.
-  - **R34.3** (Player): The Player MUST treat a window declared
-    once-per-session as consumed when an ad from it **begins rendering**.
-    An execution or a pause that resolves to no renderable candidate MUST
-    leave the window available.
+    does not carry it yields a pause ad on every qualifying pause. The
+    declaration means:
+
+    - on an overlay or squeezeback window, once the window is consumed
+      (R34.3), every later entry of the playhead into the window's range
+      MUST leave the primary content uninterrupted and MUST fire none of
+      the window's beacons;
+    - on a pause window, at most one pause ad MUST be presented for that
+      window for the duration of the session, and a later qualifying
+      pause inside the same window MUST leave the primary content
+      uninterrupted.
   - **R34.4** (spec document): The capability is the base specification's
     single-execution bound (`@executeOnce`, §5.16.5.2) applied to the
     windows this specification defines, with the base's counter: a window
@@ -1136,36 +1256,32 @@ squeezeback layouts (side-by-side and L-shape).
     whose playback *"successfully started"* (§5.16.2.2.2). On an overlay
     or squeezeback window, which occupies the timeline, the base semantics
     carry over unchanged; on a pause window, whose trigger is the viewer,
-    R34.2 and R34.3 state them in the trigger's terms.
-  - **R34.5** (Player): On an overlay or squeezeback window declared
-    once-per-session, once the window is consumed (R34.3) the Player MUST
-    leave the primary content uninterrupted on every later entry of the
-    playhead into the window's range, and MUST fire none of its beacons.
-    A playhead that crosses the window without an ad beginning to render —
-    a seek over it, an empty resolution (R30) — leaves it available.
-  - **R34.6** (Player): On an overlay or squeezeback window not declared
-    once-per-session, every entry of the playhead into the window's range
-    — playback reaching it, a join or a seek landing inside it, a seek
-    back to a point before its end — is a new **execution** of the
-    window. The Player MUST present each execution as it presents the
-    first, with its own cap (R4) and its own beacons (R13, R13.7, R42).
-  - **R34.7** (Player): Each execution resolves the opportunity as R36
-    defines, so its candidates may differ from those of an earlier
-    execution. A resolution obtained for an earlier execution is presented
-    again only if it is still usable (R36.5).
-  - **R34.8** (Player): An execution that begins after the window's start
-    MUST present the sequence of candidates (R14) from its first
-    candidate, unless the window declares that it starts with an offset
-    (R34.9); then the Player MUST begin at the point of the sequence that
-    lies as far from its start as the execution lies from the window's
-    start, and the candidates that end before that point are not
-    presented. In both cases the execution ends no later than the window
-    does (R40). A time-bound beacon whose time falls in a part of a
-    candidate that was not presented is not fired (R13.2).
+    R34.1 and R34.3 state them in the trigger's terms.
+  - **R34.6** (spec document): On an overlay or squeezeback window not
+    declared once-per-session, every entry of the playhead into the
+    window's range — playback reaching it, a join or a seek landing
+    inside it, a seek back to a point before its end — is a new
+    **execution** of the window. Each execution resolves the opportunity
+    anew, as R36 defines, so its candidates may differ from those of an
+    earlier execution, and MUST be presented as the first, with its own
+    cap (R4) and its own beacons (R13, R13.7, R42). A resolution obtained
+    for an earlier execution is presented again only if it is still
+    usable (R36.4).
   - **R34.9** (Publisher): The Publisher MAY declare, on an overlay or
-    squeezeback window, that a late execution starts with an offset. A
-    window that does not declare it starts every execution from the first
-    candidate.
+    squeezeback window, that a late execution starts with an offset. An
+    execution that begins after the window's start MUST present the
+    sequence of candidates (R7.1) from its first candidate when the
+    window does not declare it; when it does, the execution MUST begin
+    at the point of the sequence that lies as far from its start as the
+    execution lies from the window's start, and the candidates that end
+    before that point are not presented. In both cases the execution
+    ends no later than the window does (R40).
+  - **R34.3** (Player): The Player MUST treat a window declared
+    once-per-session as consumed when an ad from it **begins rendering**.
+    An execution or a pause that resolves to no renderable candidate MUST
+    leave the window available, and so does a playhead that crosses the
+    window without an ad beginning to render — a seek over it, an empty
+    resolution (R30).
   - **R34.10** (Player): A resolution that arrives after the window it
     was requested for has ended MUST NOT be presented; the Player
     discards it.
@@ -1221,31 +1337,18 @@ squeezeback layouts (side-by-side and L-shape).
     granted and never assumed.
   - **R35.2** (APS): Where dismissal is allowed, the APS MUST declare
     the number of seconds that MUST elapse, from the moment the slot
-    begins rendering, before the viewer may dismiss it. A declared
+    begins rendering, before the viewer may dismiss it. Before that
+    delay has elapsed the slot MUST NOT be dismissible; once it has, the
+    slot MUST be dismissible for as long as it is on screen. A declared
     delay of zero means the slot is dismissible immediately.
-  - **R35.3** (Player): Before that delay has elapsed, the Player MUST
-    NOT offer the viewer a way to dismiss the slot. After it has, the
-    Player MUST make dismissal available for as long as the slot is on
-    screen.
-  - **R35.4** (Player): A dismissal ends the **whole slot**. The Player
-    MUST stop presenting every ad of that slot and MUST NOT advance to
-    another ad or another form within it.
-  - **R35.5** (Player): A dismissed slot does not shorten the primary
-    content. Where the slot bounded a region of the primary timeline,
-    the Player MUST continue from where the primary content stands, and
-    MUST NOT compress or skip any part of it.
-  - **R35.6** (Player): The Player MUST fire the tracking events the
-    resolution document scheduled up to the moment of the dismissal,
-    and MUST NOT fire those scheduled after it. A dismissal is an
-    outcome of the presentation, not a failure of it.
   - **R35.7** (spec document): How the dismissal is offered — a
     control, a gesture, a remote button — is out of scope. This
     specification states when it must be available and what it ends,
     and the market decides how it is presented.
-  - **R35.8** (Player): On a linear slot, the Player MUST apply the
-    base specification's own skip declaration and its default as the
-    base specification defines them, and they govern the slot: where
-    nothing is declared, the base default applies and the slot is
+  - **R35.8** (spec document): On a linear slot, the base
+    specification's own skip declaration and its default MUST govern the
+    slot, as the base specification defines them: where nothing is
+    declared, the base default applies and the slot is
     skippable as the base specification makes it. R35.1's default does
     not apply to a linear slot. This is R1.5 applied: a Player of this
     specification and a base Player treat the same linear event the same
@@ -1254,6 +1357,14 @@ squeezeback layouts (side-by-side and L-shape).
     description's playback restrictions — and states no precedence
     between them when both apply to one ad; this specification adds
     none.
+  - **R35.4** (Player): A dismissal ends the **whole slot**. The Player
+    MUST stop presenting every ad of that slot and MUST NOT advance to
+    another ad or another form within it. A dismissal is an outcome of
+    the presentation, not a failure of it.
+  - **R35.5** (Player): A dismissed slot does not shorten the primary
+    content. Where the slot bounded a region of the primary timeline,
+    the Player MUST continue from where the primary content stands, and
+    MUST NOT compress or skip any part of it.
 
 - **R36. A non-linear opportunity may be resolved ahead of time, and the resolution declares how long it keeps.**
   *Gist: The Publisher may declare how early a Player may resolve an overlay or pause opportunity, 60 seconds when it declares nothing, and the APS declares how long that resolution stays good; a stale one is resolved again.*
@@ -1310,33 +1421,29 @@ squeezeback layouts (side-by-side and L-shape).
   **Conformance criteria** (runtime):
   - **R36.1** (Publisher): The Publisher MAY declare, on an overlay or
     pause opportunity window, how far ahead of it a Player may resolve.
-    A window that declares nothing may be resolved up to 60 seconds
-    ahead, the base specification's default for early resolution. A
-    Publisher who wants a window resolved only when it fires declares
-    an offset of zero.
-  - **R36.2** (Player): On an overlay window, the Player MUST NOT
-    resolve earlier than the offset — declared, or the default of
-    R36.1 — before the start of the window.
-  - **R36.3** (Player): On a pause opportunity window, the Player MUST
-    NOT resolve earlier than the offset — declared, or the default of
-    R36.1 — before the start of the window. The offset is computed
-    against the start of the window and never against the pause, which
-    has no authored time (R31).
+    The offset — declared, or the default — is the earliest a resolution
+    may be requested, measured from the start of the window: a
+    resolution MUST NOT be requested earlier than the offset before the
+    start of the window. On a pause window too the offset is measured
+    from the start of the window, and never from the pause, which has no
+    authored time (R31). A window that declares nothing may be resolved
+    up to 60 seconds ahead, the base specification's default for early
+    resolution. An offset of zero means the window is resolved only when
+    it fires.
   - **R36.4** (APS): Where a resolution may have been obtained ahead of
     the opportunity, the APS MUST declare how long that resolution
-    remains usable. A resolution document that does not declare it
-    remains usable for the execution it was obtained for (R34.6).
-  - **R36.5** (Player): When the opportunity fires, the Player MUST
-    check whether the resolution it holds is still usable. If it is
-    not, the Player MUST request a new one and MUST NOT present
-    candidates from the expired resolution.
-  - **R36.6** (Player): When a re-resolution yields no usable
-    candidate, the Player MUST treat it as an empty resolution (R30)
-    and MUST NOT fall back on the expired one.
+    remains usable. Its candidates may be presented until then, and MUST
+    NOT be presented once it has expired. A resolution document that does
+    not declare it remains usable for the execution it was obtained for
+    (R34.6).
   - **R36.7** (spec document): Resolving early is a permission and
     never an obligation. A Player that resolves only when the
     opportunity fires is conformant, whatever offset the window
     carries.
+  - **R36.5** (Player): When the opportunity fires, the Player MUST
+    check whether the resolution it holds is still usable. If it is
+    not, the Player MUST request a new one. A re-resolution that yields
+    no usable candidate MUST be treated as an empty resolution (R30).
 
 - **R37. A pause is what the viewer experiences, not how the Player achieves it.**
   *Gist: Any mechanism that leaves the primary content suspended and resumes it where it was suspended is a pause; the specification does not prescribe how a Player implements one.*
@@ -1362,6 +1469,10 @@ squeezeback layouts (side-by-side and L-shape).
   simply decline the video form and nobody would know why.
 
   **Conformance criteria** (runtime):
+  - **R37.3** (spec document): This specification states no requirement
+    about how a Player implements a pause, and a criterion elsewhere
+    that appears to assume one mechanism is to be read as this
+    requirement defines it.
   - **R37.1** (Player): A Player MAY implement a pause by any mechanism
     that suspends the primary content and later resumes it from the
     position at which it was suspended, including one that releases the
@@ -1375,10 +1486,6 @@ squeezeback layouts (side-by-side and L-shape).
     resumes a replacement in that case — *"at the earliest available
     media segment if it is earlier than the timeshift buffer start"*
     (§5.16.2.2) — satisfies this criterion.
-  - **R37.3** (spec document): This specification states no requirement
-    about how a Player implements a pause, and a criterion elsewhere
-    that appears to assume one mechanism is to be read as this
-    requirement defines it.
 
 - **R38. The Player forwards the slot's allowed layouts to the APS.**
   *Gist: When a non-linear slot declares the layouts the Publisher allows, the Player sends that set to the APS on the resolution request, and checks the options it gets back against it before rendering; a slot that declares none admits only its own family's layouts.*
@@ -1391,30 +1498,23 @@ squeezeback layouts (side-by-side and L-shape).
 
   **Conformance criteria** (runtime):
   - **R38.1** (Publisher): Declaring the allowed layouts on a non-linear
-    slot is OPTIONAL. A slot that declares none admits only the layout
+    slot is OPTIONAL. `@allowedLayouts`, when present, is the set of
+    layouts the slot admits. A slot that declares none admits only the layout
     tokens R12 enumerates for its own family: on an overlay slot those
     of the Overlay and Squeezeback entries, on a pause slot those of the
     Pause-ad entry. It admits no token of another family — an overlay slot
     that declares nothing does not admit the `linear` full-screen
     takeover — and it does not admit `custom`, which a slot admits only
     by listing it (R39.2).
+  - **R38.4** (APS): The APS MUST NOT return an option whose layout is
+    outside the set it received or, when it received none, outside the
+    set R38.1 admits for the slot's family.
+  - **R38.6** (spec document): Linear slots (`InsertPresentation`,
+    `ReplacePresentation`) are outside this requirement.
   - **R38.2** (Player): When the slot declares allowed layouts, the Player
     MUST send the declared set, unchanged, on the resolution request to
     the APS. When the slot declares none, nothing is sent, and the set
     that binds the APS and the Player is the one R38.1 admits.
-  - **R38.3** (spec document): The way the set is carried is normative
-    and defined by this specification, as one of the reserved parameters
-    of R29 — for example, a query parameter on the resolution request.
-  - **R38.4** (APS): The APS MUST NOT return an option whose layout is
-    outside the set it received or, when it received none, outside the
-    set R38.1 admits for the slot's family.
-  - **R38.5** (Player): Before rendering, the Player MUST check that the
-    option it selects uses one of the layouts the slot admits — the
-    declared set, or the one R38.1 admits when none is declared — and
-    MUST NOT render it otherwise (R5.6). Forwarding the set does not
-    remove this check.
-  - **R38.6** (spec document): Linear slots (`InsertPresentation`,
-    `ReplacePresentation`) are outside this requirement.
 
 - **R39. The `custom` overlay layout (optional).**
   *Gist: An optional layout, `custom`, lets the APS place an overlay in a rectangle given in percent of the video viewport, inside a region the Publisher may bound; it is the only layout with no IAB counterpart.*
@@ -1437,19 +1537,18 @@ squeezeback layouts (side-by-side and L-shape).
     of the video viewport, origin top-left — within which a `custom`
     overlay must lie. With no region declared, the region is the whole
     viewport.
-  - **R39.3** (Player): When the slot declares a custom region, the
-    Player MUST send it on the resolution request together with the
-    allowed layouts (R38.2), carried the way R38.3 defines.
   - **R39.4** (APS): An option with layout `custom` MUST carry the
     overlay's rectangle in the same units, and that rectangle MUST lie
     entirely inside the region it received. It MAY be smaller than the
     region; it MUST NOT extend beyond it.
-  - **R39.5** (Player): Before rendering a `custom` option, the Player
-    MUST check that its rectangle lies inside the slot's region (or the
-    viewport when no region is declared), and MUST NOT render it
-    otherwise; the option is then not renderable and the Player moves
-    to the next one (R5.6). A Player that does not support `custom`
-    treats every `custom` option as not renderable.
+  - **R39.3** (Player): When the slot declares a custom region, the
+    Player MUST send it on the resolution request together with the
+    allowed layouts (R38.2), as the slot parameter of R29.1.
+  - **R39.5** (Player): A `custom` option whose rectangle does not lie
+    inside the slot's region (or the viewport when no region is
+    declared) MUST NOT be rendered: it is not renderable, and the Player
+    moves to the next option (R5.6). A Player that does not support
+    `custom` treats every `custom` option as not renderable.
 
 - **R19. Ad playback speed follows primary content.**
   *Gist: Ads play at the primary content's speed, so a 10 s ad at 2x is on screen for 5 s of wall-clock; the cap and beacon schedule still use the presentation timeline.*
@@ -1467,23 +1566,15 @@ squeezeback layouts (side-by-side and L-shape).
   on-screen length is derived from it, never duplicated.
 
   **Conformance criteria** (runtime):
+  - **R19.3** (spec document): A form's declared duration is a value on
+    the presentation timeline for **every** form, including those with
+    no intrinsic media — `image` and `html`. Its effective on-screen
+    (wall-clock) length MUST be `duration / playback_speed`, not the raw
+    `duration` value; the cap (R4.11) and the beacon schedule (R13.1)
+    operate on the presentation-timeline `duration`.
   - **R19.1** (Player): The Player MUST render every ad form (linear
     or non-linear) at the same playback speed as the primary content
     at the moment the ad is presented.
-  - **R19.2** (Player): The Player MUST NOT force an ad to 1x
-    playback speed when the primary content is playing at a different
-    speed; the ad follows the primary content's speed.
-  - **R19.3** (Player): The Player MUST compute an ad form's
-    effective on-screen (wall-clock) duration as
-    `duration / playback_speed`, not as the raw `duration` value;
-    cap enforcement (R4) and beacon scheduling (R13) operate on the
-    presentation-timeline `duration`, while wall-clock on-screen
-    behaviour follows the derived value.
-  - **R19.4** (Player): A form's declared duration is a value on the
-    presentation timeline for **every** form, including those with no
-    intrinsic media — `image` and `html`. The Player MUST derive the
-    wall-clock length of such a form as `duration / playback_speed`,
-    exactly as for a media-backed form.
 
 - **R21. Pause-ad forms MAY be fullscreen or a partial overlay.**
   *Gist: A pause-ad may be presented fullscreen or as a partial overlay over the paused frame.*
@@ -1517,15 +1608,10 @@ squeezeback layouts (side-by-side and L-shape).
   surfaces.
 
   **Conformance criteria** (runtime):
-  - **R21.1** (Player): The Player MAY present a pause-ad form
-    fullscreen, occupying the entire screen surface, or as a partial
-    overlay composited over the paused primary frame. When the pause-ad
-    is fullscreen, the Player MAY release the resources held by the
-    primary content and by any pre-existing overlay to present a
-    fullscreen video, image, or web page. When the pause-ad is a
-    partial overlay, the Player MUST keep at most one non-linear ad form
-    active during the pause (R22): any coexisting overlay is suspended
-    while the pause-ad is shown (R17).
+  - **R21.1** (Player): When the pause-ad's layout is `pause-fullscreen`
+    (R12.5), the Player MAY release the resources held by the primary
+    content and by any pre-existing overlay to present a fullscreen
+    video, image, or web page.
 
 - **R25. Pause-ad presentation-time freeze in live content.**
   *Gist: In live content, pausing inside a pause-ad window freezes the Player's presentation time so the pause-ad stays admissible until the viewer resumes.*
@@ -1562,14 +1648,10 @@ squeezeback layouts (side-by-side and L-shape).
   In a
   **side-by-side / double-box** layout the shrunk primary content and the
   ad are composed as two on-screen boxes that leave bands uncovered. A
-  **background element** MAY fill those bands; when none is present they
-  render as black. The background element is a still **image** (a branding
-  surface, never a video or web/HTML surface, so it never adds a video
-  decoder). It is the **advertiser's creative**, mirroring the IAB
-  **"Double Box Video + Background"** model, owned by the advertiser and
-  not the Publisher or platform. It is an attribute of the slot / layout
-  composition, NOT one of the candidate's alternative presentation
-  options (R5).
+  **background element** fills them or they render as black, as R26.1
+  states. The background mirrors the IAB **"Double Box Video +
+  Background"** model: it is the advertiser's creative, not the
+  Publisher's or the platform's.
 
   Reference: IAB Tech Lab, "Ad Format Guidelines for Digital Video
   and CTV" (public comment, Dec 2025). "Double Box Video + Background",
@@ -1580,12 +1662,15 @@ squeezeback layouts (side-by-side and L-shape).
   - **R26.1** (APS + Publisher): The background element of a side-by-side
     / double-box layout MUST be carried as a composition attribute of the
     layout the presentation option declares, not as a separate
-    presentation option (R5).
-  - **R26.2** (Player): The Player MUST composite the primary content
-    and the ad as the two boxes of a side-by-side / double-box layout.
-    When the advertiser supplies a background element, the Player MUST
-    place it in the uncovered bands. When the advertiser supplies no
-    background element, the uncovered region renders as black.
+    presentation option (R5). The token says whether it is present
+    (R12.5): an option with `squeezeback-double-box-background` MUST
+    carry one, and an option with `squeezeback-double-box` MUST NOT. The
+    background element is always a still **image** — a branding surface,
+    never a video or a web/HTML surface, so it never adds a video decoder
+    — and it is the advertiser's creative. The primary content and the ad
+    MUST be composed as the two boxes; the background element MUST fill
+    the bands the two boxes leave uncovered, and with no background those
+    bands MUST render as black.
   - **R26.3** (Player): The number and type of concurrent elements
     determine the device classes that can composite the side-by-side
     layout. The background element is always a still **image**, never a
@@ -1639,16 +1724,15 @@ squeezeback layouts (side-by-side and L-shape).
   https://iabtechlab.com/standards/ctv-ad-portfolio/
 
   **Conformance criteria** (runtime + document-level):
-  - **R27.1** (APS + Publisher): An L-shape / squeezeback presentation
-    option MUST carry exactly one ad creative — the full-frame
-    background creative — as an image, a video, or a web/HTML surface
-    (R15). The shrunk primary content is not a creative the ADS / APS
-    supplies; it is the main content the Player shrinks.
-  - **R27.2** (Player): The Player MUST composite the two elements of an
-    L-shape — the full-frame ad creative in the background and the
-    shrunk primary content on top of it — with the ad creative covering
-    the whole frame and the shrunk primary content scaled into the region
-    its `@layout` token denotes (R12).
+  - **R27.1** (APS + Publisher): An L-shape or `squeezeback-frame`
+    presentation option MUST carry exactly one ad creative — the
+    full-frame background creative — as an image, a video, or a
+    web/HTML surface (R15). The shrunk primary content is not a creative
+    the ADS / APS supplies; it is the main content the Player shrinks.
+    The option MUST be composed of those two elements and no third: the
+    ad creative covering the whole frame underneath, and the shrunk
+    primary content on top of it, scaled into the region its `@layout`
+    token denotes (R12.5).
   - **R27.3** (Player): The decoder-and-surface budget of an L-shape is
     driven by the media type of the full-frame ad creative. The shrunk
     primary content always consumes **one** video decoder. If the
@@ -1679,22 +1763,20 @@ squeezeback layouts (side-by-side and L-shape).
   the IAB guidelines.
 
   **Conformance criteria** (runtime + document-level):
-  - **R41.1** (Player): While an overlay or squeezeback form is
-    presented, the Player MUST keep rendering the audio of the
-    presentation the form is composited over and MUST NOT render the
-    ad's audio, unless R41.4 applies. While a pause-ad form is
-    presented, the Player MUST NOT render the ad's audio unless R41.4
-    applies.
   - **R41.2** (Publisher): The Publisher MAY declare, on an overlay or
     pause window, that the ad's audio is allowed. A window that does
     not declare it does not allow it.
   - **R41.3** (APS): When the window allows it, the APS MAY declare on
-    a presentation option that its audio is to be heard.
-  - **R41.4** (Player): When the option it renders declares its audio,
-    the Player MUST render the ad's audio, in place of the primary
-    content's audio on an overlay or squeezeback form, for as long as
-    that option is presented, and MUST restore the primary content's
-    audio when the option ends, whatever ends it.
+    a presentation option that its audio is to be heard. An option that
+    declares it MUST be presented with the ad's audio, in place of the
+    primary content's audio on an overlay or squeezeback form, for as
+    long as that option is presented. An option that does not declare
+    it MUST be presented without the ad's audio: an overlay or
+    squeezeback form with the audio of the presentation it is composited
+    over, a pause-ad form with no ad audio.
+  - **R41.4** (Player): When an option whose audio was heard ends,
+    whatever ends it, the Player MUST restore the primary content's
+    audio.
   - **R41.5** (Player + APS): When the window declares the allowance,
     the Player MUST send it on the resolution request (R29). The APS
     MUST NOT return an option that declares its audio when it did not
@@ -1750,23 +1832,11 @@ screen to a single active non-linear form at any instant.
   resolution document.
 
   **Conformance criteria**:
-  - **R14.1** (Player): When the resolution document for a non-linear
-    slot declares more than one ad candidate, the Player MUST present
-    the candidates in sequence, in the order they appear in the
-    resolution document (the same ordering contract R7 applies to
-    linear candidates), each starting when the previous one ends. A
-    candidate the Player skips (R5.3, R5.7) occupies no time: the next
-    one starts where the skipped one would have started.
-  - **R14.2** (Player): The Player MUST enforce the Publisher-declared
-    slot cap (R4) against the cumulative duration of the sequence of
-    non-linear candidates it presents, trimming at the cap per R4 and
-    R7.3 when the cumulative duration would exceed the slot's
-    opportunity window.
   - **R14.3** (spec document): The specification MUST NOT introduce a
     construct that implies or requires the parallel (simultaneous)
     rendering of two or more non-linear ad forms. Sequencing of forms
     within a slot is governed by the resolution document's declared
-    candidate order (R14.1) and carries no separate "render-then"
+    candidate order (R7.1) and carries no separate "render-then"
     primitive beyond that order. The single-active-form runtime
     constraint itself lives in R22.
 
@@ -1797,19 +1867,16 @@ screen to a single active non-linear form at any instant.
   overlay during pause is the only admissible composition.
 
   **Conformance criteria** (runtime):
+  - **R17.4** (spec document): The specification carries no
+    construct that lets the Publisher, the ADS, or the APS invert
+    this priority.
   - **R17.1** (Player): While the viewer is paused inside a
     pause-ad window AND an overlay is active, the Player
     MUST render the pause-ad form and MUST suspend the overlay
     rendering.
-  - **R17.2** (Player): On resume from pause, the Player
-    MUST dismiss the pause-ad (per R16) and MUST restore the overlay
-    rendering if the overlay slot window is still active.
-  - **R17.3** (Player): If the overlay slot window expired
-    during the pause, the Player MUST keep the overlay surface clear
-    on resume; the overlay is over.
-  - **R17.4** (spec document): The specification carries no
-    construct that lets the Publisher, the ADS, or the APS invert
-    this priority.
+  - **R17.2** (Player): On resume from pause, the Player MUST restore
+    the overlay rendering if the overlay slot window is still active;
+    dismissing the pause-ad is R16.1.
   - **R17.5** (Player): When a viewer pause begins inside a pause
     opportunity window applicable to the presentation being output — a
     window declared in the linear ad's own `MPD` (R40.6), or a window of
@@ -1862,6 +1929,37 @@ screen to a single active non-linear form at any instant.
   becomes a simple, declared fallback chain.
 
   **Conformance criteria** (runtime):
+  - **R20.2** (Publisher): All opportunity windows of one family that
+    share a `Period` MUST be authored as `<Event>` entries inside a
+    **single** `<EventStream>`. DASH admits at most one `EventStream`
+    per `Period` for a given scheme and `@value` — §5.10.2.1: *"A
+    Period shall contain at most one EventStream element with the same
+    value of the @schemeIdUri attribute and the value of the @value
+    attribute, i.e. all Events of one type shall be clustered in one
+    Event Stream"*. An `EventStream` carrying an SGAI scheme carries no
+    `@value` ([`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md)
+    defines no value space for these schemes), so every stream of one SGAI scheme in a `Period` has the
+    same pair, and two sibling streams carrying it are not a conformant
+    document.
+  - **R20.4** (spec document): A resolution document whose family does
+    not match the slot that requested it is not a resolution of that
+    slot: it MUST be treated as a failed execution, its candidates
+    MUST NOT be presented in the slot, and the chain of R20.1
+    MUST continue to the next overlapping window of the slot's family.
+
+    It ends the way a resolution carrying no candidates ends, and for
+    the reason ADR 0011 gives for that case: the attempt produced no ad
+    for this slot. A document of the wrong family cannot fill the slot
+    whatever it contains, because its candidates are of a kind the slot
+    does not admit. It is stated separately because its candidates may
+    be renderable on the device; none of them belongs to the slot.
+  - **R20.6** (spec document): R20.5 MUST be carried as a normative
+    Player obligation. Stating it only in informative material does not
+    bind a Player, and a rule that selects which presentation option
+    reaches the screen cannot depend on a reader treating an
+    illustration as a requirement. This is a **change of status** for a
+    rule the specification already contained: it was answered where it
+    could be read and not where it had to be obeyed.
   - **R20.1** (Player): When ad opportunity windows of the same family
     overlap in time within the primary `MPD`, the Player MUST select
     the first overlapping window (R20.3) and attempt to resolve it. An
@@ -1904,25 +2002,13 @@ screen to a single active non-linear form at any instant.
     implementer does not have to learn two.
 
     A resolution document carrying candidates none of which the device
-    can render (R5.3, R5.7) produced no ad, and is a failed execution.
+    can render (R5.3) produced no ad, and is a failed execution.
     For the linear family this is the base specification's own
     condition: §5.16.2.2.6 lists *"The playback of the alternative
     presentation cannot start"* among the conditions under which
     execution fails, and states that its reasons *"include (but are not
     limited to)"* those it names. For the non-linear families it is the
     extension this criterion makes.
-  - **R20.2** (Publisher): All opportunity windows of one family that
-    share a `Period` MUST be authored as `<Event>` entries inside a
-    **single** `<EventStream>`. DASH admits at most one `EventStream`
-    per `Period` for a given scheme and `@value` — §5.10.2.1: *"A
-    Period shall contain at most one EventStream element with the same
-    value of the @schemeIdUri attribute and the value of the @value
-    attribute, i.e. all Events of one type shall be clustered in one
-    Event Stream"*. An `EventStream` carrying an SGAI scheme carries no
-    `@value` ([`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md)
-    defines no value space for these schemes), so every stream of one SGAI scheme in a `Period` has the
-    same pair, and two sibling streams carrying it are not a conformant
-    document.
   - **R20.3** (Player): The Player MUST order overlapping windows of
     one family by **presentation time, oldest first**. Where two
     windows carry the same presentation time, the Player MUST take them
@@ -1944,18 +2030,6 @@ screen to a single active non-linear form at any instant.
     standard's queue does not resolve equal presentation times, and
     document position is what remains once presentation time has
     stopped separating them.
-  - **R20.4** (Player): A resolution document whose family does not
-    match the slot that requested it is not a resolution of that slot.
-    The Player MUST treat it as a failed execution, MUST NOT present any
-    of its candidates in the slot, and MUST continue down the chain of
-    R20.1 to the next overlapping window of the slot's family.
-
-    It ends the way a resolution carrying no candidates ends, and for
-    the reason ADR 0011 gives for that case: the attempt produced no ad
-    for this slot. A document of the wrong family cannot fill the slot
-    whatever it contains, because its candidates are of a kind the slot
-    does not admit. It is stated separately because its candidates may
-    be renderable on the device; none of them belongs to the slot.
   - **R20.5** (Player): The Player MUST bind the candidates each window
     in a fallback chain serves with **that window's own** declarations:
     its allowed layouts and its maximum duration. The Player MUST NOT
@@ -1963,13 +2037,6 @@ screen to a single active non-linear form at any instant.
     R20's ownership model — a declaration belongs to the window that
     carries it — and the alternative, binding the chain to the first
     window's declarations, contradicts it.
-  - **R20.6** (spec document): R20.5 MUST be carried as a normative
-    Player obligation. Stating it only in informative material does not
-    bind a Player, and a rule that selects which presentation option
-    reaches the screen cannot depend on a reader treating an
-    illustration as a requirement. This is a **change of status** for a
-    rule the specification already contained: it was answered where it
-    could be read and not where it had to be obeyed.
 
 - **R22. Single active non-linear form; no concurrent presentation.**
   *Gist: At most one non-linear ad form is active on screen at any instant; no two non-linear forms are shown simultaneously.*
@@ -2085,46 +2152,38 @@ screen to a single active non-linear form at any instant.
     presented during an alternative presentation MUST declare it either
     by a window in that alternative presentation's own `MPD`, or by a
     window of the triggering presentation that declares on top.
-  - **R40.3** (Player): When a window declares supersede, the Player
-    MUST present the window and MUST NOT execute the inherited linear
-    events whose presentation time falls within its span. When the
-    window presents no ad — every attempt to resolve it is a failed
-    execution under R20.1, or the device can render none of its
-    candidates (R5) — the Player MUST execute those events as the base
-    specification defines, including its rules for an execution that
-    starts after an event's presentation time. How early the Player
-    resolves the window so that the fallback stays reachable is the
-    Player's decision, within the offset of R36.
-  - **R40.4** (Player): When a window declares no relation, the Player
-    MUST present its forms only while the content of the presentation
-    whose `MPD` declares the window is being output, and MUST execute
-    every inherited linear event it overlaps with its base semantics.
-    While an inherited linear event the window overlaps is being
-    executed, the Player MUST present nothing of the window and fire
-    none of its beacons; a form on screen when the alternative
-    presentation begins is suspended. When the presentation that
-    declares the window is output again and the playhead is still inside
-    the window's range, the Player MUST resume the window: the suspended
-    form from where it was suspended, then the rest of the sequence,
-    until the window ends or its cap is reached. Resuming continues the
-    same execution (R34.6): it is not a new entry, it does not resolve
-    again, and it does not consume a once-per-session window a second
-    time or fire the slot-start beacon again. When the presentation
-    resumes at a point outside the window's range, the execution has
-    ended. ADR 0025 records the decision.
-  - **R40.5** (Player): When a window declares on top, the Player MUST
-    present it also while an alternative presentation that starts
-    within its span is active, composited over that presentation,
-    within the device's capability (R3, R5) and R22. The inherited
-    linear event executes with its base semantics. While composited
-    over the alternative presentation, the window's cap accrues on that
-    presentation's timeline (R4.11), and a form on screen ends when that
-    presentation ends.
-  - **R40.6** (Player): The Player MUST process the non-linear windows
-    declared in an alternative presentation's `MPD` as that
-    presentation's own: they are presented over its content, and
-    R40.3–R40.5 apply to them against the alternative presentations it
-    triggers in turn.
+  - **R40.9** (spec document): A non-linear window is anchored as
+    follows. An overlay or squeezeback window is anchored to the
+    media-time range it declares: its ad is shown while the presentation
+    that declares it plays through that range, and MUST NOT be shown
+    outside it. A pause window is anchored to the viewer's pause inside
+    its range (R31), and its ad lasts as long as the pause does (R16).
+    The relation a window declares to the inherited linear events it
+    overlaps (R40.1) means:
+
+    - **default** (nothing declared): the window's forms MUST be
+      presented only while the content of the presentation whose `MPD`
+      declares the window is being output, and every inherited linear
+      event it overlaps MUST be executed with its base semantics. While
+      such an event is being executed, the window MUST NOT be presented
+      and none of its beacons fired; a form on screen when
+      the alternative presentation begins is suspended. When the
+      presentation that declares the window is output again and the
+      playhead is still inside the window's range, the window MUST be
+      resumed in the same execution (R34.6): it is not a new entry, it
+      does not resolve again, and it does not consume a once-per-session
+      window a second time or fire the slot-start beacon again. ADR 0025
+      records the decision;
+    - **supersede**: the window MUST be presented, and the inherited
+      linear events whose presentation time falls within its span MUST
+      NOT be executed. When the window presents no ad — every attempt
+      to resolve it is a failed execution under R20.1, or the device can
+      render none of its candidates (R5) — those events MUST be executed
+      as the base specification defines;
+    - **on top**: the window MUST be presented also while an
+      alternative presentation that starts within its span is active,
+      composited over that presentation; the inherited linear event
+      executes with its base semantics.
   - **R40.7** (spec document): The relation is declared on the
     non-linear window this specification defines. The specification
     MUST NOT add anything to the inherited linear events to carry it:
@@ -2140,6 +2199,27 @@ screen to a single active non-linear form at any instant.
     specification, which does not recognise the window, executes the
     base event exactly as the base specification defines. ADR 0020
     records the decision.
+  - **R40.3** (Player): When a window that declares supersede presents
+    no ad, the Player MUST execute the inherited linear events it stood
+    in for under the base specification's rules, including those for an
+    execution that starts after an event's presentation time. How early
+    the Player resolves the window so that the fallback stays reachable
+    is the Player's decision, within the offset of R36.
+  - **R40.4** (Player): When a window with the default relation is
+    resumed (R40.9), the Player MUST present the suspended form from
+    where it was suspended, then the rest of the sequence, until the
+    window ends or its cap is reached. When the presentation resumes at
+    a point outside the window's range, the execution has ended.
+  - **R40.5** (Player): A window that declares on top is composited over
+    the alternative presentation within the device's capability (R3, R5)
+    and R22. While composited, the window's cap accrues on that
+    presentation's timeline (R4.11), and a form on screen MUST end when
+    that presentation ends.
+  - **R40.6** (Player): The Player MUST process the non-linear windows
+    declared in an alternative presentation's `MPD` as that
+    presentation's own: they are presented over its content, and
+    R40.3–R40.5 and R40.9 apply to them against the alternative presentations it
+    triggers in turn.
 
 ### Tracking
 
@@ -2152,16 +2232,15 @@ carriers for creative metadata and non-AV assets.
 
   The specification MUST specify how in-band
   ad tracking beacons (impression, start, quartiles, complete, etc.)
-  are carried in the resolution document. Implementations SHOULD
-  reuse the existing DASH callback event scheme
-  (`urn:mpeg:dash:event:callback:2015`, §4.7 / §5.10.4.5) as the
-  carrier — embedding tracking `<Event>` entries inside an
-  `<EventStream>` of that scheme in the ad MPD or sub-MPD. New
-  tracking carriers MAY be introduced only when the callback scheme
-  cannot express the required semantics, and only after a
-  documented gap analysis per R9. Players MUST safely ignore unknown
-  namespaces on tracking-related extension elements per the DASH
-  extension rules invoked by R1.
+  are carried in the resolution document. Beacons bound to a time
+  ride the existing DASH callback event scheme
+  (`urn:mpeg:dash:event:callback:2015`, §4.7 / §5.10.4.5), as R13.1
+  states — tracking `<Event>` entries inside an `<EventStream>` of that
+  scheme in the ad MPD or sub-MPD. New tracking carriers MAY be
+  introduced only when the callback scheme cannot express the required
+  semantics, and only after a documented gap analysis per R9 (R6.3).
+  Unknown namespaces on tracking-related extension elements are ignored
+  under the base rules that R1.1 and R1.5 adopt.
 
   Application-level creative metadata that has no native DASH carrier
   is governed separately by R23, and the carrier for non-AV creative
@@ -2173,34 +2252,21 @@ carriers for creative metadata and non-AV assets.
   **Conformance criteria** (runtime + document-level):
   - **R6.1** (spec document): The specification MUST specify how in-band ad
     tracking beacons are carried in the resolution document.
-  - **R6.2** (APS): Implementations SHOULD carry tracking beacons
-    as `<Event>` entries inside an `<EventStream>` of scheme
-    `urn:mpeg:dash:event:callback:2015` in the ad `MPD` or sub-`MPD`.
-    The APS produces these entries by translating the tracking events
-    the ADS declared in its decision document.
   - **R6.3** (spec document): A new tracking carrier MAY be
     introduced only when the callback scheme cannot express the
     required semantics, and only after a documented gap analysis
     per R9.
-  - **R6.4** (Player): A Player MUST safely ignore unknown
-    namespaces on tracking-related extension elements, per the DASH
-    extension rules invoked by R1.
-  - **R6.5** (Player + APS): The de-duplication key for in-band
-    beacons is scoped to **the candidate** that carries them. Within a
-    candidate, beacons sharing an `@id`, or the same URL at the same
-    presentation time, fire once. Two beacons carrying the same `@id`
-    in two different candidates of one resolution document are two
-    distinct beacons and the Player MUST fire both. On a `ListMPD` the
+  - **R6.5** (spec document): In a non-linear resolution document, the
+    scope of a beacon's `@id` is **the candidate** that carries it.
+    Within a candidate, beacons sharing an `@id`, or the same URL at the
+    same presentation time, are one beacon and fire once. Two beacons
+    carrying the same `@id` in two different candidates of one
+    resolution document are two distinct beacons, and both MUST fire. On a `ListMPD` the
     base scope applies unchanged (R1.5): `Event@id` is scoped to its
     `@schemeIdUri` / `@value` pair over the whole media presentation
     (DASH Table 44), so the ads of one `ListMPD`, streams merged from
     their sub-MPDs included, share one scope. The per-candidate scope
     above governs the candidates of a non-linear resolution document.
-  - **R6.6** (Player): When the beacon carrier is an `<EventStream>`
-    hosted as foreign-namespace open content inside a candidate, the
-    Player MUST resolve its presentation times against **that
-    candidate's own presentation**, not against a `<Period>` the
-    element does not sit in.
   - **R6.7** (spec document): The specification MUST state how a
     resolution document carrying the candidate-level beacon carrier is
     validated. A validation procedure that reports such a document
@@ -2226,20 +2292,20 @@ carriers for creative metadata and non-AV assets.
 
   **Conformance criteria**:
   - **R13.1** (APS): When the resolution document carries tracking
-    instructions, the APS MUST express them using DASH callback
-    events (or an equivalent baseline DASH construct), with timings
-    relative to the ad's presentation timeline. Conformance is
+    instructions bound to a time, the APS MUST express them as DASH
+    callback events — `<Event>` entries inside an `<EventStream>` of
+    scheme `urn:mpeg:dash:event:callback:2015` in the ad `MPD` or
+    sub-`MPD` (or an equivalent baseline DASH construct) — translating
+    the tracking events the ADS declared in its decision document. Their
+    times are relative to **the presentation of the candidate that
+    hosts them**: an `<EventStream>` hosted as foreign-namespace open
+    content inside a candidate is timed against that candidate's own
+    presentation, not against a `<Period>` the element does not sit in.
+    Each beacon MUST fire when the presentation of its ad reaches its
+    time, which is how the ADS's schedule is executed. Conformance is
     checked against the resolution document alone: it fixes the form
     the instructions take and the timebase they use, and it does not
     reveal how many beacons the ADS declared.
-  - **R13.2** (Player): Given an ad accepted for rendering, the
-    Player MUST execute the tracking schedule it reads from the
-    resolution document — firing each beacon at its specified
-    relative time, preserving the ADS's authority over the
-    schedule.
-  - **R13.3** (Player): If R4 trims the ad before a scheduled
-    beacon's time, the Player MUST stop firing remaining beacons
-    at the trim boundary.
   - **R13.4** (spec document): The specification MUST NOT introduce
     a new tracking event scheme; reuse of the DASH baseline
     callback mechanism is mandatory for beacons bound to a time.
@@ -2252,24 +2318,29 @@ carriers for creative metadata and non-AV assets.
     declares the schedule and receives the beacons, so it is in a
     position to enforce that fidelity; the resolution document is
     not, because it does not show what was declared.
-  - **R13.6** (APS + Player): Beacons MAY be attached to a single
-    presentation option instead of to the candidate. The Player MUST
-    fire the beacons of the option it renders and MUST NOT fire those
-    of any option it did not render. Beacons attached to the candidate
-    fire whichever option renders. This is what lets the ADS learn
+  - **R13.6** (APS): Beacons MAY be attached to a single presentation
+    option instead of to the candidate. A beacon attached to an option
+    reports that option: it MUST fire only when that option is
+    presented, and MUST NOT fire for an option that was not. A beacon
+    attached to the candidate fires whichever option is presented. This is what lets the ADS learn
     which of the formats the advertiser allowed (R5.8) was shown.
-  - **R13.7** (APS + Player): The resolution document MAY carry beacons
-    scoped to the slot rather than to one ad: one for the slot's start
-    and one for its end. The Player MUST fire the slot-start beacon
-    once per execution of the window (R34), when the first ad it renders
-    in the execution begins, including when the execution begins after
-    the window's start, and the slot-end beacon once, when the execution
-    ends, whatever ends it (last ad completed, cap reached, dismissal).
-    An execution in which no ad was rendered fires neither.
+  - **R13.7** (APS): The resolution document MAY carry beacons scoped
+    to the slot rather than to one ad: one for the slot's start and one
+    for its end. The slot-start beacon belongs to the first ad presented
+    in each execution of the window (R34.6), including an execution that
+    begins after the window's start, and MUST fire once per execution,
+    when that ad begins. The slot-end beacon belongs to the end of the
+    execution, whatever ends it (last ad completed, cap reached,
+    dismissal), and MUST fire once, then. An execution in which no ad was
+    presented has neither.
   - **R13.8** (spec document): The specification defines which beacons
     the Player fires and when, and MUST NOT define how the beacons
     received are interpreted. Whether an ad aborted after it began
     rendering counts as viewed is for whoever reads the beacons.
+  - **R13.3** (Player): A beacon whose time falls after the
+    presentation of its ad has ended — trimmed by the cap (R4),
+    dismissed by the viewer (R35), or removed on resume from a pause
+    (R16.1) — MUST NOT be fired.
 
 - **R23. Application-level ad metadata carrier.**
   *Gist: The specification defines an SVTA-namespaced place for creative metadata with no native DASH carrier; emitting it and reading it are both optional.*
@@ -2377,15 +2448,6 @@ carriers for creative metadata and non-AV assets.
     from the `PlayList` metric of Annex D.4.6; defining a parallel
     metric for something the base specification already measures is
     the duplication R9 exists to prevent.
-  - **R33.2** (Player): A Player that reports metrics MUST derive the
-    paused interval from the `PlayList` entries as described above,
-    and MUST NOT count a playback period that stopped on
-    `Rebuffering` as a pause opportunity.
-
-    *Privacy note:* the `PlayList` entries record what the viewer did —
-    when they paused, sought and resumed. Reporting metrics is optional
-    (DP-4), and whether a Player reports them is subject to the policies
-    that apply to whoever deploys it.
   - **R33.3** (spec document): The transport by which any measurement
     reaches the Publisher, the APS or the ADS is out of scope, as it
     is for the base specification's own metrics (§5.9.1).
@@ -2399,6 +2461,17 @@ carriers for creative metadata and non-AV assets.
     is based on the `Metrics` element in the MPD"* (§5.9.1) — so
     without this declaration R33.2 defines how to derive a quantity
     that nothing obliges anyone to collect.
+  - **R33.2** (Player): A Player that reports metrics MUST derive the
+    paused interval from the `PlayList` entries: it is the interval
+    between the end of a playback period whose last rendered stretch
+    stopped on `UserRequest`, and the `start` of the next entry whose
+    `starttype` is `Resume`. It MUST NOT count a playback period that stopped on
+    `Rebuffering` as a pause opportunity.
+
+    *Privacy note:* the `PlayList` entries record what the viewer did —
+    when they paused, sought and resumed. Reporting metrics is optional
+    (DP-4), and whether a Player reports them is subject to the policies
+    that apply to whoever deploys it.
 
 - **R28. ClickThrough carrier — normative and interoperable.**
   *Gist: The resolution document carries the ClickThrough URL and its click-tracking URLs in an explicit, normative, interoperable carrier.*
@@ -2428,10 +2501,11 @@ carriers for creative metadata and non-AV assets.
     is not constrained here. Conformance is checked against the
     resolution document alone: a ClickThrough or a click-tracking URL
     carried outside the normative carrier is a violation the document
-    shows.
-  - **R28.2** (Player): a Player conformant to this specification MUST
-    read the ClickThrough URL and fire its associated click-tracking
-    when the viewer activates the ClickThrough.
+    shows. When the viewer activates the ClickThrough, its click-tracking
+    URLs MUST fire, and its destination MUST be made available to the
+    viewer by the means the device has. How is up to the Player, as for
+    disclosure (R48.3): opening the destination, showing its URL on
+    screen, or a device-native action all conform.
   - **R28.3** (APS + ADS): Whether a ClickThrough the ADS declared
     reaches the resolution document at all is part of the APS-to-ADS
     contract those parties maintain directly, outside this
@@ -2439,6 +2513,8 @@ carriers for creative metadata and non-AV assets.
     the click-tracking, so it is in a position to enforce that it
     travels; the resolution document is not, because it does not show
     what was declared.
+  - **R28.2** (Player): A Player conformant to this specification MUST
+    read the carrier of R28.1 with the meaning R28.1 gives it.
 
 - **R42. Beacons bound to a viewer action or to a failure, not to a time.**
   *Gist: The resolution document can carry beacons that fire on a viewer action or on a failure of the ad, which the callback scheme cannot express because they have no presentation time.*
@@ -2460,17 +2536,19 @@ carriers for creative metadata and non-AV assets.
     pauses it and resumes it; the viewer mutes or unmutes it; it fails
     at runtime (R1.4, R1.6); none of its options renders and at least
     one of them failed its first request (R5.9). The set is closed for
-    this edition.
+    this edition. Each such beacon MUST fire once per occurrence, when
+    the occurrence happens on the ad that carries it, and never from the
+    timeline.
   - **R42.2** (APS): When the ADS declared beacons for any of these
     occurrences, the APS MUST carry them in that carrier and not in the
     callback scheme. Whether they reach the resolution document at all
     is part of the APS-to-ADS contract (R18), as in R28.3.
-  - **R42.3** (Player): A Player conformant to this specification MUST
-    fire each such beacon once per occurrence, when the occurrence
-    happens on the ad that carries it, and never from the timeline.
   - **R42.4** (spec document): The annex that maps a VAST response to a
     resolution document (R11.5) MUST show which VAST tracking events map
     to each occurrence.
+  - **R42.3** (Player): A Player conformant to this specification MUST
+    read the carrier of R42.1 and fire its beacons with the meaning
+    R42.1 gives them.
 
 - **R44. Ad verification resources.**
   *Gist: The resolution document carries the verification resources the ADS declared for an ad, opaque to this specification; a Player that runs a verification SDK hands them over for the ad it renders.*
@@ -2517,18 +2595,21 @@ carriers for creative metadata and non-AV assets.
   - **R47.1** (APS): When the ADS declared viewability beacons for an
     ad, the APS MUST carry them in the carrier of R42.1, each marked
     with which of the three outcomes it reports. Fidelity is part of the
-    APS-to-ADS contract (R18).
-  - **R47.2** (Player): A Player that determines whether the ad it
-    rendered was viewable MUST fire, once per impression, the beacon of
-    the outcome it determined. A Player that does not determine it MUST
-    fire the undetermined beacon when the candidate carries one.
+    APS-to-ADS contract (R18). Each beacon reports its outcome: it MUST
+    fire once per impression when that outcome is determined, and the
+    undetermined beacon is the outcome of a Player that does not
+    determine viewability.
+  - **R47.3** (spec document): The annex of R11.5 MUST show how a VAST
+    viewability declaration maps to the three outcomes.
+  - **R47.2** (Player): A Player conformant to this specification MUST
+    fire the beacons of R47.1 with that meaning: the beacon of the
+    outcome it determined, or, when it does not determine it, the
+    undetermined beacon when the candidate carries one.
 
     *Privacy note:* whether an ad was viewable is a determination the
     Player makes about the viewer's screen, and the beacon of a
     determined outcome discloses it. Determining it is optional (DP-4);
     the undetermined beacon discloses nothing about the device.
-  - **R47.3** (spec document): The annex of R11.5 MUST show how a VAST
-    viewability declaration maps to the three outcomes.
 
 - **R48. Regulatory ad disclosure.**
   *Gist: Where regulation or industry programmes require an ad to disclose information to the viewer, the resolution document can carry it, and the Player presents it in whatever way its device can.*
@@ -2813,3 +2894,48 @@ Document, Ad Tracking, Client Execution Flow, Example
 Implementation — should be read against these requirements.
 Where a design choice satisfies several Rs in tension, the trade-off
 is made explicit in the corresponding section.
+
+## Retired identifiers
+
+These identifiers were merged into another criterion or withdrawn, and are
+not reused. Each row says where its content is now.
+
+| Identifier | Content now in |
+|---|---|
+| R3.3 | R5.6 (a) |
+| R4.3 | R4.1 and R4.6 |
+| R5.2 | R5.1 and R5.6 |
+| R5.5 | R5.1 |
+| R5.7 | R5.3 |
+| R6.2 | R13.1 |
+| R6.4 | R1.1 and R1.5, the base rules for unknown constructs |
+| R6.6 | R13.1 |
+| R7.2 | R5.3 and R7.1 |
+| R7.3 | R4.2 |
+| R7.4 | R7.1 |
+| R7.5 | R4.5 |
+| R13.2 | R13.1 |
+| R14.1 | R7.1 |
+| R14.2 | R4.2 |
+| R16.2 | R13.3 |
+| R17.3 | R17.2 and R40.9 |
+| R19.2 | R19.1 |
+| R19.4 | R19.3 |
+| R26.2 | R26.1 |
+| R27.2 | R27.1 |
+| R29.6 | R3.1 |
+| R29.8 | R29.2 |
+| R29.9 | R29.1 |
+| R32.3 | R16.1 |
+| R34.2 | R34.1 |
+| R34.5 | R34.1 and R34.3 |
+| R34.7 | R34.6 |
+| R34.8 | R34.9 |
+| R35.3 | R35.2 |
+| R35.6 | R13.3 and R35.4 |
+| R36.2 | R36.1 |
+| R36.3 | R36.1 |
+| R36.6 | R36.5 |
+| R38.3 | R29.1 |
+| R38.5 | R5.6 |
+| R41.1 | R41.3 |

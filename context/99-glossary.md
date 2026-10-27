@@ -30,7 +30,7 @@ through `08-dash-extension-rules.md`.
   window, begun each time the playhead enters its range (R34.6) or, for
   a pause window, by a qualifying pause; the base specification's term
   for an event (§5.16.2.2). An execution that begins after the window's
-  start is a late execution (R34.8). See R34 in
+  start is a late execution (R34.9). See R34 in
   [`03-requirements.md`](03-requirements.md).
 - **Overlay**: umbrella term for any non-linear ad surface (a surface
   composited on top of the primary content, or a squeezeback that
@@ -63,7 +63,7 @@ through `08-dash-extension-rules.md`.
   ListMPD; when an ad offers more than one they appear as an ordered
   list whose document order is the Player's preference order (R5).
 - **Capability parameter**: one of the closed set of parameters R29
-  reserves (R29.1, R29.9), which the Player MAY attach to the resolution
+  reserves (R29.1), which the Player MAY attach to the resolution
   request to state one capability axis of its device. Its rules are in
   R29; the device classes are combinations of these axes (R3).
 - **Presentation option**: a (form + layout) pairing offered for an
