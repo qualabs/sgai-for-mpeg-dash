@@ -2342,3 +2342,7 @@ Nicolás decidió los tres huecos que el build anotó en `context-analysis/error
 ## 2026-10-27 — multi-asset-options-profile queda en backlog
 
 Nicolás: *"de momento no quiero incluir multi layout... me parece muy complejo por el momento... dejalo en diseño no mas como backlog"*. El ítem sigue en `designing` con su DESIGN.md, sin plan ni fase, y sale del v13: `major-build-v13` junta la fase 07, document-first y multiview. `context/` no se tocó.
+
+## 2026-10-27 — document-first: el diseño, contra el context/ de hoy
+
+Nicolás aprobó en alto nivel el diseño de `roadmap/document-first` ("me gusta, actualizalo"), y se rehízo sobre `context/` en `44cfff4` (fase 07, ADR 0022 a 0028 y el fix de error-semantics). El ítem ya no termina en un build propio: el v13 es `roadmap/major-build-v13`, y este trabajo va antes de que multiview escriba en 03. Cifras nuevas: 199 criterios, 95 del Player, 82 que cambian (43 se reescriben, 33 se fusionan, 6 se retiran), 162 después; 76 elementos de interfaz; 39 ids que se van, con 24 menciones en 04, 2 en 99 y 22 en ocho ADRs. Cambian D-1 (el build sale del ítem), D-3 (la semántica conserva el modal; las notas de privacidad de DP-4 siguen a la definición), D-9 (los ids se comparan contra el commit del mapa, no contra v12.6) y D-12 (validación de que 04 y 99 sólo cambian ids). El mapa reemplaza la tabla de 191 filas por los 82 que cambian y la lista de los que quedan. Las preguntas P-1 a P-7 siguen abiertas. `context/` no se tocó.
