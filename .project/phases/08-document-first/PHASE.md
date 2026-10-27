@@ -1,6 +1,6 @@
 ---
 title: El documento primero
-description: "Reescribir context/03-requirements.md para que la semántica de cada una de las tres interfaces (MPD, pedido, documento de resolución) esté escrita una sola vez, del lado del documento, con un check que haga cumplir la parte estructural, y validar la reescritura contra la versión anterior sin perder ninguna obligación."
+description: "Reescribió context/03-requirements.md con el documento primero: regla de escritura, índice de las tres interfaces (75 elementos), 83 criterios reescritos, fusionados o retirados (165 quedan, 36 ids retirados con su tabla), D-13..D-16 y R1.4; check-context-interfaces como Step 0.7; la validación independiente no encontró otra pérdida que R6.4, que se restauró."
 started: 2026-10-27
 origin: "Nicolás, 2026-09-28, abierta como fase 06 en diseño (de output-analysis/v12.6-requirements-redundancy-review.md); phase 06, returned to the roadmap 2026-10-15"
 priority: medium

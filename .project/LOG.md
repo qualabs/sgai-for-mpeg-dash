@@ -2362,3 +2362,7 @@ La regla de escritura nombra al Player como quien escribe el pedido (ADR 0044, g
 ## 2026-10-27 — document-first: validación, y R6.4 vuelve
 
 La validación independiente (T-05 de la fase 08) encontró una sola obligación debilitada: el mapa retiraba R6.4 (un Player de esta spec MUST ignorar namespaces desconocidos en extensiones de tracking) suponiendo que R1.1 y R1.5 ya lo decían, y no lo decían. R6.4 se restauró con su texto; la tabla de retirados queda en 36 ids y 03 en 165 criterios. Lo demás se conservó con la misma fuerza o más, 04 y 99 cambiaron sólo ids (más las dos citas de UC-10), y los tres chequeos de `context/` salen en `0`. Informe en `phases/08-document-first/tasks/T-05/report.md`.
+
+## 2026-10-27 — Fase 08 cerrada
+
+`context/03-requirements.md` quedó con el documento primero: regla, índice de interfaces, 165 criterios, 36 ids retirados con su tabla, D-13 a D-16 y R1.4, y `check-context-interfaces` como Step 0.7. La validación independiente sólo encontró R6.4, que se restauró. R4.6 se verificó contra la copia primaria (Table 62, `@clip`: *"shall terminate at the latest at time PRT + APDmax"*) y no cambió. `SETUP.md` nombra ahora los tres checks de `context/`. REPORT escrito. Lo que sigue es el v13 y multiview.
