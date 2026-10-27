@@ -9,6 +9,12 @@ not see and a machine does:
   * the same identifier defined twice;
   * a relative markdown link to a file that does not exist.
 
+An identifier listed in the "Retired identifiers" table of
+03-requirements.md counts as defined, as retired: citing it resolves
+here, and whether it may be cited where it is is the question of
+check-context-interfaces.py. A retired identifier that is also defined
+again is reported as defined twice.
+
 WHAT THIS DOES NOT CATCH, and the distinction matters more than the
 check does:
 
@@ -44,6 +50,8 @@ DEFINITIONS = [
 ]
 REFERENCE = re.compile(r"\b(R\d+(?:\.\d+)?|DP-[\d.]+|DR-\d+|OOS-\d+|UC-\d+)\b")
 DEFINITION_LINE = re.compile(r"^\s*-? ?\*\*(R\d|DP-|OOS-|DR-|UC-)|^#{2,4} (DR-|UC-)")
+RETIRED_SECTION = re.compile(r"^## Retired identifiers\s*$(.*?)(?=^## |\Z)", re.M | re.S)
+RETIRED_ROW = re.compile(r"^\|\s*(R\d+\.\d+)\s*\|", re.M)
 LINK = re.compile(r"\]\(\.?/?([0-9A-Za-z._-]+\.md)[^)]*\)")
 
 
@@ -60,6 +68,10 @@ def main():
         for pattern, _kind in DEFINITIONS:
             for m in pattern.finditer(t):
                 defined[m.group(1)].append(os.path.basename(f))
+        if os.path.basename(f) == "03-requirements.md":
+            sec = RETIRED_SECTION.search(t)
+            for m in RETIRED_ROW.finditer(sec.group(1) if sec else ""):
+                defined[m.group(1)].append("03-requirements.md (retired)")
 
     errors = []
     for ident, places in sorted(defined.items()):

@@ -110,6 +110,13 @@ What does NOT go where:
   `check-promotable.py`, and the `2` is the point here too: no
   enumeration declared, no glossary or no register means the rule
   never ran, which is not the same as nothing found.
+  `check-context-interfaces.py` is Step 0.7 and asks whether 03 keeps
+  the structural part of its writing rule: each row of its "Interfaces"
+  index points to one existing criterion held by the party that writes
+  that interface, no element is indexed twice, no retired identifier is
+  cited outside the "Retired identifiers" table, and no criterion that
+  existed when the table was started vanished without a row there. Same
+  exits, and the same meaning of `2`.
   `check-promotable.py` is the auto-refine
   loop's stop condition, and the same script a promotion consults: it
   reads the candidate's three sidecars, checks that the walk covered

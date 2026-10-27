@@ -4,7 +4,7 @@
 | ---- | ----------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
 | T-01 | El mapa de obligaciones queda congelado y legible por script, criterios y prosa            | done    | agent | —    | `tasks/T-01/obligation-map.tsv`, `tasks/T-01/build-map.py` |
 | T-02 | 03 está reescrito según el mapa, con la regla, el índice de interfaces y los retirados     | done    | agent | —    | `tasks/T-02/notes.md` |
-| T-03 | Un check en `bin/` hace cumplir la parte estructural de la regla, como Step 0.7            | planned | agent | —    | —        |
+| T-03 | Un check en `bin/` hace cumplir la parte estructural de la regla, como Step 0.7            | done    | agent | —    | `bin/check-context-interfaces.py`; exit 0 sobre 03; coherence exit 0 |
 | T-04 | Las pruebas del check: cada una de sus cinco condiciones, rota a propósito, sale en rojo   | planned | agent | —    | —        |
 | T-05 | La versión nueva conserva cada obligación de la vieja, y `context/` cierra                 | planned | agent | —    | —        |
 

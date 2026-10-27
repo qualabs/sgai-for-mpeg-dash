@@ -2354,3 +2354,7 @@ Nicolás aceptó las recomendaciones de las siete preguntas del diseño, que que
 ## 2026-10-27 — R1.4: un candidato abortado cuenta como renderizado
 
 Decisión de Nicolás, cerrada por el coordinador con su criterio, sobre la parte de E11 que quedaba abierta en `context-analysis/error-semantics.md`: un candidato que empezó a renderizar y se abortó cuenta como renderizado, así que el Player vuelve al contenido principal y no aplica R20.1 (no intenta otra ventana). Entró como una frase en R1.4, dentro de T-02 de la fase 08.
+
+## 2026-10-27 — ADR 0044 y el check de interfaces
+
+La regla de escritura nombra al Player como quien escribe el pedido (ADR 0044, generaliza la 0034): I-REQ lo escribe el Player, y el texto aprobado sólo nombraba a Publisher, APS y spec document. `bin/check-context-interfaces.py` entra como Step 0.7 de `build-all` (y del incremental), y `check-context-coherence` cuenta como definidos, retirados, los ids de la tabla "Retired identifiers". Por decisión del coordinador, las dos citas de UC-10 que decían R5.7 para pasar a la opción siguiente pasan a R5.6. `docs/arc42/` no existe en el proyecto.
