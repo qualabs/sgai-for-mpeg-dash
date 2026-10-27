@@ -1,14 +1,9 @@
----
-description: "Traer a context/ lo que Nicolás decidió del trabajo de David Hassoun en SVTA2053 v3: failover de opción por el primer pedido del asset, ONCE y repetición de las ventanas no lineales, retomar la ventana después del corte lineal, privacidad como regla general, y tres precisiones (R29.7, solapamiento, R14.1)."
-status: designing
-category: feature
-origin: "Nicolás, 2026-10-27, sobre output-analysis/2026-10-27-david-v3-vs-context.md (22 filas); la fila 18 entró el mismo día"
----
-
 # Alinear `context/` con SVTA2053 v3 (David, 2026-10-22/23)
 
-Diseño de la fase. Lo aprueba Nicolás antes de tocar `context/`, y antes de
-escribir `PHASE.md`, `TASKS.md` y las ADR.
+Diseño de la fase. Nicolás lo aprobó el 2026-10-27, con sus decisiones sobre
+cómo se entra tarde a una ventana (D3), los beacons (D5), la vigencia de una
+resolución (D3), el beacon de error de una opción que no carga (D1) y el
+`RECOMMENDED` de David para mandar capacidades (D5).
 
 **Base.** `output-analysis/2026-10-27-david-v3-vs-context.md` (filas 1 a 22) y
 `context/` en `7e3b33c`. Los textos actuales se citan de
@@ -61,6 +56,14 @@ recurso no responde. No se fija timeout (la librería de David usa 10 s; es del
 Player). No se trae `preValidateAssets` (fila 8): cómo se entera el Player es
 el HOW. La cadena R5.7 → R5.3 → R20.1 ya lleva un candidato sin opciones
 satisfacibles al siguiente candidato y, agotados, a la siguiente ventana.
+
+**El beacon de error.** R42.1 suma una ocurrencia: *"none of a candidate's
+options renders and at least one of them failed its first request (R5.9)"*.
+Sólo en ese caso se dispara el beacon de error del candidato; si otra opción
+se renderiza, nada, porque R13.6 ya prohíbe disparar los de una opción no
+renderizada. Sin esto el ADS no se entera de un creativo muerto; con un beacon
+por opción fallida se enteraría también de las fallas que el failover tapó, y
+lo que Nicolás quiso es que el error se cuente cuando el aviso se perdió.
 
 ## D2. ONCE alcanza a las ventanas de overlay y squeezeback (R34)
 
@@ -124,7 +127,7 @@ la ventana; acá se gasta cuando un aviso empieza a renderizarse, como la base.
 Una ventana que resolvió vacía queda disponible (R30.2 ya lo dice para lo
 lineal).
 
-## D3. Volver a una ventana ya presentada es una ejecución nueva (R34.6, R34.7, R36.4, R13.7)
+## D3. Volver a una ventana ya presentada es una ejecución nueva, y entrar tarde sigue a `@startWithOffset` (R34.6–R34.9, R36.4, R13.7)
 
 **Hoy.** Nada lo dice: `seek` aparece una vez (OOS-7), `rewind` cero. R3.2 hace
 no conforme el comportamiento indefinido.
@@ -149,9 +152,20 @@ sus eventos; R1.5 lo adopta.
 >   base specification executes an event *"every time the playhead enters
 >   the active interval"* (§5.16.2.2.1). The Player MUST present each
 >   execution as it presents the first, with its own cap (R4) and its own
->   beacons (R13, R13.7, R42). An execution that begins after the window's
->   start presents the sequence from its first candidate and ends with the
->   window (R40).
+>   beacons (R13, R13.7, R42).
+> - **R34.8** (Player): An execution that begins after the window's start —
+>   a join or a seek landing inside it — presents the sequence from its
+>   first candidate, unless the window declares that it starts with an
+>   offset; then the Player begins at the point of the sequence that lies
+>   as far from its start as the execution lies from the window's start,
+>   and the candidates that end before that point are not presented. In
+>   both cases the execution ends no later than the window does (R40). A
+>   time-bound beacon whose time falls in a part of a candidate that was
+>   not presented is not fired (R13.2).
+> - **R34.9** (Publisher): The Publisher MAY declare, on an overlay or
+>   squeezeback window, that a late execution starts with an offset. A
+>   window that does not declare it starts every execution from the first
+>   candidate.
 > - **R34.7** (Player): Each execution resolves the opportunity as R36
 >   defines, so its candidates may differ from those of an earlier
 >   execution. A resolution obtained for an earlier execution is presented
@@ -170,13 +184,51 @@ or, for a pause window, by a qualifying pause; the base specification's term for
 an event (§5.16.2.2)."*
 
 **Por qué así.** Es la fila 15, con el término de la base (*execution*), que
-`context/` ya usa en R20.1 (*"failed execution"*). Lo de R36.4 sigue a la
-base (se resuelve en cada ejecución) y deja al APS alargarlo declarando cuánto
-dura su resolución; ver P2. Que una ejecución tardía arranque desde el primer
-candidato es la ejecución demorada de la base (§5.16.2.2.6, *"join and seek
-operation … may have caused it to start at a delay"*), y que termine con la
-ventana ya lo dice R40 (*"its ad is shown while the presentation plays through
-that range, and not outside it"*).
+`context/` ya usa en R20.1 (*"failed execution"*). Una resolución sin vigencia
+declarada vale para la ejecución para la que se obtuvo: es lo que hace la base
+(*"resolved at each execution"*), es lo que da anuncios distintos al volver, y
+el APS que quiere reusarla declara cuánto dura (R36.4).
+
+**Entrar tarde: lo que la base ya define para el reemplazo.** La base llama
+*delayed execution* a la que empieza después de su tiempo de presentación:
+*"join and seek operation, as well as playback of a previous alternative
+presentation may have caused it to start at a delay (delayed execution)"*
+(§5.16.2.2.6). Y deja que el evento declare qué pasa entonces, con
+`ReplacePresentation@startWithOffset` (§5.16.4, Table 62, default `"false"`):
+*"specifies whether a static alternative presentation starts at the beginning
+("false") or at an offset (from the start of the alternative Media
+Presentation) corresponding to the difference Δ between the presentation time
+of the event and the current playhead position, i.e. Δ = PRTA – PRT."* El
+default, en palabras de la misma cláusula: *"By default, a static alternative
+Media Presentation starts from the beginning (i.e. ASO = 0)."* (§5.16.2.2.6).
+R34.8 y R34.9 traen eso a las ventanas, con el mismo default.
+
+- **Es el análogo del reemplazo y no de la inserción.** `@startWithOffset`
+  existe sólo en `ReplacePresentation`, porque la inserción para el timeline
+  del programa y no tiene un fin que preservar. Una ventana de overlay o
+  squeezeback corre con el timeline del programa avanzando abajo, como un
+  reemplazo.
+- **El fin queda con la ventana.** Su compañero en la base es `@clip` (default
+  `"true"`: la alternativa termina *"at the latest at time PRT + APDmax"*), y
+  la base no deja usar `@startWithOffset` con `@clip="false"`. No se trae
+  `@clip`: el fin de una ventana ya lo fija R40 (*"its ad is shown while the
+  presentation plays through that range, and not outside it"*), que es el
+  `"true"` de la base, y un `"false"` presentaría fuera de la ventana.
+- **El mapeo de tiempo dentro de la secuencia** que hace falta para arrancar
+  con offset ya existe: R14.1 presenta los candidatos uno detrás del otro,
+  cada uno empezando cuando termina el anterior, así que el punto que está a Δ
+  del principio de la secuencia está definido. Un candidato salteado no ocupa
+  tiempo (R14.1, D8), y la ventana termina antes que la secuencia si el
+  tope llega primero (R4).
+- **Los beacons de lo que no se presentó no se disparan**, y no hace falta una
+  regla nueva para eso: R13.2 dispara cada beacon *"at its specified relative
+  time"*, y un tiempo que no se presentó no llega. Se escribe en R34.8 porque es
+  lo primero que un implementador va a preguntar (¿y el impression?).
+
+**Carrier, en `06-naming-and-namespaces.md`**: un párrafo que reusa
+`@startWithOffset` (§5.16.4, Table 62), con su nombre y su default `"false"`,
+en las ventanas de overlay y squeezeback, y dice por qué `@clip` no viene con
+él.
 
 ## D4. Retomar la ventana después del corte lineal heredado (R40.4, R4.11, UC-14)
 
@@ -243,8 +295,16 @@ requerimiento futuro y no uno:
 >   such as firing a beacon whose URL the APS wrote complete (OOS-10), is not
 >   information the Player originates.
 
-La última frase es la recomendación de P1; si Nicolás decide lo contrario, sale
-y R13, R42 y R47 entran en la lista de abajo.
+**Los beacons quedan afuera** (decisión de Nicolás), y la última frase es la
+que lo dice. El Player no agrega datos a un beacon: el APS escribe la URL
+completa (OOS-10). Hacerlos opcionales rompería la medición sobre la que se
+vende la oportunidad (DP-3), y el consentimiento para trackear es de la ley de
+cada mercado y del que despliega el Player, no de esta spec. R47 sí lleva nota,
+porque la determinación de visibilidad la origina el Player.
+
+**No se trae el `RECOMMENDED` de David** de mandar capacidades donde la
+política lo permite (decisión de Nicolás): empuja a mandar, contra lo que pide
+DP-4, y R29.7 y R5 ya funcionan sin ellas.
 
 **R29.2**, se agrega:
 
@@ -263,9 +323,9 @@ sobre `03-requirements.md`, más R13.2 y R42.3 leídos a mano.
 | R29.8 → R38.2, R39.3, R41.5 | lo que el slot declaró en el MPD (layouts, región, permiso de audio) | no: repite el manifiesto, no dice nada del dispositivo | ninguno |
 | R44.3 | recursos de verificación a un SDK de terceros, que mide el dispositivo y la pantalla | sí; ya opcional | nota de privacidad |
 | R33.2 | métricas `PlayList` (pausas, seeks del espectador) | sí; ya opcional (*"A Player that reports metrics"*) | nota de privacidad |
-| R47.2 | si el aviso fue visible (determinación del Player) | sí; determinarlo ya es opcional, el beacon de "indeterminado" no | nota de privacidad; ver P1 |
-| R42.3 | beacons de acciones del espectador (pausa, mute, descarte) | depende de P1 | según P1 |
-| R13.2, R13.7, R35.6 | beacons de entrega del aviso, URL escrita por el APS | no, con la recomendación de P1 | ninguno |
+| R47.2 | si el aviso fue visible (determinación del Player) | sí; determinarlo ya es opcional, el beacon de "indeterminado" no dice nada del dispositivo | nota de privacidad |
+| R42.3 | beacons de acciones del espectador (pausa, mute, descarte) | no: el Player ejecuta una URL que escribió el APS | ninguno |
+| R13.2, R13.7, R35.6 | beacons de entrega del aviso, URL escrita por el APS | no, por la misma razón | ninguno |
 | R28 | click del espectador | no: lo inicia el espectador | ninguno |
 
 ## D6. R29.7 queda: el APS decide; "devolver todas" va como sugerencia
@@ -305,9 +365,9 @@ trae el `preserve` de David (DP-1.1).
 
 | Archivo | Cambio |
 |---|---|
-| `03-requirements.md` | DP-4; R1.4; R4.11; R5.7, R5.9; R13.7; R14.1; R29.2 (nota), R29.7 (nota); R33 y R44.3 (nota); R34 (título, gist, R34.1, R34.3, R34.4, R34.5–R34.7); R36.4; R40.1, R40.4; la tabla de invariantes no cambia (R34 y R29 no están). R47 según P1. |
-| `04-use-cases.md` | UC-09: una viñeta para una opción cuyo recurso no carga (R5.9). **UC-21** nuevo: un VOD rebobinado sobre un overlay, sin ONCE (se presenta de nuevo, puede traer otro aviso, beacons de nuevo), con ONCE (no), y un seek por encima (no la gasta). **UC-22** nuevo: un mid-roll lineal dentro de una ventana de overlay sin relación declarada, que se suspende y se retoma. UC-14 (D4). La tabla de Coverage (dos filas) y el párrafo que repite R1.4. |
-| `06-naming-and-namespaces.md` | El párrafo de `@executeOnce` (D2). |
+| `03-requirements.md` | DP-4; R1.4; R4.11; R5.7, R5.9; R13.7; R14.1; R29.2 (nota), R29.7 (nota); R33, R44.3 y R47.2 (nota); R34 (título, gist, R34.1, R34.3, R34.4, R34.5–R34.9); R36.4; R40.1, R40.4; R42.1; la tabla de invariantes no cambia (R34 y R29 no están). |
+| `04-use-cases.md` | UC-09: una viñeta para una opción cuyo recurso no carga (R5.9). **UC-21** nuevo: un VOD rebobinado sobre un overlay, sin ONCE (se presenta de nuevo, puede traer otro aviso, beacons de nuevo), con ONCE (no), un seek por encima (no la gasta), y un seek que cae a la mitad, con y sin offset declarado. **UC-22** nuevo: un mid-roll lineal dentro de una ventana de overlay sin relación declarada, que se suspende y se retoma. UC-14 (D4). La tabla de Coverage (dos filas) y el párrafo que repite R1.4. |
+| `06-naming-and-namespaces.md` | Los párrafos de `@executeOnce` (D2) y de `@startWithOffset` (D3). |
 | `99-glossary.md` | *Execution (of an opportunity window)*; *Privacy note* si el chequeo de vocabulario lo pide. |
 | Registro "Deliberately open" | Sin filas: todo lo de esta fase queda decidido, y el registro es sólo para lo que decide otro cuerpo (ADR 0021). |
 
@@ -321,6 +381,7 @@ trae el `preserve` de David (DP-1.1).
 | 0025 | A window interrupted by an inherited linear event resumes after it, in the same execution | D4 (cambia R40.4, aceptado; ADR 0020 sigue en pie) |
 | 0026 | What can identify the device or the viewer is optional to send and carries a privacy note | D5 |
 | 0027 | How an APS resolves an undetermined capability stays its own; returning every option is a suggestion | D6 (R29.7 no tenía ADR y el texto de David lo va a volver a plantear) |
+| 0028 | A late execution of a window starts from its first candidate unless the window declares the base's start-with-offset | D3, entrar tarde |
 
 D7 y D8 no llevan ADR: precisan lo que ya estaba. `?adclass=` (confirmado
 afuera, 2026-10-27) tampoco: va una línea en el LOG. No se agrega la línea
@@ -345,33 +406,5 @@ muchas secciones, o el carrier de ONCE en la ventana de overlay; si pasa,
 | D4 y D3 se confunden (retomar vs entrar) | El criterio está escrito en R40.4 (*"it is not a new entry"*) y UC-22 lo ejercita. |
 | Un descarte del espectador (R35) no sobrevive a un rebobinado | Consecuencia de D3: una ejecución nueva es una ventana nueva. Se acepta; queda explícito en UC-21. |
 | R5.9 hace esperar al Player el primer pedido antes de mostrar | El timeout es del Player y R36 ya le deja resolver y precargar antes. Residual, aceptado. |
-| DP-4 sin acotar vuelve opcionales los beacons | P1 lo decide antes de escribir. |
-
-## Preguntas abiertas, con recomendación
-
-- **P1. ¿Los beacons entran en DP-4?** Los de acciones del espectador (R42:
-  pausa, mute, descarte) cuentan qué hizo una persona. **Recomiendo que no**:
-  el Player no agrega datos (el APS escribe la URL completa, OOS-10), y hacerlos
-  opcionales rompe la medición sobre la que se vende la oportunidad (DP-3). El
-  consentimiento para trackear es de la ley de cada mercado y del que despliega
-  el Player, no de esta spec. Con eso DP-4 lleva la frase de la excepción y
-  R13/R42 no cambian; R47 lleva nota porque la determinación sí la origina el
-  Player.
-- **P2. R36.4 por defecto: ¿una resolución sin vigencia declarada vale para la
-  ejecución o para toda la ventana?** **Recomiendo "para la ejecución"**: es lo
-  que hace la base (*"resolved at each execution"*), es lo que da "anuncios
-  distintos" al volver, y el APS que quiere reusarla declara su vigencia.
-- **P3. Una ejecución tardía (join o seek a la mitad): ¿arranca desde el primer
-  candidato?** **Recomiendo que sí**, como la ejecución demorada de la base, y
-  que termine con la ventana (R40). La alternativa (arrancar en el segundo del
-  seek, como hace David) necesita un mapeo de tiempo dentro de la secuencia que
-  no tenemos.
-- **P4. ¿Una opción que falla por R5.9 dispara el beacon de error (R42)?**
-  **Recomiendo**: sólo cuando el candidato termina sin renderizar ninguna opción
-  y alguna falló por R5.9; si otra opción se renderiza, nada (R13.6 ya prohíbe
-  disparar los de una opción no renderizada). Agregaría a R42.1 *"none of its
-  options could be loaded (R5.9)"* entre las ocurrencias. Si Nicolás no lo
-  quiere, el ADS no se entera de un creativo muerto.
-- **P5. ¿Se trae el `RECOMMENDED` de David para mandar capacidades donde la
-  política lo permite?** **Recomiendo que no**: empuja a mandar, contra lo que
-  pide DP-4, y R29.7 + R5 ya funcionan sin ellas.
+| DP-4 sin acotar vuelve opcionales los beacons | La última frase de DP-4 los deja afuera: ejecutar una instrucción del documento no es información que el Player origina. |
+| Arrancar con offset pierde el impression de un candidato empezado a la mitad | Es lo que hace la base con un reemplazo y `@startWithOffset`; el default no tiene offset, y R34.8 lo dice para que el Publisher que lo declara sepa lo que elige. |
