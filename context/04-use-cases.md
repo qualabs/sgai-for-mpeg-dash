@@ -90,6 +90,7 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-19 UC-09 candidate on a device whose protected playback admits one decoder | Selection | walks the options as D3 while the content is protected: L-shape image — option 2 | — | — | — | — |
 | UC-20 One ad with AdChoices disclosure on three devices | Presentation | web player: the icon, and a click opens the link | — | Smart TV: the icon, and a remote button shows the URL on screen | same as D3 | set-top box: a device-native indicator, and a remote button shows the URL |
 | UC-21 VOD rewind over an overlay window, and a seek into it | Timing | presented again on each entry, resolved anew; once only when declared; a late entry from the first candidate, or at the offset when declared | skip (no image surface over video) | same as D1 | same as D1 | skip (no overlay surface) |
+| UC-22 Linear mid-roll inside an overlay window, no relation declared | Mixed | overlay suspended during the break, resumed after it in the same execution | skip (no image surface over video); break played | same as D1 | same as D1 | skip (no overlay surface); break played |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -1693,7 +1694,8 @@ covering the blacked-out span:
   content (R40.4). A Player of this specification executes the
   replacement as the base specification defines and composites nothing
   from that window over the slate; a form already on screen when the
-  slate begins ends there.
+  slate begins is suspended, and resumes when the slate ends if the
+  window is still open (R40.4).
 - **Declaring on top**, the window is composited over the slate
   (R40.5), with the device behaviour above. That is the Publisher's
   explicit choice to put an ad from the primary timeline over the
@@ -2011,3 +2013,44 @@ specification makes it for its own events — a new execution, resolved
 anew — and the two declarations the base offers its events, executing
 once and starting with an offset, are what a Publisher writes to depart
 from that.
+
+### UC-22 — A linear mid-roll inside an overlay window, with no relation declared
+
+**Scenario:** A VOD programme carries an overlay opportunity window from
+20:00 to 21:00, maximum duration 60 s (R4), resolved to two image
+candidates of 30 s each, A and B, with a slot-start beacon (R13.7). At
+20:20 the programme carries an inherited linear insertion
+(`InsertPresentation`, UC-02) of 30 s. The window declares no relation
+to it (R40.1).
+
+**Publisher intent:** an overlay over the programme and a linear break
+inside its span, each presented on its own.
+
+**Expected behavior:** on every device class that renders the overlay
+(D1, D3, D4; D2 and D5 skip it, as in UC-03):
+
+- **20:00–20:20.** The window's execution begins: the slot-start beacon
+  fires and A is presented.
+- **20:20, the break.** The Player executes the insertion with its base
+  semantics (R40.4). A is suspended 20 s in; nothing of the window is
+  presented over the break and none of its beacons fire. The 30 s of
+  the break do not accrue against the window's cap (R4.11).
+- **The programme returns at 20:20**, inside the window's range: an
+  insertion resumes the programme where it stopped (`RT = PRTA`,
+  §5.16.2.2, Table 57). The Player resumes the same execution: A from
+  its 20th second, then B, until the window ends or the cap is reached.
+  It does not resolve again, does not fire the slot-start beacon again,
+  and, had the window been declared once-per-session, would not count
+  it a second time (R40.4).
+- **A replacement instead of an insertion.** With a 30 s
+  `ReplacePresentation` at 20:20, the programme returns at 20:50, still
+  inside the window: A resumes from its 20th second, and the window ends
+  at 21:00 with A's last 10 s, so B is not presented. Had the
+  replacement ended after 21:00, the programme would return outside the
+  window and the execution would have ended.
+- **Legacy Player** — plays the break and ignores the window (UC-07).
+
+**What this demonstrates:** coming back from a linear event is not
+entering the window. The Player made that cut, and the same execution
+continues; what starts a new execution is the viewer moving the playhead
+(UC-21).
