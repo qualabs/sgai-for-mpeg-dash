@@ -1,5 +1,7 @@
 # T-05 — validación de la versión vieja contra la nueva
 
+> Registro de la fase 08, cerrada el 2026-10-27: dice lo que pasó, no lo que hay que hacer.
+
 Hecha por un subagente que no participó de T-02. OLD = `2d0d54c`, NEW =
 `aebfbd5`. El subagente no tenía permiso para escribir archivos de informe,
 así que este archivo transcribe su informe; sus tres scripts están en esta

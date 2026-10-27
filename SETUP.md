@@ -22,8 +22,10 @@ installed.
 
 `bin/check-normative-base.py` runs before anything is generated and
 stops the build if the declared edition does not describe the file you
-supplied. `bin/check-context-coherence.py` runs next and stops it if
-`context/` does not hold together.
+supplied. `bin/check-context-coherence.py`, `bin/check-context-vocabulary.py`
+and `bin/check-context-interfaces.py` run next and stop it if `context/`
+does not hold together: its identifiers, its vocabulary, and the index of
+interfaces of `context/03-requirements.md`.
 
 ## The base standard
 

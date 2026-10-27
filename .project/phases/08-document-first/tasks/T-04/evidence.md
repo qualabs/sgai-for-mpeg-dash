@@ -1,5 +1,7 @@
 # T-04 — evidencia
 
+> Registro de la fase 08, cerrada el 2026-10-27: dice lo que pasó, no lo que hay que hacer.
+
 ## Suite completa
 
 ```

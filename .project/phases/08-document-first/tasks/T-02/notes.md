@@ -1,5 +1,7 @@
 # T-02 — notas de la reescritura
 
+> Registro de la fase 08, cerrada el 2026-10-27: dice lo que pasó, no lo que hay que hacer.
+
 Commit base (antes de T-02): `2d0d54c` (`context/` idéntico a `44cfff4`).
 
 ## Lo que se hizo fuera de la letra del mapa, y por qué
