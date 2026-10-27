@@ -2358,3 +2358,7 @@ Decisión de Nicolás, cerrada por el coordinador con su criterio, sobre la part
 ## 2026-10-27 — ADR 0044 y el check de interfaces
 
 La regla de escritura nombra al Player como quien escribe el pedido (ADR 0044, generaliza la 0034): I-REQ lo escribe el Player, y el texto aprobado sólo nombraba a Publisher, APS y spec document. `bin/check-context-interfaces.py` entra como Step 0.7 de `build-all` (y del incremental), y `check-context-coherence` cuenta como definidos, retirados, los ids de la tabla "Retired identifiers". Por decisión del coordinador, las dos citas de UC-10 que decían R5.7 para pasar a la opción siguiente pasan a R5.6. `docs/arc42/` no existe en el proyecto.
+
+## 2026-10-27 — document-first: validación, y R6.4 vuelve
+
+La validación independiente (T-05 de la fase 08) encontró una sola obligación debilitada: el mapa retiraba R6.4 (un Player de esta spec MUST ignorar namespaces desconocidos en extensiones de tracking) suponiendo que R1.1 y R1.5 ya lo decían, y no lo decían. R6.4 se restauró con su texto; la tabla de retirados queda en 36 ids y 03 en 165 criterios. Lo demás se conservó con la misma fuerza o más, 04 y 99 cambiaron sólo ids (más las dos citas de UC-10), y los tres chequeos de `context/` salen en `0`. Informe en `phases/08-document-first/tasks/T-05/report.md`.

@@ -56,6 +56,9 @@ LINK = re.compile(r"\]\(\.?/?([0-9A-Za-z._-]+\.md)[^)]*\)")
 
 
 def main():
+    if "--help" in sys.argv or "-h" in sys.argv:
+        print(__doc__.strip())
+        return 0
     quiet = "--quiet" in sys.argv
     ctx = CTX
     if "--context" in sys.argv:

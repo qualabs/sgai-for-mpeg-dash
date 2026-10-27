@@ -6,7 +6,7 @@
 | T-02 | 03 está reescrito según el mapa, con la regla, el índice de interfaces y los retirados     | done    | agent | —    | `tasks/T-02/notes.md` |
 | T-03 | Un check en `bin/` hace cumplir la parte estructural de la regla, como Step 0.7            | done    | agent | —    | `bin/check-context-interfaces.py`; exit 0 sobre 03; coherence exit 0 |
 | T-04 | Las pruebas del check: cada una de sus cinco condiciones, rota a propósito, sale en rojo   | done    | agent | —    | `bin/test_check_context_interfaces.py`, `tasks/T-04/evidence.md` |
-| T-05 | La versión nueva conserva cada obligación de la vieja, y `context/` cierra                 | planned | agent | —    | —        |
+| T-05 | La versión nueva conserva cada obligación de la vieja, y `context/` cierra                 | done    | agent | —    | `tasks/T-05/report.md` |
 
 ---
 
@@ -64,6 +64,9 @@
 - **nivel de verificación:** alto. Es la entrada normativa del build v13, y
   una obligación perdida no se ve hasta la spec. La verificación de fondo es
   T-05, que la hace otro agente.
+- **post-ejecución:** 2026-10-27, T-05 encontró que retirar R6.4 perdía la
+  obligación (R1.1 y R1.5 no la decían); R6.4 se restauró con su texto, la
+  tabla de retirados queda en 36 y los criterios en 165.
 
 ## T-03 — Un check hace cumplir la parte estructural de la regla
 - **Objective:** `bin/check-context-interfaces.py` sale en rojo cuando el
