@@ -26,6 +26,12 @@ through `08-dash-extension-rules.md`.
   anchored to the media-time range it declares; a pause window is
   anchored to a viewer pause that happens inside its range. See R40 in
   [`03-requirements.md`](03-requirements.md).
+- **Execution (of an opportunity window)**: one presentation of a
+  window, begun each time the playhead enters its range (R34.6) or, for
+  a pause window, by a qualifying pause; the base specification's term
+  for an event (§5.16.2.2). An execution that begins after the window's
+  start is a late execution (R34.8). See R34 in
+  [`03-requirements.md`](03-requirements.md).
 - **Overlay**: umbrella term for any non-linear ad surface (a surface
   composited on top of the primary content, or a squeezeback that
   shrinks the primary content to share the frame). The concrete ad

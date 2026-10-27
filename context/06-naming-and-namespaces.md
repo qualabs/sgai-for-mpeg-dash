@@ -171,6 +171,24 @@ default is 60 seconds in units of timescale"* (§5.16.5.2). A window
 that declares nothing may therefore be resolved 60 seconds ahead, as a
 base event may. ADR 0018 records why.
 
+**Once-per-session reuses the baseline construct, default included.**
+The declaration of R34 is `@executeOnce` (DASH §5.16.5.2, Table 63),
+carried on overlay, squeezeback and pause opportunity windows with its
+name and its default of `"false"`: *"specifies whether the event is
+executed only once during the media presentation"*, *"Default: "false",
+no restrictions"*. A window that declares nothing is executed each time
+the playhead enters it, as a base event is. ADR 0024 records why.
+
+**A late execution reuses the baseline offset, default included.** The
+declaration of R34.9 is `@startWithOffset` (DASH §5.16.4, Table 62),
+carried on overlay and squeezeback opportunity windows with its name and
+its default of `"false"`: *"specifies whether a static alternative
+presentation starts at the beginning ("false") or at an offset"*. Its
+companion `@clip` is not carried. The base forbids `@startWithOffset`
+with `@clip="false"`, and a window already ends with its range (R40),
+which is what `@clip="true"` gives a replacement; a `"false"` would
+present outside the window. ADR 0028 records why.
+
 **Viewer dismissal on overlay and pause is a deliberate exception.**
 The dismissal declarations of R35 (R35.1 and R35.2), which govern the
 overlay and pause families, do **not** reuse the base skip control,

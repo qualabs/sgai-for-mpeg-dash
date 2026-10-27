@@ -1044,53 +1044,109 @@ squeezeback layouts (side-by-side and L-shape).
     is **how much of the paused interval carried an ad** (R33), and
     that figure is the same however the requests are counted.
 
-- **R34. A pause opportunity window may be declared once-per-session.**
-  *Gist: The Publisher may declare that a pause opportunity window yields at most one pause ad for the whole session, so a viewer who pauses again inside it is not shown another.*
+- **R34. A non-linear opportunity window is executed each time it is entered, and may be declared once-per-session.**
+  *Gist: Every entry of the playhead into an overlay or squeezeback window is a new execution, resolved anew, and a late one starts from the first candidate unless the window declares the base specification's offset; the Publisher may declare that an overlay, squeezeback or pause window yields ads at most once in the session.*
 
-  The base specification already carries this capability for events on
-  the primary timeline: `@executeOnce` bounds an event to a single
-  execution in the session. A pause opportunity window is not executed
-  by the playhead — its trigger is the viewer's pause (R31) — so the
-  attribute's timeline semantics do not reach it on their own. Without
-  a statement the capability is either inert on a pause window or caps
-  it at one pause ad, and the two readings differ by every pause after
-  the first.
+  **A window is executed each time the playhead enters it.** The base
+  specification answers this for its own events: *"An event is executed
+  every time the playhead enters the active interval, including the case
+  of join (tune-in) during the active interval or time-shifted operation
+  moving the playhead to a position prior to EAP"* (§5.16.2.2.1), and
+  *"The alternative MPD is resolved at each execution of the Event"*
+  (§5.16.2.2.6). An overlay or squeezeback window occupies a range of the
+  primary timeline as an event does, so its executions follow the same
+  rule (R1.5): a viewer who rewinds over a window sees it presented again,
+  possibly with other ads, and its beacons fire again. ADR 0023 records
+  the decision.
 
-  This specification gives the pause family the same capability, and
-  states its counter in the terms the trigger actually has. The
-  symmetry is the reason: a Publisher who can bound a timeline
-  opportunity to one execution can bound a pause opportunity the same
-  way, and nothing about a pause makes the wish different.
+  **An execution can begin late** — a join or a seek landing inside the
+  window. The base specification calls this delayed execution (*"join and
+  seek operation, as well as playback of a previous alternative
+  presentation may have caused it to start at a delay"*, §5.16.2.2.6)
+  and lets the event declare where its alternative presentation starts:
+  *"By default, a static alternative Media Presentation starts from the
+  beginning"*, and `@startWithOffset` makes it start at *"an offset …
+  corresponding to the difference Δ between the presentation time of the
+  event and the current playhead position"* (§5.16.4, Table 62). A window
+  takes the same default and the same declaration. The base attribute
+  belongs to the replacement and not to the insertion, and a window runs,
+  as a replacement does, with the primary timeline advancing underneath
+  it. ADR 0028 records the decision.
+
+  **The base specification also bounds an event to a single execution**:
+  `@executeOnce`, *"If true, if some of the media during the active
+  interval of this event is played more than once, the event is executed
+  only the first time this media time is traversed"* (§5.16.5.2, Table
+  63). A Publisher who can bound a timeline opportunity to one execution
+  can bound a window the same way. On an overlay or squeezeback window the
+  base semantics carry over unchanged. A pause window is not executed by
+  the playhead — its trigger is the viewer's pause (R31) — so for it the
+  capability is stated in the terms the trigger has. ADR 0024 records the
+  decision.
 
   **What consumes the window** follows the base specification's own
-  rule rather than a new one. The execution counter is not incremented
-  when an execution produces no alternative presentation, so an
-  opportunity that resolved to nothing stays available. A pause that
-  produces no pause ad — no candidate, or none the device can satisfy
-  — therefore does not consume the window either.
+  counter rather than a new one. The execution counter counts executions
+  whose playback *"successfully started"* (§5.16.2.2.2, Table 58), and a
+  failed execution leaves the event executable even when it is bounded to
+  one (§5.16.2.2.6, NOTE 3). An execution, or a pause, that produces no ad
+  — no candidate, or none the device can satisfy — therefore does not
+  consume the window.
 
-  This requirement declares a capability, not an attribute name. The
-  construct that carries it is named under the rules of
-  [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md),
-  which is also what keeps it from being minted twice.
+  This requirement declares capabilities, not attribute names. The
+  constructs that carry them are named under the rules of
+  [`06-naming-and-namespaces.md`](./06-naming-and-namespaces.md).
 
   **Conformance criteria** (runtime):
-  - **R34.1** (Publisher): The Publisher MAY declare a pause
-    opportunity window as once-per-session. The declaration is
-    optional, and a window that does not carry it yields a pause ad on
-    every qualifying pause.
-  - **R34.2** (Player): On a window declared once-per-session, the
+  - **R34.1** (Publisher): The Publisher MAY declare an overlay,
+    squeezeback or pause opportunity window as once-per-session. The
+    declaration is optional; a window that does not carry it is executed
+    each time the playhead enters it (R34.6), and a pause window that
+    does not carry it yields a pause ad on every qualifying pause.
+  - **R34.2** (Player): On a pause window declared once-per-session, the
     Player MUST present at most one pause ad for that window for the
     duration of the session. A later qualifying pause inside the same
     window MUST leave the primary content uninterrupted.
-  - **R34.3** (Player): The Player MUST treat the window as consumed
-    when a pause ad **begins rendering**, and not when the pause
-    occurs. A pause that resolves to no renderable candidate MUST leave
-    the window available.
-  - **R34.4** (spec document): The capability is the pause family's
-    counterpart of the base specification's single-execution bound,
-    and is recorded as such. It is not a new kind of control: a reader
-    who knows the base construct knows what this one does.
+  - **R34.3** (Player): The Player MUST treat a window declared
+    once-per-session as consumed when an ad from it **begins rendering**.
+    An execution or a pause that resolves to no renderable candidate MUST
+    leave the window available.
+  - **R34.4** (spec document): The capability is the base specification's
+    single-execution bound (`@executeOnce`, §5.16.5.2) applied to the
+    windows this specification defines, with the base's counter: a window
+    is consumed when an ad begins rendering, as `E.c` counts executions
+    whose playback *"successfully started"* (§5.16.2.2.2). On an overlay
+    or squeezeback window, which occupies the timeline, the base semantics
+    carry over unchanged; on a pause window, whose trigger is the viewer,
+    R34.2 and R34.3 state them in the trigger's terms.
+  - **R34.5** (Player): On an overlay or squeezeback window declared
+    once-per-session, once the window is consumed (R34.3) the Player MUST
+    leave the primary content uninterrupted on every later entry of the
+    playhead into the window's range, and MUST fire none of its beacons.
+    A playhead that crosses the window without an ad beginning to render —
+    a seek over it, an empty resolution (R30) — leaves it available.
+  - **R34.6** (Player): On an overlay or squeezeback window not declared
+    once-per-session, every entry of the playhead into the window's range
+    — playback reaching it, a join or a seek landing inside it, a seek
+    back to a point before its end — is a new **execution** of the
+    window. The Player MUST present each execution as it presents the
+    first, with its own cap (R4) and its own beacons (R13, R13.7, R42).
+  - **R34.7** (Player): Each execution resolves the opportunity as R36
+    defines, so its candidates may differ from those of an earlier
+    execution. A resolution obtained for an earlier execution is presented
+    again only if it is still usable (R36.5).
+  - **R34.8** (Player): An execution that begins after the window's start
+    MUST present the sequence of candidates (R14) from its first
+    candidate, unless the window declares that it starts with an offset
+    (R34.9); then the Player MUST begin at the point of the sequence that
+    lies as far from its start as the execution lies from the window's
+    start, and the candidates that end before that point are not
+    presented. In both cases the execution ends no later than the window
+    does (R40). A time-bound beacon whose time falls in a part of a
+    candidate that was not presented is not fired (R13.2).
+  - **R34.9** (Publisher): The Publisher MAY declare, on an overlay or
+    squeezeback window, that a late execution starts with an offset. A
+    window that does not declare it starts every execution from the first
+    candidate.
 
 - **R35. The viewer may dismiss an ad slot, and the APS says whether and from when.**
   *Gist: The APS declares per overlay or pause slot whether the viewer may dismiss it and how many seconds must pass first, a linear slot follows the base specification's own skip declaration and its default, and dismissing ends the whole slot, never one ad inside it.*
@@ -1247,7 +1303,7 @@ squeezeback layouts (side-by-side and L-shape).
   - **R36.4** (APS): Where a resolution may have been obtained ahead of
     the opportunity, the APS MUST declare how long that resolution
     remains usable. A resolution document that does not declare it
-    remains usable for as long as its opportunity window lasts.
+    remains usable for the execution it was obtained for (R34.6).
   - **R36.5** (Player): When the opportunity fires, the Player MUST
     check whether the resolution it holds is still usable. If it is
     not, the Player MUST request a new one and MUST NOT present
@@ -2169,11 +2225,11 @@ carriers for creative metadata and non-AV assets.
   - **R13.7** (APS + Player): The resolution document MAY carry beacons
     scoped to the slot rather than to one ad: one for the slot's start
     and one for its end. The Player MUST fire the slot-start beacon
-    once, when the first ad it renders in the slot begins, including
-    when playback joins the slot after its start, and the slot-end
-    beacon once, when the slot ends, whatever ends it (last ad
-    completed, cap reached, dismissal). A slot in which no ad was
-    rendered fires neither.
+    once per execution of the window (R34), when the first ad it renders
+    in the execution begins, including when the execution begins after
+    the window's start, and the slot-end beacon once, when the execution
+    ends, whatever ends it (last ad completed, cap reached, dismissal).
+    An execution in which no ad was rendered fires neither.
 
 - **R23. Application-level ad metadata carrier.**
   *Gist: The specification defines an SVTA-namespaced place for creative metadata with no native DASH carrier; emitting it and reading it are both optional.*
