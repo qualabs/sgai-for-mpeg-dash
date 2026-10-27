@@ -7,7 +7,7 @@ Final Release May 2026.
 Google Doc:
 https://docs.google.com/document/d/17JXFhHWWX1SVD3s2vMTMO-bvvj9XXK5e
 
-**Fetch timestamp (UTC)**: 2026-09-27T04:26:56Z
+**Fetch timestamp (UTC)**: 2026-10-27T15:37:23Z
 
 **Fetch method**: `mcp__claude_ai_Google_Drive__read_file_content` against the
 document ID above (authenticated Google Drive connector).
@@ -76,7 +76,7 @@ The spec-side identifiers are the layout tokens R12.2 lists as the complete
 set: `linear`, `overlay`, `overlay-corner`, `overlay-lower-third`,
 `squeezeback-l-shape-upper-left`, `squeezeback-l-shape-upper-right`,
 `squeezeback-double-box`, `squeezeback-double-box-background`,
-`pause-fullscreen`, `pause-partial`, and the optional `custom`. Every token
+`squeezeback-frame`, `pause-fullscreen`, `pause-partial`, and the optional `custom`. Every token
 except `custom` names one IAB ad type or visual placement. `custom` (**R39**)
 is the one value with no IAB counterpart; it is not an IAB ad type and
 therefore has no row below.
@@ -85,7 +85,7 @@ therefore has no row below.
 |------------------------|-------------------------|-----------|
 | Linear Ad | `linear` | Accepted. Full-viewport takeover of the primary content surface for the slot. Pre-roll, mid-roll and multi-ad breaks are timing positions of the one type; the full-screen takeover fallback (UC-09) is a placement of `linear`, not a separate type. |
 | Overlay | `overlay`, `overlay-corner`, `overlay-lower-third` | Accepted. `overlay-corner` maps IAB *Corner Overlay*, `overlay-lower-third` maps IAB *Lower Third Overlay*; a plain overlay with no named placement is the base `overlay`. Which corner is not a token (R10.1, R10.3). |
-| Squeezeback | `squeezeback-l-shape-upper-left`, `squeezeback-l-shape-upper-right`, `squeezeback-double-box`, `squeezeback-double-box-background` | Accepted. The two L-shape tokens map IAB *L-Shape* in its two orientations (upper left / upper right, R27); the double-box tokens map IAB *Double Box Video* and *Double Box Video + Background* (R26). The token carries the primary-content region because the IAB defines no field that does (ADR 0014). Bare `squeezeback` is not a token (R12.2). IAB *Frame* is not among the enumerated placements. |
+| Squeezeback | `squeezeback-l-shape-upper-left`, `squeezeback-l-shape-upper-right`, `squeezeback-double-box`, `squeezeback-double-box-background`, `squeezeback-frame` | Accepted. The two L-shape tokens map IAB *L-Shape* in its two orientations (upper left / upper right, R27); `squeezeback-frame` maps IAB *Frame* (R27); the double-box tokens map IAB *Double Box Video* and *Double Box Video + Background* (R26). The token carries the primary-content region because the IAB defines no field that does (ADR 0014). Bare `squeezeback` is not a token (R12.2). |
 | Pause Ad | `pause-fullscreen`, `pause-partial` | Accepted as the `pause` type, but bare `pause` is not an admissible layout value: R12 splits it into the IAB *Fullscreen* and *Partial Screen* placements so a Publisher can admit one and exclude the other in `@allowedLayouts`, and so R21's surface choice is determined. |
 | Menu Ad | — (out of scope) | Rendered in the platform UI (home screen, content menu), not on the playing or paused video. Named explicitly in OOS-9. |
 | Screen Saver Ad | — (out of scope) | OS / app-initiated after inactivity, off the video surface. Named explicitly in OOS-9. |
