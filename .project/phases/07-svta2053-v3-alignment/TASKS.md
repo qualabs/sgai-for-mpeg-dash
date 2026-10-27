@@ -9,7 +9,7 @@
 | T-05 | Privacidad: DP-4 y sus notas (D5)                                                        | done    | agent | —    | `301b031` |
 | T-06 | Tres precisiones: R29.7, el solapamiento y el candidato salteado (D6, D7, D8)            | done    | agent | —    | `d87fcef` |
 | T-07 | Los chequeos de `context/` en verde y `context/` commiteado                              | done    | agent | —    | tres chequeos exit 0 sobre `d87fcef`; cada uno visto en rojo a propósito (ref R5.99, "MUST be expected", PDF /dev/null) |
-| T-08 | La spec reconstruida con el delta (incremental, o mayor si el chequeo lo pide)           | in-progress | agent | —    | —        |
+| T-08 | La spec reconstruida con el delta (incremental, o mayor si el chequeo lo pide)           | blocked | agent | —    | incremental: `RESULT: MAJOR RECOMMENDED` (36.9% > 30%, 19 needs-structure); traza `output-analysis/v12.7-context-delta.md`; el mayor espera el OK |
 
 ---
 

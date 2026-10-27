@@ -3,9 +3,9 @@
 # DASH 6th edition gap analysis (SGAI for linear + non-linear ads)
 
 This document compares the requirements in
-[`../context/03-requirements.md`](../context/03-requirements.md) (R1–R40) against
-what the base specification provides, uses the scenarios of
-[`../context/04-use-cases.md`](../context/04-use-cases.md) (UC-01–UC-17) as the
+[`../context/03-requirements.md`](../context/03-requirements.md) (R1–R48, numbers
+non-contiguous) against what the base specification provides, uses the scenarios of
+[`../context/04-use-cases.md`](../context/04-use-cases.md) (UC-01–UC-22) as the
 behavioural check, and states what the SGAI specification must add or extend. It
 is an input to the spec build.
 
@@ -21,25 +21,28 @@ term over the whole extraction; where the negative is load-bearing the search an
 its hit count (occurrences, not lines) are stated, next to a control term known to
 be present (`ImportedMPD` as a whole word: 21 occurrences on 17 lines;
 `timeShiftBufferDepth`: 31), so a zero reads as the absence of the term and not as
-a broken search. Claims not
-verified against the primary copy are tagged `[inferred]`.
+a broken search. Claims not verified against the primary copy are tagged
+`[inferred]`.
 
 ## 1. Scope
 
 In scope:
 
-- Every requirement R1–R40 against the capabilities of the base specification.
-- The design principles DP-1..DP-3 and the extension rules DR-1..DR-10 of
+- Every requirement of `03-requirements.md` — R1–R12, R13–R42, R44, R47, R48 —
+  against the capabilities of the base specification.
+- The design principles DP-1..DP-4 and the extension rules DR-1..DR-10 of
   [`../context/08-dash-extension-rules.md`](../context/08-dash-extension-rules.md),
   where they decide whether a base construct can be reused.
-- UC-01–UC-17 across device classes D1–D5, as the check that a gap statement is
+- UC-01–UC-22 across device classes D1–D5, as the check that a gap statement is
   complete.
 
 Out of scope:
 
 - The APS-to-ADS and ADS-side contracts (R18, OOS-2). The VAST mapping is
   illustrative (R11.3, R11.5) and is checked here only as far as R11.4 needs.
-- OOS-1..OOS-9. They are exclusions, not gaps, and are not raised below.
+- OOS-1..OOS-10 and OOS-12. They are exclusions, not gaps, and are not raised below.
+- The three questions `03-requirements.md` records as deliberately open (ADR 0021).
+  They are listed in §5.3 and not raised as gaps.
 - Concrete syntax. Where the base offers more than one carrier, this document
   names the alternatives the build has to weigh (R8, R9, R1.5) and does not pick.
 
@@ -59,17 +62,17 @@ Cell values in §2:
 
 | Req | DASH 6th capability | Cell | Note |
 |---|---|---|---|
-| R1 | Foreign-namespace open content (§5.2.1), descriptors (§5.8.4.8 / §5.8.4.9), application event schemes (§5.10); failed execution continues playback (§5.16.2.2.6) | full | The extension points exist and are sufficient. R1.4 is the base rule for linear, extended by the spec to non-linear (G1). |
-| R2 | Author declares in the MPD, client executes (`@maxDuration`, §5.16.5.2) | partial | No actor model in the base. The declare-in-MPD / enforce-in-client split exists for linear only. R2.2's one APS obligation — stay within the forwarded layouts and region (R38.4, R39.4) — has no base counterpart (G6). |
-| R11 | Callback scheme aligned with VAST (§5.10.4.5.1 NOTE 1) | N/A | The base does not depend on VAST. R11.4 coverage is the spec's obligation. |
+| R1 | Foreign-namespace open content (§5.2.1), descriptors (§5.8.4.8 / §5.8.4.9), application event schemes (§5.10); failed execution continues playback (§5.16.2.2.6) | full | The extension points exist and are sufficient. R1.4 is the base rule for linear, extended by the spec to non-linear (G1). R1.6 (end an ad that degrades the primary content) is Player behaviour with no base counterpart; it feeds R1.4 and R42. |
+| R2 | Author declares in the MPD, client executes (`@maxDuration`, §5.16.5.2) | partial | No actor model in the base. The declare-in-MPD / enforce-in-client split exists for linear only. R2.2's APS obligations — stay within the forwarded layouts, region and audio allowance (R38.4, R39.4, R41.5) — have no base counterpart (G6). |
+| R11 | Callback scheme aligned with VAST (§5.10.4.5.1 NOTE 1) | N/A | The base does not depend on VAST. R11.4 coverage is the spec's obligation, and R42, R44, R47, R48 are what it requires beyond the timeline beacons. |
 | R18 | Event `@uri` + returned MPD / List MPD (§5.16.5.2, §8.14) | partial | The Player-visible interface exists for linear; the non-linear resolution document and the request parameters of R29 do not (G1, G6). |
-| R29 | `RequestParam` (Annex I.3) with the state vocabulary of Annex I.4 | gap | The base mechanism is author-declared, and its vocabulary has no device-capability axis (G6). |
+| R29 | `RequestParam` (Annex I.3) with the state vocabulary of Annex I.4 | gap | The base mechanism is author-declared, and its vocabulary has no device-capability axis. The five reserved parameters of R29.1 / R29.9 are the spec's (G6). R29.10 is Player behaviour. |
 
 ### Opportunity declaration
 
 | Req | DASH 6th capability | Cell | Note |
 |---|---|---|---|
-| R4 | `@maxDuration`, `@clip`, zero cap, absent = infinity (§5.16.4 Table 62, §5.16.5.2 Table 63) | partial | Linear fully answered (R4.3, R4.6–R4.8). No cap construct for overlay or pause (G1, G2). |
+| R4 | `@maxDuration`, `@clip`, zero cap, absent = infinity (§5.16.4 Table 62, §5.16.5.2 Table 63); `APDA = min(APD, APDmax)` for insertion (Table 57) | partial | Linear fully answered (R4.3, R4.6–R4.8). No cap construct for overlay or pause (G1, G2). R4.11's suspension during a linear event depends on R40.4 (G16). |
 | R31 | — | gap | Every base event is triggered by the playhead; there is no viewer-triggered window (G2). |
 | R12 | — | gap | No ad-type or layout vocabulary (G1). |
 | R15 | ISO-BMFF video via Linked Periods / SPS (§5.3.2.6.1, §8.15, §7.3.1) | partial | Video is carried; image and HTML have no home on the media axis (G4). |
@@ -78,49 +81,54 @@ Cell values in §2:
 
 | Req | DASH 6th capability | Cell | Note |
 |---|---|---|---|
-| R5 | — | gap | No ordered form+layout options per candidate (G3). Exhausting the candidates with none rendered hands over to R20.1 (G7). |
-| R7 | Periods of a List MPD played in sequence (§8.14, §5.3.1.1) | partial | Order holds for linear. Drop-before-play and the non-linear sequence are the spec's (G3). |
-| R30 | "merge process resulted in no available media" is a failed execution; `E.c` not incremented (§5.16.2.2.6, NOTE 3) | partial | Semantics are the base's for linear. The shape of an empty non-linear document is the spec's (G8). |
+| R5 | — | gap | No ordered form+layout options per candidate (G3). R5.9's first-request failure has a linear analogue in §5.16.2.2.6 (*"missing media or initialization segments"*) but no option to fall to. Exhausting the candidates with none rendered hands over to R20.1 (G7). |
+| R7 | Periods of a List MPD played in sequence (§8.14, §5.3.1.1); insertion cut at the cap (Table 57) | partial | Order and trim hold for linear. Drop-before-play and the non-linear sequence are the spec's (G3). |
+| R30 | "merge process resulted in no available media" is a failed execution; `E.c` not incremented (§5.16.2.2.6, NOTE 3) | partial | Semantics are the base's for linear. The shape of an empty non-linear document is the spec's (G8); its conformance under the List profile is deliberately open (§5.3). |
 
 ### Presentation
 
 | Req | DASH 6th capability | Cell | Note |
 |---|---|---|---|
-| R3 | — | gap | No device-class model (G3, G6). |
+| R3 | — | gap | No device-class model. The classes are combinations of R29.1 axes (G3, G6). |
 | R16 | — | gap | No pause-bound presentation (G2). |
 | R32 | — | gap | (G2, G8). |
-| R34 | `@executeOnce` + counter `E.c` (§5.16.5.2, §5.16.2.2.2) | partial | The capability exists for timeline events; the pause window needs its counterpart (G2). |
+| R34 | Execution on every entry (§5.16.2.2.1); resolution at each execution (§5.16.2.2.6); `@executeOnce` + `E.c` (Table 63, Table 58); delayed execution and `@startWithOffset` (§5.16.2.2.6, Table 62) | partial | Overlay and squeezeback windows reuse the base execution model and both declarations, defaults included (G16). The pause window needs the once-per-session counterpart stated in its trigger's terms (G2). |
 | R35 | `@skipAfter` on alternative-MPD events (Table 63) and `PlaybackRestrictions@skipAfter` (Annex K) | partial | Linear fully answered (R35.8). Overlay and pause need the opposite default, so the base construct cannot be reused (G11). |
-| R36 | `@earliestResolutionTimeOffset`, default 60 s (Table 63) | partial | Reused on overlay windows. The pause anchor and the freshness declaration are the spec's (G12). |
-| R37 | Client pause described informatively (A.5) | N/A | Player implementation; the base does not constrain it. |
+| R36 | `@earliestResolutionTimeOffset`, default 60 s (Table 63) | partial | Reused on overlay and pause windows. The pause anchor and the usability declaration are the spec's (G12). |
+| R37 | Client pause described informatively (A.5); replacement resumption at the time-shift buffer start (§5.16.2.2.1, step 5) | full | Player implementation; the base does not constrain it. R37.2's live case adopts the base resumption rule (G9). |
 | R38 | `RequestParam` with request-type URNs (Annex I.3, Table I.4) | gap | No channel for a slot declaration toward the resolver of a non-linear window (G6). |
 | R39 | SRD coordinates (Annex H) | gap | A coordinate model exists and is confined to media elements in arbitrary units (G13). |
 | R19 | Replacement: main media time follows the alternative presentation (§5.16.1) | partial | The base couples timelines in the opposite direction; ad speed following primary is the spec's (G9). |
 | R21 | — | gap | (G1, G2). |
-| R25 | Time-shift buffer bounds (Table 3 `@timeShiftBufferDepth`; Table 62 NOTE 1) | gap | The freeze is the spec's; the base bounds what can be resumed (G9). |
+| R25 | Time-shift buffer bounds (Table 3 `@timeShiftBufferDepth`) | gap | The freeze is the spec's; the base bounds what can be resumed, and R37.2 adopts its rule for that case (G9). |
 | R26 | — | gap | (G1). |
 | R27 | — | gap | (G1). |
+| R41 | — | gap | No construct for an ad's audio heard over continuing primary video (G17). |
 
 ### Interaction & composition rules
 
 | Req | DASH 6th capability | Cell | Note |
 |---|---|---|---|
-| R14 | Sequential Periods of a List MPD (§8.14) | partial | Linear sequencing exists; the non-linear sequence is the spec's (G1, G3). |
+| R14 | Sequential Periods of a List MPD (§8.14) | partial | Linear sequencing exists; the non-linear sequence, including zero time for a skipped candidate (R14.1), is the spec's (G1, G3). |
 | R17 | Main client paused or in listen mode during an alternative presentation (§4.2) | gap | No cross-family priority. R17.5 applies only to windows R40.5 / R40.6 make applicable, and touches base timing (G9, G14). |
 | R20 | Execution queue ordered by PRT; fail-over to the next event; open-ended failure condition *"cannot start"*; one `EventStream` per scheme and value (§5.16.2.2.2, §5.16.2.2.5, §5.16.2.2.6, §5.10.2.1) | partial | Linear adopted unchanged, including a document none of whose candidates the device can render. Non-linear extension is the spec's (G7). |
 | R22 | — | gap | No non-linear forms in the base; the single-form bound is the spec's (G1). |
-| R40 | Two access engines, main and alternative (§4.2); event attributes of Tables 62–63 | gap | No construct relates a window to a linear event (G14). |
+| R40 | Two access engines, main and alternative (§4.2); event attributes of Tables 62–63; insertion resumes at `RT = PRTA` (Table 57) | gap | No construct relates a window to a linear event (G14). R40.4's suspension and resumption rest on base resumption timing (G16). |
 
 ### Tracking
 
 | Req | DASH 6th capability | Cell | Note |
 |---|---|---|---|
 | R6 | Callback scheme `urn:mpeg:dash:event:callback:2015` (§5.10.4.5); `Event@id` scope (Table 44) | partial | Full for a sub-MPD Period. No time anchor or validation for a candidate-level carrier (G15). |
-| R13 | Callback scheme, Period-relative timing (§5.10.4.5, Table 44) | partial | Same as R6 (G15). |
-| R23 | Open content place (§5.2.1) | gap | The place exists; the elements are the spec's (G5). |
+| R13 | Callback scheme, Period-relative timing (§5.10.4.5, Table 44); `EventStream` override in the merge (§5.3.2.6.3 step 3 c iv) | partial | Same as R6 (G15). Option-level beacons (R13.6) reuse the carrier; slot-level beacons (R13.7) have to survive the List-MPD merge (G15). |
+| R23 | Open content place (§5.2.1); `AssetIdentifier` (§5.8.4.10) | partial | The place exists; the metadata elements are the spec's (G5). R23.2's identifiers have a base construct with one per Period and a merge limit (G19). |
 | R24 | Carriers of DR-6 (§5.2.1, §5.10, §5.8.4.8, §5.8.4.9) | partial | The carriers exist; which one carries the asset is the spec's (G4). |
-| R33 | `PlayList` metric, `starttype` / `stopreason` (Annex D.4.6); `Metrics` trigger (§5.9.1) | full | Adopted unchanged. `Metrics` requires a `Reporting` element (open question Q9). |
+| R33 | `PlayList` metric, `starttype` / `stopreason` (Annex D.4.6); `Metrics` trigger (§5.9.1) | full | Adopted unchanged. `Metrics` requires a `Reporting` element (open question Q7). |
 | R28 | — | gap | No click-through field and no user-triggered event (G5). |
+| R42 | — | gap | Base events are timeline events; no beacon fires on a viewer action or a failure (G18). |
+| R44 | — | gap | No verification construct (G19). |
+| R47 | — | gap | No viewability construct; rides the R42 carrier (G18). |
+| R48 | — | gap | No disclosure construct (G20). |
 
 ### Governance
 
@@ -142,6 +150,13 @@ extraction (case-insensitive unless stated):
 | `pause` | 8 | §4.2, A.5, A.14.2, Table 62 NOTE 2, Annex D.4.6 — client state and metrics, no pause-triggered event |
 | `non-linear` / `nonlinear` | 2 / 20 | Introduction list item and Annex L (interactive storyline) — Period selection, not a non-linear ad |
 | `percent` | 4 | encoding and anchor semantics — no percentage coordinates |
+| `mute` (word start) | 1 | §5.8.5.12, Audio Interactivity Descriptor (*"mute/unmute status of audio elements"*) — user interactivity inside one audio content, not an event |
+| `volume` / `loudness` (whole word) | 0 / 0 | — |
+| `user action` | 7 | Annex D.4.6, `PlayList` metric — a measurement, not a trigger |
+| `verification` | 3 | digital signing and verification procedures — not ad verification |
+| `viewab` | 0 | — |
+| `disclos` | 0 | — |
+| `icon` / `icons` (whole word) | 0 | — |
 
 ## 3. Gaps detail
 
@@ -170,18 +185,20 @@ What must be added:
 - **A non-linear opportunity window** — an event scheme under
   `urn:svta:dash:<construct>:<year>` (06), one per family (overlay, pause), whose
   `Event` carries the slot declarations: the cap (R4.1), allowed layouts (R38),
-  the custom region (R39.2), the relation to linear events (R40), the early
-  resolution offset (R36), once-per-session for pause (R34). Table 44 admits the
-  payload: event content is *"XML content, possibly using elements external to
-  the MPD namespace"*.
+  the custom region (R39.2), the ad-audio allowance (R41.2), the relation to
+  linear events (R40), the early resolution offset (R36), once-per-session (R34)
+  and the late-execution offset (R34.9). Table 44 admits the payload: event
+  content is *"XML content, possibly using elements external to the MPD
+  namespace"*.
 - **A non-linear resolution document** — the document the APS returns for those
   windows, carrying ordered candidates (R14), each with ordered presentation
   options (R5), the slot-level declarations of R32, R35 and R36.4, the R26
-  background as an attribute of the layout an option declares (R26.1), tracking
-  (R6) and click-through (R28). DR-10 fixes that
-  it declares no existing profile: *"The ISO-BMFF List profile is intended for
-  use in conjunction with the Alternative MPD event (see subclause 5.16)"*
-  (§8.14).
+  background as an attribute of the layout an option declares (R26.1), the
+  option's audio (R41.3), tracking (R6, R13.6, R13.7), occurrence beacons (R42,
+  R47), click-through (R28), verification (R44), identifiers (R23.2) and
+  disclosure (R48). DR-10 fixes that it declares no existing profile: *"The
+  ISO-BMFF List profile is intended for use in conjunction with the Alternative
+  MPD event (see subclause 5.16)"* (§8.14).
 - **The layout vocabulary** of R12.2 as an attribute value space, with the
   geometry the token carries for squeezeback (R12, ADR 0014) and the spatial
   bounds inherited from IAB (R12.4).
@@ -191,7 +208,9 @@ What must be added:
 - **The failure rule for non-linear**: R1.4 restates, for the constructs the
   spec adds, what the base already says for its own execution — *"A failed
   execution results in smooth continued playback of the main media
-  presentation."* (§5.16.2.2.6).
+  presentation."* (§5.16.2.2.6). R1.6 adds a trigger the base does not have:
+  the Player ends an ad that degrades the primary content, and treats it as a
+  runtime failure.
 
 On the overlay family the cap bounds cumulative duration (R4.2); a pause slot has
 no declared duration for it to bound (R4, R31). The base has no
@@ -204,7 +223,7 @@ DASH"), and define the non-linear default itself, because R4.10 departs from the
 base's *"If absent, the value is assumed to be infinity"* (Table 63). That
 departure is an R1.5 exception and must be recorded with its reason (ADR 0015).
 
-### G2 — No pause trigger (R16, R21, R25, R31, R32, R34)
+### G2 — No pause trigger (R16, R21, R25, R31, R32, R34 on pause windows)
 
 Every base event is dispatched and executed against the playhead. For
 alternative-MPD events: *"When the playhead reaches PRT, the Alternative MPD event
@@ -216,7 +235,7 @@ case, the client simply stops requesting Media Segments or parts thereof."*) and
 as a metric value (Annex D.4.6). The execution counter exists
 (*"Execution counter (number of times alternative MPD playback successfully
 started)."*, Table 58), but its timeline semantics do not reach a trigger that has
-no presentation time — which is what R34 states.
+no presentation time — which is what R34.4 states.
 
 What must be added:
 
@@ -243,15 +262,27 @@ or regular Periods (§8.14 rule 4: *"List MPDs may contain one or more Linked Pe
 
 What must be added: a candidate containing an ordered list of options, document
 order being the preference order (R5.1, R5.5), each option pairing a form (R15)
-with a layout (R12); the Player walk of R5.6 / R5.7; the ordering contract of R7
-and its non-linear counterpart R14.1; the device-class table required by R3.1.
-The walk ends in one of two places (R5.3): if at least one candidate was rendered,
-the primary content resumes; if none was, the attempt produced no ad and the
-fallback chain of R20.1 takes over (G7).
+with a layout (R12); the Player walk of R5.6 / R5.7, including the first-request
+rule of R5.9; the ordering contract of R7 and its non-linear counterpart R14.1,
+where a skipped candidate occupies no time; the device-class table of R3, defined
+on the R29.1 axes. The walk ends in one of two places (R5.3): if at least one
+candidate was rendered, the primary content resumes; if none was, the attempt
+produced no ad and the fallback chain of R20.1 takes over (G7).
+
+R5.9 has a base analogue for linear only: among the reasons an alternative
+presentation cannot start, §5.16.2.2.6 lists *"Media playback is impossible due
+to missing media or initialization segments."* There the execution fails; under
+R5.9 only the option fails and the Player moves to the next one, which the base
+cannot express because it has no options.
 
 For linear, R7 is already the base's behaviour for a List MPD, and the spec adds
-only the Player's permission to drop before play (R7.3) and the trim-during-play
-obligation, which is the base's own cap rule (Table 63, `@maxDuration`).
+only the Player's permission to drop before play (R7.2). The cut at the cap is
+the base's own: *"For insertion events, APDA = min(APD, APDmax)."* (Table 57),
+which R7.3 adopts.
+
+The capability the Player checks options against is the one the device has in
+the session (R29.10, UC-19). The base has nothing on decoder budget under content
+protection; this is Player behaviour, and the spec states it as such.
 
 ### G4 — Non-AV creatives have no home on the media axis (R15, R24)
 
@@ -275,7 +306,7 @@ video option on a non-linear candidate can keep the base path (a sub-MPD reached
 by URL), and its duration is then the sub-MPD's `Period@duration` and is not
 restated (06, DP-1.2).
 
-### G5 — No metadata carrier and no user-activated event (R23, R28)
+### G5 — No metadata carrier and no user-activated event (R23.1, R28)
 
 The base defines no field for click-through or for ad metadata (§2: `click` has
 no construct hit). Its events are timeline events: *"Events are timed, i.e. each
@@ -295,10 +326,10 @@ interaction outside the timeline trigger.
 
 What must be added: an R28 element in `urn:svta:dash:sgai:<year>` carrying the
 click-through URL with its click-tracking URLs, read and fired on activation by a
-Player conformant to the spec (R28.2, scoped per DR-8); and the R23 optional
-metadata elements in the same namespace (R23.1).
+Player conformant to the spec (R28.2, scoped per DR-8); and the R23.1 optional
+metadata elements in the same namespace.
 
-### G6 — No channel for Player-declared capability or forwarded slot declarations (R29, R38, R39.3)
+### G6 — No channel for Player-declared capability or forwarded slot declarations (R29, R38, R39.3, R41.5)
 
 The base's request parametrisation is declared by the content author. For the
 2025 scheme: *"The RequestParam element(s) may be present in elements such as but
@@ -307,12 +338,16 @@ EventStream."* (Annex I.3.1). Its state vocabulary is closed and carries no
 capability axis of R3: the suffixes are `audio`, `video`, `lang#[audio|text]`,
 `encryption`, `cmcd#[key]`, `execution-delta#[id]`, `expected-duration#[id]`,
 `execution-count#[id]` and `previous-state` (Annex I.4.2, Table I.5). Nothing in
-it states decoder count or overlay surfaces, which are the axes separating D1–D5.
+it states decoder count, overlay surfaces or the ability to swap audio, which are
+the axes of R29.1 and R29.9.
 
 R29 excludes this mechanism by construction — its parameters are Player-decided,
 *"NOT expressed through the MPD-declared URL-parameter template mechanism"*
-(R29). So the reserved parameter set, its names, its encoding and the
-absence-means-undetermined rule (R29.7) are the spec's.
+(R29). The reserved set is now enumerated in `context/` (`sgai-video-decoders`,
+`sgai-image-over-video`, `sgai-html-over-video`, `sgai-custom-layout`,
+`sgai-ad-audio`), so what remains for the spec is the encoding on the request,
+the vendor-prefix rule (R29.4), the absence-means-undetermined rule (R29.7), and
+the privacy note DP-4 requires (R29.2).
 
 For R38 the data *is* Publisher-declared, so the base mechanism is a real
 alternative and the build has to weigh it (R8.2):
@@ -337,16 +372,16 @@ builds and attaches the parameters (I.3.4, *"Extended parameter generation"*) an
 states nothing about what the server that receives them returns: over I.3, `server`
 occurs only for Content Steering (*"Content Steering server request"*) and
 `respon` only for the header sources of `@headerParamSource` [inferred from that
-search]. R2.2 places on the APS exactly one obligation toward Publisher-declared
-constraints — return only options inside the layouts and the region it received
-(R38.4, R39.4) — and the spec states it without a base construct to lean on; the
-Player's own check (R38.5, R39.5) stays, so a non-conforming APS costs options, not
+search]. R2.2 places on the APS exactly the obligations toward forwarded
+declarations — return only options inside the layouts and the region it received
+and only declare audio when it received the allowance (R38.4, R39.4, R41.5) — and
+the spec states them without a base construct to lean on; the Player's own checks
+(R38.5, R39.5, R41.6) stay, so a non-conforming APS costs options, not
 correctness.
 
-What must be added: the reserved parameter set of R29 (at least one parameter
-per R3 axis, R29.6), the vendor-prefix rule (R29.4), the forwarding of
-`@allowedLayouts` unchanged (R38.2) and of the custom region (R39.3), and the APS
-obligations of R38.4 and R39.4.
+What must be added: the encoding of the reserved parameters, the forwarding of
+`@allowedLayouts` unchanged (R38.2), of the custom region (R39.3) and of the
+ad-audio allowance (R41.5), and the APS obligations of R38.4, R39.4 and R41.5.
 
 ### G7 — The fallback chain is the base's for linear and has no anchor for the other two families (R20)
 
@@ -378,14 +413,15 @@ of the candidates cannot start the alternative presentation, so the base covers
 the case without extension. This is what DP-3's first consequence rests on: an
 opportunity is given up only after every declared way of filling it — the next
 overlapping window, or the superseded linear events of R40.3 — has been tried.
-UC-12 path 4 is the behavioural check across D1–D5.
+UC-12 is the behavioural check across D1–D5.
 
 What must be added: the extension of the queue and fail-over to overlay and
 pause windows (R20.1, R20.3), which have no `AlternativeMPDEventType` and are
 outside §5.16, including the no-renderable-candidate condition, which for the
-non-linear families is the spec's and not the base's; the document-position tie-break the base does not give (R20.3);
-the wrong-family rule (R20.4); and per-window binding of declarations stated as
-a normative Player obligation (R20.5, R20.6).
+non-linear families is the spec's and not the base's; the document-position
+tie-break the base does not give (R20.3); the wrong-family rule (R20.4); and
+per-window binding of declarations stated as a normative Player obligation (R20.5,
+R20.6).
 
 ### G8 — The empty resolution: semantics from the base, shape from the spec (R30, R32.2, R36.6)
 
@@ -393,18 +429,18 @@ For linear the case and its consequence are the base's: the List-MPD
 no-media condition of §5.16.2.2.6 quoted in G7, and *"The counter E.c has not
 been incremented due to the failure, consequently if E.c = 0 the event can still
 be executed in the future even if the value of @executeOnce is "true"."*
-(§5.16.2.2.6 NOTE 3). What a well-formed List MPD with no media looks like is not
-spelled out in the base [inferred]: §8.14 does not state a minimum number of
-Periods, and a static MPD needs a derivable duration (Table 3,
-`@mediaPresentationDuration`: *"This attribute shall be present when neither the
-attribute MPD@minimumUpdatePeriod nor the Period@duration of the last Period are
-present."*).
+(§5.16.2.2.6 NOTE 3).
+
+What a conforming List MPD with no media looks like is recorded as deliberately
+open (§5.3): a Period may lack Adaptation Sets when its duration is zero (Table 4,
+quoted in G4), while profile conformance requires *"at least one Representation
+in each Period in the profile-specific MPD"* (§8.1). The non-linear document
+declares no base profile (DR-10), so its empty shape is the spec's to define
+without that tension.
 
 What must be added: the well-formed empty non-linear resolution document
 (R30.1), how a Player tells it apart from an unparseable one (R20.1), and its
-role under `request-again` (R32.2) and after re-resolution (R36.6). For linear,
-the spec should state the empty List MPD shape it expects or note that it relies
-on the base's merge-failure condition (open question Q4).
+role under `request-again` (R32.2) and after re-resolution (R36.6).
 
 ### G9 — Speed, timeline accounting and the live pause (R4.11, R17.5, R19, R25, R37)
 
@@ -420,28 +456,33 @@ on the base's merge-failure condition (open question Q4).
 - **Timeline accounting (R4.11).** The base accrues an alternative
   presentation's duration on media time (Table 57, `APDA`; §5.16.2.2.5 step 1 a,
   *"PHP ≥ PRTA + APDA"*), so a pause of the ad does not consume its cap. The spec
-  extends the same accounting to non-linear forms suspended under R17.
+  extends the same accounting to non-linear forms suspended under R17 and under
+  R40.4 (G16).
 - **Pause over a linear ad (R17.5).** R17.5 applies only to a pause window
   applicable to the presentation being output — one declared in the linear ad's
   own `MPD` (R40.6) or one of the triggering presentation that declares on top
-  (R40.5) — so it depends on the relation of G14. The base foresees a viewer pausing the
-  alternative presentation and states the consequence for resumption: *"If RT is
-  in the past, the playback shall start from the oldest available media segment
-  (the edge of the timeshift buffer)."* and *"The above can happen in case a user
-  pauses the alternative Media Presentation."* (Table 62, `@returnOffset`,
-  NOTES 1–2). A pause ad over a replacement in live content can therefore move
-  the resumption point; R17.5's "resume it from where it was suspended" holds for
-  the linear ad itself, and the main presentation's return is the base's rule.
-- **Live freeze (R25).** Freezing presentation time is Player behaviour and the
-  base does not forbid it, but the paused position stays playable only while it
-  is inside the time-shift buffer: *"specifies the duration of the smallest time
-  shifting buffer for any Representation in the MPD that is guaranteed to be
-  available for a Media Presentation with type 'dynamic'."* (Table 3,
-  `@timeShiftBufferDepth`). R25 says nothing about a pause that outlasts it
-  (open question Q5).
-- **Pause mechanism (R37).** A.5 is informative and describes the stop-requesting
-  mechanism only; the base does not constrain how a client pauses, so R37 adds a
-  definition the base does not contradict.
+  (R40.5) — so it depends on the relation of G14. The base foresees a viewer
+  pausing the alternative presentation and states the consequence for
+  resumption: *"If RT is in the past, the playback shall start from the oldest
+  available media segment (the edge of the timeshift buffer)."* and *"The above
+  can happen in case a user pauses the alternative Media Presentation."* (Table
+  62, `@returnOffset`, NOTES 1–2). A pause ad over a replacement in live content
+  can therefore move the resumption point; R17.5's "resume it from where it was
+  suspended" holds for the linear ad itself, and the main presentation's return
+  is the base's rule.
+- **Live freeze (R25) and resumption (R37.2).** Freezing presentation time is
+  Player behaviour and the base does not forbid it, but the paused position stays
+  playable only while it is inside the time-shift buffer: *"specifies the
+  duration of the smallest time shifting buffer for any Representation in the MPD
+  that is guaranteed to be available for a Media Presentation with type
+  'dynamic'."* (Table 3, `@timeShiftBufferDepth`). R37.2 answers the pause that
+  outlasts it with the base's own rule for a replacement: *"for replacement events
+  in a live presentation, RT is "trimmed" such that it occurs at live edge if it
+  is in the future, or at the earliest available media segment if it is earlier
+  than the timeshift buffer start."* (§5.16.2.2.1, step 5). This is a full reuse.
+- **Pause mechanism (R37.1).** A.5 is informative and describes the
+  stop-requesting mechanism only; the base does not constrain how a client
+  pauses, so R37 adds a definition the base does not contradict.
 
 ### G10 — Profiles and schema placement bear on every construct (R1.2; DR-2, DR-4, DR-8, DR-10)
 
@@ -463,17 +504,25 @@ on the base's merge-failure condition (open question Q4).
   Interoperability Point URI would declare, not compel: *"It is recommended that
   such external definitions be not referred to as profiles, but as
   Interoperability Points."* (§8.1).
+- **SGAI streams under Advanced Linear.** *"EventStream elements may indicate
+  Alternative MPD (5.16) and Callback (5.10.4.5) event schemes."* (§8.13.2.2).
+  Whether that list is exhaustive is deliberately open (§5.3).
 - **The non-linear document and `type="list"`.** *"For Media Presentations with
   MPD@type set to "list" the constraints of a static Media Presentation shall
   apply."* (§5.3.1.4) — available without the List profile, whose URN would claim
   membership in the §5.16 family (DR-10). The build decides whether to declare
   `type="list"`.
-- **Merged content keeps SGAI elements.** When a Linked Period is resolved, the
-  kept items include *"any elements from a different namespace"*
-  (§5.3.2.6.3, step 3 b ix), so SGAI elements on a List-MPD Period survive the
-  merge; SGAI elements at MPD level of an imported MPD do not — *"Any attributes
-  or elements on MPD level of the imported MPD are ignored except for the
-  following ones"* (step 3 a), and foreign elements are not among the exceptions.
+- **What survives the List-MPD merge.** When a Linked Period is resolved, the
+  kept items are `@start`, `@duration`, `@id`, `ServiceDescription`,
+  `SupplementalProperty`, `EssentialProperty`, `EventStream`, `RequestParam` and
+  *"any elements from a different namespace"* (§5.3.2.6.3, step 3 b), so SGAI
+  elements on a List-MPD Period survive the merge; SGAI elements at MPD level of
+  an imported MPD do not — *"Any attributes or elements on MPD level of the
+  imported MPD are ignored except for the following ones"* (step 3 a), and
+  foreign elements are not among the exceptions. `AssetIdentifier` is not among
+  the kept items of step 3 b (G19), and an `EventStream` of the Imported Period
+  replaces the Linked Period's when *"EventStream@schemeIdUri and
+  EventStream@value"* are equal (step 3 c iv) (G15).
 
 ### G11 — Viewer dismissal: the base skip control exists twice, with the opposite default (R35)
 
@@ -490,11 +539,12 @@ the base has no declaration, and R35.1 requires an undeclared slot to be
 non-dismissible; reusing `@skipAfter` would import the opposite default, which
 06 forbids. What must be added: a resolution-document field in the SGAI
 namespace carrying *whether* (default: no) and *after how many seconds* (R35.1,
-R35.2), and the Player rules R35.3–R35.6. R35's placement in the resolution
-document follows from the declaration belonging to the APS; the base's control
-sits on the Publisher's event, which is one more reason it does not fit.
+R35.2), and the Player rules R35.3–R35.6. The dismissal beacon is an occurrence
+of R42 (G18). R35's placement in the resolution document follows from the
+declaration belonging to the APS; the base's control sits on the Publisher's
+event, which is one more reason it does not fit.
 
-### G12 — Early resolution is the base mechanism; resolution freshness has no in-document anchor (R36)
+### G12 — Early resolution is the base mechanism; resolution usability has no in-document anchor (R36)
 
 `@earliestResolutionTimeOffset` *"specifies the time interval (in units of
 EventStream@timescale) prior to the Event@presentationTime during which the MPD
@@ -506,7 +556,10 @@ units of timescale."* (Table 63). The base leaves the moment of resolution open 
 base computes the same way (`ERT` from `Event@presentationTime`, Table 57) —
 the difference is only what the window means (G2).
 
-Freshness (R36.4) has no in-document base construct with the right meaning. Two
+R36.4's default — a resolution that declares nothing is usable only for the
+execution it was obtained for — matches the base, which resolves anew on every
+execution: *"The alternative MPD is resolved at each execution of the Event"*
+(§5.16.2.2.6). What has no in-document base construct is a longer usability. Two
 candidates the build must weigh and justify rejecting or adopting (R8.2):
 
 - `MPD@availabilityEndTime` — *"specifies the latest Segment availability end
@@ -530,7 +583,8 @@ reference space expressed in arbitrary units."* (H.2.2). A non-linear option is
 not an AdaptationSet (G4), and R39.2 fixes percent of the video viewport with a
 top-left origin. What must be added: the rectangle on the `custom` option (R39.4),
 the region on the slot (R39.2), the containment checks (R39.5), marked optional
-(R39.1). R8.2 requires the spec to say why SRD is not reused.
+(R39.1), and the Player's declaration of support (`sgai-custom-layout`, R29.1).
+R8.2 requires the spec to say why SRD is not reused.
 
 ### G14 — The window's relation to linear events has no base construct (R40, R17.5, R22 across families)
 
@@ -545,11 +599,12 @@ are two instances of DASH access engine, main and the alternative, both working
 as described above."* (§4.2).
 
 What must be added: the relation declared on the non-linear window (default /
-supersede / on top, R40.1), the Player rules R40.3–R40.6, and the R1.5 exception
-record for supersede (R40.8, ADR 0020). R17.5 inherits its scope from R40.5 and
-R40.6, so the pause-over-linear rule cannot be stated before the relation is. 06 names the three carriers to weigh; an
-attribute on `<EventStream>` is excluded by schema (G10), and a stream-level
-value would bind every window in the stream (06).
+supersede / on top, R40.1, with on top the only relation a pause window may
+declare), the Player rules R40.3–R40.6, and the R1.5 exception record for
+supersede (R40.8, ADR 0020). R17.5 inherits its scope from R40.5 and R40.6, so
+the pause-over-linear rule cannot be stated before the relation is. 06 names the
+carriers to weigh; an attribute on `<EventStream>` is excluded by schema (G10),
+and a stream-level value would bind every window in the stream (06).
 
 R40.3's fallback — execute the superseded linear events when the window
 presents no ad — lands after the event's PRT. The base handles delayed execution
@@ -560,7 +615,7 @@ is expressible with base timing, and the replacement shortens under the default
 
 A constraint for R40.6 "in turn": *"List MPDs shall not contain Alternative MPD
 events."* (§8.14, rule 5). An alternative presentation delivered as a List MPD
-therefore triggers no further alternative presentations (open question Q7).
+therefore triggers no further alternative presentations (open question Q5).
 
 ### G15 — Tracking on non-linear candidates has no base time anchor or validation (R6.5–R6.7, R13)
 
@@ -579,6 +634,134 @@ requires the spec to state how the carrier is validated. The callback value is
 fixed by the base (`EventStream@value` = 1, Table 47), so the "no `@value`" rule of
 06 does not apply to it.
 
+Two placements the base constrains:
+
+- **Option-level beacons (R13.6)** are the same carrier on the option instead of
+  the candidate; no new construct. The rule that only the rendered option's
+  beacons fire is the spec's.
+- **Slot-level beacons (R13.7)** on a List MPD: a callback stream on the Linked
+  Period is replaced by the Imported Period's when the two carry the same
+  `@schemeIdUri` and `@value` (§5.3.2.6.3, step 3 c iv). Every callback stream
+  has `@value` = 1, so a slot-level stream on a Linked Period is lost whenever
+  the sub-MPD carries its own. The spec has to place slot beacons where the merge
+  keeps them, or give them a carrier of their own. Once per execution
+  (R13.7, R34.6) follows from G16.
+
+### G16 — Window executions: the base execution model carries over (R34.5–R34.9, R40.4, R4.11)
+
+For overlay and squeezeback windows the base answers what an execution is, and
+R34 adopts it (R1.5):
+
+- **Every entry is an execution.** *"An event is executed every time the playhead
+  enters the active interval, including the case of join (tune-in) during the
+  active interval or time-shifted operation moving the playhead to a position
+  prior to EAP."* (§5.16.2.2.1). R34.6 states it for windows.
+- **Each execution resolves anew.** *"The alternative MPD is resolved at each
+  execution of the Event, and a previous failure to resolve the MPD of the same
+  event does not impact the current resolution."* (§5.16.2.2.6). R34.7 and R36.4's
+  default follow it.
+- **Once only.** `@executeOnce`: *"specifies whether the event is executed only
+  once during the media presentation. If true, if some of the media during the
+  active interval of this event is played more than once, the event is executed
+  only the first time this media time is traversed."*, *"Default: "false", no
+  restrictions."* (§5.16.5.2, Table 63). 06 carries it on the window with its
+  name and default (ADR 0024); R34.5 is its window form.
+- **Late execution.** *"join and seek operation, as well as playback of a
+  previous alternative presentation may have caused it to start at a delay
+  (delayed execution)."* and *"By default, a static alternative Media
+  Presentation starts from the beginning (i.e. ASO = 0)."* (§5.16.2.2.6).
+  `@startWithOffset` *"specifies whether a static alternative presentation starts
+  at the beginning ("false") or at an offset … corresponding to the difference Δ
+  between the presentation time of the event and the current playhead position"*
+  (Table 62). 06 carries it on overlay and squeezeback windows, default included,
+  and not `@clip`: the base says `@startWithOffset` *"shall not be used if the
+  @clip attribute value is "false""* (Table 62), and a window ends with its range
+  (R34.8), which is what `@clip="true"` gives. ADR 0028.
+
+What is the spec's: applying the offset to a **sequence** of candidates (R34.8 —
+the point of the sequence, candidates ending before it not presented, beacons of
+the unpresented part not fired), which the base, presenting one alternative MPD,
+does not address; and the suspension of R40.4. For R40.4 the base supplies the
+timing: an insertion resumes the main presentation at the point it left —
+*"For Insertion events RT is defined as PRTA."* (§5.16.2.2.1, step 5) — so the
+programme returns inside the window's range and the same execution resumes. The
+rule that a return from a linear event is not a new entry, does not re-resolve,
+does not re-consume a once-per-session window and does not refire the slot-start
+beacon is the spec's: the base's own counterpart concerns movement inside the
+alternative presentation (*"shifting the playhead position within alternative
+media presentation does not re-execute the alternative MPD event that triggered
+this alternative Media Presentation."*, §5.16.2.2.1), not the main presentation's
+return. The interval of the linear event not accruing against the cap (R4.11)
+is the accounting of G9. UC-21 and UC-22 are the behavioural checks.
+
+### G17 — No construct for an ad's audio over continuing primary video (R41)
+
+The base has no ad-audio concept: an alternative presentation replaces the whole
+output, audio included (§5.16.1, quoted in G1), and nothing composes an ad over
+primary video that keeps playing (G1). The one base construct about audio
+interaction, the Audio Interactivity Descriptor, concerns user control of the
+audio elements of one content — *"the user can modify dynamically for example
+the gain, spatial position or mute/unmute status of audio elements"*
+(§5.8.5.12) — and is not a fit. There is no volume or loudness construct (§2:
+`volume`, `loudness`, 0 each).
+
+What must be added: the default that a non-linear form is silent (R41.1); the
+window allowance (R41.2) and the option's declaration (R41.3), both new, with the
+carrier alternatives 06 names (attribute or descriptor on the window, field on
+the option); the Player rules R41.4, R41.6 and R41.7; the forwarding of R41.5 and
+the capability `sgai-ad-audio` (R29.9). R41 states it is an extension under R1.5.
+
+### G18 — No beacon bound to an occurrence (R42, R47)
+
+The callback fires at a presentation time (§5.10.1, §5.10.4.5.1, quoted in G5),
+and the base defines no event triggered by a viewer action or by a failure (§2:
+`dismiss` 0; `mute` 1, the descriptor of G17; `user action` 7, all in the
+`PlayList` metric of Annex D.4.6, which records actions and fires nothing).
+Annex L's selection callback (G5) is the only viewer-driven request and does not
+fit. Viewability has no base term (§2: `viewab` 0).
+
+What must be added: a normative carrier in the SGAI namespace for beacons bound
+to the closed set of occurrences of R42.1 (dismiss/skip, pause/resume,
+mute/unmute, runtime failure, no option rendered after a first-request failure);
+the Player rule of R42.3; the three viewability outcomes on the same carrier
+(R47.1) with the Player rule of R47.2 and its privacy note (DP-4). 06 names the
+two carrier shapes to weigh: one element per occurrence, or one element with the
+occurrence as a token of a closed set. Beacon URLs are fired as written
+(OOS-10), which keeps the base's callback semantics intact
+(*"issue an HTTP GET request to a given URL and ignore the HTTP response"*,
+§5.10.4.5.1).
+
+### G19 — Verification resources have no base construct; creative identifiers have one, with limits (R44, R23.2)
+
+For R44 the base has nothing (§2: `verification` 3, all about digital signing).
+What must be added: a per-candidate carrier with a vendor identifier, an optional
+resource locator and optional opaque parameters (R44.1), and the hand-over rule
+for a Player that runs a verification SDK (R44.3), including the on-screen region
+of the ad, which on a squeezeback is not the primary content's, and the privacy
+note.
+
+For R23.2 the base has a construct: *"The AssetIdentifier is used to identify the
+asset on Period level. If two different Periods contain equivalent Asset
+Identifiers, then the content in the both Periods belongs to the same asset."*
+(§5.8.4.10), with `AssetIdentifier` at `0...1` in the Period (*"specifies that
+this Period belongs to a certain asset."*) and of `DescriptorType`. R1.5 makes it
+the first alternative on a sub-MPD's Period. Its limits, which 06 records: one per
+Period where R23.2 admits as many as the ADS declared; and the List-MPD merge does
+not keep a Linked Period's `AssetIdentifier` (§5.3.2.6.3 step 3 b, G10), so it
+belongs on the sub-MPD's Period. A non-linear candidate is not a Period, so there
+the alternative is an SGAI-namespace element of `DescriptorType` shape. The
+build decides and records under R8.
+
+### G20 — No disclosure carrier (R48)
+
+The base carries nothing for regulatory or programme disclosure (§2: `disclos`
+0, `icon` 0). What must be added: a per-candidate carrier with the programme
+identifier and the optional indicator, destination URL, the two party names and
+the label (R48.1), the APS obligation (R48.2), and the Player rule of R48.3 —
+present it by the device's means, and do not fetch an indicator it will not
+render. No position or size is carried; how the disclosure is shown is the
+Player's (R48.3, R10). UC-20 is the behavioural check.
+
 ## 4. Reuse opportunities
 
 Each row is a base construct the build must weigh before introducing its own
@@ -587,68 +770,77 @@ Each row is a base construct the build must weigh before introducing its own
 | Base construct | Reuse for | Fit |
 |---|---|---|
 | `@maxDuration` name, units (`EventStream@timescale`), zero = not executed (Table 63) | R4 cap on non-linear windows | Reuse name and units; the absent default departs (R4.10, recorded exception). |
+| `APDA = min(APD, APDmax)` for insertion (Table 57) | R7.3 | Direct. |
 | `@earliestResolutionTimeOffset`, default 60 s (Table 63) | R36.1–R36.3 | Direct reuse, default included (06, ADR 0018). |
-| `@executeOnce` + `E.c` success-counting (Table 63, Table 58, §5.16.2.2.6 NOTE 3) | R34 | Semantics reused; the counter is stated in pause terms (R34.4). |
+| Execution on every entry, resolution at each execution (§5.16.2.2.1, §5.16.2.2.6) | R34.6, R34.7, R36.4 default | Direct for overlay and squeezeback windows (G16). |
+| `@executeOnce` + `E.c` success-counting (Table 63, Table 58, §5.16.2.2.6 NOTE 3) | R34 | Direct on overlay and squeezeback, default included (06, ADR 0024); stated in pause terms (R34.4). |
+| `@startWithOffset`, default `"false"` (Table 62) | R34.9 | Direct on overlay and squeezeback, without `@clip` (06, ADR 0028); the sequence semantics are the spec's (G16). |
+| Insertion resumption `RT = PRTA` (§5.16.2.2.1, Table 57) | R40.4 | Base timing; the "same execution" rule is the spec's (G16). |
+| Replacement resumption at the time-shift buffer start (§5.16.2.2.1, step 5) | R37.2 live case | Direct (G9). |
 | `@skipAfter` (Table 63, Annex K) | R35 | Linear only (R35.8). Rejected for overlay/pause because of its default (G11). |
 | `@noJump` (Table 63) | seek restriction | Linear unchanged; excluded on non-linear (OOS-7). |
 | Execution queue, fail-over, end state (§5.16.2.2.2, §5.16.2.2.5, §5.16.2.2.6) | R20, R30 | Linear adopted; extended to non-linear (G7). |
 | One `EventStream` per scheme/value (§5.10.2.1) | R20.2 | Direct. |
-| Callback scheme (§5.10.4.5) | R6, R13 | Direct; time anchor and validation added for candidate-level carriers (G15). |
+| Callback scheme (§5.10.4.5) | R6, R13, R13.6 | Direct; time anchor and validation added for candidate-level carriers (G15). |
+| `EventStream` override in the merge (§5.3.2.6.3 step 3 c iv) | R13.7 placement | Constraint, not a carrier: decides where slot beacons can live (G15). |
+| `AssetIdentifier` (§5.8.4.10) | R23.2 on a sub-MPD Period | First alternative under R1.5; one per Period, not kept on a Linked Period (G19). |
 | Linked Period / sub-MPD via `ImportedMPD` (§5.3.2.6) | video options of non-linear candidates; linear baseline | Reuse the sub-MPD for video; duration read from its `Period@duration` (06). |
 | `Period@duration` reconciliation (§5.3.2.6.3 step 3 d iii) | DP-1.2 | Base pair, not a duplication. |
 | `MPD@type="list"` without the List profile (§5.3.1.4) | non-linear resolution document | Available; build decides (DR-10). |
-| `SupplementalProperty` vs `EssentialProperty` (§5.8.4.8 / §5.8.4.9) | descriptor-shaped carriers | Choose per DR-9; `EssentialProperty` never on the primary-content path. |
+| `SupplementalProperty` vs `EssentialProperty` (§5.8.4.8 / §5.8.4.9) | descriptor-shaped carriers (R40 relation, R41.2 allowance, R23.2 identifier) | Choose per DR-9; `EssentialProperty` never on the primary-content path. |
 | `RequestParam` + request-type URN (Annex I.3, Table I.4) | R38 forwarding | Weighed and to be justified against R38.3 / DP-1.2 (G6). |
 | Annex I.4 state vocabulary | R29 | Not a fit: no capability axis, author-declared (G6). |
-| `PlayList` metric (Annex D.4.6) + `Metrics` (§5.9) | R33 | Direct; `Reporting` requirement open (Q9). |
-| Supplementary video / `Preselection` (§5.8.5.16) | video overlay | Not a fit: composition out of scope of the client, sits in the primary Period (G1). Single-decoder VVC subpictures are OOS-6. |
+| `PlayList` metric (Annex D.4.6) + `Metrics` (§5.9) | R33 | Direct; `Reporting` requirement open (Q7). Not a fit for R42: it measures, it does not fire. |
+| Supplementary video / `Preselection` (§5.8.5.16) | video overlay | Not a fit: composition out of scope of the client, sits in the primary Period (G1). Single-decoder slice/tile replacement is OOS-6. |
+| Audio Interactivity Descriptor (§5.8.5.12) | R41 | Not a fit: user control of one content's audio elements (G17). |
 | SRD (Annex H) | R39 | Not a fit: media elements only, arbitrary units (G13). |
 | `MPD@availabilityEndTime` (Table 3) | R36.4 | Weigh; meaning differs (G12). |
-| Annex L selection callback | R28 | Not a fit: timeline selection window, no click-through (G5). |
+| Annex L selection callback | R28, R42 | Not a fit: timeline selection window, no click-through, no occurrence set (G5, G18). |
 
 R8.2 also requires stating why these are not used where a reader would expect
-them: `@skipAfter` on overlay/pause, SRD for `custom`, supplementary video for
-video overlays, `RequestParam` for R29/R38, the List profile for the non-linear
-document, and `MPD@availabilityEndTime` for freshness.
+them: `@skipAfter` on overlay/pause, `@clip` on windows, SRD for `custom`,
+supplementary video for video overlays, `RequestParam` for R29/R38, the List
+profile for the non-linear document, `MPD@availabilityEndTime` for usability,
+and `AssetIdentifier` wherever the build does not use it for R23.2.
 
 ## 5. Open questions
 
 ### 5.1 For the working group or the build
 
-- **Q1 — Carrier of the R40 relation.** Attribute on the window versus
-  descriptor on the window (06 leaves it open; `EventStream` attributes are
-  excluded by schema, G10).
+- **Q1 — Carrier of the R40 relation and of the R41.2 allowance.** Attribute on
+  the window versus descriptor on the window (06 leaves both open; `EventStream`
+  attributes are excluded by schema, G10).
 - **Q2 — Non-linear document type.** Declare `MPD@type="list"` without the List
   profile, or a document of its own (DR-10). The first inherits static
   constraints and XLink exclusion (§5.3.1.4).
 - **Q3 — Asset carrier for image/HTML** among DR-6 (a) / (b) / (c1) / (c2),
   per option.
-- **Q4 — Shape of an empty linear List MPD.** The base names the condition
-  (*"merge process resulted in no available media"*) but not a minimal document;
-  whether R30.1 for linear requires a particular shape is not stated [inferred].
-- **Q5 — Live pause beyond the time-shift buffer.** R25 freezes presentation
-  time; when the frozen position leaves `@timeShiftBufferDepth`, what the Player
-  resumes to is not stated. The base's rule for a replacement (resume at the
-  buffer edge, Table 62 NOTE 1) is the obvious candidate under R1.5.
-- **Q6 — Freshness carrier (R36.4).** New SGAI field versus
+- **Q4 — Usability carrier (R36.4).** New SGAI field versus
   `MPD@availabilityEndTime` (G12).
-- **Q7 — R40.6 "in turn" with List MPDs.** §8.14 rule 5 forbids Alternative MPD
+- **Q5 — R40.6 "in turn" with List MPDs.** §8.14 rule 5 forbids Alternative MPD
   events in a List MPD; R40.6 should state that nested alternative presentations
   arise only from alternative presentations that are not List MPDs.
-- **Q8 — Reserved parameter set of R29.** Names, encoding and which axes
-  (decoder count, image-over-video, HTML-over-video) are needed to separate
-  D1–D5 (R29.6).
-- **Q9 — R33.4 versus R33.3.** `Metrics` requires `Reporting` with cardinality
+- **Q6 — Encoding of the reserved parameters.** R29.1 and R29.9 now fix the set;
+  the query-parameter encoding of the allowed layouts, the custom region and the
+  audio allowance (R38.3, R39.3, R41.5) is not yet stated.
+- **Q7 — R33.4 versus R33.3.** `Metrics` requires `Reporting` with cardinality
   *"1 ... N"* (§5.9.2, Table 42), and *"No reporting scheme is specified in this
   document."* (§5.9.4); *"It is expected that elements containing unrecognized
   reporting schemes are ignored by the DASH Client."* (§5.9.4). A Publisher
   obliged to request `PlayList` must therefore name a reporting scheme that some
   external specification defines, while R33.3 keeps transport out of scope. R33
   should say which scheme, or that the choice is the Publisher's.
-- **Q10 — ADS `<Error>` versus unsold.** 05's interface table lets the APS
+- **Q8 — ADS `<Error>` versus unsold.** 05's interface table lets the APS
   translate ADS errors into HTTP errors *or* an empty List MPD; R30.1 forbids an
   error response only for "resolved with no ads". Whether an ADS error is that
   case is not stated.
+- **Q9 — Slot beacons on a List MPD (R13.7).** Given the merge override of
+  §5.3.2.6.3 step 3 c iv (G15), where the slot-start and slot-end beacons of a
+  linear break live is not stated.
+- **Q10 — Multiple creative identifiers on a Period (R23.2).** `AssetIdentifier`
+  is `0...1` per Period; whether R23.2's "as many as the ADS declared" is met by
+  the base construct plus SGAI elements, or by SGAI elements only, is the build's
+  to decide (G19).
 
 ### 5.2 Discrepancies between `context/` and the primary copy
 
@@ -682,25 +874,51 @@ document, and `MPD@availabilityEndTime` for freshness.
   62) — and neither value lets the ad exceed `@maxDuration`. R4 states it
   correctly.
 
-No discrepancy was found for the base quotations in R4, R20, R30, R33, R34, R35,
-R36, R40, DP-1.2, DP-3, DR-1..DR-10 or 06; each was located in the primary copy
-with the wording `context/` gives.
+No discrepancy was found for the base quotations in R4, R7, R20, R30, R33, R34,
+R35, R36, R37, R40, DP-1.2, DP-3, DR-1..DR-10 or 06 (including the new carrier
+section on `AssetIdentifier`, `@executeOnce`, `@startWithOffset` and the merge
+steps); each was located in the primary copy with the wording `context/` gives.
+R34's cite of §5.16.2.2.1 for *"An event is executed every time the playhead
+enters the active interval"* and R37.2's cite of §5.16.2.2 for the time-shift
+trimming both land in §5.16.2.2.1.
 
-### 5.3 Context-internal observations
+### 5.3 Recorded in `context/` as deliberately open (ADR 0021)
+
+Not gaps: `03-requirements.md` states these are for another body to decide.
+Listed so the build does not raise them again.
+
+- **SGAI event streams under Advanced Linear (R1.1, R1.2).** §8.13.2.2 names only
+  the base's own schemes. Decided by MPEG.
+- **The empty resolution document under the List profile (R30).** Table 4 admits
+  a zero-duration Period with no Adaptation Set; §8.1 requires *"at least one
+  Representation in each Period in the profile-specific MPD"* for profile
+  conformance. Decided by MPEG.
+- **The `urn:svta:` scheme URIs.** The base asks only that `@schemeIdUri` *"may
+  use URN or URL syntax"* (§5.10.2.2, Table 43). Decided by SVTA.
+
+### 5.4 Context-internal observations
 
 - `01-intro.md` describes the folder as containing *"the gap analysis that
   compares the status quo of MPEG-DASH 6th edition against those use cases"*.
   `context/` holds no gap analysis; it lives here, in `context-analysis/`, which
-  `context/` must not reference. The sentence should be removed or reworded.
+  `context/` must not reference. The sentence should be removed or reworded. The
+  same intro's index entry for `04-use-cases.md` names only the scenarios up to
+  UC-07; the file now carries UC-01–UC-22.
 - R26.1 places the side-by-side background on *"the layout the presentation
   option declares"*. The R26 prose (*"an attribute of the slot / layout
-  composition"*) and UC-09 (*"a composition attribute of the slot / layout"*) still
-  admit the slot as its home. R26.1 governs; the build should follow it and not the
-  prose.
+  composition"*) still admits the slot as its home. R26.1 governs; the build
+  should follow it and not the prose.
 - R20's rationale paragraph illustrates the fallback only with resolution failures
   (*"the APS is unreachable, the event URL fails"*). R20.1 also makes a document
   with no renderable candidate a failed execution; the paragraph is an
   illustration and does not contradict it, but it should not be read as the list.
+- The Out of Scope list skips OOS-11 (OOS-10 is followed by OOS-12). Numbers are
+  stable identifiers, so the gap is admissible, but `context/` does not record
+  whether OOS-11 was retired (`OOS-11`: 0 hits over `context/`).
+- R29.6 defines the device classes on "the first three parameters of R29.1";
+  `sgai-ad-audio` (R29.9) and `sgai-custom-layout` are outside the class table, so
+  two devices of one class can differ on R41.6 and R39 (UC-18 states this for D1
+  and D2).
 
 ## References
 
