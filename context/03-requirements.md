@@ -80,6 +80,14 @@ concrete requirements that follow are constrained by them.
   guarantee to the constructs added here. Which ads fill the
   opportunity, and the revenue they yield, are the ADS's concern, not
   this specification's.
+- **DP-4. What can identify the viewer is optional to send, and says so.**
+  Information about the device or the viewer that the Player originates
+  and discloses to another actor — a capability, a measurement, a
+  determination it makes — MUST be optional for the Player to send, and
+  the specification MUST carry a privacy note where it defines that
+  information, stating what it discloses. Executing an instruction the
+  resolution document carries, such as firing a beacon whose URL the APS
+  wrote complete (OOS-10), is not information the Player originates.
 
 ## Requirements
 
@@ -334,6 +342,12 @@ and the boundaries of what this spec does and does not define.
   - **R29.2** (Player): Sending a reserved parameter is OPTIONAL. A
     Player conformant to this specification MAY send all of them, some
     of them, or none.
+
+    *Privacy note:* the reserved parameters describe the device, and
+    each one adds to the information that can single out a device or a
+    viewer (fingerprinting). Whether a Player sends them is subject to
+    the privacy and personal-data policies that apply to whoever deploys
+    it; this specification requires none of them (DP-4).
   - **R29.3** (Player): When the Player has no value for a reserved
     parameter, or does not disclose its value, the Player MUST omit that
     parameter entirely rather than send it with an empty or placeholder
@@ -2352,6 +2366,11 @@ carriers for creative metadata and non-AV assets.
     paused interval from the `PlayList` entries as described above,
     and MUST NOT count a playback period that stopped on
     `Rebuffering` as a pause opportunity.
+
+    *Privacy note:* the `PlayList` entries record what the viewer did —
+    when they paused, sought and resumed. Reporting metrics is optional
+    (DP-4), and whether a Player reports them is subject to the policies
+    that apply to whoever deploys it.
   - **R33.3** (spec document): The transport by which any measurement
     reaches the Publisher, the APS or the ADS is out of scope, as it
     is for the base specification's own metrics (§5.9.1).
@@ -2463,6 +2482,11 @@ carriers for creative metadata and non-AV assets.
     region the ad occupies on screen, which on a squeezeback is not the
     region of the primary content.
 
+    *Privacy note:* a verification SDK measures the device and its
+    screen, and what it measures leaves the Player for a third party.
+    Running one is optional (DP-4), and whether a Player runs one is
+    subject to the policies that apply to whoever deploys it.
+
 - **R47. Viewability beacons.**
   *Gist: The resolution document can carry the beacons an ADS declares for whether an ad was viewable; the Player fires the one that matches what it could determine.*
 
@@ -2483,6 +2507,11 @@ carriers for creative metadata and non-AV assets.
     rendered was viewable MUST fire, once per impression, the beacon of
     the outcome it determined. A Player that does not determine it MUST
     fire the undetermined beacon when the candidate carries one.
+
+    *Privacy note:* whether an ad was viewable is a determination the
+    Player makes about the viewer's screen, and the beacon of a
+    determined outcome discloses it. Determining it is optional (DP-4);
+    the undetermined beacon discloses nothing about the device.
   - **R47.3** (spec document): The annex of R11.5 MUST show how a VAST
     viewability declaration maps to the three outcomes.
 
