@@ -2322,3 +2322,7 @@ Arranca el diseño de `roadmap/svta2053-v3-alignment` (`designing`), con las dec
 ## 2026-10-27 — Diseño aprobado: alinear context/ con SVTA2053 v3
 
 Nicolás aprobó el diseño de `roadmap/svta2053-v3-alignment` con sus respuestas a las cinco preguntas, integradas en `DESIGN.md`: los beacons no entran en DP-4; una resolución sin vigencia declarada vale por ejecución; una ejecución tardía sigue lo que la base define para el reemplazo (`@startWithOffset`, default desde el principio, §5.16.4), y no "siempre desde el primer candidato"; el beacon de error de una opción que no carga se dispara sólo cuando el candidato no renderiza nada; no se trae el `RECOMMENDED` de David. La generación escribió `PHASE.md`, `TASKS.md` (8 tareas) y las ADR 0022 a 0028; la 0028 es la de entrar tarde, que no estaba en el diseño original. El análisis base quedó commiteado (`58d8168`).
+
+## 2026-10-27 — svta2053-v3-alignment es la fase 07, no la 06
+
+`start.sh` le dio el 06 (el máximo de `phases/` más uno), pero el 06 lo usó multiview, que volvió al roadmap, y un número liberado no se reusa (aprobado por Nicolás el 2026-10-15). Se renombra a `phases/07-svta2053-v3-alignment`. Hallazgo para el skill: `start.sh` no conoce los números liberados.
