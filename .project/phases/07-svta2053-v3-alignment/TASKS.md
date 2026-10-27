@@ -4,8 +4,8 @@
 | ---- | --------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
 | T-01 | El análisis de David contra `context/` queda commiteado como referencia                  | done    | agent | —    | `58d8168` |
 | T-02 | Una opción cuyo recurso no carga se saltea, no el candidato (D1)                         | done    | agent | —    | `f1c642a` |
-| T-03 | Ejecuciones de una ventana: volver, ONCE y entrar tarde (D2, D3)                         | done    | agent | —    | commit "T-03" |
-| T-04 | La ventana se retoma después de un evento lineal heredado (D4)                           | planned | agent | —    | —        |
+| T-03 | Ejecuciones de una ventana: volver, ONCE y entrar tarde (D2, D3)                         | done    | agent | —    | `cd9c260` |
+| T-04 | La ventana se retoma después de un evento lineal heredado (D4)                           | done    | agent | —    | commit "T-04" |
 | T-05 | Privacidad: DP-4 y sus notas (D5)                                                        | planned | agent | —    | —        |
 | T-06 | Tres precisiones: R29.7, el solapamiento y el candidato salteado (D6, D7, D8)            | planned | agent | —    | —        |
 | T-07 | Los chequeos de `context/` en verde y `context/` commiteado                              | planned | agent | —    | —        |

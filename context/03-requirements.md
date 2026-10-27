@@ -523,9 +523,9 @@ admissible ad-type vocabulary, and the admissible creative carriers.
     presentation timeline. An interval during which the presentation
     timeline does not advance MUST NOT accrue against the cap, so a form suspended
     under R17 resumes with the remaining cap it had when it was
-    suspended. The only suspension this specification defines happens
-    while the viewer is paused (R17.1), and a pause does not advance
-    the presentation timeline.
+    suspended. The interval during which a form is suspended — during a
+    viewer pause (R17.1), or while an inherited linear event is executed
+    (R40.4) — MUST NOT accrue against the cap.
 
 - **R31. A pause opportunity window bounds where, not how long.**
   *Gist: The window marks the region of the primary timeline in which a viewer pause triggers a resolution request; the duration of the resulting slot is set by the viewer and is unknown in advance.*
@@ -2073,9 +2073,20 @@ screen to a single active non-linear form at any instant.
   - **R40.4** (Player): When a window declares no relation, the Player
     MUST present its forms only while the content of the presentation
     whose `MPD` declares the window is being output, and MUST execute
-    every inherited linear event it overlaps with its base semantics. A
-    form on screen when an alternative presentation begins ends there,
-    and the window presents nothing further.
+    every inherited linear event it overlaps with its base semantics.
+    While an inherited linear event the window overlaps is being
+    executed, the Player MUST present nothing of the window and fire
+    none of its beacons; a form on screen when the alternative
+    presentation begins is suspended. When the presentation that
+    declares the window is output again and the playhead is still inside
+    the window's range, the Player MUST resume the window: the suspended
+    form from where it was suspended, then the rest of the sequence,
+    until the window ends or its cap is reached. Resuming continues the
+    same execution (R34.6): it is not a new entry, it does not resolve
+    again, and it does not consume a once-per-session window a second
+    time or fire the slot-start beacon again. When the presentation
+    resumes at a point outside the window's range, the execution has
+    ended. ADR 0025 records the decision.
   - **R40.5** (Player): When a window declares on top, the Player MUST
     present it also while an alternative presentation that starts
     within its span is active, composited over that presentation,
