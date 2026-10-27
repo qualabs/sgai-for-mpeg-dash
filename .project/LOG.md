@@ -2310,3 +2310,7 @@ La pasada de create-project (fase 04 de ai-toolkit), con el OK de Nicolás: `mig
 ## 2026-10-18 — Los hallazgos que ya estaban, resueltos
 
 Con el OK de Nicolás, en la pasada de structure 3 (fase 04 de ai-toolkit): La 0020 reemplazaba sólo en parte a la 0012 y la 0015, así que sale de `supersedes` y lo dice en una nota; la 0002, que nunca se adoptó (la reemplazó R39), y las dos revisiones de Nicolás en la fase 06-multiview se aceptan en EXCEPTIONS.md.
+
+## 2026-10-27 — Multiview vuelve a diseño
+
+Por decisión de Nicolás, `phases/06-multiview` vuelve a `roadmap/multiview` con `status: designing`: antes de multiview, que es una extensión para el final, va cómo encajan en el proyecto los requerimientos de SVTA2053 v3 que trabajó David (que también define `multiView`). Se conserva el diseño (`T-01-PLAN.md`); PHASE.md y TASKS.md salen (quedan en git) y se reescriben cuando el ítem pase a plan. Las dos excepciones de `phases/06-multiview/TASKS.md` salen de EXCEPTIONS.md porque ya no aplican.
