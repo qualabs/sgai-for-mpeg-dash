@@ -2314,3 +2314,7 @@ Con el OK de Nicolás, en la pasada de structure 3 (fase 04 de ai-toolkit): La 0
 ## 2026-10-27 — Multiview vuelve a diseño
 
 Por decisión de Nicolás, `phases/06-multiview` vuelve a `roadmap/multiview` con `status: designing`: antes de multiview, que es una extensión para el final, va cómo encajan en el proyecto los requerimientos de SVTA2053 v3 que trabajó David (que también define `multiView`). Se conserva el diseño (`T-01-PLAN.md`); PHASE.md y TASKS.md salen (quedan en git) y se reescriben cuando el ítem pase a plan. Las dos excepciones de `phases/06-multiview/TASKS.md` salen de EXCEPTIONS.md porque ya no aplican.
+
+## 2026-10-27 — Diseño: alinear context/ con SVTA2053 v3
+
+Arranca el diseño de `roadmap/svta2053-v3-alignment` (`designing`), con las decisiones de Nicolás sobre `output-analysis/2026-10-27-david-v3-vs-context.md`: failover de opción por el primer pedido del recurso (R5.9), ONCE para overlay y squeezeback (R34, con `@executeOnce` de referencia), volver a una ventana es una ejecución nueva, retomar la ventana después del corte lineal (R40.4, la fila 18, que entró el mismo día), privacidad como principio (DP-4), y tres precisiones (R29.7, solapamiento en R40.1, R14.1). `context/` no se toca hasta que Nicolás apruebe el diseño. Quedan afuera PRE, POST, `multiView` (ítem `multiview`) y `?adclass=`, que Nicolás confirmó afuera: es cómo el Publisher arma las URLs de sus eventos para su APS, no algo de la norma. Varios assets por opción va a un ítem aparte, `multi-asset-options-profile` (`idea`).
