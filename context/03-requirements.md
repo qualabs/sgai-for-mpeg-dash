@@ -2239,8 +2239,8 @@ carriers for creative metadata and non-AV assets.
   scheme in the ad MPD or sub-MPD. New tracking carriers MAY be
   introduced only when the callback scheme cannot express the required
   semantics, and only after a documented gap analysis per R9 (R6.3).
-  Unknown namespaces on tracking-related extension elements are ignored
-  under the base rules that R1.1 and R1.5 adopt.
+  A Player ignores unknown namespaces on tracking-related extension
+  elements (R6.4).
 
   Application-level creative metadata that has no native DASH carrier
   is governed separately by R23, and the carrier for non-AV creative
@@ -2273,6 +2273,9 @@ carriers for creative metadata and non-AV assets.
     valid while skipping the foreign-namespace subtree has not checked
     the tracking carrier at all, which is the outcome a reader is most
     likely to arrive at by default.
+  - **R6.4** (Player): A Player MUST safely ignore unknown
+    namespaces on tracking-related extension elements, per the DASH
+    extension rules invoked by R1.
 
 - **R13. Non-linear ad tracking — ADS-directed callbacks.**
   *Gist: The ADS owns the beacon schedule (which beacons, at which relative times); the Player just executes what the resolution document carries.*
@@ -2908,7 +2911,6 @@ not reused. Each row says where its content is now.
 | R5.5 | R5.1 |
 | R5.7 | R5.3 |
 | R6.2 | R13.1 |
-| R6.4 | R1.1 and R1.5, the base rules for unknown constructs |
 | R6.6 | R13.1 |
 | R7.2 | R5.3 and R7.1 |
 | R7.3 | R4.2 |
