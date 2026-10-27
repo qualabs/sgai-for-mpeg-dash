@@ -9,7 +9,7 @@
 | T-05 | Privacidad: DP-4 y sus notas (D5)                                                        | done    | agent | —    | `301b031` |
 | T-06 | Tres precisiones: R29.7, el solapamiento y el candidato salteado (D6, D7, D8)            | done    | agent | —    | `d87fcef` |
 | T-07 | Los chequeos de `context/` en verde y `context/` commiteado                              | done    | agent | —    | tres chequeos exit 0 sobre `d87fcef`; cada uno visto en rojo a propósito (ref R5.99, "MUST be expected", PDF /dev/null) |
-| T-08 | La spec reconstruida con el delta (incremental, o mayor si el chequeo lo pide)           | blocked | agent | —    | incremental: `RESULT: MAJOR RECOMMENDED` (36.9% > 30%, 19 needs-structure); traza `output-analysis/v12.7-context-delta.md`; el mayor espera el OK |
+| T-08 | La spec reconstruida con el delta (incremental, o mayor si el chequeo lo pide)           | abandoned | agent | —    | sin rebuild por decisión de Nicolás (2026-10-27): el incremental pidió MAJOR (traza `output-analysis/v12.7-context-delta.md`); el mayor v13 va al final, en el ítem `major-build-v13` |
 
 ---
 
@@ -107,3 +107,4 @@
   comparación en el informe.
 - **nivel de verificación:** alto. Es lo que se publica; lo verifican
   `check-incremental.py` y `check-promotable.py`.
+- **post-ejecución:** 2026-10-27, el incremental terminó en `RESULT: MAJOR RECOMMENDED` (82 secciones, 36.9% de la base contra un tope de 30%, y 19 cambios que necesitan estructura). Nicolás decidió no lanzar el mayor ahora: la tarea se cierra sin rebuild y el build v13 se hace al final, junto con document-first, el perfil multi-asset y multiview (ítem `major-build-v13`).

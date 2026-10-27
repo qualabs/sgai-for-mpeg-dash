@@ -1,6 +1,6 @@
 ---
 title: Alinear context/ con SVTA2053 v3
-description: "Llevar a context/ las decisiones de Nicolás sobre el trabajo de David Hassoun en SVTA2053 v3 (failover de opción, ejecuciones y ONCE de las ventanas no lineales, entrar tarde y retomar después del lineal, privacidad como principio, tres precisiones), con sus ADR, y reconstruir la spec."
+description: "Llevó a context/ las decisiones de Nicolás sobre SVTA2053 v3 (failover de opción R5.9, ejecuciones y ONCE de las ventanas con @executeOnce, entrada tardía con @startWithOffset, retomar después del lineal, DP-4 y sus notas, tres precisiones), con las ADR 0022-0028; el rebuild pidió mayor y quedó para el build v13."
 started: 2026-10-27
 origin: "Nicolás, 2026-10-27, sobre output-analysis/2026-10-27-david-v3-vs-context.md (22 filas); la fila 18 entró el mismo día"
 category: feature

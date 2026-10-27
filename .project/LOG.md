@@ -2326,3 +2326,7 @@ Nicolás aprobó el diseño de `roadmap/svta2053-v3-alignment` con sus respuesta
 ## 2026-10-27 — svta2053-v3-alignment es la fase 07, no la 06
 
 `start.sh` le dio el 06 (el máximo de `phases/` más uno), pero el 06 lo usó multiview, que volvió al roadmap, y un número liberado no se reusa (aprobado por Nicolás el 2026-10-15). Se renombra a `phases/07-svta2053-v3-alignment`. Hallazgo para el skill: `start.sh` no conoce los números liberados.
+
+## 2026-10-27 — Fase 07 cerrada sin rebuild
+
+`context/` absorbió el diseño de svta2053-v3-alignment (T-02 a T-06, ADR 0022 a 0028) y los tres chequeos quedaron en verde. El build incremental sobre v12.6 terminó en `MAJOR RECOMMENDED` (36.9% de la base, 19 cambios `needs-structure`, casi todos de commits anteriores a la fase); por decisión de Nicolás no se lanza el mayor ahora: el v13 se hace al final, junto con document-first, el perfil multi-asset y multiview (ítem `roadmap/major-build-v13`, `idea`). T-08 queda `abandoned` con esa nota. REPORT escrito.
