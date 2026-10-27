@@ -2,7 +2,7 @@
 
 | id   | brief                                                                                     | status  | who   | plan | evidence |
 | ---- | ----------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
-| T-01 | El mapa de obligaciones queda congelado y legible por script, criterios y prosa            | planned | agent | —    | —        |
+| T-01 | El mapa de obligaciones queda congelado y legible por script, criterios y prosa            | done    | agent | —    | `tasks/T-01/obligation-map.tsv`, `tasks/T-01/build-map.py` |
 | T-02 | 03 está reescrito según el mapa, con la regla, el índice de interfaces y los retirados     | planned | agent | —    | —        |
 | T-03 | Un check en `bin/` hace cumplir la parte estructural de la regla, como Step 0.7            | planned | agent | —    | —        |
 | T-04 | Las pruebas del check: cada una de sus cinco condiciones, rota a propósito, sale en rojo   | planned | agent | —    | —        |

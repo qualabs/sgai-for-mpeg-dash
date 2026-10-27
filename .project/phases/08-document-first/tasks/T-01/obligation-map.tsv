@@ -1,0 +1,235 @@
+# reference	44cfff4
+id	kind	action	destination	old_line	what_moves
+DP-1#p1	prose	queda	DP-1#p1	24	
+DP-1.1#p1	prose	queda	DP-1.1#p1	30	
+DP-1.1#p2	prose	queda	DP-1.1#p2	33	
+DP-1.2#p1	prose	queda	DP-1.2#p1	40	
+DP-2#p1	prose	queda	DP-2#p1	50	
+DP-2#p2	prose	queda	DP-2#p2	54	
+DP-2#p3	prose	queda	DP-2#p3	59	
+DP-2#p4	prose	queda	DP-2#p4	60	
+DP-3#p1	prose	queda	DP-3#p1	66	
+DP-4#p1	prose	queda	DP-4#p1	86	
+DP-4#p2	prose	queda	DP-4#p2	87	
+R1#p1	prose	queda	R1#p1	138	
+R1#p2	prose	queda	R1#p2	142	
+R1.1	criterion	queda	R1.1	150	
+R1.2	criterion	queda	R1.2	155	
+R1.3	criterion	queda	R1.3	174	
+R1.4	criterion	queda	R1.4	177	
+R1.5	criterion	queda	R1.5	187	
+R1.6	criterion	queda	R1.6	195	
+R2.1	criterion	queda	R2.1	214	
+R2.2	criterion	queda	R2.2	218	
+R2.3	criterion	queda	R2.3	227	
+R2.4	criterion	queda	R2.4	230	
+R11#p1	prose	queda	R11#p1	238	
+R11#p2	prose	queda	R11#p2	241	
+R11#p3	prose	queda	R11#p3	242	
+R11.1	criterion	queda	R11.1	246	
+R11.2	criterion	queda	R11.2	248	
+R11.3	criterion	queda	R11.3	256	
+R11.4	criterion	queda	R11.4	263	
+R11.5	criterion	queda	R11.5	269	
+R18.1	criterion	queda	R18.1	293	
+R18.2	criterion	queda	R18.2	297	
+R29.1	criterion	se reescribe	R29.1	328	R29.1: los parámetros del pedido y su significado, en dos tablas (D-13): la de capacidad, con los cuatro de hoy y `sgai-ad-audio` (de R29.9), y la de lo que el slot declara y el Player reenvía, con `sgai-allowed-layouts`, `sgai-custom-region` y `sgai-ad-audio-allowed` (hoy sin nombre, en R38.3); viajan como query parameters y no por el template de URL del MPD (hoy sólo en la prosa). La nota de privacidad de R29.2 pasa a R29.1, que es donde queda la definición de los parámetros (DP-4).
+R29.2	criterion	se reescribe	R29.2	342	R29.2: todo parámetro reservado es opcional, salvo los que el slot declara, que R38.2, R39.3 y R41.5 obligan a enviar (absorbe R29.8).
+R29.3	criterion	queda	R29.3	351	
+R29.4	criterion	queda	R29.4	355	
+R29.5	criterion	queda	R29.5	358	
+R29.6	criterion	se fusiona	R3.1	362	R3.1 dice que las clases son las combinaciones de los tres primeros ejes de R29.1 que da la tabla de R3, y que una combinación sin nombre se declara igual.
+R29.7	criterion	queda	R29.7	366	
+R29.8	criterion	se fusiona	R29.2	378	R29.2 nombra las tres excepciones a la opcionalidad.
+R29.9	criterion	se fusiona	R29.1	383	R29.1 lleva `sgai-ad-audio` como quinta fila de la tabla de capacidad.
+R29.10	criterion	queda	R29.10	388	
+R4#p1	prose	se reescribe en la prosa	R4.2	414	
+R4.1	criterion	se reescribe	R4.1	467	R4.1: todo slot overlay y pausa declara un máximo, y el máximo es la cota que la presentación del slot no pasa, con lo que acota cada familia en R4.2, R4.6 y R31.2 (absorbe R4.3); en un evento lineal heredado es `@maxDuration`, opcional (R4.8).
+R4.2	criterion	se reescribe	R4.2	471	R4.2: donde el tope acota duración acumulada (overlay, secuencia no lineal, inserción lineal), el Player corta en el tope aunque caiga a mitad de aviso, y una duración declarada no es razón para descartar un candidato (absorbe R7.3 y R14.2).
+R4.3	criterion	se fusiona	R4.1,R4.6	475	R4.1 recibe "no se pasa de la cota"; R4.6 recibe el caso `@clip="false"`.
+R4.4	criterion	queda	R4.4	481	
+R4.5	criterion	queda	R4.5	485	
+R4.6	criterion	se reescribe	R4.6	489	R4.6 pasa a ser semántica del documento: en un reemplazo lineal el tope acota el fin programado según `@clip` de la base (default `true`), y con `@clip="false"` termina en PRTA + APDmax, que es la base moviendo la cota; la inserción no tiene `@clip`.
+R4.7	criterion	queda	R4.7	495	
+R4.8	criterion	queda	R4.8	500	
+R4.9	criterion	queda	R4.9	514	
+R4.10	criterion	queda	R4.10	522	
+R4.11	criterion	se reescribe	R4.11	541	R4.11 como semántica del tope: se mide sobre la línea de tiempo de presentación, y no cuenta un intervalo en que esa línea no avanza ni uno en que la forma está suspendida, por una pausa del espectador (R17.1) o por un evento lineal heredado en ejecución (R40.4) (absorbe la parte de tope de R19.3).
+R31.1	criterion	se reescribe	R31.1	565	R31.1 como semántica de la ventana de pausa: una pausa del espectador que empieza dentro de la ventana dispara el pedido de resolución, y una que empieza fuera de toda ventana no dispara ninguno.
+R31.2	criterion	queda	R31.2	569	
+R12.1	criterion	queda	R12.1	664	
+R12.2	criterion	queda	R12.2	670	
+R12.3	criterion	queda	R12.3	683	
+R12.4	criterion	queda	R12.4	688	
+R15.1	criterion	queda	R15.1	710	
+R15.2	criterion	queda	R15.2	714	
+R15.3	criterion	queda	R15.3	722	
+R5#p1	prose	se reescribe en la prosa	R5.1	745	
+R5#p2	prose	se reescribe en la prosa	R5.3	747	
+R5#p3	prose	se reescribe en la prosa	R5.1,R5.6	766	
+R5.1	criterion	se reescribe	R5.1	775	R5.1: opciones como lista ordenada donde el orden de documento es la preferencia, lo que significa que se presenta la primera que el Player puede satisfacer (absorbe R5.2 y R5.5).
+R5.2	criterion	se fusiona	R5.1,R5.6	783	R5.1 dice que el orden es la preferencia y qué implica; los chequeos quedan en R5.6.
+R5.3	criterion	se reescribe	R5.3	787	R5.3: un candidato sin opción que pase R5.6 y R5.9 se saltea y se sigue con el siguiente en orden; agotados, R20.1 o el contenido principal (absorbe R5.7 y R7.2).
+R5.4	criterion	queda	R5.4	793	
+R5.5	criterion	se retira	R5.1	798	Nada que mover: R5.1 ya lo dice entero.
+R5.6	criterion	se reescribe	R5.6	802	R5.6: los chequeos (a) capacidad del dispositivo y (b) layouts que el slot admite, y que reenviar el set no quita el chequeo (absorbe R38.5); deja de repetir el recorrido en orden, que es R5.1.
+R5.7	criterion	se fusiona	R5.3	810	R5.3 lleva el salto al siguiente candidato, preservando el orden, cuando ninguna opción pasa R5.6 y R5.9.
+R5.8	criterion	queda	R5.8	815	
+R5.9	criterion	queda	R5.9	825	
+R7#p1	prose	se reescribe en la prosa	R7.1	842	
+R7#p2	prose	se reescribe en la prosa	R7.1,R5.3	846	
+R7.1	criterion	se reescribe	R7.1	861	R7.1 como semántica del documento: el orden de los candidatos es el orden de presentación, lineales y no lineales, cada uno empieza cuando termina el anterior, y un candidato salteado bajo R5.3 no es un reordenamiento ni ocupa tiempo (absorbe R7.4 y R14.1).
+R7.2	criterion	se fusiona	R5.3,R7.1	865	R5.3 cubre el descarte; "no es un reordenamiento" va a R7.1.
+R7.3	criterion	se fusiona	R4.2	868	R4.2 lleva "se reproduce y se corta en el tope, la duración declarada no es razón para descartar".
+R7.4	criterion	se fusiona	R7.1	873	R7.1 dice el orden en positivo.
+R7.5	criterion	se retira	R4.5	876	Nada que mover: repite R4.5.
+R30.1	criterion	queda	R30.1	934	
+R30.2	criterion	queda	R30.2	938	
+R3.1	criterion	se reescribe	R3.1	980	R3.1: las clases de dispositivo son las filas de la tabla de R3, combinaciones de los tres primeros ejes de R29.1 (absorbe R29.6), y la spec da el comportamiento esperado por clase y oportunidad.
+R3.2	criterion	queda	R3.2	983	
+R3.3	criterion	se retira	R5.6	987	Nada que mover: es el chequeo (a) de R5.6.
+R16.1	criterion	se reescribe	R16.1	1007	R16.1: al pasar de pausa a play el Player quita el aviso de pausa en un frame y vuelve al contenido principal aunque haya un aviso a mitad de presentación (absorbe R32.3).
+R16.2	criterion	se fusiona	R13.3	1010	R13.3 dice que un beacon cuyo tiempo cae después de que terminó la presentación del aviso no se dispara, termine como termine.
+R32.1	criterion	se reescribe	R32.1	1047	R32.1: el documento de una pausa declara `repeat`, `request-again` o `stop`, con el significado de cada uno (hoy sólo en la prosa), y uno que no declara nada significa `stop`.
+R32.2	criterion	queda	R32.2	1050	
+R32.3	criterion	se fusiona	R16.1	1053	R16.1 lleva "vuelve al contenido principal aunque haya un aviso a mitad".
+R32.4	criterion	queda	R32.4	1056	
+R34.1	criterion	se reescribe	R34.1	1119	R34.1: la declaración once-per-session vale en overlay, squeezeback y pausa, y significa: en overlay y squeezeback, consumida la ventana, toda entrada posterior del playhead deja el contenido sin interrumpir y no dispara ninguno de sus beacons; en pausa, como máximo un aviso de pausa por ventana en la sesión, y una pausa posterior dentro de la ventana deja el contenido sin interrumpir (absorbe R34.2 y R34.5).
+R34.2	criterion	se fusiona	R34.1	1124	R34.1 lleva la semántica para la pausa.
+R34.3	criterion	queda	R34.3	1128	recibe de R34.5 que cruzar la ventana sin que empiece un aviso la deja disponible
+R34.4	criterion	queda	R34.4	1132	su remisión a R34.2 pasa a R34.1
+R34.5	criterion	se fusiona	R34.1,R34.3	1140	R34.1 lleva la semántica para overlay y squeezeback; R34.3 recibe que cruzar la ventana sin que empiece un aviso (un seek que la saltea, una resolución vacía) la deja disponible.
+R34.6	criterion	se reescribe	R34.6	1146	R34.6 como semántica del documento (rol spec document): una ventana overlay o squeezeback se ejecuta cada vez que el playhead entra en su rango (la reproducción la alcanza, un join o un seek cae adentro, un seek vuelve antes de su fin), y cada ejecución se resuelve de nuevo (R36), con su tope (R4) y sus beacons (R13, R13.7, R42) (absorbe R34.7).
+R34.7	criterion	se fusiona	R34.6	1152	R34.6 lleva que cada ejecución resuelve de nuevo; que una resolución anterior se presenta sólo si sigue vigente ya lo dicen R36.4 y R36.5.
+R34.8	criterion	se fusiona	R34.9	1156	R34.9 lleva el default, el significado del offset y que la ejecución termina a más tardar con la ventana; que no se dispara el beacon de una parte no presentada se deduce de R13.1.
+R34.9	criterion	se reescribe	R34.9	1165	R34.9: la declaración de que una ejecución tardía empieza con offset significa que empieza en el punto de la secuencia (R14) que está tan lejos de su inicio como la ejecución lo está del inicio de la ventana, y los candidatos que terminan antes no se presentan; sin la declaración, toda ejecución empieza en el primer candidato; en los dos casos termina a más tardar con la ventana (absorbe R34.8).
+R34.10	criterion	queda	R34.10	1169	
+R35.1	criterion	queda	R35.1	1218	
+R35.2	criterion	se reescribe	R35.2	1222	R35.2: la demora es el tiempo desde que el slot empieza a presentarse antes del cual no se puede cerrar, y desde el cual se puede cerrar mientras el slot esté en pantalla; cero es inmediato (absorbe R35.3).
+R35.3	criterion	se fusiona	R35.2	1226	R35.2 lleva el antes y el después de la demora.
+R35.4	criterion	queda	R35.4	1230	recibe de R35.6: un cierre es un resultado de la presentación, no una falla
+R35.5	criterion	queda	R35.5	1233	
+R35.6	criterion	se fusiona	R13.3,R35.4	1237	R13.3 cubre los beacons después del cierre; la frase sobre falla va a R35.4.
+R35.7	criterion	queda	R35.7	1241	
+R35.8	criterion	se reescribe	R35.8	1245	R35.8 como semántica del documento: en un slot lineal rige `@skipAfter` de la base con su default, el default de R35.1 no aplica, y la spec no agrega precedencia entre los dos `@skipAfter`.
+R36.1	criterion	se reescribe	R36.1	1311	R36.1: el offset es lo más temprano que un Player puede resolver, medido desde el inicio de la ventana en overlay y en pausa, nunca desde la pausa; default 60 s; cero es resolver al disparo (absorbe R36.2 y R36.3).
+R36.2	criterion	se fusiona	R36.1	1317	R36.1 lleva la cota y el ancla.
+R36.3	criterion	se fusiona	R36.1	1320	R36.1 lleva el ancla "inicio de la ventana, nunca la pausa".
+R36.4	criterion	se reescribe	R36.4	1325	R36.4: la validez declarada es hasta cuándo se pueden presentar los candidatos de esa resolución; sin declaración, durante la ejecución para la que se obtuvo (R34.6).
+R36.5	criterion	se reescribe	R36.5	1329	R36.5: al disparar la oportunidad el Player verifica la validez y, vencida, pide una nueva; una re-resolución sin candidato usable es una resolución vacía (R30) (absorbe R36.6).
+R36.6	criterion	se fusiona	R36.5	1333	R36.5 lleva que el vacío al re-resolver cuenta como R30; "no volver a la vencida" ya lo dice R36.4.
+R36.7	criterion	queda	R36.7	1336	
+R37.1	criterion	queda	R37.1	1365	
+R37.2	criterion	queda	R37.2	1369	
+R37.3	criterion	queda	R37.3	1378	
+R38.1	criterion	se reescribe	R38.1	1393	R38.1: `@allowedLayouts`, cuando está, es el conjunto de layouts que el slot admite; cuando no está, el de su familia (hoy sólo se escribe el caso ausente).
+R38.2	criterion	queda	R38.2	1401	
+R38.3	criterion	se fusiona	R29.1	1405	R29.1 lleva el parámetro de layouts permitidos en su tabla.
+R38.4	criterion	queda	R38.4	1408	
+R38.5	criterion	se fusiona	R5.6	1411	R5.6 (b) lleva el chequeo y la frase "reenviar el set no quita el chequeo".
+R38.6	criterion	queda	R38.6	1416	
+R39.1	criterion	queda	R39.1	1429	
+R39.2	criterion	queda	R39.2	1434	
+R39.3	criterion	queda	R39.3	1440	su remisión a R38.3 pasa a R29.1
+R39.4	criterion	queda	R39.4	1443	
+R39.5	criterion	se reescribe	R39.5	1447	R39.5: sólo lo que no se deduce de R39.4: una opción `custom` fuera de la región no es renderizable y se pasa a la siguiente, y un Player sin `custom` trata toda opción `custom` como no renderizable.
+R19#p1	prose	queda	R19#p1	1457	
+R19.1	criterion	queda	R19.1	1470	
+R19.2	criterion	se retira	R19.1	1473	Nada que mover: es R19.1 en negativo.
+R19.3	criterion	se reescribe	R19.3,R4.11	1476	R19.3: la duración declarada de toda forma, imagen y HTML incluidas, es un valor de la línea de tiempo de presentación, y su largo en reloj es duración / velocidad (absorbe R19.4; la parte del tope va a R4.11 y la de beacons ya está en R13.1).
+R19.4	criterion	se fusiona	R19.3	1482	R19.3 lleva "toda forma, imagen y HTML incluidas".
+R21.1	criterion	se reescribe	R21.1	1520	R21.1: sólo el MAY de liberar recursos cuando el layout es `pause-fullscreen`; la superficie la fija el token (R12.5) y la forma única activa ya es R22.1 y R17.1.
+R25#p1	prose	queda	R25#p1	1534	
+R25.1	criterion	queda	R25.1	1551	
+R26.1	criterion	se reescribe	R26.1	1580	R26.1: el fondo es un atributo de composición del layout, presente con `squeezeback-double-box-background` y ausente con `squeezeback-double-box` (D-15), siempre imagen fija, creativo del anunciante, llena las bandas que dejan las dos cajas, y sin fondo las bandas son negras (hoy la imagen y el negro están en la prosa) (absorbe R26.2).
+R26.2	criterion	se fusiona	R26.1	1584	R26.1 lleva la composición y el negro por defecto; la geometría de las dos cajas la da el token (R12.5).
+R26.3	criterion	queda	R26.3	1589	
+R27.1	criterion	se reescribe	R27.1	1642	R27.1: la opción lleva un solo creativo, que cubre todo el cuadro por debajo, y el contenido principal achicado va encima en la región que denota el token; vale para los dos L-shape y para `squeezeback-frame` (esto último hoy sólo en la prosa); no hay un tercer elemento (absorbe R27.2).
+R27.2	criterion	se fusiona	R27.1	1647	R27.1 lleva la composición.
+R27.3	criterion	queda	R27.3	1652	
+R41.1	criterion	se fusiona	R41.3	1682	R41.3 lleva el default sin audio del aviso y qué se oye mientras tanto.
+R41.2	criterion	queda	R41.2	1688	
+R41.3	criterion	se reescribe	R41.3	1691	R41.3: una opción que declara su audio se presenta con el audio del aviso en lugar del del contenido (overlay y squeezeback) mientras dure; una que no lo declara se presenta sin audio del aviso y con el del contenido sobre el que se compone; en pausa, sin audio del aviso salvo declaración (absorbe R41.1).
+R41.4	criterion	se reescribe	R41.4	1693	R41.4: sólo restaurar el audio del contenido cuando la opción termina, termine como termine.
+R41.5	criterion	queda	R41.5	1698	
+R41.6	criterion	queda	R41.6	1702	
+R41.7	criterion	queda	R41.7	1709	
+R14.1	criterion	se fusiona	R7.1	1753	R7.1 lleva el orden para no lineales, "cada uno empieza cuando termina el anterior" y que un candidato salteado no ocupa tiempo.
+R14.2	criterion	se fusiona	R4.2	1760	R4.2 nombra la secuencia no lineal entre los casos de duración acumulada.
+R14.3	criterion	queda	R14.3	1765	su remisión a R14.1 pasa a R7.1
+R17.1	criterion	queda	R17.1	1800	
+R17.2	criterion	se reescribe	R17.2	1804	R17.2: sólo restaurar el overlay al reanudar si su ventana sigue activa; quitar el aviso de pausa es R16.1.
+R17.3	criterion	se retira	R17.2,R40.9	1807	Nada que mover: es R17.2 en negativo, y fuera de su rango el overlay no se presenta (R40.9).
+R17.4	criterion	queda	R17.4	1810	
+R17.5	criterion	queda	R17.5	1813	
+R20.1	criterion	queda	R20.1	1865	
+R20.2	criterion	queda	R20.2	1914	
+R20.3	criterion	queda	R20.3	1926	
+R20.4	criterion	queda	R20.4	1947	
+R20.5	criterion	queda	R20.5	1959	
+R20.6	criterion	queda	R20.6	1966	
+R22.1	criterion	queda	R22.1	2008	
+R40.1	criterion	queda	R40.1	2077	
+R40.2	criterion	queda	R40.2	2084	
+R40.3	criterion	se reescribe	R40.3	2088	R40.3: sólo lo que no se deduce de R40.9: la ejecución del evento lineal con las reglas de la base para una ejecución tardía, y que cuándo resolver es del Player dentro de R36.
+R40.4	criterion	se reescribe	R40.4	2098	R40.4: sólo lo que no se deduce de R40.9 y R34.6: la forma suspendida se retoma desde donde quedó y después sigue la secuencia, hasta el fin de la ventana o el tope; si la presentación vuelve fuera del rango, la ejecución terminó.
+R40.5	criterion	se reescribe	R40.5	2115	R40.5: sólo lo que agrega a R40.9: dentro de la capacidad del dispositivo y de R22, el tope corre sobre la línea de tiempo de la alternativa (R4.11) y la forma termina cuando termina la alternativa.
+R40.6	criterion	queda	R40.6	2123	
+R40.7	criterion	queda	R40.7	2128	
+R40.8	criterion	queda	R40.8	2134	
+R6#p1	prose	queda	R6#p1	2153	
+R6#p2	prose	se reescribe en la prosa	R1.1,R1.5	2162	
+R6.1	criterion	queda	R6.1	2174	
+R6.2	criterion	se fusiona	R13.1	2176	R13.1 es la única definición del carrier de beacons con tiempo (hoy R6.2 dice SHOULD y R13.1 dice MUST).
+R6.3	criterion	queda	R6.3	2181	
+R6.4	criterion	se retira	R1.1,R1.5	2185	Nada que mover: es la regla de la base para namespaces desconocidos (§5.2.1), que R1.1 y R1.5 ya adoptan.
+R6.5	criterion	se reescribe	R6.5	2188	R6.5 como semántica del documento: el alcance de `@id` de un beacon es su candidato en un documento no lineal y el de la base en un ListMPD; "disparar los dos" queda como consecuencia.
+R6.6	criterion	se fusiona	R13.1	2199	R13.1 lleva el ancla temporal: el tiempo del beacon es relativo a la presentación propia del candidato que lo aloja.
+R6.7	criterion	queda	R6.7	2204	
+R13#p1	prose	queda	R13#p1	2214	
+R13.1	criterion	se reescribe	R13.1	2228	R13.1: carrier (callback de la base), MUST (D-14), tiempos relativos a la presentación propia del candidato que los aloja, y significado: cada beacon se dispara cuando la presentación del aviso llega a su tiempo (absorbe R6.2, R6.6 y R13.2).
+R13.2	criterion	se fusiona	R13.1	2235	R13.1 lleva la semántica del disparo.
+R13.3	criterion	se reescribe	R13.3	2240	R13.3: un beacon cuyo tiempo cae después de que terminó la presentación del aviso, por recorte (R4), cierre (R35) o reanudación (R16), no se dispara (absorbe R16.2 y R35.6).
+R13.4	criterion	queda	R13.4	2243	
+R13.5	criterion	queda	R13.5	2248	
+R13.6	criterion	se reescribe	R13.6	2255	R13.6 como semántica del documento: un beacon adjunto a una opción informa esa opción y se dispara sólo si esa opción se presenta; uno adjunto al candidato, cualquiera que se presente.
+R13.7	criterion	se reescribe	R13.7	2261	R13.7 como semántica del documento: el beacon de inicio del slot corresponde al primer aviso que empieza en cada ejecución (R34.6), también en una ejecución tardía; el de fin, al fin de la ejecución termine como termine; una ejecución sin avisos no tiene ni uno ni otro.
+R13.8	criterion	queda	R13.8	2269	
+R23.1	criterion	queda	R23.1	2292	
+R23.2	criterion	queda	R23.2	2297	
+R24#p1	prose	queda	R24#p1	2313	
+R24#p2	prose	queda	R24#p2	2315	
+R24.1	criterion	queda	R24.1	2321	
+R33.1	criterion	queda	R33.1	2375	
+R33.2	criterion	se reescribe	R33.2	2380	R33.2 recibe la derivación del intervalo de pausa que hoy está sólo en la prosa de R33 (del fin de un período detenido por `UserRequest` al `start` del siguiente `Resume`), sin cambiar de contenido (D-3).
+R33.3	criterion	queda	R33.3	2389	
+R33.4	criterion	queda	R33.4	2392	
+R28#p1	prose	queda	R28#p1	2407	
+R28.1	criterion	se reescribe	R28.1	2423	R28.1: además de dónde va, qué significa: las URLs de click-tracking se disparan cuando el espectador activa el ClickThrough (hoy no lo dice ningún criterio del lado del documento), y el destino se hace disponible al espectador con el modelo de R48.3 (D-16). Ver D-7.
+R28.2	criterion	se reescribe	R28.2	2432	R28.2 se queda como la garantía explícita: todo Player conforme lee el carrier de R28.1 con esa semántica. Ver D-7.
+R28.3	criterion	queda	R28.3	2435	
+R42.1	criterion	se reescribe	R42.1	2456	R42.1: carrier, conjunto cerrado (incluida la falla de R5.9) y significado: cada beacon se dispara una vez por ocurrencia en el aviso que lo lleva, nunca desde la línea de tiempo. R42.3 queda como garantía (D-7).
+R42.2	criterion	queda	R42.2	2464	
+R42.3	criterion	se reescribe	R42.3	2468	R42.3 se queda como la garantía explícita: todo Player conforme dispara los beacons de R42.1 con esa semántica; la semántica repetida queda como remisión a R42.1. Ver D-7.
+R42.4	criterion	queda	R42.4	2471	
+R44.1	criterion	queda	R44.1	2486	
+R44.2	criterion	queda	R44.2	2491	
+R44.3	criterion	queda	R44.3	2494	
+R47.1	criterion	se reescribe	R47.1	2517	R47.1: cada beacon marcado con su resultado se dispara una vez por impresión cuando se determina ese resultado, e "indeterminado" es el resultado de un Player que no lo determina. R47.2 queda como garantía, con su nota de privacidad (D-7).
+R47.2	criterion	se reescribe	R47.2	2521	R47.2 se queda como la garantía explícita: todo Player que determina la viewability dispara el beacon de R47.1 con esa semántica, y conserva su nota de privacidad; la semántica repetida queda como remisión a R47.1. Ver D-7.
+R47.3	criterion	queda	R47.3	2530	
+R48.1	criterion	queda	R48.1	2583	
+R48.2	criterion	queda	R48.2	2590	
+R48.3	criterion	queda	R48.3	2593	
+R8.1	criterion	queda	R8.1	2617	
+R8.2	criterion	queda	R8.2	2620	
+R9.1	criterion	queda	R9.1	2635	
+R9.2	criterion	queda	R9.2	2638	
+R9.3	criterion	queda	R9.3	2640	
+R10.1	criterion	queda	R10.1	2656	
+R10.2	criterion	queda	R10.2	2658	
+R10.3	criterion	queda	R10.3	2660	
+OOS-1#p1	prose	queda	OOS-1#p1	2673	
+OOS-4#p1	prose	queda	OOS-4#p1	2689	
+R12.5	new	nuevo	R12.5	-	(spec document, I-MPD e I-RES). Qué composición denota cada token de layout: para los squeezeback, la región que ocupa el contenido principal según la tabla de R12; para los dos double-box, si llevan fondo (D-15); para `pause-fullscreen` y `pause-partial`, la superficie; para los overlay, que el creativo se compone sobre un contenido que no se transforma. Hoy la tabla está en la prosa de R12 y el efecto se repite en R21.1, R26.2 y R27.2. Es el siguiente sub-id libre de R12.
+R40.9	new	nuevo	R40.9	-	(spec document, I-MPD). La semántica de la ventana no lineal: a qué está anclada (una ventana overlay o squeezeback a su rango de tiempo de medio, una de pausa a la pausa del espectador dentro de su rango) y qué significa cada una de las tres relaciones con el evento lineal: la por defecto (la ventana se suspende mientras se ejecuta un evento lineal heredado que pisa, y se retoma en la misma ejecución si la presentación vuelve dentro de su rango; ADR 0025), supersede con su fallback, y on top. Hoy vive sólo en la prosa de R40 y, repartida, en R40.3, R40.4 y R40.5 como obligaciones del Player. Es el siguiente sub-id libre de R40.
