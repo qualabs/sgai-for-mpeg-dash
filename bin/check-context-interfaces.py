@@ -108,7 +108,8 @@ def main(argv):
     if not os.path.isfile(path):
         print(f"CANNOT TELL: {path} does not exist")
         return 2
-    text = open(path, encoding="utf-8").read()
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
     criteria = {m.group(1): m.group(2) for m in CRITERION.finditer(text)}
 
     cannot = []
@@ -174,7 +175,9 @@ def main(argv):
         if cid in criteria:
             findings.append(f"{cid} is in the retired table and still defined as a criterion")
     for f in sorted(glob.glob(os.path.join(ctx, "*.md"))):
-        for n, line in enumerate(open(f, encoding="utf-8").read().split("\n"), 1):
+        with open(f, encoding="utf-8") as fh:
+            lines = fh.read().split("\n")
+        for n, line in enumerate(lines, 1):
             if os.path.basename(f) == REQUIREMENTS and line in retired_lines:
                 continue
             for cid in ID.findall(line):
