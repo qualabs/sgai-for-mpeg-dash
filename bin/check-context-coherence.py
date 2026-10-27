@@ -29,7 +29,7 @@ line up. It does not mean context/ is correct, and reading it that way
 is the same error as trusting a check that answers something narrower
 than the question asked.
 
-Usage:  bin/check-context-coherence.py [--quiet]
+Usage:  bin/check-context-coherence.py [--quiet] [--context DIR]
 """
 import collections
 import glob
@@ -57,9 +57,12 @@ LINK = re.compile(r"\]\(\.?/?([0-9A-Za-z._-]+\.md)[^)]*\)")
 
 def main():
     quiet = "--quiet" in sys.argv
-    files = sorted(glob.glob(os.path.join(CTX, "*.md")))
+    ctx = CTX
+    if "--context" in sys.argv:
+        ctx = sys.argv[sys.argv.index("--context") + 1]
+    files = sorted(glob.glob(os.path.join(ctx, "*.md")))
     if not files:
-        print(f"ERROR: no hay archivos en {CTX} — no se puede verificar nada")
+        print(f"ERROR: no hay archivos en {ctx} — no se puede verificar nada")
         return 1
     text = {f: open(f, encoding="utf-8").read() for f in files}
 
@@ -92,7 +95,7 @@ def main():
 
     for f, t in text.items():
         for m in LINK.finditer(t):
-            if not os.path.isfile(os.path.join(CTX, m.group(1))):
+            if not os.path.isfile(os.path.join(ctx, m.group(1))):
                 errors.append(f"link roto en {os.path.basename(f)}: {m.group(1)}")
 
     for e in errors:
