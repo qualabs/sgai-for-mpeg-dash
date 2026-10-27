@@ -370,6 +370,11 @@ and the boundaries of what this spec does and does not define.
     specification does not define how an APS resolves an undetermined
     value; that is the APS's decision, and two APSs that resolve it
     differently are both conformant.
+
+    *Informative note:* an APS that does not know a capability can
+    return every option the advertiser allowed and leave the choice to
+    the Player's check (R5.6), which keeps every device that could
+    render one of them.
   - **R29.8** (spec document): R38.2, R39.3 and R41.5 are the
     exceptions to R29.2: when a non-linear slot declares allowed
     layouts, a custom region, or the ad-audio allowance, the Player is
@@ -1746,7 +1751,9 @@ screen to a single active non-linear form at any instant.
     slot declares more than one ad candidate, the Player MUST present
     the candidates in sequence, in the order they appear in the
     resolution document (the same ordering contract R7 applies to
-    linear candidates), each starting when the previous one ends.
+    linear candidates), each starting when the previous one ends. A
+    candidate the Player skips (R5.3, R5.7) occupies no time: the next
+    one starts where the skipped one would have started.
   - **R14.2** (Player): The Player MUST enforce the Publisher-declared
     slot cap (R4) against the cumulative duration of the sequence of
     non-linear candidates it presents, trimming at the cap per R4 and
@@ -2064,8 +2071,9 @@ screen to a single active non-linear form at any instant.
   (§4.2). A blackout is the case (UC-14).
 
   **Conformance criteria** (runtime + document-level):
-  - **R40.1** (Publisher): Declaring a relation on a non-linear window
-    is OPTIONAL. A window declares at most one relation, supersede or
+  - **R40.1** (Publisher): Whether a non-linear window overlaps
+    inherited linear events in time is the Publisher's decision.
+    Declaring a relation on a non-linear window is OPTIONAL. A window declares at most one relation, supersede or
     on top; a window that declares neither has the default relation. A
     pause window declares only on top: whether it presents an ad
     depends on a viewer pause, which is unknown at the presentation
