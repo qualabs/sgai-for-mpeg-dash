@@ -145,7 +145,7 @@ use case below references the industry-standard term where applicable
   no image or HTML form as a fallback. Each ad has its own intrinsic
   duration declared by the ADS; the actual rendered stream length
   governs R4 enforcement, and an ad that would overrun the cap is
-  played and cut at the cap (R7.3).
+  played and cut at the cap (R4.2).
 - The candidates appear in document order across the slot, and the
   presentation options within a candidate appear in document order.
 
@@ -219,7 +219,7 @@ leaves it intact and resumes at the same point
   no image or HTML form as a fallback. Each ad has its own intrinsic
   duration declared by the ADS; the actual rendered stream length
   governs R4 enforcement, and an ad that would overrun the cap is
-  played and cut at the cap (R7.3).
+  played and cut at the cap (R4.2).
 
 **Expected behavior per device class:**
 
@@ -435,7 +435,7 @@ presentation timeline.
 
 **Audio:** the window does not allow the ad's audio, so on every class
 the programme's audio keeps playing under the overlay and the ad is
-silent (per R41.1).
+silent (per R41.3).
 
 **Verification:** the candidate carries one verification resource. D1
 runs the vendor's SDK and hands it the resource, the creative's
@@ -1048,9 +1048,9 @@ device-agnostic allowed-layout set** for the slot. There is no
 per-device-class variant anywhere in the manifest or the resolution
 document. The per-device-class outcome is not authored upstream — it
 **emerges Player-side** when each device walks the ordered options
-(R5.2 / R5.6) and renders the first one it can satisfy against its
+(R5.1 / R5.6) and renders the first one it can satisfy against its
 own capability and the Publisher's allowed layouts, skipping to the
-next when an option fails (R5.7). This use case is the worked
+next when an option fails (R5.3). This use case is the worked
 example of that emergence.
 
 In this scenario the Player discloses nothing about its device on the
@@ -1076,7 +1076,7 @@ canonical; they exercise R5 differently.
 
 **Ad response:**
 - One candidate, carrying four presentation options as an **ordered
-  list** (document order is the preference order, R5.1 / R5.5). In
+  list** (document order is the preference order, R5.1). In
   document order:
   1. **Side-by-side / double-box with a video ad + advertiser
      background** — three on-screen elements: the shrunk primary
@@ -1113,7 +1113,7 @@ canonical; they exercise R5 differently.
 
 #### D1
 
-- **Player decision:** walks the options in document order (R5.2 /
+- **Player decision:** walks the options in document order (R5.1 /
   R5.6). Option 1 (side-by-side video + background) requires two
   decoders plus an image surface for the background — D1 has both, and
   side-by-side is in the Publisher's allowed set, so the **first**
@@ -1253,7 +1253,7 @@ device-class reasoning that follows from the element count and type.
 - An advertiser-supplied background element MAY brand the uncovered
   region (R26); the Publisher does not supply a background. When the
   advertiser supplies none, the uncovered region renders as black
-  (R26.2).
+  (R26.1).
 - Maximum overlay duration is bounded (R4).
 
 **Ad response:**
@@ -1266,9 +1266,9 @@ device-class reasoning that follows from the element count and type.
   - **Advertiser background supplied** — the advertiser's creative
     brands / takes over the region between the two boxes (the IAB
     "Double Box Video + Background" model). The Player composites it as
-    the third element (R26.2).
+    the third element (R26.1).
   - **No advertiser background** — the uncovered region renders as
-    black (R26.2).
+    black (R26.1).
 
 **Expected behavior per device class:**
 
@@ -1293,7 +1293,7 @@ device-class reasoning that follows from the element count and type.
   surface (R26.3). Even when the ad form is video (the two decoders are
   available for the two videos), the background-image element cannot be
   composited on D2, so the side-by-side option is **not satisfiable**
-  on D2. Per R5.7 the Player skips it and falls through to the next
+  on D2. Per R5.3 the Player skips it and falls through to the next
   presentation option (or declines per R3).
 - **What the user sees:** the side-by-side is not rendered on D2;
   whatever the next satisfiable option is takes its place (or nothing,
@@ -1307,7 +1307,7 @@ device-class reasoning that follows from the element count and type.
   / HTML surface for the ad and an image surface for the background; D3
   has both, so it is **satisfiable** (R26.3). If the ad form is **video**, the
   side-by-side needs **two** decoders (primary + ad video), which D3
-  lacks: not satisfiable, the Player skips to the next option per R5.7.
+  lacks: not satisfiable, the Player skips to the next option per R5.3.
 - **What the user sees:** for an image / HTML ad, the primary content
   shrinks into one box, the image / HTML ad displays in the other, and
   the background image fills the bands around them. For a video ad on
@@ -1320,7 +1320,7 @@ device-class reasoning that follows from the element count and type.
   needs one decoder (the primary content) plus image surfaces for the
   ad and the background; D4 has them, so it is **satisfiable** (R26.3).
   A **video** ad (two decoders) or an **HTML** ad (no HTML surface) is
-  not satisfiable; the Player skips to the next option per R5.7.
+  not satisfiable; the Player skips to the next option per R5.3.
 - **What the user sees:** for an image ad, the primary content shrinks
   into one box, the image ad displays in the other, and the background
   image fills the bands around them. For a video or HTML ad, the
@@ -1333,7 +1333,7 @@ device-class reasoning that follows from the element count and type.
   side-by-side needs at minimum one decoder plus an image surface for
   the ad and for the background; D5 cannot composite any non-video
   surface, so the side-by-side is **not satisfiable** regardless of the
-  ad form. Per R5.7 / R3 the Player skips it and falls through (or
+  ad form. Per R5.3 / R3 the Player skips it and falls through (or
   declines the opportunity).
 - **What the user sees:** the side-by-side is not rendered on D5; the
   next satisfiable option takes its place, or nothing if none renders.
@@ -1567,7 +1567,7 @@ leaves it able to do.
   The APS receives no device information and must still produce
   candidates (R29.5), so it narrows nothing and emits all four options
   in the ADS's order — the resolution document UC-09 describes. The
-  Player walks them in document order (R5.2 / R5.6): option 1 needs a
+  Player walks them in document order (R5.1 / R5.6): option 1 needs a
   second decoder and fails; option 2 needs one decoder plus one image
   surface, which D4 has. The Player renders option 2 and stops walking.
 - **What the user sees:** the same as D3 — the primary content shrinks
@@ -1608,7 +1608,7 @@ silent Player.
   check (R5), and that holds for an option the APS computed from the
   Player's own declaration. If the device's state changed between the
   request and the render, or the APS derived the wrong option, the
-  Player skips the candidate and falls through (R5.3 / R5.7).
+  Player skips the candidate and falls through (R5.3).
   Declaring narrows what arrives; it does not make what arrives
   authoritative.
 - **A single option does not require a declaration.** R5 admits a
@@ -1755,7 +1755,7 @@ receives before rendering.
 
 - **D1** — the APS emits the L-shape image option and the lower-third
   image banner; the Player checks the first against its capability and
-  the Publisher's set (R38.5), and renders the L-shape.
+  the Publisher's set (R5.6), and renders the L-shape.
 - **D2** — no non-video surface over video, so neither allowed layout
   is renderable. The APS emits no candidate for this device, and the
   Player skips the slot and continues the primary content (R3). The
@@ -1768,7 +1768,7 @@ receives before rendering.
 **A non-conforming APS:** if an APS ignored the forwarded set and
 returned the full-screen takeover first, the Player would find that
 option outside the Publisher's `@allowedLayouts`, discard it without
-rendering (R38.5, R5.6), and move to the next option in document order.
+rendering (R5.6), and move to the next option in document order.
 Forwarding the set moves the choice upstream; it does not move the
 check.
 
@@ -1877,7 +1877,7 @@ squeezeback becomes the viewer's focus and the ad's audio may replace
 the programme's. The IAB guidelines name this case: *"audio is usually
 requested when there is a lull in sports content and the squeeze back
 becomes the user's focus"*. Everywhere else the default holds and the
-ad is silent (R41.1).
+ad is silent (R41.3).
 
 **Publisher intent:**
 - An overlay window over the lull, maximum duration 30 s (R4), allowed
@@ -1986,26 +1986,26 @@ image overlay (D1, D3, D4); D2 and D5 skip the window, as in UC-03.
 
 - **Declaring nothing — the rewind.** Playback reaching 10:00 again is a
   new execution (R34.6). The Player resolves again, because the earlier
-  resolution was usable only for its own execution (R34.7, R36.4), and
+  resolution was usable only for its own execution (R34.6, R36.4), and
   the APS may return other ads. The new execution has its own cap, fires
   the slot-start beacon again and every beacon of what it presents. A
   dismissal the viewer made the first time (R35) does not carry over: it
   belonged to the earlier execution.
 - **Once-per-session — the rewind.** The first execution consumed the
   window when A began rendering (R34.3). At the second entry the Player
-  leaves the programme uninterrupted and fires nothing (R34.5).
+  leaves the programme uninterrupted and fires nothing (R34.1).
 - **Once-per-session — a seek over the window.** A viewer who seeks from
   09:55 to 10:40 crosses the window without an ad beginning to render;
   the window is not consumed, and a later rewind into it presents it
-  (R34.5).
-- **Declaring nothing — the seek to 10:15.** A late execution (R34.8).
+  (R34.1).
+- **Declaring nothing — the seek to 10:15.** A late execution (R34.9).
   The Player presents the sequence from A; the window ends at 10:30, so
   B is cut there, 5 s in, and C is not presented (R40). The slot-start
   beacon fires when A begins (R13.7).
 - **Declaring the offset — the seek to 10:15.** The point of the sequence
   15 s from its start is 5 s into B. A is not presented; B is presented
   from its 5th second, and its beacons timed before that second do not
-  fire (R34.8); C follows and ends with the window. The slot-start beacon
+  fire (R34.9); C follows and ends with the window. The slot-start beacon
   fires when B begins rendering.
 
 **What this demonstrates:** returning to a window is what the base
