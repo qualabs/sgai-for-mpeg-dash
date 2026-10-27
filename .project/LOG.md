@@ -2338,3 +2338,7 @@ Nicolás aprobó el diseño de `roadmap/svta2053-v3-alignment` con sus respuesta
 ## 2026-10-27 — Fix: huecos E1, E5 y E11 de error-semantics
 
 Nicolás decidió los tres huecos que el build anotó en `context-analysis/error-semantics.md`. `context/03-requirements.md` gana OOS-13 (reintentos del pedido de resolución: implementación), R34.10 (una resolución que llega con la ventana terminada no se presenta) y R13.8 (la spec define qué se reporta y cuándo, no cómo se interpretan las métricas). Detalle en `fixes/2026-10-27-error-semantics-gaps/FIX.md`.
+
+## 2026-10-27 — multi-asset-options-profile queda en backlog
+
+Nicolás: *"de momento no quiero incluir multi layout... me parece muy complejo por el momento... dejalo en diseño no mas como backlog"*. El ítem sigue en `designing` con su DESIGN.md, sin plan ni fase, y sale del v13: `major-build-v13` junta la fase 07, document-first y multiview. `context/` no se tocó.
