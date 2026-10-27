@@ -6,6 +6,8 @@ scope: project
 date: 2026-10-27
 supersedes: null
 superseded_by: null
+generalizes: null
+generalized_by: "0044"
 ---
 
 # ADR 0034: The writing rule lives in context/03-requirements.md, and the project CLAUDE.md points to it
@@ -55,3 +57,5 @@ requirements are written"); it is not restated here."*
 ## Links
 
 - ADR 0029, ADR 0030, ADR 0036; DESIGN.md D-8.
+
+> 2026-10-27: generalized by ADR 0044, which names the Player as the party that writes the request.

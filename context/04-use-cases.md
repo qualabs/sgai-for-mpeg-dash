@@ -1307,7 +1307,7 @@ device-class reasoning that follows from the element count and type.
   / HTML surface for the ad and an image surface for the background; D3
   has both, so it is **satisfiable** (R26.3). If the ad form is **video**, the
   side-by-side needs **two** decoders (primary + ad video), which D3
-  lacks: not satisfiable, the Player skips to the next option per R5.3.
+  lacks: not satisfiable, the Player skips to the next option per R5.6.
 - **What the user sees:** for an image / HTML ad, the primary content
   shrinks into one box, the image / HTML ad displays in the other, and
   the background image fills the bands around them. For a video ad on
@@ -1320,7 +1320,7 @@ device-class reasoning that follows from the element count and type.
   needs one decoder (the primary content) plus image surfaces for the
   ad and the background; D4 has them, so it is **satisfiable** (R26.3).
   A **video** ad (two decoders) or an **HTML** ad (no HTML surface) is
-  not satisfiable; the Player skips to the next option per R5.3.
+  not satisfiable; the Player skips to the next option per R5.6.
 - **What the user sees:** for an image ad, the primary content shrinks
   into one box, the image ad displays in the other, and the background
   image fills the bands around them. For a video or HTML ad, the
