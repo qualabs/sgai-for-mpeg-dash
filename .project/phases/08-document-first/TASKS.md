@@ -117,7 +117,9 @@
   MUST en R13.1 (ADR 0041), los nombres de R29.1 (ADR 0040), la URL de destino
   en R28 (ADR 0043), los tokens de double-box en R12.5 y R26.1 (ADR
   0042), y la frase de R1.4 sobre el candidato abortado (LOG del
-  2026-10-27). Los apartamientos del mapa están en `tasks/T-02/notes.md`.
+  2026-10-27), y las dos citas de UC-10 que pasan a R5.6 en lugar de R5.3
+  (decisión del coordinador: R5.7 estaba mal citado ahí). Los apartamientos
+  del mapa están en `tasks/T-02/notes.md`.
   (2) El diff de 04 y de 99 con los ids viejos reemplazados
   por su destino es vacío; se admite colapsar un id repetido que la
   sustitución deja ("R5.1 / R5.1") y, en 99, sólo las entradas que

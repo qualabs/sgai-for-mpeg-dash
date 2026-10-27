@@ -46,7 +46,8 @@ Commit base (antes de T-02): `2d0d54c` (`context/` idéntico a `44cfff4`).
 que hablan de pasar a la opción siguiente (UC-10, D3 y D4: "the Player skips
 to the next option per R5.7"). La sustitución mecánica los deja en R5.3, que
 sigue siendo el criterio equivocado: el que corresponde es R5.6. Corregirlo
-cambia una cita, no sólo la reemplaza, y queda para quien decida.
+cambia una cita, no sólo la reemplaza. El coordinador decidió corregirlo:
+las dos citas pasaron a R5.6, y T-05 lo acepta como cambio.
 
 ## Comprobaciones
 
