@@ -70,8 +70,8 @@ verbatim.
 
 ## Stage 1 — Gates and pre-spec inputs
 
-Run **Steps 0, 0.5 and 0.6, then Steps 1–5 of
-`prompts/build-all.prompt`, exactly as written there**: the three
+Run **Steps 0, 0.5, 0.6 and 0.7, then Steps 1–5 of
+`prompts/build-all.prompt`, exactly as written there**: the four
 blocking checks, then each pre-spec prompt under its own skip rule
 (Step 5, the IAB mirror, never skips). Same log lines, same grounding
 lines.

@@ -102,6 +102,26 @@ says nothing about whether a definition is right or whether two
 requirements contradict each other. Do not report it as "`context/` is
 fine" either.
 
+## Step 0.7 — Confirm `context/03-requirements.md` keeps its interfaces (blocking)
+
+After Step 0.6 and before any step that produces anything, run:
+
+```bash
+bin/check-context-interfaces.py
+```
+
+**A non-zero exit aborts the build**, for the same reason as Step 0.5;
+exit `2` — cannot tell — aborts as well. It reports index rows of the
+"Interfaces" section that point to a criterion that does not exist or that
+the party writing that interface does not hold, an element indexed twice,
+a retired identifier cited outside the "Retired identifiers" table, and a
+criterion that vanished without a row there.
+
+Its green says the index and the identifiers hold together. It says
+nothing about whether a meaning is written once: a criterion that
+restates another in other words, or a Player criterion that follows from
+the document, passes this step.
+
 ## Pipeline
 
 For each step, log a single line:
