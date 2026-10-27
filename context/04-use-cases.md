@@ -94,9 +94,11 @@ Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
 device, the Player declines the slot and continues with the primary
 content uninterrupted. The same continuity guarantee holds at
-runtime: if an accepted ad fails while being resolved or rendered — a
-decode error, a malformed candidate, a mid-ad network loss — the
-Player aborts that ad; when nothing of the attempt was rendered, the
+runtime: an option whose resource fails its first request is not
+satisfiable, and the Player moves to the next option (per R5.9); if an
+accepted ad fails after it has begun rendering — a decode error, a
+mid-ad network loss — or its candidate is malformed, the Player aborts
+that ad; when nothing of the attempt was rendered, the
 attempt produced no ad and R20.1 governs what follows, and otherwise
 the primary content continues uninterrupted (per R1.4). An ad that
 degrades the primary content while it plays is ended the same way
@@ -1219,6 +1221,12 @@ one image surface — within reach for D3 / D4.
 - D5 and D2 share the outcome (full-screen takeover) but for different
   reasons; the ordered fallback reaches the same last-resort option by
   two different paths.
+- **When a resource does not load.** If the image of option 2 answers
+  its first request with a 404, D3 and D4 treat option 2 as not
+  satisfiable and walk on (R5.9): option 3, the image banner, renders.
+  The candidate is not lost, and the failure beacon does not fire,
+  because an option rendered (R42.1). Had option 3 failed too, D4 would
+  have reached option 4 and rendered it on its single decoder.
 
 ### UC-10 — Side-by-side / double-box (three-element layout, R26 illustration)
 

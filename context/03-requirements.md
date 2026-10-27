@@ -166,10 +166,11 @@ and the boundaries of what this spec does and does not define.
   - **R1.3** (Publisher / spec document): The specification MUST NOT alter
     or override the semantics of any pre-existing MPEG-DASH 6th
     edition construct.
-  - **R1.4** (Player): When resolving or rendering an accepted ad
-    fails at runtime (for example a decode error, a malformed
-    candidate, or a mid-ad network loss), the Player MUST abort that
-    ad. When the attempt ends with no candidate rendered, it produced
+  - **R1.4** (Player): When rendering an accepted ad fails at runtime
+    after it has begun (for example a decode error, or a mid-ad network
+    loss), or its candidate is malformed, the Player MUST abort that ad.
+    A resource of an option that fails on its first request is not a
+    runtime failure: R5.9 governs it. When the attempt ends with no candidate rendered, it produced
     no ad and R20.1 governs what follows; otherwise the Player MUST
     continue playing the primary content uninterrupted. This matches
     what the base specification already requires of its own execution
@@ -788,7 +789,7 @@ the order the resolution document declares.
     MUST NOT be rendered and the Player moves to the next option in
     document order.
   - **R5.7** (Player): If no presentation option on a
-    candidate satisfies R5.6, the Player MUST skip that
+    candidate satisfies R5.6 and R5.9, the Player MUST skip that
     candidate and fall through to the next candidate in the
     resolution document (preserving the order required by R7) or,
     when exhausted, as R5.3 states.
@@ -802,6 +803,17 @@ the order the resolution document declares.
     Player takes the first one its device can render (R5.6). An
     advertiser that wants one specific format allows only that one,
     and the candidate carries a single option.
+  - **R5.9** (Player): The first request the Player makes for each
+    resource an option references decides whether that option is
+    satisfiable. When that request fails — a final HTTP status outside
+    the 2xx range, a network error, or no response within a time the
+    Player chooses — the option is not satisfiable, and the Player MUST
+    move to the next option in document order, as R5.6 requires for an
+    option that fails a check. Only the first request for each resource
+    governs this; a failure after the option has begun rendering is a
+    runtime failure under R1.4. This specification fixes no timeout
+    value. When no option of the candidate renders and at least one
+    failed under this criterion, R42 governs the failure beacon.
 
 - **R7. Respect the order of the resolution document.**
   *Gist: The Player plays candidates in the order the resolution document declares, only dropping (never reordering) ones it cannot render; one that would exceed the slot cap is played and cut at the cap, as the base specification does.*
@@ -2345,7 +2357,9 @@ carriers for creative metadata and non-AV assets.
     a presentation time, for this closed set of occurrences on an
     accepted ad: the viewer dismisses or skips it (R35); the viewer
     pauses it and resumes it; the viewer mutes or unmutes it; it fails
-    at runtime (R1.4, R1.6). The set is closed for this edition.
+    at runtime (R1.4, R1.6); none of its options renders and at least
+    one of them failed its first request (R5.9). The set is closed for
+    this edition.
   - **R42.2** (APS): When the ADS declared beacons for any of these
     occurrences, the APS MUST carry them in that carrier and not in the
     callback scheme. Whether they reach the resolution document at all
