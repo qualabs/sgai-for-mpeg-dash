@@ -2330,3 +2330,7 @@ Nicolás aprobó el diseño de `roadmap/svta2053-v3-alignment` con sus respuesta
 ## 2026-10-27 — Fase 07 cerrada sin rebuild
 
 `context/` absorbió el diseño de svta2053-v3-alignment (T-02 a T-06, ADR 0022 a 0028) y los tres chequeos quedaron en verde. El build incremental sobre v12.6 terminó en `MAJOR RECOMMENDED` (36.9% de la base, 19 cambios `needs-structure`, casi todos de commits anteriores a la fase); por decisión de Nicolás no se lanza el mayor ahora: el v13 se hace al final, junto con document-first, el perfil multi-asset y multiview (ítem `roadmap/major-build-v13`, `idea`). T-08 queda `abandoned` con esa nota. REPORT escrito.
+
+## 2026-10-27 — Arranca el diseño de multi-asset-options-profile
+
+`roadmap/multi-asset-options-profile` pasa a `designing`. El diseño propone varios assets por opción (SVTA2053 v3, la L de dos barras) como un modo opcional en el mismo documento, con el molde de R39 (`custom`): token `multi-asset` en overlay, parámetro de capacidad propio, degradación por R5.6, excepción declarada en R10.3 y R12.1. R22, R27.1 y R41.7 no cambian; topes de tres elementos de aviso y tres decodificadores. `context/` no se toca hasta que Nicolás apruebe el diseño.
