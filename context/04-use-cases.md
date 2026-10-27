@@ -89,6 +89,7 @@ a substitute for the per-device sub-sections inside each UC.
 | UC-18 Squeezeback with the ad's audio during a sports lull | Presentation | video L-shape with the ad's audio if the device can switch the audio, else image L-shape, silent | video L-shape with the ad's audio if the device can switch the audio, else nothing | image L-shape, silent | image L-shape, silent | skip (graceful) |
 | UC-19 UC-09 candidate on a device whose protected playback admits one decoder | Selection | walks the options as D3 while the content is protected: L-shape image — option 2 | — | — | — | — |
 | UC-20 One ad with AdChoices disclosure on three devices | Presentation | web player: the icon, and a click opens the link | — | Smart TV: the icon, and a remote button shows the URL on screen | same as D3 | set-top box: a device-native indicator, and a remote button shows the URL |
+| UC-21 VOD rewind over an overlay window, and a seek into it | Timing | presented again on each entry, resolved anew; once only when declared; a late entry from the first candidate, or at the offset when declared | skip (no image surface over video) | same as D1 | same as D1 | skip (no overlay surface) |
 
 Per R3, "skip the opportunity" is always a valid outcome and not a
 failure: when no candidate has a renderable form on the target
@@ -1961,3 +1962,52 @@ its device has (R48.3).
 **What this demonstrates:** the disclosure is data, not a picture. A
 device that cannot draw the icon still has what it needs to meet the
 obligation the icon exists for.
+
+### UC-21 — A VOD viewer rewinds over an overlay window, and seeks into it
+
+**Scenario:** A VOD programme carries an overlay opportunity window from
+10:00 to 10:30, maximum duration 30 s (R4). The window resolves to three
+image candidates of 10 s each, A, B and C, presented in sequence (R14);
+the resolution document carries a slot-start and a slot-end beacon
+(R13.7) and declares no validity of its own (R36.4). The viewer watches
+the window, rewinds to 09:50 and watches it again. Another viewer seeks
+straight to 10:15.
+
+**Publisher intent:** the window, written three ways in turn:
+
+1. declaring nothing beyond its cap;
+2. declared once-per-session (R34.1);
+3. declaring that a late execution starts with an offset (R34.9).
+
+**Expected behavior:** the same on every device class that renders an
+image overlay (D1, D3, D4); D2 and D5 skip the window, as in UC-03.
+
+- **Declaring nothing — the rewind.** Playback reaching 10:00 again is a
+  new execution (R34.6). The Player resolves again, because the earlier
+  resolution was usable only for its own execution (R34.7, R36.4), and
+  the APS may return other ads. The new execution has its own cap, fires
+  the slot-start beacon again and every beacon of what it presents. A
+  dismissal the viewer made the first time (R35) does not carry over: it
+  belonged to the earlier execution.
+- **Once-per-session — the rewind.** The first execution consumed the
+  window when A began rendering (R34.3). At the second entry the Player
+  leaves the programme uninterrupted and fires nothing (R34.5).
+- **Once-per-session — a seek over the window.** A viewer who seeks from
+  09:55 to 10:40 crosses the window without an ad beginning to render;
+  the window is not consumed, and a later rewind into it presents it
+  (R34.5).
+- **Declaring nothing — the seek to 10:15.** A late execution (R34.8).
+  The Player presents the sequence from A; the window ends at 10:30, so
+  B is cut there, 5 s in, and C is not presented (R40). The slot-start
+  beacon fires when A begins (R13.7).
+- **Declaring the offset — the seek to 10:15.** The point of the sequence
+  15 s from its start is 5 s into B. A is not presented; B is presented
+  from its 5th second, and its beacons timed before that second do not
+  fire (R34.8); C follows and ends with the window. The slot-start beacon
+  fires when B begins rendering.
+
+**What this demonstrates:** returning to a window is what the base
+specification makes it for its own events — a new execution, resolved
+anew — and the two declarations the base offers its events, executing
+once and starting with an offset, are what a Publisher writes to depart
+from that.
