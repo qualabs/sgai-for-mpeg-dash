@@ -2,6 +2,7 @@
 description: "El build mayor v13: reconstruir la spec desde context/ con todo lo acumulado desde v12.6 (fase 07, document-first y multiview), y decidir los carriers que el incremental no pudo ubicar."
 status: idea
 category: chore
+depends_on: [document-first, multiview]
 origin: "Nicolás, 2026-10-27, al cerrar la fase 07 sin rebuild"
 ---
 
