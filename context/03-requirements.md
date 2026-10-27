@@ -1166,6 +1166,9 @@ squeezeback layouts (side-by-side and L-shape).
     squeezeback window, that a late execution starts with an offset. A
     window that does not declare it starts every execution from the first
     candidate.
+  - **R34.10** (Player): A resolution that arrives after the window it
+    was requested for has ended MUST NOT be presented; the Player
+    discards it.
 
 - **R35. The viewer may dismiss an ad slot, and the APS says whether and from when.**
   *Gist: The APS declares per overlay or pause slot whether the viewer may dismiss it and how many seconds must pass first, a linear slot follows the base specification's own skip declaration and its default, and dismissing ends the whole slot, never one ad inside it.*
@@ -2263,6 +2266,10 @@ carriers for creative metadata and non-AV assets.
     the window's start, and the slot-end beacon once, when the execution
     ends, whatever ends it (last ad completed, cap reached, dismissal).
     An execution in which no ad was rendered fires neither.
+  - **R13.8** (spec document): The specification defines which beacons
+    the Player fires and when, and MUST NOT define how the beacons
+    received are interpreted. Whether an ad aborted after it began
+    rendering counts as viewed is for whoever reads the beacons.
 
 - **R23. Application-level ad metadata carrier.**
   *Gist: The specification defines an SVTA-namespaced place for creative metadata with no native DASH carrier; emitting it and reading it are both optional.*
@@ -2767,6 +2774,10 @@ and deferring layout to existing primitives.
   the device can decode (AV1, VP9 and others) is not one of the
   parameters of R29.1, and no device class depends on it. It is out of
   scope for now, and is to be reviewed with the working group.
+- **OOS-13. Retry policy for the resolution request.** How many times a
+  Player retries a failed resolution request, and with what backoff, is
+  an implementation choice. This specification defines the interface,
+  and what follows a failed attempt is R20.1's.
 
 ## Deliberately open
 
