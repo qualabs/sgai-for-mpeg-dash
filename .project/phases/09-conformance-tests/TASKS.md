@@ -2,15 +2,15 @@
 
 | id   | brief                                                                                   | status  | who   | plan | evidence |
 | ---- | --------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
-| T-01 | Los bloques de un candidato quedan extraídos y clasificados, con su línea               | pending | agent | —    | —        |
-| T-02 | El XSD de las extensiones sale como archivo del build, idéntico al bloque de §5.10.1    | pending | agent | —    | —        |
-| T-03 | Nivel 1: E-1 a E-4 dicen por código si las extensiones son conformes con DASH          | pending | agent | —    | —        |
-| T-04 | Nivel 1: las reglas de la norma que el XSD no expresa corren como código con su cita    | pending | agent | —    | —        |
-| T-05 | Nivel 2: los criterios de context/03 sobre documentos corren como código                | pending | agent | —    | —        |
+| T-01 | Los bloques de un candidato quedan extraídos y clasificados, con su línea               | done | agent | —    | `bin/conformance/extract.py`; `bin/test_conformance_core.py` (Extract)        |
+| T-02 | El XSD de las extensiones sale como archivo del build, idéntico al bloque de §5.10.1    | done | agent | —    | `bin/emit-extension-xsd.py`; `bin/test_conformance_core.py` (Emitter)        |
+| T-03 | Nivel 1: E-1 a E-4 dicen por código si las extensiones son conformes con DASH          | in-progress | agent | —    | —        |
+| T-04 | Nivel 1: las reglas de la norma que el XSD no expresa corren como código con su cita    | in-progress | agent | —    | —        |
+| T-05 | Nivel 2: los criterios de context/03 sobre documentos corren como código                | in-progress | agent | —    | —        |
 | T-06 | Cada regla tiene su positivo y su negativo, y la suite los corre                        | pending | agent | —    | —        |
-| T-07 | Nivel 3a: dash.js upstream y Shaka reproducen los MPD de la spec ignorando lo nuestro   | pending | agent | —    | —        |
-| T-08 | El tool de DASH-IF corre como segundo auditor, con su línea de base y el borrador del issue | pending | agent | —    | —        |
-| T-09 | El pipeline corre los tests, el audit deja de ser juez y la promoción los exige         | pending | agent | —    | —        |
+| T-07 | Nivel 3a: dash.js upstream y Shaka reproducen los MPD de la spec ignorando lo nuestro   | in-progress | agent | —    | —        |
+| T-08 | El tool de DASH-IF corre como segundo auditor, con su línea de base y el borrador del issue | in-progress | agent | —    | —        |
+| T-09 | El pipeline corre los tests, el audit deja de ser juez y la promoción los exige         | in-progress | agent | —    | `bin/check-promotable.py`, `bin/test_check_promotable_conformance.py`        |
 | T-10 | La demo muestra positivos y negativos con la cita y el lugar, igual en cada corrida     | pending | agent | —    | —        |
 | T-11 | La spec publicada tiene su informe de tres niveles y la comparación con el audit        | pending | agent | —    | —        |
 | T-12 | Cierre: REPORT.md (Mode D), LOG y validador                                             | pending | agent | —    | —        |

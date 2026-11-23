@@ -2390,3 +2390,7 @@ El líder del proyecto aprobó las recomendaciones, con un cambio de orden: *"to
 ## 2026-11-23 — conformance-tests: diseño acordado, plan generado
 
 El líder del proyecto aprobó abrir y ejecutar la fase. La generación escribió `PHASE.md`, `TASKS.md` (12 tareas, la última el cierre) y las ADR 0045 a 0058, una por decisión D-1 a D-14 del diseño. El proyecto no tiene `docs/arc42/`.
+
+## 2026-11-23 — Fase 09: núcleo de los tests de conformidad
+
+T-01 y T-02 hechas: `bin/conformance/extract.py` (84 bloques, 12 pedidos de ejemplo, cada uno con su línea) y `bin/emit-extension-xsd.py` (el XSD de §5.10.1 como archivo, idéntico al bloque; salidas 0/1/2/64 probadas). E-1 a E-4 y el runner `bin/check-dash-conformance.py` andan sobre `dist/sgai-spec.md`; el XSD de ISO 6ta se baja a `~/.cache/sgai-conformance/` y se verifica por sha256. `check-promotable` lee `conformance-tests.json` y el audit del LLM queda como sospechas que no bloquean (tests de las dos cosas, con su mutación). T-04, T-05, T-07 y T-08 corren en paralelo.
