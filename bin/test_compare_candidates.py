@@ -118,6 +118,30 @@ class Compare(unittest.TestCase):
         self.assertEqual(code, 2, out)
         self.assertIn("not comparable", out)
 
+    def test_renumbered_units_stay_comparable(self):
+        # Rename 40 of the candidate's units (82% still shared): comparable.
+        p = os.path.join(self.an, "v9.9-spec-validation.md")
+        with open(p) as fh:
+            text = fh.read()
+        ids = re.findall(r"^\| (R\d+\.\d+) \|", text, re.M)[:40]
+        for u in ids:
+            text = text.replace(f"| {u} |", f"| {u}x |", 1)
+        with open(p, "w") as fh:
+            fh.write(text)
+        code, out = self.run_cmp()
+        self.assertEqual(code, 0, out)
+        with open(os.path.join(self.an, "v9.9-comparison.md")) as fh:
+            self.assertIn("Units only in the candidate (40)", fh.read())
+
+    def test_disjoint_population_cannot_tell(self):
+        p = os.path.join(self.an, "v9.9-spec-validation.md")
+        with open(p) as fh:
+            text = fh.read()
+        text = re.sub(r"^\| (R\d+\.\d+|R\d+#p\d+|DP-[^ ]+|UC-\d+) \|", lambda m: f"| Z{m.group(1)} |", text, flags=re.M)
+        with open(p, "w") as fh:
+            fh.write(text)
+        self.assertEqual(self.run_cmp()[0], 2)
+
     def test_candidate_without_tests_cannot_tell(self):
         os.remove(os.path.join(self.an, "v9.9-conformance-tests.json"))
         self.assertEqual(self.run_cmp()[0], 2)

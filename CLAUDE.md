@@ -190,6 +190,15 @@ What does NOT go where:
     tests, `stale` the units whose sections changed between two
     candidates (what a refine's validation walks), `batch` what a
     walker reads for a batch of units.
+  - `validate.py` (Step 7) — the whole validation as code: population,
+    sources, what is walked by mode, batches, merge, trace, sidecar and
+    summary. The model only answers single-turn calls with no tools and no
+    `CLAUDE.md`: the walkers (`walk-batches.py`) and the open search.
+  - `walk-batches.py` — runs the walkers as single-turn calls and
+    validates every answer by code (schema, verdict values, sections that
+    exist, quotations literal in their section, a quotation for every
+    verdict but `gap`/`governance`); what fails gets one retry and then
+    `not-verifiable`, never `met`.
   - `validation-summary.py` — writes `v<N>-spec-validation.summary.json`
     from the sidecar with `check-promotable.py`'s own parsers: scripts
     read the summary, never the prose.
@@ -413,8 +422,9 @@ CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0 \
 
 **The environment variable is not optional.** `claude -p` terminates a
 run after waiting 600 seconds for background tasks, and this pipeline
-dispatches subagents by contract — the apply step, the validation, the
-audit and each refine run in fresh subagent contexts. Without the
+dispatches subagents by contract — the apply step, the audit and each
+refine run in fresh subagent contexts (the validation is `bin/validate.py`,
+whose model calls are single-turn). Without the
 variable the run is killed **while collecting work that has already
 been done and paid for** — and it reports the step it was waiting on as
 still running, because the orchestrator's last message is composed

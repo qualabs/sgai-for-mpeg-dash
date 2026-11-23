@@ -78,6 +78,9 @@ ID = re.compile(
 )
 
 
+FLAG = re.compile(r"\bflag[- #]?(\d+)\b", re.I)
+
+
 def read(path):
     with open(path, encoding="utf-8") as fh:
         return fh.read()
@@ -255,6 +258,11 @@ def dispositions(validation):
             cell = row[ref] if ref is not None and len(row) > ref else " ".join(row)
             for found in ID.findall(strip_marks(cell)):
                 out[found] = bucket
+            # A detail-review flag is routed as `flag <n>` (or `flag-<n>`):
+            # its id is a number, which ID does not match, so a flag routed
+            # to 5.a would otherwise never block.
+            for n in FLAG.findall(strip_marks(cell)):
+                out["flag %s" % n] = bucket
     return out
 
 

@@ -87,11 +87,12 @@ class ModelError(Exception):
     pass
 
 
-def call_model(prompt, model=None):
+def call_model(prompt, model=None, system=None):
     """One single-turn call; returns (text, usage). Runs from an empty
-    private directory so no CLAUDE.md is discovered."""
+    private directory so no CLAUDE.md is discovered. `system` replaces the
+    walker's system prompt (bin/validate.py's open search reuses this call)."""
     with tempfile.TemporaryDirectory(dir=os.environ.get("XDG_RUNTIME_DIR") or None) as cwd:
-        cmd = ["claude", "-p", "--tools", "", "--setting-sources", "", "--system-prompt", SYSTEM,
+        cmd = ["claude", "-p", "--tools", "", "--setting-sources", "", "--system-prompt", system or SYSTEM,
                "--output-format", "json"]
         if model:
             cmd += ["--model", model]

@@ -351,13 +351,25 @@ run by hand, or through the demo (`--demo`), on the assembled document.
 - Else → run them and log
   `[BUILT] check-dash-conformance → output-analysis/v<N>-conformance-tests.{md,json} (exit <e>)`.
 
-#### Step 7 — Validate spec (fresh subagent)
+#### Step 7 — Validate spec (code; the model only in single-turn calls)
 
-This step MUST dispatch a **fresh subagent** — do not run inline in the
-orchestrator's own context. The validation agent has zero context overlap
-with the agent that applied the delta: independent review is the point.
+It runs after Step 7.5, so the validation routes the review's flags (§5 of
+the sidecar). It is one command, inline:
 
-`prompts/3-post-spec/validate-spec.prompt` with iteration `N` and its
+```bash
+python3 bin/validate.py v<N> --prev v<P> --mode <major|incremental|refine>
+```
+
+`bin/validate.py` is `prompts/3-post-spec/validate-spec.prompt` made
+code: population, sources, what is walked, batches, merge, trace, sidecar
+and summary are deterministic, and the model is used only in single-turn
+calls with no tools and no `CLAUDE.md` (the walkers and the open search).
+Independence from the agent that applied the delta holds because none of
+those calls carries its context. Do not dispatch a subagent for this step:
+a subagent's fixed context (~64k tokens per call, measured in phase 10) is
+what made the old validation the most expensive step.
+
+The prompt defines it with iteration `N` and its
 mode (`major` here; `incremental` from `build-incremental`; `refine` in
 Step 9). It writes the sidecar, the trace (`v<N>-trace.json`, checked by
 `bin/check-trace.py`) and the machine summary; it reads the units' source
@@ -371,7 +383,7 @@ changed (`bin/check-trace.py stale`).
   `output/v<N>-sgai-spec.md` and than
   `output-analysis/v<N>-conformance-tests.json` → log
   `[SKIPPED] validate-spec → output-analysis/v<N>-spec-validation.md`.
-- Else → dispatch and log
+- Else → run it and log
   `[BUILT] validate-spec → output-analysis/v<N>-spec-validation.md (+ trace, summary)`.
 
 #### Step 7.5 — Review the names
@@ -501,7 +513,12 @@ baseline; below, `v<N>.<M>` with `M = 0` names `v<N>`) and iterate
   9.3 **Conformance tests** — Step 8.0 against `v<N>.<M+1>`.
       - Output: `output-analysis/v<N>.<M+1>-conformance-tests.md` and `.json`.
 
-  9.4 **Validation, scoped to what changed** — Step 7 against
+  9.4 **Names** — Step 7.5 against `v<N>.<M+1>` (its code half and the
+      names-only review). Its patch, if any, is the next round's input.
+      - Output: `output-analysis/v<N>.<M+1>-detail-review.md` and, if any,
+        `v<N>.<M+1>-detail-review.patch.json`.
+
+  9.4a **Validation, scoped to what changed** — Step 7 against
       `v<N>.<M+1>` in `refine` mode: `validate-spec` walks the units of
       `bin/check-trace.py stale output-analysis/v<N>.<M>-trace.json --old
       output/v<N>.<M>-sgai-spec.md --new output/v<N>.<M+1>-sgai-spec.md`
@@ -510,11 +527,6 @@ baseline; below, `v<N>.<M>` with `M = 0` names `v<N>`) and iterate
       search only on the changed sections.
       - Output: `output-analysis/v<N>.<M+1>-spec-validation.md`, its
         `.summary.json` and `v<N>.<M+1>-trace.json`.
-
-  9.4a **Names** — Step 7.5 against `v<N>.<M+1>` (its code half and the
-      names-only review). Its patch, if any, is the next round's input.
-      - Output: `output-analysis/v<N>.<M+1>-detail-review.md` and, if any,
-        `v<N>.<M+1>-detail-review.patch.json`.
 
   9.4b **The audit is carried, not re-run.** Copy
       `output-analysis/v<N>.<M>-dash-conformance-audit.md` to

@@ -7,10 +7,14 @@ audit.md) and the published ones in dist/, with the same parsers
 `check-promotable.py` uses, and writes the table and the verdict.
 
 **Unit by unit, never count against count.** The obligation coverage is
-compared on the units both sides walked (by id). If the two populations
-share less than MIN_OVERLAP of the smaller one, they are not the same kind
-of unit (30 requirements against 211 criteria, as the LLM comparison of
-v12.6 did) and there is no verdict: exit 2.
+compared on the units both sides walked (by id). Two populations are not
+comparable — exit 2, no verdict — when they are not the same kind of unit
+(a per-requirement map against a per-criterion one: 30 requirements against
+211 criteria, as the LLM comparison of v12.6 did), or when they share less
+than MIN_OVERLAP of the smaller one. Between those, `context/` renumbering
+some criteria since the published build (the 03 rewrite left 173 of 211
+shared) is comparable: the shared units are judged, and the others are
+listed as only-in-candidate / only-in-dist.
 
 The verdict:
   WORSE THAN PUBLISHED    a shared unit that was clear (met/full/governance)
@@ -52,7 +56,7 @@ _spec = importlib.util.spec_from_file_location("promotable", os.path.join(BIN, "
 cp = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(cp)
 
-MIN_OVERLAP = 0.9
+MIN_OVERLAP = 0.5
 CLEAR = cp.COVERAGE_CLEAR
 BLOCK = cp.COVERAGE_BLOCKS
 BLOCKING_BUCKETS = ("5.a", "5.b", "5.c", "5.d")
@@ -112,7 +116,7 @@ def judge(dist, cand):
     du, cu = dist["units"], cand["units"]
     shared = set(du) & set(cu)
     small = min(len(du), len(cu)) or 1
-    if len(shared) / small < MIN_OVERLAP:
+    if dist["shape"] != cand["shape"] or len(shared) / small < MIN_OVERLAP:
         raise CannotTell(f"populations not comparable: {len(shared)} shared units of "
                          f"{len(du)} published and {len(cu)} candidate "
                          f"({dist['shape']} against {cand['shape']})")

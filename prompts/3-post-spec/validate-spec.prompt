@@ -1,23 +1,25 @@
 # Validate the spec
 
-**Inputs**:
+**Inputs** (read by `bin/validate.py`, not by an agent):
 - `../output/v<N>-sgai-spec.md` — the candidate. `N` is passed in by the
-  orchestrator (`build-all.prompt`, `build-incremental.prompt`); invoked
-  standalone, it is the newest `v*` in `../output/`. **It is never read
-  whole**, except by the open search of a major or incremental (§B.4).
-- The mode, passed in by the orchestrator or else deduced: **refine** when
-  `../output-analysis/v<N>-patch.json` exists, **incremental** when
-  `../output-analysis/v<N>-context-delta.md` exists, **major** otherwise.
-- In a refine: the previous candidate `v<P>` (the one the patch was
-  applied to, the newest `v*` below `N` in `../output/`), its
-  `../output-analysis/v<P>-trace.json` and `v<P>-spec-validation.md`.
-  A refine whose `v<P>-trace.json` is missing runs as a major: it does not
-  guess what it would have carried over.
-- `../context/03-requirements.md` and `../context/04-use-cases.md` — read
-  **by unit**, through `bin/check-trace.py batch`, never whole by a walker.
-- `../output-analysis/v<N>-detail-review.md` — its flag ids, for §5.
-- `../.project/decisions/`, `../context/` and the base standard's primary
-  copy — only by the resolution chain of §5.
+  orchestrator (`build-all.prompt`, `build-incremental.prompt`).
+- The mode, passed in by the orchestrator or else deduced by the script:
+  **refine** when `../output-analysis/v<N>-patch.json` exists,
+  **incremental** when `../output-analysis/v<N>-context-delta.md` exists,
+  **major** otherwise.
+- The previous candidate `v<P>` (passed in, or the newest `v*` below `N`
+  in `../output/`), its `../output-analysis/v<P>-trace.json` and
+  `v<P>-spec-validation.md`. A refine whose `v<P>-trace.json` is missing
+  runs as a major: it does not guess what it would have carried over.
+- `../output-analysis/v<N>-conformance-tests.json` (Step 8.0). Missing, the
+  step stops.
+- `../context/03-requirements.md` and `../context/04-use-cases.md` — by
+  unit, never whole.
+- `../output-analysis/v<N>-detail-review.md` — its flag ids for §5, if it
+  exists when this step runs.
+- This prompt: the script reads from it the text the model calls receive
+  (§A.1–§A.5 and the two rule blocks of §B), so this file stays the
+  definition and the script its execution.
 
 **Output** (all three, or none):
 - `../output-analysis/v<N>-spec-validation.md` — the sidecar;
@@ -27,15 +29,19 @@
   `bin/validation-summary.py` from the sidecar.
 
 **Skip if**: the three outputs exist AND the sidecar's mtime is newer
-than the spec's.
+than the spec's and the conformance tests' (the script checks it and
+prints `[SKIPPED]`; `--force` overrides).
 
-**Execution mode**: the orchestrating agent of this prompt runs in a
-fresh subagent context, separate from the one that produced the spec. Its
-walkers (§B.3) run by `bin/walk-batches.py` as single-turn calls, not as
-subagents; in a major or incremental the open search (§B.4) is one fresh
-subagent. Run under
-`CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0` (see `../CLAUDE.md`, "How to
-invoke a build").
+**Execution mode**: one command, run inline by whoever invokes the step —
+no subagent:
+
+```bash
+python3 bin/validate.py v<N> --prev v<P> --mode <refine|incremental|major>
+```
+
+The model is used only in single-turn calls with no tools, from an empty
+directory: the walkers and the open search. Report the script's last
+lines and its exit (§B.7).
 
 ---
 
@@ -140,7 +146,9 @@ of four buckets, and so MUST:
    — its `Disposition` column carries the bucket, and the row also
    appears in that bucket's table;
 2. **every flagged item of the detail review**
-   (`../output-analysis/v<N>-detail-review.md`), by its flag number.
+   (`../output-analysis/v<N>-detail-review.md`), by its flag number, when
+   it exists as this step runs (in `build-all` Step 7.5 runs after it;
+   the sidecar says when there was none to route).
 
 Reading the detail review is narrow: **its ids, never its reasoning.**
 This step does not re-judge a verdict; it says who resolves it.
@@ -297,172 +305,186 @@ chapter, and the `(<count>)` of every heading equals its entries:
 
 ---
 
-## B. How the walk is done
+## B. What `bin/validate.py` does
 
-**Nobody in this step reads the spec whole, except the open search of a
-major or incremental (§B.4).** The orchestrator reads scripts' output,
-the previous trace and sidecar, and the sections a script hands it. A
-walker reads what `bin/check-trace.py batch` prints for its units. The
-cost of the old walk — every walker re-reading the whole spec, 120–200k
-tokens of context per call — is what this structure removes.
+**Nobody in this step reads the spec whole, and no agent runs it.** A
+subagent starts from ~64k tokens of fixed context and re-reads all of it
+on every tool call (measured in phase 10, T-16); a single-turn call
+carries only its message. Everything that is not judging text is code and
+costs no tokens. `bin/validate.py --help` is the precise contract; this
+section says what it does, so that §A can be read against it.
 
-Work in `$XDG_RUNTIME_DIR/cto/validate-v<N>-<random>/` (`W` below) and
-remove it at the end.
+### B.1 The units and their source (code)
 
-### B.1 The units and their source (code, no LLM)
+`bin/check-promotable.py --population` gives the units;
+`bin/check-trace.py sources output-analysis/v<N>-conformance-tests.json`
+gives each its source:
 
-```bash
-python3 bin/check-promotable.py --population > W/population.tsv
-python3 bin/check-trace.py sources output-analysis/v<N>-conformance-tests.json > W/sources.json
-```
-
-`v<N>-conformance-tests.json` is the output of Step 8.0 of `build-all`,
-which runs before this step, on the source (`check-dash-conformance.py
---source spec-source`). If it is missing, this step stops: it does not run
-the conformance tests itself, because a run on the assembled document reads
-the `legacy-view` examples as Publisher documents and gives verdicts the
-source run does not. Exit 1 of that run is a result (its FAILs are verdicts).
-
-`W/sources.json` gives each unit its **source**:
-
-- **`code`** — a level-2 rule with code decides it. The verdict is the one
+- **`code`** — a level-2 rule with code decides it, with the verdict
   `sources` computed (`contradicted` if a rule FAILs, `met` if one PASSes
-  and none FAILs) and is **not** re-judged by anyone. If the unit has a
-  `residual` (rules of the same criterion that code cannot decide), that
-  part goes to a walker like an `llm` unit, and the row's verdict is the
-  worse of the two (`contradicted` > `force-lost` > `partial` > `met`).
-- **`vector-pending`** — Player behaviour, for which the UC vectors do not
-  exist yet. Recorded as such in the trace and in Notes. Until a vector
-  decides it, whether the spec *states* the Player's obligation is still
-  a question about the text, so the unit is walked like an `llm` unit.
-- **`llm`** — judged by a walker (§B.3).
+  and none FAILs), never re-judged. If the unit has a `residual`, that part
+  is walked, and the row's verdict is the worse of the two (`contradicted`
+  > `force-lost` > `partial` > `met`; a residual judged `gap` while code
+  passes is `partial`).
+- **`vector-pending`** — Player behaviour with no UC vector yet: walked
+  like an `llm` unit, recorded as such in Notes.
+- **`llm`** — walked.
 
 ### B.2 What is walked, by mode
 
-- **major, incremental**: every unit that is not a `code` unit without
-  residual.
-- **refine**: only the units whose sections changed. Compute them:
+- **major, incremental**: every unit but a `code` unit without residual.
+- **refine**: the units of `bin/check-trace.py stale` (their sections
+  changed between `v<P>` and `v<N>`), units new to the population, units
+  whose source, rules or residual changed, units whose `v<P>` verdict
+  was not `met`, and units whose `context/` text is not the text `v<P>`
+  judged (the trace keeps a hash of each unit's text; an entry with none is
+  walked, since nothing shows its text is the same). Every other unit carries over its `v<P>` verdict, kind,
+  notes and trace entry, and no model reads it. Every key of
+  `sections_changed` in `v<N>-patch.json` must be among stale's changed,
+  removed or added keys; otherwise the step stops (exit 2): the patch
+  record and the documents disagree.
 
-  ```bash
-  python3 bin/check-trace.py stale output-analysis/v<P>-trace.json \
-    --old output/v<P>-sgai-spec.md --new output/v<N>-sgai-spec.md > W/stale.json
-  ```
+### B.3 Walkers: one batch each, a single-turn call
 
-  `units` lists them; `changed`, `removed` and `added` are the section
-  keys. Every key in `sections_changed` of `v<N>-patch.json` must be in
-  `changed`, `removed` or `added`; if not, stop and say so (the patch
-  record and the documents disagree). Also walked: units new to the
-  population, units whose source changed since v<P>, and units whose
-  v<P> verdict was not `met`. **Every other unit carries over** its v<P>
-  verdict, kind, notes and trace entry unchanged — no LLM reads it.
+Batches of at most **8 units**, ordered by their first section so units
+that share sections travel together, split while a batch's text (what
+`bin/check-trace.py batch` prints for it) exceeds **60,000 characters**.
+A unit with no section yet is seeded with the sections that name most of
+the code terms and attributes of its text. `W/defs.txt` is §A.4's
+verdicts and kinds, the block below, and the spec's section keys; a
+batch with `code` or `vector-pending` units carries a note saying which
+part to judge. `bin/walk-batches.py` sends each batch as one call and
+validates every answer by code (schema, values, each quoted section
+exists, each quotation literal, every verdict but `gap` and `governance`
+quoting); what fails, or asks for sections, goes back once; a unit still
+failing is `not-verifiable`, never `met`, and `bin/check-promotable.py`
+reads it as cannot-tell.
 
-### B.3 Walkers: one batch of units each, small context
+#### Walker rules
 
-Group the units to walk into batches of **at most 8 units**, keeping units
-that share sections together, and split any batch whose `batch` output
-exceeds **60,000 characters**. Before dispatching, write the draft trace
-`W/trace-draft.json` (format of `bin/check-trace.py --help`): every unit
-of the population with its source and rules from `W/sources.json`, and
-its sections taken from `v<P>-trace.json` when it has one there, keeping
-only keys that still exist. For each batch:
+For each unit in the batch, decide its `kind` and `verdict` by reading
+the unit's text and the sections printed for it. If they do not hold the
+passage you need, ask for other sections by key (`need_sections`; the
+list of every section key of the spec is below); a unit with no section
+yet that no section addresses is `gap`. You get ONE round of extra
+sections: ask for everything you need at once.
 
-```bash
-python3 bin/check-trace.py batch W/trace-draft.json <UNIT> ... \
-  --spec output/v<N>-sgai-spec.md > W/batch-<i>.txt
-```
+Return one JSON object per unit, one per line:
+`{"unit": "...", "kind": "...", "verdict": "...", "sections": [{"key": "...", "quotes": ["..."]}], "notes": "..."}`.
+Each quotation is copied **character for character** from the section it
+is filed under: no ellipsis inside a quotation (write two), no `/` for a
+table's `|`, no rewording. Emphasis marks and line breaks may differ;
+nothing else may. Every verdict but `gap` and `governance` carries at
+least one quotation: quote the passage that satisfies the unit, and if
+none does, the one that breaks it. In `notes` say in one or two
+sentences why the verdict, and for `partial` what part is missing. A
+finding you notice outside the verdict (a contradiction between two
+sections, a missing modal in the source) goes in `notes` prefixed
+`FINDING:`. Notes for particular units (which part code already decides,
+that a Player behaviour has no test vector yet) are to be followed.
 
-Write `W/defs.txt` once: the verdict definitions and kinds of §A.4 and the
-rules below. Then run the walkers **by script, not as subagents**:
+### B.4 The open search and the routing
 
-```bash
-python3 bin/walk-batches.py W --spec output/v<N>-sgai-spec.md --jobs 4
-```
+Routed by rule, with no model: a `contradicted` row (a walker's, or a
+code FAIL) and a `force-lost` row are `5.a` (§5.a criteria 6 and 5); in a
+refine, a `partial` or `gap` row whose `v<P>` verdict and sections did
+not change keeps its `v<P>` row, and so does every §1–§3 entry carried
+over. `5.a` keeps at most 5 rows, contradicted first and force-lost last;
+the rest go to `#### 5.a Overflow (next pass)`.
 
-Each walker is one single-turn model call with no tools and no
-`CLAUDE.md`: it receives `W/defs.txt`, `W/notes-<i>.txt` and
-`W/batch-<i>.txt` and nothing else. A subagent starts from ~64k tokens of
-fixed context before reading its ~6k-token batch and re-reads all of it on
-every tool call (measured in phase 10); a script call carries only the
-batch. The script validates every answer by code — the JSON shape, the
-kind and verdict values, that each quoted section exists and each
-quotation is literal inside it, that every verdict but `gap` and
-`governance` cites something — and sends what fails, and the sections a
-walker asks for (`need_sections`), back once. A unit still failing is
-written `not-verifiable` with the reasons, never `met`; it enters the map
-as such, and `bin/check-promotable.py` reads it as cannot-tell. Do not
-dispatch subagents for walkers, and do not edit `W/answer-*.jsonl` by hand.
+Everything else goes to the **open search**, single-turn calls whose
+message is the block below, §A.1–§A.3, §A.5, the `context/` units traced
+to the sections sent, and:
 
-The rules `W/defs.txt` carries for the walkers:
+- **refine**: one call with the sections in stale's `changed` and
+  `added`; the `v<P>` §1–§3 entries that cite a changed or removed
+  section, to re-judge (the others carry over unchanged); the rows left to
+  route; the detail review's flags, if it exists; the walkers' `FINDING:`
+  notes; the titles of the entries carried, not to repeat.
+- **major, incremental**: the whole spec, in chunks of sections of at most
+  90,000 characters plus at most 25,000 of `context/` units (about 53k
+  tokens a call with the rules, at the 2.5 characters a token measured), the same items attached to the chunk that holds their
+  sections. Consecutive chunks overlap by one section (when the two fit
+  the budget together), so a passage that crosses a cut is read whole once; a finding repeated across chunks is
+  dropped by its kind and first quotation.
 
-> For each unit in the batch, decide its `kind` and `verdict` (§A.4) by
-> reading the unit's text and the sections printed for it. If they do not
-> hold the passage you need, ask for other sections by key
-> (`need_sections`); a unit with no section yet that no section addresses
-> is `gap`.
->
-> Return one JSON object per unit, one per line:
-> `{"unit": "...", "kind": "...", "verdict": "...", "sections":
-> [{"key": "...", "quotes": ["..."]}], "notes": "..."}`.
-> Each quotation is copied **character for character** from the section
-> it is filed under: no ellipsis inside a quotation (write two), no `/`
-> for a table's `|`, no rewording. Emphasis marks and line breaks may
-> differ; nothing else may. Every verdict but `gap` and `governance`
-> carries at least one quotation. A finding you notice outside the
-> verdict (a contradiction between two sections, a missing modal in the
-> source) goes in `notes` prefixed `FINDING:`.
+Each answer is validated by code: the JSON, `kind` and `routing` values,
+the routing fields of its bucket present, every section key real, every
+quotation literal in its section, a gap naming a section and an edge case
+or ambiguity quoting, ids only of entries sent, every sent entry, row and
+flag answered, the final `done` line. What fails goes back once. Still
+failing: a re-judged entry is kept from `v<P>` unchanged, a new finding is
+dropped, a row or flag stays unrouted — each listed under "What this run
+could not settle" in the sidecar.
 
-### B.4 The open search: gaps, edge cases, ambiguities
+The resolution chain of §5 runs on what the call holds: the `context/`
+units and the spec sections. ADRs and the base standard are not read, so
+the sidecar is `[GROUNDED_BY=spec-only]`.
 
-- **major, incremental**: one fresh subagent reads the whole spec once,
-  with `../context/03-requirements.md` and `../context/04-use-cases.md`,
-  and returns §1–§3. It is the only read of the whole document in this
-  step, and it exists because what crosses sections is what a
-  per-criterion walk cannot see.
-- **refine**: the previous sidecar's §1–§3 entries carry over, except
-  those whose cited sections are in `changed` or `removed`; those, and
-  the sections in `changed` and `added`, are re-examined in **one
-  single-turn call with no tools** (`claude -p --tools "" --setting-sources ""`
-  from an empty directory, as `bin/walk-batches.py` calls), whose message is
-  only those sections (`bin/spec-section.py get ... --file
-  output/v<N>-sgai-spec.md`) and the entries to re-judge.
+#### Open-search rules
 
-The walkers' `FINDING:` notes are added to the candidates of §1–§3.
+You receive sections of the specification, `context/` units, and items:
+entries of the previous validation to re-judge, coverage rows and
+detail-review flags to route, and the walkers' candidate findings. Read
+the sections for what a per-unit walk cannot see — what crosses sections
+— and report gaps, edge cases and ambiguities (definitions follow), each
+with its routing (§5 follows). Report only what holds; none is a valid
+answer.
+
+Answer with JSON objects, one per line, and end with `{"done": true}`:
+
+- a finding: `{"id": "<only for an entry sent to re-judge>", "kind":
+  "gap|edge|ambiguity", "title": "...", "text": "<the entry's body as §1,
+  §2 or §3 asks, markdown bullets, no headings, no tables>", "sections":
+  [{"key": "...", "quotes": ["..."]}], "routing": "5.a|5.b|5.c|5.d", ...}`.
+  A gap names at least one section (the one that needs it); an edge case
+  or an ambiguity quotes at least one passage.
+- a re-judged entry that no longer holds: `{"id": "...", "drop": true,
+  "reason": "..."}`.
+- a routed row: `{"unit": "...", "routing": "...", ...}`; a routed flag:
+  `{"flag": "<n>", "routing": "...", ...}`.
+
+The routing fields, all required for the bucket: `5.a` `criterion` (1–7),
+`section` (section keys), `edit`, `citation`; `5.b` `section`,
+`why_uncertain`, `resolutions`, `recommended`, `searched`; `5.c`
+`context_file`, `suggested_edit`, `leverage`, `searched`; `5.d`
+`context_passage`, `replacement`, `source`. `searched` says what of the
+chain you checked: the `context/` units given, and that ADRs and the base
+standard were not available to you. Quotations are copied character for
+character from the section they are filed under, as the walkers'.
 
 ### B.5 The trace, checked before anything is final
 
-Merge the walkers' answers, the `code` verdicts and the carried-over
-entries into `../output-analysis/v<N>-trace.json` (`"spec":
-"output/v<N>-sgai-spec.md"`, each unit with its `verdict`), then:
+The walkers' answers, the `code` verdicts and the carried entries are
+merged into the trace (each unit with its `verdict`, and the kind, notes
+and walker verdict the next refine carries), and
+`bin/check-trace.py` runs on it. A unit with `T-QUOTE` or `T-SECTION`
+(its walker already had its retry) is turned `not-verifiable` and the
+check re-run; it must exit 0. Anything else — `T-POP`, `T-SOURCE`,
+`T-RULE`, exit 2 — stops the step with nothing written.
 
-```bash
-python3 bin/check-trace.py output-analysis/v<N>-trace.json
-```
+### B.6 The sidecar and its summary
 
-It MUST exit 0. A `T-QUOTE` or `T-SECTION` goes back to the walker of that
-unit, once, with the finding; still failing, the step stops and reports
-it — a sidecar does not publish a quotation that is not in the spec. A
-`T-POP` means a unit was dropped or invented: fix the merge, never the
-population. Exit 2 stops the step.
+The sidecar is rendered from the trace in §A's structure: the map a row
+per unit in population order with the evidence §A.4 prescribes, §1–§3
+with a `Routing:` line that names the row (`See Actionable TODO T<k>`,
+`See Flagged F-<k>`, `See Deferred D-<k>`, `See Predictable P-<k>`), and
+§5's tables. Carried entries keep their ids; new ones take the next
+number. `bin/validation-summary.py` writes the summary; a count that
+disagrees with its entries stops the step. The three files are written
+together or not at all.
 
-### B.6 The sidecar, rendered from the trace, and its summary
+### B.7 Exits, and what to report
 
-Write the coverage map from the trace (a row per unit, population order,
-evidence as §A.4 says), §1–§3 from §B.4, and route §5 by the resolution
-chain — the only part of this step that reads `../context/` passages,
-ADRs and the base standard, and only for the findings being routed. In a
-refine, rows and findings carried over keep their bucket unless their
-reason changed. Then:
+- `0` — written; every unit validated, every open-search answer accepted.
+- `1` — written, with units `not-verifiable` or open-search answers kept,
+  dropped or unrouted (the `REPORT:` lines list them, and so does the
+  sidecar). `bin/check-promotable.py` will read a `not-verifiable` row as
+  cannot-tell.
+- `2` — cannot tell, nothing written: an input missing, stale and the
+  patch disagreeing, the model unreachable, check-trace or the summary not
+  green. Report the `CANNOT TELL` line.
+- `64` — wrong command line.
 
-```bash
-python3 bin/validation-summary.py output-analysis/v<N>-spec-validation.md \
-  --out output-analysis/v<N>-spec-validation.summary.json
-```
-
-Exit 1 (a heading's count disagrees with its entries) is fixed in the
-sidecar and re-run; the step is done when it exits 0.
-`bin/check-promotable.py` reads the summary, not the prose.
-
-### Tone
-
-Direct, audit-style. Cite section keys, never line numbers. The spec is
-the artefact; this document is the feedback loop back to `../context/`.
+Report the walkers' totals, the open search's calls and input tokens, the
+summary line and every `REPORT:` line.
