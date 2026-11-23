@@ -2410,3 +2410,7 @@ Nivel 3a: dash.js 5.3.0 upstream y Shaka 5.3.6 reproducen los 20 MPD principales
 ## 2026-11-23 — Fase 09 cerrada
 
 T-08: el tool de DASH-IF `v3.1.0` construido y fijado en `bin/dashif/`, corrido con `--dashif` como segundo auditor; sobre los 52 MPD publicados no da ningún hallazgo propio de la spec (los demás también aparecen en los ejemplos de ISO o vienen de su XSD de la 5ta); el borrador del issue a DASH-IF queda sin publicar, esperando el OK del líder del proyecto. ADR 0059: E-4 es la validación XSD del MPD sin lo ajeno. README, SETUP y CLAUDE.md describen los tests. REPORT escrito. Lo que sigue: `reference-player`, después el v13, que tiene que resolver los 8 FAIL de nivel 2 para poder promoverse.
+
+## 2026-11-23 — Diseño de `code-first-pipeline`
+
+Empieza el diseño de la fase que pasa el pipeline de la spec a código primero, pedida por el líder del proyecto al cerrar la 09: los artefactos (XSD, tablas de §5, ejemplos como fixtures, vectores de las UC) son la fuente y los juzga código, la prosa se escribe al final y se edita por parches de sección, y la meta medible es bajar ≥70% los tokens por incremental y por vuelta de refine. Medido: el incremental del 2026-10-27 procesó 41,8M tokens de entrada, el 60% en `apply-context-delta` releyendo la spec entera en 88 llamadas, y el 13% en dos artefactos del pre-spec que ningún paso lee. `roadmap/code-first-pipeline/DESIGN.md`; `reference-player` y `major-build-v13` pasan a depender de ella. `context/` y `dist/` sin tocar.
