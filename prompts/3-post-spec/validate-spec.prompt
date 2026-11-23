@@ -30,9 +30,10 @@
 than the spec's.
 
 **Execution mode**: the orchestrating agent of this prompt runs in a
-fresh subagent context, separate from the one that produced the spec, and
-dispatches its walkers (§B.3) and, in a major or incremental, the open
-search (§B.4) as fresh subagents of their own. Run under
+fresh subagent context, separate from the one that produced the spec. Its
+walkers (§B.3) run by `bin/walk-batches.py` as single-turn calls, not as
+subagents; in a major or incremental the open search (§B.4) is one fresh
+subagent. Run under
 `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0` (see `../CLAUDE.md`, "How to
 invoke a build").
 
@@ -370,19 +371,34 @@ python3 bin/check-trace.py batch W/trace-draft.json <UNIT> ... \
   --spec output/v<N>-sgai-spec.md > W/batch-<i>.txt
 ```
 
-Dispatch one fresh subagent per batch, in parallel, with exactly: the
-verdict definitions and kinds of §A.4, the instructions below, and
-`W/batch-<i>.txt`. Nothing else: not the spec, not `context/` whole, not
-the sidecar.
+Write `W/defs.txt` once: the verdict definitions and kinds of §A.4 and the
+rules below. Then run the walkers **by script, not as subagents**:
+
+```bash
+python3 bin/walk-batches.py W --spec output/v<N>-sgai-spec.md --jobs 4
+```
+
+Each walker is one single-turn model call with no tools and no
+`CLAUDE.md`: it receives `W/defs.txt`, `W/notes-<i>.txt` and
+`W/batch-<i>.txt` and nothing else. A subagent starts from ~64k tokens of
+fixed context before reading its ~6k-token batch and re-reads all of it on
+every tool call (measured in phase 10); a script call carries only the
+batch. The script validates every answer by code — the JSON shape, the
+kind and verdict values, that each quoted section exists and each
+quotation is literal inside it, that every verdict but `gap` and
+`governance` cites something — and sends what fails, and the sections a
+walker asks for (`need_sections`), back once. A unit still failing is
+written `not-verifiable` with the reasons, never `met`; it enters the map
+as such, and `bin/check-promotable.py` reads it as cannot-tell. Do not
+dispatch subagents for walkers, and do not edit `W/answer-*.jsonl` by hand.
+
+The rules `W/defs.txt` carries for the walkers:
 
 > For each unit in the batch, decide its `kind` and `verdict` (§A.4) by
-> reading the unit's text and the sections printed for it. When the
-> sections printed do not hold the passage, you may fetch others, **by
-> key**: `bin/spec-section.py find "<text>" --file output/v<N>-sgai-spec.md`
-> gives keys, `bin/spec-section.py get <KEY> --file output/v<N>-sgai-spec.md`
-> gives one section; `bin/spec-section.py list output/v<N>-sgai-spec.md`
-> gives the headings when the unit has no section yet. Never `get` a
-> chapter's worth of sections; never read the file.
+> reading the unit's text and the sections printed for it. If they do not
+> hold the passage you need, ask for other sections by key
+> (`need_sections`); a unit with no section yet that no section addresses
+> is `gap`.
 >
 > Return one JSON object per unit, one per line:
 > `{"unit": "...", "kind": "...", "verdict": "...", "sections":
@@ -404,9 +420,11 @@ the sidecar.
   per-criterion walk cannot see.
 - **refine**: the previous sidecar's §1–§3 entries carry over, except
   those whose cited sections are in `changed` or `removed`; those, and
-  the sections in `changed` and `added`, are re-examined by one fresh
-  subagent that receives **only those sections** (`bin/spec-section.py
-  get ... --file output/v<N>-sgai-spec.md`) and the entries to re-judge.
+  the sections in `changed` and `added`, are re-examined in **one
+  single-turn call with no tools** (`claude -p --tools "" --setting-sources ""`
+  from an empty directory, as `bin/walk-batches.py` calls), whose message is
+  only those sections (`bin/spec-section.py get ... --file
+  output/v<N>-sgai-spec.md`) and the entries to re-judge.
 
 The walkers' `FINDING:` notes are added to the candidates of §1–§3.
 
