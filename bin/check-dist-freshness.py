@@ -6,7 +6,7 @@ today's mtime and a `touch` marks a file stale that nobody changed, so a
 timestamp comparison is wrong in both directions.
 
 The build records a manifest of its inputs — one sha256 per file across
-`context/`, `context-analysis/` and `prompts/` — as `dist/inputs.sha256`.
+`context/`, `context-analysis/`, `prompts/` and `spec-source/` — as `dist/inputs.sha256`.
 This script recomputes that manifest and diffs it, so a mismatch names
 the files that moved rather than reporting a bare "stale".
 
@@ -14,13 +14,14 @@ Usage:
   bin/check-dist-freshness.py            compare dist/ against the inputs
   bin/check-dist-freshness.py --write    record the current inputs as the
                                          manifest of what is in dist/
+  --dist DIR                             another published directory (tests)
 """
 import hashlib
 import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TRACKED = ("context", "context-analysis", "prompts")
+TRACKED = ("context", "context-analysis", "prompts", "spec-source")
 MANIFEST = os.path.join(ROOT, "dist", "inputs.sha256")
 
 
@@ -54,6 +55,13 @@ def read_manifest(path):
 
 
 def main():
+    global MANIFEST
+    if "--dist" in sys.argv:
+        i = sys.argv.index("--dist")
+        if i + 1 >= len(sys.argv):
+            print("--dist needs a directory")
+            return 64
+        MANIFEST = os.path.join(os.path.abspath(sys.argv[i + 1]), "inputs.sha256")
     now = manifest_now()
 
     if "--write" in sys.argv:

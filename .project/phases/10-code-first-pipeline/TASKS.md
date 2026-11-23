@@ -14,7 +14,7 @@
 | T-10 | La comparación es código y no compara poblaciones distintas                              | done | agent | —    | `bin/compare-candidates.py`, `bin/test_compare_candidates.py`, `tasks/T-10/`        |
 | T-11 | El pre-spec no produce lo que nadie lee y saltea por hash                                | done | agent | —    | `bin/step-inputs.py`, `bin/test_step_inputs.py`, `tasks/T-11/`        |
 | T-12 | Los orquestadores corren sobre la fuente: artefactos primero, prosa por parche           | pending | agent | —    | —        |
-| T-13 | La promoción es un script que exige todo y copia el juego completo                       | pending | agent | —    | —        |
+| T-13 | La promoción es un script que exige todo y copia el juego completo                       | done | agent | —    | `bin/promote.py`, `bin/test_promote.py`, `tasks/T-13/`        |
 | T-14 | La suite de tests cubre todo lo nuevo de `bin/` y corre verde entera                     | pending | agent | —    | —        |
 | T-15 | `CLAUDE.md`, `README.md`, `prompts/README.md` y `SETUP.md` dicen el pipeline nuevo       | pending | agent | —    | —        |
 | T-16 | La medición A/B dice cuánto bajó el costo, medido contra medido                          | pending | agent | —    | —        |
