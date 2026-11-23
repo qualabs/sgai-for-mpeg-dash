@@ -12,7 +12,7 @@
 | T-08 | El tool de DASH-IF corre como segundo auditor, con su línea de base y el borrador del issue | in-progress | agent | —    | —        |
 | T-09 | El pipeline corre los tests, el audit deja de ser juez y la promoción los exige         | done | agent | —    | `bin/check-promotable.py`, `bin/test_check_promotable_conformance.py`, `prompts/`, `CLAUDE.md`        |
 | T-10 | La demo muestra positivos y negativos con la cita y el lugar, igual en cada corrida     | done | agent | —    | `bin/conformance/demo.py`; `tasks/T-10/demo-output.txt`        |
-| T-11 | La spec publicada tiene su informe de tres niveles y la comparación con el audit        | pending | agent | —    | —        |
+| T-11 | La spec publicada tiene su informe de tres niveles y la comparación con el audit        | done | agent | —    | `tasks/T-11/conformance-tests.md`, `.json`, `comparison.md`, `sgai-extension.xsd`        |
 | T-12 | Cierre: REPORT.md (Mode D), LOG y validador                                             | pending | agent | —    | —        |
 
 Lo común a todas: el diseño está en `PHASE.md` y en las ADR 0045 a 0058; el
