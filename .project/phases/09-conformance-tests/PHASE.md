@@ -1,6 +1,6 @@
 ---
 title: Tests de conformidad de la spec
-description: "Que la conformidad de la spec la decida código y no un LLM: el XSD de las extensiones como artefacto del build, su conformidad con ISO/IEC 23009-1 6ta, las reglas de la norma y de context/03 como código con su cita, y los Players legacy (dash.js upstream, Shaka), con una demo de positivos y negativos y un Step 8.0 que bloquea la promoción."
+description: "La conformidad de la spec la decide código: el XSD de las extensiones como artefacto del build y conforme con ISO/IEC 23009-1 6ta (E-1..E-4), 41 reglas de la norma y 196 de context/03 con su cita, 84 negativos, dash.js y Shaka reproduciendo los MPD, el tool de DASH-IF como segundo auditor, y la promoción atada a los tests; sobre la v12.6 publicada, 0 FAIL contra la norma y 8 contra context/03, y 0 contradicciones con el audit del LLM."
 started: 2026-11-23
 origin: "el líder del proyecto, 2026-11-23, hilo #sgai: «tal vez hay una parte del proceso que es justamente testear contra la norma», con la analogía de projects/tests-de-planos"
 category: chore

@@ -2406,3 +2406,7 @@ Nivel 1: 41 reglas de la norma (28 con código; las otras `NOT_VERIFIABLE` con s
 ## 2026-11-23 — Fase 09: primera corrida sobre la spec publicada (T-07, T-11)
 
 Nivel 3a: dash.js 5.3.0 upstream y Shaka 5.3.6 reproducen los 20 MPD principales de la spec sin error, tres corridas sin un cambio de resultado; Shaka reconoce el `InsertPresentation` en los 7 que lo traen; el MPD roto a propósito falla en los dos. Sobre `dist/sgai-spec.md`, con el XSD emitido de su §5.10.1: exit 1, PASS 1155, FAIL 8, NOT_VERIFIABLE 273, NOT_APPLICABLE 1531; los 8 FAIL son de nivel 2 (carriers que `context/` pide desde las fases 07 y 08, y el ejemplo G.3). Contra el audit publicado (37 construcciones): 17 confirmadas por código, 10 parciales, 10 sin evidencia de código, ninguna contradicha. Detalle en `tasks/T-11/comparison.md`.
+
+## 2026-11-23 — Fase 09 cerrada
+
+T-08: el tool de DASH-IF `v3.1.0` construido y fijado en `bin/dashif/`, corrido con `--dashif` como segundo auditor; sobre los 52 MPD publicados no da ningún hallazgo propio de la spec (los demás también aparecen en los ejemplos de ISO o vienen de su XSD de la 5ta); el borrador del issue a DASH-IF queda sin publicar, esperando el OK del líder del proyecto. ADR 0059: E-4 es la validación XSD del MPD sin lo ajeno. README, SETUP y CLAUDE.md describen los tests. REPORT escrito. Lo que sigue: `reference-player`, después el v13, que tiene que resolver los 8 FAIL de nivel 2 para poder promoverse.

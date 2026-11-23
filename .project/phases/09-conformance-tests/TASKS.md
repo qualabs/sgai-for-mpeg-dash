@@ -9,11 +9,11 @@
 | T-05 | Nivel 2: los criterios de context/03 sobre documentos corren como código                | done | agent | —    | `bin/conformance/spec/`; `bin/test_conformance_spec.py`; `tasks/T-05/classification.md`        |
 | T-06 | Cada regla tiene su positivo y su negativo, y la suite los corre                        | done | agent | —    | `bin/conformance/fixtures/negative/` (84 casos); suites core, dash, spec; mutación en `tasks/T-04/evidence.md` y el informe de T-05        |
 | T-07 | Nivel 3a: dash.js upstream y Shaka reproducen los MPD de la spec ignorando lo nuestro   | done | agent | —    | `bin/players/`, `bin/conformance/players.py`, `bin/test_conformance_players.py`, `tasks/T-07/`        |
-| T-08 | El tool de DASH-IF corre como segundo auditor, con su línea de base y el borrador del issue | in-progress | agent | —    | —        |
+| T-08 | El tool de DASH-IF corre como segundo auditor, con su línea de base y el borrador del issue | done | agent | —    | `bin/dashif/`, `bin/conformance/dashif.py`, `tasks/T-08/` (baseline, spec-run, issue-draft sin publicar)        |
 | T-09 | El pipeline corre los tests, el audit deja de ser juez y la promoción los exige         | done | agent | —    | `bin/check-promotable.py`, `bin/test_check_promotable_conformance.py`, `prompts/`, `CLAUDE.md`        |
 | T-10 | La demo muestra positivos y negativos con la cita y el lugar, igual en cada corrida     | done | agent | —    | `bin/conformance/demo.py`; `tasks/T-10/demo-output.txt`        |
 | T-11 | La spec publicada tiene su informe de tres niveles y la comparación con el audit        | done | agent | —    | `tasks/T-11/conformance-tests.md`, `.json`, `comparison.md`, `sgai-extension.xsd`        |
-| T-12 | Cierre: REPORT.md (Mode D), LOG y validador                                             | pending | agent | —    | —        |
+| T-12 | Cierre: REPORT.md (Mode D), LOG y validador                                             | done | agent | —    | `REPORT.md`        |
 
 Lo común a todas: el diseño está en `PHASE.md` y en las ADR 0045 a 0058; el
 código va en `bin/` (ADR de D-11); `context/` y `dist/` no se tocan; nada se
