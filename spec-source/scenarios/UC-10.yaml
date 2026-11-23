@@ -1,0 +1,178 @@
+# UC-10 — Side-by-side / double-box (three-element layout), as walked by
+# Annex J.
+# Expected behaviour: context/04 UC-10. Documents, ids and times: Annex J
+# (J.2 main MPD, J.3 request, J.4 resolution document, J.5 sub-MPD, J.6
+# budget, J.7 the walk per class, J.8 timing and dismissal). Candidates and
+# options carry no @id in J.4, so they are named by document order.
+#
+# Playback starts at 11:00 (play_from 660000), so the window [12:00, 12:15)
+# is at [60 s, 75 s) of the session.
+format: sgai-scenario/1
+uc: UC-10
+uc_sha256: cc8f52df0365925cc3bb113c654bea9ac65d1593d6193c35b724f9f655f0f547
+timescale: 1000
+tolerance: 250
+play_from: 660000
+observe_until: 85000
+entry: examples/annex-j/J.2-1.mpd
+fixtures:
+  - path: examples/annex-j/J.2-1.mpd
+  - path: examples/annex-j/J.3-1.http
+  - path: examples/annex-j/J.4-1.xml
+    url: https://aps.example.com/nl/overlay?show=cook&ep=9
+  - path: examples/annex-j/J.5-1.mpd
+    url: https://ads-cdn.example.com/nl/1001/ad-video.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+# J.3 sends only the forwarded layouts.
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1:
+    summary: >-
+      Option 1: the programme centre-left, the video ad centre-right, the
+      advertiser's background image in the bands, for 15 s.
+    requests:
+      - &resolve
+        at: {from: 0, to: 60000}
+        url: https://aps.example.com/nl/overlay?show=cook&ep=9
+        query: {sgai-allowed-layouts: squeezeback-double-box squeezeback-double-box-background}
+        answered_by: examples/annex-j/J.4-1.xml
+        matches: examples/annex-j/J.3-1.http
+      - &sub
+        at: {from: 0, to: 60000}
+        url: https://ads-cdn.example.com/nl/1001/ad-video.mpd
+        answered_by: examples/annex-j/J.5-1.mpd
+    selection:
+      - opportunity: &opp {fixture: examples/annex-j/J.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c1 {fixture: examples/annex-j/J.4-1.xml, index: 1}, option: {index: 1}, layout: squeezeback-double-box-background}
+    presentation:
+      - &before {start: 0, end: 60000, layout: none, shows: [{element: primary, from: 660000}]}
+      - &d1_db
+        start: 60000
+        end: 75000
+        layout: squeezeback-double-box-background
+        shows:
+          - {element: primary, from: 720000, region: centre-left box}
+          - {element: ad, candidate: *c1, option: {index: 1}, region: centre-right box}
+          - {element: background, candidate: *c1, option: {index: 1}, region: the bands}
+      # J.8: "The programme returns to full screen when the candidate ends."
+      - &after {start: 75000, end: 85000, layout: none, shows: [{element: primary, from: 735000}]}
+    beacons: &all_beacons
+      - {at: 60000, fixture: examples/annex-j/J.4-1.xml, candidate: *c1, id: "1", url: "https://t.example.com/imp?cr=1001"}
+      - {at: 75000, fixture: examples/annex-j/J.4-1.xml, candidate: *c1, id: "2", url: "https://t.example.com/complete?cr=1001"}
+  D2: &none
+    summary: >-
+      Nothing: every option needs a non-video surface (the background image,
+      or an image / HTML ad); the window presents no ad.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: declined
+        presented: []
+    presentation:
+      - {start: 0, end: 85000, layout: none, shows: [{element: primary, from: 660000}]}
+    beacons: []
+  D3: &img_bg
+    summary: >-
+      Option 1 fails (two decoders); option 2: the programme centre-left, the
+      image ad centre-right, the background image in the bands, for 15 s.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c1, option: {index: 2}, layout: squeezeback-double-box-background}
+    presentation:
+      - *before
+      - &d3_db
+        start: 60000
+        end: 75000
+        layout: squeezeback-double-box-background
+        shows:
+          - {element: primary, from: 720000, region: centre-left box}
+          - {element: ad, candidate: *c1, option: {index: 2}, region: centre-right box}
+          - {element: background, candidate: *c1, option: {index: 2}, region: the bands}
+      - *after
+    beacons: *all_beacons
+  D4: *img_bg
+  D5: *none
+
+variants:
+  - id: dismiss-at-1210
+    description: >-
+      J.8: "A dismissal after 12:05 ends the slot and returns the programme to
+      full screen at once, without skipping any of it." The viewer dismisses
+      at 12:10 (70 s of the session). D2 and D5 present nothing to dismiss, so
+      they have no outcome here.
+    actions: [{at: 70000, do: dismiss}]
+    outcomes:
+      D1:
+        summary: The double box from 12:00 until the dismissal at 12:10, then the programme full screen from 12:10.
+        requests: [*resolve, *sub]
+        selection:
+          - opportunity: *opp
+            result: presented
+            presented:
+              - {candidate: *c1, option: {index: 1}, layout: squeezeback-double-box-background}
+        presentation:
+          - *before
+          - start: 60000
+            end: 70000
+            layout: squeezeback-double-box-background
+            shows:
+              - {element: primary, from: 720000, region: centre-left box}
+              - {element: ad, candidate: *c1, option: {index: 1}, region: centre-right box}
+              - {element: background, candidate: *c1, option: {index: 1}, region: the bands}
+          - &dismissed_after {start: 70000, end: 85000, layout: none, shows: [{element: primary, from: 730000}]}
+        beacons: &dismissed_beacons
+          - {at: 60000, fixture: examples/annex-j/J.4-1.xml, candidate: *c1, id: "1", url: "https://t.example.com/imp?cr=1001"}
+      D3: &dismissed_img
+        summary: The image double box from 12:00 until the dismissal at 12:10, then the programme full screen from 12:10.
+        requests: [*resolve]
+        selection:
+          - opportunity: *opp
+            result: presented
+            presented:
+              - {candidate: *c1, option: {index: 2}, layout: squeezeback-double-box-background}
+        presentation:
+          - *before
+          - start: 60000
+            end: 70000
+            layout: squeezeback-double-box-background
+            shows:
+              - {element: primary, from: 720000, region: centre-left box}
+              - {element: ad, candidate: *c1, option: {index: 2}, region: centre-right box}
+              - {element: background, candidate: *c1, option: {index: 2}, region: the bands}
+          - *dismissed_after
+        beacons: *dismissed_beacons
+      D4: *dismissed_img
+
+missing_carrier: []
+
+disagreements:
+  - context: >-
+      context/04 UC-10 "Ad response": "The background fill is carried as a
+      composition attribute of the slot / layout, NOT as one of the
+      candidate's alternative presentation options (R26.1). Two background
+      cases are exercised: ... Advertiser background supplied ... No
+      advertiser background — the uncovered region renders as black."
+    annex: >-
+      J.4: "The background is an attribute of each option whose layout has
+      one; the last option's layout has none, so it carries none and its
+      bands render black." The no-background case is option 4, an
+      alternative the Player walks to, and J.7 has no class render it (D2
+      fails it on its image ad, D5 on everything); it appears only as "Had the
+      ADS offered a video ad without background ... D2 would have rendered
+      it, with black bands."
+    recorded: >-
+      The outcomes follow the annex: the background is read off the chosen
+      option, and no class renders the no-background case, so black bands
+      are not observed in this vector. Not resolved here.

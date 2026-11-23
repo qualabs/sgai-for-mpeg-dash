@@ -1,0 +1,140 @@
+# UC-11 — ClickThrough, as walked by Annex K.
+# Expected behaviour: context/04 UC-11. Documents, ids and times: Annex K
+# (K.2 main MPD, K.3 List MPD and sub-MPD, K.4 overlay document, K.5
+# walk-through, K.6 legacy Player, K.7 classes).
+#
+# Playback starts at 9:00 (play_from 540000). The linear mid-roll inserts
+# 20 s at 10:00 (session [60 s, 80 s)); the main timeline stands still
+# during it, so 25:00 is reached at 80 s + 15 min = 980 s of the session.
+# The viewer selects 8 s into the linear ad (K.5 step 1, 10:08) and 4 s
+# into the overlay (K.5 step 2, 25:04).
+#
+# What an activation does is not recordable in this format: the
+# destination handed to the device has no field, and a click-tracking URL
+# (`ClickThrough@trackingUris`) has no @id, so it cannot be a `beacons`
+# entry. The outcomes record what the activation must NOT change: the
+# timeline beacons and the presentation (K.5 "The impression and complete
+# beacons are unaffected: they are on the timeline").
+format: sgai-scenario/1
+uc: UC-11
+uc_sha256: 345272a152be178b63d5f8920be46a2dab0500e38e89414f7389b999da0bb80d
+timescale: 1000
+tolerance: 250
+play_from: 540000
+observe_until: 1005000
+entry: examples/annex-k/K.2-1.mpd
+fixtures:
+  - path: examples/annex-k/K.2-1.mpd
+  - path: examples/annex-k/K.3-1.mpd
+    url: https://aps.example.com/linear/mid?s=15&e=3
+  - path: examples/annex-k/K.3-2.mpd
+    url: https://ads-cdn.example.com/cr/1101/cr1101.mpd
+  - path: examples/annex-k/K.4-1.xml
+    url: https://aps.example.com/nl/overlay?s=15&e=3
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  legacy: {predates_spec: true}
+# Annex K has no request fixture; the overlay request forwards the window's
+# @allowedLayouts (PLY-15), the linear one carries no slot parameter.
+sends_capabilities: []
+actions:
+  - {at: 68000, do: activate}
+  - {at: 984000, do: activate}
+
+outcomes:
+  D1: &rendered
+    summary: >-
+      The 20 s linear ad at 10:00, selected at 8 s; later the image corner
+      overlay for 15 s at 25:00, selected at 4 s. The clicks change neither
+      the presentation nor the timeline beacons.
+    requests:
+      - &list
+        at: {from: 0, to: 60000}
+        url: https://aps.example.com/linear/mid?s=15&e=3
+        answered_by: examples/annex-k/K.3-1.mpd
+      - &sub
+        # K.3-1: ImportedMPD earliestResolutionTimeOffset 60 from its PeriodStart.
+        at: {from: 0, to: 60000}
+        url: https://ads-cdn.example.com/cr/1101/cr1101.mpd
+        answered_by: examples/annex-k/K.3-2.mpd
+      - &overlay
+        # Default resolution offset: from one minute before the window.
+        at: {from: 920000, to: 980000}
+        url: https://aps.example.com/nl/overlay?s=15&e=3
+        query: {sgai-allowed-layouts: overlay-corner}
+        answered_by: examples/annex-k/K.4-1.xml
+    selection:
+      - &sel_linear
+        opportunity: {fixture: examples/annex-k/K.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c1101 {fixture: examples/annex-k/K.3-1.mpd, id: ad-1101}, option: null, layout: linear}
+      # Both EventStreams of K.2-1 use Event@id 1; this is the overlay one.
+      - opportunity: &opp_overlay {fixture: examples/annex-k/K.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c1102 {fixture: examples/annex-k/K.4-1.xml, index: 1}, option: {index: 1}, layout: overlay-corner}
+    presentation:
+      - &p_before {start: 0, end: 60000, layout: none, shows: [{element: primary, from: 540000}]}
+      - &p_linear
+        start: 60000
+        end: 80000
+        layout: linear
+        shows: [{element: ad, candidate: *c1101, option: null}]
+        note: K.5 step 1, the select at 68 s hands https://brand-f.example.com/trial to the device and fires both trackingUris once
+      - {start: 80000, end: 980000, layout: none, shows: [{element: primary, from: 600000}]}
+      - start: 980000
+        end: 995000
+        layout: overlay-corner
+        shows: [{element: primary, from: 1500000}, {element: ad, candidate: *c1102, option: {index: 1}}]
+        note: K.5 step 2, the select at 984 s opens https://brand-g.example.com/menu; nothing to fire
+      - {start: 995000, end: 1005000, layout: none, shows: [{element: primary, from: 1515000}]}
+    beacons:
+      - &b_imp {at: 60000, fixture: examples/annex-k/K.3-2.mpd, id: "1", url: "https://t.example.com/imp?cr=1101"}
+      - &b_complete {at: 80000, fixture: examples/annex-k/K.3-2.mpd, id: "2", url: "https://t.example.com/complete?cr=1101"}
+      - {at: 980000, fixture: examples/annex-k/K.4-1.xml, candidate: *c1102, id: "1", url: "https://t.example.com/imp?cr=1102"}
+  D2: &linear_only
+    summary: >-
+      The 20 s linear ad at 10:00, selected at 8 s; the image overlay does not
+      render (K.7), so the select at 25:04 has nothing to click.
+    requests: [*list, *sub, *overlay]
+    selection:
+      - *sel_linear
+      - opportunity: *opp_overlay
+        result: declined
+        presented: []
+    presentation:
+      - *p_before
+      - *p_linear
+      - {start: 80000, end: 1005000, layout: none, shows: [{element: primary, from: 600000}]}
+    beacons: [*b_imp, *b_complete]
+  D3: *rendered
+  D4: *rendered
+  D5: *linear_only
+  legacy:
+    summary: >-
+      K.6: plays the linear ad and removes the svta elements of the List MPD;
+      a select does nothing ad-related. It never sees the overlay.
+    requests: [*list, *sub]
+    selection:
+      - *sel_linear
+      - opportunity: *opp_overlay
+        result: ignored
+        presented: []
+    presentation:
+      - *p_before
+      - start: 60000
+        end: 80000
+        layout: linear
+        shows: [{element: ad, candidate: *c1101, option: null}]
+        note: K.6 "a select does nothing ad-related"
+      - {start: 80000, end: 1005000, layout: none, shows: [{element: primary, from: 600000}]}
+    beacons: [*b_imp, *b_complete]
+
+missing_carrier: []
+
+disagreements: []

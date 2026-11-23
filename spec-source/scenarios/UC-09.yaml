@@ -1,0 +1,137 @@
+# UC-09 — One ad, ordered presentation options, resolved across device
+# classes, as walked by Annex I.
+# Expected behaviour: context/04 UC-09. Documents, ids and times: Annex I
+# (I.2 main MPD, I.3 request and resolution document, I.4 sub-MPDs, I.5
+# element needs, I.6 the walk per class). Candidates and options carry no
+# @id in I.3-2, so they are named by document order.
+#
+# Playback starts at 24:00 (play_from 1440000), so the overlay window
+# [25:00, 25:20) is at [60 s, 80 s) of the session.
+format: sgai-scenario/1
+uc: UC-09
+uc_sha256: cdc63f03d59b04ded521838a1cd1b2a2e38ec2b123cb1a05dc9b7c2465a7ddbb
+timescale: 1000
+tolerance: 250
+play_from: 1440000
+observe_until: 90000
+entry: examples/annex-i/I.2-1.mpd
+fixtures:
+  - path: examples/annex-i/I.2-1.mpd
+  - path: examples/annex-i/I.3-1.http
+  - path: examples/annex-i/I.3-2.xml
+    url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+  - path: examples/annex-i/I.4-1.mpd
+    url: https://ads-cdn.example.com/nl/901/db-video.mpd
+  - path: examples/annex-i/I.4-2.mpd
+    url: https://ads-cdn.example.com/nl/901/takeover.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+# I.1 / I.3: "The Player discloses nothing"; the request carries only the
+# forwarded layouts.
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1:
+    summary: >-
+      Option 1: the programme in one box, the ad video in the other, the
+      advertiser's background image in the bands, for 20 s.
+    requests:
+      - &resolve
+        # The window opens at 60 s; the document is received before it.
+        at: {from: 0, to: 60000}
+        url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+        query: {sgai-allowed-layouts: squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear}
+        answered_by: examples/annex-i/I.3-2.xml
+        matches: examples/annex-i/I.3-1.http
+      - at: {from: 0, to: 60000}
+        url: https://ads-cdn.example.com/nl/901/db-video.mpd
+        answered_by: examples/annex-i/I.4-1.mpd
+    selection:
+      - opportunity: &opp {fixture: examples/annex-i/I.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c1 {fixture: examples/annex-i/I.3-2.xml, index: 1}, option: {index: 1}, layout: squeezeback-double-box-background}
+    presentation:
+      - &before {start: 0, end: 60000, layout: none, shows: [{element: primary, from: 1440000}]}
+      - start: 60000
+        end: 80000
+        layout: squeezeback-double-box-background
+        shows:
+          - {element: primary, from: 1500000, region: one box}
+          - {element: ad, candidate: *c1, option: {index: 1}, region: the other box}
+          - {element: background, candidate: *c1, option: {index: 1}, region: the bands}
+        note: I.6 "The programme in one box, the ad video in the other, the advertiser's image in the bands."
+      - &after_nl {start: 80000, end: 90000, layout: none, shows: [{element: primary, from: 1520000}]}
+    beacons: &all_beacons
+      # I.3: "whichever option renders, the same beacons fire, from the
+      # instant the candidate starts."
+      - {at: 60000, fixture: examples/annex-i/I.3-2.xml, candidate: *c1, id: "1", url: "https://t.example.com/imp?cr=901"}
+      - {at: 70000, fixture: examples/annex-i/I.3-2.xml, candidate: *c1, id: "2", url: "https://t.example.com/mid?cr=901"}
+      - {at: 80000, fixture: examples/annex-i/I.3-2.xml, candidate: *c1, id: "3", url: "https://t.example.com/complete?cr=901"}
+  D2: &takeover
+    summary: >-
+      Options 1 to 3 fail (each needs a non-video surface); option 4: a 20 s
+      full-screen video takeover, then the programme resumes where it was
+      suspended.
+    requests:
+      - *resolve
+      - at: {from: 0, to: 60000}
+        url: https://ads-cdn.example.com/nl/901/takeover.mpd
+        answered_by: examples/annex-i/I.4-2.mpd
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c1, option: {index: 4}, layout: linear}
+    presentation:
+      - *before
+      - start: 60000
+        end: 80000
+        layout: linear
+        shows: [{element: ad, candidate: *c1, option: {index: 4}}]
+        audio: ad
+        note: I.4 "The takeover carries audio"; the programme is suspended at 25:00 (I.6, §5.3.6)
+      - {start: 80000, end: 90000, layout: none, shows: [{element: primary, from: 1500000}]}
+    beacons: *all_beacons
+  D3: &lshape
+    summary: >-
+      Option 1 fails (two decoders); option 2: the programme in the upper-left
+      60%, the full-frame image creative around it, for 20 s.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c1, option: {index: 2}, layout: squeezeback-l-shape-upper-left}
+    presentation:
+      - *before
+      - start: 60000
+        end: 80000
+        layout: squeezeback-l-shape-upper-left
+        shows:
+          - {element: primary, from: 1500000, region: upper-left 60%}
+          - {element: ad, candidate: *c1, option: {index: 2}, region: full frame}
+      - *after_nl
+    beacons: *all_beacons
+  D4: *lshape
+  # D5 reaches option 4 by another path (I.6: "D5 composites nothing over
+  # video"); what it is observed to do is D2's.
+  D5: *takeover
+
+missing_carrier:
+  - requirement: R13.6
+    element: >-
+      UC-09 "Ad response": "The L-shape image option (2) carries its own
+      impression beacon, so the ADS learns which format each device showed:
+      D3 and D4 fire it, and D1, D2 and D5 do not." A non-linear option
+      carries no tracking (the spec's §5.4 table: "tracking belongs to the
+      candidate, whichever option renders"), and I.3-2 has none on option 2.
+      The outcomes record only the candidate's beacons.
+    classes: [D3, D4]
+
+disagreements: []
