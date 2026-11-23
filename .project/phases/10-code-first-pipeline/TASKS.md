@@ -7,7 +7,7 @@
 | T-03 | Las tablas de §5 y el bloque de §5.10.1 salen del XSD y `syntax.yaml`                   | pending | agent | —    | —        |
 | T-04 | Cada ejemplo es un fixture con su clase, y los niveles 1 y 2 lo juzgan antes de la prosa | pending | agent | —    | —        |
 | T-05 | Cada UC × clase de `context/04` tiene su vector, con lo observable y el hash de la UC   | pending | agent | —    | —        |
-| T-06 | El lint dice por código si el documento armado está limpio                               | pending | agent | —    | —        |
+| T-06 | El lint dice por código si el documento armado está limpio                               | done | agent | —    | `bin/lint-spec.py`, `bin/test_lint_spec.py`, `tasks/T-06/`        |
 | T-07 | Toda edición de la prosa es un parche que aplica un script, y el refine devuelve uno    | done | agent | —    | `bin/apply-spec-patch.py`, `bin/spec-section.py`, `bin/spec_sections.py`, `bin/test_apply_spec_patch.py`, `tasks/T-07/`        |
 | T-08 | La validación se apoya en una traza verificada por código y el LLM juzga por criterio   | pending | agent | —    | —        |
 | T-09 | La revisión de detalles queda en los nombres, sobre la lista que arma el código        | pending | agent | —    | —        |
@@ -154,6 +154,7 @@ los encabezados de la copia).
 - **Definition of done:** sobre `dist/` exit 1 con exactamente esos
   hallazgos; cada regla con un negativo; sobre un documento limpio, 0.
 - **nivel de verificación:** alto. Es una condición de promoción.
+- **post-ejecución:** 2026-11-23, la definición de hecho contaba mal lo medido en el diseño: `dist/` tiene además 34 comentarios `<!-- delta: … -->` del camino incremental y una referencia rota real (L2156, `§5.16.4` sin prefijo `DASH`); el lint da 74 hallazgos y los 74 son reales (verificados a mano). Los dos quedan como hallazgos del v13.
 
 ## T-07 — Toda edición de la prosa es un parche que aplica un script, y el refine devuelve uno
 - **Objective:** un cambio sin declarar es imposible y el refine lee sólo lo
