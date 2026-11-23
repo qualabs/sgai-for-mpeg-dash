@@ -1,0 +1,416 @@
+#!/usr/bin/env python3
+"""Tests of bin/check-scenarios.py (ADR 0064), one break per check, each on a
+copy of spec-source/ and context/:
+
+  * the tree as it is: exit 1 for exactly the UCs without a vector, nothing
+    against UC-01 and UC-03, every class NOT_VERIFIABLE — no executor;
+  * S-COVER: a class removed, a class the UC does not state, a vector
+    removed; the classes read off the headings, the Coverage table and the
+    Legacy entries;
+  * S-SCHEMA: a field missing, a wrong type, `uc` not the file name, not YAML;
+  * S-HASH: the UC's text changed -> exit 2 naming it; another UC changed -> not;
+  * S-FIXTURE: a fixture missing, one broken (a level-2 FAIL), a scenario
+    fixture green / broken / with a contradicted class, a reference to a
+    file that is not a fixture of the vector, a request that is not its .http;
+  * S-REF: a candidate, an option, a beacon id, a beacon scope, a beacon url;
+  * S-CAPS: a value off its class's row, and the row read from context/03;
+  * S-LAYOUT, S-TIME, S-CARRIER: one break each;
+  * the command line: 64 on a wrong flag or directory, --help 0, --json.
+
+Run (from the project root):  python3 bin/test_check_scenarios.py
+"""
+import importlib.util
+import io
+import json
+import os
+import shutil
+import sys
+import tempfile
+import unittest
+from contextlib import redirect_stdout
+from pathlib import Path
+
+BIN = Path(__file__).resolve().parent
+ROOT = BIN.parent
+_spec = importlib.util.spec_from_file_location("check_scenarios", BIN / "check-scenarios.py")
+cs = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(cs)
+if __name__ == "__main__":
+    cs.ensure_deps(os.path.abspath(__file__), sys.argv[1:])
+import yaml  # noqa: E402
+
+TMP = os.environ.get("XDG_RUNTIME_DIR") or None
+WITHOUT = [f"UC-{n:02d}" for n in range(1, 23) if n not in (1, 3)]
+
+
+class Tree:
+    """A copy of spec-source/ and context/ to break."""
+
+    def __init__(self):
+        base = Path(TMP) / "cto" if TMP else None
+        if base:
+            base.mkdir(parents=True, exist_ok=True)
+        self.dir = Path(tempfile.mkdtemp(prefix="t05-scen-", dir=base))
+        self.src = self.dir / "spec-source"
+        self.ctx = self.dir / "context"
+        shutil.copytree(ROOT / "spec-source", self.src)
+        shutil.copytree(ROOT / "context", self.ctx)
+
+    def close(self):
+        shutil.rmtree(self.dir)
+
+    def vec(self, uc):
+        return yaml.safe_load((self.src / "scenarios" / f"{uc}.yaml").read_text())
+
+    def put(self, uc, v, name=None):
+        (self.src / "scenarios" / f"{name or uc}.yaml").write_text(yaml.safe_dump(v, sort_keys=False))
+
+    def edit(self, rel, old, new, root=None):
+        p = (root or self.src) / rel
+        t = p.read_text()
+        assert old in t, (rel, old)
+        p.write_text(t.replace(old, new, 1))
+
+    def run(self):
+        out = cs.run(self.src, self.ctx)
+        out["exit"] = cs.exit_code(out)
+        return out
+
+
+def found(out, check, uc=None, text=""):
+    return [f for f in out["findings"] if f["check"] == check and (uc is None or f["uc"] == uc)
+            and text in f["detail"]]
+
+
+class Base(unittest.TestCase):
+    def setUp(self):
+        self.t = Tree()
+
+    def tearDown(self):
+        self.t.close()
+
+    def only(self, out, check, uc, text=""):
+        """`check` found on `uc`, and nothing else beyond the missing vectors."""
+        self.assertTrue(found(out, check, uc, text), out["findings"])
+        other = [f for f in out["findings"] if not (f["check"] == "S-COVER" and "no vector" in f["detail"])
+                 and not (f["check"] == check and f["uc"] == uc)]
+        self.assertEqual(other, [])
+
+
+class TestAsItIs(unittest.TestCase):
+    def test_tree(self):
+        out = cs.run(ROOT / "spec-source", ROOT / "context")
+        self.assertEqual(out["cannot"], [])
+        self.assertEqual(cs.exit_code(out), 1)
+        self.assertEqual(out["missing"], WITHOUT)
+        self.assertEqual(len(out["findings"]), 20)
+        self.assertTrue(all(f["check"] == "S-COVER" and "no vector" in f["detail"] for f in out["findings"]))
+        self.assertEqual(sorted(out["vectors"]), ["UC-01", "UC-03"])
+        for uc in ("UC-01", "UC-03"):
+            self.assertEqual(out["vectors"][uc], {c: cs.NO_EXECUTOR for c in cs.CLASSES})
+
+    def test_two_vectors_alone_exit_0(self):
+        t = Tree()
+        try:
+            text = (t.ctx / "04-use-cases.md").read_text()
+            secs = cs.uc_sections(text)
+            for uc in WITHOUT:
+                text = text.replace(secs[uc], "")
+            (t.ctx / "04-use-cases.md").write_text(text)
+            out = t.run()
+            self.assertEqual((out["exit"], out["findings"], out["cannot"]), (0, [], []))
+        finally:
+            t.close()
+
+
+class TestContextReading(unittest.TestCase):
+    text = (ROOT / "context" / "04-use-cases.md").read_text()
+
+    def classes(self, uc):
+        secs, rows = cs.uc_sections(self.text), cs.coverage_rows(self.text)
+        return cs.required_classes(uc, secs[uc], rows)
+
+    def test_headings(self):
+        self.assertEqual(self.classes("UC-01")[0], set(cs.CLASSES))
+
+    def test_coverage_row_when_no_headings(self):
+        self.assertEqual(self.classes("UC-19")[0], {"D1"})
+        self.assertEqual(self.classes("UC-20")[0], {"D1", "D3", "D4", "D5"})
+
+    def test_legacy(self):
+        self.assertIn("legacy", self.classes("UC-14")[0])
+        req, adm = self.classes("UC-11")
+        self.assertNotIn("legacy", req)
+        self.assertIn("legacy", adm)
+        self.assertNotIn("legacy", self.classes("UC-01")[1])
+
+    def test_section_bounds(self):
+        sec = cs.uc_sections(self.text)["UC-01"]
+        self.assertTrue(sec.startswith("### UC-01 "))
+        self.assertNotIn("### UC-02", sec)
+        self.assertIn("#### D5", sec)
+
+
+class TestCover(Base):
+    def test_class_removed(self):
+        v = self.t.vec("UC-01")
+        del v["outcomes"]["D3"]
+        self.t.put("UC-01", v)
+        out = self.t.run()
+        self.only(out, "S-COVER", "UC-01", "class D3 has no outcome")
+        self.assertEqual(out["exit"], 1)
+
+    def test_class_not_stated(self):
+        v = self.t.vec("UC-01")
+        v["outcomes"]["legacy"] = v["outcomes"]["D1"]
+        v["player_capabilities"]["legacy"] = {"predates_spec": True}
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-COVER", "UC-01", "class legacy, which UC-01 does not state")
+
+    def test_vector_removed(self):
+        (self.t.src / "scenarios" / "UC-01.yaml").unlink()
+        out = self.t.run()
+        self.assertIn("UC-01", out["missing"])
+        self.assertTrue(found(out, "S-COVER", "UC-01", "no vector"))
+
+
+class TestSchema(Base):
+    def test_field_missing(self):
+        v = self.t.vec("UC-01")
+        del v["outcomes"]["D2"]["summary"]
+        self.t.put("UC-01", v)
+        out = self.t.run()
+        self.only(out, "S-SCHEMA", "UC-01", "summary")
+        self.assertEqual(out["exit"], 1)
+        self.assertNotIn("UC-01", out["vectors"])
+
+    def test_wrong_type(self):
+        v = self.t.vec("UC-01")
+        v["timescale"] = "1000"
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-SCHEMA", "UC-01", "timescale")
+
+    def test_uc_not_file_name(self):
+        v = self.t.vec("UC-01")
+        (self.t.src / "scenarios" / "UC-01.yaml").unlink()
+        self.t.put("UC-01", v, name="UC-02")
+        out = self.t.run()
+        self.assertTrue(found(out, "S-SCHEMA", "UC-02", "`uc` is UC-01"))
+
+    def test_not_yaml(self):
+        (self.t.src / "scenarios" / "UC-01.yaml").write_text("uc: [UC-01\n")
+        self.only(self.t.run(), "S-SCHEMA", "UC-01", "not YAML")
+
+
+class TestHash(Base):
+    def test_stale(self):
+        self.t.edit("04-use-cases.md", "a full-screen ad of bounded\n  duration", "a full-screen ad of bounded\n  length",
+                    root=self.t.ctx)
+        out = self.t.run()
+        self.only(out, "S-HASH", "UC-01")
+        self.assertEqual(out["exit"], 2)
+
+    def test_other_uc_changed(self):
+        self.t.edit("04-use-cases.md", "### UC-02 — Mid-content slot (mid-roll)\n",
+                    "### UC-02 — Mid-content slot (mid-roll)\n\nA new sentence.\n", root=self.t.ctx)
+        out = self.t.run()
+        self.assertEqual(found(out, "S-HASH"), [])
+        self.assertEqual(out["exit"], 1)
+
+
+class TestFixture(Base):
+    def test_missing(self):
+        (self.t.src / "examples" / "annex-a" / "A.4-2.mpd").unlink()
+        out = self.t.run()
+        self.assertTrue(found(out, "S-FIXTURE", "UC-01", "A.4-2.mpd does not exist"))
+
+    def test_broken(self):
+        # family="linear" on an overlay list: not a value the extension schema admits
+        self.t.edit("examples/annex-c/C.4-1.xml", 'family="overlay"', 'family="linear"')
+        out = self.t.run()
+        self.only(out, "S-FIXTURE", "UC-03", "C.4-1.xml is not green")
+        self.assertEqual(out["exit"], 1)
+
+    def _scenario_fixture(self, text, cls):
+        d = self.t.src / "scenarios" / "fixtures" / "UC-01"
+        d.mkdir(parents=True)
+        (d / "main.mpd").write_text(text)
+        v = self.t.vec("UC-01")
+        v["fixtures"].append({"path": "scenarios/fixtures/UC-01/main.mpd", "class": cls})
+        self.t.put("UC-01", v)
+        return self.t.run()
+
+    def test_scenario_fixture_green(self):
+        out = self._scenario_fixture((self.t.src / "examples/annex-c/C.2-1.mpd").read_text(), "publisher-mpd")
+        self.assertEqual([f for f in out["findings"] if f["uc"] == "UC-01"], [])
+
+    def test_scenario_fixture_broken(self):
+        text = (self.t.src / "examples/annex-c/C.2-1.mpd").read_text().replace('durationCap="30000"', 'durationCap="30000" bogus="1"')
+        out = self._scenario_fixture(text, "publisher-mpd")
+        self.only(out, "S-FIXTURE", "UC-01", "main.mpd is not green")
+
+    def test_scenario_fixture_wrong_class(self):
+        out = self._scenario_fixture((self.t.src / "examples/annex-c/C.2-1.mpd").read_text(), "list-mpd")
+        self.only(out, "S-FIXTURE", "UC-01", "FIX-2")
+
+    def test_scenario_fixture_without_class(self):
+        out = self._scenario_fixture((self.t.src / "examples/annex-c/C.2-1.mpd").read_text(), "publisher-mpd")
+        v = self.t.vec("UC-01")
+        del v["fixtures"][-1]["class"]
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-FIXTURE", "UC-01", "declares its class")
+
+    def test_not_a_fixture_of_the_vector(self):
+        v = self.t.vec("UC-01")
+        v["outcomes"]["D4"]["requests"][0]["answered_by"] = "examples/annex-b/B.3-1.mpd"
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-FIXTURE", "UC-01", "not a fixture of this vector")
+
+    def test_request_differs_from_http(self):
+        v = self.t.vec("UC-03")
+        v["outcomes"]["D1"]["requests"][0]["query"]["sgai-allowed-layouts"] = "overlay-corner"
+        self.t.put("UC-03", v)
+        self.only(self.t.run(), "S-FIXTURE", "UC-03", "differ from the request")
+
+
+class TestRef(Base):
+    def test_candidate_id(self):
+        v = self.t.vec("UC-01")
+        v["outcomes"]["D1"]["selection"][0]["presented"][1]["candidate"]["id"] = "ad-103"
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-REF", "UC-01", "no candidate ad-103")
+
+    def test_option_index(self):
+        v = self.t.vec("UC-03")
+        v["outcomes"]["D4"]["presentation"][1]["shows"][1]["option"] = {"index": 4}
+        self.t.put("UC-03", v)
+        self.only(self.t.run(), "S-REF", "UC-03", "no option")
+
+    def test_beacon_id(self):
+        v = self.t.vec("UC-01")
+        v["outcomes"]["D5"]["beacons"][0]["id"] = "7"
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-REF", "UC-01", "no Event @id=7")
+
+    def test_beacon_scope(self):
+        v = self.t.vec("UC-03")
+        v["outcomes"]["D2"]["beacons"][4]["id"] = "3"      # candidate 2 has no beacon 3; candidate 1 has
+        self.t.put("UC-03", v)
+        self.only(self.t.run(), "S-REF", "UC-03", "within that candidate")
+
+    def test_beacon_url(self):
+        v = self.t.vec("UC-01")
+        v["outcomes"]["D1"]["beacons"][2]["url"] = "https://t.example.com/q2?cr=101"
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-REF", "UC-01", "is not the event's text")
+
+    def test_opportunity(self):
+        v = self.t.vec("UC-03")
+        v["outcomes"]["D5"]["selection"][0]["opportunity"]["event_id"] = "2"
+        self.t.put("UC-03", v)
+        self.only(self.t.run(), "S-REF", "UC-03", "no Event @id=2")
+
+
+class TestCaps(Base):
+    def test_value_off_row(self):
+        v = self.t.vec("UC-01")
+        v["player_capabilities"]["D2"]["sgai-html-over-video"] = 1
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-CAPS", "UC-01", "D2: sgai-html-over-video=1")
+
+    def test_row_read_from_context(self):
+        self.t.edit("03-requirements.md", "| D5 — worst case | `1` | `0` | `0` |",
+                    "| D5 — worst case | `1` | `1` | `0` |", root=self.t.ctx)
+        out = self.t.run()
+        self.assertTrue(found(out, "S-CAPS", "UC-01", "D5"))
+        self.assertTrue(found(out, "S-CAPS", "UC-03", "D5"))
+
+    def test_r31_unreadable(self):
+        self.t.edit("03-requirements.md", "**R3.1**", "**R3.1x**", root=self.t.ctx)
+        out = self.t.run()
+        self.assertEqual(out["exit"], 2)
+        self.assertEqual(out["cannot"], ["context/03 has no R3.1 criterion"])
+
+
+class TestLayoutTimeCarrier(Base):
+    def test_layout(self):
+        v = self.t.vec("UC-03")
+        v["outcomes"]["D1"]["presentation"][1]["layout"] = "overlay-banner"
+        self.t.put("UC-03", v)
+        self.only(self.t.run(), "S-LAYOUT", "UC-03", "overlay-banner")
+
+    def test_gap(self):
+        v = self.t.vec("UC-01")
+        v["outcomes"]["D3"]["presentation"][2]["start"] = 26000
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-TIME", "UC-01", "presentation[2] starts at 26000")
+
+    def test_short(self):
+        v = self.t.vec("UC-01")
+        v["outcomes"]["D3"]["presentation"][2]["end"] = 34000
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-TIME", "UC-01", "expected observe_until")
+
+    def test_range(self):
+        v = self.t.vec("UC-01")
+        v["outcomes"]["D1"]["requests"][2]["at"] = {"from": 15000, "to": 5000}
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-TIME", "UC-01", "from 15000 > to 5000")
+
+    def test_after_window(self):
+        v = self.t.vec("UC-01")
+        v["outcomes"]["D1"]["beacons"][8]["at"] = 36000
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-TIME", "UC-01", "after observe_until")
+
+    def test_carrier_variant(self):
+        v = self.t.vec("UC-03")
+        v["missing_carrier"][-1]["variant"] = "dismiss-at-311"
+        self.t.put("UC-03", v)
+        self.only(self.t.run(), "S-CARRIER", "UC-03", "no variant dismiss-at-311")
+
+    def test_carrier(self):
+        v = self.t.vec("UC-03")
+        v["missing_carrier"][0]["requirement"] = "R999"
+        self.t.put("UC-03", v)
+        self.only(self.t.run(), "S-CARRIER", "UC-03", "R999")
+
+
+class TestCommandLine(unittest.TestCase):
+    def main(self, *argv):
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = cs.main(list(argv))
+        return rc, buf.getvalue()
+
+    def test_usage(self):
+        self.assertEqual(self.main("--bogus")[0], 64)
+        self.assertEqual(self.main("--source")[0], 64)
+        self.assertEqual(self.main("--source", "/nonexistent-dir")[0], 64)
+        rc, text = self.main("--help")
+        self.assertEqual(rc, 0)
+        self.assertIn("NOT_VERIFIABLE — no executor", text)
+
+    def test_section(self):
+        rc, text = self.main("section", "UC-01", "--context", str(ROOT / "context"))
+        self.assertEqual(rc, 0)
+        first, rest = text.split("\n", 1)
+        self.assertEqual(first, "uc_sha256: " + cs.uc_hash(rest))
+        self.assertTrue(rest.startswith("### UC-01 "))
+        self.assertEqual(self.main("section", "UC-99", "--context", str(ROOT / "context"))[0], 1)
+        self.assertEqual(self.main("section")[0], 64)
+
+    def test_json(self):
+        cwd = os.getcwd()
+        os.chdir(ROOT)
+        try:
+            rc, text = self.main("--json")
+        finally:
+            os.chdir(cwd)
+        d = json.loads(text)
+        self.assertEqual((rc, d["exit"], d["missing"]), (1, 1, WITHOUT))
+        self.assertEqual(d["vectors"]["UC-03"]["D5"], cs.NO_EXECUTOR)
+
+
+if __name__ == "__main__":
+    unittest.main()

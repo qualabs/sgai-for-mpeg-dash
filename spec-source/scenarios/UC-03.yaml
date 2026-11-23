@@ -1,0 +1,268 @@
+# UC-03 — Coexisting overlay, as walked by Annex C.
+# Expected behaviour: context/04 UC-03. Documents, ids and times: Annex C
+# (C.2 main MPD, C.3 request, C.4 resolution document, C.5 sub-MPDs, C.6 the
+# walk per class, C.7 timing). Candidates and options carry no @id in C.4, so
+# they are named by document order.
+format: sgai-scenario/1
+uc: UC-03
+uc_sha256: e25114d11c9c1b9aa368be72a008399c6a53cc440fdba33a8f10753c7f44661a
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 340000
+entry: examples/annex-c/C.2-1.mpd
+fixtures:
+  - path: examples/annex-c/C.2-1.mpd
+  - path: examples/annex-c/C.3-1.http
+  - path: examples/annex-c/C.4-1.xml
+    url: https://aps.example.com/nl/overlay?title=film9&w=1
+  - path: examples/annex-c/C.5-1.mpd
+    url: https://ads-cdn.example.com/nl/301/cr301v.mpd
+  - path: examples/annex-c/C.5-2.mpd
+    url: https://ads-cdn.example.com/nl/302/cr302v.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+# C.3: "A D3 Player that declares nothing sends only the forwarded layouts".
+# Every class of this vector declares nothing, so every request is C.3-1.
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1:
+    summary: Video lower-third over the film for 15 s, then the video double box for 15 s; the film plays throughout.
+    requests:
+      - &resolve
+        # C.7: earliest resolution at 270 s; the document is received before 300 s.
+        at: {from: 270000, to: 300000}
+        url: https://aps.example.com/nl/overlay?title=film9&w=1
+        query: {sgai-allowed-layouts: overlay-lower-third overlay-corner squeezeback-l-shape-upper-left squeezeback-double-box}
+        answered_by: examples/annex-c/C.4-1.xml
+        matches: examples/annex-c/C.3-1.http
+      # The video options' sub-MPDs: after the document is known, before each plays.
+      - &sub301
+        at: {from: 270000, to: 300000}
+        url: https://ads-cdn.example.com/nl/301/cr301v.mpd
+        answered_by: examples/annex-c/C.5-1.mpd
+      - &sub302
+        at: {from: 270000, to: 315000}
+        url: https://ads-cdn.example.com/nl/302/cr302v.mpd
+        answered_by: examples/annex-c/C.5-2.mpd
+    selection:
+      - opportunity: &opp {fixture: examples/annex-c/C.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c1 {fixture: examples/annex-c/C.4-1.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+          - {candidate: &c2 {fixture: examples/annex-c/C.4-1.xml, index: 2}, option: {index: 1}, layout: squeezeback-double-box}
+    presentation:
+      - &before {start: 0, end: 300000, layout: none, shows: [{element: primary, from: 0}]}
+      - start: 300000
+        end: 315000
+        layout: overlay-lower-third
+        shows: [{element: primary, from: 300000}, {element: ad, candidate: *c1, option: {index: 1}}]
+        audio: primary
+      - start: 315000
+        end: 330000
+        layout: squeezeback-double-box
+        shows: [{element: primary, from: 315000, region: "shrunk, centre-left"}, {element: ad, candidate: *c2, option: {index: 1}, region: centre-right}]
+        audio: primary
+        note: C.6 "the film shrunk centre-left, the ad video centre-right, black bands"
+      - &after {start: 330000, end: 340000, layout: none, shows: [{element: primary, from: 330000}]}
+    beacons: &all_beacons
+      # C.4: candidate 1's tracking from its start at 300 s, candidate 2's from 315 s.
+      # Both use @id 1: the scope is the candidate (C.4).
+      - {at: 300000, fixture: examples/annex-c/C.4-1.xml, candidate: *c1, id: "1", url: "https://t.example.com/imp?cr=301"}
+      - {at: 307500, fixture: examples/annex-c/C.4-1.xml, candidate: *c1, id: "2", url: "https://t.example.com/mid?cr=301"}
+      - {at: 315000, fixture: examples/annex-c/C.4-1.xml, candidate: *c1, id: "3", url: "https://t.example.com/complete?cr=301"}
+      - {at: 315000, fixture: examples/annex-c/C.4-1.xml, candidate: *c2, id: "1", url: "https://t.example.com/imp?cr=302"}
+      - {at: 330000, fixture: examples/annex-c/C.4-1.xml, candidate: *c2, id: "2", url: "https://t.example.com/complete?cr=302"}
+  D2:
+    summary: Video lower-third on the second decoder for 15 s, then the video double box for 15 s; the film plays throughout.
+    requests: [*resolve, *sub301, *sub302]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c1, option: {index: 1}, layout: overlay-lower-third}
+          - {candidate: *c2, option: {index: 1}, layout: squeezeback-double-box}
+    presentation:
+      - *before
+      - start: 300000
+        end: 315000
+        layout: overlay-lower-third
+        shows: [{element: primary, from: 300000}, {element: ad, candidate: *c1, option: {index: 1}}]
+        audio: primary
+      - start: 315000
+        end: 330000
+        layout: squeezeback-double-box
+        shows: [{element: primary, from: 315000}, {element: ad, candidate: *c2, option: {index: 1}}]
+        audio: primary
+      - *after
+    beacons: *all_beacons
+  D3:
+    summary: HTML lower-third for 15 s, then the image L-shape around the film in the upper-left for 15 s; no video option, no sub-MPD request.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c1, option: {index: 2}, layout: overlay-lower-third}
+          - {candidate: *c2, option: {index: 2}, layout: squeezeback-l-shape-upper-left}
+    presentation:
+      - *before
+      - start: 300000
+        end: 315000
+        layout: overlay-lower-third
+        shows: [{element: primary, from: 300000}, {element: ad, candidate: *c1, option: {index: 2}}]
+        audio: primary
+      - start: 315000
+        end: 330000
+        layout: squeezeback-l-shape-upper-left
+        shows: [{element: primary, from: 315000, region: upper-left 60%}, {element: ad, candidate: *c2, option: {index: 2}, region: full frame}]
+        audio: primary
+      - *after
+    beacons: *all_beacons
+  D4:
+    summary: Image lower-third for 15 s, then the image L-shape for 15 s; the HTML and video options are skipped.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c1, option: {index: 3}, layout: overlay-lower-third}
+          - {candidate: *c2, option: {index: 2}, layout: squeezeback-l-shape-upper-left}
+    presentation:
+      - *before
+      - start: 300000
+        end: 315000
+        layout: overlay-lower-third
+        shows: [{element: primary, from: 300000}, {element: ad, candidate: *c1, option: {index: 3}}]
+        audio: primary
+      - start: 315000
+        end: 330000
+        layout: squeezeback-l-shape-upper-left
+        shows: [{element: primary, from: 315000, region: upper-left 60%}, {element: ad, candidate: *c2, option: {index: 2}, region: full frame}]
+        audio: primary
+      - *after
+    beacons: *all_beacons
+  D5:
+    summary: Nothing; both candidates are skipped and the film plays uninterrupted.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: declined
+        presented: []
+    presentation:
+      - {start: 0, end: 340000, layout: none, shows: [{element: primary, from: 0}]}
+    beacons: []
+
+variants:
+  - id: dismiss-at-310
+    description: >-
+      C.7: "A viewer who dismisses at 310 s ends the whole slot: candidate 2 is
+      not presented, beacon 3 of candidate 1 and every beacon of candidate 2
+      are not fired, and the film is not affected." D5 presents nothing to
+      dismiss, so it has no outcome here.
+    actions: [{at: 310000, do: dismiss}]
+    outcomes:
+      D1: &dismissed
+        summary: The lower-third from 300 s until the dismissal at 310 s, then the film alone.
+        requests: [*resolve, *sub301, *sub302]
+        selection:
+          - opportunity: *opp
+            result: presented
+            presented:
+              - {candidate: *c1, option: {index: 1}, layout: overlay-lower-third}
+        presentation:
+          - *before
+          - start: 300000
+            end: 310000
+            layout: overlay-lower-third
+            shows: [{element: primary, from: 300000}, {element: ad, candidate: *c1, option: {index: 1}}]
+          - {start: 310000, end: 340000, layout: none, shows: [{element: primary, from: 310000}]}
+        beacons: &dismissed_beacons
+          - {at: 300000, fixture: examples/annex-c/C.4-1.xml, candidate: *c1, id: "1", url: "https://t.example.com/imp?cr=301"}
+          - {at: 307500, fixture: examples/annex-c/C.4-1.xml, candidate: *c1, id: "2", url: "https://t.example.com/mid?cr=301"}
+      D2: *dismissed
+      D3:
+        summary: The HTML lower-third from 300 s until the dismissal at 310 s, then the film alone.
+        requests: [*resolve]
+        selection:
+          - opportunity: *opp
+            result: presented
+            presented:
+              - {candidate: *c1, option: {index: 2}, layout: overlay-lower-third}
+        presentation:
+          - *before
+          - start: 300000
+            end: 310000
+            layout: overlay-lower-third
+            shows: [{element: primary, from: 300000}, {element: ad, candidate: *c1, option: {index: 2}}]
+          - {start: 310000, end: 340000, layout: none, shows: [{element: primary, from: 310000}]}
+        beacons: *dismissed_beacons
+      D4:
+        summary: The image lower-third from 300 s until the dismissal at 310 s, then the film alone.
+        requests: [*resolve]
+        selection:
+          - opportunity: *opp
+            result: presented
+            presented:
+              - {candidate: *c1, option: {index: 3}, layout: overlay-lower-third}
+        presentation:
+          - *before
+          - start: 300000
+            end: 310000
+            layout: overlay-lower-third
+            shows: [{element: primary, from: 300000}, {element: ad, candidate: *c1, option: {index: 3}}]
+          - {start: 310000, end: 340000, layout: none, shows: [{element: primary, from: 310000}]}
+        beacons: *dismissed_beacons
+
+missing_carrier:
+  - requirement: R41
+    element: >-
+      UC-03 "Audio": the window does not allow the ad's audio, so the ad is
+      silent (R41.3). The outcomes record `audio: primary`; the window's
+      ad-audio allowance and an option's audio declaration have no carrier.
+    classes: [D1, D2, D3, D4]
+  - requirement: R44
+    element: >-
+      UC-03 "Verification": the candidate carries one verification resource
+      that D1 hands to the vendor's SDK (R44.3). C.4 carries none.
+    classes: [D1]
+  - requirement: R23.2
+    element: >-
+      UC-03 "Verification": the overlay's region handed to the SDK with the
+      verification resource.
+    classes: [D1]
+  - requirement: R42
+    element: >-
+      UC-03 "Degradation": the failure beacon D2 fires when the video overlay
+      drops the primary content below its frame rate (R1.6). No variant is
+      written for it: the beacon has no carrier.
+    classes: [D2]
+  - requirement: R42
+    element: >-
+      UC-03 "Dismissal": the dismissal beacon fired when the viewer dismisses
+      the overlay. Variant dismiss-at-310 records the beacons that stop, not
+      this one.
+    classes: [D1, D2, D3, D4]
+    variant: dismiss-at-310
+
+disagreements:
+  - context: >-
+      context/04 UC-03 "Ad response": side-by-side / double-box is "a layout
+      with three on-screen elements", a third background element (a still
+      image) fills the uncovered region (per R26), and "a video ad needs two
+      decoders ... plus an image surface for the background" — D2 has no
+      image surface.
+    annex: >-
+      C.1 offers "the double box without background"; C.6 has D2 render
+      candidate 2's video double box, and D1 shows "the film shrunk
+      centre-left, the ad video centre-right, black bands".
+    recorded: >-
+      The outcomes follow the annex (D1 and D2 present the video double box
+      with no background element). context/04 UC-03's own D2 sub-section
+      also allows side-by-side on D2. Not resolved here.
