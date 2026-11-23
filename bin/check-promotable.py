@@ -45,6 +45,7 @@ What it cannot do is in the header of the report it prints, not here.
 
 See --help for usage.
 """
+import json
 import os
 import re
 import sys
@@ -217,6 +218,17 @@ def audit_rows(audit):
     return None
 
 
+def suspicion_rows(audit):
+    """Rows of the audit's "Suspicions" table (ADR 0057): each one a place the
+    LLM suspects the base standard is violated or ambiguous and no test covers.
+    None when the audit has no such table (an audit from before 0057)."""
+    for heading, header, rows in tables(audit):
+        if "suspicion" not in heading.lower():
+            continue
+        return [strip_marks(r[0]) for r in rows if r and strip_marks(r[0])]
+    return None
+
+
 def flagged_rows(detail):
     for heading, header, rows in tables(detail):
         if "flagged" not in heading.lower():
@@ -263,8 +275,9 @@ def declared_open():
 HELP = """bin/check-promotable.py — what has to be resolved before this
 candidate moves on.
 
-Reads a build's three analysis sidecars (spec-validation, detail-review,
-dash-conformance-audit), checks that the validation walked every
+Reads a build's analysis sidecars (spec-validation, detail-review, and
+conformance-tests.json, the verdicts the conformance tests computed by
+code), checks that the validation walked every
 obligation `context/` states, and reports what blocks — grouped by who
 lifts it, because that is the split the auto-refine loop acts on: what
 only the pipeline has to fix it keeps fixing, what needs a person
@@ -277,9 +290,9 @@ the previous build.
 
 WHAT TO JUDGE
   (no argument)   the newest candidate in output-analysis/, found by
-                  the highest v<N>- prefix that has all three sidecars
+                  the highest v<N>- prefix that has a spec-validation sidecar
   --dist          what is published in dist/ (unversioned names)
-  --from DIR      the three sidecars in DIR, whatever they are called
+  --from DIR      the sidecars in DIR, whatever they are called
                   there — used for testing this script
 
 OTHER
@@ -382,13 +395,18 @@ def main(args):
     names = {
         "validation": "spec-validation.md",
         "detail": "detail-review.md",
+        "tests": "conformance-tests.json",
         "audit": "dash-conformance-audit.md",
     }
+    # The LLM audit is a complement and never evidence (ADR 0057): without
+    # it nothing is uncertain. The conformance tests are the evidence.
+    optional = {"audit"}
     docs = {}
     for key, name in names.items():
         path = None if base is None else os.path.join(base, (prefix or "") + name)
         if path is None or not os.path.isfile(path):
-            uncertain.append("falta %s%s" % (prefix or "", name))
+            if key not in optional:
+                uncertain.append("falta %s%s" % (prefix or "", name))
             docs[key] = None
         else:
             docs[key] = read(path)
@@ -428,33 +446,39 @@ def main(args):
                 elif verdict not in COVERAGE_CLEAR and verdict:
                     uncertain.append("veredicto que no conozco en %s: %s" % (unit, verdict))
 
-    # --- audit -------------------------------------------------------------
-    if docs["audit"] is not None:
-        rows = audit_rows(docs["audit"])
-        if rows is None:
-            uncertain.append("no encontre el inventario de veredictos en el audit")
-        else:
-            for unit, verdict, whole in rows:
-                if "fetch-failed" in whole:
-                    blockers.append((unit, "fetch-failed", disp.get(unit)))
+    # --- conformance tests: verdicts computed by code (ADR 0057) ----------
+    if docs["tests"] is not None:
+        try:
+            tests = json.loads(docs["tests"])
+            results, cannot = tests["results"], tests.get("cannot", [])
+        except (ValueError, KeyError, TypeError):
+            tests, results, cannot = None, None, None
+            uncertain.append("conformance-tests.json no se puede leer")
+        if tests is not None:
+            for reason in cannot:
+                uncertain.append("los tests de conformidad no pueden decir: %s" % reason)
+            for res in results:
+                if res.get("outcome") != "FAIL":
                     continue
-                if verdict in AUDIT_BLOCKS:
-                    blockers.append((unit, "non-conforming", disp.get(unit)))
-                elif verdict in AUDIT_OPEN:
-                    if disp.get(unit) in KNOWN_FIX:
-                        blockers.append((unit, "marginal con arreglo conocido", disp[unit]))
-                    else:
-                        open_items.append(("marginal", unit, ""))
-                elif verdict not in AUDIT_CLEAR and verdict:
-                    uncertain.append("veredicto que no conozco en %s: %s" % (unit, verdict))
-        # The tag is looked for in the rows, above, and in the count the
-        # audit reports — never as a substring of the document, which the
-        # audit also uses to say the category came out empty. A blocker
-        # invented out of prose is worse than one missed: it stops a loop
-        # that had nothing wrong with it.
-        m = re.search(r"\[fetch-failed\][`*\s:]*\**\s*(\d+)", docs["audit"])
-        if m and int(m.group(1)) > 0:
-            blockers.append(("audit", "fetch-failed x%s" % m.group(1), disp.get("audit")))
+                unit = "%s@%s" % (res.get("rule"), res.get("subject"))
+                if str(res.get("rule", "")).startswith("P-"):
+                    # Players report and do not block until their runs are stable.
+                    open_items.append(("player FAIL (informa)", unit, ""))
+                else:
+                    blockers.append((unit, "conformance FAIL", "5.a"))
+
+    # --- audit: suspicions, never verdicts (ADR 0057) ---------------------
+    if docs["audit"] is not None:
+        sus = suspicion_rows(docs["audit"])
+        if sus is not None:
+            for unit in sus:
+                open_items.append(("sospecha del audit", unit, ""))
+        else:
+            # An audit written before ADR 0057 carries verdicts; they are read
+            # as suspicions, never as verdicts.
+            for unit, verdict, whole in audit_rows(docs["audit"]) or []:
+                if "fetch-failed" in whole or verdict in AUDIT_BLOCKS or verdict in AUDIT_OPEN:
+                    open_items.append(("sospecha del audit", unit, ""))
 
     # --- detail review -----------------------------------------------------
     if docs["detail"] is not None:
@@ -524,7 +548,8 @@ def main(args):
         print("    " + " · ".join("%d %s" % (n, k) for k, n in sorted(kinds.items())))
 
     print("\n  No certificado por esta corrida")
-    print("    los veredictos los produce un modelo: un `met` con una cita que")
+    print("    los FAIL de conformidad los calcula codigo (conformance-tests.json);")
+    print("    el mapa de cobertura no: sus veredictos los produce un modelo: un `met` con una cita que")
     print("    no dice lo que el criterio exige es indistinguible de uno real.")
     print("    Esto mide el mapa, no el spec, y nada aca valida context/.")
 
