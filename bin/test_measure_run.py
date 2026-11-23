@@ -46,6 +46,12 @@ class MeasureRun(unittest.TestCase):
                            (os.path.join(base, "subagents", "agent-x.jsonl"), sub)):
             with open(path, "w") as fh:
                 fh.write("\n".join(json.dumps(r) for r in rows) + "\n")
+        nested = [{"type": "user", "message": {"content": "Walk use cases UC-01..UC-07"}}]
+        nested += call_lines("n1", 50000, 0, 1, [10])
+        with open(os.path.join(base, "subagents", "agent-y.jsonl"), "w") as fh:
+            fh.write("\n".join(json.dumps(r) for r in nested) + "\n")
+        with open(os.path.join(base, "subagents", "agent-y.meta.json"), "w") as fh:
+            json.dump({"parentAgentId": "x", "description": "walker"}, fh)
         self.session = base + ".jsonl"
 
     def tearDown(self):
@@ -54,18 +60,22 @@ class MeasureRun(unittest.TestCase):
     def test_once_per_call_with_final_output(self):
         rows, total = mr.measure(self.session)
         sub = [r for r in rows if r["step"] == "prompts/3-post-spec/validate-spec.prompt"][0]
-        self.assertEqual(sub["calls"], 2)
-        self.assertEqual(sub["cache_read"], 410000)
-        self.assertEqual(sub["output"], 700)          # final 300 + 400, not 1+2+300+400
+        self.assertEqual(sub["calls"], 3)              # its 2 calls + the nested walker's 1
+        self.assertEqual(sub["agents"], 2)
+        self.assertEqual(sub["cache_read"], 460000)
+        self.assertEqual(sub["output"], 710)          # final 300 + 400 + 10, not 1+2+300+400+10
         self.assertEqual(sub["max_context"], 215003)
-        self.assertEqual(total["input_processed"], 1101 + 200002 + 215003)
-        self.assertEqual(total["calls"], 3)
+        self.assertEqual(total["input_processed"], 1101 + 200002 + 215003 + 50001)
+        self.assertEqual(total["calls"], 4)
+        rows, _ = mr.measure(self.session, by_agent=True)
+        self.assertTrue(any(r["step"].endswith("← walker") and r["step"].startswith("prompts/3-post-spec/validate")
+                            for r in rows))
 
     def test_line_count_differs(self):
         # The negative: counting lines inflates the input of a call by its block count.
         _, good = mr.measure(self.session)
         _, bad = mr.measure(self.session, count_lines=True)
-        self.assertEqual(bad["calls"], 6)
+        self.assertEqual(bad["calls"], 7)
         self.assertGreater(bad["input_processed"], good["input_processed"])
 
     def test_cli_exits(self):

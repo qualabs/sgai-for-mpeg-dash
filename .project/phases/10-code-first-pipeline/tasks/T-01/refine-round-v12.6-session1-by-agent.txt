@@ -1,0 +1,25 @@
+session: 4074f7ec-8067-4928-94db-b4380ac1dc5b
+step                                                           input    c.read   c.write   output  calls  max ctx
+(orchestrator)                                                 1.26M     1.17M     90.2k     4.7k     15    0.10M
+prompts/3-post-spec/validate-spec.prompt ← Walk use cases      2.04M     1.93M     0.11M    13.2k     21    0.12M
+prompts/3-post-spec/validate-spec.prompt ← Walk use cases      0.51M     0.43M     76.8k     2.4k      7    76.8k
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 1 (D     3.12M     2.98M     0.14M    23.1k     29    0.14M
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 4 (R     2.79M     2.66M     0.14M    16.1k     25    0.14M
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 3 (R     3.91M     3.76M     0.15M    20.9k     33    0.16M
+prompts/3-post-spec/validate-spec.prompt ← Walk use cases      1.09M     1.00M     86.0k     4.1k     14    86.1k
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 3 (R     2.77M     2.65M     0.13M    15.7k     27    0.13M
+prompts/3-post-spec/validate-spec.prompt ← Walk use cases      2.52M     2.41M     0.11M    12.7k     27    0.12M
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 2 (R     3.03M     2.89M     0.14M    20.9k     27    0.14M
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 6 (R     2.10M     1.97M     0.13M    15.3k     21    0.13M
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 4 (R     3.16M     3.02M     0.15M    18.1k     28    0.15M
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 5 (R     2.47M     2.34M     0.13M    14.9k     23    0.14M
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 1 (D     3.06M     2.92M     0.15M    20.7k     27    0.15M
+prompts/4-auto-refine/refine-spec.prompt ← 9.1 refine v12.     2.04M     1.92M     0.12M    13.0k     21    0.12M
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 6 (R     2.01M     1.88M     0.13M    18.1k     19    0.14M
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 5 (R     2.94M     2.81M     0.13M    18.9k     28    0.13M
+prompts/3-post-spec/validate-spec.prompt ← 9.2 validate v1     4.84M     4.50M     0.33M    34.4k     38    0.20M
+prompts/3-post-spec/validate-spec.prompt ← Walk use cases      0.51M     0.43M     79.3k     1.9k      7    79.3k
+prompts/3-post-spec/validate-spec.prompt ← Walk use cases      2.29M     2.18M     0.11M    12.1k     23    0.12M
+prompts/3-post-spec/validate-spec.prompt ← Walk slice 2 (R     3.95M     3.79M     0.16M    20.2k     32    0.16M
+TOTAL                                                         52.42M    49.62M     2.79M    0.32M    492
+counted once per API call (message.id); input = fresh + cache write + cache read; no prices applied

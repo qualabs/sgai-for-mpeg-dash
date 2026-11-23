@@ -1,0 +1,11 @@
+session: 5ad312df-caca-482f-b848-255221700f7e
+step                                                           input    c.read   c.write   output  calls  max ctx
+(orchestrator)                                                 2.73M     2.61M     0.12M    13.6k     26    0.13M
+prompts/1-pre-spec/extract-conformance-assertions.prompt       4.11M     3.90M     0.21M     0.6k     29    0.21M
+prompts/2-build/apply-context-delta.prompt                    25.24M    24.85M     0.39M    47.6k     88    0.40M
+prompts/1-pre-spec/analyze-dash-gap.prompt                     5.91M     5.69M     0.23M    26.5k     36    0.23M
+prompts/1-pre-spec/build-uc-coverage-matrix.prompt             1.41M     1.27M     0.14M     0.7k     13    0.14M
+prompts/1-pre-spec/analyze-iab-ad-templates.prompt             1.05M     0.96M     96.5k     0.2k     13    96.5k
+prompts/1-pre-spec/build-error-semantics.prompt                1.39M     1.26M     0.13M    10.2k     14    0.13M
+TOTAL                                                         41.83M    40.52M     1.30M    99.3k    219
+counted once per API call (message.id); input = fresh + cache write + cache read; no prices applied

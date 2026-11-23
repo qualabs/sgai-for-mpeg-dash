@@ -1,0 +1,6 @@
+session: 28fed40a-3273-401e-9197-d66b206dac8e
+step                                                           input    c.read   c.write   output  calls  max ctx
+(orchestrator)                                                 0.39M     0.31M     71.8k     1.7k      5    83.6k
+prompts/3-post-spec/validate-spec.prompt                       0.36M     0.28M     78.4k     1.0k      5    78.4k
+TOTAL                                                          0.75M     0.60M     0.15M     2.7k     10
+counted once per API call (message.id); input = fresh + cache write + cache read; no prices applied

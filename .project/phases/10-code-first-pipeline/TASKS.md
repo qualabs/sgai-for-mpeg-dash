@@ -2,7 +2,7 @@
 
 | id   | brief                                                                                   | status  | who   | plan | evidence |
 | ---- | --------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
-| T-01 | El costo de una corrida se mide por paso, y la línea de base está medida                | in-progress | agent | —    | `bin/measure-run.py`, `bin/test_measure_run.py`        |
+| T-01 | El costo de una corrida se mide por paso, y la línea de base está medida                | done | agent | —    | `bin/measure-run.py`, `bin/test_measure_run.py`, `tasks/T-01/baseline.md`        |
 | T-02 | `spec-source/` existe y armarlo reproduce `dist/sgai-spec.md` byte a byte               | done | agent | —    | `spec-source/`, `bin/assemble-spec.py`, `bin/test_assemble_spec.py`, `tasks/T-02/`        |
 | T-03 | Las tablas de §5 y el bloque de §5.10.1 salen del XSD y `syntax.yaml`                   | done | agent | —    | `bin/gen-syntax-tables.py`, `bin/test_gen_syntax_tables.py`, `spec-source/syntax/`, `tasks/T-03/findings.md`        |
 | T-04 | Cada ejemplo es un fixture con su clase, y los niveles 1 y 2 lo juzgan antes de la prosa | pending | agent | —    | —        |
@@ -54,6 +54,7 @@ los encabezados de la copia).
   paso.
 - **nivel de verificación:** alto. Es el instrumento con el que se juzga la
   meta de la fase; un medidor que cuenta mal hace mentir a T-16.
+- **post-ejecución:** 2026-11-23, la vuelta de refine vieja se cortó en la validación por el límite de 5 h de la cuenta; el coordinador decidió no relanzarla (ya pasaba lo aprobado). Queda como cota inferior: más de 51,1M (`tasks/T-01/baseline.md`). El medidor pasó a cargar los subagentes anidados al paso de su padre (`parentAgentId`), con su test.
 
 ## T-02 — `spec-source/` existe y armarlo reproduce `dist/sgai-spec.md` byte a byte
 - **Objective:** la spec tiene una fuente separada en prosa y artefactos, y

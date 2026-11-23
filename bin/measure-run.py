@@ -19,7 +19,11 @@ call. What it does NOT report: money. The weights of cache reads and writes
 and the output price depend on the model and the date; apply them outside.
 
 Usage:
-  bin/measure-run.py <session.jsonl | session-id> [--json] [--root DIR ...]
+  bin/measure-run.py <session.jsonl | session-id> [--json] [--by-agent] [--root DIR ...]
+
+  Rows are per step: a subagent that names no prompt is charged to its
+  parent's step (`parentAgentId` in its .meta.json). --by-agent lists every
+  agent instead, with its description.
 
   A bare session id is looked up under every `projects/` directory of the
   Claude Code config roots (CLAUDE_CONFIG_DIR, ~/.claude, and any --root).
@@ -109,17 +113,58 @@ def find_session(arg, roots):
     return None
 
 
-def measure(session_path, count_lines=False):
+def measure(session_path, count_lines=False, by_agent=False):
+    """Rows per step (or per agent with by_agent) and the total. A subagent
+    whose first message names no prompt is charged to the step of its parent
+    (`parentAgentId` in its .meta.json, followed up the chain): the walkers a
+    validation dispatches are the validation's cost."""
     base = session_path[:-len(".jsonl")]
-    rows = [dict(measure_file(session_path, count_lines), step="(orchestrator)")]
+    agents = []
     for sub in sorted(glob.glob(os.path.join(base, "subagents", "*.jsonl"))):
         r = measure_file(sub, count_lines)
-        if r["step"] is None:
-            r["step"] = "(subagent: " + os.path.basename(sub) + ")"
-        rows.append(r)
-    total = {f: sum(r[f] for r in rows) for f in
-             ("calls", "fresh_input", "cache_write", "cache_read",
-              "input_processed", "output")}
+        aid = os.path.basename(sub)[len("agent-"):-len(".jsonl")]
+        meta = {}
+        mp = sub[:-len(".jsonl")] + ".meta.json"
+        if os.path.isfile(mp):
+            with open(mp, encoding="utf-8") as fh:
+                try:
+                    meta = json.load(fh)
+                except ValueError:
+                    meta = {}
+        r["agent"] = aid
+        r["parent"] = meta.get("parentAgentId")
+        r["description"] = meta.get("description", "")
+        agents.append(r)
+    own = {a["agent"]: a for a in agents}
+
+    def step_of(a, seen=()):
+        if a["step"]:
+            return a["step"]
+        p = own.get(a["parent"]) if a["parent"] else None
+        if p is None or p["agent"] in seen:
+            return "(orchestrator's own subagents)"
+        return step_of(p, seen + (a["agent"],))
+
+    orch = dict(measure_file(session_path, count_lines), step="(orchestrator)")
+    fields = ("calls", "fresh_input", "cache_write", "cache_read", "input_processed", "output")
+    if by_agent:
+        rows = [orch] + [dict(a, step=f"{step_of(a)} ← {a['description'] or a['agent']}") for a in agents]
+    else:
+        grouped = {}
+        order = []
+        for a in agents:
+            s = step_of(a)
+            if s not in grouped:
+                grouped[s] = dict.fromkeys(fields, 0)
+                grouped[s].update(step=s, max_context=0, agents=0)
+                order.append(s)
+            g = grouped[s]
+            for f in fields:
+                g[f] += a[f]
+            g["max_context"] = max(g["max_context"], a["max_context"])
+            g["agents"] += 1
+        rows = [orch] + [grouped[s] for s in order]
+    total = {f: sum(r[f] for r in rows) for f in fields}
     total["max_context"] = max(r["max_context"] for r in rows)
     return rows, total
 
@@ -141,7 +186,7 @@ def main(argv):
             args.remove(argv[i + 1])
             i += 2
             continue
-        if argv[i].startswith("--") and argv[i] not in ("--json", "--root"):
+        if argv[i].startswith("--") and argv[i] not in ("--json", "--root", "--by-agent"):
             usage(f"unknown flag {argv[i]}")
         i += 1
     if len(args) != 1:
@@ -152,7 +197,7 @@ def main(argv):
     if not path:
         print(f"exit 2: no transcript for {args[0]} under {roots}")
         return 2
-    rows, total = measure(path)
+    rows, total = measure(path, by_agent="--by-agent" in argv)
     if total["calls"] == 0:
         print(f"exit 2: {path} has no assistant usage")
         return 2
