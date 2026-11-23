@@ -8,7 +8,7 @@
 | T-04 | Cada ejemplo es un fixture con su clase, y los niveles 1 y 2 lo juzgan antes de la prosa | pending | agent | —    | —        |
 | T-05 | Cada UC × clase de `context/04` tiene su vector, con lo observable y el hash de la UC   | pending | agent | —    | —        |
 | T-06 | El lint dice por código si el documento armado está limpio                               | pending | agent | —    | —        |
-| T-07 | Toda edición de la prosa es un parche que aplica un script, y el refine devuelve uno    | pending | agent | —    | —        |
+| T-07 | Toda edición de la prosa es un parche que aplica un script, y el refine devuelve uno    | done | agent | —    | `bin/apply-spec-patch.py`, `bin/spec-section.py`, `bin/spec_sections.py`, `bin/test_apply_spec_patch.py`, `tasks/T-07/`        |
 | T-08 | La validación se apoya en una traza verificada por código y el LLM juzga por criterio   | pending | agent | —    | —        |
 | T-09 | La revisión de detalles queda en los nombres, sobre la lista que arma el código        | pending | agent | —    | —        |
 | T-10 | La comparación es código y no compara poblaciones distintas                              | pending | agent | —    | —        |
