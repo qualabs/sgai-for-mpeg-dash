@@ -3,8 +3,9 @@
 **Inputs**: `context/` (all files in this directory), and the primary
 copy of the base standard declared in `context/00-normative-base.md`.
 **Output**: `context-analysis/dash-gap-analysis.md` (overwrites previous).
-**Skip if**: `context-analysis/dash-gap-analysis.md` exists AND its mtime is
-newer than the newest mtime in `context/`.
+**Skip if**: `python3 bin/step-inputs.py check analyze-dash-gap` exits 0 (the
+content of its declared inputs is what it was when the output was built).
+After building, the caller runs `bin/step-inputs.py record analyze-dash-gap`.
 
 ---
 

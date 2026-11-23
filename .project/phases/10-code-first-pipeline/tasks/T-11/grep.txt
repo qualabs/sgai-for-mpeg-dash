@@ -1,0 +1,24 @@
+== conformance-assertions
+.project/decisions/0072-pre-spec-drops-what-nobody-reads.md
+dist/inputs.sha256
+prompts/README.md
+prompts/1-pre-spec/extract-conformance-assertions.prompt
+prompts/build-all.prompt
+== uc-coverage-matrix
+.project/LOG.md
+.project/decisions/0072-pre-spec-drops-what-nobody-reads.md
+dist/inputs.sha256
+prompts/README.md
+prompts/1-pre-spec/build-uc-coverage-matrix.prompt
+prompts/build-all.prompt
+== dash-gap-analysis
+CLAUDE.md
+README.md
+.project/PROJECT.md
+dist/inputs.sha256
+.project/LOG.md
+prompts/build-all.prompt
+prompts/README.md
+prompts/2-build/apply-context-delta.prompt
+prompts/1-pre-spec/analyze-dash-gap.prompt
+prompts/2-build/build-spec.prompt

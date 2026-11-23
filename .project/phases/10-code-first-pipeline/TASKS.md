@@ -12,7 +12,7 @@
 | T-08 | La validación se apoya en una traza verificada por código y el LLM juzga por criterio   | pending | agent | —    | —        |
 | T-09 | La revisión de detalles queda en los nombres, sobre la lista que arma el código        | pending | agent | —    | —        |
 | T-10 | La comparación es código y no compara poblaciones distintas                              | pending | agent | —    | —        |
-| T-11 | El pre-spec no produce lo que nadie lee y saltea por hash                                | pending | agent | —    | —        |
+| T-11 | El pre-spec no produce lo que nadie lee y saltea por hash                                | done | agent | —    | `bin/step-inputs.py`, `bin/test_step_inputs.py`, `tasks/T-11/`        |
 | T-12 | Los orquestadores corren sobre la fuente: artefactos primero, prosa por parche           | pending | agent | —    | —        |
 | T-13 | La promoción es un script que exige todo y copia el juego completo                       | pending | agent | —    | —        |
 | T-14 | La suite de tests cubre todo lo nuevo de `bin/` y corre verde entera                     | pending | agent | —    | —        |

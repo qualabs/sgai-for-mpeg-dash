@@ -4,9 +4,9 @@
 `context/05-dash-linear-interfaces.md` (interface contracts that
 surface most error conditions).
 **Output**: `context-analysis/error-semantics.md` (overwrites previous).
-**Skip if**: `context-analysis/error-semantics.md` exists AND its mtime is
-newer than the newest mtime in `[context/03-requirements.md,
-context/05-dash-linear-interfaces.md]`.
+**Skip if**: `python3 bin/step-inputs.py check build-error-semantics` exits 0 (the
+content of its declared inputs is what it was when the output was built).
+After building, the caller runs `bin/step-inputs.py record build-error-semantics`.
 
 ---
 
