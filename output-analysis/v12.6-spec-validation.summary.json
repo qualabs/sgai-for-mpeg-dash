@@ -1,0 +1,1821 @@
+{
+ "format": "sgai-validation-summary/1",
+ "sidecar": "output-analysis/v12.6-spec-validation.md",
+ "sidecar_sha256": "2c33ca2ba2747631d20198b7edc2283f74e325070879ea0ccb2a9abca35ba5bb",
+ "shape": "per-criterion",
+ "population": 212,
+ "walked": 211,
+ "missing": [
+  "DP-4#p1",
+  "DP-4#p2",
+  "R1.6",
+  "R29.10",
+  "R12.5",
+  "R5.8",
+  "R5.9",
+  "R34.6",
+  "R34.9",
+  "R34.10",
+  "R41.2",
+  "R41.3",
+  "R41.4",
+  "R41.5",
+  "R41.6",
+  "R41.7",
+  "R40.9",
+  "R13.6",
+  "R13.7",
+  "R13.8",
+  "R23.2",
+  "R42.1",
+  "R42.2",
+  "R42.4",
+  "R42.3",
+  "R44.1",
+  "R44.2",
+  "R44.3",
+  "R47.1",
+  "R47.3",
+  "R47.2",
+  "R48.1",
+  "R48.2",
+  "R48.3",
+  "UC-18",
+  "UC-19",
+  "UC-20",
+  "UC-21",
+  "UC-22"
+ ],
+ "extra": [
+  "R29.6",
+  "R29.8",
+  "R4#p1",
+  "R4.3",
+  "R5#p1",
+  "R5#p2",
+  "R5#p3",
+  "R5.2",
+  "R5.5",
+  "R5.7",
+  "R7#p1",
+  "R7#p2",
+  "R7.2",
+  "R7.3",
+  "R7.4",
+  "R7.5",
+  "R3.3",
+  "R16.2",
+  "R32.3",
+  "R34.2",
+  "R35.3",
+  "R35.6",
+  "R36.2",
+  "R36.3",
+  "R36.6",
+  "R38.3",
+  "R38.5",
+  "R19.2",
+  "R19.4",
+  "R26.2",
+  "R27.2",
+  "R14.1",
+  "R14.2",
+  "R17.3",
+  "R6#p2",
+  "R6.2",
+  "R6.6",
+  "R13.2"
+ ],
+ "rows": [
+  [
+   "DP-1#p1",
+   "met"
+  ],
+  [
+   "DP-1.1#p1",
+   "met"
+  ],
+  [
+   "DP-1.1#p2",
+   "met"
+  ],
+  [
+   "DP-1.2#p1",
+   "met"
+  ],
+  [
+   "DP-2#p1",
+   "met"
+  ],
+  [
+   "DP-2#p2",
+   "met"
+  ],
+  [
+   "DP-2#p3",
+   "met"
+  ],
+  [
+   "DP-2#p4",
+   "met"
+  ],
+  [
+   "DP-3#p1",
+   "partial"
+  ],
+  [
+   "R1#p1",
+   "met"
+  ],
+  [
+   "R1#p2",
+   "met"
+  ],
+  [
+   "R1.1",
+   "met"
+  ],
+  [
+   "R1.2",
+   "met"
+  ],
+  [
+   "R1.3",
+   "met"
+  ],
+  [
+   "R1.4",
+   "met"
+  ],
+  [
+   "R1.5",
+   "partial"
+  ],
+  [
+   "R2.1",
+   "met"
+  ],
+  [
+   "R2.2",
+   "met"
+  ],
+  [
+   "R2.3",
+   "met"
+  ],
+  [
+   "R2.4",
+   "met"
+  ],
+  [
+   "R11#p1",
+   "met"
+  ],
+  [
+   "R11#p2",
+   "met"
+  ],
+  [
+   "R11#p3",
+   "met"
+  ],
+  [
+   "R11.1",
+   "met"
+  ],
+  [
+   "R11.2",
+   "met"
+  ],
+  [
+   "R11.3",
+   "met"
+  ],
+  [
+   "R11.4",
+   "partial"
+  ],
+  [
+   "R11.5",
+   "met"
+  ],
+  [
+   "R18.1",
+   "met"
+  ],
+  [
+   "R18.2",
+   "met"
+  ],
+  [
+   "R29.1",
+   "met"
+  ],
+  [
+   "R29.2",
+   "met"
+  ],
+  [
+   "R29.3",
+   "met"
+  ],
+  [
+   "R29.4",
+   "met"
+  ],
+  [
+   "R29.5",
+   "met"
+  ],
+  [
+   "R29.6",
+   "met"
+  ],
+  [
+   "R29.7",
+   "met"
+  ],
+  [
+   "R29.8",
+   "met"
+  ],
+  [
+   "R4#p1",
+   "met"
+  ],
+  [
+   "R4.1",
+   "met"
+  ],
+  [
+   "R4.2",
+   "met"
+  ],
+  [
+   "R4.3",
+   "met"
+  ],
+  [
+   "R4.4",
+   "met"
+  ],
+  [
+   "R4.5",
+   "met"
+  ],
+  [
+   "R4.6",
+   "met"
+  ],
+  [
+   "R4.7",
+   "met"
+  ],
+  [
+   "R4.8",
+   "met"
+  ],
+  [
+   "R4.9",
+   "met"
+  ],
+  [
+   "R4.10",
+   "met"
+  ],
+  [
+   "R4.11",
+   "met"
+  ],
+  [
+   "R31.1",
+   "met"
+  ],
+  [
+   "R31.2",
+   "met"
+  ],
+  [
+   "R12.1",
+   "met"
+  ],
+  [
+   "R12.2",
+   "met"
+  ],
+  [
+   "R12.3",
+   "met"
+  ],
+  [
+   "R12.4",
+   "met"
+  ],
+  [
+   "R15.1",
+   "met"
+  ],
+  [
+   "R15.2",
+   "met"
+  ],
+  [
+   "R15.3",
+   "met"
+  ],
+  [
+   "R5#p1",
+   "met"
+  ],
+  [
+   "R5#p2",
+   "met"
+  ],
+  [
+   "R5#p3",
+   "met"
+  ],
+  [
+   "R5.1",
+   "met"
+  ],
+  [
+   "R5.2",
+   "met"
+  ],
+  [
+   "R5.3",
+   "met"
+  ],
+  [
+   "R5.4",
+   "met"
+  ],
+  [
+   "R5.5",
+   "met"
+  ],
+  [
+   "R5.6",
+   "met"
+  ],
+  [
+   "R5.7",
+   "met"
+  ],
+  [
+   "R7#p1",
+   "met"
+  ],
+  [
+   "R7#p2",
+   "met"
+  ],
+  [
+   "R7.1",
+   "met"
+  ],
+  [
+   "R7.2",
+   "met"
+  ],
+  [
+   "R7.3",
+   "met"
+  ],
+  [
+   "R7.4",
+   "met"
+  ],
+  [
+   "R7.5",
+   "met"
+  ],
+  [
+   "R30.1",
+   "met"
+  ],
+  [
+   "R30.2",
+   "met"
+  ],
+  [
+   "R3.1",
+   "met"
+  ],
+  [
+   "R3.2",
+   "met"
+  ],
+  [
+   "R3.3",
+   "met"
+  ],
+  [
+   "R16.1",
+   "met"
+  ],
+  [
+   "R16.2",
+   "met"
+  ],
+  [
+   "R32.1",
+   "met"
+  ],
+  [
+   "R32.2",
+   "met"
+  ],
+  [
+   "R32.3",
+   "met"
+  ],
+  [
+   "R32.4",
+   "met"
+  ],
+  [
+   "R34.1",
+   "met"
+  ],
+  [
+   "R34.2",
+   "met"
+  ],
+  [
+   "R34.3",
+   "met"
+  ],
+  [
+   "R34.4",
+   "met"
+  ],
+  [
+   "R35.1",
+   "met"
+  ],
+  [
+   "R35.2",
+   "met"
+  ],
+  [
+   "R35.3",
+   "met"
+  ],
+  [
+   "R35.4",
+   "met"
+  ],
+  [
+   "R35.5",
+   "met"
+  ],
+  [
+   "R35.6",
+   "met"
+  ],
+  [
+   "R35.7",
+   "met"
+  ],
+  [
+   "R35.8",
+   "met"
+  ],
+  [
+   "R36.1",
+   "met"
+  ],
+  [
+   "R36.2",
+   "met"
+  ],
+  [
+   "R36.3",
+   "met"
+  ],
+  [
+   "R36.4",
+   "met"
+  ],
+  [
+   "R36.5",
+   "met"
+  ],
+  [
+   "R36.6",
+   "met"
+  ],
+  [
+   "R36.7",
+   "met"
+  ],
+  [
+   "R37.1",
+   "met"
+  ],
+  [
+   "R37.2",
+   "met"
+  ],
+  [
+   "R37.3",
+   "met"
+  ],
+  [
+   "R38.1",
+   "met"
+  ],
+  [
+   "R38.2",
+   "met"
+  ],
+  [
+   "R38.3",
+   "met"
+  ],
+  [
+   "R38.4",
+   "met"
+  ],
+  [
+   "R38.5",
+   "met"
+  ],
+  [
+   "R38.6",
+   "met"
+  ],
+  [
+   "R39.1",
+   "met"
+  ],
+  [
+   "R39.2",
+   "met"
+  ],
+  [
+   "R39.3",
+   "met"
+  ],
+  [
+   "R39.4",
+   "met"
+  ],
+  [
+   "R39.5",
+   "met"
+  ],
+  [
+   "R19#p1",
+   "met"
+  ],
+  [
+   "R19.1",
+   "met"
+  ],
+  [
+   "R19.2",
+   "met"
+  ],
+  [
+   "R19.3",
+   "met"
+  ],
+  [
+   "R19.4",
+   "met"
+  ],
+  [
+   "R21.1",
+   "met"
+  ],
+  [
+   "R25#p1",
+   "met"
+  ],
+  [
+   "R25.1",
+   "met"
+  ],
+  [
+   "R26.1",
+   "met"
+  ],
+  [
+   "R26.2",
+   "met"
+  ],
+  [
+   "R26.3",
+   "met"
+  ],
+  [
+   "R27.1",
+   "met"
+  ],
+  [
+   "R27.2",
+   "met"
+  ],
+  [
+   "R27.3",
+   "met"
+  ],
+  [
+   "R14.1",
+   "met"
+  ],
+  [
+   "R14.2",
+   "met"
+  ],
+  [
+   "R14.3",
+   "met"
+  ],
+  [
+   "R17.1",
+   "met"
+  ],
+  [
+   "R17.2",
+   "met"
+  ],
+  [
+   "R17.3",
+   "met"
+  ],
+  [
+   "R17.4",
+   "met"
+  ],
+  [
+   "R17.5",
+   "met"
+  ],
+  [
+   "R20.1",
+   "met"
+  ],
+  [
+   "R20.2",
+   "met"
+  ],
+  [
+   "R20.3",
+   "met"
+  ],
+  [
+   "R20.4",
+   "met"
+  ],
+  [
+   "R20.5",
+   "met"
+  ],
+  [
+   "R20.6",
+   "met"
+  ],
+  [
+   "R22.1",
+   "met"
+  ],
+  [
+   "R40.1",
+   "partial"
+  ],
+  [
+   "R40.2",
+   "met"
+  ],
+  [
+   "R40.3",
+   "met"
+  ],
+  [
+   "R40.4",
+   "met"
+  ],
+  [
+   "R40.5",
+   "met"
+  ],
+  [
+   "R40.6",
+   "met"
+  ],
+  [
+   "R40.7",
+   "met"
+  ],
+  [
+   "R40.8",
+   "met"
+  ],
+  [
+   "R6#p1",
+   "met"
+  ],
+  [
+   "R6#p2",
+   "met"
+  ],
+  [
+   "R6.1",
+   "met"
+  ],
+  [
+   "R6.2",
+   "met"
+  ],
+  [
+   "R6.3",
+   "met"
+  ],
+  [
+   "R6.4",
+   "met"
+  ],
+  [
+   "R6.5",
+   "met"
+  ],
+  [
+   "R6.6",
+   "met"
+  ],
+  [
+   "R6.7",
+   "met"
+  ],
+  [
+   "R13#p1",
+   "met"
+  ],
+  [
+   "R13.1",
+   "met"
+  ],
+  [
+   "R13.2",
+   "met"
+  ],
+  [
+   "R13.3",
+   "met"
+  ],
+  [
+   "R13.4",
+   "met"
+  ],
+  [
+   "R13.5",
+   "met"
+  ],
+  [
+   "R23.1",
+   "met"
+  ],
+  [
+   "R24#p1",
+   "met"
+  ],
+  [
+   "R24#p2",
+   "met"
+  ],
+  [
+   "R24.1",
+   "met"
+  ],
+  [
+   "R33.1",
+   "met"
+  ],
+  [
+   "R33.2",
+   "met"
+  ],
+  [
+   "R33.3",
+   "met"
+  ],
+  [
+   "R33.4",
+   "met"
+  ],
+  [
+   "R28#p1",
+   "met"
+  ],
+  [
+   "R28.1",
+   "met"
+  ],
+  [
+   "R28.2",
+   "met"
+  ],
+  [
+   "R28.3",
+   "met"
+  ],
+  [
+   "R8.1",
+   "met"
+  ],
+  [
+   "R8.2",
+   "met"
+  ],
+  [
+   "R9.1",
+   "met"
+  ],
+  [
+   "R9.2",
+   "met"
+  ],
+  [
+   "R9.3",
+   "met"
+  ],
+  [
+   "R10.1",
+   "met"
+  ],
+  [
+   "R10.2",
+   "met"
+  ],
+  [
+   "R10.3",
+   "met"
+  ],
+  [
+   "OOS-1#p1",
+   "met"
+  ],
+  [
+   "OOS-4#p1",
+   "met"
+  ],
+  [
+   "UC-01",
+   "met"
+  ],
+  [
+   "UC-02",
+   "met"
+  ],
+  [
+   "UC-03",
+   "met"
+  ],
+  [
+   "UC-04",
+   "met"
+  ],
+  [
+   "UC-05",
+   "met"
+  ],
+  [
+   "UC-06",
+   "met"
+  ],
+  [
+   "UC-07",
+   "met"
+  ],
+  [
+   "UC-08",
+   "met"
+  ],
+  [
+   "UC-09",
+   "met"
+  ],
+  [
+   "UC-10",
+   "met"
+  ],
+  [
+   "UC-11",
+   "met"
+  ],
+  [
+   "UC-12",
+   "met"
+  ],
+  [
+   "UC-13",
+   "met"
+  ],
+  [
+   "UC-14",
+   "met"
+  ],
+  [
+   "UC-15",
+   "met"
+  ],
+  [
+   "UC-16",
+   "met"
+  ],
+  [
+   "UC-17",
+   "met"
+  ]
+ ],
+ "verdicts": {
+  "met": 207,
+  "partial": 4
+ },
+ "units": {
+  "DP-1#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "DP-1.1#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "DP-1.1#p2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "DP-1.2#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "DP-2#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "DP-2#p2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "DP-2#p3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "DP-2#p4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "DP-3#p1": {
+   "verdict": "partial",
+   "disposition": "5.a"
+  },
+  "R1#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R1#p2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R1.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R1.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R1.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R1.4": {
+   "verdict": "met",
+   "disposition": "5.d"
+  },
+  "R1.5": {
+   "verdict": "partial",
+   "disposition": "5.b"
+  },
+  "R2.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R2.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R2.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R2.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R11#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R11#p2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R11#p3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R11.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R11.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R11.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R11.4": {
+   "verdict": "partial",
+   "disposition": "5.b"
+  },
+  "R11.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R18.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R18.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R29.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R29.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R29.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R29.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R29.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R29.6": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R29.7": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R29.8": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.6": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.7": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.8": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.9": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.10": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R4.11": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R31.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R31.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R12.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R12.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R12.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R12.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R15.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R15.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R15.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R5#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R5#p2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R5#p3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R5.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R5.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R5.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R5.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R5.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R5.6": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R5.7": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R7#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R7#p2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R7.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R7.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R7.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R7.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R7.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R30.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R30.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R3.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R3.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R3.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R16.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R16.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R32.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R32.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R32.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R32.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R34.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R34.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R34.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R34.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R35.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R35.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R35.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R35.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R35.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R35.6": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R35.7": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R35.8": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R36.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R36.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R36.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R36.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R36.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R36.6": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R36.7": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R37.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R37.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R37.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R38.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R38.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R38.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R38.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R38.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R38.6": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R39.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R39.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R39.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R39.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R39.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R19#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R19.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R19.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R19.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R19.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R21.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R25#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R25.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R26.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R26.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R26.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R27.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R27.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R27.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R14.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R14.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R14.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R17.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R17.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R17.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R17.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R17.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R20.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R20.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R20.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R20.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R20.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R20.6": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R22.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R40.1": {
+   "verdict": "partial",
+   "disposition": "5.b"
+  },
+  "R40.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R40.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R40.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R40.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R40.6": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R40.7": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R40.8": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R6#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R6#p2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R6.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R6.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R6.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R6.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R6.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R6.6": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R6.7": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R13#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R13.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R13.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R13.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R13.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R13.5": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R23.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R24#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R24#p2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R24.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R33.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R33.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R33.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R33.4": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R28#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R28.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R28.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R28.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R8.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R8.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R9.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R9.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R9.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R10.1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R10.2": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "R10.3": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "OOS-1#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "OOS-4#p1": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-01": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-02": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-03": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-04": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-05": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-06": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-07": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-08": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-09": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-10": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-11": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-12": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-13": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-14": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-15": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-16": {
+   "verdict": "met",
+   "disposition": null
+  },
+  "UC-17": {
+   "verdict": "met",
+   "disposition": null
+  }
+ },
+ "dispositions": {
+  "A-9": "5.a",
+  "DP-3#p1": "5.a",
+  "A-6": "5.a",
+  "A-10": "5.a",
+  "A-11": "5.a",
+  "G-1": "5.b",
+  "R11.4": "5.b",
+  "A-2": "5.b",
+  "R1.5": "5.b",
+  "K-34": "5.b",
+  "A-4": "5.b",
+  "R40.1": "5.b",
+  "K-17": "5.b",
+  "K-29": "5.b",
+  "K-35": "5.b",
+  "G-2": "5.c",
+  "A-3": "5.c",
+  "EC-1": "5.c",
+  "A-5": "5.c",
+  "A-7": "5.c",
+  "A-8": "5.c",
+  "A-1": "5.d",
+  "R1.4": "5.d",
+  "A-12": "5.d"
+ },
+ "findings": {
+  "5.a": 4,
+  "5.b": 6,
+  "5.c": 6,
+  "5.d": 2
+ },
+ "gaps": 2,
+ "edge_cases": 1,
+ "ambiguities": 12,
+ "inconsistent": []
+}

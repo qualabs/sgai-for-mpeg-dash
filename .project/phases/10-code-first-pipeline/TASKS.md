@@ -9,7 +9,7 @@
 | T-05 | Cada UC × clase de `context/04` tiene su vector, con lo observable y el hash de la UC   | pending | agent | —    | —        |
 | T-06 | El lint dice por código si el documento armado está limpio                               | done | agent | —    | `bin/lint-spec.py`, `bin/test_lint_spec.py`, `tasks/T-06/`        |
 | T-07 | Toda edición de la prosa es un parche que aplica un script, y el refine devuelve uno    | done | agent | —    | `bin/apply-spec-patch.py`, `bin/spec-section.py`, `bin/spec_sections.py`, `bin/test_apply_spec_patch.py`, `tasks/T-07/`        |
-| T-08 | La validación se apoya en una traza verificada por código y el LLM juzga por criterio   | pending | agent | —    | —        |
+| T-08 | La validación se apoya en una traza verificada por código y el LLM juzga por criterio   | done | agent | —    | `bin/check-trace.py`, `bin/validation-summary.py`, tests, `output-analysis/v12.6-trace.json`, `tasks/T-08/`        |
 | T-09 | La revisión de detalles queda en los nombres, sobre la lista que arma el código        | done | agent | —    | `bin/name-candidates.py`, `bin/test_name_candidates.py`, `tasks/T-09/`        |
 | T-10 | La comparación es código y no compara poblaciones distintas                              | done | agent | —    | `bin/compare-candidates.py`, `bin/test_compare_candidates.py`, `tasks/T-10/`        |
 | T-11 | El pre-spec no produce lo que nadie lee y saltea por hash                                | done | agent | —    | `bin/step-inputs.py`, `bin/test_step_inputs.py`, `tasks/T-11/`        |
@@ -200,6 +200,7 @@ los encabezados de la copia).
   inexistente fallan; `check-promotable.py` da el mismo veredicto que hoy
   sobre v12.6 leyendo el resumen.
 - **nivel de verificación:** alto. Es la mitad de la promoción.
+- **post-ejecución:** 2026-11-23, la traza de v12.6 da 33 citas no literales y no 28: la medición del diseño normalizaba `/` como `|` de tabla, y una cita con `/` en lugar de `|` no es literal (25 de las 33). La población de v12.6 no es la de hoy (39 unidades nuevas y 38 retiradas por la renumeración de `context/03`), así que el chequeo de v12.6 corre con la población del commit `924afcb`. Las unidades `vector-pending` igual las camina un LLM: el vector prueba al Player, no que la spec enuncie la obligación.
 
 ## T-09 — La revisión de detalles queda en los nombres, sobre la lista que arma el código
 - **Objective:** de las ocho categorías de `review-spec-details`, las seis

@@ -45,6 +45,7 @@ What it cannot do is in the header of the report it prints, not here.
 
 See --help for usage.
 """
+import hashlib
 import json
 import os
 import re
@@ -285,6 +286,11 @@ stops the loop and becomes the message that reaches them, and what is
 a `context/` change a written source already dictates (§5.d of the
 validation) is applied by the coordinator, who relaunches and informs.
 
+When the validation's machine summary (`spec-validation.summary.json`,
+written by bin/validation-summary.py with these same parsers) sits beside
+the sidecar, the map and the routing are read from it; a summary whose
+sha256 is not this sidecar's is "cannot tell", never silently ignored.
+
 It is not a score. Nothing is compared against a threshold or against
 the previous build.
 
@@ -411,12 +417,38 @@ def main(args):
         else:
             docs[key] = read(path)
 
-    disp = dispositions(docs["validation"] or "")
+    # The validation's machine summary (bin/validation-summary.py, ADR 0068),
+    # when it sits beside the sidecar, is what is read: the same functions
+    # produced it, and its sha256 says it was made from this very sidecar.
+    summ = None
+    if docs["validation"] is not None and base is not None:
+        spath = os.path.join(base, (prefix or "") + "spec-validation.summary.json")
+        if os.path.isfile(spath):
+            try:
+                with open(spath, encoding="utf-8") as fh:
+                    summ = json.load(fh)
+                rows_s = [(str(u), str(v)) for u, v in summ["rows"]]
+                shape_s, disp_s = summ["shape"], dict(summ["dispositions"])
+                stale = summ["sidecar_sha256"] != hashlib.sha256(
+                    docs["validation"].encode("utf-8")).hexdigest()
+            except (ValueError, KeyError, TypeError):
+                summ, stale = None, False
+                uncertain.append("spec-validation.summary.json no se puede leer")
+            else:
+                if stale:
+                    summ = None
+                    uncertain.append("spec-validation.summary.json no es de este sidecar "
+                                     "(sha256 distinto): hay que regenerarlo")
+
+    if summ is not None:
+        disp = disp_s
+    else:
+        disp = dispositions(docs["validation"] or "")
     open_declared = declared_open()
 
     # --- coverage map + the arithmetic ------------------------------------
     if docs["validation"] is not None:
-        rows, shape = coverage_rows(docs["validation"])
+        rows, shape = (rows_s, shape_s) if summ is not None else coverage_rows(docs["validation"])
         if rows is None:
             uncertain.append(
                 "no encontre el mapa de cobertura en spec-validation.md")

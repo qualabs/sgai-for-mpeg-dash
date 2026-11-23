@@ -1,83 +1,78 @@
 # Validate the spec
 
 **Inputs**:
-- The most recent `../output/v*-sgai-spec.md` (the spec to validate).
-- The iteration number `N` (a positive integer) passed in by the
-  orchestrator (`build-all.prompt`) — used to construct the output
-  filename. It MUST match the `v<N>` prefix of the spec being
-  validated. If invoked standalone, the runner resolves `N` from
-  the spec filename being validated.
-- `../context/` (the source of truth — used to check obligation coverage).
-- `../context-analysis/` (intermediate analyses — used to
-  cross-check conformance assertions, error semantics, etc.).
-- `../.project/decisions/` (the ADRs) and the base standard's primary
-  copy — read only by the resolution chain of §5, to find out whether
-  a finding is already answered before routing it to a person.
+- `../output/v<N>-sgai-spec.md` — the candidate. `N` is passed in by the
+  orchestrator (`build-all.prompt`, `build-incremental.prompt`); invoked
+  standalone, it is the newest `v*` in `../output/`. **It is never read
+  whole**, except by the open search of a major or incremental (§B.4).
+- The mode, passed in by the orchestrator or else deduced: **refine** when
+  `../output-analysis/v<N>-patch.json` exists, **incremental** when
+  `../output-analysis/v<N>-context-delta.md` exists, **major** otherwise.
+- In a refine: the previous candidate `v<P>` (the one the patch was
+  applied to, the newest `v*` below `N` in `../output/`), its
+  `../output-analysis/v<P>-trace.json` and `v<P>-spec-validation.md`.
+  A refine whose `v<P>-trace.json` is missing runs as a major: it does not
+  guess what it would have carried over.
+- `../context/03-requirements.md` and `../context/04-use-cases.md` — read
+  **by unit**, through `bin/check-trace.py batch`, never whole by a walker.
+- `../output-analysis/v<N>-detail-review.md` — its flag ids, for §5.
+- `../.project/decisions/`, `../context/` and the base standard's primary
+  copy — only by the resolution chain of §5.
 
-**Output**: `../output-analysis/v<N>-spec-validation.md`, where `<N>` is the
-iteration version that matches the spec under validation.
+**Output** (all three, or none):
+- `../output-analysis/v<N>-spec-validation.md` — the sidecar;
+- `../output-analysis/v<N>-trace.json` — the trace (format in
+  `bin/check-trace.py --help`);
+- `../output-analysis/v<N>-spec-validation.summary.json` — written by
+  `bin/validation-summary.py` from the sidecar.
 
-**Skip if**: `../output-analysis/v<N>-spec-validation.md` exists AND its
-mtime is newer than the spec's mtime. The validation rebuilds when
-either the spec or its inputs (`context/`, `context-analysis/`)
-change.
+**Skip if**: the three outputs exist AND the sidecar's mtime is newer
+than the spec's.
 
-**Execution mode**: this prompt MUST run in a fresh subagent
-context, separate from the one that produced the spec. The
-agent's job is independent peer review of the spec draft — sharing
-context with the spec author defeats the purpose. The caller
-(typically `build-all.prompt` step 7) dispatches a brand-new
-subagent for this step.
+**Execution mode**: the orchestrating agent of this prompt runs in a
+fresh subagent context, separate from the one that produced the spec, and
+dispatches its walkers (§B.3) and, in a major or incremental, the open
+search (§B.4) as fresh subagents of their own. Run under
+`CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0` (see `../CLAUDE.md`, "How to
+invoke a build").
 
 ---
 
-## Task
-
-Read the latest `../output/v*-sgai-spec.md` and walk every chapter
-plus every annex. Cross-check against `../context/` and
-`../context-analysis/`. Produce a sidecar document with these
-sections:
+## A. What the sidecar says
 
 ### 1. Gaps
 
-Things the spec has to define (because a conformant implementer
-needs them to ship) but `../context/` does not provide enough
-information for. For each gap:
-- The spec chapter / section that needs it.
-- What the context is missing (a fact, a constraint, a behavior,
-  a value range).
-- What an implementer would do today in the absence — guess?
-  fail-closed? proprietary extension?
+Things the spec has to define (because a conformant implementer needs
+them to ship) but `../context/` does not provide enough information for.
+For each: the spec section that needs it; what the context is missing (a
+fact, a constraint, a behaviour, a value range); what an implementer
+would do today in its absence.
 
 ### 2. Edge cases
 
-Boundary conditions not contemplated in `../context/04-use-cases.md`
-but that the spec must handle to be deployable. For each:
-- The trigger condition (what combination of inputs).
-- Why it matters (what breaks if not handled).
-- Which actor is responsible — and whether the context is silent.
+Boundary conditions not contemplated in `../context/04-use-cases.md` that
+the spec must handle to be deployable. For each: the trigger; why it
+matters; which actor is responsible, and whether the context is silent.
 
 ### 3. Ambiguities
 
-Places where the spec could be read two or more ways because the
-context language allows it. For each:
-- The context passage (file:line if pinnable).
-- The two (or more) readings.
-- Which reading the spec draft assumed, and why.
-- A tighter context sentence that would resolve it.
+Places where the spec could be read two or more ways because the context
+language allows it. For each: the context passage; the readings; which
+reading the spec assumed; a tighter context sentence that would resolve
+it.
 
 ### 4. Obligation coverage map
 
-A table with **one row per conformance criterion** defined in
-`../context/03-requirements.md` — every `R<n>.<m>`, not one row per
-`R<n>`. The obligation lives in the criterion; a table indexed at the
-requirement above it can only report a violated criterion as prose
-inside its parent's row, which is where findings go to be ignored.
-Requirements that define no criteria (the governance ones) get one row
-each.
+One row per unit of `bin/check-promotable.py --population`, with exactly
+its ids — never counted by hand: the same script checks the map against
+that list, and a second rule applied here would be a permanent false
+alarm. The units are the conformance criteria (`R<n>.<m>`), the
+obligations in requirement prose (every RFC 2119 keyword of
+`03-requirements.md` outside a criterion bullet, `R<n>#p<k>`), and the
+use cases (`UC-<n>` of `04-use-cases.md`).
 
-| Unit | Kind | Verdict | Disposition | Evidence — quoted passage and location | Notes |
-|------|------|---------|-------------|----------------------------------------|-------|
+| Unit | Kind | Verdict | Disposition | Evidence — section and quoted passage | Notes |
+|------|------|---------|-------------|---------------------------------------|-------|
 
 Verdicts:
 
@@ -85,160 +80,69 @@ Verdicts:
   states it.
 - `contradicted` — the spec states something the criterion forbids, or
   forbids something it requires. Evidence: **the passage that breaks
-  it**. This is not a degree of `partial`; it is the opposite of `met`,
-  and it is routed differently (§5.a).
-- `force-lost` — the spec carries the substance and not the
-  obligation: the criterion says MUST and the passage describes what
-  the actor does instead of requiring it. Evidence: the passage,
-  which is why this verdict is not `met` despite the content being
-  present. Only applies where the source states a modal (§4.2).
+  it**. Not a degree of `partial`: the opposite of `met`, routed
+  differently (§5.a).
+- `force-lost` — the spec carries the substance and not the obligation:
+  the criterion says MUST and the passage describes what the actor does
+  instead of requiring it. Only where the source states a modal.
 - `partial` — the spec states part of the obligation and not the rest.
   Evidence: the passage that carries the part that is there.
-- `gap` — the spec does not address the criterion at all.
-- `governance` — the criterion constrains how the specification is
-  written rather than what an implementation does, so no passage of
-  the spec can satisfy or break it.
+- `gap` — the spec does not address the unit at all.
+- `governance` — the unit constrains how the specification is written so
+  that no passage can satisfy or break it.
 
-`Kind` is one of `runtime`, `document`, `scope`, `use-case` (§4.2),
-and it is what says which of the two questions were asked.
+`Kind` is `runtime`, `document`, `scope` or `use-case`:
 
-`Disposition` is `5.a`, `5.b`, `5.c` or `5.d` per §5, and it is
-**mandatory on every row whose verdict is not `met` or `governance`**.
-It is what says who resolves the row: `5.a` the pipeline on its own,
-`5.d` the coordinator applying a `context/` edit a written source
-dictates, `5.b` and `5.c` a person. A row that blocks and carries no
-disposition cannot be routed, and a caller that cannot route it cannot decide whether to stop —
-`bin/check-promotable.py` reports that as "cannot tell", not as "clear".
+- **runtime** (the actor is the Player, APS, Publisher or ADS): two
+  questions — is it in the spec, and is it there with its force. A
+  passage in the indicative that restates a MUST is `force-lost`.
+- **document** (the actor is the spec document, and the design
+  principles): the evidence is the place where the property holds or
+  fails; the force question does not apply.
+- **scope** (out-of-scope declarations, recorded narrowings): the
+  boundary has to be stated; no force to carry.
+- **use-case**: the evidence is the section that walks it **and** each
+  of the five device classes saying what the case says. Two classes of
+  five is `partial`.
+- A unit whose source states **no modal**: answer the first question,
+  record `source-has-no-modal` in Notes, and list it under §3.
 
-**Every verdict except `gap` and `governance` requires a quoted
-passage with its location.** A row carrying a verdict and no quotation
-is an error of this step, not a thin row: emit the step's failure
-rather than the row.
+`Disposition` is `5.a`, `5.b`, `5.c` or `5.d` per §5, **mandatory on
+every row whose verdict is not `met` or `governance`**: a blocking row
+with no disposition cannot be routed, and `bin/check-promotable.py`
+reports it as "cannot tell".
 
-The rule is not about output format. Asking *"is this criterion
-covered?"* invites agreement with the document being reviewed; asking
-*"quote the passage that satisfies it, and if none does, quote the one
-that breaks it"* cannot be answered without reading the spec. The
-quotation is the part that forces contact with the text, and it is why
-`gap` is the only verdict that cites nothing — if nothing can be
-quoted in either direction, that is what `gap` means, and it is how
-`gap` and `contradicted` stay distinguishable.
+**Evidence is written as `§<key>: *"<quotation>"*`**, where `<key>` is a
+section key as `bin/spec-section.py list` prints it, and the quotation is
+the trace's, character for character (a `|` inside it is written `\|` in
+the table; the trace keeps `|`). **No line numbers** anywhere: they move
+with every edit. A `code` unit's evidence is its rule ids and their
+outcome (`R12.1a: FAIL at xml#14`); a `vector-pending` unit carries
+`vector-pending` in Notes.
 
-#### 4.1 What the map covers, and how the units are found
+**Every `llm`-judged verdict except `gap` and `governance` carries at
+least one quotation.** Asking *"is this covered?"* invites agreement;
+asking *"quote the passage that satisfies it, and if none does, quote the
+one that breaks it"* cannot be answered without reading the text. That is
+why `gap` is the only verdict that cites nothing.
 
-The map walks **every obligation `../context/` states**, not only the
-numbered criteria. **Do not count them by hand. Run**
+One worked row:
 
-```
-bin/check-promotable.py --population
-```
-
-which prints one unit id per line with its kind, and walk exactly those
-units, using exactly those ids. The same script later checks the map
-against that list, so any rule applied by hand here that differs from
-the script's produces a permanent false alarm — and the way to have one
-rule instead of two is for one side to read the other's output.
-
-The three populations it emits, and why each is found positionally
-rather than from a list someone maintains:
-
-1. **Conformance criteria** — every `R<n>.<m>` bullet.
-2. **Obligations in requirement prose** — every RFC 2119 keyword in
-   `03-requirements.md` that falls **outside** a criterion bullet:
-   in a requirement's body, in a design principle, or in an
-   Out-of-Scope item. These carry the statements that define what kind of thing
-   is being built ("The solution MUST extend MPEG-DASH 6th edition
-   without breaking existing semantics"). A walk that visits only
-   numbered criteria loses all of them.
-3. **Use cases** — every `UC-<n>` in `../context/04-use-cases.md`.
-   A use case is not satisfied by one passage: its evidence
-   is the section of the generated spec that walks it **plus the
-   confirmation that all five device classes appear and say what the
-   case says they say**. A section that walks the scenario for two
-   classes and omits three is `partial`, not `met`.
-
-   **The step's own acceptance test is UC-14.** It was added to
-   `context/04-use-cases.md` after the newest spec was generated, so
-   the current output does not walk it. A run of this step that does
-   not report `UC-14` as `gap` has not walked the use cases at all,
-   whatever its table says — check that row before trusting any
-   other.
-
-The figures above describe the shape of each population, not its size.
-The sizes move whenever a requirement is added, which is exactly why
-the ids come from the script rather than from any number written here.
-
-#### 4.2 The two questions, and which units they apply to
-
-For each unit, the map answers **both**:
-
-1. **Is it reflected in the generated spec?** Evidence: the passage.
-2. **Is it reflected with its force?** A criterion that says MUST must
-   arrive as an obligation, not as a description. A passage in the
-   indicative that restates a MUST is **not** `met` — it is
-   `force-lost`, a verdict of its own, because the substance arrived
-   and the obligation did not.
-
-The second question does not apply everywhere, and the map records
-which case each unit is:
-
-- **Runtime obligations** (the actor is the Player, APS, Publisher or
-  ADS): both questions apply. 
-- **Document-level obligations** (the actor is `spec document` — 29
-  criteria today, plus the design principles): these constrain how the
-  specification is written, not what an implementation does. They are
-  verified by inspecting the document for the property, and the
-  evidence is the place where the property holds or fails, not a
-  passage restating the criterion. Question 2 does not apply: a
-  document either has the property or does not.
-- **Scope declarations and records** (criteria that declare something
-  out of scope, or record a deliberate narrowing): question 1 applies
-  — the boundary has to be stated in the output, or a reader does not
-  know it exists. Question 2 does not: there is no obligation to carry.
-- **Criteria that state an obligation with no modal.** 17 criteria
-  carry no RFC 2119 keyword at all, and they are not one kind: some
-  are definitions, some are scope declarations, and **some are
-  obligations written in the indicative** in `context/` itself. For
-  these, answer question 1 and record question 2 as `source-has-no-modal`
-  — and list them in the Ambiguities section (§3), because a criterion
-  whose force cannot be checked against the output is a defect in the
-  input, not in the spec.
-
-One worked row, from a defect this step actually reported and that
-nothing acted on:
-
-| `R26.1` | `runtime` | `contradicted` | `5.a` | §5.3.7 *Layout composition*, L1761: *"It is carried as a `<svta:BackgroundElement>` child of the `<svta:RenderableAsset>` whose `@layout` is …"* | R26.1 requires it "as a composition attribute of the slot / layout, **not** as a separate presentation option (R5)". The spec hangs it off the option. |
+| `R26.1` | `runtime` | `contradicted` | `5.a` | §5.3.7: *"It is carried as a `<svta:BackgroundElement>` child of the `<svta:RenderableAsset>` whose `@layout` is"* | R26.1 requires it "as a composition attribute of the slot / layout, **not** as a separate presentation option (R5)". The spec hangs it off the option. |
 
 ### 5. Disposition of findings
 
-Every Gap, Edge case, and Ambiguity above MUST be routed to exactly
-one of four buckets. The bucket determines what refine-spec
-(`prompts/4-auto-refine/refine-spec.prompt`) does with it on the
-next minor iteration.
+Every Gap, Edge case and Ambiguity of §1–§3 MUST be routed to exactly one
+of four buckets, and so MUST:
 
-**And not only those three populations.** Routing is mandatory for
-every one of:
-
-1. every Gap, Edge case and Ambiguity of §1–§3;
-2. **every coverage-map row of §4 whose verdict is not `met` or
-   `governance`** — the `Disposition` column carries it, and the row
-   also appears in the §5 table its bucket names;
-3. **every flagged item of the detail review**
+1. **every coverage-map row whose verdict is not `met` or `governance`**
+   — its `Disposition` column carries the bucket, and the row also
+   appears in that bucket's table;
+2. **every flagged item of the detail review**
    (`../output-analysis/v<N>-detail-review.md`), by its flag number.
 
-Items 2 and 3 are the ones that used to arrive unrouted, and a routing
-that covers a third of what a build produces is not a routing: the
-classification of the v7.2 findings had to be redone by hand for
-exactly the rows this list adds.
-
-Reading the other two sidecars is an exception to this step's
-spec-only grounding, and it is narrow: **their verdicts and ids, never
-their reasoning.** This step does not re-judge a conformance verdict;
-it says who resolves it. The other exception is the resolution chain
-below, which reads the sources a finding may already be answered in.
-
-The bucket is also what says **who** resolves the finding, which is
-what the loop reads:
+Reading the detail review is narrow: **its ids, never its reasoning.**
+This step does not re-judge a verdict; it says who resolves it.
 
 | Bucket | Who closes it |
 |--------|---------------|
@@ -247,186 +151,118 @@ what the loop reads:
 | `5.b` | the owner of the specification |
 | `5.c` | the owner, then a major build |
 
-**The routing rule.** Everything whose fix does **not** require
-changing `context/` is the pipeline's — `5.a`, always: form, carrier,
-examples, wording, schema placement, and the choice among several
-spec-only remedies, which is the HOW and belongs to the build. If the
-spec is wrong and `context/` suffices to know what right looks like,
-it is `5.a`. Only a finding whose fix requires changing `context/` can
-leave the pipeline, and then it goes to `5.d` or to a person depending
-on whether a written source already dictates the change.
+**The routing rule.** Everything whose fix does **not** require changing
+`context/` is the pipeline's — `5.a`, always: form, carrier, examples,
+wording, schema placement, and the choice among several spec-only
+remedies, which is the HOW and belongs to the build. Only a finding whose
+fix requires changing `context/` can leave the pipeline, to `5.d` or to a
+person depending on whether a written source already dictates the change.
+A `code` unit that is `contradicted` (a level-2 rule FAILs) is `5.a`.
 
 **The resolution chain — run it before routing anything to `5.b` or
-`5.c`.** "The spec alone does not let me decide" is not a reason to
-call a person: most such findings are answered by a source that is
-already written. Look, in this order:
+`5.c`.** Look, in this order: (1) **`../context/`**, including R1.5 (where
+the base standard already answers, its answer wins), the design
+principles, and the carrier conventions of
+`../context/06-naming-and-namespaces.md`; (2) **`../.project/decisions/`**;
+(3) **the base standard**, per "Grounding against the standard" in
+`../CLAUDE.md` — clause number **and the quoted sentence**. If any answers
+the finding, route it to `5.a` (the answer fixes the spec) or `5.d` (the
+answer fixes `context/`), with the source in the Citation / Source column.
+Only when none answers is it `5.b` or `5.c`, with a recommendation and a
+record of which of the three was searched.
 
-1. **`../context/`** — including R1.5 (where the base standard
-   already answers, its answer wins), the design principles (DP-1,
-   DP-2, …), and the carrier conventions of
-   `../context/06-naming-and-namespaces.md`;
-2. **`../.project/decisions/`** — the ADRs;
-3. **the base standard**, per "Grounding against the standard" in
-   `../CLAUDE.md` — the clause number **and the quoted sentence**.
-
-If any of them answers the finding, it is not a person's: route it to
-`5.a` (the answer fixes the spec) or `5.d` (the answer fixes
-`context/`), with the source in the Citation / Source column. Only
-when none answers is it `5.b` or `5.c`, and then it carries a
-recommendation. Record in each `5.b` / `5.c` row which of the three
-you searched, so the reader can see what was looked at.
-
-Conformance with the base standard is not routed here: a `FAIL` of
-the conformance tests (`v<N>-conformance-tests.json`, computed by
-code) blocks on its own in `bin/check-promotable.py`, and the
+Conformance with the base standard is not routed here: a `FAIL` of the
+conformance tests blocks on its own in `bin/check-promotable.py`, and the
 suspicions of the LLM audit never block (ADR 0057).
 
 #### 5.a Actionable TODOs (high-certainty, refine-spec MUST apply)
 
-Findings whose fix lies entirely inside the spec (no `context/` edit
-required). Refine-spec applies these unconditionally — no human in the
-loop. A finding qualifies if it meets at least one of the criteria
-below AND the remedy can be expressed as a concrete byte-level edit to
-`../output/v<N>-sgai-spec.md`:
+Findings whose fix lies entirely inside the spec, expressible as a
+concrete edit to a named section, meeting at least one of:
 
-1. **DP-X violation cited by ID**: the finding cites an explicit
-   design principle / rule in `context/03-requirements.md` (DP-1.1,
-   DP-2, R-X.Y) AND the spec text violates it AND the fix is "make
-   the spec stop violating the rule" (drop the offending
-   construct, change the offending wording, add the missing
-   constraint).
-2. **Self-flagged by the spec**: the spec carries a `[inferred]`
-   tag, a `TODO`, a `FIXME`, an `[?]`, or a placeholder that the
-   spec itself marks as not load-bearing. The remedy is to remove
-   the marker by stating the implied claim or by deleting the
-   unverifiable line.
-3. **Internal contradiction between two spec sites**: two chapters
-   of the spec disagree, AND exactly one of the two readings
-   matches `context/`. The remedy is to align the other site with
-   the context-grounded one.
-4. **Detail-level inconsistency that the detail-review prompt
-   would autofix**: the finding falls inside one of the eight
-   categories listed in `review-spec-details.prompt` (format,
-   cross-ref, naming, annex-vs-chapter, schema-namespace pinning,
-   etc.) but escaped detection. Refine-spec applies the autofix
-   per that prompt's rules.
-5. **A `force-lost` row in the coverage map (§4)**: the substance is
-   already in the spec and only the modal is missing, so the remedy is
-   a wording edit at a cited location — the smallest and safest class
-   of fix in this list. Do not let it consume a scarce slot under the
-   cap ahead of a `contradicted` row: a lost modal is cheaper to
-   correct on the next pass than a statement that says the opposite.
-6. **A `contradicted` row in the coverage map (§4)**: the
-   map cites the criterion's text and the passage that breaks it, so
-   the remedy is already expressed by the two quotations — make the
-   spec stop saying the thing the criterion forbids. A `gap` row does
-   NOT qualify: nothing is written, so there is no edit to apply and
-   the remedy is authoring, which belongs to §5.b. This is the
-   distinction the two verdicts exist to carry, and routing them to
-   the same bucket would undo it. A `gap` whose missing text a source
-   of the resolution chain dictates qualifies under criterion 7.
-7. **Answered by the resolution chain**: a `context/` rule, an ADR or
-   a base-standard clause says what right looks like, and the spec
-   can be made to say it without editing `context/`. The Citation is
-   that source.
+1. **DP / R violation cited by id**: the spec violates an explicit rule
+   of `context/03-requirements.md` and the fix is to stop violating it.
+2. **Self-flagged by the spec**: an `[inferred]`, `TODO`, `FIXME`, `[?]`
+   or placeholder; the remedy states the claim or deletes the line.
+3. **Internal contradiction between two spec sites**, exactly one of which
+   matches `context/`.
+4. **A detail-level inconsistency** of the categories of
+   `review-spec-details.prompt` that escaped it.
+5. **A `force-lost` row**: a wording edit at the cited section. Do not let
+   it take a slot ahead of a `contradicted` row.
+6. **A `contradicted` row**: the two quotations already express the
+   remedy. A `gap` row does NOT qualify (nothing is written, so the remedy
+   is authoring, §5.b), unless a source of the chain dictates the text
+   (criterion 7).
+7. **Answered by the resolution chain**: a `context/` rule, an ADR or a
+   base-standard clause says what right looks like, and the spec can say
+   it without editing `context/`.
 
-Hard cap: at most **5 Actionable TODOs per sidecar**. If more
-findings qualify, prioritise by leverage and list the rest in a
-`#### 5.a Overflow (next pass)` table with the same columns. They stay
-the pipeline's — never route them to §5.b to respect the cap, which
-would hand a person work nobody has to decide. The cap prevents
-destructive cascades where one TODO removes the anchor another TODO
-targets.
-
-Format — one row per TODO:
+Hard cap: at most **5 Actionable TODOs per sidecar**. More qualify →
+prioritise by leverage and list the rest in a `#### 5.a Overflow (next
+pass)` table with the same columns. They stay the pipeline's; never route
+them to §5.b to respect the cap.
 
 | #  | Finding ref | Criterion | Spec section | Concrete edit | Citation |
 |----|-------------|-----------|--------------|---------------|----------|
 
-The **Citation** column is MANDATORY for every row and MUST cite
-a real source (DP-X / R-X.Y / ADR number / base-standard clause with
-the quoted sentence / IETF RFC reference / IAB document section). A
-row without a verifiable citation is invalid: run the resolution
-chain for it, and only if nothing answers it move it to §5.b.
-
-If a finding from §1 / §2 / §3 above qualifies for §5.a, it
-appears here AND a back-reference appears in its original section
-(`See Actionable TODO T1`).
+`Spec section` is a section key. The **Citation** column is MANDATORY and
+cites a real source (DP-X / R-X.Y / ADR / base-standard clause with the
+quoted sentence / RFC / IAB section); without one, run the chain, and only
+if nothing answers move the row to §5.b. A §1–§3 finding routed here gets
+a back-reference in its own section (`See Actionable TODO T1`).
 
 #### 5.b Flagged for review (uncertain, refine-spec MUST NOT touch)
 
-Findings whose fix would change the meaning of a requirement, and
-for which the resolution chain found no source saying which meaning is
-right. Several spec-only remedies to choose from is **not** this
-bucket: that choice is the HOW, and it is `5.a`. Refine-spec leaves
-these alone; they surface on the owner's next review pass.
-
-Format — one row per flag:
+Findings whose fix would change the meaning of a requirement, with no
+source of the chain saying which meaning is right. Several spec-only
+remedies is **not** this bucket: that choice is the HOW, `5.a`.
 
 | #  | Finding ref | Spec section | Why uncertain | Resolutions considered | Recommended | Searched |
 |----|-------------|--------------|---------------|------------------------|-------------|----------|
 
 #### 5.c Deferred to `context/` (requirement-level changes)
 
-Findings that genuinely require editing `context/` — a gap in the
-requirements doc, a missing use case, a new architectural choice —
-and for which no source of the resolution chain dictates the edit.
-Refine-spec defers these; they wait for a major build (vN+1).
-
-Format — one row per deferral, ordered by leverage (top 3-5):
+Findings that require editing `context/` — a missing requirement, use
+case or architectural choice — with no source dictating the edit. They
+wait for a major build. Ordered by leverage (top 3-5).
 
 | #  | Finding ref | `context/` file to edit | Suggested edit | Leverage rationale | Searched |
 |----|-------------|-------------------------|----------------|--------------------|----------|
 
 #### 5.d `context/` change, predictable (the coordinator applies it)
 
-Findings whose fix requires editing `context/`, where a written
-decision already dictates the text — for instance a criterion that
-obliges a legacy Player to do something an ADR has since scoped out,
-or two `context/` passages of which one is superseded by a recorded
-decision. Nobody has to decide anything: the edit follows from the
-source. Refine-spec does not touch these (it never edits `context/`);
-the coordinator that ran the build applies the replacement text,
-relaunches, and informs the owner.
-
-Format — one row per change:
+Findings whose fix requires editing `context/`, where a written decision
+already dictates the text. Refine-spec does not touch these; the
+coordinator applies the replacement, relaunches, and informs the owner.
 
 | #  | Finding ref | `context/` file and passage | Replacement text | Source |
 |----|-------------|-----------------------------|------------------|--------|
 
 The **Source** column is MANDATORY: the ADR, `context/` rule or
 base-standard clause (with the quoted sentence) that dictates the
-replacement. A row whose source only *suggests* the edit is `5.c`.
+replacement. A source that only *suggests* it makes the row `5.c`.
 
 #### 5.e Routing rules (decision tree)
 
-For each item to route, walk this tree IN ORDER:
+For each item, IN ORDER:
 
-1. Does the finding cite a DP-X / R-X.Y / IAB rule AND can the
-   spec be edited to stop violating it without changing the rule
-   itself? → **5.a** (Actionable TODO, criterion 1).
-2. Is the finding a self-flagged marker the spec already
-   acknowledges? → **5.a** (criterion 2).
-3. Is the finding two spec sites disagreeing with one reading
-   matching `context/`? → **5.a** (criterion 3).
-4. Is the finding a micro-consistency item from the
-   `review-spec-details` taxonomy that slipped through? → **5.a**
-   (criterion 4).
-5. Does the fix leave `context/` untouched? → **5.a** (criteria 5-7):
-   the routing rule above, whatever the number of remedies.
-6. The fix requires editing `context/`. Run the resolution chain:
-   does a written source dictate the replacement text? → **5.d**.
-7. Does the remedy require choosing between two or more
-   defensible meanings of a requirement, with no source picking one?
-   → **5.b**, with a recommendation.
-8. Otherwise (a missing requirement, use case or architectural
-   choice) → **5.c**, with a suggested edit.
+1. Cites a DP-X / R-X.Y / IAB rule, and the spec can stop violating it
+   without changing the rule? → **5.a** (criterion 1).
+2. A self-flagged marker? → **5.a** (2).
+3. Two spec sites disagreeing, one matching `context/`? → **5.a** (3).
+4. A `review-spec-details` micro-consistency item? → **5.a** (4).
+5. The fix leaves `context/` untouched? → **5.a** (5-7).
+6. The fix edits `context/` and a written source dictates the text? →
+   **5.d**.
+7. Two or more defensible meanings and no source picks one? → **5.b**,
+   with a recommendation.
+8. Otherwise → **5.c**, with a suggested edit.
 
-A finding borderline between 5.a and 5.b is settled by the resolution
-chain, not by a default: a cited answer makes it 5.a. A false 5.b is
-not the cheap side — it stops the loop and spends a person's decision
-on a question already answered, while a wrong 5.a is an edit the next
-validation pass sees.
+A borderline 5.a / 5.b is settled by the resolution chain, not by a
+default. A false 5.b stops the loop and spends a person's decision on a
+question already answered; a wrong 5.a is an edit the next validation
+sees.
 
 ### Validation doc structure
 
@@ -439,6 +275,8 @@ validation pass sees.
 Built against:
 - spec: `../output/v<N>-sgai-spec.md`
 - context/ at git SHA: <sha>
+- mode: <major | incremental | refine over v<P>>; walked <w> units by LLM,
+  <c> by code, <k> carried over from v<P>
 
 ## Gaps (<count>)
 ## Edge cases (<count>)
@@ -449,10 +287,164 @@ Built against:
 ### 5.b Flagged for review (<count>)
 ### 5.c Deferred to context/ (<count>)
 ### 5.d context/ change, predictable (<count>)
+### 5.e Routing rules
 ```
+
+Each `### G-<n>`, `### EC-<n>` and `### A-<n>` is one entry under its
+chapter, and the `(<count>)` of every heading equals its entries:
+`bin/validation-summary.py` checks it and exits 1 otherwise.
+
+---
+
+## B. How the walk is done
+
+**Nobody in this step reads the spec whole, except the open search of a
+major or incremental (§B.4).** The orchestrator reads scripts' output,
+the previous trace and sidecar, and the sections a script hands it. A
+walker reads what `bin/check-trace.py batch` prints for its units. The
+cost of the old walk — every walker re-reading the whole spec, 120–200k
+tokens of context per call — is what this structure removes.
+
+Work in `$XDG_RUNTIME_DIR/cto/validate-v<N>-<random>/` (`W` below) and
+remove it at the end.
+
+### B.1 The units and their source (code, no LLM)
+
+```bash
+python3 bin/check-promotable.py --population > W/population.tsv
+python3 bin/check-dash-conformance.py output/v<N>-sgai-spec.md \
+  --out-json W/conformance.json --out-md W/conformance.md
+python3 bin/check-trace.py sources W/conformance.json > W/sources.json
+```
+
+The conformance run goes to `W/` because the sidecars
+`v<N>-conformance-tests.*` belong to Step 8.0 of `build-all`, which runs
+after the detail review. Exit 1 of the conformance run is a result (its
+FAILs are verdicts); exit 2 stops this step.
+
+`W/sources.json` gives each unit its **source**:
+
+- **`code`** — a level-2 rule with code decides it. The verdict is the one
+  `sources` computed (`contradicted` if a rule FAILs, `met` if one PASSes
+  and none FAILs) and is **not** re-judged by anyone. If the unit has a
+  `residual` (rules of the same criterion that code cannot decide), that
+  part goes to a walker like an `llm` unit, and the row's verdict is the
+  worse of the two (`contradicted` > `force-lost` > `partial` > `met`).
+- **`vector-pending`** — Player behaviour, for which the UC vectors do not
+  exist yet. Recorded as such in the trace and in Notes. Until a vector
+  decides it, whether the spec *states* the Player's obligation is still
+  a question about the text, so the unit is walked like an `llm` unit.
+- **`llm`** — judged by a walker (§B.3).
+
+### B.2 What is walked, by mode
+
+- **major, incremental**: every unit that is not a `code` unit without
+  residual.
+- **refine**: only the units whose sections changed. Compute them:
+
+  ```bash
+  python3 bin/check-trace.py stale output-analysis/v<P>-trace.json \
+    --old output/v<P>-sgai-spec.md --new output/v<N>-sgai-spec.md > W/stale.json
+  ```
+
+  `units` lists them; `changed`, `removed` and `added` are the section
+  keys. Every key in `sections_changed` of `v<N>-patch.json` must be in
+  `changed`, `removed` or `added`; if not, stop and say so (the patch
+  record and the documents disagree). Also walked: units new to the
+  population, units whose source changed since v<P>, and units whose
+  v<P> verdict was not `met`. **Every other unit carries over** its v<P>
+  verdict, kind, notes and trace entry unchanged — no LLM reads it.
+
+### B.3 Walkers: one batch of units each, small context
+
+Group the units to walk into batches of **at most 8 units**, keeping units
+that share sections together, and split any batch whose `batch` output
+exceeds **60,000 characters**. Before dispatching, write the draft trace
+`W/trace-draft.json` (format of `bin/check-trace.py --help`): every unit
+of the population with its source and rules from `W/sources.json`, and
+its sections taken from `v<P>-trace.json` when it has one there, keeping
+only keys that still exist. For each batch:
+
+```bash
+python3 bin/check-trace.py batch W/trace-draft.json <UNIT> ... \
+  --spec output/v<N>-sgai-spec.md > W/batch-<i>.txt
+```
+
+Dispatch one fresh subagent per batch, in parallel, with exactly: the
+verdict definitions and kinds of §A.4, the instructions below, and
+`W/batch-<i>.txt`. Nothing else: not the spec, not `context/` whole, not
+the sidecar.
+
+> For each unit in the batch, decide its `kind` and `verdict` (§A.4) by
+> reading the unit's text and the sections printed for it. When the
+> sections printed do not hold the passage, you may fetch others, **by
+> key**: `bin/spec-section.py find "<text>" --file output/v<N>-sgai-spec.md`
+> gives keys, `bin/spec-section.py get <KEY> --file output/v<N>-sgai-spec.md`
+> gives one section; `bin/spec-section.py list output/v<N>-sgai-spec.md`
+> gives the headings when the unit has no section yet. Never `get` a
+> chapter's worth of sections; never read the file.
+>
+> Return one JSON object per unit, one per line:
+> `{"unit": "...", "kind": "...", "verdict": "...", "sections":
+> [{"key": "...", "quotes": ["..."]}], "notes": "..."}`.
+> Each quotation is copied **character for character** from the section
+> it is filed under: no ellipsis inside a quotation (write two), no `/`
+> for a table's `|`, no rewording. Emphasis marks and line breaks may
+> differ; nothing else may. Every verdict but `gap` and `governance`
+> carries at least one quotation. A finding you notice outside the
+> verdict (a contradiction between two sections, a missing modal in the
+> source) goes in `notes` prefixed `FINDING:`.
+
+### B.4 The open search: gaps, edge cases, ambiguities
+
+- **major, incremental**: one fresh subagent reads the whole spec once,
+  with `../context/03-requirements.md` and `../context/04-use-cases.md`,
+  and returns §1–§3. It is the only read of the whole document in this
+  step, and it exists because what crosses sections is what a
+  per-criterion walk cannot see.
+- **refine**: the previous sidecar's §1–§3 entries carry over, except
+  those whose cited sections are in `changed` or `removed`; those, and
+  the sections in `changed` and `added`, are re-examined by one fresh
+  subagent that receives **only those sections** (`bin/spec-section.py
+  get ... --file output/v<N>-sgai-spec.md`) and the entries to re-judge.
+
+The walkers' `FINDING:` notes are added to the candidates of §1–§3.
+
+### B.5 The trace, checked before anything is final
+
+Merge the walkers' answers, the `code` verdicts and the carried-over
+entries into `../output-analysis/v<N>-trace.json` (`"spec":
+"output/v<N>-sgai-spec.md"`, each unit with its `verdict`), then:
+
+```bash
+python3 bin/check-trace.py output-analysis/v<N>-trace.json
+```
+
+It MUST exit 0. A `T-QUOTE` or `T-SECTION` goes back to the walker of that
+unit, once, with the finding; still failing, the step stops and reports
+it — a sidecar does not publish a quotation that is not in the spec. A
+`T-POP` means a unit was dropped or invented: fix the merge, never the
+population. Exit 2 stops the step.
+
+### B.6 The sidecar, rendered from the trace, and its summary
+
+Write the coverage map from the trace (a row per unit, population order,
+evidence as §A.4 says), §1–§3 from §B.4, and route §5 by the resolution
+chain — the only part of this step that reads `../context/` passages,
+ADRs and the base standard, and only for the findings being routed. In a
+refine, rows and findings carried over keep their bucket unless their
+reason changed. Then:
+
+```bash
+python3 bin/validation-summary.py output-analysis/v<N>-spec-validation.md \
+  --out output-analysis/v<N>-spec-validation.summary.json
+```
+
+Exit 1 (a heading's count disagrees with its entries) is fixed in the
+sidecar and re-run; the step is done when it exits 0.
+`bin/check-promotable.py` reads the summary, not the prose.
 
 ### Tone
 
-Direct, audit-style. Cite paths and line numbers when possible.
-The spec output is the artefact; this doc is the feedback loop
-back to `../context/`.
+Direct, audit-style. Cite section keys, never line numbers. The spec is
+the artefact; this document is the feedback loop back to `../context/`.
