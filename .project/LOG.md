@@ -2366,3 +2366,15 @@ La validación independiente (T-05 de la fase 08) encontró una sola obligación
 ## 2026-10-27 — Fase 08 cerrada
 
 `context/03-requirements.md` quedó con el documento primero: regla, índice de interfaces, 165 criterios, 36 ids retirados con su tabla, D-13 a D-16 y R1.4, y `check-context-interfaces` como Step 0.7. La validación independiente sólo encontró R6.4, que se restauró. R4.6 se verificó contra la copia primaria (Table 62, `@clip`: *"shall terminate at the latest at time PRT + APDmax"*) y no cambió. `SETUP.md` nombra ahora los tres checks de `context/`. REPORT escrito. Lo que sigue es el v13 y multiview.
+
+## 2026-11-23 — Tests de conformidad: alcance, sólo la norma DASH nativa
+
+Decisión del líder del proyecto: lo que define la spec se testea con tests reales contra ISO/IEC 23009-1, la edición que declara `context/00-normative-base.md`. **SVTA 2053 queda fuera de ese alcance**: son trabajos en paralelo que no se tocan. Su criterio, textual: *"hacer una demo con tests REALES que un código falle y no sea un LLM diciendo algo está bien o mal es muy distinto. Los tests dan confianza PQ es deterministico, un LLM JUZGANDO NO"*.
+
+## 2026-11-23 — multi-asset-options-profile, en espera del feedback de DASH
+
+Decisión del líder del proyecto: `roadmap/multi-asset-options-profile` no avanza hasta tener el feedback de la gente de DASH (DASH-IF / MPEG). Sigue en `designing`, con la nota en su `DESIGN.md`, y no entra en `conformance-tests`.
+
+## 2026-11-23 — Arranca el diseño de conformance-tests
+
+`roadmap/conformance-tests` (`designing`): que la evidencia de conformidad con DASH la dé código determinístico (XSD oficial de la 6ta más el de la spec, reglas de la norma como código con su cita, el tool de DASH-IF, dash.js y Shaka), y que el audit del LLM quede como complemento que señala sospechas, nunca como evidencia. Lo medido antes de diseñar: el XSD de la 6ta está en `standards.iso.org/iso-iec/23009/-1/ed-6/en/` y valida los 52 MPD de `dist/` y los 41 ejemplos de ISO; el tool de DASH-IF (`v3.1.0`) valida contra el XSD de la 5ta y rechaza 17 de nuestros MPD y 8 de los ejemplos de ISO por construcciones de la 6ta. Cuatro preguntas abiertas (P-1 a P-4) en el `DESIGN.md`. `context/` y `dist/` no se tocaron.

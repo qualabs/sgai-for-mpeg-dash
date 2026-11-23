@@ -5,6 +5,10 @@ category: feature
 origin: "el líder del proyecto, 2026-10-27, al decidir sobre output-analysis/2026-10-27-wg-chair-v3-vs-context.md (fila 22)"
 ---
 
+> **En espera** (el líder del proyecto, 2026-11-23): el ítem no avanza hasta
+> tener el feedback de la gente de DASH (DASH-IF / MPEG). No entra en
+> `conformance-tests`.
+
 # Varios assets por opción, como modo opcional
 
 Lo que trae SVTA2053 v3 (el chair del WG): una opción con varios assets
