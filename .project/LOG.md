@@ -2414,3 +2414,7 @@ T-08: el tool de DASH-IF `v3.1.0` construido y fijado en `bin/dashif/`, corrido 
 ## 2026-11-23 — Diseño de `code-first-pipeline`
 
 Empieza el diseño de la fase que pasa el pipeline de la spec a código primero, pedida por el líder del proyecto al cerrar la 09: los artefactos (XSD, tablas de §5, ejemplos como fixtures, vectores de las UC) son la fuente y los juzga código, la prosa se escribe al final y se edita por parches de sección, y la meta medible es bajar ≥70% los tokens por incremental y por vuelta de refine. Medido: el incremental del 2026-10-27 procesó 41,8M tokens de entrada, el 60% en `apply-context-delta` releyendo la spec entera en 88 llamadas, y el 13% en dos artefactos del pre-spec que ningún paso lee. `roadmap/code-first-pipeline/DESIGN.md`; `reference-player` y `major-build-v13` pasan a depender de ella. `context/` y `dist/` sin tocar.
+
+## 2026-11-23 — `code-first-pipeline`: diseño acordado y plan generado
+
+El líder del proyecto aprobó el diseño y la P-1 («Ok a todo»): una vuelta de refine con el pipeline viejo se paga para tener la línea de base medida. La generación escribió `PHASE.md`, `TASKS.md` (17 tareas, todas `agent`) y las ADR 0060 a 0074, una por decisión (D-1 a D-15). El proyecto no tiene `docs/arc42/`. La fase arranca ya, como 10.

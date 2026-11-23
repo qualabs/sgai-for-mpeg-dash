@@ -1,11 +1,3 @@
----
-description: "El pipeline de la spec pasa a código primero: los artefactos (XSD, tablas, ejemplos, vectores de las UC) son la fuente y se verifican por código; la prosa se escribe al final contra ellos, se edita por parches de sección, y lo que hoy juzga un LLM sin necesidad lo decide un script. Objetivo medible: bajar drásticamente los tokens por build y por vuelta de refine."
-status: designing
-category: feature
-depends_on: [conformance-tests]
-origin: "el líder del proyecto, 2026-11-23, hilo #sgai, al cerrar conformance-tests: «los tests dan confianza PQ es deterministico, un LLM JUZGANDO NO», «tal vez deberíamos hacer más 'código' … y por último se escribe la norma en sí misma», «no quiero dejar cosas 'para después' … antes de la v13», y que el camino baje drásticamente los tokens"
----
-
 # Código primero: el pipeline de la spec
 
 ## Para qué
