@@ -84,6 +84,24 @@ def rows(block):
     return out
 
 
+def interface_index(interfaces):
+    """{interface: [(element, criteria)]} from the body of the Interfaces
+    section, and the list of what could not be read. Also imported by
+    bin/conformance, so the two cannot read the index differently."""
+    index, cannot = {}, []
+    for name in WRITERS:
+        m = re.search(r"^### " + re.escape(name) + r"\b.*$", interfaces, re.M)
+        if not m:
+            cannot.append(f"no {name} table in the Interfaces section")
+            continue
+        body = interfaces[m.end():]
+        nxt = re.search(r"^### ", body, re.M)
+        index[name] = rows(body[: nxt.start()] if nxt else body)
+        if not index[name]:
+            cannot.append(f"the {name} table has no rows")
+    return index, cannot
+
+
 def parties(role):
     return {p.strip() for p in re.split(r"\s*[+/,]\s*", role)}
 
@@ -121,16 +139,8 @@ def main(argv):
         cannot.append('no "## Retired identifiers" section in 03')
     index = {}
     if interfaces is not None:
-        for name in WRITERS:
-            m = re.search(r"^### " + re.escape(name) + r"\b.*$", interfaces, re.M)
-            if not m:
-                cannot.append(f"no {name} table in the Interfaces section")
-                continue
-            body = interfaces[m.end():]
-            nxt = re.search(r"^### ", body, re.M)
-            index[name] = rows(body[: nxt.start()] if nxt else body)
-            if not index[name]:
-                cannot.append(f"the {name} table has no rows")
+        index, missing = interface_index(interfaces)
+        cannot.extend(missing)
     try:
         old = subprocess.run(
             ["git", "-C", ROOT, "show", f"{REFERENCE_COMMIT}:context/{REQUIREMENTS}"],
