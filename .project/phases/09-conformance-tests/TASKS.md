@@ -4,8 +4,8 @@
 | ---- | --------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
 | T-01 | Los bloques de un candidato quedan extraídos y clasificados, con su línea               | done | agent | —    | `bin/conformance/extract.py`; `bin/test_conformance_core.py` (Extract)        |
 | T-02 | El XSD de las extensiones sale como archivo del build, idéntico al bloque de §5.10.1    | done | agent | —    | `bin/emit-extension-xsd.py`; `bin/test_conformance_core.py` (Emitter)        |
-| T-03 | Nivel 1: E-1 a E-4 dicen por código si las extensiones son conformes con DASH          | in-progress | agent | —    | —        |
-| T-04 | Nivel 1: las reglas de la norma que el XSD no expresa corren como código con su cita    | in-progress | agent | —    | —        |
+| T-03 | Nivel 1: E-1 a E-4 dicen por código si las extensiones son conformes con DASH          | done | agent | —    | `bin/conformance/ext.py`; `bin/test_conformance_core.py`; negativos `core-*`        |
+| T-04 | Nivel 1: las reglas de la norma que el XSD no expresa corren como código con su cita    | done | agent | —    | `bin/conformance/dash/rules.py`; `bin/test_conformance_dash.py`; `tasks/T-04/evidence.md`        |
 | T-05 | Nivel 2: los criterios de context/03 sobre documentos corren como código                | in-progress | agent | —    | —        |
 | T-06 | Cada regla tiene su positivo y su negativo, y la suite los corre                        | pending | agent | —    | —        |
 | T-07 | Nivel 3a: dash.js upstream y Shaka reproducen los MPD de la spec ignorando lo nuestro   | in-progress | agent | —    | —        |
@@ -77,6 +77,7 @@ y no entra a él ni por cita de páginas: se citan oraciones.
   negativos de E (T-06) dan `FAIL` en el lugar esperado.
 - **nivel de verificación:** alto. Es la afirmación central de la fase, que lo
   nuestro es conforme con DASH, y corre sin nadie mirando.
+- **post-ejecución:** 2026-11-23, E-4 volvía a correr las reglas del nivel 1 sobre el MPD sin lo ajeno; medido, nunca agregó una falla que el documento original no tuviera (las reglas leen hijos directos, y lo anidado en un elemento ajeno ya falta en el original), así que se sacó: E-4 es la validación XSD del documento sin lo ajeno. Su negativo es un elemento desconocido del namespace DASH; falla junto con E-3, nunca sola. El caso de los AdaptationSet dentro de un elemento ajeno lo agarra DR-7.
 
 ## T-04 — Nivel 1: las reglas de la norma como código con su cita
 - **Objective:** un catálogo (`bin/conformance/dash/`) con una regla por
@@ -99,6 +100,7 @@ y no entra a él ni por cita de páginas: se citan oraciones.
   `NOT_APPLICABLE` en todas.
 - **nivel de verificación:** alto. Cada regla es un veredicto de conformidad
   que bloquea la promoción.
+- **post-ejecución:** 2026-11-23, el ejecutor dejó DR-3, DR-4 y DR-9 enteras como `NOT_VERIFIABLE`; el diseño (ADR 0049) tenía una mitad de código para cada una. Se agregaron DR-3a (encuentra elementos DASH anidados en uno ajeno; `NOT_VERIFIABLE` por ocurrencia, `PASS` sin ninguna), DR-4a (todo `urn:mpeg:dash:profile:` es uno que la 6ta define; lista sacada de la copia primaria) y DR-9a (`EssentialProperty` con esquema nuestro sobre el contenido principal es `FAIL`), con sus negativos y su mutación.
 
 ## T-05 — Nivel 2: los criterios de context/03 sobre documentos
 - **Objective:** un catálogo (`bin/conformance/spec/`) con una regla o un
