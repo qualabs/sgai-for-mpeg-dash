@@ -2,12 +2,14 @@
 """Conformance tests of the SGAI specification: verdicts computed by code.
 
     check-dash-conformance.py SPEC.md [--xsd FILE] [--context DIR]
-                              [--out-md FILE] [--out-json FILE] [--players] [--demo]
+                              [--out-md FILE] [--out-json FILE] [--players] [--dashif] [--demo]
 
 Level 1: the extension schema and the example documents against ISO/IEC
 23009-1:2026 (E-1..E-4, the identity of the XSD file with the spec's block,
 and the base-standard rules the schema cannot express). Level 2: the document
-criteria of context/03. --players adds level 3a (legacy Players). --demo
+criteria of context/03. --players adds level 3a (legacy Players). --dashif
+adds the DASH-IF conformance tool as a second auditor: it informs, never
+changes the exit (its XSD module is the 5th edition's; bin/dashif/). --demo
 runs the committed positive and negative cases side by side.
 
 --xsd defaults to the file beside SPEC.md: v<N>-sgai-extension.xsd for
@@ -56,7 +58,7 @@ def main(argv):
                 sys.stderr.write(f"{a} needs a value\n{USAGE}\n")
                 return 64
             opts[a] = args.pop(0)
-        elif a in ("--players", "--demo"):
+        elif a in ("--players", "--demo", "--dashif"):
             flags.add(a)
         elif a.startswith("-"):
             sys.stderr.write(f"unknown option {a}\n{USAGE}\n")
@@ -87,10 +89,22 @@ def main(argv):
             from conformance import players
             report.add(players.run(ctx, report))
     md = runner.to_markdown(report, spec, "Conformance tests")
+    second = None
+    if "--dashif" in flags and ctx is not None:
+        from conformance import dashif
+        second = dashif.run(ctx.blocks, ctx.isodir)
+        md += dashif_section(second)
     if opts["--out-md"]:
         Path(opts["--out-md"]).write_text(md, encoding="utf-8")
     if opts["--out-json"]:
-        Path(opts["--out-json"]).write_text(runner.to_json(report, spec), encoding="utf-8")
+        js = runner.to_json(report, spec)
+        if second is not None:
+            import json
+            d = json.loads(js)
+            d["second_auditor_dashif"] = {k: v for k, v in second.items() if k != "baseline"} | {
+                "baseline_summary": {k: v for k, v in second.get("baseline", {}).items() if k != "per_example"}}
+            js = json.dumps(d, indent=1, ensure_ascii=False, sort_keys=True) + "\n"
+        Path(opts["--out-json"]).write_text(js, encoding="utf-8")
     c = report.counts()
     print(f"exit {report.exit_code()}: PASS {c['PASS']}  FAIL {c['FAIL']}  "
           f"NOT_VERIFIABLE {c['NOT_VERIFIABLE']}  NOT_APPLICABLE {c['NOT_APPLICABLE']}")
@@ -99,6 +113,21 @@ def main(argv):
     if not opts["--out-md"]:
         print(md)
     return report.exit_code()
+
+
+def dashif_section(r):
+    L = ["", "## Second auditor: DASH-IF conformance tool (informs, does not change the exit)", ""]
+    if not r.get("ran"):
+        return "\n".join(L + [f"Not run: {r.get('reason')}", ""])
+    s = r["summary"]
+    L += [f"Tool {r.get('tool', {}).get('tag', '')}; its XSD verdict is discarded (5th edition); what it also "
+          "flags on ISO's own 6th-edition examples is its baseline and is subtracted.", "",
+          f"- documents: {s['documents']}; with findings of their own: {s['with_ours']}; "
+          f"with baseline findings only: {s['with_baseline_only']}; rejected by its 5th-edition XSD "
+          f"(discarded): {s['xsd5_rejected']}"]
+    for key in s.get("ours_keys", []):
+        L.append(f"- finding of our own: `{key}`")
+    return "\n".join(L) + "\n"
 
 
 def default_xsd(spec):

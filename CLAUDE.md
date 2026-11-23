@@ -169,12 +169,14 @@ What does NOT go where:
   `players/` pins the legacy Players (dash.js 5.3.0 upstream, Shaka
   5.3.6, headless Chromium through Playwright) for level 3a. They
   inform and do not block until their runs are stable (ADR 0057), so
-  they run by hand or in the demo, never in the build.
+  they run by hand with `--players`, never in the build.
   `dashif/` builds the pinned DASH-IF conformance tool (`v3.1.0`) as a
   Docker image, a second auditor (ADR 0053). Its XSD module validates
   against the 5th edition, so that verdict is discarded, and what it
   flags on ISO's own 6th-edition examples is its false-positive
-  baseline.
+  baseline. `check-dash-conformance.py --dashif` runs it and adds its
+  findings as a section that never changes the exit; `conformance/dashif.py`
+  is the bridge.
   `check-dist-freshness.py` is not a build
   step: it answers whether what is published in `dist/` was built from
   the inputs as they stand now, by comparing `context/`,

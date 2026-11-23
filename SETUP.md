@@ -27,6 +27,29 @@ and `bin/check-context-interfaces.py` run next and stop it if `context/`
 does not hold together: its identifiers, its vocabulary, and the index of
 interfaces of `context/03-requirements.md`.
 
+## Conformance tests
+
+`bin/check-dash-conformance.py` and `bin/emit-extension-xsd.py` need
+`lxml`; when it is not importable they re-run themselves under
+`uv run --with lxml==6.1.3`, so `uv` is enough. The first run downloads
+ISO's 6th-edition schema zip from `standards.iso.org` into
+`~/.cache/sgai-conformance/` (`SGAI_CONFORMANCE_CACHE` moves it) and
+checks its `sha256`; later runs work offline
+(`SGAI_CONFORMANCE_OFFLINE=1` forbids the download).
+
+`--players` needs `node`, `ffmpeg`, and the pinned Players:
+
+    (cd bin/players && npm ci)
+
+It uses the Chromium Playwright already has in `~/.cache/ms-playwright`.
+
+`--dashif` needs Docker and the pinned DASH-IF tool image, built once:
+
+    bin/dashif/build.sh
+
+Its first run measures the tool's baseline on ISO's examples (about six
+minutes) and caches it.
+
 ## The base standard
 
 Every step that makes a claim about MPEG-DASH grounds it against the

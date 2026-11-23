@@ -54,9 +54,10 @@ DASH gap analysis, UC coverage matrix, error semantics matrix, and
 conformance assertions.
 
 ### `dist/`
-The published spec and its three analyses, under names that carry
-no version: `sgai-spec.md`, `spec-validation.md`,
-`detail-review.md`, `dash-conformance-audit.md`, `comparison.md`.
+The published spec, its extension schema and its analyses, under names
+that carry no version: `sgai-spec.md`, `sgai-extension.xsd`,
+`spec-validation.md`, `detail-review.md`, `conformance-tests.md` and
+`.json`, `dash-conformance-audit.md`, `comparison.md`.
 This is what the project stands behind, and the only place to look
 for that. The filenames are stable because the link to the spec has
 to survive the next build; the spec's own title has never carried a
@@ -64,12 +65,13 @@ version either.
 
 A build never writes here. Files arrive by **promotion**: a
 candidate in `output/` is judged good enough to become the
-published one, and is moved. The criterion for that judgement is
-**not defined yet** — promotion is a human act today.
+published one, and is moved. The criterion is in `CLAUDE.md`: among
+its conditions, the conformance tests exit `0`.
 
 ### `output/`
-Candidate specs, one file per build iteration:
-`v<N>-sgai-spec.md`. A candidate is what a build produced, not what
+Candidate specs, one per build iteration: `v<N>-sgai-spec.md`, with
+its extension schema `v<N>-sgai-extension.xsd`, extracted by code from
+the spec's §5.10.1 block. A candidate is what a build produced, not what
 the project publishes; the two coincide only for as long as the
 last promotion holds. Every analysis of a candidate — validation sidecar,
 detail-review log, DASH conformance audit, ad-hoc studies — lives
@@ -84,8 +86,10 @@ folder:
 - **Per-iteration analyses produced by `build-all`**:
   `v<N>-spec-validation.md` (Step 7 — sidecar validation),
   `v<N>-detail-review.md` (Step 7.5 — micro-consistency review
-  log), `v<N>-dash-conformance-audit.md` (Step 8 — DASH 6th
-  conformance audit). These share the spec's `v<N>` prefix so the
+  log), `v<N>-conformance-tests.md` and `.json` (Step 8.0 — the
+  conformance tests, verdicts computed by code), and
+  `v<N>-dash-conformance-audit.md` (Step 8 — the LLM's suspicions, a
+  complement and never evidence). These share the spec's `v<N>` prefix so the
   build iteration is auditable as a set.
 - **Ad-hoc analyses created by hand** when a specific output needs
   deeper investigation: research informing the next build, errata
@@ -108,6 +112,18 @@ the published one. To read **what the project is proposing and
 why**, start with `context/01-intro.md` and follow the document
 index TOC. For project status and history, jump to
 `.project/PROJECT.md`.
+
+## How to test conformance
+
+Whether the spec conforms to MPEG-DASH 6th edition, and to its own
+requirements in `context/03`, is decided by code, not by an LLM:
+
+    python3 bin/check-dash-conformance.py dist/sgai-spec.md   # levels 1-2
+    python3 bin/check-dash-conformance.py --demo              # positives and broken-on-purpose cases
+
+`--players` adds dash.js and Shaka playing every main MPD, and
+`--dashif` the DASH-IF conformance tool as a second auditor. What each
+needs installed is in `SETUP.md`.
 
 ## How to regenerate artefacts
 

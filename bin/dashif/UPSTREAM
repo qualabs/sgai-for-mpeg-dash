@@ -1,0 +1,28 @@
+# DASH-IF Conformance tool pin. A validator that moves is a validator whose
+# verdicts cannot be compared across runs; build.sh refuses to build when the
+# tag no longer resolves to the commit below.
+repo=https://github.com/Dash-Industry-Forum/DASH-IF-Conformance
+tag=v3.1.0
+commit=bdf0c27a8f198da7a4bf81634bb01faf7c7c3c06
+image=sgai-dashif-conformance:v3.1.0
+
+# Upstream publishes no image, so it is built here from the pinned tree. The
+# recipe is the one qualabs-video-replacement/tools/dash-conformance uses for
+# v3.0.0, with the same two deliberate deviations from upstream's Dockerfile:
+#
+#   1. GPAC is NOT compiled (upstream runs an unbounded `make -j`). GPAC backs
+#      the SEGMENT modules only; the MPD modules do not need it.
+#   2. npm assets are not built. They are the web UI; this runs the CLI.
+#   3. The base image is pinned to dunglas/frankenphp:1-php8.4 (upstream uses
+#      the untagged image, which now ships PHP 8.6 and fails composer.lock).
+#
+# The build runs on the legacy builder because it is the one that takes
+# --memory / --cpu-quota: this host has had a memory incident building
+# exactly this kind of image.
+#
+# What this auditor is for in this project (ADR 0053): the Global Module
+# (schematron) and IOP MPD modules over the spec's MPDs. Its XSD module
+# validates against DASH5th.xsd (app/Modules/Common/MPD/XSDValidation.php),
+# i.e. the 5th edition, so its XSD verdict on 6th-edition documents is
+# discarded, and what it flags on ISO's own 6th-edition examples is its
+# false-positive baseline.

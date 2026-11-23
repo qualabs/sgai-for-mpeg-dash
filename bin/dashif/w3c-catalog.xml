@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+  <uri name="http://www.w3.org/XML/2008/06/xlink.xsd" uri="file:///opt/w3c/xlink.xsd"/>
+  <system systemId="http://www.w3.org/XML/2008/06/xlink.xsd" uri="file:///opt/w3c/xlink.xsd"/>
+  <uri name="http://www.w3.org/2001/xml.xsd" uri="file:///opt/w3c/xml.xsd"/>
+  <system systemId="http://www.w3.org/2001/xml.xsd" uri="file:///opt/w3c/xml.xsd"/>
+</catalog>
