@@ -2386,3 +2386,7 @@ El líder del proyecto quiere el testing completo en tres niveles: sintaxis y co
 ## 2026-11-23 — conformance-tests: decisiones del líder del proyecto, y el orden antes del v13
 
 El líder del proyecto aprobó las recomendaciones, con un cambio de orden: *"todos estos cambios tenemos que hacerlos ANTES de v13"*. El orden queda `conformance-tests` → `reference-player` → `major-build-v13`, escrito en los `depends_on` (`reference-player` depende de `conformance-tests`; `major-build-v13` suma las dos). La referencia se construye contra el `context/03` de hoy, y lo que el v13 mueva lo avisan los hashes de criterio de los tests. El criterio de promoción suma `check-dash-conformance` en `0`; el audit del LLM deja de bloquear; los Players informan sin bloquear hasta tener corridas estables. El issue a DASH-IF sale después de medir con el tool corriendo, y no se publica sin su OK explícito. Todo queda como decisiones D-8, D-13 y D-14 del `DESIGN.md`; la fase no se abrió.
+
+## 2026-11-23 — conformance-tests: diseño acordado, plan generado
+
+El líder del proyecto aprobó abrir y ejecutar la fase. La generación escribió `PHASE.md`, `TASKS.md` (12 tareas, la última el cierre) y las ADR 0045 a 0058, una por decisión D-1 a D-14 del diseño. El proyecto no tiene `docs/arc42/`.

@@ -1,10 +1,3 @@
----
-description: "Testing completo de la spec en tres niveles, con veredictos de código y no de un LLM: (1) el XSD de las extensiones como artefacto del build y su conformidad con ISO/IEC 23009-1 6ta; (2) las reglas de context/03 sobre los documentos como código con su cita; (3) la conducta de los Players, legacy aquí y el que implementa la extensión (referencia sobre dash.js) en reference-player. Las dos fases van antes del v13."
-status: designing
-category: chore
-origin: "el líder del proyecto, 2026-11-23, hilo #sgai: «tal vez hay una parte del proceso que es justamente testear contra la norma», con la analogía de projects/tests-de-planos"
----
-
 # Tests de conformidad de la spec
 
 ## Para qué
