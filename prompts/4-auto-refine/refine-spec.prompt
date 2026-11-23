@@ -140,12 +140,18 @@ proposes a change to the spec:
     validation is the strategic pass; detail-review is tactical.
 
 - From `v<N.M>-detail-review.md`:
-  - **Autofixes** are already applied to the spec by Step 7.5 —
-    skip them.
-  - **Flagged issues** are the deltas this prompt OWNS. Apply each
-    one using the suggested resolution from the log; if the log
-    recommends "rename X to Y", do the rename consistently across
-    the whole spec.
+  - Step 7.5 edits nothing: it judges naming only (categories 3 and
+    4) and its fixes arrive as patch ops, never applied.
+  - **`v<N.M>-detail-review.patch.json`**, if present: include each of
+    its ops in this refine's patch as it stands (its `reason` is
+    already `v<N.M>-detail-review.md#flag-<k>`). An op whose `find`
+    no longer occurs once in its section is rewritten against the
+    section as it is, same intent and reason.
+  - **Flagged issues** with no op in that file are the deltas this
+    prompt OWNS. Apply each one using the suggested resolution from
+    the log; a rename "X to Y" is applied in every section the flag
+    lists, and by `file` op in `syntax/sgai-extension.xsd`,
+    `syntax/syntax.yaml` and every `examples/` fixture that uses X.
 
 - From `v<N.M>-conformance-tests.md`:
   - **Every row of `## FAIL`** is an issue to fix: the rule, its quoted

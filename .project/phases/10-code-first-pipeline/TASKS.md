@@ -10,7 +10,7 @@
 | T-06 | El lint dice por código si el documento armado está limpio                               | done | agent | —    | `bin/lint-spec.py`, `bin/test_lint_spec.py`, `tasks/T-06/`        |
 | T-07 | Toda edición de la prosa es un parche que aplica un script, y el refine devuelve uno    | done | agent | —    | `bin/apply-spec-patch.py`, `bin/spec-section.py`, `bin/spec_sections.py`, `bin/test_apply_spec_patch.py`, `tasks/T-07/`        |
 | T-08 | La validación se apoya en una traza verificada por código y el LLM juzga por criterio   | pending | agent | —    | —        |
-| T-09 | La revisión de detalles queda en los nombres, sobre la lista que arma el código        | pending | agent | —    | —        |
+| T-09 | La revisión de detalles queda en los nombres, sobre la lista que arma el código        | done | agent | —    | `bin/name-candidates.py`, `bin/test_name_candidates.py`, `tasks/T-09/`        |
 | T-10 | La comparación es código y no compara poblaciones distintas                              | done | agent | —    | `bin/compare-candidates.py`, `bin/test_compare_candidates.py`, `tasks/T-10/`        |
 | T-11 | El pre-spec no produce lo que nadie lee y saltea por hash                                | done | agent | —    | `bin/step-inputs.py`, `bin/test_step_inputs.py`, `tasks/T-11/`        |
 | T-12 | Los orquestadores corren sobre la fuente: artefactos primero, prosa por parche           | pending | agent | —    | —        |

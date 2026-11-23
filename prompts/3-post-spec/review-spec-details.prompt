@@ -1,211 +1,147 @@
-# Review spec details
+# Review spec details (naming against baseline DASH)
 
 **Inputs**:
-- The most recent `../output/v*-sgai-spec.md` (the spec to review
-  and, for autofix-eligible issues, to edit in place).
-- The matching `../output-analysis/v*-spec-validation.md` (the Step 7
-  sidecar — read to avoid duplicating findings already captured
-  upstream).
-- The iteration number `N` (a positive integer) passed in by the
-  orchestrator (`build-all.prompt`) — used to construct the output
-  filename. It MUST match the `v<N>` prefix of the spec under
-  review. If invoked standalone, the runner resolves `N` from the
-  spec filename being reviewed.
-- `../context/` (the normative reference for naming, namespaces,
-  backward-compatibility, and the rest of the spec's policy layer).
+- The iteration number `N` passed in by the orchestrator. If invoked
+  standalone, `N` is the prefix of the most recent
+  `../output/v*-sgai-spec.md`.
+- `../spec-source/`, the source of `../output/v<N>-sgai-spec.md` (ADR
+  0060). Precondition: `python3 bin/assemble-spec.py --check
+  output/v<N>-sgai-spec.md` exits 0; if not, ABORT — the source is not
+  that candidate's.
+- `python3 bin/name-candidates.py --json`: the names our extension schema
+  declares that are equal or close to a name of ISO's 6th-edition
+  `DASH-MPD.xsd`, each with its base declarations (type, context, line)
+  and the keys of the spec sections that mention it. The rules for
+  "close" are in its `--help`.
+- Those sections only, read with `python3 bin/spec-section.py get <key>
+  [<key> …]`.
+- `../context/06-naming-and-namespaces.md`, section "Naming consistency
+  with baseline DASH": the rule and its documented exceptions.
 
 **Output**:
-- `../output-analysis/v<N>-detail-review.md` (the review log), where `<N>`
-  is the iteration version matching the spec under review.
-- In-place autofixes applied to `../output/v<N>-sgai-spec.md` for
-  deterministic, low-risk corrections. Issues that require a
-  semantic decision are flagged in the log only; the spec is not
-  touched for those.
+- `../output-analysis/v<N>-detail-review.md` — the review log.
+- `../output-analysis/v<N>-detail-review.patch.json` — patch ops for the
+  flags whose fix is clear, in the format of `bin/apply-spec-patch.py
+  --help`. Written only when there is at least one op. The refine
+  applies it; this step applies nothing.
 
-**Skip if**: `../output-analysis/v<N>-detail-review.md` exists AND its mtime
-is newer than ALL of:
-- the most recent `../output/v*-sgai-spec.md`,
-- the most recent `../output-analysis/v*-spec-validation.md`,
-- `../context/06-naming-and-namespaces.md`,
-- `../context/07-backward-compat-checklist.md`,
-- this prompt (`prompts/3-post-spec/review-spec-details.prompt`).
+**Skip if**: `../output-analysis/v<N>-detail-review.md` exists AND is
+newer than all of `../output/v<N>-sgai-spec.md`,
+`../spec-source/syntax/sgai-extension.xsd`,
+`../context/06-naming-and-namespaces.md`, `bin/name-candidates.py` and
+this prompt.
 
-If any of those is newer than the review log, regenerate the log
-(and re-apply autofixes against the current spec).
-
-**Execution mode**: this prompt is deterministic — it consults only
-the spec, the validation sidecar, and `../context/`. It MUST NOT
-query any external authority, the primary copy included; conformance against
-external standards is the job of the conformance tests (Step 8.0,
-`bin/check-dash-conformance.py`), with `audit-dash-conformance` (Step 8)
-as a complement.
+**Execution mode**: deterministic over its inputs. It MUST NOT read
+`spec-source/sgai-spec.src.md` or an assembled spec whole, nor any
+section the candidate list does not name. It MUST NOT edit the spec,
+`spec-source/` or `context/`, and MUST NOT query any external authority,
+the primary copy of the base standard included.
 
 ---
 
-## Task
+## What this review judges, and what it does not
 
-Walk the latest `../output/v*-sgai-spec.md` end to end — every chapter
-and every annex — and check it against `../context/` for the
-following categories of micro-consistency issue. The mandate is
-strictly low-level: format, cross-reference, naming, and
-internal alignment. Architecture, requirements, and external
-conformance are explicitly out of scope.
+Two of the eight categories this step used to cover need judgement, and
+only those are judged here:
 
-### Scope — what this review covers
+- **Category 3 — a base name reused with different semantics.** One of
+  our names equals a baseline DASH name, but our construct differs from
+  the base's in unit, reference frame or domain.
+- **Category 4 — a new name for a base concept.** One of our names is a
+  new name for something the base already names with the same semantics;
+  `context/06` says the base name is reused verbatim.
 
-1. **Format consistency**. Lists, delimiters, whitespace, casing,
-   and quoting style. Example: `@profiles` SHOULD be
-   comma-separated; if some chapter or annex uses space-separated,
-   normalise it. Apply consistently across chapter prose and every
-   example.
-2. **Cross-reference consistency**. Internal references like
-   `R5.4`, `§5.3.1.2`, `Annex B`, `chapter 8` must resolve. Detect
-   broken refs (e.g. spec mentions `R5.4` but the highest R5.x is
-   `R5.3`), wrong section numbers, and dangling annex labels.
-3. **Naming reuse with different semantics**. Anchored to
-   `../context/06-naming-and-namespaces.md`, section "Naming
-   consistency with baseline DASH". Detect cases where an SGAI
-   construct reuses a baseline DASH name but diverges in unit,
-   reference frame, or domain — these are flag-only because they
-   require a naming decision.
-4. **Same-name same-semantics alignment**. Detect cases where the
-   spec invented a new name for a concept that already exists in
-   baseline DASH with the same semantics — these should reuse the
-   baseline name verbatim. Likewise, if a baseline name is already
-   in use with matching semantics, confirm the spec is not
-   shadowing it with a synonym elsewhere.
-5. **Annex vs chapter mismatch**. The XML examples in annexes MUST
-   use the attribute and element names declared in the corresponding
-   chapter (typically chapter 5, Syntax). If a chapter renames an
-   attribute but an annex example still uses the old name, the
-   example is wrong and the annex MUST be regenerated to match.
-6. **Editorial regression**. Chapter prose says "X" and an example
-   or table elsewhere uses "Y". Pick the chapter as the source of
-   truth and align the rest.
-7. **Schema-namespace pinning**. XML examples MUST declare every
-   non-default namespace they use. If an example uses `svta:foo`
-   without `xmlns:svta="urn:svta:dash:sgai:<year>"` on the root,
-   the example is incomplete and MUST be patched.
-8. **TODO / FIXME / placeholder leftovers**. Any `TODO`, `FIXME`,
-   `XXX`, `<!-- placeholder -->`, `TBD`, or similar drafting marker
-   left in the spec MUST be surfaced. These are flag-only —
-   resolving them is a human decision.
+The other six are covered by code, which the orchestrator runs; this
+review does not look for them:
 
-### Out of scope
-
-This prompt MUST NOT:
-- Critique the spec's architecture or high-level design (that is
-  the validate-spec sidecar's role).
-- Audit the spec against MPEG-DASH 6th edition or any other
-  external standard (that is the conformance tests' role, Step 8.0).
-- Propose new requirements, new use cases, or new constructs.
-- Rewrite prose for style or tone.
-- Touch any file under `../context/` (`context/` is read-only here
-  and MUST remain self-contained; the dependency arrow is
-  `context/` → `context-analysis/` → `output/`, never reverse).
-- Touch any file under `../context-analysis/`.
-- Modify `../output-analysis/v*-spec-validation.md` (that is Step 7's
-  output, owned by the validate-spec subagent).
-
-The only file this prompt may modify in place is the latest
-`../output/v*-sgai-spec.md` (and only for the autofix-eligible
-categories below).
-
-## Classification — autofix vs flag-only
-
-For every issue identified, classify it as **autofix** or
-**flag-only** using these rules:
-
-- **autofix** — deterministic, mechanical, low-risk corrections
-  where the right answer is unambiguous from `../context/` or from
-  the spec itself:
-  - Delimiter and whitespace normalisations (categories 1, 7).
-  - Cross-reference typos where the intended target is obvious
-    from surrounding text (category 2).
-  - Annex examples regenerated to match the chapter's declared
-    names (categories 5, 6).
-  - Missing `xmlns:svta=` declarations on example roots (category
-    7).
-- **flag-only** — issues that require a semantic decision a human
-  or the spec-build agent must make:
-  - Renaming an attribute because its semantics differ from a
-    baseline DASH name it currently reuses (category 3).
-  - Choosing whether to rename an SGAI construct to align with a
-    baseline DASH name with matching semantics (category 4, when
-    the alignment requires picking which name wins).
-  - Any TODO / FIXME / placeholder resolution (category 8).
-  - Any cross-reference where the intended target is genuinely
-    ambiguous.
-
-If an issue is borderline, treat it as flag-only. A false flag is
-cheaper than a wrong autofix.
+| Category | Covered by |
+|---|---|
+| 1 Format consistency | Tables generated from the schema (`bin/gen-syntax-tables.py --check`); examples included byte for byte from `spec-source/examples/` (`bin/assemble-spec.py --check`) and validated against the schemas (Step 8.0) |
+| 2 Cross-references | `bin/lint-spec.py` L-REF, L-ID |
+| 5 Annex vs chapter | The same two: one schema feeds the tables, and every example is checked against it |
+| 6 Editorial regression | The same two, for tables and examples |
+| 7 Namespace pinning | `bin/lint-spec.py` L-NS |
+| 8 Drafting markers | `bin/lint-spec.py` L-DRAFT, L-COMMENT |
 
 ## Procedure
 
-1. Identify the most recent `../output/v*-sgai-spec.md` and the
-   matching `../output-analysis/v*-spec-validation.md`. Use the spec's
-   iteration prefix as `v<N>` for the review log.
-2. Read the spec end to end, the validation sidecar, and the full
-   `../context/` directory.
-3. For each of the eight scope categories, scan the spec and
-   collect issues. For every issue, capture: file path, line
-   number, a 1-2 line before-extract, the rule it violates (anchor
-   it to a `context/` file and section, or to a chapter of the
-   spec itself when the source of truth is internal), and the
-   classification (autofix or flag-only).
-4. For every autofix issue: apply the edit in place to the spec
-   file. Keep the edit minimal — change only the bytes that need
-   changing, preserve surrounding formatting. Record the after-
-   extract for the log.
-5. For every flag-only issue: do NOT touch the spec. Record the
-   suggested resolution and recommended decision in the log.
-6. Emit `../output-analysis/v<N>-detail-review.md` per the structure
-   below.
+1. Check the precondition. Run `python3 bin/name-candidates.py --json`.
+   Exit 2 means it cannot tell (a schema or the source unreadable):
+   ABORT with its message and write no log — a missing log is read as a
+   review that did not happen, which is the truth.
+2. Read the "Naming consistency with baseline DASH" section of
+   `context/06`.
+3. For each candidate, read the sections it lists and judge:
+   - **`exact` or `case` match → category 3.** Compare our declaration
+     (its type, and what the sections say it measures and against what)
+     with the base declaration(s) the list gives. A different type is a
+     different domain (`xs:duration` against `xs:unsignedLong` in
+     timescale units). Where the base declares the name more than once
+     with different types, compare with the declaration of the construct
+     our sections say they reuse, or else the one in the same role (an
+     attribute of an event-like construct against `EventType`'s).
+   - **`suffix`, `edit` or `affix` match → category 4.** Is our construct
+     the base's concept under another name, with the same semantics? A
+     qualified name for a different quantity (a cap, not a duration) is
+     not.
+   - A case `context/06` records as a deliberate reuse or exception is
+     consistent by that record; cite it.
+   - What the sections do not settle — the base's semantics beyond its
+     declaration and what the spec quotes of it — is not guessed: the
+     candidate goes to **Open questions surfaced**, tagged `[inferred]`
+     if anything in it is.
+4. For each flag whose fix `context/06` dictates (reuse the base name
+   verbatim), write the rename as patch ops: one prose op per section
+   the candidate lists where the name occurs, and `file` ops for
+   `syntax/sgai-extension.xsd`, `syntax/syntax.yaml` and each
+   `examples/` fixture that uses it (find them with `grep -l` over
+   `spec-source/examples/`). Every op's `reason` is
+   `v<N>-detail-review.md#flag-<k>`. A directive line is never an op's
+   target. Confirm with `python3 bin/apply-spec-patch.py <file>
+   --dry-run`, which must exit 0; if it refuses, keep the flag without
+   ops and say why in its row. A flag that needs a naming decision (most
+   of category 3) gets no op.
+5. Write the log.
 
 ## Log structure
 
 ```
-[GROUNDED_BY=spec-only]
+[GROUNDED_BY=name-candidates]
 
 # Spec detail review — v<N> (<YYYY-MM-DD>)
 
-**Review target**: `../output/v<N>-sgai-spec.md`.
-**Reference**: `../context/` at git SHA <sha>.
-**Method**: deterministic scan across eight micro-consistency
-categories; autofixes applied in place, flags reported here.
+Categories 3 and 4 (naming against baseline DASH), over the list
+`bin/name-candidates.py` built. Categories 1, 2, 5, 6, 7 and 8 are
+covered by `bin/lint-spec.py`, `bin/assemble-spec.py --check` and
+`bin/gen-syntax-tables.py --check`, which the orchestrator runs.
 
 ## Summary
-
-- Autofixes applied: <count>
-- Issues flagged for human decision: <count>
-- Categories with no issues: <list of categories, e.g. "schema-namespace pinning OK">
+- Candidates: <count from the list>; sections read: <keys>
+- Flagged: <n> (category 3: <a>, category 4: <b>); with patch ops: <m>
+- Consistent: `<name>` — <one-line reason, with the context/06 anchor when there is one>; …
 
 ## Autofixes applied
 
-| # | Category | Spec ref | Rule anchor | Before | After |
-|---|----------|----------|-------------|--------|-------|
-| 1 | format consistency | L:142 | `context/06` naming guideline | `@profiles="a b"` | `@profiles="a,b"` |
-| ... | ... | ... | ... | ... | ... |
+0. This review edits nothing (ADR 0066, ADR 0069): a clear fix is a
+patch op in `v<N>-detail-review.patch.json`, applied by the refine.
 
 ## Flagged issues
 
-| # | Category | Spec ref | Rule anchor | Description | Suggested resolution | Recommendation |
-|---|----------|----------|-------------|-------------|----------------------|----------------|
-| 1 | naming reuse with different semantics | L:317 | `context/06` Naming consistency with baseline DASH | `@earliestResolutionTimeOffset` on `<OverlayPresentation>` uses `EventStream@timescale` units, baseline uses seconds | Rename to e.g. `@earliestResolutionTimeTicks` or attach an explicit unit suffix | Rename — unit collision is invisible otherwise |
-| ... | ... | ... | ... | ... | ... | ... |
+| Flag | Category | Name | Sections | Base declaration | Description | Suggested resolution | Patch ops |
+|---|---|---|---|---|---|---|---|
+| <k> | 3 or 4 | `<name>` on `<our context>` | <keys> | `<base context>@<name>`, `<type>`, DASH-MPD.xsd line <n> | <what differs, or what is the same> | <rename to …, or the decision needed> | <count>, or none and why |
 
 With nothing flagged, keep the header and separator and write no rows.
-`bin/check-promotable.py` reads this table, and a missing one is a review
-it cannot confirm happened, not a review that found nothing.
+`bin/check-promotable.py` reads this table by its first column, and a
+missing table is a review it cannot confirm happened, not one that found
+nothing.
 
 ## Open questions surfaced
-[Optional. Use only for issues the reviewer noticed that do not
-fit any of the eight categories but are worth a human look. Keep
-to 1-3 bullets max; if there is nothing, omit the section.]
+- <candidate> — <what the sections do not settle>. Omit the section if
+  there is none.
 ```
 
 ## Tone
 
-Tabular, direct, line-anchored. The log is an audit artefact: a
-reader scanning the autofix and flag tables should be able to
-audit every change without re-reading the spec.
+Tabular and direct. A reader auditing a flag should need only its row,
+the sections it names and the base declaration's line.
