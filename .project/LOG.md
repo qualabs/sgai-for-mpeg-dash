@@ -2378,3 +2378,7 @@ Decisión del líder del proyecto: `roadmap/multi-asset-options-profile` no avan
 ## 2026-11-23 — Arranca el diseño de conformance-tests
 
 `roadmap/conformance-tests` (`designing`): que la evidencia de conformidad con DASH la dé código determinístico (XSD oficial de la 6ta más el de la spec, reglas de la norma como código con su cita, el tool de DASH-IF, dash.js y Shaka), y que el audit del LLM quede como complemento que señala sospechas, nunca como evidencia. Lo medido antes de diseñar: el XSD de la 6ta está en `standards.iso.org/iso-iec/23009/-1/ed-6/en/` y valida los 52 MPD de `dist/` y los 41 ejemplos de ISO; el tool de DASH-IF (`v3.1.0`) valida contra el XSD de la 5ta y rechaza 17 de nuestros MPD y 8 de los ejemplos de ISO por construcciones de la 6ta. Cuatro preguntas abiertas (P-1 a P-4) en el `DESIGN.md`. `context/` y `dist/` no se tocaron.
+
+## 2026-11-23 — conformance-tests: tres niveles, y la referencia sobre dash.js
+
+El líder del proyecto quiere el testing completo en tres niveles: sintaxis y conformidad con DASH, las reglas propias de la spec (`context/03`) como código, y la conducta de los Players. Las reglas de `context/03` entran en `conformance-tests`, escritas contra el `context/03` de hoy y ajustadas en el v13. La implementación de referencia del Player que soporta la extensión se hace sobre dash.js (*"Dash.js tiene que ser la referencia"*); el Player legacy sigue siendo dash.js upstream sin modificar. El diseño la deja para una fase siguiente, capturada como `roadmap/reference-player` (`idea`, después del v13).
