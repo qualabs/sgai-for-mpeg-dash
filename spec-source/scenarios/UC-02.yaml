@@ -1,0 +1,132 @@
+# UC-02 — Mid-content slot (mid-roll), as walked by Annex B.
+# Expected behaviour: context/04 UC-02. Documents, ids and times: Annex B
+# (B.2 main MPD, B.3 List MPD, B.4 sub-MPD, B.5 walk-through, B.7 trick play).
+# Playback starts at 570 s of the live timeline, so session time t is
+# programme time 570 s + t: the event (PRT 600 s) executes at session 30 s.
+# B.6 (a late start at 604 s, `@clip` at work) needs a different `play_from`,
+# which a variant cannot declare; it is not written here.
+format: sgai-scenario/1
+uc: UC-02
+uc_sha256: 3749bbcf30283f1b33226e89d229e35159ff721c58f04f4c06a1d85475b2fbc7
+timescale: 1000
+tolerance: 250
+play_from: 570000
+observe_until: 70000
+entry: examples/annex-b/B.2-1.mpd
+fixtures:
+  - path: examples/annex-b/B.2-1.mpd
+  - path: examples/annex-b/B.3-1.mpd
+    url: https://aps.example.com/linear/break?ch=sports1&b=7
+  - path: examples/annex-b/B.4-1.mpd
+    url: https://ads-cdn.example.com/cr/201/cr201.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+# Every class observes the same thing (context/04 UC-02: D2 "same as D1",
+# D3 "same as D1 and D2", D4/D5 "same as D3"; B.8 "Every class sees a
+# 30-second full-screen ad, then the live channel at 630 s").
+outcomes:
+  D1: &midroll
+    summary: The live channel, a 30 s full-screen ad replacing 600-630 s of it, then the live channel at 630 s.
+    requests:
+      # B.2 / B.5 step 1: resolved between 580 s and 600 s of media time.
+      - at: {from: 10000, to: 30000}
+        url: https://aps.example.com/linear/break?ch=sports1&b=7
+        answered_by: examples/annex-b/B.3-1.mpd
+      # B.3: the ImportedMPD may be resolved 20 s before its PeriodStart,
+      # i.e. as soon as the List MPD is known, and before the ad plays.
+      - at: {from: 10000, to: 30000}
+        url: https://ads-cdn.example.com/cr/201/cr201.mpd
+        answered_by: examples/annex-b/B.4-1.mpd
+    selection:
+      - opportunity: {fixture: examples/annex-b/B.2-1.mpd, event_id: "7"}
+        result: presented
+        presented:
+          - {candidate: {fixture: examples/annex-b/B.3-1.mpd, id: ad-201}, option: null, layout: linear}
+    presentation:
+      - {start: 0, end: 30000, layout: none, shows: [{element: primary, from: 570000}]}
+      # B.5 step 2: at PRT = 600 s the ad replaces the live channel's output.
+      - start: 30000
+        end: 60000
+        layout: linear
+        shows: [{element: ad, candidate: {fixture: examples/annex-b/B.3-1.mpd, id: ad-201}, option: null}]
+      # B.5 step 4: RT = PRT + @returnOffset = 630 s, the live position.
+      - {start: 60000, end: 70000, layout: none, shows: [{element: primary, from: 630000}]}
+    beacons:
+      # B.5 step 3: 0, 7.5, 15, 22.5 and 30 s of the ad, which starts at session 30 s.
+      - {at: 30000, fixture: examples/annex-b/B.4-1.mpd, id: "1", url: "https://t.example.com/imp?cr=201"}
+      - {at: 37500, fixture: examples/annex-b/B.4-1.mpd, id: "2", url: "https://t.example.com/q1?cr=201"}
+      - {at: 45000, fixture: examples/annex-b/B.4-1.mpd, id: "3", url: "https://t.example.com/mid?cr=201"}
+      - {at: 52500, fixture: examples/annex-b/B.4-1.mpd, id: "4", url: "https://t.example.com/q3?cr=201"}
+      - {at: 60000, fixture: examples/annex-b/B.4-1.mpd, id: "5", url: "https://t.example.com/complete?cr=201"}
+  D2: *midroll
+  D3: *midroll
+  D4: *midroll
+  D5: *midroll
+
+variants:
+  - id: trick-play-2x
+    description: >-
+      context/04 UC-02 "Trick-play variant" and B.7: the viewer watches at 2x
+      (a time-shifted replay) when the event executes. The ad plays at 2x: its
+      30 s of presentation time occupy 15 s of wall clock; the cap and the
+      beacon times stay on the presentation timeline. The rate is set at
+      session 0, so 600 s of media time is reached at session 15 s.
+    actions: [{at: 0, do: rate, rate: 2}]
+    outcomes:
+      D1: &midroll2x
+        summary: At 2x, the ad's 30 s of presentation time take 15 s of wall clock; the channel resumes at 630 s.
+        requests:
+          - at: {from: 5000, to: 15000}
+            url: https://aps.example.com/linear/break?ch=sports1&b=7
+            answered_by: examples/annex-b/B.3-1.mpd
+          - at: {from: 5000, to: 15000}
+            url: https://ads-cdn.example.com/cr/201/cr201.mpd
+            answered_by: examples/annex-b/B.4-1.mpd
+        selection:
+          - opportunity: {fixture: examples/annex-b/B.2-1.mpd, event_id: "7"}
+            result: presented
+            presented:
+              - {candidate: {fixture: examples/annex-b/B.3-1.mpd, id: ad-201}, option: null, layout: linear}
+        presentation:
+          - {start: 0, end: 15000, layout: none, shows: [{element: primary, from: 570000}]}
+          - start: 15000
+            end: 30000
+            layout: linear
+            shows: [{element: ad, candidate: {fixture: examples/annex-b/B.3-1.mpd, id: ad-201}, option: null}]
+          - {start: 30000, end: 70000, layout: none, shows: [{element: primary, from: 630000}]}
+        beacons:
+          # B.7: "the midpoint beacon fires at 15 s of presentation time, 7.5 s
+          # of wall clock after the ad starts".
+          - {at: 15000, fixture: examples/annex-b/B.4-1.mpd, id: "1", url: "https://t.example.com/imp?cr=201"}
+          - {at: 18750, fixture: examples/annex-b/B.4-1.mpd, id: "2", url: "https://t.example.com/q1?cr=201"}
+          - {at: 22500, fixture: examples/annex-b/B.4-1.mpd, id: "3", url: "https://t.example.com/mid?cr=201"}
+          - {at: 26250, fixture: examples/annex-b/B.4-1.mpd, id: "4", url: "https://t.example.com/q3?cr=201"}
+          - {at: 30000, fixture: examples/annex-b/B.4-1.mpd, id: "5", url: "https://t.example.com/complete?cr=201"}
+      D2: *midroll2x
+      D3: *midroll2x
+      D4: *midroll2x
+      D5: *midroll2x
+
+missing_carrier: []
+
+disagreements:
+  - context: >-
+      context/04 UC-02 #### D1, "What the user sees": playback "transitions
+      back to the primary content at (or near) the slot position"; #### D3:
+      "primary stops, ad plays, primary resumes".
+    annex: >-
+      B.1: "the main presentation keeps advancing underneath, and the
+      programme resumes at the live position after the break"; B.5 step 4:
+      "The main presentation resumes at RT = PRT + `@returnOffset` = 630 s,
+      the live position" — 30 s after the slot position (600 s).
+    recorded: >-
+      The outcomes follow the annex (the primary content resumes at 630 s).
+      context/04 UC-02's own Scenario admits a replacement that "consumes a
+      bounded span of the primary timeline". Not resolved here.

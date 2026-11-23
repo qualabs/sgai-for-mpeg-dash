@@ -1,0 +1,128 @@
+# UC-07 — Legacy Player encounters new constructs, as walked by Annex G.
+# Expected behaviour: context/04 UC-07. Documents, ids and times: Annex G
+# (G.2 main MPD, G.4 List MPD of the standard break, G.5 sub-MPD, G.6
+# walk-through on the older Player, G.10 device classes). On-demand content
+# with the standard break authored (G.1). Playback starts at 830 s, so
+# session time t is programme time 830 s + t until the insertion at session
+# 70 s stops the programme's timeline.
+#
+# The subject of this UC is a Player that predates this specification, on
+# any device. context/04 states it "uniform across device classes D1..D5" and
+# its Coverage row reads "primary continues (legacy)" in every cell; G.10
+# says the same for "D1 to D5". So the outcomes for D1..D5 here are those of
+# a legacy Player on that class's hardware, identical to `legacy`. The
+# format gives D1..D5 the R3.1 rows of a Player of this specification; a
+# Player of this specification on these documents follows G.9 instead, whose
+# overlay resolution document Annex G does not contain.
+#
+# G.2-1 has three Events with @id 1 (the insertion, the overlay window, the
+# pause window). An `opportunity` names no scheme, so only the insertion is
+# written; that the two SGAI windows are ignored is observable as the absence
+# of any request to their URIs (G.7, R-BC-1, R-BC-2).
+format: sgai-scenario/1
+uc: UC-07
+uc_sha256: c179d0cea8087cac192295684d4db0fc10a0e524ceae3263d8ef766552803661
+timescale: 1000
+tolerance: 250
+play_from: 830000
+observe_until: 110000
+entry: examples/annex-g/G.2-1.mpd
+fixtures:
+  - path: examples/annex-g/G.2-1.mpd
+  - path: examples/annex-g/G.4-1.mpd
+    url: https://aps.example.com/linear/mid?show=8&b=1
+  - path: examples/annex-g/G.5-1.mpd
+    url: https://ads-cdn.example.com/cr/701/cr701.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  legacy: {predates_spec: true}
+# A legacy Player discloses nothing (C5 "not in this MPD", G.7).
+sends_capabilities: []
+actions: []
+
+outcomes:
+  legacy: &legacy
+    summary: The episode, the standard 30 s break at 900 s, then the episode from 900 s; nothing non-linear, no request for either SGAI window, no error.
+    requests:
+      # G.6 step 3: from 840 s it resolves the insertion's @uri.
+      - &list
+        at: {from: 10000, to: 70000}
+        url: https://aps.example.com/linear/mid?show=8&b=1
+        answered_by: examples/annex-g/G.4-1.mpd
+      # G.4: earliestResolutionTimeOffset 60 s before its PeriodStart, i.e. as
+      # soon as the List MPD is known, and before the ad plays.
+      - &sub
+        at: {from: 10000, to: 70000}
+        url: https://ads-cdn.example.com/cr/701/cr701.mpd
+        answered_by: examples/annex-g/G.5-1.mpd
+    selection: &sel
+      - opportunity: {fixture: examples/annex-g/G.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &ad {fixture: examples/annex-g/G.4-1.mpd, id: ad-701}, option: null, layout: linear}
+    presentation:
+      - {start: 0, end: 70000, layout: none, shows: [{element: primary, from: 830000}]}
+      # G.6 step 4: at 900 s, a 30-second full-screen ad.
+      - {start: 70000, end: 100000, layout: linear, shows: [{element: ad, candidate: *ad, option: null}]}
+      # G.6 step 5: the episode resumes at 900 s.
+      - {start: 100000, end: 110000, layout: none, shows: [{element: primary, from: 900000}]}
+    beacons:
+      - {at: 70000, fixture: examples/annex-g/G.5-1.mpd, id: "1", url: "https://t.example.com/imp?cr=701"}
+      - {at: 100000, fixture: examples/annex-g/G.5-1.mpd, id: "2", url: "https://t.example.com/complete?cr=701"}
+  D1: *legacy
+  D2: *legacy
+  D3: *legacy
+  D4: *legacy
+  D5: *legacy
+
+variants:
+  - id: pause-requests-nothing
+    description: >-
+      G.6 step 2: "A viewer pause is an ordinary pause; nothing is requested"
+      (G.7, R-BC-2). Paused at session 5 s (programme 835 s) for 3 s; the
+      pause window's @uri is never requested and everything after shifts by
+      3 s.
+    actions: [{at: 5000, do: pause}, {at: 8000, do: resume}]
+    outcomes:
+      legacy: &legacy_paused
+        summary: An ordinary 3 s pause with no request, then the standard break at 900 s and the episode from 900 s.
+        requests:
+          - {at: {from: 13000, to: 73000}, url: "https://aps.example.com/linear/mid?show=8&b=1", answered_by: examples/annex-g/G.4-1.mpd}
+          - {at: {from: 13000, to: 73000}, url: "https://ads-cdn.example.com/cr/701/cr701.mpd", answered_by: examples/annex-g/G.5-1.mpd}
+        selection: *sel
+        presentation:
+          - {start: 0, end: 5000, layout: none, shows: [{element: primary, from: 830000}]}
+          - {start: 5000, end: 8000, layout: none, shows: [{element: primary, from: 835000}], note: the paused frame}
+          - {start: 8000, end: 73000, layout: none, shows: [{element: primary, from: 835000}]}
+          - {start: 73000, end: 103000, layout: linear, shows: [{element: ad, candidate: *ad, option: null}]}
+          - {start: 103000, end: 110000, layout: none, shows: [{element: primary, from: 900000}]}
+        beacons:
+          - {at: 73000, fixture: examples/annex-g/G.5-1.mpd, id: "1", url: "https://t.example.com/imp?cr=701"}
+          - {at: 103000, fixture: examples/annex-g/G.5-1.mpd, id: "2", url: "https://t.example.com/complete?cr=701"}
+      D1: *legacy_paused
+      D2: *legacy_paused
+      D3: *legacy_paused
+      D4: *legacy_paused
+      D5: *legacy_paused
+
+missing_carrier: []
+
+disagreements:
+  - context: >-
+      context/04 UC-07, "Live / real-time content": "the Publisher MAY author
+      a **standard linear break by replacement** over the same span as the
+      SGAI window, and declare on the window that it **supersedes** the break
+      (R40) ... A replacement over a stretch of the programme is how a linear
+      ad already runs in live."
+    annex: >-
+      G.8, "Live content": "A live Publisher would declare the overlay window
+      with no standard break: holding a live stream to splice in a break loses
+      real content, so the opportunity is an expected loss on legacy Players."
+    recorded: >-
+      Not observable in these outcomes: the vector walks G's on-demand
+      document, where both agree that the standard break is authored and
+      played. Not resolved here.

@@ -1,0 +1,161 @@
+# UC-04 — Hybrid linear + concurrent overlay, as walked by Annex D.
+# Expected behaviour: context/04 UC-04. Documents, ids and times: Annex D
+# (D.2 main MPD, D.3 the two requests, D.4 linear List MPD, D.5 overlay
+# document, D.6 sub-MPDs, D.7 the walk per class, D.8 timing). Playback starts
+# at 560 s, so session time t is programme time 560 s + t until the
+# insertion at session 40 s stops the programme's timeline. The overlay's
+# candidate and options carry no @id in D.5: they are named by document order.
+# D.3-1.http holds both requests; the check compares a `matches` with the
+# first request of the file only, so the overlay request carries no `matches`.
+# Both opportunities of D.2-1 carry @id 1 (the insertion and the overlay
+# window, in different EventStreams); an `opportunity` names no scheme, so the
+# first selection entry is the linear one and the second the overlay window.
+# D.8's last paragraph (the same document with no `linearRelation`) is another
+# document, so it is not written as a variant.
+format: sgai-scenario/1
+uc: UC-04
+uc_sha256: 89d39c346b9f86989d4fb420acdc771ffc542d989a983cd85dd0d03478ac8074
+timescale: 1000
+tolerance: 250
+play_from: 560000
+observe_until: 80000
+entry: examples/annex-d/D.2-1.mpd
+fixtures:
+  - path: examples/annex-d/D.2-1.mpd
+  - path: examples/annex-d/D.3-1.http
+  - path: examples/annex-d/D.4-1.mpd
+    url: https://aps.example.com/linear/mid?s=3&e=2
+  - path: examples/annex-d/D.5-1.xml
+    url: https://aps.example.com/nl/overlay?s=3&e=2&w=h1
+  - path: examples/annex-d/D.6-1.mpd
+    url: https://ads-cdn.example.com/cr/401/cr401.mpd
+  - path: examples/annex-d/D.6-2.mpd
+    url: https://ads-cdn.example.com/nl/402/cr402v.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+# D.3-1.http declares no capability parameter.
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1:
+    summary: A 30 s full-screen linear ad from 600 s, with a video lower-third on top of it for its first 10 s; the programme resumes at 600 s.
+    requests:
+      # D.3: "Both may be issued from 570 s"; both are needed before 600 s.
+      - &linear
+        at: {from: 10000, to: 40000}
+        url: https://aps.example.com/linear/mid?s=3&e=2
+        answered_by: examples/annex-d/D.4-1.mpd
+        matches: examples/annex-d/D.3-1.http
+      - &overlay
+        at: {from: 10000, to: 40000}
+        url: https://aps.example.com/nl/overlay?s=3&e=2&w=h1
+        query: {sgai-allowed-layouts: overlay-lower-third}
+        answered_by: examples/annex-d/D.5-1.xml
+      # D.4: the ImportedMPD may be resolved 30 s before its PeriodStart, i.e.
+      # as soon as the List MPD is known, and before the ad plays.
+      - &sub401
+        at: {from: 10000, to: 40000}
+        url: https://ads-cdn.example.com/cr/401/cr401.mpd
+        answered_by: examples/annex-d/D.6-1.mpd
+      # The overlay's video option: after D.5 is known, before it plays.
+      - &sub402
+        at: {from: 10000, to: 40000}
+        url: https://ads-cdn.example.com/nl/402/cr402v.mpd
+        answered_by: examples/annex-d/D.6-2.mpd
+    selection:
+      - &sel_linear
+        opportunity: {fixture: examples/annex-d/D.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &lin {fixture: examples/annex-d/D.4-1.mpd, id: ad-401}, option: null, layout: linear}
+      - &sel_video
+        opportunity: &win {fixture: examples/annex-d/D.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &ov {fixture: examples/annex-d/D.5-1.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+    presentation:
+      - &before {start: 0, end: 40000, layout: none, shows: [{element: primary, from: 560000}]}
+      # D.8: 0-10 s of the linear ad, the overlay composited over it.
+      - start: 40000
+        end: 50000
+        layout: overlay-lower-third
+        shows: [{element: ad, candidate: *lin, option: null}, {element: ad, candidate: *ov, option: {index: 1}, region: lower third}]
+        note: the lower-third over the linear ad, not over the programme
+      - &rest {start: 50000, end: 70000, layout: linear, shows: [{element: ad, candidate: *lin, option: null}]}
+      # D.8: "30 s of the linear ad — The break ends; the programme resumes at 600 s."
+      - &after {start: 70000, end: 80000, layout: none, shows: [{element: primary, from: 600000}]}
+    beacons:
+      - &b1 {at: 40000, fixture: examples/annex-d/D.6-1.mpd, id: "1", url: "https://t.example.com/imp?cr=401"}
+      - &o1 {at: 40000, fixture: examples/annex-d/D.5-1.xml, candidate: *ov, id: "1", url: "https://t.example.com/imp?cr=402"}
+      - &o2 {at: 50000, fixture: examples/annex-d/D.5-1.xml, candidate: *ov, id: "2", url: "https://t.example.com/complete?cr=402"}
+      - &b2 {at: 55000, fixture: examples/annex-d/D.6-1.mpd, id: "2", url: "https://t.example.com/mid?cr=401"}
+      - &b3 {at: 70000, fixture: examples/annex-d/D.6-1.mpd, id: "3", url: "https://t.example.com/complete?cr=401"}
+  D2:
+    summary: The linear ad with the video lower-third on the second decoder for its first 10 s; the programme resumes at 600 s.
+    requests: [*linear, *overlay, *sub401, *sub402]
+    selection: [*sel_linear, *sel_video]
+    presentation:
+      - *before
+      - start: 40000
+        end: 50000
+        layout: overlay-lower-third
+        shows: [{element: ad, candidate: *lin, option: null}, {element: ad, candidate: *ov, option: {index: 1}}]
+      - *rest
+      - *after
+    beacons: [*b1, *o1, *o2, *b2, *b3]
+  D3:
+    summary: The linear ad with the HTML lower-third on top for its first 10 s (the video option fails on one decoder); the programme resumes at 600 s.
+    requests: [*linear, *overlay, *sub401]
+    selection:
+      - *sel_linear
+      - opportunity: *win
+        result: presented
+        presented:
+          - {candidate: *ov, option: {index: 2}, layout: overlay-lower-third}
+    presentation:
+      - *before
+      - start: 40000
+        end: 50000
+        layout: overlay-lower-third
+        shows: [{element: ad, candidate: *lin, option: null}, {element: ad, candidate: *ov, option: {index: 2}}]
+      - *rest
+      - *after
+    beacons: [*b1, *o1, *o2, *b2, *b3]
+  D4:
+    summary: The linear ad with the image lower-third on top for its first 10 s (video and HTML fail); the programme resumes at 600 s.
+    requests: [*linear, *overlay, *sub401]
+    selection:
+      - *sel_linear
+      - opportunity: *win
+        result: presented
+        presented:
+          - {candidate: *ov, option: {index: 3}, layout: overlay-lower-third}
+    presentation:
+      - *before
+      - start: 40000
+        end: 50000
+        layout: overlay-lower-third
+        shows: [{element: ad, candidate: *lin, option: null}, {element: ad, candidate: *ov, option: {index: 3}}]
+      - *rest
+      - *after
+    beacons: [*b1, *o1, *o2, *b2, *b3]
+  D5:
+    summary: The linear ad full-screen, no overlay (no overlay surface); the programme resumes at 600 s.
+    requests: [*linear, *overlay, *sub401]
+    selection:
+      - *sel_linear
+      - {opportunity: *win, result: declined, presented: []}
+    presentation:
+      - *before
+      - {start: 40000, end: 70000, layout: linear, shows: [{element: ad, candidate: *lin, option: null}]}
+      - *after
+    beacons: [*b1, *b2, *b3]
+
+missing_carrier: []
+
+disagreements: []
