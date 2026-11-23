@@ -22,9 +22,11 @@ projects/sgai-for-mpeg-dash/
 ├── context/              inputs — technical specification of the target spec
 ├── prompts/              build scripts — .prompt files run by an LLM agent
 ├── context-analysis/     pre-spec artefacts — derived from context/ and consumed by the spec build
+├── spec-source/          the source of the spec — prose, schema, examples, use-case vectors
 ├── dist/                 the published spec and its analyses — what the project stands behind
-├── output/               candidate specs, one per build iteration (vN-sgai-spec.md)
-├── output-analysis/      per-candidate analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata (vN- prefix)
+├── output/               candidate specs, one per build iteration (vN-sgai-spec.md), assembled from spec-source/
+├── output-analysis/      per-candidate analyses and records (validation, detail-review, conformance tests, audit, patches) + ad-hoc research / errata (vN- prefix)
+├── bin/                  the checks and tools the build runs — code, not prompts
 ├── .github-ai/           GitHub-feedback pipelines (Stages 5 & 6) — issues/ + prs/ prompts + output-issues/ + output-prs/ scratch (gitignored)
 ├── proposal-drafts/      historical drafts kept for reference
 └── .project/             governance — PROJECT.md, LOG.md, phases/, decisions/
@@ -49,48 +51,63 @@ diagram, and the "When to use which prompt" table.
 ### `context-analysis/`
 **Pre-spec** generated artefacts: inputs that the spec build
 consumes. Derived from `context/`. Each file standalone — no
-numeric prefix, no required reading order. Currently includes the
-DASH gap analysis, UC coverage matrix, error semantics matrix, and
-conformance assertions.
+numeric prefix, no required reading order. The build reads the
+DASH gap analysis, the error semantics matrix and the IAB ad-template
+catalogue; the UC coverage matrix and the conformance assertions are
+kept as records and no longer regenerated.
+
+### `spec-source/`
+The source of the spec, and the only place it is edited.
+`sgai-spec.src.md` is the prose, with directives that
+`bin/assemble-spec.py` replaces by files (`{{example:…}}`, `{{xsd}}`,
+`{{include:…}}`) or by the build iteration (`{{version}}`). `syntax/`
+holds the extension schema and `syntax.yaml`, from which the §5 tables
+in `syntax/tables/` are generated; `examples/` the examples as
+fixtures, each with a declared class (`index.yaml`); `scenarios/` the
+use cases as vectors. It is always the source of the newest candidate
+in `output/`. Edits are patches applied by `bin/apply-spec-patch.py`.
 
 ### `dist/`
 The published spec, its extension schema and its analyses, under names
 that carry no version: `sgai-spec.md`, `sgai-extension.xsd`,
 `spec-validation.md`, `detail-review.md`, `conformance-tests.md` and
-`.json`, `dash-conformance-audit.md`, `comparison.md`.
+`.json`, `dash-conformance-audit.md`, `comparison.md`, `trace.json`,
+with `PROVENANCE.md` saying which candidate they came from.
 This is what the project stands behind, and the only place to look
 for that. The filenames are stable because the link to the spec has
 to survive the next build; the spec's own title has never carried a
 version either.
 
-A build never writes here. Files arrive by **promotion**: a
-candidate in `output/` is judged good enough to become the
-published one, and is moved. The criterion is in `CLAUDE.md`: among
-its conditions, the conformance tests exit `0`.
+A build never writes here. Files arrive by **promotion**:
+`bin/promote.py v<N>` runs every gate (among them, the conformance
+tests exit `0` and the candidate beats what is published) and copies
+the set only when all hold.
 
 ### `output/`
-Candidate specs, one per build iteration: `v<N>-sgai-spec.md`, with
-its extension schema `v<N>-sgai-extension.xsd`, extracted by code from
+Candidate specs, one per build iteration: `v<N>-sgai-spec.md`,
+assembled from `spec-source/`, with its extension schema `v<N>-sgai-extension.xsd`, extracted by code from
 the spec's §5.10.1 block. A candidate is what a build produced, not what
 the project publishes; the two coincide only for as long as the
 last promotion holds. Every analysis of a candidate — validation sidecar,
 detail-review log, DASH conformance audit, ad-hoc studies — lives
 in `output-analysis/` instead. Files are **not** overwritten
-between runs, so the candidate history is preserved. The iteration number
-`N` is computed by the `build-all` orchestrator as
-`max(existing v* in output/) + 1` (or `1` for the first build).
+between runs, so the candidate history is preserved.
 
 ### `output-analysis/`
 Every analysis of a specific candidate. Two flavours, same
 folder:
-- **Per-iteration analyses produced by `build-all`**:
-  `v<N>-spec-validation.md` (Step 7 — sidecar validation),
-  `v<N>-detail-review.md` (Step 7.5 — micro-consistency review
-  log), `v<N>-conformance-tests.md` and `.json` (Step 8.0 — the
-  conformance tests, verdicts computed by code), and
-  `v<N>-dash-conformance-audit.md` (Step 8 — the LLM's suspicions, a
-  complement and never evidence). These share the spec's `v<N>` prefix so the
-  build iteration is auditable as a set.
+- **Per-candidate files written by the orchestrators**: the
+  conformance tests (`v<N>-conformance-tests.md` and `.json`,
+  verdicts computed by code), the validation (`v<N>-spec-validation.md`
+  with its machine summary and its trace, `v<N>-trace.json`), the
+  names review (`v<N>-detail-review.md`), the LLM's suspicions
+  (`v<N>-dash-conformance-audit.md`, a complement and never evidence),
+  the comparison against `dist/` (`v<N>-comparison.md`), and the
+  records of how the candidate was made: its patches, the trace of a
+  `context/` delta and the hashes of the source it was assembled from.
+  The full list is under "Naming conventions" in `CLAUDE.md`. They
+  share the spec's `v<N>` prefix so the build iteration is auditable as
+  a set.
 - **Ad-hoc analyses created by hand** when a specific output needs
   deeper investigation: research informing the next build, errata
   clarifying a prior audit, follow-up studies grounded against a
@@ -118,80 +135,73 @@ index TOC. For project status and history, jump to
 Whether the spec conforms to MPEG-DASH 6th edition, and to its own
 requirements in `context/03`, is decided by code, not by an LLM:
 
-    python3 bin/check-dash-conformance.py dist/sgai-spec.md   # levels 1-2
-    python3 bin/check-dash-conformance.py --demo              # positives and broken-on-purpose cases
+    python3 bin/check-dash-conformance.py --source spec-source   # levels 1-2, as the build runs it
+    python3 bin/check-dash-conformance.py dist/sgai-spec.md      # the same on an assembled document
+    python3 bin/check-dash-conformance.py --demo                 # positives and broken-on-purpose cases
 
 `--players` adds dash.js and Shaka playing every main MPD, and
 `--dashif` the DASH-IF conformance tool as a second auditor. What each
-needs installed is in `SETUP.md`.
+needs installed is in `SETUP.md`. Every script in `bin/` says in its
+`--help` what its green covers and what it does not.
 
 ## How to regenerate artefacts
 
-Each prompt declares Inputs / Output / Skip rule at the top.
-Re-running a prompt regenerates its output when the skip rule says
-the inputs are fresher than the existing output.
+The spec is not written from scratch: every build edits
+`spec-source/` by patches and assembles the candidate from it. The two
+orchestrators are the entry points (how to invoke them, and why the
+environment variable they need is not optional, is in `CLAUDE.md` →
+"How to invoke a build"):
 
-- **Gap analysis**: invoke
-  `prompts/1-pre-spec/analyze-dash-gap.prompt`. Reads `context/`,
-  writes `context-analysis/dash-gap-analysis.md` (overwrite).
-- **Spec**: invoke `prompts/2-build/build-spec.prompt`. Reads
-  `context/` + `context-analysis/`, writes
-  `output/v<N>-sgai-spec.md` (no overwrite), where `N` is the
-  iteration number resolved as
-  `max(existing v*-sgai-spec.md) + 1`.
-- **Full pipeline (orchestrator)**: invoke
-  `prompts/build-all.prompt`. Chains every step (1-pre-spec,
-  2-build, 3-post-spec, and the 4-auto-refine convergence loop),
-  honouring each prompt's skip rule and logging a per-step
-  `[BUILT|SKIPPED]` line. See `prompts/README.md` for the folder
-  layout, the pipeline diagram, and the "When to use which prompt"
-  table.
+- **`prompts/build-all.prompt`** — a major: the checks on `context/`,
+  the pre-spec steps, the `context/` delta applied to the newest
+  candidate with no cap on how much changes, the analyses, and the
+  refinement loop.
+- **`prompts/build-incremental.prompt`** — a bounded `context/` delta
+  into the latest candidate: only the affected sections change, and
+  `output-analysis/v<N.M+1>-context-delta.md` maps each change to where
+  it landed. It stops with `MAJOR RECOMMENDED` when the delta is too
+  large or needs structure the spec does not have.
 
-Skip rules are mtime-based: an output is considered fresh when its
-mtime is newer than the newest mtime in its inputs. Touch a `context/`
-file to force a rebuild of downstream artefacts.
+Each prompt declares Inputs / Output / Skip rule at the top. The
+pre-spec steps skip by the hashes of their inputs
+(`bin/step-inputs.py`), never by date. Which of the three scales
+(major, incremental, minor) to use is the operator's call — see
+`CLAUDE.md` for the decision rule. `context/` must be committed before
+either runs.
 
 ### Minor refinement (v\<N.M+1\>)
 
-When `context/` has NOT changed but the most recent analyses
-(validation sidecar, detail-review log, DASH conformance audit)
-surface issues that can be fixed without changing requirements,
-use `prompts/4-auto-refine/refine-spec.prompt` to produce a delta-only refinement:
+When `context/` has NOT changed but the latest analyses surface issues
+that can be fixed without changing requirements, the refinement loop
+(Step 9 of both orchestrators) runs
+`prompts/4-auto-refine/refine-spec.prompt` round by round:
 
-- **Input**: the latest `output/v<N.M>-sgai-spec.md` plus the
-  three matching analysis sidecars in `output-analysis/`.
-- **Output**: `output/v<N.M+1>-sgai-spec.md`. Sections without
-  issues are carried over byte-identical; every applied edit is
-  annotated with an inline HTML comment `<!-- refine: <issue-id> -->`
-  so the refinement is auditable.
-- **Constraint**: requirements stay fixed. Issues that require a
-  new requirement or a new architectural decision are deferred to
-  the next major build under a "Refinement gaps" section appended
-  to the refined spec.
-
-After a refine, re-running `validate-spec`,
-`review-spec-details`, and `audit-dash-conformance` against the
-new candidate produces its three sidecars. Then run
-`prompts/4-auto-refine/compare-spec-versions.prompt` to emit
-`output-analysis/v<N.M>-comparison.md`: a per-category issue-count
-table comparing the candidate against **what is published in
-`dist/`**, with a verdict line (`BETTER THAN PUBLISHED` / `NO
-BETTER THAN PUBLISHED` / `WORSE THAN PUBLISHED`).
+- Each round reads only the sections its issues point at and writes a
+  **patch** (`output-analysis/v<N.M+1>-patch.json`), which
+  `bin/apply-spec-patch.py` applies to `spec-source/` and records; the
+  spec carries no annotations. What a minimal edit cannot resolve goes
+  to `output-analysis/v<N.M+1>-refine-gaps.md`, and requirements stay
+  fixed.
+- The round is assembled and linted, then judged: conformance tests,
+  the validation of the units whose sections changed, the names, and
+  `bin/check-promotable.py` as the stop condition. The audit is not
+  re-run inside the loop.
+- `bin/compare-candidates.py` compares the candidate with **what is
+  published in `dist/`**, unit by unit, and gives a verdict (`BETTER` /
+  `NO BETTER` / `WORSE THAN PUBLISHED`). `WORSE` undoes the round
+  (`bin/apply-spec-patch.py --reverse`).
 
 The baseline is the published build rather than the candidate
 generated just before, because that is the question a promotion
 needs answered: not "did this round move", but "is this better
-than what we currently give as good". The verdict is an input to
-the promotion decision and not the decision itself.
+than what we currently give as good". The verdict decides whether to
+keep refining; promotion is `bin/promote.py`.
 
-### Incremental (v\<N.M+1\>)
+### Measuring a run
 
-When `context/` changed by a bounded delta, `prompts/build-incremental.prompt`
-applies it to the latest candidate instead of regenerating the spec:
-only the affected sections change, and
-`output-analysis/v<N.M+1>-context-delta.md` maps each change to where
-it landed. Which of the three scales (major, incremental, minor) to
-use is the operator's call — see `CLAUDE.md` for the decision rule.
+`python3 bin/measure-run.py <session-id>` reports what each step of a
+run cost in tokens, read from its Claude Code transcript. Run it right
+after the run: transcripts are deleted after 30 days.
 
 ## GitHub issues pipeline (Stage 5)
 

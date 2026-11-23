@@ -3,22 +3,20 @@
 This project is written against a specific edition of MPEG-DASH, and
 the build will not start without a copy of it. That copy is a licensed
 document, so it is not in this repository and you supply your own —
-see **The base standard** below. Everything else — clone, read, invoke
-the prompts in `prompts/` from any LLM-driven agent — needs nothing
-installed.
+see **The base standard** below. Everything else needs Python 3 and
+`uv` (see **Dependencies**), plus an LLM-driven agent to run the
+prompts in `prompts/`.
 
 ## Quick start
 
 1. Read `context/01-intro.md` for an overview.
 2. Read `README.md` for the project layout.
-3. To regenerate the gap analysis: invoke
-   `prompts/1-pre-spec/analyze-dash-gap.prompt`.
-4. To build the spec: invoke `prompts/2-build/build-spec.prompt`.
-5. To run the full pipeline with skip-if-fresh logic (orchestrator
-   over `1-pre-spec/`, `2-build/`, `3-post-spec/`, and the
-   `4-auto-refine/` convergence loop): invoke
-   `prompts/build-all.prompt`. See `prompts/README.md` for the
-   folder layout and a per-prompt usage guide.
+3. To build: invoke `prompts/build-incremental.prompt` (a bounded
+   `context/` delta) or `prompts/build-all.prompt` (a major), as
+   `CLAUDE.md` → "How to invoke a build" says. Both edit
+   `spec-source/` and assemble the candidate from it. See
+   `prompts/README.md` for the folder layout and a per-prompt usage
+   guide.
 
 `bin/check-normative-base.py` runs before anything is generated and
 stops the build if the declared edition does not describe the file you
@@ -27,11 +25,29 @@ and `bin/check-context-interfaces.py` run next and stop it if `context/`
 does not hold together: its identifiers, its vocabulary, and the index of
 interfaces of `context/03-requirements.md`.
 
+## Dependencies
+
+Most of `bin/` needs only the standard library. The exceptions:
+
+- `check-dash-conformance.py`, `emit-extension-xsd.py` and
+  `check-trace.py` need `lxml`, and `check-scenarios.py` needs `lxml`,
+  PyYAML and `jsonschema`. When one is not importable they re-run
+  themselves under `uv run --with` the pinned versions, so `uv` is
+  enough.
+- `gen-syntax-tables.py` and `strip-legacy-annotations.py` need PyYAML
+  and do not re-run themselves: install it, or run them under
+  `uv run --no-project --with pyyaml==6.0.3 python3 bin/<script>.py`.
+
+The whole test suite, one `unittest` file per script:
+
+    for t in bin/test_*.py; do
+      uv run -q --no-project --with lxml==6.1.3 --with pyyaml==6.0.3 \
+        --with jsonschema==4.25.1 python3 "$t" || echo "FAIL $t"
+    done
+
 ## Conformance tests
 
-`bin/check-dash-conformance.py` and `bin/emit-extension-xsd.py` need
-`lxml`; when it is not importable they re-run themselves under
-`uv run --with lxml==6.1.3`, so `uv` is enough. The first run downloads
+The first run of `bin/check-dash-conformance.py` downloads
 ISO's 6th-edition schema zip from `standards.iso.org` into
 `~/.cache/sgai-conformance/` (`SGAI_CONFORMANCE_CACHE` moves it) and
 checks its `sha256`; later runs work offline

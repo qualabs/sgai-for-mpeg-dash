@@ -52,8 +52,10 @@ definitions and produce `../context-analysis/iab-ad-templates.md` with:
    `<!-- TODO: fetch failed — <reason> -->` marker on each column.
    Do NOT invent ad-type values. Do NOT carry over stale rows from
    a previous run if the fetch failed; leave the table empty so the
-   downstream build (`build-spec`) sees the failure and falls back
-   accordingly (chapter 3 marked TODO).
+   downstream build (`apply-context-delta`) sees the failure and falls back
+   accordingly (chapter 3 keeps its current vocabulary and the failure is
+   recorded in the build's trace; no drafting marker enters the spec, which
+   `bin/lint-spec.py` would reject).
 
 ## Tone
 

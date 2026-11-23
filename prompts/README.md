@@ -14,21 +14,26 @@ prompts/
 ├── build-incremental.prompt        orchestrator (root) — incremental: a context/ delta into the latest candidate
 ├── 1-pre-spec/                     pre-spec generated inputs
 │   ├── analyze-dash-gap.prompt
-│   ├── build-uc-coverage-matrix.prompt
 │   ├── build-error-semantics.prompt
-│   ├── extract-conformance-assertions.prompt
 │   └── analyze-iab-ad-templates.prompt
-├── 2-build/                        the spec itself
-│   ├── build-spec.prompt
+├── 2-build/                        the delta on spec-source/ (major and incremental)
 │   └── apply-context-delta.prompt
 ├── 3-post-spec/                    per-iteration analyses of the spec
 │   ├── validate-spec.prompt
 │   ├── review-spec-details.prompt
 │   └── audit-dash-conformance.prompt
 └── 4-auto-refine/                  minor-refinement convergence loop
-    ├── refine-spec.prompt
-    └── compare-spec-versions.prompt
+    └── refine-spec.prompt
 ```
+
+What does not need judgement is code in `../bin/`, called from the
+prompts: assembling the spec, generating the §5 tables, applying and
+undoing patches, lint, conformance, the scenario vectors, the trace,
+the comparison, the promotion. Retired prompts, with what replaced
+them: `build-spec` (a major is `apply-context-delta` in major mode, ADR
+0067), `compare-spec-versions` (`bin/compare-candidates.py`, ADR 0070),
+`extract-conformance-assertions` and `build-uc-coverage-matrix` (nothing
+read them; their `context-analysis/` files stay as records, ADR 0072).
 
 Stages 5 (GitHub issues) and 6 (GitHub PRs) live **outside** this
 folder, under `../.github-ai/`:
@@ -64,55 +69,68 @@ flows and the D-decisions that shape each.
 ## Pipeline flow
 
 ```
-                      build-all (orchestrator)
+               build-all (major) / build-incremental
                              │
                              ▼
    ┌──────────────────────────────────────────────────────────┐
+   │  gates 0–0.7: bin/check-normative-base, check-context-*  │
    │                       1-pre-spec/                        │
+   │  (skip by input hashes: bin/step-inputs.py)              │
    │  analyze-dash-gap → context-analysis/dash-gap-analysis  │
-   │  build-uc-coverage-matrix → uc-coverage-matrix          │
    │  build-error-semantics → error-semantics                │
-   │  extract-conformance-assertions → conformance-assertions │
-   │  analyze-iab-ad-templates → iab-ad-templates            │
+   │  analyze-iab-ad-templates → iab-ad-templates (always)   │
    └────────────────────────────┬─────────────────────────────┘
                                 ▼
    ┌──────────────────────────────────────────────────────────┐
    │                        2-build/                          │
-   │  build-spec → output/v<N>-sgai-spec.md                  │
-   │  6.1 bin/emit-extension-xsd.py                          │
+   │  apply-context-delta (major: no cap; incremental: cap)  │
+   │    artefacts first (fixtures, XSD, vectors), checked by │
+   │    check-dash-conformance --source, check-scenarios;    │
+   │    then prose by section patches (apply-spec-patch)     │
+   │    → spec-source/ patched, delta-patch-<k>.json,        │
+   │      context-delta.md                                    │
+   │  bin/assemble-spec → output/v<N>-sgai-spec.md           │
+   │  bin/lint-spec, check-incremental scope (blocking)      │
+   │  6.1 bin/emit-extension-xsd                             │
    │        → output/v<N>-sgai-extension.xsd (blocking)      │
    └────────────────────────────┬─────────────────────────────┘
                                 ▼
    ┌──────────────────────────────────────────────────────────┐
    │                       3-post-spec/                       │
-   │  validate-spec → v<N>-spec-validation.md                │
-   │  review-spec-details → v<N>-detail-review.md            │
-   │  8.0 bin/check-dash-conformance.py (code, inline)       │
+   │  8.0 bin/check-dash-conformance --source (code, first)  │
    │        → v<N>-conformance-tests.md / .json              │
-   │  audit-dash-conformance → v<N>-dash-conformance-audit.md │
-   │        (suspicions no test covers; blocks nothing)      │
+   │  7   validate-spec → v<N>-spec-validation.md            │
+   │        + .summary.json, v<N>-trace.json (check-trace)   │
+   │  7.5 review-spec-details (names only, edits nothing)    │
+   │        → v<N>-detail-review.md (+ .patch.json)          │
+   │  8   audit-dash-conformance → v<N>-dash-conformance-    │
+   │        audit.md (what changed; blocks nothing)          │
    └────────────────────────────┬─────────────────────────────┘
                                 ▼
    ┌──────────────────────────────────────────────────────────┐
    │                     4-auto-refine/                       │
    │  ┌── loop (gated by BUILD_ALL_AUTO_REFINE,              │
    │  │         capped at MAX_REFINEMENTS) ───────────────┐  │
-   │  │  refine-spec → v<N>.<M+1>-sgai-spec.md           │  │
-   │  │  (6.1, then 3-post-spec/* and 8.0 again)          │  │
-   │  │  compare-spec-versions → v<N>.<M+1>-comparison.md │  │
+   │  │  refine-spec → v<N>.<M+1>-patch.json              │  │
+   │  │  assemble, lint, 6.1, 8.0, 7 (changed units),     │  │
+   │  │  7.5; the audit is carried, not re-run            │  │
+   │  │  bin/check-promotable → stop condition            │  │
+   │  │  bin/compare-candidates → v<N>.<M+1>-comparison   │  │
    │  │    (candidate vs what is published in dist/)      │  │
    │  │  verdict: BETTER THAN PUBLISHED   → continue      │  │
    │  │           NO BETTER THAN PUBLISHED → break        │  │
-   │  │           WORSE THAN PUBLISHED    → rollback,break│  │
+   │  │           WORSE THAN PUBLISHED    → --reverse,    │  │
+   │  │                                     break         │  │
    │  └───────────────────────────────────────────────────┘  │
    └──────────────────────────────────────────────────────────┘
 ```
 
 No step above writes to `../dist/`. The pipeline produces
 **candidates**; `dist/` holds the **published** build, and a
-candidate gets there by promotion — a decision made outside the
-pipeline, against the criterion in `../CLAUDE.md` (the `dist/` entry
-of "Layout").
+candidate gets there by promotion — `bin/promote.py`, run outside the
+pipeline (the `dist/` entry of "Layout" in `../CLAUDE.md`). Throughout,
+`spec-source/` is the source of the newest candidate in `output/`: a
+step that edits it either assembles a candidate or undoes its edit.
 
 The legacy Players (`bin/check-dash-conformance.py --players`, level
 3a) are not a pipeline step: they inform and do not block, and run by
@@ -212,20 +230,16 @@ itself.
 
 | Prompt                              | When to invoke                                                          | Lives in            |
 |-------------------------------------|-------------------------------------------------------------------------|---------------------|
-| `build-all`                         | Full major build from scratch (steps 1-8, with 6.1 and 8.0 in code, + auto-refine loop step 9) | root |
-| `build-incremental`                 | `context/` changed by a bounded delta; absorb it into the latest candidate without regenerating it | root |
+| `build-all`                         | Major: the `context/` delta with no cap, allowed to add and retire constructs (steps 0-8, + auto-refine loop step 9); also the minor path when `context/` did not move | root |
+| `build-incremental`                 | `context/` changed by a bounded delta; absorb it into the latest candidate | root |
 | `analyze-dash-gap`                  | `context/` changed; pre-spec gap analysis is stale                      | `1-pre-spec/`       |
-| `build-uc-coverage-matrix`          | `context/03-requirements.md` or `context/04-use-cases.md` changed       | `1-pre-spec/`       |
 | `build-error-semantics`             | `context/03-requirements.md` or `context/05-dash-linear-interfaces.md` changed | `1-pre-spec/` |
-| `extract-conformance-assertions`    | Any `context/` file changed (extractor reads the whole folder)          | `1-pre-spec/`       |
 | `analyze-iab-ad-templates`          | Always (live external source; runs every build)                         | `1-pre-spec/`       |
-| `build-spec`                        | Any of the inputs above changed; produces the next `v<N>-sgai-spec.md`  | `2-build/`          |
-| `apply-context-delta`               | Called by `build-incremental`: applies `git diff <anchor>..HEAD -- context/` to `v<N.M>`, writes `v<N.M+1>` + its `context-delta` trace | `2-build/` |
-| `validate-spec`                     | New spec exists without matching `v<N>-spec-validation.md`              | `3-post-spec/`      |
-| `review-spec-details`               | New spec / validation sidecar / naming-and-namespaces changed           | `3-post-spec/`      |
-| `audit-dash-conformance`            | After the conformance tests of a new spec: suspicions no test covers, no verdict (`v<N>-dash-conformance-audit.md`) | `3-post-spec/` |
-| `refine-spec`                       | Minor refinement on existing spec; called by Step 9 (or by hand)        | `4-auto-refine/`    |
-| `compare-spec-versions`             | Compare the latest candidate against the published build in `dist/`     | `4-auto-refine/`    |
+| `apply-context-delta`               | Called by both orchestrators (`MODE=major` / `incremental`): applies `git diff <anchor>..HEAD -- context/` to `spec-source/` by patches, assembles the next candidate, writes its patches and `context-delta` trace | `2-build/` |
+| `validate-spec`                     | After the conformance tests of a new candidate: per criterion, with the trace (`v<N>-trace.json`) and summary; scoped to changed units in a refine | `3-post-spec/` |
+| `review-spec-details`               | New candidate: judges only the names `bin/name-candidates.py` lists; edits nothing, returns a patch | `3-post-spec/` |
+| `audit-dash-conformance`            | Once per major or incremental, over what changed: suspicions no test covers, no verdict (`v<N>-dash-conformance-audit.md`) | `3-post-spec/` |
+| `refine-spec`                       | Minor refinement as a patch on `spec-source/`; called by Step 9     | `4-auto-refine/`    |
 | `orchestrate-issues`                | Process open GitHub issues end-to-end (regenerate `meta.md` + per-cycle triage/impact/response). Dry-run default; `--live` to post | `.github-ai/prompts/issues/` |
 | `detect-issues`                     | Fetch open issues missing any handling label; computes `cycle_count` and drops issues at the D5 cap (`>= 4`, label `ai-conversation-cap-hit`) | `.github-ai/prompts/issues/`  |
 | `triage-issue`                      | Classify one issue for cycle `C`: flow / severity / lang / trust; echoes `cycle_count` from `detect-issues` | `.github-ai/prompts/issues/`  |
@@ -253,66 +267,74 @@ in its own header — this table is a quick-pick index, not the spec.
 | Fix for a conformance-test `FAIL`                                         | Minor       |
 | Renaming an attribute when a flagged issue says so                       | Minor       |
 
-- **Major** (`build-all`) regenerates the spec from `context/`: pre-spec
-  inputs, a fresh `v<N>-sgai-spec.md`, its analyses, then Step 9. It
-  is the expensive one (about three 5-hour token windows the last
-  time).
+All three edit `../spec-source/` by patches and assemble the candidate
+from it; none regenerates the prose from scratch.
+
+- **Major** (`build-all`) applies the `context/` delta to the newest
+  candidate with `2-build/apply-context-delta.prompt` in major mode:
+  no cap on how much changes, and allowed to add and retire constructs
+  and sections. Then its analyses and Step 9.
 - **Incremental** (`build-incremental`) takes the latest candidate
   `v<N.M>` and the `context/` commits since it was built, and produces
   `v<N.M+1>` with only the affected sections changed and a trace
   (`output-analysis/v<N.M+1>-context-delta.md`) mapping each change to
-  where it landed. Then the same analyses on the whole spec, the
-  comparison, and Step 9. "Bounded" is not the operator's guess: the
-  path itself recommends a major, and stops, when
-  `bin/check-incremental.py` finds the change over
-  `INCREMENTAL_MAX_CHANGED_FRACTION` of the spec (default 30%), a change
-  the apply step classes `needs-structure`, or, at the end, a document
-  that lost what it had (a unit the delta did not touch going from `met`
-  to `contradicted` / `force-lost` / `gap`, or fewer normative modals
-  than `context/` accounts for).
-- **Minor** (`4-auto-refine/refine-spec.prompt`, and Step 9 of both
-  orchestrators) fixes what the analyses found, with `context/` fixed;
-  by contract it takes no new requirement.
+  where it landed. Then the same analyses, the comparison, and Step 9.
+  "Bounded" is not the operator's guess: the path recommends a major,
+  and stops, when `bin/check-incremental.py scope` finds the change over
+  `INCREMENTAL_MAX_CHANGED_FRACTION` of the spec (default 30%) or the
+  apply step classes a change `needs-structure`; and it ends `DEGRADED`
+  when `degradation` finds a document that lost what it had.
+- **Minor** (Step 9 of both orchestrators) fixes what the analyses
+  found, with `context/` fixed; by contract it takes no new requirement.
+  With `context/` unchanged since the newest candidate, `build-all`
+  skips the delta and runs only the loop.
 
 ## Step 9 — auto-refinement loop
 
-After Step 8 finishes the major build, `build-all` enters a
+After the delta and its analyses, both orchestrators enter a
 refinement loop (gated by env var `BUILD_ALL_AUTO_REFINE`, default
-`true`; capped at `MAX_REFINEMENTS`, default `5`).
+`true`; capped at `MAX_REFINEMENTS`, default `5`). A round reads
+sections, never the document.
 
 Per iteration `K`, the loop:
 
-1. Calls `4-auto-refine/refine-spec.prompt` → produces
-   `v<N>.<M+1>-sgai-spec.md` (delta-only edits, every change
-   annotated with `<!-- refine: <issue-id> -->`).
-2. Emits the new minor's extension XSD (Step 6.1), then re-runs
-   `3-post-spec/validate-spec.prompt`,
-   `3-post-spec/review-spec-details.prompt`, the conformance tests
-   (Step 8.0) and `3-post-spec/audit-dash-conformance.prompt` against
-   it → four fresh sidecars.
-   Then runs `../bin/check-promotable.py`, the loop's stop condition
+1. Calls `4-auto-refine/refine-spec.prompt` → a patch on
+   `spec-source/`, recorded in `v<N>.<M+1>-patch.json` (with
+   `v<N>.<M+1>-refine-gaps.md` for what a minimal edit cannot resolve).
+   It includes the ops of the previous round's
+   `detail-review.patch.json`, if any.
+2. Assembles `v<N>.<M+1>-sgai-spec.md` (`bin/assemble-spec.py`), lints
+   it (a lint finding undoes the round and retries once), and emits its
+   extension XSD (Step 6.1). Then the conformance tests (Step 8.0), the
+   validation of the units whose sections changed (`bin/check-trace.py
+   stale`), and the names (Step 7.5). The audit is carried unchanged
+   from the previous candidate, not re-run.
+3. Runs `../bin/check-promotable.py`, the loop's stop condition
    (`build-all` 9.5 and 9.5a own the branches): pipeline work keeps
    the loop going; a `context/` change a written source dictates
    stops it for the invoker to apply; a decision for a person stops
    it only after a fresh re-check found no source that answers it.
-3. Calls `4-auto-refine/compare-spec-versions.prompt` → emits
+4. Runs `../bin/compare-candidates.py v<N>.<M+1>` → emits
    `v<N>.<M+1>-comparison.md` with a verdict line, measured against
    the published build in `../dist/`.
-4. Reads the verdict and decides:
-   - **BETTER THAN PUBLISHED** (net issue count below the published
-     build) → accept the new minor, set `M := M+1`, loop again.
-   - **NO BETTER THAN PUBLISHED** (net delta zero) → break loop.
-   - **WORSE THAN PUBLISHED** (net issue count above it) → rollback
-     (delete the eight just-generated files), keep the previous head,
-     break loop.
+5. Reads the verdict and decides:
+   - **BETTER THAN PUBLISHED** → accept the new minor, set `M := M+1`,
+     loop again.
+   - **NO BETTER THAN PUBLISHED** → break loop.
+   - **WORSE THAN PUBLISHED** → rollback: `bin/apply-spec-patch.py
+     --reverse` on the round's patch record, check that `spec-source/`
+     assembles the previous candidate again, delete the round's files,
+     keep the previous head, break loop.
 
    Accepting a minor here means the loop keeps building on it. It
    does **not** promote anything into `../dist/`.
-5. If `K == MAX_REFINEMENTS` without a natural break → cap
+6. If `K == MAX_REFINEMENTS` without a natural break → cap
    reached, keep the last accepted minor, break loop.
 
 On runtime errors (model failure, timeout, sidecar generation
-exception) the loop breaks, keeping the last successful iteration.
+exception) the loop breaks, keeping the last successful iteration; a
+patch applied but never assembled is undone, so the source stays the
+newest candidate's.
 
 ### Configuration
 
@@ -326,31 +348,19 @@ the canonical list of env vars.
 
 ### Verdict criterion
 
-The verdict is computed by
-`4-auto-refine/compare-spec-versions.prompt`, always against the
-published build in `../dist/`:
-
-- **BETTER THAN PUBLISHED** — any net reduction in total issue count
-  across the three categories (spec validation, detail review,
-  conformance tests: `FAIL` and `NOT_VERIFIABLE`), weighted equally.
-  The audit's suspicions are reported and stay out of the total. Cross-category trades are
-  accepted as long as the net is negative.
-- **WORSE THAN PUBLISHED** — strict. A net increase of `+1` or more
-  triggers rollback. No tolerance for "fixed 5, broke 6".
-- **NO BETTER THAN PUBLISHED** — net delta is zero.
-
-When `../dist/` holds no sidecars there is no baseline: the step
-records the counts and emits no verdict, and the loop breaks rather
-than guessing.
+The verdict is the rule written in `../bin/compare-candidates.py`
+(its `--help`), always against the published build in `../dist/`:
+unit by unit on the units both sides walked, never count against
+count. The audit's suspicions are reported and never enter it. When
+the two populations are not comparable, or `../dist/` holds no
+sidecars, there is no verdict and the loop breaks rather than guessing.
 
 ### The promotion criterion
 
 Nothing here decides when a candidate becomes the published build.
 The loop's verdicts govern whether to keep refining; promotion into
-`../dist/` is a separate decision, against the criterion in
-`../CLAUDE.md`: `bin/check-promotable.py` and
-`bin/check-dash-conformance.py` both exit `0`, and the comparison says
-`BETTER THAN PUBLISHED`.
+`../dist/` is `../bin/promote.py v<N>`, run outside the pipeline: it
+runs every gate and copies the published set only when all hold.
 
 ## Prompt conventions
 
@@ -372,5 +382,5 @@ The loop's verdicts govern whether to keep refining; promotion into
 2. Create `prompts/<folder>/<verb>-<noun>.prompt` with the
    standard header.
 3. Add a step to `prompts/build-all.prompt` so the orchestrator
-   runs it with the same skip-if-fresh contract.
+   runs it under a skip rule of its own.
 4. Update the "When to use which prompt" table above.
