@@ -10,7 +10,7 @@
 | T-06 | Cada regla tiene su positivo y su negativo, y la suite los corre                        | pending | agent | —    | —        |
 | T-07 | Nivel 3a: dash.js upstream y Shaka reproducen los MPD de la spec ignorando lo nuestro   | in-progress | agent | —    | —        |
 | T-08 | El tool de DASH-IF corre como segundo auditor, con su línea de base y el borrador del issue | in-progress | agent | —    | —        |
-| T-09 | El pipeline corre los tests, el audit deja de ser juez y la promoción los exige         | in-progress | agent | —    | `bin/check-promotable.py`, `bin/test_check_promotable_conformance.py`        |
+| T-09 | El pipeline corre los tests, el audit deja de ser juez y la promoción los exige         | done | agent | —    | `bin/check-promotable.py`, `bin/test_check_promotable_conformance.py`, `prompts/`, `CLAUDE.md`        |
 | T-10 | La demo muestra positivos y negativos con la cita y el lugar, igual en cada corrida     | pending | agent | —    | —        |
 | T-11 | La spec publicada tiene su informe de tres niveles y la comparación con el audit        | pending | agent | —    | —        |
 | T-12 | Cierre: REPORT.md (Mode D), LOG y validador                                             | pending | agent | —    | —        |

@@ -2394,3 +2394,7 @@ El líder del proyecto aprobó abrir y ejecutar la fase. La generación escribi�
 ## 2026-11-23 — Fase 09: núcleo de los tests de conformidad
 
 T-01 y T-02 hechas: `bin/conformance/extract.py` (84 bloques, 12 pedidos de ejemplo, cada uno con su línea) y `bin/emit-extension-xsd.py` (el XSD de §5.10.1 como archivo, idéntico al bloque; salidas 0/1/2/64 probadas). E-1 a E-4 y el runner `bin/check-dash-conformance.py` andan sobre `dist/sgai-spec.md`; el XSD de ISO 6ta se baja a `~/.cache/sgai-conformance/` y se verifica por sha256. `check-promotable` lee `conformance-tests.json` y el audit del LLM queda como sospechas que no bloquean (tests de las dos cosas, con su mutación). T-04, T-05, T-07 y T-08 corren en paralelo.
+
+## 2026-11-23 — Fase 09: T-09 hecha
+
+El pipeline corre el Step 6.1 (emitir el XSD) y el Step 8.0 (los tests de conformidad) en `build-all`, en el incremental y en el camino minor. El audit del LLM entrega sospechas (`## Suspicions`, ids `S-<n>`) y no veredictos. `refine-spec` toma los `FAIL` de los tests como issues, y `compare-spec-versions` cuenta la categoría DASH desde el `.json` de los tests. `CLAUDE.md` tiene el layout nuevo, los scripts y el criterio de promoción con su tercera condición. Una corrección fuera de lo pedido, en el mismo pase: `validate-spec` ya no rutea los ítems del audit, y los ejemplos del camino minor en `CLAUDE.md` escriben en `$XDG_RUNTIME_DIR/cto/` en lugar de `/dev/shm`.
