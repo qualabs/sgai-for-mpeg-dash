@@ -1,0 +1,18 @@
+test_broken_mpd_fails (bin.test_conformance_players.Players.test_broken_mpd_fails) ... ok
+test_run_could_tell (bin.test_conformance_players.Players.test_run_could_tell) ... ok
+test_spec_mpd_passes (bin.test_conformance_players.Players.test_spec_mpd_passes) ... ok
+test_broken_segments_are_not_served (bin.test_conformance_players.Rewrite.test_broken_segments_are_not_served) ... ok
+test_only_baseurl_changes (bin.test_conformance_players.Rewrite.test_only_baseurl_changes) ... ok
+test_other_change_is_refused (bin.test_conformance_players.Rewrite.test_other_change_is_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 24.119s
+
+OK
+
+  P-LEGACY-dashjs PASS xml#39 (line 5189): 5.3.0 on chromium 149.0.7827.55: start 608 ms; advanced 8.1 s in 9491 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0
+  P-LEGACY-shaka PASS xml#39 (line 5189): v5.3.6 on chromium 149.0.7827.55: start 897 ms; advanced 8.2 s in 9946 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0
+  P-INSERT-shaka PASS xml#39 (line 5189): InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none
+  P-LEGACY-dashjs FAIL xml#39 (line 5189) broken: fatal error dashjs:28: http://127.0.0.1:34227/missing/video/v1080/init.mp4 is not available. 5.3.0 on chromium 149.0.7827.55: start never; advanced 0.0 s in 3876 ms wall; errors 1 (first dashjs:28: http://127.0.0.1:34227/missing/video/v1080/init.mp4 is not available); segment responses 3, local 4xx/5xx 4 (e.g. 404 /missing/video/v1080/init.mp4); requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0
+  P-LEGACY-shaka FAIL xml#39 (line 5189) broken: fatal error shaka:1001: http://127.0.0.1:34227/missing/video/v1080/init.mp4 404 not found [object Object] 1 http://127.0.0.1:34227/missing/video/v1080/init.mp4. v5.3.6 on chromium 149.0.7827.55: start never; advanced 0.0 s in 3015 ms wall; errors 1 (first shaka:1001: http://127.0.0.1:34227/missing/video/v1080/init.mp4 404 not found [object Object] 1 http://127.0.0.1:34227/missing/video); segment responses 2, local 4xx/5xx 4 (e.g. 404 /missing/video/v1080/init.mp4); requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0
+  P-INSERT-shaka PASS xml#39 (line 5189) broken: InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none

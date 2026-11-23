@@ -1,0 +1,995 @@
+{
+ "run1": [
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1590 ms; advanced 8.2 s in 14078 ms wall; errors 0; segment responses 36, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#10 (line 3809)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 2876 ms; advanced 8.1 s in 16996 ms wall; errors 0; segment responses 19, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 2, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#10 (line 3809)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 0 s; ad-cue-points-changed cue starts seen [0]; insert-scheme timeline regions 1; ad events {'ad-break-started': 1, 'ad-started': 1, 'ad-error': 1, 'ad-stopped': 1, 'ad-break-ended': 1}",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#10 (line 3809)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1409 ms; advanced 8.0 s in 13978 ms wall; errors 0; segment responses 23, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#15 (line 4095)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 3491 ms; advanced 8.1 s in 15318 ms wall; errors 0; segment responses 22, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#15 (line 4095)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 289 ms; advanced 8.0 s in 10120 ms wall; errors 0; segment responses 36, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#18 (line 4262)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 334 ms; advanced 8.0 s in 10807 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#18 (line 4262)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 303 ms; advanced 8.1 s in 11400 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#23 (line 4500)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 119 ms; advanced 8.1 s in 11514 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#23 (line 4500)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 600 s; ad-cue-points-changed cue starts seen [600]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#23 (line 4500)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1668 ms; advanced 8.1 s in 12482 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#28 (line 4704)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1308 ms; advanced 8.1 s in 13936 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#28 (line 4704)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1901 ms; advanced 8.1 s in 11834 ms wall; errors 0; segment responses 20, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#32 (line 4887)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 108 ms; advanced 8.2 s in 10092 ms wall; errors 0; segment responses 18, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#32 (line 4887)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 202 ms; advanced 8.2 s in 10961 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#33 (line 4951)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1207 ms; advanced 8.1 s in 12504 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#33 (line 4951)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 1200 s; ad-cue-points-changed cue starts seen [1200]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#33 (line 4951)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1987 ms; advanced 8.1 s in 12780 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#39 (line 5189)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1414 ms; advanced 8.0 s in 13004 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#39 (line 5189)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#39 (line 5189)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 314 ms; advanced 8.0 s in 13085 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#40 (line 5251)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 603 ms; advanced 8.1 s in 14085 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#40 (line 5251)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#40 (line 5251)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1203 ms; advanced 8.1 s in 14507 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#43 (line 5423)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1897 ms; advanced 8.1 s in 15911 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#43 (line 5423)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 612 ms; advanced 8.2 s in 12059 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#48 (line 5627)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1477 ms; advanced 8.0 s in 10901 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#48 (line 5627)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1430 ms; advanced 8.1 s in 11297 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#52 (line 5819)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 215 ms; advanced 8.0 s in 9297 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#52 (line 5819)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 194 ms; advanced 8.1 s in 9235 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#55 (line 5963)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 119 ms; advanced 8.1 s in 9057 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#55 (line 5963)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 600 s; ad-cue-points-changed cue starts seen [600]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#55 (line 5963)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 266 ms; advanced 8.1 s in 9096 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#59 (line 6118)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 144 ms; advanced 8.2 s in 9232 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#59 (line 6118)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 201 ms; advanced 8.0 s in 8911 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#64 (line 6313)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 100 ms; advanced 8.1 s in 9518 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#64 (line 6313)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 206 ms; advanced 8.1 s in 9919 ms wall; errors 0; segment responses 19, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#71 (line 6587)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 167 ms; advanced 8.0 s in 9530 ms wall; errors 0; segment responses 18, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#71 (line 6587)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 234 ms; advanced 8.0 s in 8847 ms wall; errors 0; segment responses 18, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#73 (line 6668)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 123 ms; advanced 8.0 s in 9070 ms wall; errors 0; segment responses 16, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#73 (line 6668)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 231 ms; advanced 8.2 s in 8948 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#74 (line 6778)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 105 ms; advanced 8.0 s in 8952 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#74 (line 6778)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 208 ms; advanced 8.1 s in 10294 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#78 (line 6918)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 97 ms; advanced 8.0 s in 9723 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#78 (line 6918)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 639 ms; advanced 8.2 s in 10144 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#80 (line 7037)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 130 ms; advanced 8.1 s in 10016 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#80 (line 7037)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#80 (line 7037)",
+   "xpath": ""
+  }
+ ],
+ "run2": [
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 2115 ms; advanced 8.2 s in 16987 ms wall; errors 0; segment responses 36, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#10 (line 3809)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 2605 ms; advanced 8.2 s in 19492 ms wall; errors 0; segment responses 20, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 2, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#10 (line 3809)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 0 s; ad-cue-points-changed cue starts seen [0]; insert-scheme timeline regions 1; ad events {'ad-break-started': 1, 'ad-started': 1, 'ad-error': 1, 'ad-stopped': 1, 'ad-break-ended': 1}",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#10 (line 3809)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 2114 ms; advanced 8.2 s in 16689 ms wall; errors 0; segment responses 25, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#15 (line 4095)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 3700 ms; advanced 8.1 s in 17813 ms wall; errors 0; segment responses 25, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#15 (line 4095)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 2104 ms; advanced 8.1 s in 13093 ms wall; errors 0; segment responses 36, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#18 (line 4262)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 518 ms; advanced 8.0 s in 13001 ms wall; errors 0; segment responses 13, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#18 (line 4262)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1000 ms; advanced 8.2 s in 12306 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#23 (line 4500)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1325 ms; advanced 8.0 s in 12901 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#23 (line 4500)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 600 s; ad-cue-points-changed cue starts seen [600]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#23 (line 4500)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 658 ms; advanced 8.0 s in 14171 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#28 (line 4704)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1901 ms; advanced 8.2 s in 17218 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#28 (line 4704)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 2498 ms; advanced 8.0 s in 14816 ms wall; errors 0; segment responses 20, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#32 (line 4887)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1591 ms; advanced 8.0 s in 14231 ms wall; errors 0; segment responses 20, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#32 (line 4887)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 894 ms; advanced 8.1 s in 12118 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#33 (line 4951)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1035 ms; advanced 8.0 s in 13093 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#33 (line 4951)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 1200 s; ad-cue-points-changed cue starts seen [1200]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#33 (line 4951)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1301 ms; advanced 8.1 s in 12679 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#39 (line 5189)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 497 ms; advanced 8.1 s in 12532 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#39 (line 5189)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#39 (line 5189)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1650 ms; advanced 8.1 s in 16973 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#40 (line 5251)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 932 ms; advanced 8.0 s in 18466 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#40 (line 5251)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#40 (line 5251)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 2487 ms; advanced 8.1 s in 18809 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#43 (line 5423)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 2414 ms; advanced 8.1 s in 19414 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#43 (line 5423)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 317 ms; advanced 8.0 s in 14342 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#48 (line 5627)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 691 ms; advanced 8.1 s in 15800 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#48 (line 5627)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 902 ms; advanced 8.1 s in 15097 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#52 (line 5819)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1677 ms; advanced 8.1 s in 16394 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#52 (line 5819)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1608 ms; advanced 8.2 s in 19016 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#55 (line 5963)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 3601 ms; advanced 8.1 s in 19220 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#55 (line 5963)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 600 s; ad-cue-points-changed cue starts seen [600]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#55 (line 5963)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 2783 ms; advanced 8.0 s in 18113 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#59 (line 6118)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1916 ms; advanced 8.0 s in 18811 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#59 (line 6118)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 397 ms; advanced 8.0 s in 17185 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#64 (line 6313)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 2698 ms; advanced 8.1 s in 18087 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#64 (line 6313)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 3408 ms; advanced 8.1 s in 16569 ms wall; errors 0; segment responses 24, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#71 (line 6587)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1737 ms; advanced 8.0 s in 16904 ms wall; errors 0; segment responses 18, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#71 (line 6587)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1199 ms; advanced 8.1 s in 13704 ms wall; errors 0; segment responses 20, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#73 (line 6668)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1573 ms; advanced 8.0 s in 14048 ms wall; errors 0; segment responses 21, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#73 (line 6668)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1896 ms; advanced 8.1 s in 14310 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#74 (line 6778)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1204 ms; advanced 8.1 s in 15014 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#74 (line 6778)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 782 ms; advanced 8.1 s in 10908 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#78 (line 6918)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 99 ms; advanced 8.1 s in 9573 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#78 (line 6918)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1009 ms; advanced 8.0 s in 10256 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#80 (line 7037)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 207 ms; advanced 8.2 s in 8851 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#80 (line 7037)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#80 (line 7037)",
+   "xpath": ""
+  }
+ ],
+ "run3": [
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 789 ms; advanced 8.1 s in 9787 ms wall; errors 0; segment responses 36, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#10 (line 3809)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 806 ms; advanced 8.0 s in 12584 ms wall; errors 0; segment responses 17, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 2, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#10 (line 3809)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 0 s; ad-cue-points-changed cue starts seen [0]; insert-scheme timeline regions 1; ad events {'ad-break-started': 1, 'ad-started': 1, 'ad-error': 1, 'ad-stopped': 1, 'ad-break-ended': 1}",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#10 (line 3809)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 786 ms; advanced 8.2 s in 9863 ms wall; errors 0; segment responses 19, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#15 (line 4095)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1101 ms; advanced 8.1 s in 10763 ms wall; errors 0; segment responses 16, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#15 (line 4095)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 587 ms; advanced 8.1 s in 9811 ms wall; errors 0; segment responses 36, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#18 (line 4262)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 577 ms; advanced 8.0 s in 10494 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#18 (line 4262)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 708 ms; advanced 8.1 s in 10331 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#23 (line 4500)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 179 ms; advanced 8.1 s in 9804 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#23 (line 4500)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 600 s; ad-cue-points-changed cue starts seen [600]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#23 (line 4500)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1311 ms; advanced 8.0 s in 12045 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#28 (line 4704)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1910 ms; advanced 8.1 s in 12166 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#28 (line 4704)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 2092 ms; advanced 8.0 s in 11184 ms wall; errors 0; segment responses 20, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#32 (line 4887)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 120 ms; advanced 8.1 s in 10486 ms wall; errors 0; segment responses 16, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#32 (line 4887)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 225 ms; advanced 8.0 s in 8843 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#33 (line 4951)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 394 ms; advanced 8.0 s in 9199 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#33 (line 4951)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 1200 s; ad-cue-points-changed cue starts seen [1200]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#33 (line 4951)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 494 ms; advanced 8.1 s in 9084 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#39 (line 5189)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 202 ms; advanced 8.1 s in 9418 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#39 (line 5189)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#39 (line 5189)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 295 ms; advanced 8.1 s in 9511 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#40 (line 5251)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 1197 ms; advanced 8.0 s in 10493 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#40 (line 5251)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#40 (line 5251)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 1172 ms; advanced 8.0 s in 9931 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#43 (line 5423)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 136 ms; advanced 8.0 s in 9493 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#43 (line 5423)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 257 ms; advanced 8.2 s in 8766 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#48 (line 5627)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 260 ms; advanced 8.0 s in 8851 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#48 (line 5627)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 438 ms; advanced 8.0 s in 8830 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#52 (line 5819)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 117 ms; advanced 8.1 s in 8950 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#52 (line 5819)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 258 ms; advanced 8.0 s in 8751 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#55 (line 5963)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 212 ms; advanced 8.1 s in 8880 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#55 (line 5963)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 600 s; ad-cue-points-changed cue starts seen [600]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#55 (line 5963)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 276 ms; advanced 8.1 s in 8903 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#59 (line 6118)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 263 ms; advanced 8.1 s in 9011 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#59 (line 6118)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 177 ms; advanced 8.0 s in 8600 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#64 (line 6313)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 266 ms; advanced 8.2 s in 8863 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#64 (line 6313)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 250 ms; advanced 8.1 s in 8600 ms wall; errors 0; segment responses 18, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#71 (line 6587)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 171 ms; advanced 8.0 s in 8698 ms wall; errors 0; segment responses 18, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#71 (line 6587)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 160 ms; advanced 8.1 s in 8818 ms wall; errors 0; segment responses 18, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 1 (https://time.akamai.com/?iso&ms)",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#73 (line 6668)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 668 ms; advanced 8.0 s in 9396 ms wall; errors 0; segment responses 18, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#73 (line 6668)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 659 ms; advanced 8.1 s in 9369 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#74 (line 6778)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 189 ms; advanced 8.0 s in 9204 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#74 (line 6778)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 417 ms; advanced 8.0 s in 9153 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#78 (line 6918)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 376 ms; advanced 8.1 s in 9319 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#78 (line 6918)",
+   "xpath": ""
+  },
+  {
+   "detail": "5.3.0 on chromium 149.0.7827.55: start 477 ms; advanced 8.1 s in 9184 ms wall; errors 0; segment responses 35, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-dashjs",
+   "subject": "xml#80 (line 7037)",
+   "xpath": ""
+  },
+  {
+   "detail": "v5.3.6 on chromium 149.0.7827.55: start 399 ms; advanced 8.1 s in 9312 ms wall; errors 0; segment responses 12, local 4xx/5xx 0; requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0",
+   "outcome": "PASS",
+   "rule": "P-LEGACY-shaka",
+   "subject": "xml#80 (line 7037)",
+   "xpath": ""
+  },
+  {
+   "detail": "InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none",
+   "outcome": "PASS",
+   "rule": "P-INSERT-shaka",
+   "subject": "xml#80 (line 7037)",
+   "xpath": ""
+  }
+ ]
+}

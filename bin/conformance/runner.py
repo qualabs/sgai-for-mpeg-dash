@@ -93,7 +93,8 @@ def level2(ctx: Ctx, report: Report) -> list[Result]:
 
 
 def all_rules() -> list[Rule]:
-    return list(ext.RULES) + list(dash_catalog.RULES) + list(spec_catalog.RULES)
+    from . import players   # rule definitions only; nothing is run on import
+    return list(ext.RULES) + list(dash_catalog.RULES) + list(spec_catalog.RULES) + list(players.RULES)
 
 
 def to_json(report: Report, spec_path: Path) -> str:
