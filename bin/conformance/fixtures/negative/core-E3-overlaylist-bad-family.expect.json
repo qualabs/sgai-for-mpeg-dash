@@ -1,0 +1,6 @@
+{
+ "rule": "E-3",
+ "xpath_contains": "OverlayList",
+ "derived_from": "dist/sgai-spec.md xml#2 (line 2311)",
+ "change": "OverlayList@family with a token outside the enumeration"
+}

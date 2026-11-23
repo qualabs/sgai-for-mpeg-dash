@@ -1,0 +1,6 @@
+{
+ "rule": "E-3",
+ "xpath_contains": "EventStream",
+ "derived_from": "dist/sgai-spec.md xml#10 (line 3809)",
+ "change": "a foreign attribute on EventStream, whose type admits foreign elements but no foreign attributes (DR-2)"
+}

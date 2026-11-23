@@ -1,0 +1,6 @@
+{
+ "rule": "E-3",
+ "xpath_contains": "Event",
+ "derived_from": "dist/sgai-spec.md xml#10 (line 3809)",
+ "change": "Event@id=\"one\", not xs:unsignedLong"
+}

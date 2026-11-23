@@ -76,10 +76,37 @@ def level1(ctx: Ctx, xsd_file: Path | None) -> list[Result]:
         globals_ = ext.global_elements([ctx.ext_text, (ctx.isodir / "DASH-MPD.xsd").read_text()])
         out += ext.e3(ctx.blocks, ctx.combined, globals_)
     out += ext.e4(ctx.blocks, ctx.iso)
+    out += e4_rules(ctx)
     if xsd_file is not None:
         out += ext.identity(xsd_file, extract.extension_schema(ctx.blocks)[0])
     for rule in dash_catalog.RULES:
         out += run_rule(ctx, rule)
+    return out
+
+
+def e4_rules(ctx: Ctx) -> list[Result]:
+    """E-4 is §5.2.1 whole: after removing other namespaces the result must be
+    valid against the schema AND conform to the standard, so the base-standard
+    rules run again on the stripped MPD. A rule that FAILs only there is an E-4
+    FAIL (the original passed it because the removed content satisfied it)."""
+    out = []
+    for b in ctx.by_kind(*ext.MPD_KINDS):
+        stripped = extract.Block(b.index, b.line, etree.tostring(
+            ext.strip_foreign(etree.XML(b.text.encode("utf-8"))), encoding="unicode"))
+        extract.classify(stripped)
+        sctx = Ctx(ctx.spec_path, ctx.spec_text, [stripped], [], ctx.isodir, ctx.iso,
+                   ctx.combined, ctx.ext_text, ctx.context_dir)
+        before = {(r.rule, r.xpath) for rule in dash_catalog.RULES if rule.check is not None
+                  for r in run_rule(Ctx(ctx.spec_path, ctx.spec_text, [b], [], ctx.isodir, ctx.iso,
+                                        ctx.combined, ctx.ext_text, ctx.context_dir), rule)
+                  if r.outcome is Outcome.FAIL}
+        for rule in dash_catalog.RULES:
+            if rule.check is None or b.kind not in rule.applies_to:
+                continue
+            for r in run_rule(sctx, rule):
+                if r.outcome is Outcome.FAIL and (r.rule, r.xpath) not in before:
+                    out.append(ext.E4.result(Outcome.FAIL, b.ref, r.xpath,
+                                             f"after removing other namespaces, {r.rule} fails: {r.detail}"))
     return out
 
 

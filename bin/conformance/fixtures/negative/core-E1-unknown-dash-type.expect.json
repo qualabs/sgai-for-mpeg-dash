@@ -1,0 +1,6 @@
+{
+ "rule": "E-1",
+ "xpath_contains": "",
+ "derived_from": "dist/sgai-spec.md xml#9 (line 2831)",
+ "change": "svta:Tracking typed with a DASH type that does not exist (dash:EventStreamTypo)"
+}

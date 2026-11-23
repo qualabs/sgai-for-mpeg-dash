@@ -1,0 +1,6 @@
+{
+ "rule": "E-2",
+ "xpath_contains": "redefine",
+ "derived_from": "dist/sgai-spec.md xml#9 (line 2831)",
+ "change": "adds xs:redefine of DASH-MPD.xsd: an extension may only import DASH"
+}

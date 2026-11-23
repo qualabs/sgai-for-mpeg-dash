@@ -1,0 +1,6 @@
+{
+ "rule": "E-3",
+ "xpath_contains": "ClickThrough",
+ "derived_from": "dist/sgai-spec.md xml#11 (line 3855)",
+ "change": "an attribute the extension XSD does not declare on svta:ClickThrough inside a List MPD; the ISO XSD alone accepts it (lax)"
+}

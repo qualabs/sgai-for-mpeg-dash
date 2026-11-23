@@ -76,27 +76,50 @@ def e2(xsd_text: str, subject: str = "extension XSD") -> list[Result]:
     except etree.XMLSyntaxError as e:
         return [E2.result(Outcome.FAIL, subject, detail=f"not well-formed: {e}")]
     out = []
-    tree = root.getroottree()
     tns = root.get("targetNamespace")
     if tns == DASH_NS or not tns:
         out.append(E2.result(Outcome.FAIL, subject, "/xs:schema/@targetNamespace",
                              f"targetNamespace is {tns!r}: an extension must declare in its own namespace"))
     for tag in ("redefine", "override", "include"):
         for el in root.iter(f"{{{XSD_NS}}}{tag}"):
-            out.append(E2.result(Outcome.FAIL, subject, tree.getpath(el),
+            out.append(E2.result(Outcome.FAIL, subject, readable_path(el),
                                  f"xs:{tag} of {el.get('schemaLocation')!r}: an extension may only import, not {tag}"))
     for el in root.iter(f"{{{XSD_NS}}}import"):
         if el.get("namespace") == SGAI_NS:
-            out.append(E2.result(Outcome.FAIL, subject, tree.getpath(el), "imports its own namespace"))
+            out.append(E2.result(Outcome.FAIL, subject, readable_path(el), "imports its own namespace"))
     if not out:
         out.append(E2.result(Outcome.PASS, subject, detail=f"targetNamespace {tns}; no redefine, override or include"))
     return out
 
 
-def _errors(rule: Rule, schema: etree.XMLSchema, b: Block, what: str) -> list[Result]:
+def readable_path(el) -> str:
+    """/MPD/Period[1]/EventStream[1]/Event[1], with local names: a path a
+    reader can follow (lxml's own error paths read /*/*[2]/*[1])."""
+    parts = []
+    while el is not None and isinstance(el.tag, str):
+        parent = el.getparent()
+        name = etree.QName(el).localname
+        if parent is None:
+            parts.append(name)
+        else:
+            same = [c for c in parent if isinstance(c.tag, str) and c.tag == el.tag]
+            parts.append(f"{name}[{same.index(el) + 1}]")
+        el = parent
+    return "/" + "/".join(reversed(parts))
+
+
+def _errors(rule: Rule, schema: etree.XMLSchema, doc, b: Block, what: str) -> list[Result]:
     out = []
+    tree = doc.getroottree()
     for err in schema.error_log:
-        out.append(rule.result(Outcome.FAIL, b.ref, err.path or "",
+        xp = err.path or ""
+        try:
+            found = tree.xpath(xp) if xp else []
+            if found:
+                xp = readable_path(found[0])
+        except etree.XPathError:
+            pass
+        out.append(rule.result(Outcome.FAIL, b.ref, xp,
                                f"{what}: line {b.line + err.line - 1} of the markdown: {err.message}"))
     return out
 
@@ -120,7 +143,7 @@ def e3(blocks: list[Block], combined: etree.XMLSchema, globals_: set) -> list[Re
         if combined.validate(doc):
             out.append(E3.result(Outcome.PASS, b.ref, detail=f"{b.kind} valid against DASH-MPD.xsd + extension XSD"))
         else:
-            out.extend(_errors(E3, combined, b, "invalid against DASH-MPD.xsd + extension XSD"))
+            out.extend(_errors(E3, combined, doc, b, "invalid against DASH-MPD.xsd + extension XSD"))
     return out
 
 
@@ -165,7 +188,7 @@ def e4(blocks: list[Block], iso: etree.XMLSchema) -> list[Result]:
         if iso.validate(stripped):
             out.append(E4.result(Outcome.PASS, b.ref, detail="valid against DASH-MPD.xsd alone after removing other namespaces"))
         else:
-            out.extend(_errors(E4, iso, b, "invalid after removing other namespaces"))
+            out.extend(_errors(E4, iso, stripped, b, "invalid after removing other namespaces"))
     return out
 
 

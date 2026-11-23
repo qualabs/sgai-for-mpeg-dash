@@ -1,0 +1,6 @@
+{
+ "rule": "E-4",
+ "xpath_contains": "Period",
+ "derived_from": "dist/sgai-spec.md xml#10 (line 3809)",
+ "change": "the AdaptationSets of a non-zero-duration Period moved inside an undeclared foreign element: valid as authored (lax), but removing the foreign element leaves the Period with none (Table 4, DR-7)"
+}
