@@ -1,0 +1,92 @@
+# UC-20 — One ad carrying AdChoices disclosure, on three devices.
+# No annex of its own. The UC's break is "a mid-content linear break, as in
+# UC-02", so its documents are Annex B's, unchanged (B.2-1, B.3-1, B.4-1):
+# the disclosure the UC adds has no carrier (R48.1, below), so a copy under
+# fixtures/UC-20/ would be byte-identical. Times: B.5. Expected behaviour:
+# context/04 UC-20 (the web player is D1, the Smart TV D3 and D4, the
+# set-top box D5).
+format: sgai-scenario/1
+uc: UC-20
+uc_sha256: c92f6762a7868d60300789dd80113f36def10772a6f8a6a3de19687e8d2fed9e
+timescale: 1000
+tolerance: 250
+# 9:30 of the live channel's media time; the break is at 10:00 (B.2-1).
+play_from: 570000
+observe_until: 70000
+entry: examples/annex-b/B.2-1.mpd
+fixtures:
+  - path: examples/annex-b/B.2-1.mpd
+  - path: examples/annex-b/B.3-1.mpd
+    url: https://aps.example.com/linear/break?ch=sports1&b=7
+  - path: examples/annex-b/B.4-1.mpd
+    url: https://ads-cdn.example.com/cr/201/cr201.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+# What differs between the three devices is how each makes the disclosure
+# available, which has no carrier. What is observable is the same on every
+# class (B.8 "Every class sees a 30-second full-screen ad, then the live
+# channel at 630 s"), so the outcome is written once.
+outcomes:
+  D1: &linear
+    summary: >-
+      A 30 s full-screen ad replacing the live channel from 10:00, then the
+      live channel at 10:30. The disclosure each device shows is not
+      recorded (no carrier, R48).
+    requests:
+      # B.5 step 1: between 580 s and 600 s of media time.
+      - at: {from: 10000, to: 30000}
+        url: https://aps.example.com/linear/break?ch=sports1&b=7
+        answered_by: examples/annex-b/B.3-1.mpd
+      # B.3-1: ImportedMPD earliestResolutionTimeOffset 20 s before its PeriodStart (600 s).
+      - at: {from: 10000, to: 30000}
+        url: https://ads-cdn.example.com/cr/201/cr201.mpd
+        answered_by: examples/annex-b/B.4-1.mpd
+    selection:
+      - opportunity: {fixture: examples/annex-b/B.2-1.mpd, event_id: "7"}
+        result: presented
+        presented:
+          - {candidate: {fixture: examples/annex-b/B.3-1.mpd, id: ad-201}, option: null, layout: linear}
+    presentation:
+      - {start: 0, end: 30000, layout: none, shows: [{element: primary, from: 570000}]}
+      - start: 30000
+        end: 60000
+        layout: linear
+        shows: [{element: ad, candidate: {fixture: examples/annex-b/B.3-1.mpd, id: ad-201}, option: null}]
+      # B.5 step 4: RT = PRT + @returnOffset = 630 s, the live position.
+      - {start: 60000, end: 70000, layout: none, shows: [{element: primary, from: 630000}]}
+    beacons:
+      # B.5 step 3: at 0, 7.5, 15, 22.5 and 30 s of the ad.
+      - {at: 30000, fixture: examples/annex-b/B.4-1.mpd, id: "1", url: "https://t.example.com/imp?cr=201"}
+      - {at: 37500, fixture: examples/annex-b/B.4-1.mpd, id: "2", url: "https://t.example.com/q1?cr=201"}
+      - {at: 45000, fixture: examples/annex-b/B.4-1.mpd, id: "3", url: "https://t.example.com/mid?cr=201"}
+      - {at: 52500, fixture: examples/annex-b/B.4-1.mpd, id: "4", url: "https://t.example.com/q3?cr=201"}
+      - {at: 60000, fixture: examples/annex-b/B.4-1.mpd, id: "5", url: "https://t.example.com/complete?cr=201"}
+  D3: *linear
+  D4: *linear
+  D5: *linear
+
+missing_carrier:
+  - requirement: R48.1
+    element: >-
+      UC-20 "Ad response": the candidate's disclosure information — the
+      programme (AdChoices), the icon, the destination URL, the party on
+      whose behalf the ad is shown, the label "Ad". The specification defines
+      no per-candidate carrier for it, so B.3-1 carries none.
+    classes: [D1, D3, D4, D5]
+  - requirement: R48.3
+    element: >-
+      UC-20 "Expected behavior": D1 renders the icon over the ad and a click
+      opens the URL; D3 and D4 render the icon and a remote button shows the
+      URL; D5 does not fetch the icon, shows a native "Ad" indicator and a
+      remote button shows the URL. None of it can be written as an outcome
+      without the carrier of R48.1: no indicator element, no fetch of the
+      icon to assert or forbid.
+    classes: [D1, D3, D4, D5]
+
+disagreements: []

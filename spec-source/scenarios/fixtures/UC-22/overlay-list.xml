@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011"
+                  xmlns:svta="urn:svta:dash:sgai:2026"
+                  family="overlay"
+                  dismissAfter="PT5S">
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/2201/lt.png"
+                          mimeType="image/png" duration="PT30S" layout="overlay-lower-third"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/imp?cr=2201</Event>
+      <Event presentationTime="15000" id="2">https://t.example.com/mid?cr=2201</Event>
+      <Event presentationTime="30000" id="3">https://t.example.com/complete?cr=2201</Event>
+    </svta:Tracking>
+    <svta:AdSystem>ExampleAds</svta:AdSystem>
+    <svta:AdTitle>Candidate A</svta:AdTitle>
+  </svta:Ad>
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/2202/lt.png"
+                          mimeType="image/png" duration="PT30S" layout="overlay-lower-third"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/imp?cr=2202</Event>
+      <Event presentationTime="15000" id="2">https://t.example.com/mid?cr=2202</Event>
+      <Event presentationTime="30000" id="3">https://t.example.com/complete?cr=2202</Event>
+    </svta:Tracking>
+    <svta:AdSystem>ExampleAds</svta:AdSystem>
+    <svta:AdTitle>Candidate B</svta:AdTitle>
+  </svta:Ad>
+</svta:OverlayList>

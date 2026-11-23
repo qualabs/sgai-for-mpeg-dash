@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011"
+                  xmlns:svta="urn:svta:dash:sgai:2026"
+                  family="overlay"
+                  dismissAfter="PT5S">
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/2101/lt.png"
+                          mimeType="image/png" duration="PT10S" layout="overlay-lower-third"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/imp?cr=2101</Event>
+      <Event presentationTime="2500" id="2">https://t.example.com/q1?cr=2101</Event>
+      <Event presentationTime="10000" id="3">https://t.example.com/complete?cr=2101</Event>
+    </svta:Tracking>
+    <svta:AdSystem>ExampleAds</svta:AdSystem>
+    <svta:AdTitle>Candidate A</svta:AdTitle>
+  </svta:Ad>
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/2102/lt.png"
+                          mimeType="image/png" duration="PT10S" layout="overlay-lower-third"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/imp?cr=2102</Event>
+      <Event presentationTime="2500" id="2">https://t.example.com/q1?cr=2102</Event>
+      <Event presentationTime="10000" id="3">https://t.example.com/complete?cr=2102</Event>
+    </svta:Tracking>
+    <svta:AdSystem>ExampleAds</svta:AdSystem>
+    <svta:AdTitle>Candidate B</svta:AdTitle>
+  </svta:Ad>
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/2103/lt.png"
+                          mimeType="image/png" duration="PT10S" layout="overlay-lower-third"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/imp?cr=2103</Event>
+      <Event presentationTime="2500" id="2">https://t.example.com/q1?cr=2103</Event>
+      <Event presentationTime="10000" id="3">https://t.example.com/complete?cr=2103</Event>
+    </svta:Tracking>
+    <svta:AdSystem>ExampleAds</svta:AdSystem>
+    <svta:AdTitle>Candidate C</svta:AdTitle>
+  </svta:Ad>
+</svta:OverlayList>

@@ -1,0 +1,76 @@
+# UC-19 — The UC-09 candidate on a device whose protected playback admits one decoder.
+# No annex of its own: the candidate is Annex I's, unchanged (I.3-2), and so
+# is the main MPD except that its primary content is protected
+# (fixtures/UC-19/protected.mpd is I.2-1 plus ContentProtection on both
+# adaptation sets). Expected behaviour: context/04 UC-19.
+#
+# The device is a D1 by its datasheet, so `player_capabilities.D1` is R3.1's
+# D1 row. In this session, with protected content, it has one decoder with
+# image and HTML surfaces, and that is what it declares on the request (R29.10):
+# sgai-video-decoders=1. The vector cannot carry a session capability that
+# differs from the class's row except in what the request sends, so the
+# request is where it shows. The same device with unprotected content walks
+# the options as D1 and renders option 1: that is UC-09's D1 outcome, on
+# I.2-1; a variant here cannot change the entry MPD, so it is not repeated.
+format: sgai-scenario/1
+uc: UC-19
+uc_sha256: fca7f652bde59f036a1c2e87310cf015ebf97840ec6db7b7ecd28a447634a984
+timescale: 1000
+tolerance: 250
+# 24:50; the window opens at 25:00 (I.2-1) for 20 s.
+play_from: 1490000
+observe_until: 40000
+entry: scenarios/fixtures/UC-19/protected.mpd
+fixtures:
+  - path: scenarios/fixtures/UC-19/protected.mpd
+    class: publisher-mpd
+  - path: scenarios/fixtures/UC-19/request.http
+    class: request
+  - path: examples/annex-i/I.3-2.xml
+    url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: [sgai-video-decoders, sgai-image-over-video, sgai-html-over-video]
+actions: []
+
+outcomes:
+  D1:
+    summary: >-
+      Declares one decoder for the protected session, walks the options as
+      D3 and renders option 2: the programme in the upper-left 60%, the image
+      creative around it, for 20 s. No sub-MPD request.
+    requests:
+      # No @earliestResolutionTimeOffset: the default 60 s reaches back past
+      # the start of playback (24:50), so from session 0 to the window's start.
+      - at: {from: 0, to: 10000}
+        url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+        query:
+          sgai-allowed-layouts: squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear
+          sgai-video-decoders: "1"
+          sgai-image-over-video: "1"
+          sgai-html-over-video: "1"
+        answered_by: examples/annex-i/I.3-2.xml
+        matches: scenarios/fixtures/UC-19/request.http
+    selection:
+      - opportunity: {fixture: scenarios/fixtures/UC-19/protected.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c1 {fixture: examples/annex-i/I.3-2.xml, index: 1}, option: {index: 2}, layout: squeezeback-l-shape-upper-left}
+    presentation:
+      - {start: 0, end: 10000, layout: none, shows: [{element: primary, from: 1490000}]}
+      - start: 10000
+        end: 30000
+        layout: squeezeback-l-shape-upper-left
+        shows: [{element: primary, from: 1500000, region: upper-left 60%}, {element: ad, candidate: *c1, option: {index: 2}, region: full frame}]
+        audio: primary
+        note: I.6 row D3 "The programme in the upper-left 60%, the image creative around it."
+      - {start: 30000, end: 40000, layout: none, shows: [{element: primary, from: 1520000}]}
+    # I.3: "whichever option renders, the same beacons fire, from the instant the candidate starts".
+    beacons:
+      - {at: 10000, fixture: examples/annex-i/I.3-2.xml, candidate: *c1, id: "1", url: "https://t.example.com/imp?cr=901"}
+      - {at: 20000, fixture: examples/annex-i/I.3-2.xml, candidate: *c1, id: "2", url: "https://t.example.com/mid?cr=901"}
+      - {at: 30000, fixture: examples/annex-i/I.3-2.xml, candidate: *c1, id: "3", url: "https://t.example.com/complete?cr=901"}
+
+missing_carrier: []
+
+disagreements: []
