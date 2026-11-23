@@ -1,0 +1,5 @@
+<!-- on the window -->
+<svta:OverlayPresentation xmlns:svta="urn:svta:dash:sgai:2026"
+    uri="https://aps.example.com/nl/overlay/7"
+    durationCap="20000" allowedLayouts="custom overlay-lower-third"
+    customRegion="60 5 35 30"/>

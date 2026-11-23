@@ -1,0 +1,8 @@
+<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011"
+    xmlns:svta="urn:svta:dash:sgai:2026"
+    family="overlay" dismissAfter="PT5S" validFor="PT10M">
+  <svta:Ad>
+    <svta:RenderableAsset src="https://cdn.example.com/a1/banner.png"
+        mimeType="image/png" duration="PT15S" layout="overlay-lower-third"/>
+  </svta:Ad>
+</svta:OverlayList>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     type="dynamic"
+     profiles="urn:mpeg:dash:profile:isoff-live:2011"
+     availabilityStartTime="2026-09-26T18:00:00Z"
+     publishTime="2026-09-26T18:09:30Z"
+     minimumUpdatePeriod="PT2S"
+     timeShiftBufferDepth="PT30M"
+     minBufferTime="PT2S">
+  <BaseURL>https://live.example.com/sports1/</BaseURL>
+  <Period id="live" start="PT0S">
+    <!-- Mid-roll: an Alternative MPD Replacement event at 10 minutes. -->
+    <EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:replace:2025"
+                 timescale="1000">
+      <Event id="7" presentationTime="600000" duration="30000">
+        <ReplacePresentation uri="https://aps.example.com/linear/break?ch=sports1&amp;b=7"
+                             earliestResolutionTimeOffset="20000"
+                             maxDuration="30000"
+                             returnOffset="30000"
+                             clip="true"/>
+      </Event>
+    </EventStream>
+    <AdaptationSet id="1" contentType="video" mimeType="video/mp4"
+                   codecs="avc1.64001F" segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="2000" startNumber="1"
+                       initialization="video/$RepresentationID$/init.mp4"
+                       media="video/$RepresentationID$/$Number$.m4s"/>
+      <Representation id="v720" bandwidth="3000000" width="1280" height="720"/>
+      <Representation id="v1080" bandwidth="6000000" width="1920" height="1080"/>
+    </AdaptationSet>
+    <AdaptationSet id="2" contentType="audio" mimeType="audio/mp4"
+                   codecs="mp4a.40.2" lang="en" segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="2000" startNumber="1"
+                       initialization="audio/$RepresentationID$/init.mp4"
+                       media="audio/$RepresentationID$/$Number$.m4s"/>
+      <Representation id="a128" bandwidth="128000" audioSamplingRate="48000"/>
+    </AdaptationSet>
+  </Period>
+</MPD>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     type="static"
+     profiles="urn:mpeg:dash:profile:isoff-live:2011"
+     mediaPresentationDuration="PT52M"
+     minBufferTime="PT2S">
+  <BaseURL>https://content.example.com/doc5/</BaseURL>
+  <Period id="main" start="PT0S">
+    <EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:insert:2025"
+                 timescale="1000">
+      <Event id="1" presentationTime="1200000" duration="10000">
+        <InsertPresentation uri="https://aps.example.com/linear/pod?d=5&amp;b=1"
+                            earliestResolutionTimeOffset="30000"
+                            maxDuration="60000"/>
+      </Event>
+    </EventStream>
+    <AdaptationSet id="1" contentType="video" mimeType="video/mp4"
+                   codecs="avc1.64001F" segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="4000" startNumber="1"
+                       initialization="video/$RepresentationID$/init.mp4"
+                       media="video/$RepresentationID$/$Number$.m4s"/>
+      <Representation id="v1080" bandwidth="6000000" width="1920" height="1080"/>
+    </AdaptationSet>
+    <AdaptationSet id="2" contentType="audio" mimeType="audio/mp4"
+                   codecs="mp4a.40.2" lang="en" segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="4000" startNumber="1"
+                       initialization="audio/$RepresentationID$/init.mp4"
+                       media="audio/$RepresentationID$/$Number$.m4s"/>
+      <Representation id="a128" bandwidth="128000" audioSamplingRate="48000"/>
+    </AdaptationSet>
+  </Period>
+</MPD>

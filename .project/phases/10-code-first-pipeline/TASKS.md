@@ -2,8 +2,8 @@
 
 | id   | brief                                                                                   | status  | who   | plan | evidence |
 | ---- | --------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
-| T-01 | El costo de una corrida se mide por paso, y la línea de base está medida                | pending | agent | —    | —        |
-| T-02 | `spec-source/` existe y armarlo reproduce `dist/sgai-spec.md` byte a byte               | pending | agent | —    | —        |
+| T-01 | El costo de una corrida se mide por paso, y la línea de base está medida                | in-progress | agent | —    | `bin/measure-run.py`, `bin/test_measure_run.py`        |
+| T-02 | `spec-source/` existe y armarlo reproduce `dist/sgai-spec.md` byte a byte               | done | agent | —    | `spec-source/`, `bin/assemble-spec.py`, `bin/test_assemble_spec.py`, `tasks/T-02/`        |
 | T-03 | Las tablas de §5 y el bloque de §5.10.1 salen del XSD y `syntax.yaml`                   | pending | agent | —    | —        |
 | T-04 | Cada ejemplo es un fixture con su clase, y los niveles 1 y 2 lo juzgan antes de la prosa | pending | agent | —    | —        |
 | T-05 | Cada UC × clase de `context/04` tiene su vector, con lo observable y el hash de la UC   | pending | agent | —    | —        |

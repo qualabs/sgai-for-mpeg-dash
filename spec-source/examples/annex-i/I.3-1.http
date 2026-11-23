@@ -1,0 +1,2 @@
+GET /nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear HTTP/1.1
+Host: aps.example.com

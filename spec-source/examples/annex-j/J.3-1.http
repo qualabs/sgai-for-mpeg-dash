@@ -1,0 +1,2 @@
+GET /nl/overlay?show=cook&ep=9&sgai-allowed-layouts=squeezeback-double-box%20squeezeback-double-box-background HTTP/1.1
+Host: aps.example.com

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     type="list"
+     profiles="urn:mpeg:dash:profile:list:2024"
+     minBufferTime="PT2S">
+  <Period id="ad-601" duration="PT15S">
+    <ImportedMPD earliestResolutionTimeOffset="30">https://ads-cdn.example.com/cr/601/cr601.mpd</ImportedMPD>
+  </Period>
+  <Period id="ad-602" duration="PT20S">
+    <ImportedMPD earliestResolutionTimeOffset="15">https://ads-cdn.example.com/cr/602/cr602.mpd</ImportedMPD>
+  </Period>
+  <Period id="ad-603" duration="PT15S">
+    <ImportedMPD earliestResolutionTimeOffset="15">https://ads-cdn.example.com/cr/603/cr603.mpd</ImportedMPD>
+  </Period>
+  <Period id="ad-604" duration="PT15S">
+    <ImportedMPD earliestResolutionTimeOffset="15">https://ads-cdn.example.com/cr/604/cr604.mpd</ImportedMPD>
+  </Period>
+</MPD>

@@ -1,0 +1,5 @@
+GET /linear/mid?s=3&e=2 HTTP/1.1
+Host: aps.example.com
+
+GET /nl/overlay?s=3&e=2&w=h1&sgai-allowed-layouts=overlay-lower-third HTTP/1.1
+Host: aps.example.com

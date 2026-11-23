@@ -28,3 +28,4 @@
 __pycache__/
 .claude/worktrees/
 bin/players/node_modules/
+.worktrees/

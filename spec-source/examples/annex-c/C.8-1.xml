@@ -1,0 +1,35 @@
+<VAST version="4.2">
+  <Ad id="301" sequence="1">
+    <InLine>
+      <AdSystem>ExampleAds</AdSystem>
+      <AdTitle>Concert tickets</AdTitle>
+      <Impression><![CDATA[https://t.example.com/imp?cr=301]]></Impression>
+      <Creatives>
+        <Creative>
+          <NonLinearAds>
+            <TrackingEvents>
+              <Tracking event="midpoint"><![CDATA[https://t.example.com/mid?cr=301]]></Tracking>
+              <Tracking event="complete"><![CDATA[https://t.example.com/complete?cr=301]]></Tracking>
+            </TrackingEvents>
+            <NonLinear width="1920" height="324" minSuggestedDuration="00:00:15">
+              <StaticResource creativeType="application/dash+xml">
+                <![CDATA[https://ads-cdn.example.com/nl/301/cr301v.mpd]]>
+              </StaticResource>
+              <NonLinearClickThrough><![CDATA[https://brand-b.example.com/tickets]]></NonLinearClickThrough>
+              <NonLinearClickTracking><![CDATA[https://t.example.com/click?cr=301]]></NonLinearClickTracking>
+            </NonLinear>
+            <NonLinear width="1920" height="324" minSuggestedDuration="00:00:15">
+              <HTMLResource><![CDATA[https://ads-cdn.example.com/nl/301/banner.html]]></HTMLResource>
+            </NonLinear>
+            <NonLinear width="1920" height="324" minSuggestedDuration="00:00:15">
+              <StaticResource creativeType="image/png">
+                <![CDATA[https://ads-cdn.example.com/nl/301/banner.png]]>
+              </StaticResource>
+            </NonLinear>
+          </NonLinearAds>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+  <!-- Ad 302 follows the same pattern with three NonLinear resources. -->
+</VAST>

@@ -1,0 +1,2 @@
+GET /nl/overlay?title=film9&w=1&sgai-allowed-layouts=overlay-lower-third%20overlay-corner%20squeezeback-l-shape-upper-left%20squeezeback-double-box HTTP/1.1
+Host: aps.example.com

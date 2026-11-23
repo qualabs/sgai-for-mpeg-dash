@@ -1,0 +1,2 @@
+GET /nl/overlay?d=6&e=5&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third HTTP/1.1
+Host: aps.example.com

@@ -1,0 +1,3 @@
+GET /nl/overlay/1?slot=mid1&sgai-video-decoders=1&sgai-image-over-video=1
+    &sgai-allowed-layouts=overlay-lower-third%20squeezeback-l-shape-upper-left HTTP/1.1
+Host: aps.example.com

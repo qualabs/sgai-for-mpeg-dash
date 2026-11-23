@@ -1,0 +1,57 @@
+<VAST version="4.2">
+  <Ad id="101" sequence="1">
+    <InLine>
+      <AdSystem>ExampleAds</AdSystem>
+      <AdTitle>Spring range, 15 s</AdTitle>
+      <Impression><![CDATA[https://t.example.com/imp?cr=101]]></Impression>
+      <Creatives>
+        <Creative>
+          <Linear>
+            <Duration>00:00:15</Duration>
+            <TrackingEvents>
+              <Tracking event="start"><![CDATA[https://t.example.com/start?cr=101]]></Tracking>
+              <Tracking event="firstQuartile"><![CDATA[https://t.example.com/q1?cr=101]]></Tracking>
+              <Tracking event="midpoint"><![CDATA[https://t.example.com/mid?cr=101]]></Tracking>
+              <Tracking event="thirdQuartile"><![CDATA[https://t.example.com/q3?cr=101]]></Tracking>
+              <Tracking event="complete"><![CDATA[https://t.example.com/complete?cr=101]]></Tracking>
+            </TrackingEvents>
+            <VideoClicks>
+              <ClickThrough><![CDATA[https://brand-a.example.com/spring]]></ClickThrough>
+              <ClickTracking><![CDATA[https://t.example.com/click?cr=101]]></ClickTracking>
+            </VideoClicks>
+            <MediaFiles>
+              <MediaFile delivery="streaming" type="application/dash+xml"
+                         width="1920" height="1080">
+                <![CDATA[https://ads-cdn.example.com/cr/101/cr101.mpd]]>
+              </MediaFile>
+            </MediaFiles>
+          </Linear>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+  <Ad id="102" sequence="2">
+    <InLine>
+      <AdSystem>ExampleAds</AdSystem>
+      <AdTitle>Coffee, 10 s</AdTitle>
+      <Impression><![CDATA[https://t.example.com/imp?cr=102]]></Impression>
+      <Creatives>
+        <Creative>
+          <Linear>
+            <Duration>00:00:10</Duration>
+            <TrackingEvents>
+              <Tracking event="midpoint"><![CDATA[https://t.example.com/mid?cr=102]]></Tracking>
+              <Tracking event="complete"><![CDATA[https://t.example.com/complete?cr=102]]></Tracking>
+            </TrackingEvents>
+            <MediaFiles>
+              <MediaFile delivery="streaming" type="application/dash+xml"
+                         width="1920" height="1080">
+                <![CDATA[https://ads-cdn.example.com/cr/102/cr102.mpd]]>
+              </MediaFile>
+            </MediaFiles>
+          </Linear>
+        </Creative>
+      </Creatives>
+    </InLine>
+  </Ad>
+</VAST>

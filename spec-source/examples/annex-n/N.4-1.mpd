@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     type="dynamic"
+     profiles="urn:mpeg:dash:profile:isoff-live:2011"
+     availabilityStartTime="2026-09-26T19:44:00Z"
+     publishTime="2026-09-26T19:44:30Z"
+     minimumUpdatePeriod="PT5S"
+     timeShiftBufferDepth="PT5M"
+     minBufferTime="PT2S">
+  <BaseURL>https://slate.example.com/sports2/blackout-31/</BaseURL>
+  <Period id="slate" start="PT0S">
+    <!-- The overlay window belongs to the slate's own timeline. -->
+    <EventStream schemeIdUri="urn:svta:dash:sgai-overlay:2026" timescale="1000">
+      <Event id="1" presentationTime="60000" duration="20000">
+        <svta:OverlayPresentation uri="https://aps.example.com/nl/overlay?ch=sports2&amp;ctx=blackout"
+                                  durationCap="20000"
+                                  allowedLayouts="overlay-lower-third overlay-corner"/>
+      </Event>
+    </EventStream>
+    <AdaptationSet id="1" contentType="video" mimeType="video/mp4"
+                   codecs="avc1.64001F" segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="2000" startNumber="1"
+                       initialization="video/$RepresentationID$/init.mp4"
+                       media="video/$RepresentationID$/$Number$.m4s"/>
+      <Representation id="s720" bandwidth="1500000" width="1280" height="720"/>
+    </AdaptationSet>
+    <AdaptationSet id="2" contentType="audio" mimeType="audio/mp4"
+                   codecs="mp4a.40.2" lang="en" segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="2000" startNumber="1"
+                       initialization="audio/$RepresentationID$/init.mp4"
+                       media="audio/$RepresentationID$/$Number$.m4s"/>
+      <Representation id="s-a96" bandwidth="96000" audioSamplingRate="48000"/>
+    </AdaptationSet>
+  </Period>
+</MPD>

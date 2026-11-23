@@ -1,0 +1,11 @@
+<Period xmlns="urn:mpeg:dash:schema:mpd:2011"
+        xmlns:svta="urn:svta:dash:sgai:2026" id="p1">
+  <EventStream schemeIdUri="urn:svta:dash:sgai-overlay:2026" timescale="1000">
+    <Event id="1" presentationTime="120000" duration="30000">
+      <svta:OverlayPresentation uri="https://aps.example.com/nl/overlay/1?slot=mid1"
+          durationCap="30000"
+          allowedLayouts="overlay-lower-third squeezeback-l-shape-upper-left"/>
+    </Event>
+  </EventStream>
+  <!-- primary AdaptationSets follow -->
+</Period>

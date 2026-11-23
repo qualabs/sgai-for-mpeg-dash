@@ -1,0 +1,2 @@
+GET /nl/overlay?ch=sports2&ctx=blackout&sgai-allowed-layouts=overlay-lower-third%20overlay-corner HTTP/1.1
+Host: aps.example.com

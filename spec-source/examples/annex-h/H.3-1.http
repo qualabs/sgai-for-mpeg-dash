@@ -1,0 +1,5 @@
+GET /nl/overlay?t=film20&w=1&sgai-allowed-layouts=overlay-lower-third HTTP/1.1
+Host: aps.example.com
+
+GET /nl/pause?t=film20&sgai-allowed-layouts=pause-fullscreen%20pause-partial HTTP/1.1
+Host: aps.example.com

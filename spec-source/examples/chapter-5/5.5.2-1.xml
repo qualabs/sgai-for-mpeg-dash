@@ -1,0 +1,8 @@
+<svta:Tracking xmlns="urn:mpeg:dash:schema:mpd:2011"
+    xmlns:svta="urn:svta:dash:sgai:2026"
+    schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+    timescale="1000">
+  <Event presentationTime="0" id="1">https://t.example.com/imp?ad=a1</Event>
+  <Event presentationTime="7500" id="2">https://t.example.com/mid?ad=a1</Event>
+  <Event presentationTime="15000" id="3">https://t.example.com/done?ad=a1</Event>
+</svta:Tracking>

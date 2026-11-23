@@ -1,0 +1,3 @@
+<svta:ClickThrough xmlns:svta="urn:svta:dash:sgai:2026"
+    uri="https://brand.example.com/offer"
+    trackingUris="https://t.example.com/click?ad=a1 https://t2.example.net/c?id=9"/>

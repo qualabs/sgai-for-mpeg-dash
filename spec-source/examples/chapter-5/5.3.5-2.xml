@@ -1,0 +1,4 @@
+<!-- in the resolution document -->
+<svta:RenderableAsset xmlns:svta="urn:svta:dash:sgai:2026"
+    src="https://cdn.example.com/a7/bug.png"
+    mimeType="image/png" duration="PT15S" layout="custom" rect="65 8 25 20"/>
