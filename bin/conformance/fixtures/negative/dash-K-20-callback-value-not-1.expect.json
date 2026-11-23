@@ -1,0 +1,6 @@
+{
+ "rule": "K-20",
+ "xpath_contains": "@value",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "callback EventStream@value set to 2"
+}

@@ -1,0 +1,6 @@
+{
+ "rule": "K-15b",
+ "xpath_contains": "EventStream",
+ "derived_from": "dist/sgai-spec.md xml#11 (line 3855)",
+ "change": "an Alternative MPD Insertion EventStream in a List MPD Period"
+}

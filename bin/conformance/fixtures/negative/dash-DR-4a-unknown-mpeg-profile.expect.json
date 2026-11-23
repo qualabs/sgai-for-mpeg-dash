@@ -1,0 +1,6 @@
+{
+ "rule": "DR-4a",
+ "xpath_contains": "profiles",
+ "derived_from": "dist/sgai-spec.md xml#10 (line 3809)",
+ "change": "MPD@profiles names urn:mpeg:dash:profile:isoff-live:2099, which the 6th edition does not define"
+}

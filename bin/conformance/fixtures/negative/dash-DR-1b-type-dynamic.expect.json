@@ -1,0 +1,6 @@
+{
+ "rule": "DR-1b",
+ "xpath_contains": "/MPD/@type",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "MPD@type of the SPS sub-MPD set to dynamic"
+}

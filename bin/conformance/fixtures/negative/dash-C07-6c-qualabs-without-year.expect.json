@@ -1,0 +1,6 @@
+{
+ "rule": "C07-6c",
+ "xpath_contains": "variant",
+ "derived_from": "dist/sgai-spec.md xml#18 (line 4262)",
+ "change": "a Qualabs vendor attribute in urn:qualabs:trial, with no year"
+}

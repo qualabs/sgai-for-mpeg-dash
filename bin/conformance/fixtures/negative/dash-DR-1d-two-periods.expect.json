@@ -1,0 +1,6 @@
+{
+ "rule": "DR-1d",
+ "xpath_contains": "/MPD/Period",
+ "derived_from": "dist/sgai-spec.md xml#13 (line 3934)",
+ "change": "a second Period appended to the SPS sub-MPD"
+}

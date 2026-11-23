@@ -1,0 +1,8 @@
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="list"
+     profiles="urn:mpeg:dash:profile:list:2024" minBufferTime="PT1S">
+  <Period id="none" duration="PT0S">
+    <AdaptationSet contentType="text" mimeType="text/vtt">
+      <Representation id="t1" bandwidth="1000"/>
+    </AdaptationSet>
+  </Period>
+</MPD>

@@ -1,0 +1,6 @@
+{
+ "rule": "DR-7",
+ "xpath_contains": "Period",
+ "derived_from": "dist/sgai-spec.md xml#10 (line 3809)",
+ "change": "the AdaptationSets of a non-zero-duration Period moved inside an undeclared foreign element: E-3 accepts it (lax), and DR-7 reads the Period as having none, because they are no longer its children (Table 4)"
+}

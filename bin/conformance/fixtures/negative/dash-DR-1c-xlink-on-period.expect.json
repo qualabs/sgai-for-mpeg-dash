@@ -1,0 +1,6 @@
+{
+ "rule": "DR-1c",
+ "xpath_contains": "@xlink:actuate",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "an XLink attribute on the Period of the SPS sub-MPD"
+}

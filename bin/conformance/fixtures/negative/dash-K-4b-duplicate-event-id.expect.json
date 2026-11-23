@@ -1,0 +1,6 @@
+{
+ "rule": "K-4b",
+ "xpath_contains": "Event[2]/@id",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "Event@id 2 changed to 1, the id of the Event before it"
+}

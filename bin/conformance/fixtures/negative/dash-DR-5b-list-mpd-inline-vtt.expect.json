@@ -1,0 +1,6 @@
+{
+ "rule": "DR-5b",
+ "xpath_contains": "@mimeType",
+ "derived_from": "dist/sgai-spec.md xml#3 (line 2338)",
+ "change": "an inline AdaptationSet with mimeType text/vtt in a List MPD Period"
+}

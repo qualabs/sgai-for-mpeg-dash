@@ -1,0 +1,6 @@
+{
+ "rule": "DR-1f",
+ "xpath_contains": "@mediaPresentationDuration",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "MPD@mediaPresentationDuration added to the SPS sub-MPD"
+}

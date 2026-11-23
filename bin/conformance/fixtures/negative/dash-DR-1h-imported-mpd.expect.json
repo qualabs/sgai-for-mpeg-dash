@@ -1,0 +1,6 @@
+{
+ "rule": "DR-1h",
+ "xpath_contains": "ImportedMPD",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "a Period.ImportedMPD added to the SPS sub-MPD"
+}

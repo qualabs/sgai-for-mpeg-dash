@@ -1,0 +1,6 @@
+{
+ "rule": "DR-1i",
+ "xpath_contains": "@start",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "Period@start of the SPS sub-MPD set to PT5S"
+}

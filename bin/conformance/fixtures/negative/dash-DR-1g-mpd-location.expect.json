@@ -1,0 +1,6 @@
+{
+ "rule": "DR-1g",
+ "xpath_contains": "/MPD/Location",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "an MPD.Location element added to the SPS sub-MPD"
+}

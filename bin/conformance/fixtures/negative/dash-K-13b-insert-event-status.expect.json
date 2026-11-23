@@ -1,0 +1,6 @@
+{
+ "rule": "K-13b",
+ "xpath_contains": "@status",
+ "derived_from": "dist/sgai-spec.md xml#10 (line 3809)",
+ "change": "Event@status on an Alternative MPD Insertion event"
+}

@@ -1,0 +1,6 @@
+{
+ "rule": "K-14",
+ "xpath_contains": "@clip",
+ "derived_from": "dist/sgai-spec.md xml#15 (line 4095)",
+ "change": "ReplacePresentation@maxDuration removed while @clip stays"
+}

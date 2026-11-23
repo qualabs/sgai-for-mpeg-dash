@@ -1,0 +1,6 @@
+{
+ "rule": "DR-10a",
+ "xpath_contains": "/MPD/@type",
+ "derived_from": "dist/sgai-spec.md xml#3 (line 2338)",
+ "change": "MPD@type of a List-profile MPD set to static"
+}

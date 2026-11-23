@@ -1,0 +1,6 @@
+{
+ "rule": "C07-6b",
+ "xpath_contains": "OverlayPresentation",
+ "derived_from": "dist/sgai-spec.md xml#18 (line 4262)",
+ "change": "the svta prefix bound to urn:svta:sgai:2026, not urn:svta:dash:sgai:<year>"
+}

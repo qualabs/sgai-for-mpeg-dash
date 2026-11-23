@@ -1,0 +1,6 @@
+{
+ "rule": "DR-7",
+ "xpath_contains": "/MPD/Period[1]",
+ "derived_from": "dist/sgai-spec.md xml#3 (line 2338)",
+ "change": "the empty resolution's Period@duration set from PT0S to PT15S"
+}

@@ -1,0 +1,6 @@
+{
+ "rule": "DR-1e",
+ "xpath_contains": "@availabilityStartTime",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "MPD@availabilityStartTime added to the SPS sub-MPD"
+}

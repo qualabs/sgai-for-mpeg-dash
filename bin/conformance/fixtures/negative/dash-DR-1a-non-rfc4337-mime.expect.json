@@ -1,0 +1,6 @@
+{
+ "rule": "DR-1a",
+ "xpath_contains": "AdaptationSet[1]/@mimeType",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "AdaptationSet@mimeType of the SPS sub-MPD set to text/html, a type IETF RFC 4337 does not register"
+}

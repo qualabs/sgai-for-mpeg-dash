@@ -1,0 +1,6 @@
+{
+ "rule": "DR-10b",
+ "xpath_contains": "@xlink:actuate",
+ "derived_from": "dist/sgai-spec.md xml#34 (line 4988)",
+ "change": "an XLink attribute on a Period of an MPD of type list"
+}

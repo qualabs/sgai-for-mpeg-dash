@@ -1,0 +1,6 @@
+{
+ "rule": "DR-5a",
+ "xpath_contains": "AdaptationSet[1]/@profiles",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "AdaptationSet@profiles names a profile MPD@profiles does not"
+}

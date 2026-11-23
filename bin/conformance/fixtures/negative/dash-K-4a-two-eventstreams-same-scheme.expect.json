@@ -1,0 +1,6 @@
+{
+ "rule": "K-4a",
+ "xpath_contains": "EventStream[2]",
+ "derived_from": "dist/sgai-spec.md xml#18 (line 4262)",
+ "change": "a second EventStream with the overlay scheme and no @value in the same Period"
+}

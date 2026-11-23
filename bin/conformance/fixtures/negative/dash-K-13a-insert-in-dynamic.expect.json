@@ -1,0 +1,6 @@
+{
+ "rule": "K-13a",
+ "xpath_contains": "Event[1]",
+ "derived_from": "dist/sgai-spec.md xml#10 (line 3809)",
+ "change": "MPD@type of the pre-roll MPD set to dynamic"
+}

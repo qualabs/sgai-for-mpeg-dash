@@ -1,0 +1,6 @@
+{
+ "rule": "DR-9a",
+ "xpath_contains": "EssentialProperty",
+ "derived_from": "dist/sgai-spec.md xml#10 (line 3809)",
+ "change": "an EssentialProperty with an SGAI scheme on the main video AdaptationSet: a legacy Player drops the AdaptationSet"
+}

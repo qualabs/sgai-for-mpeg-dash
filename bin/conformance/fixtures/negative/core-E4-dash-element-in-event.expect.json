@@ -1,0 +1,6 @@
+{
+ "rule": "E-4",
+ "xpath_contains": "Event",
+ "derived_from": "dist/sgai-spec.md xml#10 (line 3809)",
+ "change": "an unknown element of the DASH namespace inside Event: removing other namespaces does not remove it, so the result is still invalid (E-4 fails together with E-3; it never fails alone, see the phase REPORT)"
+}
