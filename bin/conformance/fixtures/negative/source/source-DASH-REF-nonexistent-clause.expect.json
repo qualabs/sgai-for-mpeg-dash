@@ -1,0 +1,6 @@
+{
+ "rule": "DASH-REF",
+ "xpath_contains": "DASH §5.10.4.9",
+ "derived_from": "spec-source/sgai-spec.src.md (a sentence in its style)",
+ "change": "cites DASH §5.10.4.9; §5.10.4 of the base has no ninth subclause (§5.16.3 beside it is real)"
+}

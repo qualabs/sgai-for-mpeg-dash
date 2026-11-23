@@ -1,0 +1,6 @@
+{
+ "rule": "C06-1b",
+ "xpath_contains": "complexType[2]/attribute[5]",
+ "derived_from": "spec-source/syntax/sgai-extension.xsd",
+ "change": "@executeOnce on PauseAdPresentationType defaults to \"true\" instead of ISO's \"false\""
+}

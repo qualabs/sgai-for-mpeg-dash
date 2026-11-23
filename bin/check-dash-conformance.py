@@ -3,6 +3,7 @@
 
     check-dash-conformance.py SPEC.md [--xsd FILE] [--context DIR]
                               [--out-md FILE] [--out-json FILE] [--players] [--dashif] [--demo]
+    check-dash-conformance.py --source DIR [--context DIR] [--out-md FILE] [--out-json FILE]
 
 Level 1: the extension schema and the example documents against ISO/IEC
 23009-1:2026 (E-1..E-4, the identity of the XSD file with the spec's block,
@@ -11,6 +12,19 @@ criteria of context/03. --players adds level 3a (legacy Players). --dashif
 adds the DASH-IF conformance tool as a second auditor: it informs, never
 changes the exit (its XSD module is the 5th edition's; bin/dashif/). --demo
 runs the committed positive and negative cases side by side.
+
+--source DIR (spec-source/) runs levels 1 and 2 over the source instead of a
+document (ADR 0063): each example file of DIR/examples/ by the class
+DIR/examples/index.yaml declares, with DIR/syntax/sgai-extension.xsd. A
+`legacy-view` fixture is judged by level 1 only (level 2 NOT_APPLICABLE, with
+the reason). It adds FIX-1 and FIX-2 (the index, and the declared class
+against the deduced one), C06-1a/b (@earliestResolutionTimeOffset and
+@executeOnce keep the type and default of ISO's AlternativeMPDEventType) and
+DASH-REF (every `DASH §n` of the prose is a clause of the primary copy; the
+clause index is built at run time from the copy located as
+bin/check-normative-base.py locates it, and nothing of it is stored; without
+the copy the rule is NOT_VERIFIABLE). Its green says nothing about the prose
+beyond those references. --players, --dashif, --demo and --xsd do not apply.
 
 --xsd defaults to the file beside SPEC.md: v<N>-sgai-extension.xsd for
 v<N>-sgai-spec.md, sgai-extension.xsd for sgai-spec.md.
@@ -48,7 +62,7 @@ def main(argv):
     from conformance.model import Report
 
     args = list(argv)
-    opts = {"--xsd": None, "--context": None, "--out-md": None, "--out-json": None}
+    opts = {"--xsd": None, "--context": None, "--out-md": None, "--out-json": None, "--source": None}
     flags = set()
     spec = None
     while args:
@@ -68,6 +82,16 @@ def main(argv):
         else:
             sys.stderr.write(f"unexpected argument {a}\n{USAGE}\n")
             return 64
+    if opts["--source"] is not None:
+        if spec is not None or flags or opts["--xsd"]:
+            sys.stderr.write(f"--source takes no SPEC.md, --xsd, --players, --dashif or --demo\n{USAGE}\n")
+            return 64
+        source = Path(opts["--source"])
+        if not source.is_dir():
+            sys.stderr.write(f"source directory not found: {source}\n{USAGE}\n")
+            return 64
+        context_dir = Path(opts["--context"]) if opts["--context"] else Path(HERE).parent / "context"
+        return source_mode(source, context_dir, opts)
     if "--demo" in flags and spec is None:
         spec = Path(HERE).parent / "dist" / "sgai-spec.md"
     if spec is None or not spec.exists():
@@ -105,6 +129,25 @@ def main(argv):
                 "baseline_summary": {k: v for k, v in second.get("baseline", {}).items() if k != "per_example"}}
             js = json.dumps(d, indent=1, ensure_ascii=False, sort_keys=True) + "\n"
         Path(opts["--out-json"]).write_text(js, encoding="utf-8")
+    c = report.counts()
+    print(f"exit {report.exit_code()}: PASS {c['PASS']}  FAIL {c['FAIL']}  "
+          f"NOT_VERIFIABLE {c['NOT_VERIFIABLE']}  NOT_APPLICABLE {c['NOT_APPLICABLE']}")
+    for x in report.cannot:
+        print(f"cannot tell: {x}")
+    if not opts["--out-md"]:
+        print(md)
+    return report.exit_code()
+
+
+def source_mode(source, context_dir, opts):
+    from pathlib import Path
+    from conformance import runner, source as src
+    report, _ = src.run(source, context_dir)
+    md = runner.to_markdown(report, source, "Conformance tests (source)", src.RULES)
+    if opts["--out-md"]:
+        Path(opts["--out-md"]).write_text(md, encoding="utf-8")
+    if opts["--out-json"]:
+        Path(opts["--out-json"]).write_text(runner.to_json(report, source, src.RULES), encoding="utf-8")
     c = report.counts()
     print(f"exit {report.exit_code()}: PASS {c['PASS']}  FAIL {c['FAIL']}  "
           f"NOT_VERIFIABLE {c['NOT_VERIFIABLE']}  NOT_APPLICABLE {c['NOT_APPLICABLE']}")

@@ -5,7 +5,7 @@
 | T-01 | El costo de una corrida se mide por paso, y la línea de base está medida                | done | agent | —    | `bin/measure-run.py`, `bin/test_measure_run.py`, `tasks/T-01/baseline.md`        |
 | T-02 | `spec-source/` existe y armarlo reproduce `dist/sgai-spec.md` byte a byte               | done | agent | —    | `spec-source/`, `bin/assemble-spec.py`, `bin/test_assemble_spec.py`, `tasks/T-02/`        |
 | T-03 | Las tablas de §5 y el bloque de §5.10.1 salen del XSD y `syntax.yaml`                   | done | agent | —    | `bin/gen-syntax-tables.py`, `bin/test_gen_syntax_tables.py`, `spec-source/syntax/`, `tasks/T-03/findings.md`        |
-| T-04 | Cada ejemplo es un fixture con su clase, y los niveles 1 y 2 lo juzgan antes de la prosa | pending | agent | —    | —        |
+| T-04 | Cada ejemplo es un fixture con su clase, y los niveles 1 y 2 lo juzgan antes de la prosa | done | agent | —    | `spec-source/examples/index.yaml`, `bin/conformance/source.py`, `bin/conformance/clauses.py`, `bin/test_conformance_source.py`, `tasks/T-04/`        |
 | T-05 | Cada UC × clase de `context/04` tiene su vector, con lo observable y el hash de la UC   | pending | agent | —    | —        |
 | T-06 | El lint dice por código si el documento armado está limpio                               | done | agent | —    | `bin/lint-spec.py`, `bin/test_lint_spec.py`, `tasks/T-06/`        |
 | T-07 | Toda edición de la prosa es un parche que aplica un script, y el refine devuelve uno    | done | agent | —    | `bin/apply-spec-patch.py`, `bin/spec-section.py`, `bin/spec_sections.py`, `bin/test_apply_spec_patch.py`, `tasks/T-07/`        |
@@ -119,6 +119,7 @@ los encabezados de la copia).
   atrapado.
 - **nivel de verificación:** alto. Cambia qué regla corre sobre qué documento;
   un error acá esconde un FAIL.
+- **post-ejecución:** 2026-11-23, la regla "`Event@id` único dentro de `svta:Tracking`" no se escribió: ningún criterio de `context/03` la pide y R6.5 dice lo contrario (*"Within a candidate, beacons sharing an `@id` … are one beacon and fire once"*). La pedían la ADR 0063 y el REPORT de la fase 09 §4; queda como hallazgo.
 
 ## T-05 — Cada UC × clase de `context/04` tiene su vector, con lo observable y el hash de la UC
 - **Objective:** las 22 UC son tests ejecutables en espera de su ejecutor

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:svta="urn:svta:dash:sgai:2026"
+           xmlns:dash="urn:mpeg:dash:schema:mpd:2011"
+           targetNamespace="urn:svta:dash:sgai:2026"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+  <xs:import namespace="urn:mpeg:dash:schema:mpd:2011"
+             schemaLocation="DASH-MPD.xsd"/>
+
+  <!-- Simple types -->
+  <xs:simpleType name="LayoutTokenType">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="linear"/>
+      <xs:enumeration value="overlay"/>
+      <xs:enumeration value="overlay-corner"/>
+      <xs:enumeration value="overlay-lower-third"/>
+      <xs:enumeration value="squeezeback-l-shape-upper-left"/>
+      <xs:enumeration value="squeezeback-l-shape-upper-right"/>
+      <xs:enumeration value="squeezeback-double-box"/>
+      <xs:enumeration value="squeezeback-double-box-background"/>
+      <xs:enumeration value="pause-fullscreen"/>
+      <xs:enumeration value="pause-partial"/>
+      <xs:enumeration value="custom"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LayoutTokenListType">
+    <xs:list itemType="svta:LayoutTokenType"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="PercentType">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PercentRectType">
+    <xs:restriction>
+      <xs:simpleType>
+        <xs:list itemType="svta:PercentType"/>
+      </xs:simpleType>
+      <xs:length value="4"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NeverType">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="never"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DismissAfterType">
+    <xs:union memberTypes="xs:duration svta:NeverType"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="LinearRelationType">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="supersede"/>
+      <xs:enumeration value="on-top"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="OnTopOnlyType">
+    <xs:restriction base="svta:LinearRelationType">
+      <xs:enumeration value="on-top"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FamilyType">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="overlay"/>
+      <xs:enumeration value="pause"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="OnExhaustedType">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="repeat"/>
+      <xs:enumeration value="request-again"/>
+      <xs:enumeration value="stop"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="URIListType">
+    <xs:list itemType="xs:anyURI"/>
+  </xs:simpleType>
+
+  <!-- Opportunity windows (children of dash:Event) -->
+  <xs:element name="OverlayPresentation" type="svta:OverlayPresentationType"/>
+  <xs:complexType name="OverlayPresentationType">
+    <xs:sequence>
+      <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="uri" type="xs:anyURI" use="required"/>
+    <xs:attribute name="durationCap" type="xs:unsignedLong" use="required"/>
+    <xs:attribute name="earliestResolutionTimeOffset" type="xs:unsignedLong"/>
+    <xs:attribute name="allowedLayouts" type="svta:LayoutTokenListType"/>
+    <xs:attribute name="customRegion" type="svta:PercentRectType"/>
+    <xs:attribute name="linearRelation" type="svta:LinearRelationType"/>
+    <xs:anyAttribute namespace="##other" processContents="lax"/>
+  </xs:complexType>
+
+  <xs:element name="PauseAdPresentation" type="svta:PauseAdPresentationType"/>
+  <xs:complexType name="PauseAdPresentationType">
+    <xs:sequence>
+      <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="uri" type="xs:anyURI" use="required"/>
+    <xs:attribute name="durationCap" type="xs:unsignedLong" use="required"/>
+    <xs:attribute name="earliestResolutionTimeOffset" type="xs:unsignedLong"/>
+    <xs:attribute name="allowedLayouts" type="svta:LayoutTokenListType"/>
+    <xs:attribute name="executeOnce" type="xs:boolean" default="true"/>
+    <xs:attribute name="linearRelation" type="svta:OnTopOnlyType"/>
+    <xs:anyAttribute namespace="##other" processContents="lax"/>
+  </xs:complexType>
+
+  <!-- Non-linear resolution document -->
+  <xs:element name="OverlayList" type="svta:OverlayListType"/>
+  <xs:complexType name="OverlayListType">
+    <xs:sequence>
+      <xs:element name="Ad" type="svta:AdType" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="family" type="svta:FamilyType" use="required"/>
+    <xs:attribute name="dismissAfter" type="svta:DismissAfterType"/>
+    <xs:attribute name="validFor" type="xs:duration"/>
+    <xs:attribute name="onExhausted" type="svta:OnExhaustedType"/>
+    <xs:anyAttribute namespace="##other" processContents="lax"/>
+  </xs:complexType>
+
+  <xs:complexType name="AdType">
+    <xs:sequence>
+      <xs:element name="RenderableAsset" type="svta:RenderableAssetType" maxOccurs="unbounded"/>
+      <xs:element name="Tracking" type="dash:EventStreamType" minOccurs="0"/>
+      <xs:element ref="svta:ClickThrough" minOccurs="0"/>
+      <xs:element ref="svta:AdSystem" minOccurs="0"/>
+      <xs:element ref="svta:AdTitle" minOccurs="0"/>
+      <xs:element ref="svta:Advertiser" minOccurs="0"/>
+      <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:anyAttribute namespace="##other" processContents="lax"/>
+  </xs:complexType>
+
+  <xs:complexType name="RenderableAssetType">
+    <xs:attribute name="src" type="xs:anyURI" use="required"/>
+    <xs:attribute name="mimeType" type="xs:string" use="required"/>
+    <xs:attribute name="duration" type="xs:duration"/>
+    <xs:attribute name="layout" type="svta:LayoutTokenType" use="required"/>
+    <xs:attribute name="rect" type="svta:PercentRectType"/>
+    <xs:attribute name="background" type="xs:anyURI"/>
+    <xs:anyAttribute namespace="##other" processContents="lax"/>
+  </xs:complexType>
+
+  <!-- Carriers shared by both resolution documents -->
+  <xs:element name="ClickThrough" type="svta:ClickThroughType"/>
+  <xs:complexType name="ClickThroughType">
+    <xs:attribute name="uri" type="xs:anyURI" use="required"/>
+    <xs:attribute name="trackingUris" type="svta:URIListType"/>
+    <xs:anyAttribute namespace="##other" processContents="lax"/>
+  </xs:complexType>
+
+  <xs:element name="AdSystem" type="xs:string"/>
+  <xs:element name="AdTitle" type="xs:string"/>
+  <xs:element name="Advertiser" type="xs:string"/>
+
+</xs:schema>

@@ -1,0 +1,6 @@
+{
+ "rule": "C06-1a",
+ "xpath_contains": "complexType[1]/attribute[3]",
+ "derived_from": "spec-source/syntax/sgai-extension.xsd",
+ "change": "@earliestResolutionTimeOffset on OverlayPresentationType typed xs:unsignedInt instead of ISO's xs:unsignedLong"
+}

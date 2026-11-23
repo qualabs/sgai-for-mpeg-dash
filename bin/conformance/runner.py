@@ -97,18 +97,18 @@ def all_rules() -> list[Rule]:
     return list(ext.RULES) + list(dash_catalog.RULES) + list(spec_catalog.RULES) + list(players.RULES)
 
 
-def to_json(report: Report, spec_path: Path) -> str:
+def to_json(report: Report, spec_path: Path, extra_rules=()) -> str:
     rules = {r.id: {"level": r.level, "source": r.source, "quote": r.quote,
                     "criterion": r.criterion, "not_verifiable": r.not_verifiable}
-             for r in all_rules()}
+             for r in all_rules() + list(extra_rules)}
     return json.dumps({"spec": str(spec_path), "counts": report.counts(), "cannot": report.cannot,
                        "exit": report.exit_code(), "rules": rules,
                        "results": [r.as_dict() for r in report.results]},
                       indent=1, ensure_ascii=False, sort_keys=True) + "\n"
 
 
-def to_markdown(report: Report, spec_path: Path, title: str) -> str:
-    rules = {r.id: r for r in all_rules()}
+def to_markdown(report: Report, spec_path: Path, title: str, extra_rules=()) -> str:
+    rules = {r.id: r for r in all_rules() + list(extra_rules)}
     c = report.counts()
     L = [f"# {title}", "",
          f"Specification: `{spec_path}`. Every verdict below was computed by code "
