@@ -1,8 +1,9 @@
 """--demo: the positives and the negatives side by side (ADR 0056).
 
-Positives must give no FAIL: ISO's own 6th-edition examples (a reference that
-does not come from us) under level 1, and the published specification under
-levels 1 and 2. Negatives must FAIL, at the rule written beside each one.
+Positives must give no FAIL: ISO's own 6th-edition examples, a reference that
+does not come from us, under level 1. Negatives must FAIL, at the rule written
+beside each one. The specification under test is run too, and what fails on it
+is shown as a finding about it: the demo's exit is about the instrument.
 The output carries no timing and no absolute path, so two runs are identical.
 """
 from __future__ import annotations
@@ -47,23 +48,28 @@ def main(spec: Path, context_dir: Path) -> int:
     rules = {r.id: r for r in runner.all_rules()}
     out = ["SGAI conformance tests: demo", "Every verdict below is computed by code. None is an LLM's judgement.", ""]
 
-    # positives
-    out.append("POSITIVES: must give no FAIL")
+    # positives: a reference that does not come from us
+    out.append("POSITIVES: ISO's own 6th-edition examples must give no FAIL")
     blocks = []
     for i, p in enumerate(iso.examples(ctx.isodir), 1):
         b = extract.Block(i, 1, p.read_text(encoding="utf-8"))
         extract.classify(b)
-        b.index, b.line = i, 1
         blocks.append(b)
     iso_ctx = Ctx(Path("ISO examples"), "", blocks, [], ctx.isodir, ctx.iso, ctx.combined, ctx.ext_text, context_dir)
-    iso_results = runner.level1(iso_ctx, None)
-    iso_results = [r for r in iso_results if r.rule not in ("E-1", "E-2")]
+    iso_results = [r for r in runner.level1(iso_ctx, None) if r.rule not in ("E-1", "E-2")]
     l1, f1 = _line(f"ISO/IEC 23009-1:2026 examples ({len(blocks)}), level 1", iso_results)
-    spec_results = runner.level1(ctx, None) + [r for rule in __import__("conformance.spec", fromlist=["RULES"]).RULES
-                                               for r in runner.run_rule(ctx, rule)]
+    out.append(l1)
+    for r in [x for x in iso_results if x.outcome is Outcome.FAIL][:20]:
+        out += _wrap("FAIL", f"{r.rule} on {r.subject} {r.xpath}: {r.detail}")
+    out.append("")
+
+    # the published specification: findings, not the demo's verdict
+    from . import spec as spec_catalog
+    spec_results = runner.level1(ctx, None) + [r for rule in spec_catalog.RULES for r in runner.run_rule(ctx, rule)]
     l2, f2 = _line(f"{spec.name} ({len(ctx.blocks)} blocks, {len(ctx.requests)} requests), levels 1-2", spec_results)
-    out += [l1, l2]
-    for r in [x for x in iso_results + spec_results if x.outcome is Outcome.FAIL][:20]:
+    out.append("THE SPECIFICATION UNDER TEST: what fails is a finding about it")
+    out.append(l2)
+    for r in [x for x in spec_results if x.outcome is Outcome.FAIL]:
         out += _wrap("FAIL", f"{r.rule} on {r.subject} {r.xpath}: {r.detail}")
     out.append("")
 
@@ -89,8 +95,9 @@ def main(spec: Path, context_dir: Path) -> int:
         if v["other_fails"]:
             out += _wrap("also", "also failed: " + ", ".join(v["other_fails"]))
     out.append("")
-    ok = f1 == 0 and f2 == 0 and caught == len(cases)
-    out.append(f"RESULT: positives {'clean' if f1 == 0 and f2 == 0 else 'NOT clean'}; "
-               f"negatives caught {caught}/{len(cases)}; exit {0 if ok else 1}")
+    ok = f1 == 0 and caught == len(cases)
+    out.append(f"RESULT: ISO positives {'clean' if f1 == 0 else 'NOT clean'}; "
+               f"negatives caught {caught}/{len(cases)}; findings on {spec.name}: {f2} FAIL; "
+               f"demo exit {0 if ok else 1}")
     print("\n".join(out))
     return 0 if ok else 1

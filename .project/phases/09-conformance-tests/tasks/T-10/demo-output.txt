@@ -1,0 +1,1371 @@
+SGAI conformance tests: demo
+Every verdict below is computed by code. None is an LLM's judgement.
+
+POSITIVES: ISO's own 6th-edition examples must give no FAIL
+  [clean] ISO/IEC 23009-1:2026 examples (41), level 1          PASS  229  FAIL   0  NOT_VERIFIABLE  60  NOT_APPLICABLE 593
+
+THE SPECIFICATION UNDER TEST: what fails is a finding about it
+  [FAIL ] sgai-spec.md (84 blocks, 12 requests), levels 1-2    PASS 1107  FAIL   8  NOT_VERIFIABLE 273  NOT_APPLICABLE 1531
+    FAIL      R12.1a on specification /schema/complexType[5]/attribute[4]: RenderableAsset@layout:
+              missing squeezeback-frame
+    FAIL      R12.1a on specification /schema/complexType[1]/attribute[4]:
+              OverlayPresentation@allowedLayouts: missing squeezeback-frame
+    FAIL      R12.1a on specification /schema/complexType[2]/attribute[4]:
+              PauseAdPresentation@allowedLayouts: missing squeezeback-frame
+    FAIL      R34.1a on specification /schema/complexType[1]: <OverlayPresentation> cannot carry
+              executeOnce: context/06 carries the once-per-session declaration as @executeOnce on
+              overlay and pause windows
+    FAIL      R34.9a on specification /schema/complexType[1]: <OverlayPresentation> cannot carry
+              startWithOffset: context/06 carries the late-execution offset as @startWithOffset on
+              overlay windows
+    FAIL      R40.9a on xml#40 (line 5251) /MPD/Period[1]/EventStream[2]/Event[1]: 0 window elements
+              in one Event of urn:svta:dash:sgai-overlay:2026; exactly one is needed
+    FAIL      R40.9a on xml#40 (line 5251) /MPD/Period[1]/EventStream[3]/Event[1]: 0 window elements
+              in one Event of urn:svta:dash:sgai-pause-trigger:2026; exactly one is needed
+    FAIL      R13.6a on specification /schema/complexType[5]: <RenderableAsset> cannot carry
+              Tracking: context/06 attaches a beacon to one option by placing the candidate's
+              tracking carrier on the option
+
+NEGATIVES: 84 documents broken on purpose; each must FAIL at its rule
+
+  [CAUGHT] core-DR7-adaptationsets-inside-foreign
+    broke     the AdaptationSets of a non-zero-duration Period moved inside an undeclared foreign
+              element: E-3 accepts it (lax), and DR-7 reads the Period as having none, because they
+              are no longer its children (Table 4) (from dist/sgai-spec.md xml#10 (line 3809))
+    rule      DR-7: ISO/IEC 23009-1:2026 §5.3.2.2 Table 4, AdaptationSet; context/08 DR-7
+    quote     "At least one Adaptation Set shall be present in each Period unless the value of the
+              @duration attribute of the Period is set to zero."
+    where     /MPD/Period[1]
+    says      no AdaptationSet and Period@duration is absent, not zero
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] core-E1-unknown-dash-type
+    broke     svta:Tracking typed with a DASH type that does not exist (dash:EventStreamTypo) (from
+              dist/sgai-spec.md xml#9 (line 2831))
+    rule      E-1: ISO/IEC 23009-1:2026 Annex B; ADR 0048
+    quote     "The schema of the MPD for this document is provided at:
+              https://standards.iso.org/iso-iec/23009/-1/ed-6/en (DASH-MPD.xsd)."
+    where     extension XSD
+    says      does not compile with DASH-MPD.xsd: element decl. '{urn:svta:dash:sgai:2026}Tracking',
+              attribute 'type': The QName value '{urn:mpeg:dash:schema:mpd:2011}EventStreamTypo'
+              does not resolve to a(n) type definition., line 137
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] core-E2-redefines-dash
+    broke     adds xs:redefine of DASH-MPD.xsd: an extension may only import DASH (from dist/sgai-
+              spec.md xml#9 (line 2831))
+    rule      E-2: ISO/IEC 23009-1:2026 §5.2.1; ADR 0048
+    quote     "the MPD shall be authored such that, after XML attributes or elements in the other
+              namespaces than the DASH namespace are removed, the result is a valid XML document
+              formatted according to that schema and that conforms to this document"
+    where     /schema/redefine[1]
+    says      xs:redefine of 'DASH-MPD.xsd': an extension may only import, not redefine
+    also      also failed: E-1, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] core-E3-attr-on-eventstream
+    broke     a foreign attribute on EventStream, whose type admits foreign elements but no foreign
+              attributes (DR-2) (from dist/sgai-spec.md xml#10 (line 3809))
+    rule      E-3: ISO/IEC 23009-1:2026 Annex B (xs:any / xs:anyAttribute namespace="##other"); ADR
+              0048
+    quote     "The schema of the MPD for this document is provided at:
+              https://standards.iso.org/iso-iec/23009/-1/ed-6/en (DASH-MPD.xsd)."
+    where     /MPD/Period[1]/EventStream[1]
+    says      invalid against DASH-MPD.xsd + extension XSD: line 11 of the markdown: Element
+              '{urn:mpeg:dash:schema:mpd:2011}EventStream', attribute
+              '{urn:svta:dash:sgai:2026}hint': The attribute '{urn:svta:dash:sgai:2026}hint' is not
+              allowed.
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a, R40.7
+
+  [CAUGHT] core-E3-bogus-attr-on-clickthrough
+    broke     an attribute the extension XSD does not declare on svta:ClickThrough inside a List
+              MPD; the ISO XSD alone accepts it (lax) (from dist/sgai-spec.md xml#11 (line 3855))
+    rule      E-3: ISO/IEC 23009-1:2026 Annex B (xs:any / xs:anyAttribute namespace="##other"); ADR
+              0048
+    quote     "The schema of the MPD for this document is provided at:
+              https://standards.iso.org/iso-iec/23009/-1/ed-6/en (DASH-MPD.xsd)."
+    where     /*/*[1]/svta:ClickThrough
+    says      invalid against DASH-MPD.xsd + extension XSD: line 13 of the markdown: Element
+              '{urn:svta:dash:sgai:2026}ClickThrough', attribute 'bogusAttr': The attribute
+              'bogusAttr' is not allowed.
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] core-E3-dash-element-in-event
+    broke     an unknown element of the DASH namespace inside Event (from dist/sgai-spec.md xml#10
+              (line 3809))
+    rule      E-3: ISO/IEC 23009-1:2026 Annex B (xs:any / xs:anyAttribute namespace="##other"); ADR
+              0048
+    quote     "The schema of the MPD for this document is provided at:
+              https://standards.iso.org/iso-iec/23009/-1/ed-6/en (DASH-MPD.xsd)."
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/Bogus[1]
+    says      invalid against DASH-MPD.xsd + extension XSD: line 13 of the markdown: Element
+              '{urn:mpeg:dash:schema:mpd:2011}Bogus': This element is not expected. Expected is one
+              of ( {urn:mpeg:dash:schema:mpd:2011}SelectionInfo,
+              {urn:mpeg:dash:schema:mpd:2011}InsertPresentation,
+              {urn:mpeg:dash:schema:mpd:2011}ReplacePresentation,
+              {urn:mpeg:dash:schema:mpd:2011}ServiceDescription,
+              {urn:mpeg:dash:schema:mpd:2011}SupplementalProperty,
+              {urn:mpeg:dash:schema:mpd:2011}EssentialProperty,
+              ##other{urn:mpeg:dash:schema:mpd:2011}* ).
+    also      also failed: E-4, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] core-E3-event-id-not-number
+    broke     Event@id="one", not xs:unsignedLong (from dist/sgai-spec.md xml#10 (line 3809))
+    rule      E-3: ISO/IEC 23009-1:2026 Annex B (xs:any / xs:anyAttribute namespace="##other"); ADR
+              0048
+    quote     "The schema of the MPD for this document is provided at:
+              https://standards.iso.org/iso-iec/23009/-1/ed-6/en (DASH-MPD.xsd)."
+    where     /MPD/Period[1]/EventStream[1]/Event[1]
+    says      invalid against DASH-MPD.xsd + extension XSD: line 12 of the markdown: Element
+              '{urn:mpeg:dash:schema:mpd:2011}Event', attribute 'id': 'one' is not a valid value of
+              the atomic type 'xs:unsignedLong'.
+    also      also failed: E-4, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] core-E3-overlaylist-bad-family
+    broke     OverlayList@family with a token outside the enumeration (from dist/sgai-spec.md xml#2
+              (line 2311))
+    rule      E-3: ISO/IEC 23009-1:2026 Annex B (xs:any / xs:anyAttribute namespace="##other"); ADR
+              0048
+    quote     "The schema of the MPD for this document is provided at:
+              https://standards.iso.org/iso-iec/23009/-1/ed-6/en (DASH-MPD.xsd)."
+    where     /svta:OverlayList
+    says      invalid against DASH-MPD.xsd + extension XSD: line 3 of the markdown: Element
+              '{urn:svta:dash:sgai:2026}OverlayList', attribute 'family': [facet 'enumeration'] The
+              value 'bogus-layout' is not an element of the set {'overlay', 'pause'}.
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] core-E4-dash-element-in-event
+    broke     an unknown element of the DASH namespace inside Event: removing other namespaces does
+              not remove it, so the result is still invalid (E-4 fails together with E-3; it never
+              fails alone, see the phase REPORT) (from dist/sgai-spec.md xml#10 (line 3809))
+    rule      E-4: ISO/IEC 23009-1:2026 §5.2.1
+    quote     "the MPD shall be authored such that, after XML attributes or elements in the other
+              namespaces than the DASH namespace are removed, the result is a valid XML document
+              formatted according to that schema and that conforms to this document"
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/Bogus[1]
+    says      invalid after removing other namespaces: line 13 of the markdown: Element
+              '{urn:mpeg:dash:schema:mpd:2011}Bogus': This element is not expected. Expected is one
+              of ( {urn:mpeg:dash:schema:mpd:2011}SelectionInfo,
+              {urn:mpeg:dash:schema:mpd:2011}InsertPresentation,
+              {urn:mpeg:dash:schema:mpd:2011}ReplacePresentation,
+              {urn:mpeg:dash:schema:mpd:2011}ServiceDescription,
+              {urn:mpeg:dash:schema:mpd:2011}SupplementalProperty,
+              {urn:mpeg:dash:schema:mpd:2011}EssentialProperty,
+              ##other{urn:mpeg:dash:schema:mpd:2011}* ).
+    also      also failed: E-3, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-C07-6a-scheme-without-year
+    broke     the overlay window scheme lost its year (from dist/sgai-spec.md xml#18 (line 4262))
+    rule      C07-6a: context/07 §6, against context/06 "Scheme URI patterns"
+    quote     "New event schemes introduced by this spec MUST use the year-pinned pattern under the
+              SVTA Ads WG namespace: `urn:svta:dash:<construct>:<year>`"
+    where     /MPD/Period[1]/EventStream[1]/@schemeIdUri
+    says      scheme 'urn:svta:dash:sgai-overlay' is under urn:svta: but not of the declared pattern
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a, R40.9a
+
+  [CAUGHT] dash-C07-6b-namespace-not-declared
+    broke     the svta prefix bound to urn:svta:sgai:2026, not urn:svta:dash:sgai:<year> (from
+              dist/sgai-spec.md xml#18 (line 4262))
+    rule      C07-6b: context/07 §6, against context/06 "Element / attribute extension namespaces"
+    quote     "New XML elements introduced by this spec live under the SVTA Ads WG extension
+              namespace: - **`urn:svta:dash:sgai:<year>`**"
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/svta:OverlayPresentation[1]
+    says      namespace 'urn:svta:sgai:2026' is under urn:svta: but not of the declared pattern
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a, R40.9a
+
+  [CAUGHT] dash-C07-6c-qualabs-without-year
+    broke     a Qualabs vendor attribute in urn:qualabs:trial, with no year (from dist/sgai-spec.md
+              xml#18 (line 4262))
+    rule      C07-6c: context/07 §6, against context/06 "Vendor extensions (Qualabs)"
+    quote     "Qualabs-private experimental extensions that are not part of this specification MUST
+              use the Qualabs vendor namespace: `urn:qualabs:<feature>:<year>`"
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/@{urn:qualabs:trial}variant
+    says      namespace 'urn:qualabs:trial' is under urn:qualabs: but not of the declared pattern
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-10a-list-profile-type-static
+    broke     MPD@type of a List-profile MPD set to static (from dist/sgai-spec.md xml#3 (line
+              2338))
+    rule      DR-10a: ISO/IEC 23009-1:2026 §8.14 rules 1 and 2; context/08 DR-10
+    quote     "List MPDs shall have the value of the MPD@type attribute set to "list"."
+    where     /MPD/@type
+    says      MPD@profiles has urn:mpeg:dash:profile:list:2024 and MPD@type is 'static'
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-10b-xlink-in-list-mpd
+    broke     an XLink attribute on a Period of an MPD of type list (from dist/sgai-spec.md xml#34
+              (line 4988))
+    rule      DR-10b: ISO/IEC 23009-1:2026 §5.3.1.4; context/08 DR-10
+    quote     "MPDs of this type shall not use MPD assembly as defined in 5.5, i.e. the attributes
+              from namespace @xlink shall not be present."
+    where     /MPD/Period[1]/@xlink:actuate
+    says      XLink attribute actuate present
+    also      also failed: K-15a, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-1a-non-rfc4337-mime
+    broke     AdaptationSet@mimeType of the SPS sub-MPD set to text/html, a type IETF RFC 4337 does
+              not register (from dist/sgai-spec.md xml#12 (line 3898))
+    rule      DR-1a: ISO/IEC 23009-1:2026 §7.3.1, applied by §8.15.2 ("The rules for the MPD as
+              defined in subclause 7.3 shall apply."); context/08 DR-1
+    quote     "The @mimeType attribute of each Representation shall be provided according to IETF
+              RFC 4337."
+    where     /MPD/Period[1]/AdaptationSet[1]/@mimeType
+    says      @mimeType 'text/html' is not a type registered by IETF RFC 4337 (application/mp4,
+              application/mpeg4-iod, application/mpeg4-iod-xmt, audio/mp4, video/mp4)
+    also      also failed: R12.1a, R13.6a, R24.1, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-1b-type-dynamic
+    broke     MPD@type of the SPS sub-MPD set to dynamic (from dist/sgai-spec.md xml#12 (line 3898))
+    rule      DR-1b: ISO/IEC 23009-1:2026 §8.15.2; context/08 DR-1
+    quote     "The value of MPD@type shall be "static"."
+    where     /MPD/@type
+    says      MPD@type is 'dynamic'; an SPS MPD has MPD@type "static"
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-1c-xlink-on-period
+    broke     an XLink attribute on the Period of the SPS sub-MPD (from dist/sgai-spec.md xml#12
+              (line 3898))
+    rule      DR-1c: ISO/IEC 23009-1:2026 §8.15.2; context/08 DR-1
+    quote     "XLink attributes as defined in subclause 5.5 shall not be present."
+    where     /MPD/Period[1]/@xlink:actuate
+    says      XLink attribute actuate present
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-1d-two-periods
+    broke     a second Period appended to the SPS sub-MPD (from dist/sgai-spec.md xml#13 (line
+              3934))
+    rule      DR-1d: ISO/IEC 23009-1:2026 §8.15.2; context/08 DR-1
+    quote     "One and only one Period element shall be present."
+    where     /MPD/Period
+    says      2 Period elements; exactly one is required
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-1e-availability-start-time
+    broke     MPD@availabilityStartTime added to the SPS sub-MPD (from dist/sgai-spec.md xml#12
+              (line 3898))
+    rule      DR-1e: ISO/IEC 23009-1:2026 §8.15.2; context/08 DR-1
+    quote     "The MPD@availabilityStartTime shall not be present."
+    where     /MPD/@availabilityStartTime
+    says      MPD@availabilityStartTime is present
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-1f-media-presentation-duration
+    broke     MPD@mediaPresentationDuration added to the SPS sub-MPD (from dist/sgai-spec.md xml#12
+              (line 3898))
+    rule      DR-1f: ISO/IEC 23009-1:2026 §8.15.2; context/08 DR-1
+    quote     "The MPD@mediaPresentationDuration attribute shall not be present, but the Period
+              element shall include the @duration attribute to signal the duration of the content."
+    where     /MPD/@mediaPresentationDuration
+    says      MPD@mediaPresentationDuration is present
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-1g-mpd-location
+    broke     an MPD.Location element added to the SPS sub-MPD (from dist/sgai-spec.md xml#12 (line
+              3898))
+    rule      DR-1g: ISO/IEC 23009-1:2026 §8.15.2; context/08 DR-1
+    quote     "The MPD shall not include any of the following attributes or elements: a)
+              MPD.UTCTiming b) MPD.LeapSecondInformation c) MPD.PatchLocation d) MPD.Location e)
+              MPD.ContentProtection f) MPD.ContentSteering g) MPD.Metrics h) MPD.ServiceDescription
+              i) MPD.SupplementalProperty"
+    where     /MPD/Location[1]
+    says      MPD.Location is present
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-1h-imported-mpd
+    broke     a Period.ImportedMPD added to the SPS sub-MPD (from dist/sgai-spec.md xml#12 (line
+              3898))
+    rule      DR-1h: ISO/IEC 23009-1:2026 §8.15.3; context/08 DR-1
+    quote     "Period.ImportedMPD shall not be present."
+    where     /MPD/Period[1]/ImportedMPD[1]
+    says      Period.ImportedMPD is present
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-1i-period-start
+    broke     Period@start of the SPS sub-MPD set to PT5S (from dist/sgai-spec.md xml#12 (line
+              3898))
+    rule      DR-1i: ISO/IEC 23009-1:2026 §8.15.3; context/08 DR-1
+    quote     "Period@start attribute should not be present. If present, its value shall be 0."
+    where     /MPD/Period[1]/@start
+    says      Period@start is 'PT5S', not 0
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-4a-unknown-mpeg-profile
+    broke     MPD@profiles names urn:mpeg:dash:profile:isoff-live:2099, which the 6th edition does
+              not define (from dist/sgai-spec.md xml#10 (line 3809))
+    rule      DR-4a: ISO/IEC 23009-1:2026 §8.1; context/08 DR-4
+    quote     "A profile has an identifier, which is a URI."
+    where     /MPD/@profiles
+    says      urn:mpeg:dash:profile:isoff-live:2099 is in MPEG's profile namespace and the 6th
+              edition defines no such profile
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-5a-adaptationset-profile-not-in-mpd
+    broke     AdaptationSet@profiles names a profile MPD@profiles does not (from dist/sgai-spec.md
+              xml#12 (line 3898))
+    rule      DR-5a: ISO/IEC 23009-1:2026 §5.3.7.2 Table 16, @profiles; context/08 DR-5
+    quote     "The value shall be a subset of the respective value in any higher level of the
+              document hierarchy (Representation, Adaptation Set, MPD)."
+    where     /MPD/Period[1]/AdaptationSet[1]/@profiles
+    says      urn:mpeg:dash:profile:isoff-on-demand:2011 not in the next higher level's profiles
+              (urn:mpeg:dash:profile:sps:2024, urn:mpeg:dash:profile:isoff-live:2011)
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-5b-list-mpd-inline-vtt
+    broke     an inline AdaptationSet with mimeType text/vtt in a List MPD Period (from dist/sgai-
+              spec.md xml#3 (line 2338))
+    rule      DR-5b: ISO/IEC 23009-1:2026 §8.12.4.3, applied to List MPDs by §8.14 (an extension of
+              the CMAF profile); context/08 DR-5
+    quote     "The @mimeType shall be set to "<contentType>/mp4"."
+    where     /MPD/Period[1]/AdaptationSet[1]/@mimeType
+    says      @mimeType 'text/vtt' in a List MPD; the CMAF base requires "text/mp4"
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-7-nonzero-period-no-adaptationset
+    broke     the empty resolution's Period@duration set from PT0S to PT15S (from dist/sgai-spec.md
+              xml#3 (line 2338))
+    rule      DR-7: ISO/IEC 23009-1:2026 §5.3.2.2 Table 4, AdaptationSet; context/08 DR-7
+    quote     "At least one Adaptation Set shall be present in each Period unless the value of the
+              @duration attribute of the Period is set to zero."
+    where     /MPD/Period[1]
+    says      no AdaptationSet and Period@duration is PT15S, not zero
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-DR-9a-essential-on-main-content
+    broke     an EssentialProperty with an SGAI scheme on the main video AdaptationSet: a legacy
+              Player drops the AdaptationSet (from dist/sgai-spec.md xml#10 (line 3809))
+    rule      DR-9a: ISO/IEC 23009-1:2026 §5.8.4.8 NOTE 1; context/08 DR-9 (consequence of DP-3)
+    quote     "If the scheme or the value for this descriptor is not recognized, the DASH Client is
+              expected to ignore the parent element that contains the descriptor."
+    where     /MPD/Period[1]/AdaptationSet[1]/EssentialProperty[1]
+    says      EssentialProperty urn:svta:dash:sgai-overlay:2026 on a AdaptationSet of the primary
+              content: a Player that does not know the scheme ignores the parent (§5.8.4.8 NOTE 1)
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-K-13a-insert-in-dynamic
+    broke     MPD@type of the pre-roll MPD set to dynamic (from dist/sgai-spec.md xml#10 (line
+              3809))
+    rule      K-13a: ISO/IEC 23009-1:2026 §5.16.3
+    quote     "The event shall not appear if the MPD type is "dynamic"."
+    where     /MPD/Period[1]/EventStream[1]/Event[1]
+    says      Alternative MPD Insertion event in an MPD whose @type is "dynamic"
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-K-13b-insert-event-status
+    broke     Event@status on an Alternative MPD Insertion event (from dist/sgai-spec.md xml#10
+              (line 3809))
+    rule      K-13b: ISO/IEC 23009-1:2026 §5.16.3 Table 59, Event@status row
+    quote     "Event@status This attribute shall not be used."
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/@status
+    says      Event@status='update' on an Alternative MPD Insertion event
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-K-14-clip-without-maxduration
+    broke     ReplacePresentation@maxDuration removed while @clip stays (from dist/sgai-spec.md
+              xml#15 (line 4095))
+    rule      K-14: ISO/IEC 23009-1:2026 §5.16.4 Table 62, @clip
+    quote     "This attribute shall not be present if the @maxDuration attribute is absent."
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/ReplacePresentation[1]/@clip
+    says      ReplacePresentation@clip present and @maxDuration absent
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-K-15a-xlink-in-list-profile
+    broke     an XLink attribute on a Period of a List MPD (from dist/sgai-spec.md xml#11 (line
+              3855))
+    rule      K-15a: ISO/IEC 23009-1:2026 §8.14 rule 3
+    quote     "List MPDs shall not contain XLink attributes defined in subclause 5.5."
+    where     /MPD/Period[1]/@xlink:actuate
+    says      XLink attribute actuate present
+    also      also failed: DR-10b, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-K-15b-altmpd-event-in-list
+    broke     an Alternative MPD Insertion EventStream in a List MPD Period (from dist/sgai-spec.md
+              xml#11 (line 3855))
+    rule      K-15b: ISO/IEC 23009-1:2026 §8.14 rule 5
+    quote     "List MPDs shall not contain Alternative MPD events."
+    where     /MPD/Period[1]/EventStream[1]/@schemeIdUri
+    says      Alternative MPD event stream urn:mpeg:dash:event:alternativeMPD:insert:2025
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-K-20-callback-value-not-1
+    broke     callback EventStream@value set to 2 (from dist/sgai-spec.md xml#12 (line 3898))
+    rule      K-20: ISO/IEC 23009-1:2026 §5.10.4.5.3 Table 47
+    quote     "EventStream@schemeIdUri "urn:mpeg:dash:event:callback:2015" EventStream@value 1"
+    where     /MPD/Period[1]/EventStream[1]/@value
+    says      callback EventStream@value is '2', not "1"
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] dash-K-4a-two-eventstreams-same-scheme
+    broke     a second EventStream with the overlay scheme and no @value in the same Period (from
+              dist/sgai-spec.md xml#18 (line 4262))
+    rule      K-4a: ISO/IEC 23009-1:2026 §5.10.2.1
+    quote     "A Period shall contain at most one EventStream element with the same value of the
+              @schemeIdUri attribute and the value of the @value attribute, i.e. all Events of one
+              type shall be clustered in one Event Stream."
+    where     /MPD/Period[1]/EventStream[2]
+    says      second EventStream with @schemeIdUri='urn:svta:dash:sgai-overlay:2026' and @value=None
+              in this Period (first: /MPD/Period[1]/EventStream[1])
+    also      also failed: R12.1a, R13.6a, R20.2a, R34.1a, R34.9a
+
+  [CAUGHT] dash-K-4b-duplicate-event-id
+    broke     Event@id 2 changed to 1, the id of the Event before it (from dist/sgai-spec.md xml#12
+              (line 3898))
+    rule      K-4b: ISO/IEC 23009-1:2026 §5.10.2.2 Table 44, Event@id
+    quote     "Each EventStream element shall not contain two Event elements with the same value of
+              Event@id."
+    where     /MPD/Period[1]/EventStream[1]/Event[2]/@id
+    says      Event@id '1' already used by /MPD/Period[1]/EventStream[1]/Event[1] in the same
+              EventStream
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R12.1a-token-dropped
+    broke     the overlay-corner enumeration removed from LayoutTokenType (from dist/sgai-spec.md
+              xml#9 (line 2831))
+    rule      R12.1a: context/03 R12.1
+    quote     "- **R12.1** (spec document): The accepted ad-type and visual-placement values are
+              exactly those enumerated in this requirement, each mapped to its IAB definition, plus
+              the optional `custom` overlay layout of R39, which is the one value with no IAB
+              counterpart. The spec MUST NOT accept a value outside the enumeration, and MUST cite
+              the IAB source for the values it accepts."
+    where     /schema/complexType[5]/attribute[4]
+    says      RenderableAsset@layout: missing overlay-corner, squeezeback-frame
+    also      also failed: R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R12.2-bare-squeezeback-token
+    broke     allowed layout squeezeback-l-shape-upper-left replaced by the bare squeezeback (from
+              dist/sgai-spec.md xml#39 (line 5189))
+    rule      R12.2: context/03 R12.2
+    quote     "- **R12.2** (Publisher): Publishers declaring allowed layouts MUST use only these
+              tokens, which are the complete list: `linear`, `overlay`, `overlay-corner`, `overlay-
+              lower-third`, `squeezeback-l-shape-upper-left`, `squeezeback-l-shape-upper-right`,
+              `squeezeback-double-box`, `squeezeback-double-box-background`, `squeezeback-frame`,
+              `pause-fullscreen`, `pause-partial`, and the optional `custom` (R39). Every token
+              except `custom` names one IAB ad type or visual placement; the IAB catalogue holds
+              many more, and none of them is admissible. The bare `squeezeback` and `pause` are not
+              tokens, because neither says which composition the Player builds. Publisher-private
+              layout names MUST NOT appear in the allowed-layouts declaration on the slot either."
+    where     /MPD/Period[1]/EventStream[2]/Event[1]/OverlayPresentation[1]
+    says      @allowedLayouts lists squeezeback, outside the R12.2 tokens
+    also      also failed: E-3, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R12.3-private-layout
+    broke     layout overlay-corner -> overlay-top-right (from dist/sgai-spec.md xml#19 (line 4312))
+    rule      R12.3: context/03 R12.3
+    quote     "- **R12.3** (APS): The ad-type set originates in the ADS's decision. The APS MUST NOT
+              emit, in the resolution document, form metadata for an ad type or visual placement
+              outside the enumerated set. Conformance is checked against the APS's resolution
+              document, not against the ADS's internal decision document."
+    where     /OverlayList/Ad[2]/RenderableAsset[3]
+    says      @layout='overlay-top-right' is outside the R12.2 tokens
+    also      also failed: E-3, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R13.1a-tracking-not-callback
+    broke     the tracking carrier's scheme is not the callback scheme (from dist/sgai-spec.md
+              xml#58 (line 6060))
+    rule      R13.1a: context/03 R13.1
+    quote     "- **R13.1** (APS): When the resolution document carries tracking instructions bound
+              to a time, the APS MUST express them as DASH callback events — `<Event>` entries
+              inside an `<EventStream>` of scheme `urn:mpeg:dash:event:callback:2015` in the ad
+              `MPD` or sub-`MPD` (or an equivalent baseline DASH construct) — translating the
+              tracking events the ADS declared in its decision document. Their times are relative to
+              **the presentation of the candidate that hosts them**: an `<EventStream>` hosted as
+              foreign-namespace open content inside a candidate is timed against that candidate's
+              own presentation, not against a `<Period>` the element does not sit in. Each beacon
+              MUST fire when the presentation of its ad reaches its time, which is how the ADS's
+              schedule is executed. Conformance is checked against the resolution document alone: it
+              fixes the form the instructions take and the timebase they use, and it does not reveal
+              how many beacons the ADS declared."
+    where     /OverlayList/Ad[1]/Tracking[1]
+    says      tracking carrier of scheme 'urn:example:tracking:2026', not
+              urn:mpeg:dash:event:callback:2015
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R13.6a-option-without-tracking
+    broke     none: the published schema already gives the option no tracking carrier; the positive
+              in the test adds it (from dist/sgai-spec.md xml#9 (line 2831))
+    rule      R13.6a: context/03 R13.6
+    quote     "- **R13.6** (APS): Beacons MAY be attached to a single presentation option instead of
+              to the candidate. A beacon attached to an option reports that option: it MUST fire
+              only when that option is presented, and MUST NOT fire for an option that was not. A
+              beacon attached to the candidate fires whichever option is presented. This is what
+              lets the ADS learn which of the formats the advertiser allowed (R5.8) was shown."
+    where     /schema/complexType[5]
+    says      <RenderableAsset> cannot carry Tracking: context/06 attaches a beacon to one option by
+              placing the candidate's tracking carrier on the option
+    also      also failed: R12.1a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R15.2a-javascript-creative
+    broke     mimeType text/html -> application/javascript (from dist/sgai-spec.md xml#19 (line
+              4312))
+    rule      R15.2a: context/03 R15.2
+    quote     "- **R15.2** (APS + Publisher): Ad candidates in the resolution document the APS
+              produces (carrying the creatives the ADS selected) and forms declared by the Publisher
+              MUST carry a creative whose mimeType falls under one of the three admissible
+              categories defined above. The admissible set originates in the ADS's decision;
+              conformance is checked against the APS's resolution document and the Publisher's
+              declaration, not against the ADS's internal decision document."
+    where     /OverlayList/Ad[1]/RenderableAsset[2]
+    says      @mimeType='application/javascript' is not video, image or HTML
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R19.3a-html-without-duration
+    broke     @duration removed from the HTML option (from dist/sgai-spec.md xml#19 (line 4312))
+    rule      R19.3a: context/03 R19.3
+    quote     "- **R19.3** (spec document): A form's declared duration is a value on the
+              presentation timeline for **every** form, including those with no intrinsic media —
+              `image` and `html`. Its effective on-screen (wall-clock) length MUST be `duration /
+              playback_speed`, not the raw `duration` value; the cap (R4.11) and the beacon schedule
+              (R13.1) operate on the presentation-timeline `duration`."
+    where     /OverlayList/Ad[1]/RenderableAsset[2]
+    says      text/html option declares no @duration
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R20.2a-two-overlay-streams
+    broke     the overlay stream split in two streams of the same scheme (from dist/sgai-spec.md
+              xml#59 (line 6118))
+    rule      R20.2a: context/03 R20.2
+    quote     "- **R20.2** (Publisher): All opportunity windows of one family that share a `Period`
+              MUST be authored as `<Event>` entries inside a **single** `<EventStream>`. DASH admits
+              at most one `EventStream` per `Period` for a given scheme and `@value` — §5.10.2.1:
+              *"A Period shall contain at most one EventStream element with the same value of the
+              @schemeIdUri attribute and the value of the @value attribute, i.e. all Events of one
+              type shall be clustered in one Event Stream"*. An `EventStream` carrying an SGAI
+              scheme carries no `@value` ([`06-naming-and-namespaces.md`](./06-naming-and-
+              namespaces.md) defines no value space for these schemes), so every stream of one SGAI
+              scheme in a `Period` has the same pair, and two sibling streams carrying it are not a
+              conformant document."
+    where     /MPD/Period[1]/EventStream[2]
+    says      second EventStream of urn:svta:dash:sgai-overlay:2026 in this Period
+    also      also failed: K-4a, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R20.2b-value-on-overlay-stream
+    broke     @value added to the overlay EventStream (from dist/sgai-spec.md xml#39 (line 5189))
+    rule      R20.2b: context/03 R20.2
+    quote     "- **R20.2** (Publisher): All opportunity windows of one family that share a `Period`
+              MUST be authored as `<Event>` entries inside a **single** `<EventStream>`. DASH admits
+              at most one `EventStream` per `Period` for a given scheme and `@value` — §5.10.2.1:
+              *"A Period shall contain at most one EventStream element with the same value of the
+              @schemeIdUri attribute and the value of the @value attribute, i.e. all Events of one
+              type shall be clustered in one Event Stream"*. An `EventStream` carrying an SGAI
+              scheme carries no `@value` ([`06-naming-and-namespaces.md`](./06-naming-and-
+              namespaces.md) defines no value space for these schemes), so every stream of one SGAI
+              scheme in a `Period` has the same pair, and two sibling streams carrying it are not a
+              conformant document."
+    where     /MPD/Period[1]/EventStream[2]
+    says      @value='1' on an EventStream of an SGAI scheme
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R23.1a-adtitle-dropped
+    broke     the global AdTitle element removed (from dist/sgai-spec.md xml#9 (line 2831))
+    rule      R23.1a: context/03 R23.1
+    quote     "- **R23.1** (spec document): The specification MUST define, in the SVTA Ads WG
+              namespace, the extension elements that carry generic application-level metadata with
+              no native DASH carrier (`AdSystem`, `AdTitle`, etc.), and MUST state that emitting
+              them and reading them are both optional."
+    where     /schema
+    says      no global element AdTitle in the extension namespace
+    also      also failed: E-1, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R24.1-image-adaptationset
+    broke     the sub-MPD's video AdaptationSet @mimeType -> image/png (from dist/sgai-spec.md
+              xml#12 (line 3898))
+    rule      R24.1: context/03 R24.1
+    quote     "- **R24.1** (APS / spec document): When a non-AV ad form (`mediaType ∈ {html, image,
+              ...}`) is carried in the resolution document, the asset URL MUST NOT be expressed as
+              `@mimeType` on an AdaptationSet or Representation reached through any path bound by
+              RFC 4337 (DR-1, DR-5 in [`08-dash-extension-rules.md`](./08-dash-extension-rules.md)).
+              It MUST be carried via one of the §5.2.1 / §5.10 / §5.8.4.x carriers enumerated by
+              DR-6, per R1.2."
+    where     /MPD/Period[1]/AdaptationSet[1]
+    says      non-AV asset as AdaptationSet@mimeType='image/png'
+    also      also failed: DR-1a, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R26.1a-background-missing
+    broke     @background removed from the image double-box-background option (from dist/sgai-
+              spec.md xml#53 (line 5864))
+    rule      R26.1a: context/03 R26.1
+    quote     "- **R26.1** (APS + Publisher): The background element of a side-by-side / double-box
+              layout MUST be carried as a composition attribute of the layout the presentation
+              option declares, not as a separate presentation option (R5). The token says whether it
+              is present (R12.5): an option with `squeezeback-double-box-background` MUST carry one,
+              and an option with `squeezeback-double-box` MUST NOT. The background element is always
+              a still **image** — a branding surface, never a video or a web/HTML surface, so it
+              never adds a video decoder — and it is the advertiser's creative. The primary content
+              and the ad MUST be composed as the two boxes; the background element MUST fill the
+              bands the two boxes leave uncovered, and with no background those bands MUST render as
+              black."
+    where     /OverlayList/Ad[1]/RenderableAsset[2]
+    says      option with layout 'squeezeback-double-box-background' without @background: the token
+              says the background is present
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R26.1b-background-on-double-box
+    broke     @background added to the squeezeback-double-box option (from dist/sgai-spec.md xml#53
+              (line 5864))
+    rule      R26.1b: context/03 R26.1
+    quote     "- **R26.1** (APS + Publisher): The background element of a side-by-side / double-box
+              layout MUST be carried as a composition attribute of the layout the presentation
+              option declares, not as a separate presentation option (R5). The token says whether it
+              is present (R12.5): an option with `squeezeback-double-box-background` MUST carry one,
+              and an option with `squeezeback-double-box` MUST NOT. The background element is always
+              a still **image** — a branding surface, never a video or a web/HTML surface, so it
+              never adds a video decoder — and it is the advertiser's creative. The primary content
+              and the ad MUST be composed as the two boxes; the background element MUST fill the
+              bands the two boxes leave uncovered, and with no background those bands MUST render as
+              black."
+    where     /OverlayList/Ad[1]/RenderableAsset[4]
+    says      option with layout 'squeezeback-double-box' with @background: the token says there is
+              no background
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R27.1a-third-element-on-l-shape
+    broke     @background added to the L-shape option (from dist/sgai-spec.md xml#67 (line 6432))
+    rule      R27.1a: context/03 R27.1
+    quote     "- **R27.1** (APS + Publisher): An L-shape or `squeezeback-frame` presentation option
+              MUST carry exactly one ad creative — the full-frame background creative — as an image,
+              a video, or a web/HTML surface (R15). The shrunk primary content is not a creative the
+              ADS / APS supplies; it is the main content the Player shrinks. The option MUST be
+              composed of those two elements and no third: the ad creative covering the whole frame
+              underneath, and the shrunk primary content on top of it, scaled into the region its
+              `@layout` token denotes (R12.5)."
+    where     /OverlayList/Ad[1]/RenderableAsset[1]
+    says      option with layout 'squeezeback-l-shape-upper-left' with @background: an L-shape or
+              frame carries one creative and no third element
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R28.1a-second-clickthrough
+    broke     a second ClickThrough added to the candidate (from dist/sgai-spec.md xml#58 (line
+              6060))
+    rule      R28.1a: context/03 R28.1
+    quote     "- **R28.1** (APS): When an ad candidate in the resolution document carries a
+              ClickThrough, the ClickThrough URL and any click-tracking URL(s) accompanying it MUST
+              be carried in the normative carrier this specification defines, and not elsewhere.
+              Whether a ClickThrough has any associated click-tracking URL is the advertiser's
+              decision and is not constrained here. Conformance is checked against the resolution
+              document alone: a ClickThrough or a click-tracking URL carried outside the normative
+              carrier is a violation the document shows. When the viewer activates the ClickThrough,
+              its click-tracking URLs MUST fire, and its destination MUST be made available to the
+              viewer by the means the device has. How is up to the Player, as for disclosure
+              (R48.3): opening the destination, showing its URL on screen, or a device-native action
+              all conform."
+    where     /OverlayList/Ad[1]/ClickThrough[2]
+    says      second ClickThrough on one candidate
+    also      also failed: E-3, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.1a-unreserved-sgai-name
+    broke     sgai-html-over-video renamed sgai-html-overlay (from dist/sgai-spec.md request (line
+              4751))
+    rule      R29.1a: context/03 R29.1
+    quote     "- **R29.1** (spec document): The reserved parameters are those of the two tables
+              below, and no others. They are carried as query parameters on the resolution request;
+              they are defined here and are NOT expressed through the MPD-declared URL-parameter
+              template mechanism of MPEG-DASH 6th edition, whose contents are declared by the
+              content author. The **capability parameters** are each an **input about the device** —
+              what the device, or the Player on it, can do — and not a conclusion about which ad
+              experiences can be served; deriving the second from the first is the APS's. |
+              Parameter | Values | Meaning | |---|---|---| | `sgai-video-decoders` | `1`, `2`, `3` |
+              How many video streams the device can decode and composite at once, the primary
+              content included. `3` means three or more. A second video over the primary content, or
+              beside it, needs `2` or more. | | `sgai-image-over-video` | `1`, `0` | Whether the
+              device can composite an image together with playing video: over it, or around it as in
+              a squeezeback. No image format is named. | | `sgai-html-over-video` | `1`, `0` |
+              Whether the device can composite HTML together with playing video, in the same sense.
+              | | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional
+              `custom` layout (R39). | | `sgai-ad-audio` | `1`, `0` | Whether the device can render
+              an ad's audio in place of the primary content's audio while the primary video keeps
+              playing. It is the capability R41.6 checks an option against. | Codec support is not
+              an axis (OOS-12). *Privacy note:* the capability parameters describe the device, and
+              each one adds to the information that can single out a device or a viewer
+              (fingerprinting). Whether a Player sends them is subject to the privacy and personal-
+              data policies that apply to whoever deploys it; this specification requires none of
+              them (DP-4). The **slot parameters** each carry a value the slot declares in the
+              `MPD`, so that the APS answers within what the Publisher allows. | Parameter | Value |
+              Meaning | |---|---|---| | `sgai-allowed-layouts` | The slot's declared allowed layouts
+              (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). | | `sgai-
+              custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a
+              `custom` option's rectangle lies in (R39.4). | | `sgai-ad-audio-allowed` | `1`: the
+              slot declares the ad-audio allowance (R41.2). | The APS may return an option that
+              declares its audio (R41.5). |"
+    where     query parameter 'sgai-html-overlay'
+    says      'sgai-html-overlay' is not one of the reserved parameters of R29.1
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.1b-four-decoders
+    broke     sgai-video-decoders 2 -> 4 (from dist/sgai-spec.md request (line 4751))
+    rule      R29.1b: context/03 R29.1
+    quote     "- **R29.1** (spec document): The reserved parameters are those of the two tables
+              below, and no others. They are carried as query parameters on the resolution request;
+              they are defined here and are NOT expressed through the MPD-declared URL-parameter
+              template mechanism of MPEG-DASH 6th edition, whose contents are declared by the
+              content author. The **capability parameters** are each an **input about the device** —
+              what the device, or the Player on it, can do — and not a conclusion about which ad
+              experiences can be served; deriving the second from the first is the APS's. |
+              Parameter | Values | Meaning | |---|---|---| | `sgai-video-decoders` | `1`, `2`, `3` |
+              How many video streams the device can decode and composite at once, the primary
+              content included. `3` means three or more. A second video over the primary content, or
+              beside it, needs `2` or more. | | `sgai-image-over-video` | `1`, `0` | Whether the
+              device can composite an image together with playing video: over it, or around it as in
+              a squeezeback. No image format is named. | | `sgai-html-over-video` | `1`, `0` |
+              Whether the device can composite HTML together with playing video, in the same sense.
+              | | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional
+              `custom` layout (R39). | | `sgai-ad-audio` | `1`, `0` | Whether the device can render
+              an ad's audio in place of the primary content's audio while the primary video keeps
+              playing. It is the capability R41.6 checks an option against. | Codec support is not
+              an axis (OOS-12). *Privacy note:* the capability parameters describe the device, and
+              each one adds to the information that can single out a device or a viewer
+              (fingerprinting). Whether a Player sends them is subject to the privacy and personal-
+              data policies that apply to whoever deploys it; this specification requires none of
+              them (DP-4). The **slot parameters** each carry a value the slot declares in the
+              `MPD`, so that the APS answers within what the Publisher allows. | Parameter | Value |
+              Meaning | |---|---|---| | `sgai-allowed-layouts` | The slot's declared allowed layouts
+              (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). | | `sgai-
+              custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a
+              `custom` option's rectangle lies in (R39.4). | | `sgai-ad-audio-allowed` | `1`: the
+              slot declares the ad-audio allowance (R41.2). | The APS may return an option that
+              declares its audio (R41.5). |"
+    where     query parameter 'sgai-video-decoders'
+    says      sgai-video-decoders='4': values are 1, 2, 3
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.1c-image-yes
+    broke     sgai-image-over-video 1 -> yes (from dist/sgai-spec.md request (line 4751))
+    rule      R29.1c: context/03 R29.1
+    quote     "- **R29.1** (spec document): The reserved parameters are those of the two tables
+              below, and no others. They are carried as query parameters on the resolution request;
+              they are defined here and are NOT expressed through the MPD-declared URL-parameter
+              template mechanism of MPEG-DASH 6th edition, whose contents are declared by the
+              content author. The **capability parameters** are each an **input about the device** —
+              what the device, or the Player on it, can do — and not a conclusion about which ad
+              experiences can be served; deriving the second from the first is the APS's. |
+              Parameter | Values | Meaning | |---|---|---| | `sgai-video-decoders` | `1`, `2`, `3` |
+              How many video streams the device can decode and composite at once, the primary
+              content included. `3` means three or more. A second video over the primary content, or
+              beside it, needs `2` or more. | | `sgai-image-over-video` | `1`, `0` | Whether the
+              device can composite an image together with playing video: over it, or around it as in
+              a squeezeback. No image format is named. | | `sgai-html-over-video` | `1`, `0` |
+              Whether the device can composite HTML together with playing video, in the same sense.
+              | | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional
+              `custom` layout (R39). | | `sgai-ad-audio` | `1`, `0` | Whether the device can render
+              an ad's audio in place of the primary content's audio while the primary video keeps
+              playing. It is the capability R41.6 checks an option against. | Codec support is not
+              an axis (OOS-12). *Privacy note:* the capability parameters describe the device, and
+              each one adds to the information that can single out a device or a viewer
+              (fingerprinting). Whether a Player sends them is subject to the privacy and personal-
+              data policies that apply to whoever deploys it; this specification requires none of
+              them (DP-4). The **slot parameters** each carry a value the slot declares in the
+              `MPD`, so that the APS answers within what the Publisher allows. | Parameter | Value |
+              Meaning | |---|---|---| | `sgai-allowed-layouts` | The slot's declared allowed layouts
+              (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). | | `sgai-
+              custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a
+              `custom` option's rectangle lies in (R39.4). | | `sgai-ad-audio-allowed` | `1`: the
+              slot declares the ad-audio allowance (R41.2). | The APS may return an option that
+              declares its audio (R41.5). |"
+    where     query parameter 'sgai-image-over-video'
+    says      sgai-image-over-video='yes': values are 1, 0
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.1d-html-true
+    broke     sgai-html-over-video 1 -> true (from dist/sgai-spec.md request (line 4751))
+    rule      R29.1d: context/03 R29.1
+    quote     "- **R29.1** (spec document): The reserved parameters are those of the two tables
+              below, and no others. They are carried as query parameters on the resolution request;
+              they are defined here and are NOT expressed through the MPD-declared URL-parameter
+              template mechanism of MPEG-DASH 6th edition, whose contents are declared by the
+              content author. The **capability parameters** are each an **input about the device** —
+              what the device, or the Player on it, can do — and not a conclusion about which ad
+              experiences can be served; deriving the second from the first is the APS's. |
+              Parameter | Values | Meaning | |---|---|---| | `sgai-video-decoders` | `1`, `2`, `3` |
+              How many video streams the device can decode and composite at once, the primary
+              content included. `3` means three or more. A second video over the primary content, or
+              beside it, needs `2` or more. | | `sgai-image-over-video` | `1`, `0` | Whether the
+              device can composite an image together with playing video: over it, or around it as in
+              a squeezeback. No image format is named. | | `sgai-html-over-video` | `1`, `0` |
+              Whether the device can composite HTML together with playing video, in the same sense.
+              | | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional
+              `custom` layout (R39). | | `sgai-ad-audio` | `1`, `0` | Whether the device can render
+              an ad's audio in place of the primary content's audio while the primary video keeps
+              playing. It is the capability R41.6 checks an option against. | Codec support is not
+              an axis (OOS-12). *Privacy note:* the capability parameters describe the device, and
+              each one adds to the information that can single out a device or a viewer
+              (fingerprinting). Whether a Player sends them is subject to the privacy and personal-
+              data policies that apply to whoever deploys it; this specification requires none of
+              them (DP-4). The **slot parameters** each carry a value the slot declares in the
+              `MPD`, so that the APS answers within what the Publisher allows. | Parameter | Value |
+              Meaning | |---|---|---| | `sgai-allowed-layouts` | The slot's declared allowed layouts
+              (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). | | `sgai-
+              custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a
+              `custom` option's rectangle lies in (R39.4). | | `sgai-ad-audio-allowed` | `1`: the
+              slot declares the ad-audio allowance (R41.2). | The APS may return an option that
+              declares its audio (R41.5). |"
+    where     query parameter 'sgai-html-over-video'
+    says      sgai-html-over-video='true': values are 1, 0
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.1e-custom-layout-2
+    broke     sgai-custom-layout 1 -> 2 (from dist/sgai-spec.md request (line 6958))
+    rule      R29.1e: context/03 R29.1
+    quote     "- **R29.1** (spec document): The reserved parameters are those of the two tables
+              below, and no others. They are carried as query parameters on the resolution request;
+              they are defined here and are NOT expressed through the MPD-declared URL-parameter
+              template mechanism of MPEG-DASH 6th edition, whose contents are declared by the
+              content author. The **capability parameters** are each an **input about the device** —
+              what the device, or the Player on it, can do — and not a conclusion about which ad
+              experiences can be served; deriving the second from the first is the APS's. |
+              Parameter | Values | Meaning | |---|---|---| | `sgai-video-decoders` | `1`, `2`, `3` |
+              How many video streams the device can decode and composite at once, the primary
+              content included. `3` means three or more. A second video over the primary content, or
+              beside it, needs `2` or more. | | `sgai-image-over-video` | `1`, `0` | Whether the
+              device can composite an image together with playing video: over it, or around it as in
+              a squeezeback. No image format is named. | | `sgai-html-over-video` | `1`, `0` |
+              Whether the device can composite HTML together with playing video, in the same sense.
+              | | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional
+              `custom` layout (R39). | | `sgai-ad-audio` | `1`, `0` | Whether the device can render
+              an ad's audio in place of the primary content's audio while the primary video keeps
+              playing. It is the capability R41.6 checks an option against. | Codec support is not
+              an axis (OOS-12). *Privacy note:* the capability parameters describe the device, and
+              each one adds to the information that can single out a device or a viewer
+              (fingerprinting). Whether a Player sends them is subject to the privacy and personal-
+              data policies that apply to whoever deploys it; this specification requires none of
+              them (DP-4). The **slot parameters** each carry a value the slot declares in the
+              `MPD`, so that the APS answers within what the Publisher allows. | Parameter | Value |
+              Meaning | |---|---|---| | `sgai-allowed-layouts` | The slot's declared allowed layouts
+              (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). | | `sgai-
+              custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a
+              `custom` option's rectangle lies in (R39.4). | | `sgai-ad-audio-allowed` | `1`: the
+              slot declares the ad-audio allowance (R41.2). | The APS may return an option that
+              declares its audio (R41.5). |"
+    where     query parameter 'sgai-custom-layout'
+    says      sgai-custom-layout='2': values are 1, 0
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.1f-ad-audio-on
+    broke     sgai-ad-audio=on added (from dist/sgai-spec.md request (line 4751))
+    rule      R29.1f: context/03 R29.1
+    quote     "- **R29.1** (spec document): The reserved parameters are those of the two tables
+              below, and no others. They are carried as query parameters on the resolution request;
+              they are defined here and are NOT expressed through the MPD-declared URL-parameter
+              template mechanism of MPEG-DASH 6th edition, whose contents are declared by the
+              content author. The **capability parameters** are each an **input about the device** —
+              what the device, or the Player on it, can do — and not a conclusion about which ad
+              experiences can be served; deriving the second from the first is the APS's. |
+              Parameter | Values | Meaning | |---|---|---| | `sgai-video-decoders` | `1`, `2`, `3` |
+              How many video streams the device can decode and composite at once, the primary
+              content included. `3` means three or more. A second video over the primary content, or
+              beside it, needs `2` or more. | | `sgai-image-over-video` | `1`, `0` | Whether the
+              device can composite an image together with playing video: over it, or around it as in
+              a squeezeback. No image format is named. | | `sgai-html-over-video` | `1`, `0` |
+              Whether the device can composite HTML together with playing video, in the same sense.
+              | | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional
+              `custom` layout (R39). | | `sgai-ad-audio` | `1`, `0` | Whether the device can render
+              an ad's audio in place of the primary content's audio while the primary video keeps
+              playing. It is the capability R41.6 checks an option against. | Codec support is not
+              an axis (OOS-12). *Privacy note:* the capability parameters describe the device, and
+              each one adds to the information that can single out a device or a viewer
+              (fingerprinting). Whether a Player sends them is subject to the privacy and personal-
+              data policies that apply to whoever deploys it; this specification requires none of
+              them (DP-4). The **slot parameters** each carry a value the slot declares in the
+              `MPD`, so that the APS answers within what the Publisher allows. | Parameter | Value |
+              Meaning | |---|---|---| | `sgai-allowed-layouts` | The slot's declared allowed layouts
+              (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). | | `sgai-
+              custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a
+              `custom` option's rectangle lies in (R39.4). | | `sgai-ad-audio-allowed` | `1`: the
+              slot declares the ad-audio allowance (R41.2). | The APS may return an option that
+              declares its audio (R41.5). |"
+    where     query parameter 'sgai-ad-audio'
+    says      sgai-ad-audio='on': values are 1, 0
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.1g-bare-pause-token
+    broke     allowed layout pause-partial -> bare pause (from dist/sgai-spec.md request (line
+              4751))
+    rule      R29.1g: context/03 R29.1
+    quote     "- **R29.1** (spec document): The reserved parameters are those of the two tables
+              below, and no others. They are carried as query parameters on the resolution request;
+              they are defined here and are NOT expressed through the MPD-declared URL-parameter
+              template mechanism of MPEG-DASH 6th edition, whose contents are declared by the
+              content author. The **capability parameters** are each an **input about the device** —
+              what the device, or the Player on it, can do — and not a conclusion about which ad
+              experiences can be served; deriving the second from the first is the APS's. |
+              Parameter | Values | Meaning | |---|---|---| | `sgai-video-decoders` | `1`, `2`, `3` |
+              How many video streams the device can decode and composite at once, the primary
+              content included. `3` means three or more. A second video over the primary content, or
+              beside it, needs `2` or more. | | `sgai-image-over-video` | `1`, `0` | Whether the
+              device can composite an image together with playing video: over it, or around it as in
+              a squeezeback. No image format is named. | | `sgai-html-over-video` | `1`, `0` |
+              Whether the device can composite HTML together with playing video, in the same sense.
+              | | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional
+              `custom` layout (R39). | | `sgai-ad-audio` | `1`, `0` | Whether the device can render
+              an ad's audio in place of the primary content's audio while the primary video keeps
+              playing. It is the capability R41.6 checks an option against. | Codec support is not
+              an axis (OOS-12). *Privacy note:* the capability parameters describe the device, and
+              each one adds to the information that can single out a device or a viewer
+              (fingerprinting). Whether a Player sends them is subject to the privacy and personal-
+              data policies that apply to whoever deploys it; this specification requires none of
+              them (DP-4). The **slot parameters** each carry a value the slot declares in the
+              `MPD`, so that the APS answers within what the Publisher allows. | Parameter | Value |
+              Meaning | |---|---|---| | `sgai-allowed-layouts` | The slot's declared allowed layouts
+              (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). | | `sgai-
+              custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a
+              `custom` option's rectangle lies in (R39.4). | | `sgai-ad-audio-allowed` | `1`: the
+              slot declares the ad-audio allowance (R41.2). | The APS may return an option that
+              declares its audio (R41.5). |"
+    where     query parameter 'sgai-allowed-layouts'
+    says      sgai-allowed-layouts='pause-fullscreen pause': the slot's declared allowed layouts,
+              R12.2 tokens
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.1h-three-number-region
+    broke     custom region with three numbers (from dist/sgai-spec.md request (line 6958))
+    rule      R29.1h: context/03 R29.1
+    quote     "- **R29.1** (spec document): The reserved parameters are those of the two tables
+              below, and no others. They are carried as query parameters on the resolution request;
+              they are defined here and are NOT expressed through the MPD-declared URL-parameter
+              template mechanism of MPEG-DASH 6th edition, whose contents are declared by the
+              content author. The **capability parameters** are each an **input about the device** —
+              what the device, or the Player on it, can do — and not a conclusion about which ad
+              experiences can be served; deriving the second from the first is the APS's. |
+              Parameter | Values | Meaning | |---|---|---| | `sgai-video-decoders` | `1`, `2`, `3` |
+              How many video streams the device can decode and composite at once, the primary
+              content included. `3` means three or more. A second video over the primary content, or
+              beside it, needs `2` or more. | | `sgai-image-over-video` | `1`, `0` | Whether the
+              device can composite an image together with playing video: over it, or around it as in
+              a squeezeback. No image format is named. | | `sgai-html-over-video` | `1`, `0` |
+              Whether the device can composite HTML together with playing video, in the same sense.
+              | | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional
+              `custom` layout (R39). | | `sgai-ad-audio` | `1`, `0` | Whether the device can render
+              an ad's audio in place of the primary content's audio while the primary video keeps
+              playing. It is the capability R41.6 checks an option against. | Codec support is not
+              an axis (OOS-12). *Privacy note:* the capability parameters describe the device, and
+              each one adds to the information that can single out a device or a viewer
+              (fingerprinting). Whether a Player sends them is subject to the privacy and personal-
+              data policies that apply to whoever deploys it; this specification requires none of
+              them (DP-4). The **slot parameters** each carry a value the slot declares in the
+              `MPD`, so that the APS answers within what the Publisher allows. | Parameter | Value |
+              Meaning | |---|---|---| | `sgai-allowed-layouts` | The slot's declared allowed layouts
+              (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). | | `sgai-
+              custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a
+              `custom` option's rectangle lies in (R39.4). | | `sgai-ad-audio-allowed` | `1`: the
+              slot declares the ad-audio allowance (R41.2). | The APS may return an option that
+              declares its audio (R41.5). |"
+    where     query parameter 'sgai-custom-region'
+    says      sgai-custom-region='60 5 35': the slot's declared custom region, four percentages
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.1i-ad-audio-allowed-0
+    broke     sgai-ad-audio-allowed=0 added (from dist/sgai-spec.md request (line 6958))
+    rule      R29.1i: context/03 R29.1
+    quote     "- **R29.1** (spec document): The reserved parameters are those of the two tables
+              below, and no others. They are carried as query parameters on the resolution request;
+              they are defined here and are NOT expressed through the MPD-declared URL-parameter
+              template mechanism of MPEG-DASH 6th edition, whose contents are declared by the
+              content author. The **capability parameters** are each an **input about the device** —
+              what the device, or the Player on it, can do — and not a conclusion about which ad
+              experiences can be served; deriving the second from the first is the APS's. |
+              Parameter | Values | Meaning | |---|---|---| | `sgai-video-decoders` | `1`, `2`, `3` |
+              How many video streams the device can decode and composite at once, the primary
+              content included. `3` means three or more. A second video over the primary content, or
+              beside it, needs `2` or more. | | `sgai-image-over-video` | `1`, `0` | Whether the
+              device can composite an image together with playing video: over it, or around it as in
+              a squeezeback. No image format is named. | | `sgai-html-over-video` | `1`, `0` |
+              Whether the device can composite HTML together with playing video, in the same sense.
+              | | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional
+              `custom` layout (R39). | | `sgai-ad-audio` | `1`, `0` | Whether the device can render
+              an ad's audio in place of the primary content's audio while the primary video keeps
+              playing. It is the capability R41.6 checks an option against. | Codec support is not
+              an axis (OOS-12). *Privacy note:* the capability parameters describe the device, and
+              each one adds to the information that can single out a device or a viewer
+              (fingerprinting). Whether a Player sends them is subject to the privacy and personal-
+              data policies that apply to whoever deploys it; this specification requires none of
+              them (DP-4). The **slot parameters** each carry a value the slot declares in the
+              `MPD`, so that the APS answers within what the Publisher allows. | Parameter | Value |
+              Meaning | |---|---|---| | `sgai-allowed-layouts` | The slot's declared allowed layouts
+              (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). | | `sgai-
+              custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a
+              `custom` option's rectangle lies in (R39.4). | | `sgai-ad-audio-allowed` | `1`: the
+              slot declares the ad-audio allowance (R41.2). | The APS may return an option that
+              declares its audio (R41.5). |"
+    where     query parameter 'sgai-ad-audio-allowed'
+    says      sgai-ad-audio-allowed='0': the only value is 1
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.1j-reserved-in-requestparam
+    broke     a RequestParam naming a reserved parameter added at MPD level (from dist/sgai-spec.md
+              xml#39 (line 5189))
+    rule      R29.1j: context/03 R29.1
+    quote     "- **R29.1** (spec document): The reserved parameters are those of the two tables
+              below, and no others. They are carried as query parameters on the resolution request;
+              they are defined here and are NOT expressed through the MPD-declared URL-parameter
+              template mechanism of MPEG-DASH 6th edition, whose contents are declared by the
+              content author. The **capability parameters** are each an **input about the device** —
+              what the device, or the Player on it, can do — and not a conclusion about which ad
+              experiences can be served; deriving the second from the first is the APS's. |
+              Parameter | Values | Meaning | |---|---|---| | `sgai-video-decoders` | `1`, `2`, `3` |
+              How many video streams the device can decode and composite at once, the primary
+              content included. `3` means three or more. A second video over the primary content, or
+              beside it, needs `2` or more. | | `sgai-image-over-video` | `1`, `0` | Whether the
+              device can composite an image together with playing video: over it, or around it as in
+              a squeezeback. No image format is named. | | `sgai-html-over-video` | `1`, `0` |
+              Whether the device can composite HTML together with playing video, in the same sense.
+              | | `sgai-custom-layout` | `1`, `0` | Whether the Player supports the optional
+              `custom` layout (R39). | | `sgai-ad-audio` | `1`, `0` | Whether the device can render
+              an ad's audio in place of the primary content's audio while the primary video keeps
+              playing. It is the capability R41.6 checks an option against. | Codec support is not
+              an axis (OOS-12). *Privacy note:* the capability parameters describe the device, and
+              each one adds to the information that can single out a device or a viewer
+              (fingerprinting). Whether a Player sends them is subject to the privacy and personal-
+              data policies that apply to whoever deploys it; this specification requires none of
+              them (DP-4). The **slot parameters** each carry a value the slot declares in the
+              `MPD`, so that the APS answers within what the Publisher allows. | Parameter | Value |
+              Meaning | |---|---|---| | `sgai-allowed-layouts` | The slot's declared allowed layouts
+              (R38.1), unchanged. | The layouts the APS may return an option in (R38.4). | | `sgai-
+              custom-region` | The slot's declared custom region (R39.2), unchanged. | The region a
+              `custom` option's rectangle lies in (R39.4). | | `sgai-ad-audio-allowed` | `1`: the
+              slot declares the ad-audio allowance (R41.2). | The APS may return an option that
+              declares its audio (R41.5). |"
+    where     /MPD/RequestParam[1]
+    says      @queryString names reserved parameter(s) sgai-video-decoders
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R29.3-empty-reserved
+    broke     sgai-image-over-video sent empty (from dist/sgai-spec.md request (line 4751))
+    rule      R29.3: context/03 R29.3
+    quote     "- **R29.3** (Player): When the Player has no value for a reserved parameter, or does
+              not disclose its value, the Player MUST omit that parameter entirely rather than send
+              it with an empty or placeholder value."
+    where     query parameter 'sgai-image-over-video'
+    says      sgai-image-over-video sent with an empty value
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R31.1-pause-window-no-duration
+    broke     Event@duration removed from the pause window (from dist/sgai-spec.md xml#39 (line
+              5189))
+    rule      R31.1: context/03 R31.1
+    quote     "- **R31.1** (spec document): A viewer pause that begins inside a pause opportunity
+              window MUST trigger a resolution request for that window, and a pause that begins
+              outside every such window MUST NOT trigger one."
+    where     /MPD/Period[1]/EventStream[3]/Event[1]
+    says      pause window declares no range: its Event has no @duration
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R32.1a-pause-without-exhaustion
+    broke     @onExhausted removed from a pause document (from dist/sgai-spec.md xml#29 (line 4764))
+    rule      R32.1a: context/03 R32.1
+    quote     "- **R32.1** (APS): A resolution document for a pause slot MUST declare which of three
+              behaviours applies once its candidates are exhausted while the viewer is still paused:
+              - **`repeat`** — the sequence is presented again from the start, for as long as the
+              pause lasts; - **`request-again`** — a new resolution document is requested for the
+              same pause; - **`stop`** — no further ad is presented; the paused primary frame is
+              shown. A document that declares none means `stop`, and `stop` MUST then apply."
+    where     /OverlayList
+    says      pause document without @onExhausted
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R33.4-no-playlist-metric
+    broke     Metrics@metrics PlayList -> BufferLevel (from dist/sgai-spec.md xml#39 (line 5189))
+    rule      R33.4: context/03 R33.4
+    quote     "- **R33.4** (Publisher): Content carrying pause opportunity windows MUST request the
+              `PlayList` metric through the base specification's `Metrics` element, in the `MPD`
+              that declares the windows. An alternative presentation that declares pause windows of
+              its own (R40.6) requests the metric in its own `MPD`; the request of the presentation
+              that triggered it does not cover it. Collection is triggered by the service provider
+              and not by the Player — *"The trigger mechanism is based on the `Metrics` element in
+              the MPD"* (§5.9.1) — so without this declaration R33.2 defines how to derive a
+              quantity that nothing obliges anyone to collect."
+    where     /MPD
+    says      1 pause window(s) and no Metrics requesting PlayList at MPD level
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R34.1a-executeonce-dropped-on-pause
+    broke     @executeOnce removed from PauseAdPresentationType (from dist/sgai-spec.md xml#9 (line
+              2831))
+    rule      R34.1a: context/03 R34.1
+    quote     "- **R34.1** (Publisher): The Publisher MAY declare an overlay, squeezeback or pause
+              opportunity window as once-per-session. The declaration is optional; a window that
+              does not carry it is executed each time the playhead enters it (R34.6), and a pause
+              window that does not carry it yields a pause ad on every qualifying pause. The
+              declaration means: - on an overlay or squeezeback window, once the window is consumed
+              (R34.3), every later entry of the playhead into the window's range MUST leave the
+              primary content uninterrupted and MUST fire none of the window's beacons; - on a pause
+              window, at most one pause ad MUST be presented for that window for the duration of the
+              session, and a later qualifying pause inside the same window MUST leave the primary
+              content uninterrupted."
+    where     /schema/complexType[2]
+    says      <PauseAdPresentation> cannot carry executeOnce: context/06 carries the once-per-
+              session declaration as @executeOnce on overlay and pause windows
+    also      also failed: R12.1a, R13.6a, R34.9a
+
+  [CAUGHT] spec-R34.9a-no-startwithoffset
+    broke     none: the published schema already gives the overlay window no @startWithOffset; the
+              positive in the test adds it (from dist/sgai-spec.md xml#9 (line 2831))
+    rule      R34.9a: context/03 R34.9
+    quote     "- **R34.9** (Publisher): The Publisher MAY declare, on an overlay or squeezeback
+              window, that a late execution starts with an offset. An execution that begins after
+              the window's start MUST present the sequence of candidates (R7.1) from its first
+              candidate when the window does not declare it; when it does, the execution MUST begin
+              at the point of the sequence that lies as far from its start as the execution lies
+              from the window's start, and the candidates that end before that point are not
+              presented. In both cases the execution ends no later than the window does (R40)."
+    where     /schema/complexType[1]
+    says      <OverlayPresentation> cannot carry startWithOffset: context/06 carries the late-
+              execution offset as @startWithOffset on overlay windows
+    also      also failed: R12.1a, R13.6a, R34.1a
+
+  [CAUGHT] spec-R35.1-no-dismissal-declaration
+    broke     @dismissAfter removed (from dist/sgai-spec.md xml#19 (line 4312))
+    rule      R35.1: context/03 R35.1
+    quote     "- **R35.1** (APS): The APS MUST declare, for each overlay or pause slot it resolves,
+              whether the viewer may dismiss it. A resolution document that does not declare it
+              leaves the slot non-dismissible: the capability is granted and never assumed."
+    where     /OverlayList
+    says      no @dismissAfter: the APS declares dismissibility
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R35.2-negative-dismissal-delay
+    broke     dismissAfter PT5S -> -PT5S (from dist/sgai-spec.md xml#19 (line 4312))
+    rule      R35.2: context/03 R35.2
+    quote     "- **R35.2** (APS): Where dismissal is allowed, the APS MUST declare the number of
+              seconds that MUST elapse, from the moment the slot begins rendering, before the viewer
+              may dismiss it. Before that delay has elapsed the slot MUST NOT be dismissible; once
+              it has, the slot MUST be dismissible for as long as it is on screen. A declared delay
+              of zero means the slot is dismissible immediately."
+    where     /OverlayList
+    says      @dismissAfter='-PT5S' is a negative delay
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R35.8-dismissal-on-list-mpd
+    broke     svta:dismissAfter added to a List MPD candidate (from dist/sgai-spec.md xml#11 (line
+              3855))
+    rule      R35.8: context/03 R35.8
+    quote     "- **R35.8** (spec document): On a linear slot, the base specification's own skip
+              declaration and its default MUST govern the slot, as the base specification defines
+              them: where nothing is declared, the base default applies and the slot is skippable as
+              the base specification makes it. R35.1's default does not apply to a linear slot. This
+              is R1.5 applied: a Player of this specification and a base Player treat the same
+              linear event the same way. The base specification has two skip controls — `@skipAfter`
+              on the alternative-presentation events and `@skipAfter` in the service description's
+              playback restrictions — and states no precedence between them when both apply to one
+              ad; this specification adds none."
+    where     /MPD/Period[1]
+    says      @dismissAfter on a linear slot
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R36.1a-earliest-dropped-on-overlay
+    broke     @earliestResolutionTimeOffset removed from OverlayPresentationType (from dist/sgai-
+              spec.md xml#9 (line 2831))
+    rule      R36.1a: context/03 R36.1
+    quote     "- **R36.1** (Publisher): The Publisher MAY declare, on an overlay or pause
+              opportunity window, how far ahead of it a Player may resolve. The offset — declared,
+              or the default — is the earliest a resolution may be requested, measured from the
+              start of the window: a resolution MUST NOT be requested earlier than the offset before
+              the start of the window. On a pause window too the offset is measured from the start
+              of the window, and never from the pause, which has no authored time (R31). A window
+              that declares nothing may be resolved up to 60 seconds ahead, the base specification's
+              default for early resolution. An offset of zero means the window is resolved only when
+              it fires."
+    where     /schema/complexType[1]
+    says      <OverlayPresentation> cannot carry earliestResolutionTimeOffset: context/06 carries
+              the early-resolution offset as @earliestResolutionTimeOffset on overlay and pause
+              windows
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R36.4-negative-validity
+    broke     validFor PT2M -> -PT2M (from dist/sgai-spec.md xml#19 (line 4312))
+    rule      R36.4: context/03 R36.4
+    quote     "- **R36.4** (APS): Where a resolution may have been obtained ahead of the
+              opportunity, the APS MUST declare how long that resolution remains usable. Its
+              candidates may be presented until then, and MUST NOT be presented once it has expired.
+              A resolution document that does not declare it remains usable for the execution it was
+              obtained for (R34.6)."
+    where     /OverlayList
+    says      @validFor='-PT2M' is negative
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R39.1-custom-on-pause-window
+    broke     custom added to the pause window's allowed layouts (from dist/sgai-spec.md xml#28
+              (line 4704))
+    rule      R39.1: context/03 R39.1
+    quote     "- **R39.1** (spec document): Supporting `custom` is OPTIONAL for every actor. The
+              layout carries no IAB ad type; it is the only exception to R12.1's mapping, and the
+              only layout for which this specification defines a position (an exception to R10.2 and
+              R10.3). It applies only to non-linear overlay slots."
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/PauseAdPresentation[1]
+    says      pause window lists `custom` in its allowed layouts
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R39.2a-region-without-custom
+    broke     custom removed from allowed layouts, custom region kept (from dist/sgai-spec.md xml#78
+              (line 6918))
+    rule      R39.2a: context/03 R39.2
+    quote     "- **R39.2** (Publisher): A Publisher that admits `custom` on a slot lists it in
+              `@allowedLayouts`. It MAY also declare a **custom region** on the slot: a rectangle —
+              x, y, width, height, in percent of the video viewport, origin top-left — within which
+              a `custom` overlay must lie. With no region declared, the region is the whole
+              viewport."
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/OverlayPresentation[1]
+    says      @customRegion on a window whose allowed layouts do not list `custom`
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R39.2b-region-beyond-viewport
+    broke     region width 35 -> 45, so x + width = 105 (from dist/sgai-spec.md xml#78 (line 6918))
+    rule      R39.2b: context/03 R39.2
+    quote     "- **R39.2** (Publisher): A Publisher that admits `custom` on a slot lists it in
+              `@allowedLayouts`. It MAY also declare a **custom region** on the slot: a rectangle —
+              x, y, width, height, in percent of the video viewport, origin top-left — within which
+              a `custom` overlay must lie. With no region declared, the region is the whole
+              viewport."
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/OverlayPresentation[1]
+    says      @customRegion='60 5 45 30' is not x y width height inside the 0-100% viewport
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R39.4a-custom-without-rect
+    broke     @rect removed from the custom option (from dist/sgai-spec.md xml#79 (line 6968))
+    rule      R39.4a: context/03 R39.4
+    quote     "- **R39.4** (APS): An option with layout `custom` MUST carry the overlay's rectangle
+              in the same units, and that rectangle MUST lie entirely inside the region it received.
+              It MAY be smaller than the region; it MUST NOT extend beyond it."
+    where     /OverlayList/Ad[1]/RenderableAsset[1]
+    says      option with layout 'custom' without @rect: a custom option carries its rectangle
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R39.4b-rect-beyond-viewport
+    broke     rect width 25 -> 40, x + width = 105 (from dist/sgai-spec.md xml#79 (line 6968))
+    rule      R39.4b: context/03 R39.4
+    quote     "- **R39.4** (APS): An option with layout `custom` MUST carry the overlay's rectangle
+              in the same units, and that rectangle MUST lie entirely inside the region it received.
+              It MAY be smaller than the region; it MUST NOT extend beyond it."
+    where     /OverlayList/Ad[1]/RenderableAsset[1]
+    says      @rect='65 8 40 20' extends beyond the viewport, so beyond any region
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R4.1-pause-window-no-cap
+    broke     @durationCap removed from the pause window (from dist/sgai-spec.md xml#39 (line 5189))
+    rule      R4.1: context/03 R4.1
+    quote     "- **R4.1** (Publisher): The Publisher MUST declare a maximum duration on every
+              overlay and pause slot defined in the `MPD`. On an inherited linear event the maximum
+              is the base specification's `@maxDuration`, which the Publisher MAY omit (R4.8). The
+              maximum is the bound the slot's presentation does not pass: a slot MUST NOT extend
+              beyond what its cap bounds for its family, regardless of ADS metadata or candidate
+              count — a cumulative duration (R4.2), the scheduled end of a replacement (R4.6), and
+              nothing on a pause slot (R31.2)."
+    where     /MPD/Period[1]/EventStream[3]/Event[1]/PauseAdPresentation[1]
+    says      pause window without @durationCap
+    also      also failed: E-3, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R4.6-clip-on-insertion
+    broke     @clip added to the InsertPresentation (from dist/sgai-spec.md xml#39 (line 5189))
+    rule      R4.6: context/03 R4.6
+    quote     "- **R4.6** (spec document): On an inherited linear replacement slot the cap bounds
+              the scheduled end, under the base specification's clip semantics (`@clip`, default
+              `"true"`): the presentation MUST end no later than the scheduled end of the slot, and
+              a late start shortens it rather than moving that end. An event declaring
+              `@clip="false"` ends at `PRTA + APDmax`, later than the scheduled end — the base
+              specification moving the bound, not the Player exceeding it. Insertion has no `@clip`
+              and falls under R4.2."
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/InsertPresentation[1]
+    says      @clip on an InsertPresentation: insertion has no @clip
+    also      also failed: E-3, E-4, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R40.1-pause-window-supersede
+    broke     linearRelation=supersede added to the pause window (from dist/sgai-spec.md xml#39
+              (line 5189))
+    rule      R40.1: context/03 R40.1
+    quote     "- **R40.1** (Publisher): Whether a non-linear window overlaps inherited linear events
+              in time is the Publisher's decision. Declaring a relation on a non-linear window is
+              OPTIONAL. A window declares at most one relation, supersede or on top; a window that
+              declares neither has the default relation. A pause window declares only on top:
+              whether it presents an ad depends on a viewer pause, which is unknown at the
+              presentation time of any linear event it would stand in for."
+    where     /MPD/Period[1]/EventStream[3]/Event[1]/PauseAdPresentation[1]
+    says      pause window declares @linearRelation='supersede'; only on-top is admitted
+    also      also failed: E-3, R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R40.7-extension-attr-on-insertion
+    broke     an extension-namespace attribute added to the InsertPresentation (from dist/sgai-
+              spec.md xml#39 (line 5189))
+    rule      R40.7: context/03 R40.7
+    quote     "- **R40.7** (spec document): The relation is declared on the non-linear window this
+              specification defines. The specification MUST NOT add anything to the inherited linear
+              events to carry it: the same base event means the same thing to every Player. How the
+              declaration is carried is decided under the conventions of [`06-naming-and-
+              namespaces.md`](06-naming-and-namespaces.md)."
+    where     /MPD/Period[1]/EventStream[1]/Event[1]/InsertPresentation[1]
+    says      extension attribute {urn:svta:dash:sgai:2026}linearRelation on <InsertPresentation>
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R40.9a-pause-stream-overlay-window
+    broke     the pause stream's window element is an OverlayPresentation (from dist/sgai-spec.md
+              xml#39 (line 5189))
+    rule      R40.9a: context/03 R40.9
+    quote     "- **R40.9** (spec document): A non-linear window is anchored as follows. An overlay
+              or squeezeback window is anchored to the media-time range it declares: its ad is shown
+              while the presentation that declares it plays through that range, and MUST NOT be
+              shown outside it. A pause window is anchored to the viewer's pause inside its range
+              (R31), and its ad lasts as long as the pause does (R16). The relation a window
+              declares to the inherited linear events it overlaps (R40.1) means: - **default**
+              (nothing declared): the window's forms MUST be presented only while the content of the
+              presentation whose `MPD` declares the window is being output, and every inherited
+              linear event it overlaps MUST be executed with its base semantics. While such an event
+              is being executed, the window MUST NOT be presented and none of its beacons fired; a
+              form on screen when the alternative presentation begins is suspended. When the
+              presentation that declares the window is output again and the playhead is still inside
+              the window's range, the window MUST be resumed in the same execution (R34.6): it is
+              not a new entry, it does not resolve again, and it does not consume a once-per-session
+              window a second time or fire the slot-start beacon again. ADR 0025 records the
+              decision; - **supersede**: the window MUST be presented, and the inherited linear
+              events whose presentation time falls within its span MUST NOT be executed. When the
+              window presents no ad — every attempt to resolve it is a failed execution under R20.1,
+              or the device can render none of its candidates (R5) — those events MUST be executed
+              as the base specification defines; - **on top**: the window MUST be presented also
+              while an alternative presentation that starts within its span is active, composited
+              over that presentation; the inherited linear event executes with its base semantics."
+    where     /MPD/Period[1]/EventStream[3]/Event[1]/OverlayPresentation[1]
+    says      <OverlayPresentation> (family overlay) in a stream of scheme urn:svta:dash:sgai-pause-
+              trigger:2026 (family pause)
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R40.9b-overlay-window-no-duration
+    broke     Event@duration removed from the overlay window (from dist/sgai-spec.md xml#39 (line
+              5189))
+    rule      R40.9b: context/03 R40.9
+    quote     "- **R40.9** (spec document): A non-linear window is anchored as follows. An overlay
+              or squeezeback window is anchored to the media-time range it declares: its ad is shown
+              while the presentation that declares it plays through that range, and MUST NOT be
+              shown outside it. A pause window is anchored to the viewer's pause inside its range
+              (R31), and its ad lasts as long as the pause does (R16). The relation a window
+              declares to the inherited linear events it overlaps (R40.1) means: - **default**
+              (nothing declared): the window's forms MUST be presented only while the content of the
+              presentation whose `MPD` declares the window is being output, and every inherited
+              linear event it overlaps MUST be executed with its base semantics. While such an event
+              is being executed, the window MUST NOT be presented and none of its beacons fired; a
+              form on screen when the alternative presentation begins is suspended. When the
+              presentation that declares the window is output again and the playhead is still inside
+              the window's range, the window MUST be resumed in the same execution (R34.6): it is
+              not a new entry, it does not resolve again, and it does not consume a once-per-session
+              window a second time or fire the slot-start beacon again. ADR 0025 records the
+              decision; - **supersede**: the window MUST be presented, and the inherited linear
+              events whose presentation time falls within its span MUST NOT be executed. When the
+              window presents no ad — every attempt to resolve it is a failed execution under R20.1,
+              or the device can render none of its candidates (R5) — those events MUST be executed
+              as the base specification defines; - **on top**: the window MUST be presented also
+              while an alternative presentation that starts within its span is active, composited
+              over that presentation; the inherited linear event executes with its base semantics."
+    where     /MPD/Period[1]/EventStream[2]/Event[1]
+    says      overlay window declares no range: its Event has no @duration
+    also      also failed: R12.1a, R13.6a, R34.1a, R34.9a
+
+  [CAUGHT] spec-R5.1-candidate-without-option
+    broke     the candidate's only RenderableAsset removed (from dist/sgai-spec.md xml#58 (line
+              6060))
+    rule      R5.1: context/03 R5.1
+    quote     "- **R5.1** (APS): Each ad candidate in the resolution document the Player reads MUST
+              carry one or more **renderable presentation options (each a form plus its layout) as
+              an ordered list, where document order is the preference order**. How many options a
+              candidate carries is the APS's decision: this specification sets no maximum, and no
+              minimum beyond one. Conformance is checked against the APS's resolution document,
+              which is the only artefact on the path to the Player that this specification defines.
+              A candidate MAY carry several options, each pairing a form with an admissible layout,
+              and they form a single list. The order is the preference: the option presented MUST be
+              the **first one, in document order,** that satisfies R5.6 and R5.9."
+    where     /OverlayList/Ad[1]
+    says      candidate with no presentation option
+    also      also failed: E-3, R12.1a, R13.6a, R34.1a, R34.9a
+
+RESULT: ISO positives clean; negatives caught 84/84; findings on sgai-spec.md: 8 FAIL; demo exit 0
