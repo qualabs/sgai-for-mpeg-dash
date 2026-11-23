@@ -18,7 +18,3 @@ vectores de las UC que deja `code-first-pipeline`, D-5): se construye contra el 
 de conducta guarda el hash del texto de su criterio, así lo que el v13 mueva
 (los carriers de beacons y audio, entre otros) aparece como la lista de tests
 y partes de la referencia a revisar.
-
-## Requisito agregado (2026-11-23, pedido de Nicolás)
-
-La batería de vectores corre en tiempo real y puede tardar horas. El diseño de esta fase mide cuánto tarda la batería entera (22 UC × clases de dispositivo) y fija un tope, evaluando: arrancar en `play_from`, paralelismo, fixtures sintéticos cortos y tiempo virtual o velocidad de reproducción mayor (verificar que funcione con un player real). Los vectores no tienen que correr en cada build: pueden correr antes de promover.
