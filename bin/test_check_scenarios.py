@@ -101,11 +101,11 @@ class TestAsItIs(unittest.TestCase):
     def test_tree(self):
         out = cs.run(ROOT / "spec-source", ROOT / "context")
         self.assertEqual(out["cannot"], [])
-        self.assertEqual(cs.exit_code(out), 1)
-        self.assertEqual(out["missing"], WITHOUT)
-        self.assertEqual(len(out["findings"]), 20)
-        self.assertTrue(all(f["check"] == "S-COVER" and "no vector" in f["detail"] for f in out["findings"]))
-        self.assertEqual(sorted(out["vectors"]), ["UC-01", "UC-03"])
+        # Part B wrote the 22 vectors: the tree is clean and nothing has run them.
+        self.assertEqual(cs.exit_code(out), 0)
+        self.assertEqual(out["missing"], [])
+        self.assertEqual(out["findings"], [])
+        self.assertEqual(len(out["vectors"]), 22)
         for uc in ("UC-01", "UC-03"):
             self.assertEqual(out["vectors"][uc], {c: cs.NO_EXECUTOR for c in cs.CLASSES})
 
@@ -116,6 +116,9 @@ class TestAsItIs(unittest.TestCase):
             secs = cs.uc_sections(text)
             for uc in WITHOUT:
                 text = text.replace(secs[uc], "")
+                v = t.src / "scenarios" / f"{uc}.yaml"
+                if v.exists():
+                    v.unlink()
             (t.ctx / "04-use-cases.md").write_text(text)
             out = t.run()
             self.assertEqual((out["exit"], out["findings"], out["cannot"]), (0, [], []))
@@ -214,8 +217,9 @@ class TestHash(Base):
         self.t.edit("04-use-cases.md", "### UC-02 — Mid-content slot (mid-roll)\n",
                     "### UC-02 — Mid-content slot (mid-roll)\n\nA new sentence.\n", root=self.t.ctx)
         out = self.t.run()
-        self.assertEqual(found(out, "S-HASH"), [])
-        self.assertEqual(out["exit"], 1)
+        # Only the vector of the UC that changed goes stale.
+        self.assertEqual(sorted({f["uc"] for f in out["findings"] if f["check"] == "S-HASH"}), ["UC-02"])
+        self.assertEqual(out["exit"], 2)
 
 
 class TestFixture(Base):
@@ -408,7 +412,7 @@ class TestCommandLine(unittest.TestCase):
         finally:
             os.chdir(cwd)
         d = json.loads(text)
-        self.assertEqual((rc, d["exit"], d["missing"]), (1, 1, WITHOUT))
+        self.assertEqual((rc, d["exit"], d["missing"]), (0, 0, []))
         self.assertEqual(d["vectors"]["UC-03"]["D5"], cs.NO_EXECUTOR)
 
 
