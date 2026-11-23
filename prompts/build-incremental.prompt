@@ -141,10 +141,10 @@ recorded what the delta itself did.
 
 ## Stage 5 — Comparison
 
-Run `prompts/4-auto-refine/compare-spec-versions.prompt` for
-`v<N.M+1>`, as Step 9.6 of `build-all` does, and record its verdict
-line. **Its baseline is `dist/`, not the base candidate**, and that is
-kept on purpose: the prompt refuses the sibling comparison, and the
+Run `python3 bin/compare-candidates.py v<N.M+1>`, as Step 9.6 of
+`build-all` does, and record its verdict line. **Its baseline is
+`dist/`, not the base candidate**, and that is kept on purpose: the
+script never compares siblings, and the
 question "did what should not change stay unchanged" against the base
 is answered by the scope check in Stage 3, byte for byte, which a
 count of issues cannot do.

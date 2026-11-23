@@ -2115,41 +2115,21 @@ Adopted unchanged from the base specification (DASH §5.16.3, DASH §5.16.5). Th
 *"shall not appear if the MPD type is "dynamic""* (DASH §5.16.3). This
 specification adds no attribute to it and no element under it (DOC-26).
 
-| Attribute | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `@uri` | M | `xs:anyURI` | — | The APS endpoint. Resolves to a List MPD or a single-period alternative MPD. |
-| `@earliestResolutionTimeOffset` | OD | `xs:unsignedLong` | 60 s in units of `EventStream@timescale` | As the base: the MPD *"can be retrieved at any time between PRT – T and PRT"* (Table 63). |
-| `@serviceDescriptionId` | O | `xs:unsignedInt` | — | As the base; a `PlaybackRestrictions@skipAfter` of the service description it references applies under §5.2.4. |
-| `@maxDuration` | OD | `xs:unsignedLong` | infinity | The cap, in units of `EventStream@timescale`. Absent means infinity; zero means the event is not executed (Table 63). What it bounds is given in §4.5.4. |
-| `@executeOnce` | OD | `xs:boolean` | `false` | As the base. |
-| `@noJump` | OD | `xs:integer` | `0` | As the base. |
-| `@skipAfter` | OD | `xs:duration` | `PT0S` | As the base, default included: absent, the slot is skippable everywhere (§5.2.4). |
+{{include:syntax/tables/insert-presentation.md}}
 
 #### 5.1.2 `ReplacePresentation` — linear replacement, inherited
 
 Adopted unchanged (DASH §5.16.4, DASH §5.16.5). It carries every attribute of §5.1.1,
 plus:
 
-| Attribute | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `@returnOffset` | O | `xs:unsignedLong` | — | As the base: the offset from `Event@presentationTime` at which the main presentation resumes. |
-| `@clip` | OD | `xs:boolean` | `true` | As the base: `true` terminates the alternative presentation *"at the latest at time PRT + APDmax"*, `false` at PRTA + APDmax (Table 62). |
-| `@startWithOffset` | OD | `xs:boolean` | `false` | As the base. |
+{{include:syntax/tables/replace-presentation.md}}
 
 #### 5.1.3 The overlay window
 
 **Event usage.** The base attributes of `EventStream` and `Event`, as this
 scheme uses them.
 
-| Attribute | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `EventStream@schemeIdUri` | M | `xs:anyURI` | — | `urn:svta:dash:sgai-overlay:2026`. |
-| `EventStream@value` | — | `xs:string` | — | Not present (PUB-8). A Player ignores one if present (PLY-87). |
-| `EventStream@timescale` | OD | `xs:unsignedInt` | `1` (base) | Units of `Event@presentationTime`, `Event@duration`, `@durationCap` and `@earliestResolutionTimeOffset`. |
-| `Event@presentationTime` | OD | `xs:unsignedLong` | `0` (base) | The start of the window's span, relative to the start of the Period as the base defines. |
-| `Event@duration` | M | `xs:unsignedLong` | — | The length of the span. A window without it is not a window this specification defines, and the Player treats it as PLY-29 treats a window without a cap. |
-| `Event@id` | M | `xs:unsignedLong` | — | Unique in the `EventStream`, as the base requires of event identifiers. |
-| `Event@status` | OD | `EventStatusType` | `repeat` (base) | As the base (DASH §5.10.2.4). |
+{{include:syntax/tables/overlay-window-event-usage.md}}
 
 <!-- refine: v12-dash-conformance-audit.md#K-12 -->
 The two window schemes are dispatched on-receive, as the base Alternative MPD
@@ -2162,14 +2142,7 @@ Each `Event` contains exactly one `<svta:OverlayPresentation>`.
 
 **`<svta:OverlayPresentation>`.**
 
-| Attribute | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `@uri` | M | `xs:anyURI` | — | The APS endpoint. Resolves to an `<svta:OverlayList family="overlay">`. The Publisher MAY encode slot constraints as query parameters of this URL, by bilateral arrangement with the APS. |
-| `@durationCap` | M | `xs:unsignedLong` | — | The cap, in units of `EventStream@timescale`: the cumulative duration of what the window presents. Zero means the window does not fire. |
-| `@earliestResolutionTimeOffset` | OD | `xs:unsignedLong` | 60 s in units of `EventStream@timescale` | How far before `Event@presentationTime` the Player may resolve the window. Name, units and default are the base's (Table 63). Zero means only at the start of the window. |
-| `@allowedLayouts` | OD | `LayoutTokenListType` | the family default (§3.4.3) | The layouts the window admits, drawn from the tokens an overlay window may list (§3.4.3). |
-| `@customRegion` | OD | `PercentRectType` | the whole viewport | The region inside which a `custom` option's rectangle lies (§5.3.5). Present only when `@allowedLayouts` lists `custom`. |
-| `@linearRelation` | OD | `LinearRelationType` (§5.1.6) <!-- refine: v12-detail-review.md#flag-1 --> | the default relation | How the window relates to the inherited linear events it overlaps. |
+{{include:syntax/tables/overlay-presentation.md}}
 
 **What the span means.** The window's forms are presented only inside its
 span, on the timeline of the presentation whose MPD declares the window: a
@@ -2192,14 +2165,7 @@ Each `Event` contains exactly one `<svta:PauseAdPresentation>`.
 
 **`<svta:PauseAdPresentation>`.**
 
-| Attribute | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `@uri` | M | `xs:anyURI` | — | The APS endpoint. Resolves to an `<svta:OverlayList family="pause">`. |
-| `@durationCap` | M | `xs:unsignedLong` | — | The cap, in units of `EventStream@timescale`. Required on every pause window (PUB-2); it bounds nothing on a pause window, whose slot the viewer bounds (PLY-32). <!-- refine: v12.2-spec-validation.md#T1 --> |
-| `@earliestResolutionTimeOffset` | OD | `xs:unsignedLong` | 60 s in units of `EventStream@timescale` | How far before the start of the window the Player may resolve it. Computed against `Event@presentationTime`, never against the pause. |
-| `@allowedLayouts` | OD | `LayoutTokenListType` | the family default (§3.4.3) | The layouts the window admits: `pause-fullscreen`, `pause-partial`, or both (§3.4.3). |
-| `@executeOnce` | OD | `xs:boolean` | `false` | When `true`, the window yields at most one pause ad for the whole session (PLY-63, PLY-64). The name is the base's, and so is the counter rule: the window is consumed when a pause ad successfully starts rendering. |
-| `@linearRelation` | OD | `OnTopOnlyType` (§5.1.6) <!-- refine: v12-detail-review.md#flag-1 --> | the default relation | Takes only the value `on-top` on a pause window (§5.1.6). |
+{{include:syntax/tables/pause-ad-presentation.md}}
 
 #### 5.1.5 Overlapping windows of one family
 
@@ -2218,11 +2184,7 @@ cross-family rules of §4.5.9.
 `@linearRelation` declares what the window does when an inherited linear
 event overlaps it. Absence is the default relation.
 
-| Enum value | Description |
-|---|---|
-| *(absent)* | **Default.** The window is presented only over the content of the presentation whose MPD declares it. It does not replace an inherited linear event, and it is not composited over an alternative presentation (PLY-49). Two ads on screen at once never come from an overlap nobody declared. |
-| `supersede` | The window stands in for the inherited linear events whose `Event@presentationTime` falls within its span. A Player of this specification presents the window and does not execute those events, and executes them after all when the window presents no ad (PLY-48). A legacy Player ignores the window and plays the linear events, so the linear break is the legacy fallback of the non-linear offering (Annex Q, Annex G). |
-| `on-top` | The window is presented also while an alternative presentation that starts within its span is active, composited over it: a hybrid break (PLY-50, Annex D). |
+{{include:syntax/tables/linear-relation-values.md}}
 
 On a **pause window**, `@linearRelation` takes only the value `on-top`:
 whether a pause window presents an ad depends on whether the viewer pauses,
@@ -2279,21 +2241,11 @@ document, served with media type `application/xml`, whose root element is
 `<svta:OverlayList>`. *Overlay* in the name takes the family reading for the
 non-linear document (§3.3). It declares no profile (§4.8.2).
 
-| Attribute | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `@family` | M | `FamilyType` <!-- refine: v12-detail-review.md#flag-1 --> | — | The family of the window this document resolves. |
-| `@dismissAfter` | OD | `DismissAfterType` | `never` | The dismissal declaration of the overlay or pause slot (§5.2.4). The APS always writes it (APS-19); a document without it leaves the slot non-dismissible. |
-| `@validFor` | OD | `xs:duration` | the remainder of the window's span | How long the document stays usable after the Player receives it (§5.2.5). |
-| `@onExhausted` | CM | `OnExhaustedType` (§5.2.6) <!-- refine: v12-detail-review.md#flag-1 --> | `stop` | The exhaustion behaviour. Written on every document with `@family="pause"` (APS-22); absent on `@family="overlay"`. |
+{{include:syntax/tables/overlay-list.md}}
 
-| Enum value of `@family` | Description |
-|---|---|
-| `overlay` | Resolves an overlay window. |
-| `pause` | Resolves a pause window. |
+{{include:syntax/tables/family-values.md}}
 
-| Element | Cardinality | Description |
-|---|---|---|
-| `<svta:Ad>` | 0 … N | A candidate (§5.3.1). Document order is the order of presentation. |
+{{include:syntax/tables/overlay-list-children.md}}
 
 A document with no `<svta:Ad>` is the empty resolution (§5.2.3).
 
@@ -2331,10 +2283,7 @@ soon, are properties of the advertising that was sold, so the APS declares
 them in the resolution document, as `@dismissAfter` on the
 `<svta:OverlayList>`.
 
-| Enum value of `@dismissAfter` | Description |
-|---|---|
-| `never`, or absent | The slot is not dismissible. |
-| an `xs:duration` *D* | The slot becomes dismissible once *D* has elapsed on the slot timeline from the moment it began rendering, and stays dismissible while it is on screen. `PT0S` means immediately. |
+{{include:syntax/tables/dismiss-after-values.md}}
 
 A pause ad is dismissible on the same terms as an overlay: a paused viewer
 can already end it by resuming, and dismissal gives the surface back
@@ -2386,11 +2335,7 @@ from time 0, at each one.
 A pause slot has no declared duration, so its candidates may run out while
 the viewer is still paused. `@onExhausted` declares what follows.
 
-| Enum value | Description |
-|---|---|
-| `repeat` | The Player presents the sequence again from its first candidate, for as long as the pause lasts. <!-- refine: v12.2-spec-validation.md#T1 --> |
-| `request-again` | The Player requests a new resolution document for the same pause. A document carrying no candidates ends the pause's ads (PLY-66). |
-| `stop` | The Player presents no further ad; the paused primary frame is shown. The default: it is what the viewer would see if the mechanism did not exist, and every Player can do it. |
+{{include:syntax/tables/on-exhausted-values.md}}
 
 The declaration belongs to the APS and not to the Publisher: a
 Publisher-declared limit on how many documents may be served would be
@@ -2404,25 +2349,13 @@ would exist to prevent.
 A candidate of a non-linear resolution document. It carries no attribute of
 its own: its duration is that of the option the Player selects (§5.3.2).
 
-| Element | Cardinality | Description |
-|---|---|---|
-| `<svta:RenderableAsset>` | 1 … N | The presentation options, in preference order (§5.3.4). |
-| `<svta:Tracking>` | 0 … 1 | The candidate's tracking beacons (§5.5). |
-| `<svta:ClickThrough>` | 0 … 1 | The candidate's ClickThrough (§5.6). |
-| `<svta:AdSystem>`, `<svta:AdTitle>`, `<svta:Advertiser>` | 0 … 1 each | Creative metadata (§5.7). |
+{{include:syntax/tables/ad-children.md}}
 
 #### 5.3.2 `<svta:RenderableAsset>` — the presentation option
 
 One option: a form together with its layout.
 
-| Attribute | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `@src` | M | `xs:anyURI` | — | The creative: an SPS sub-MPD for the video form, the image, or the HTML document. |
-| `@mimeType` | M | `xs:string` | — | The media type of `@src`. Determines the form (table below). |
-| `@duration` | CM | `xs:duration` | — | How long the option is shown, on the slot timeline (PLY-70). Present if and only if the form is image or HTML. A video option's duration is the `Period@duration` of its sub-MPD, which this attribute does not restate (DOC-6). |
-| `@layout` | M | `LayoutTokenType` | — | One token of §3.4.2 (§5.3.3). |
-| `@rect` | CM | `PercentRectType` | — | The overlay's rectangle. Present if and only if `@layout="custom"` (§5.3.5). |
-| `@background` | CM | `xs:anyURI` | — | The advertiser's background image. Present if and only if `@layout="squeezeback-double-box-background"` (§5.3.6). |
+{{include:syntax/tables/renderable-asset.md}}
 
 | `@mimeType` | Form |
 |---|---|
@@ -2592,16 +2525,9 @@ for this carrier, which is not an MPD:
   `Event` elements with the same `@id` does not apply; beacons sharing an
   `@id` within one `<svta:Ad>` fire once (below).
 
-| Attribute | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `@schemeIdUri` | M | `xs:anyURI` | — | `urn:mpeg:dash:event:callback:2015`. |
-| `@value` | M | `xs:string` | — | `1`, as Table 47 requires for the callback scheme. |
-| `@timescale` | OD | `xs:unsignedInt` | `1` | As the base. |
-| `@presentationTimeOffset` | OD | `xs:unsignedLong` | `0` | As the base, subtracted from each event's presentation time. |
+{{include:syntax/tables/tracking.md}}
 
-| Element | Cardinality | Description |
-|---|---|---|
-| `Event` (DASH namespace) | 0 … N | One beacon. `@presentationTime` is relative to the start of the candidate (below); `@id` is the de-duplication key; the content is the beacon URL. Non-decreasing presentation times, as the base requires. |
+{{include:syntax/tables/tracking-children.md}}
 
 **The timebase.** Time 0 of a `<svta:Tracking>` is the instant the candidate
 begins rendering, whichever of its options rendered (PLY-82). A beacon at
@@ -2632,10 +2558,7 @@ Click-tracking is not carried by the callback scheme: an activation is a user
 interaction with no presentation time, and the base defines no
 user-triggered event (§4.8.2).
 
-| Attribute | Required | Type | Default | Description |
-|---|---|---|---|---|
-| `@uri` | M | `xs:anyURI` | — | The destination opened, or handed off to the device, when the viewer activates the ClickThrough. |
-| `@trackingUris` | O | `URIListType` <!-- refine: v12-detail-review.md#flag-1 --> | — | The click-tracking URLs. On activation the Player issues an HTTP GET to each once and ignores the response, as for a callback. Absent when the advertiser declared none. |
+{{include:syntax/tables/click-through.md}}
 
 It is a child of `<svta:Ad>` in a non-linear document, and of the candidate's
 `Period` in a List MPD. How the activation is offered (remote select, tap) is
@@ -2651,11 +2574,7 @@ Creative metadata with no native DASH carrier has a defined place. Emitting
 it is optional for the APS and reading it is optional for the Player; a
 legacy Player removes it; nothing in the presentation depends on it.
 
-| Element | Cardinality | Type | Description |
-|---|---|---|---|
-| `<svta:AdSystem>` | 0 … 1 | `xs:string` | The ad system that served the ad. |
-| `<svta:AdTitle>` | 0 … 1 | `xs:string` | The ad's title. |
-| `<svta:Advertiser>` | 0 … 1 | `xs:string` | The advertiser. |
+{{include:syntax/tables/metadata-elements.md}}
 
 They sit on `<svta:Ad>` and on a List MPD candidate `Period`. A universal
 ad identifier is deliberately not given a carrier: it serves reconciliation

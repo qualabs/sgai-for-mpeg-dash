@@ -506,11 +506,13 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
       recommendation. Log `[RECHECK] <m> of <n> answered by a source:
       <a> to 5.a, <d> to 5.d`, then re-run `bin/check-promotable.py`.
 
-  9.6 Run `prompts/4-auto-refine/compare-spec-versions.prompt`
-      for the candidate `v<N>.<M+1>`. The baseline is whatever is
-      published in `dist/`, not `v<N>.<M>`.
-      - Output: `output-analysis/v<N>.<M+1>-comparison.md` with a
-        verdict line.
+  9.6 Run `python3 bin/compare-candidates.py v<N>.<M+1>` (ADR 0070).
+      The baseline is whatever is published in `dist/`, not `v<N>.<M>`.
+      - Output: `output-analysis/v<N>.<M+1>-comparison.md`; the verdict
+        is the first word(s) of its stdout line and the `## Verdict` of
+        the file. Exit 2 means the two sides are not comparable (or a
+        candidate sidecar is missing): treat it as no verdict, keep
+        `v<N>.<M+1>`, log `[NO VERDICT] <its reason>`, break the loop.
       - If `dist/` holds no sidecars there is no baseline: the step
         emits no verdict. Keep `v<N>.<M+1>` as the head, log
         `[NO BASELINE] nothing published in dist/, kept
@@ -520,24 +522,22 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
 
   9.7 Read the verdict line from the comparison file:
 
-      - **BETTER THAN PUBLISHED** (net reduction in total issue
-        count against the published build, across all categories,
-        weighted equally — see "Step 9 configuration" below for the
-        criterion):
+      - **BETTER THAN PUBLISHED** (the rule of
+        `bin/compare-candidates.py`, see "Step 9 configuration"):
           keep `v<N>.<M+1>`, its extension schema, its four sidecars
           and its comparison.
           Log `[ITER K] BETTER THAN PUBLISHED, <X> issues below
           dist/, <Y> remaining`.
           Set `M := M+1`, continue the loop.
 
-      - **NO BETTER THAN PUBLISHED** (issue count equal to the
-        published build, or no actionable items remain):
+      - **NO BETTER THAN PUBLISHED** (nothing worse and nothing
+        better than the published build):
           keep `v<N>.<M+1>` as the head.
           Log `[NO BETTER] at v<N>.<M+1> after K iterations`.
           Break the loop and proceed to Final summary.
 
-      - **WORSE THAN PUBLISHED** (net increase in issue count
-        against the published build):
+      - **WORSE THAN PUBLISHED** (a unit, the conformance `FAIL` or
+        the blocking routed findings got worse than the published build):
           rollback — delete the eight artefacts produced in this
           iteration:
             `output/v<N>.<M+1>-sgai-spec.md`,
@@ -579,21 +579,12 @@ artefacts on error — surface them so the operator can inspect.
   Step 9 entirely. Use this for validation-only major builds where
   the operator wants to inspect `v<N>` before committing to the
   refine loop.
-- **BETTER THAN PUBLISHED criterion**: any net reduction in total
-  issue count against the published build, where the total is the
-  sum of all three categories — spec validation issues,
-  detail-review flagged items, and conformance-test results (`FAIL`
-  and `NOT_VERIFIABLE`) — weighted equally. The audit's suspicions are
-  reported and do not enter the total. Cross-category trades are accepted as long as
-  the net is negative (e.g. -5 conformance, +2 validation,
-  +1 detail-review = -2 net → better).
-- **WORSE THAN PUBLISHED criterion**: strict. A net increase of
-  `+1` or more triggers rollback. No tolerance for "fixed 5,
-  broke 6 → ok".
-- The total issue count is computed by
-  `prompts/4-auto-refine/compare-spec-versions.prompt`; the
-  verdict line in the comparison file is the canonical signal
-  this loop reads.
+- **The verdict is the rule written in `bin/compare-candidates.py`**
+  (`--help`): unit by unit on the units both sides walked, WORSE when a
+  unit clear in `dist/` is blocking in the candidate, or conformance
+  `FAIL` or blocking routed findings rise; BETTER when not worse and
+  something improved; NO BETTER otherwise. The audit's suspicions are
+  reported and never enter it.
 
 ### Final summary
 

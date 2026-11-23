@@ -1,0 +1,293 @@
+# The schema-tied tables of §5 (ADR 0062). bin/gen-syntax-tables.py turns each
+# entry into spec-source/syntax/tables/<id>.md, which the prose includes.
+#
+# Presence, type, default, cardinality and enumerations come from the schemas:
+# `schema: svta` (default) is spec-source/syntax/sgai-extension.xsd, `schema:
+# dash` is ISO's 6th-edition DASH-MPD.xsd. Only what a schema cannot say is
+# written here:
+#   kind          attributes | elements | enum
+#   type          (attributes) the complexType; a row may name its own
+#   parent        (elements) the complexType whose children are listed
+#   simple_type   (enum) the simpleType; `of` names the attribute in the header
+#   base_element  (base rows) the element the attribute belongs to, printed
+#                 as `<base_element>@<name>`
+#   base_suffix   print " (base)" after a literal default of a base row
+#   required      only CM or —: the codes a schema cannot express
+#   default       a default the schema does not declare (prose, or a literal,
+#                 which is then reported as a disagreement)
+#   with_type     (elements) add the Type column
+#   partial       the table lists only some of the type's content on purpose
+#   description   the Description cell, verbatim
+#   override      {column: text}: published text the generator cannot derive;
+#                 every override is listed in the T-03 findings
+tables:
+- id: insert-presentation
+  kind: attributes
+  schema: dash
+  type: AlternativeMPDEventType
+  rows:
+  - name: uri
+    description: The APS endpoint. Resolves to a List MPD or a single-period alternative MPD.
+  - name: earliestResolutionTimeOffset
+    default: 60 s in units of `EventStream@timescale`
+    description: 'As the base: the MPD *"can be retrieved at any time between PRT – T and PRT"* (Table 63).'
+  - name: serviceDescriptionId
+    description: As the base; a `PlaybackRestrictions@skipAfter` of the service description it references applies under §5.2.4.
+  - name: maxDuration
+    description: The cap, in units of `EventStream@timescale`. Absent means infinity; zero means the event is not executed (Table 63). What it bounds is given in §4.5.4.
+    override:
+      default: infinity
+  - name: executeOnce
+    description: As the base.
+  - name: noJump
+    description: As the base.
+  - name: skipAfter
+    description: 'As the base, default included: absent, the slot is skippable everywhere (§5.2.4).'
+- id: replace-presentation
+  kind: attributes
+  schema: dash
+  type: AlternativeMPDReplaceEventType
+  rows:
+  - name: returnOffset
+    description: 'As the base: the offset from `Event@presentationTime` at which the main presentation resumes.'
+  - name: clip
+    description: 'As the base: `true` terminates the alternative presentation *"at the latest at time PRT + APDmax"*, `false` at PRTA + APDmax (Table 62).'
+  - name: startWithOffset
+    description: As the base.
+- id: overlay-window-event-usage
+  kind: attributes
+  schema: dash
+  base_suffix: true
+  rows:
+  - name: schemeIdUri
+    base_element: EventStream
+    type: EventStreamType
+    description: '`urn:svta:dash:sgai-overlay:2026`.'
+  - name: value
+    base_element: EventStream
+    type: EventStreamType
+    required: —
+    description: Not present (PUB-8). A Player ignores one if present (PLY-87).
+  - name: timescale
+    base_element: EventStream
+    type: EventStreamType
+    default: '`1`'
+    description: Units of `Event@presentationTime`, `Event@duration`, `@durationCap` and `@earliestResolutionTimeOffset`.
+  - name: presentationTime
+    base_element: Event
+    type: EventType
+    description: The start of the window's span, relative to the start of the Period as the base defines.
+  - name: duration
+    base_element: Event
+    type: EventType
+    description: The length of the span. A window without it is not a window this specification defines, and the Player treats it as PLY-29 treats a window without a cap.
+    override:
+      required: M
+  - name: id
+    base_element: Event
+    type: EventType
+    description: Unique in the `EventStream`, as the base requires of event identifiers.
+    override:
+      required: M
+  - name: status
+    base_element: Event
+    type: EventType
+    description: As the base (DASH §5.10.2.4).
+- id: overlay-presentation
+  kind: attributes
+  type: OverlayPresentationType
+  rows:
+  - name: uri
+    description: The APS endpoint. Resolves to an `<svta:OverlayList family="overlay">`. The Publisher MAY encode slot constraints as query parameters of this URL, by bilateral arrangement with the APS.
+  - name: durationCap
+    description: 'The cap, in units of `EventStream@timescale`: the cumulative duration of what the window presents. Zero means the window does not fire.'
+  - name: earliestResolutionTimeOffset
+    default: 60 s in units of `EventStream@timescale`
+    description: How far before `Event@presentationTime` the Player may resolve the window. Name, units and default are the base's (Table 63). Zero means only at the start of the window.
+  - name: allowedLayouts
+    default: the family default (§3.4.3)
+    description: The layouts the window admits, drawn from the tokens an overlay window may list (§3.4.3).
+  - name: customRegion
+    default: the whole viewport
+    description: The region inside which a `custom` option's rectangle lies (§5.3.5). Present only when `@allowedLayouts` lists `custom`.
+  - name: linearRelation
+    default: the default relation
+    description: How the window relates to the inherited linear events it overlaps.
+    override:
+      type: '`LinearRelationType` (§5.1.6) <!-- refine: v12-detail-review.md#flag-1 -->'
+- id: pause-ad-presentation
+  kind: attributes
+  type: PauseAdPresentationType
+  rows:
+  - name: uri
+    description: The APS endpoint. Resolves to an `<svta:OverlayList family="pause">`.
+  - name: durationCap
+    description: 'The cap, in units of `EventStream@timescale`. Required on every pause window (PUB-2); it bounds nothing on a pause window, whose slot the viewer bounds (PLY-32). <!-- refine: v12.2-spec-validation.md#T1 -->'
+  - name: earliestResolutionTimeOffset
+    default: 60 s in units of `EventStream@timescale`
+    description: How far before the start of the window the Player may resolve it. Computed against `Event@presentationTime`, never against the pause.
+  - name: allowedLayouts
+    default: the family default (§3.4.3)
+    description: 'The layouts the window admits: `pause-fullscreen`, `pause-partial`, or both (§3.4.3).'
+  - name: executeOnce
+    description: 'When `true`, the window yields at most one pause ad for the whole session (PLY-63, PLY-64). The name is the base''s, and so is the counter rule: the window is consumed when a pause ad successfully starts rendering.'
+  - name: linearRelation
+    default: the default relation
+    description: Takes only the value `on-top` on a pause window (§5.1.6).
+    override:
+      type: '`OnTopOnlyType` (§5.1.6) <!-- refine: v12-detail-review.md#flag-1 -->'
+- id: linear-relation-values
+  kind: enum
+  simple_type: LinearRelationType
+  rows:
+  - absent: true
+    description: '**Default.** The window is presented only over the content of the presentation whose MPD declares it. It does not replace an inherited linear event, and it is not composited over an alternative presentation (PLY-49). Two ads on screen at once never come from an overlap nobody declared.'
+  - value: supersede
+    description: The window stands in for the inherited linear events whose `Event@presentationTime` falls within its span. A Player of this specification presents the window and does not execute those events, and executes them after all when the window presents no ad (PLY-48). A legacy Player ignores the window and plays the linear events, so the linear break is the legacy fallback of the non-linear offering (Annex Q, Annex G).
+  - value: on-top
+    description: 'The window is presented also while an alternative presentation that starts within its span is active, composited over it: a hybrid break (PLY-50, Annex D).'
+- id: overlay-list
+  kind: attributes
+  type: OverlayListType
+  rows:
+  - name: family
+    description: The family of the window this document resolves.
+    override:
+      type: '`FamilyType` <!-- refine: v12-detail-review.md#flag-1 -->'
+  - name: dismissAfter
+    default: '`never`'
+    description: The dismissal declaration of the overlay or pause slot (§5.2.4). The APS always writes it (APS-19); a document without it leaves the slot non-dismissible.
+  - name: validFor
+    default: the remainder of the window's span
+    description: How long the document stays usable after the Player receives it (§5.2.5).
+  - name: onExhausted
+    required: CM
+    default: '`stop`'
+    description: The exhaustion behaviour. Written on every document with `@family="pause"` (APS-22); absent on `@family="overlay"`.
+    override:
+      type: '`OnExhaustedType` (§5.2.6) <!-- refine: v12-detail-review.md#flag-1 -->'
+- id: family-values
+  kind: enum
+  simple_type: FamilyType
+  of: '@family'
+  rows:
+  - value: overlay
+    description: Resolves an overlay window.
+  - value: pause
+    description: Resolves a pause window.
+- id: overlay-list-children
+  kind: elements
+  parent: OverlayListType
+  rows:
+  - names:
+    - Ad
+    description: A candidate (§5.3.1). Document order is the order of presentation.
+- id: dismiss-after-values
+  kind: enum
+  simple_type: DismissAfterType
+  of: '@dismissAfter'
+  rows:
+  - value: never
+    description: The slot is not dismissible.
+    override:
+      value: '`never`, or absent'
+  - value: xs:duration
+    description: The slot becomes dismissible once *D* has elapsed on the slot timeline from the moment it began rendering, and stays dismissible while it is on screen. `PT0S` means immediately.
+    override:
+      value: an `xs:duration` *D*
+- id: on-exhausted-values
+  kind: enum
+  simple_type: OnExhaustedType
+  rows:
+  - value: repeat
+    description: 'The Player presents the sequence again from its first candidate, for as long as the pause lasts. <!-- refine: v12.2-spec-validation.md#T1 -->'
+  - value: request-again
+    description: The Player requests a new resolution document for the same pause. A document carrying no candidates ends the pause's ads (PLY-66).
+  - value: stop
+    description: 'The Player presents no further ad; the paused primary frame is shown. The default: it is what the viewer would see if the mechanism did not exist, and every Player can do it.'
+- id: ad-children
+  kind: elements
+  parent: AdType
+  rows:
+  - names:
+    - RenderableAsset
+    description: The presentation options, in preference order (§5.3.4).
+  - names:
+    - Tracking
+    description: The candidate's tracking beacons (§5.5).
+  - names:
+    - ClickThrough
+    description: The candidate's ClickThrough (§5.6).
+  - names:
+    - AdSystem
+    - AdTitle
+    - Advertiser
+    description: Creative metadata (§5.7).
+- id: renderable-asset
+  kind: attributes
+  type: RenderableAssetType
+  rows:
+  - name: src
+    description: 'The creative: an SPS sub-MPD for the video form, the image, or the HTML document.'
+  - name: mimeType
+    description: The media type of `@src`. Determines the form (table below).
+  - name: duration
+    required: CM
+    description: How long the option is shown, on the slot timeline (PLY-70). Present if and only if the form is image or HTML. A video option's duration is the `Period@duration` of its sub-MPD, which this attribute does not restate (DOC-6).
+  - name: layout
+    description: One token of §3.4.2 (§5.3.3).
+  - name: rect
+    required: CM
+    description: The overlay's rectangle. Present if and only if `@layout="custom"` (§5.3.5).
+  - name: background
+    required: CM
+    description: The advertiser's background image. Present if and only if `@layout="squeezeback-double-box-background"` (§5.3.6).
+- id: tracking
+  kind: attributes
+  schema: dash
+  type: EventStreamType
+  rows:
+  - name: schemeIdUri
+    description: '`urn:mpeg:dash:event:callback:2015`.'
+  - name: value
+    description: '`1`, as Table 47 requires for the callback scheme.'
+    override:
+      required: M
+  - name: timescale
+    default: '`1`'
+    description: As the base.
+  - name: presentationTimeOffset
+    description: As the base, subtracted from each event's presentation time.
+- id: tracking-children
+  kind: elements
+  schema: dash
+  parent: EventStreamType
+  rows:
+  - names:
+    - Event
+    description: One beacon. `@presentationTime` is relative to the start of the candidate (below); `@id` is the de-duplication key; the content is the beacon URL. Non-decreasing presentation times, as the base requires.
+- id: click-through
+  kind: attributes
+  type: ClickThroughType
+  rows:
+  - name: uri
+    description: The destination opened, or handed off to the device, when the viewer activates the ClickThrough.
+  - name: trackingUris
+    description: The click-tracking URLs. On activation the Player issues an HTTP GET to each once and ignores the response, as for a callback. Absent when the advertiser declared none.
+    override:
+      type: '`URIListType` <!-- refine: v12-detail-review.md#flag-1 -->'
+- id: metadata-elements
+  kind: elements
+  parent: AdType
+  with_type: true
+  partial: true
+  rows:
+  - names:
+    - AdSystem
+    description: The ad system that served the ad.
+  - names:
+    - AdTitle
+    description: The ad's title.
+  - names:
+    - Advertiser
+    description: The advertiser.
