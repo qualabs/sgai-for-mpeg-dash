@@ -36,19 +36,35 @@ happen, and a declared one that changed nothing is refused).
 Usage:
   bin/apply-spec-patch.py PATCH.json [--source FILE] [--dry-run]
                                      [--max-fraction F] [--record FILE]
+  bin/apply-spec-patch.py --reverse RECORD.json [--source FILE] [--dry-run]
 
 --source defaults to spec-source/sgai-spec.src.md. --dry-run applies in
 memory and reports. --max-fraction F fails (exit 1, MAJOR) when the changed
 sections exceed F of the document's lines. --record copies the patch, with
 the sha256 of the source before and after, to FILE (the trace that replaces
-inline `<!-- refine -->` annotations).
+inline `<!-- refine -->` annotations). The record also carries what undoing
+it needs (`reverse`): the order of the sections before, the text before of
+every section it changed, and the content before and the sha256 after of
+every file it changed.
+
+--reverse RECORD undoes a recorded patch (the rollback of a refine round
+that came out worse). It refuses, writing nothing, unless the prose's
+sha256 is the record's `source_sha256_after` and every changed file's is
+its recorded sha256 after — so an edit made after the patch is never
+silently discarded —, and unless the prose it rebuilds has the record's
+`source_sha256_before`. A record written without `reverse` (before this
+mode existed) cannot be undone: exit 2. Files the patch did not touch
+(generated tables, a file created by hand) are not this mode's business:
+regenerate the tables, and check the result with `bin/assemble-spec.py
+--check` against the previous candidate.
 
 What a green says: the prose changed exactly where the patch says, nothing
-else, and no directive was touched. What it does not say: that the new text
-is right.
+else, and no directive was touched; with --reverse, the prose and the files
+are byte for byte what they were before the patch. What it does not say:
+that the new text is right.
 
-Exit codes: 0 applied · 1 refused (nothing written) · 2 unreadable patch or
-source · 64 wrong command line.
+Exit codes: 0 applied (or undone) · 1 refused (nothing written) · 2
+unreadable patch, record or source · 64 wrong command line.
 """
 from __future__ import annotations
 
@@ -195,8 +211,108 @@ def changed_keys(old, new):
     return sorted(k for k in set(a) | set(b) if a.get(k) != b.get(k)), a, b
 
 
+def sha256(text):
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
+def reverse_data(old, new, changed, srcdir, files):
+    """What --reverse needs, kept in the record (only additive to it)."""
+    before = {s.key: s.text for s in ss.split(old)}
+    return {
+        "format": "sgai-patch-reverse/1",
+        "order_before": [s.key for s in ss.split(old)],
+        "sections_before": {k: before[k] for k in changed if k in before},
+        "files_before": {rel: a for rel, (a, _) in sorted(files.items())},
+        "files_sha256_after": {rel: sha256(b) for rel, (_, b) in sorted(files.items())},
+    }
+
+
+def reverse(record_path, source, dry):
+    try:
+        with open(record_path, encoding="utf-8") as fh:
+            rec = json.load(fh)
+        with open(source, encoding="utf-8", newline="") as fh:
+            cur = fh.read()
+        rev = rec["reverse"]
+        want_after, want_before = rec["source_sha256_after"], rec["source_sha256_before"]
+        order, sec_before = rev["order_before"], rev["sections_before"]
+        files_before, files_after = rev["files_before"], rev["files_sha256_after"]
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        print(f"exit 2: {record_path} cannot be undone: {e!r}")
+        return 2
+    srcdir = os.path.dirname(os.path.abspath(source))
+    moved = []
+    if sha256(cur) != want_after:
+        moved.append(os.path.basename(source))
+    current_files = {}
+    for rel, want in files_after.items():
+        full = os.path.join(srcdir, rel)
+        try:
+            with open(full, encoding="utf-8", newline="") as fh:
+                current_files[rel] = fh.read()
+        except OSError:
+            moved.append(rel + " (missing)")
+            continue
+        if sha256(current_files[rel]) != want:
+            moved.append(rel)
+    if moved:
+        print(f"REFUSED: the source moved since the patch was applied: {moved}; nothing undone")
+        return 1
+    try:
+        now = ss.by_key(ss.split(cur))
+    except ss.SectionError as e:
+        print(f"exit 2: {e}")
+        return 2
+    rebuilt = []
+    for k in order:
+        if k in sec_before:
+            rebuilt.append(sec_before[k])
+        elif k in now:
+            rebuilt.append(now[k].text)
+        else:
+            print(f"REFUSED: section {k!r} of the record is neither kept nor recorded; nothing undone")
+            return 1
+    old = "".join(rebuilt)
+    if sha256(old) != want_before:
+        print("REFUSED: the rebuilt prose does not have the record's source_sha256_before; nothing undone")
+        return 1
+    if not dry:
+        if old != cur:
+            with open(source, "w", encoding="utf-8", newline="") as fh:
+                fh.write(old)
+        for rel, body in files_before.items():
+            with open(os.path.join(srcdir, rel), "w", encoding="utf-8", newline="") as fh:
+                fh.write(body)
+    print(f"{'would undo' if dry else 'undone'}: {os.path.basename(record_path)}; sections restored "
+          f"{sorted(sec_before)}, sections removed {sorted(set(now) - set(order))}; files restored "
+          f"{sorted(files_before)}; prose sha256 now {want_before}")
+    return 0
+
+
 def main(argv):
     args = list(argv)
+    if "--reverse" in args:
+        rest = list(args)
+        rest.remove("--reverse")
+        source, dry, pos = DEFAULT, False, []
+        i = 0
+        while i < len(rest):
+            if rest[i] == "--source":
+                if i + 1 >= len(rest):
+                    usage("--source needs a value")
+                source = rest[i + 1]
+                i += 2
+            elif rest[i] == "--dry-run":
+                dry = True
+                i += 1
+            elif rest[i].startswith("--"):
+                usage(f"--reverse takes RECORD.json [--source FILE] [--dry-run], not {rest[i]}")
+            else:
+                pos.append(rest[i])
+                i += 1
+        if len(pos) != 1:
+            usage("--reverse needs one RECORD.json")
+        return reverse(pos[0], source, dry)
     opts = {"--source": DEFAULT, "--max-fraction": None, "--record": None}
     dry = False
     pos = []
@@ -269,6 +385,7 @@ def main(argv):
             rec["source_sha256_after"] = hashlib.sha256(new.encode()).hexdigest()
             rec["sections_changed"] = changed
             rec["files_changed"] = sorted(files)
+            rec["reverse"] = reverse_data(old, new, changed, srcdir, files)
             with open(opts["--record"], "w", encoding="utf-8") as fh:
                 json.dump(rec, fh, indent=2, ensure_ascii=False)
                 fh.write("\n")

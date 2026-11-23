@@ -1,0 +1,584 @@
+=================== (b) INCREMENTAL v12.6 -> v12.7 ===================
+--- Stage 0: preconditions
+$ python3 bin/assemble-spec.py --check output/v12.6-sgai-spec.md
+  identical: output/v12.6-sgai-spec.md is the assembly of spec-source (sha256 197cbd888adccd34b13c7e085e36907d7f7d859d9906b90e65949ba559e88a22); the prose has no {{version}}; this says nothing about whether the source is right
+  [exit 0]
+$ python3 bin/check-incremental.py anchor v12.6
+  (Context head de v12.6-context-delta.md)
+  924afcbe273267ec3544bddb7858e327fd357a45
+  [exit 0]
+$ git log --format=%h %s -1 -- context/
+  7526aa8 dry-run: R20 title reworded
+  [exit 0]
+--- apply-context-delta §0: the base, recorded
+$ python3 bin/assemble-spec.py --version v12.6 --out <scratch>/.w/base.md --manifest <scratch>/.w/base.sha256
+  wrote <scratch>/.w/base.md: 111 inclusions from 111 files; sha256 197cbd888adccd34b13c7e085e36907d7f7d859d9906b90e65949ba559e88a22; the prose has no {{version}}
+  [exit 0]
+$ cmp <scratch>/.w/base.md output/v12.6-sgai-spec.md
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-dash-conformance.py --source spec-source --out-json <scratch>/.w/conf-base.json --out-md <scratch>/.w/conf-base.md
+  exit 1: PASS 1201  FAIL 6  NOT_VERIFIABLE 273  NOT_APPLICABLE 1537
+  [exit 1]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-scenarios.py --source spec-source
+  22 vectors of 22 use cases; 0 findings; without a vector: none
+  A green run says the vectors are well formed, cover every UC x class, rest on green fixtures and match the UCs as they are now; no Player has run them (NOT_VERIFIABLE — no executor).
+  [exit 0]
+--- §1: the one-time cleanup
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/strip-legacy-annotations.py --out output-analysis/v12.7-delta-patch-0.json
+  found 64 comment(s), 1 gaps section(s), 1 status line(s), 7 comment(s) in syntax/syntax.yaml in 47 section(s); patch written to output-analysis/v12.7-delta-patch-0.json
+  [exit 1]
+$ python3 bin/apply-spec-patch.py output-analysis/v12.7-delta-patch-0.json --record output-analysis/v12.7-delta-patch-0.json
+  applied: 47 op(s); sections changed ['1.2', '1.4', '3.1', '4.1', '4.2', '4.4', '4.5.1', '4.5.10', '4.5.17', '4.5.3', '4.5.4', '4.5.5', '4.5.6', '4.5.7', '4.6', '4.8.3', '4.8.5', '5.0', '5.1.3', '5.1.7', '5.2.3', '5.5.2', '6.3', '6.5', '7.12', '7.5', '7.7', '8.1', '8.13', '8.2', '8.3', 'C.6', 'E.4', 'E.7.1', 'L.7', 'L.8', 'R.2.4', 'R.6', 'Refinement gaps', 'SGAI for Linear and Non-Linear Ads in MPEG-DASH']; files changed ['syntax/syntax.yaml'] (29.7% of the document's lines); every change declared
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/gen-syntax-tables.py --write
+  wrote 17 tables; 8 disagreements, 9 overrides, 0 rows missing
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/strip-legacy-annotations.py --out <scratch>/.w/again.json
+  clean: no legacy mark in spec-source/sgai-spec.src.md; nothing written
+  [exit 0]
+--- §4: artefacts first (patch 1: a fixture and syntax.yaml), then the code loop
+$ python3 bin/apply-spec-patch.py output-analysis/v12.7-delta-patch-1.json --record output-analysis/v12.7-delta-patch-1.json --max-fraction 0.30
+  applied: 2 op(s); sections changed []; files changed ['examples/annex-a/A.2-1.mpd', 'syntax/syntax.yaml'] (0.0% of the document's lines); every change declared
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/gen-syntax-tables.py --write
+  wrote 17 tables; 8 disagreements, 9 overrides, 0 rows missing
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-dash-conformance.py --source spec-source --out-json <scratch>/.w/conf.json --out-md <scratch>/.w/conf.md
+  exit 1: PASS 1201  FAIL 6  NOT_VERIFIABLE 273  NOT_APPLICABLE 1537
+  [exit 1]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-scenarios.py --source spec-source
+  22 vectors of 22 use cases; 0 findings; without a vector: none
+  A green run says the vectors are well formed, cover every UC x class, rest on green fixtures and match the UCs as they are now; no Player has run them (NOT_VERIFIABLE — no executor).
+  [exit 0]
+--- §5: the prose by section (patch 2: the R20 change and the lint finding the base carried)
+$ python3 bin/apply-spec-patch.py output-analysis/v12.7-delta-patch-2.json --record output-analysis/v12.7-delta-patch-2.json --max-fraction 0.30
+  applied: 2 op(s); sections changed ['5.1.3', '7.12']; files changed [] (1.1% of the document's lines); every change declared
+  [exit 0]
+--- §6: assemble and check
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/gen-syntax-tables.py --check
+  identical: 17 tables; 8 disagreements, 9 overrides, 0 rows missing. This says the tables are generated and every disagreement is listed; it does not say a description is right or that a finding was acted on
+  [exit 0]
+$ python3 bin/assemble-spec.py --version v12.7 --out output/v12.7-sgai-spec.md --manifest output-analysis/v12.7-source.sha256
+  wrote output/v12.7-sgai-spec.md: 111 inclusions from 111 files; sha256 3626f2620b870ba7b3ae04d69f1977c64ee23e197cb39a1521b4b41239150c87; version 12.7 at 1 place(s)
+  [exit 0]
+$ python3 bin/lint-spec.py output/v12.7-sgai-spec.md
+  CLEAN: output/v12.7-sgai-spec.md: 0 finding(s) (none); 305 numbered headings, 173 ids, 84 xml blocks. A green covers the six rules only; see --help.
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-dash-conformance.py --source spec-source --out-json <scratch>/.w/conf.json --out-md <scratch>/.w/conf.md
+  exit 1: PASS 1201  FAIL 6  NOT_VERIFIABLE 273  NOT_APPLICABLE 1537
+  [exit 1]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-scenarios.py --source spec-source
+  22 vectors of 22 use cases; 0 findings; without a vector: none
+  A green run says the vectors are well formed, cover every UC x class, rest on green fixtures and match the UCs as they are now; no Player has run them (NOT_VERIFIABLE — no executor).
+  [exit 0]
+--- §7: which sections changed, from the records, the manifests and {{version}} (code)
+files moved: ['spec-source/examples/annex-a/A.2-1.mpd', 'spec-source/syntax/tables/click-through.md', 'spec-source/syntax/tables/on-exhausted-values.md', 'spec-source/syntax/tables/overlay-list.md', 'spec-source/syntax/tables/overlay-presentation.md', 'spec-source/syntax/tables/pause-ad-presentation.md']
+$ cat <scratch>/.w/rows.md
+  ## Sections changed
+  
+  | Section | Change | Rows |
+  |---------|--------|------|
+  | SGAI for Linear and Non-Linear Ads in MPEG-DASH | cleanup | — |
+  | 1.2 | cleanup | — |
+  | 1.4 | cleanup | — |
+  | 3.1 | cleanup | — |
+  | 4.1 | cleanup | — |
+  | 4.2 | cleanup | — |
+  | 4.4 | cleanup | — |
+  | 4.5.1 | cleanup | — |
+  | 4.5.3 | cleanup | — |
+  | 4.5.4 | cleanup | — |
+  | 4.5.5 | cleanup | — |
+  | 4.5.6 | cleanup | — |
+  | 4.5.7 | cleanup | — |
+  | 4.5.10 | cleanup | — |
+  | 4.5.17 | cleanup | — |
+  | 4.6 | cleanup | — |
+  | 4.8.3 | cleanup | — |
+  | 4.8.5 | cleanup | — |
+  | 5.0 | cleanup | — |
+  | 5.1.3 | modified | 1 |
+  | 5.1.4 | modified | 1 |
+  | 5.1.7 | cleanup | — |
+  | 5.2.2 | modified | 1 |
+  | 5.2.3 | cleanup | — |
+  | 5.2.6 | modified | 1 |
+  | 5.5.2 | cleanup | — |
+  | 5.6 | modified | 1 |
+  | 6.3 | cleanup | — |
+  | 6.5 | cleanup | — |
+  | 7.5 | cleanup | — |
+  | 7.7 | cleanup | — |
+  | 7.12 | modified | 1 |
+  | 8.1 | cleanup | — |
+  | 8.2 | cleanup | — |
+  | 8.3 | cleanup | — |
+  | 8.13 | cleanup | — |
+  | A.2 | modified | 1 |
+  | C.6 | cleanup | — |
+  | E.4 | cleanup | — |
+  | E.7.1 | cleanup | — |
+  | L.7 | cleanup | — |
+  | L.8 | cleanup | — |
+  | R.2.4 | cleanup | — |
+  | R.6 | cleanup | — |
+  | Refinement gaps | cleanup | — |
+  [exit 0]
+$ diff <scratch>/.w/base.sha256 output-analysis/v12.7-source.sha256
+  1,2c1,2
+  < # sha256 of the spec-source files assembled into base.md
+  < 6e56205c8749a5102899e88e8c25f04480d2bf075b1056c977d71d933a091b51  spec-source/sgai-spec.src.md
+  ---
+  > # sha256 of the spec-source files assembled into v12.7-sgai-spec.md
+  > 55d9cd275bc7786a725cba5b5231f75cf7f6738ed61a86879462bdabe84d5b92  spec-source/sgai-spec.src.md
+  6,7c6,7
+  < 87e004b8d6cf213a001a3ea529f26600f7e1713725bb8c7bc40cc4504d31afc3  spec-source/syntax/tables/overlay-presentation.md
+  < c92c08565b844dbfe12fd740e48c01bfca517348edfeff660c142c288cde374f  spec-source/syntax/tables/pause-ad-presentation.md
+  ---
+  > 6f168d4005ab7d60719374e76ad942882ff53a7d2aa6a20619b8b160d00cac1e  spec-source/syntax/tables/overlay-presentation.md
+  > bdd21bc1316f910a09d90f5993a133bd34f389dd2a340f506f08e1b9b87fe450  spec-source/syntax/tables/pause-ad-presentation.md
+  10c10
+  < cc87a082c62aa0dfe1111dffa55f795d26bae8a245fccbf2e5bb0973d8d5a7e5  spec-source/syntax/tables/overlay-list.md
+  ---
+  > d10e93710c91e3b2dfeff7d8c0e38178227fabe5c04eaf33f942dc7646388a3f  spec-source/syntax/tables/overlay-list.md
+  16c16
+  < 4ffec9158a32603dfd0e0cb549ac9a7b26f51d7b55b95bc0c56ca22a413df575  spec-source/syntax/tables/on-exhausted-values.md
+  ---
+  > 368511316832b921ac46c33240eb5567738bfd83938a76da892a5e547fa3529a  spec-source/syntax/tables/on-exhausted-values.md
+  24c24
+  < 854f40608b761ed99afdda78f3f26b14fe6dc689eecd009b6a9ccc39e0f40aef  spec-source/syntax/tables/click-through.md
+  ---
+  > ef61be83cbc4817d25de1b9a612c1f8266b903bf7c1e2f3c5aa5a2e5d9b16ea5  spec-source/syntax/tables/click-through.md
+  30c30
+  < 37f11ff4a33a5380f4e16ea88cc2c1196de44e54fc66342374855cb1626dcb51  spec-source/examples/annex-a/A.2-1.mpd
+  ---
+  > 054af7874c61abace065a2f235c90ba4c8778c5350d640dcc218dfd5ac027778  spec-source/examples/annex-a/A.2-1.mpd
+  [exit 1]
+$ diff <scratch>/.w/base-files.sha256 <scratch>/.w/head-files.sha256
+  1c1
+  < 37f11ff4a33a5380f4e16ea88cc2c1196de44e54fc66342374855cb1626dcb51  spec-source/examples/annex-a/A.2-1.mpd
+  ---
+  > 054af7874c61abace065a2f235c90ba4c8778c5350d640dcc218dfd5ac027778  spec-source/examples/annex-a/A.2-1.mpd
+  129c129
+  < 6e56205c8749a5102899e88e8c25f04480d2bf075b1056c977d71d933a091b51  spec-source/sgai-spec.src.md
+  ---
+  > 55d9cd275bc7786a725cba5b5231f75cf7f6738ed61a86879462bdabe84d5b92  spec-source/sgai-spec.src.md
+  131c131
+  < 694719db6b6f23f63b99cb0d423d3f63e69e019c33e02095cf3ff307309ea956  spec-source/syntax/syntax.yaml
+  ---
+  > c2b69bfbd8df6378775bda4d3e714462de8ebd4c1ceef44571b2d1157b2b029f  spec-source/syntax/syntax.yaml
+  [exit 1]
+--- §8: the trace
+$ python3 bin/check-incremental.py scope v12.6 v12.7
+  Base v12.6 -> candidato v12.7
+    secciones: 310 en la base, 309 en el candidato, 45 cambiaron, 45 declaradas
+    lineas en secciones cambiadas: 218 de 7484 (2.9%, tope 30%; 38 secciones de cleanup/version no cuentan)
+  RESULT=IN_SCOPE
+  [exit 0]
+$ python3 bin/check-incremental.py anchor v12.7
+  (Context head de v12.7-context-delta.md)
+  7526aa89f5937f0debdeea1c1f16e073d00ed91c
+  [exit 0]
+--- negative: a recorded section left out of the table is REJECT
+$ python3 bin/check-incremental.py scope v12.6 v12.7
+  Base v12.6 -> candidato v12.7
+    secciones: 310 en la base, 309 en el candidato, 45 cambiaron, 44 declaradas
+    lineas en secciones cambiadas: 218 de 7484 (2.9%, tope 30%; 38 secciones de cleanup/version no cuentan)
+    CAMBIO SIN DECLARAR: 5.1.3 The overlay window
+    REGISTRADA EN UN PARCHE Y SIN DECLARAR: 5.1.3
+  RESULT=REJECT
+  [exit 1]
+--- Step 6.1 and the identity
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/emit-extension-xsd.py output/v12.7-sgai-spec.md
+  wrote output/v12.7-sgai-extension.xsd from xml#9 (line 2801); compiles together with ISO 6th-edition DASH-MPD.xsd
+  [exit 0]
+$ cmp output/v12.7-sgai-extension.xsd spec-source/syntax/sgai-extension.xsd
+  [exit 0]
+$ python3 bin/assemble-spec.py --check output/v12.7-sgai-spec.md
+  identical: output/v12.7-sgai-spec.md is the assembly of spec-source (sha256 3626f2620b870ba7b3ae04d69f1977c64ee23e197cb39a1521b4b41239150c87); version 12.7 at 1 place(s); this says nothing about whether the source is right
+  [exit 0]
+--- check-trace: the v12.6 trace, made literal (T-08's population), carried to v12.7
+base: dropped 0 extra unit(s), added 0 missing, dropped 33 non-literal quotation(s) of 25 unit(s)
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-trace.py output-analysis/v12.6-trace.literal.json --population .project/phases/10-code-first-pipeline/tasks/T-08/population-924afcb.tsv --summary
+  {
+   "by_source": {
+    "code": 31,
+    "llm": 133,
+    "vector-pending": 47
+   },
+   "by_verdict": {
+    "met": 207,
+    "partial": 4
+   },
+   "findings": {},
+   "quotes": 348,
+   "section_refs": 387,
+   "units": 211,
+   "with_residual": 13
+  }
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-trace.py stale output-analysis/v12.6-trace.literal.json --old output/v12.6-sgai-spec.md --new output/v12.7-sgai-spec.md
+  {
+   "changed": [
+    "1.2",
+    "1.4",
+    "3.1",
+    "4.1",
+    "4.2",
+    "4.4",
+    "4.5.1",
+    "4.5.10",
+    "4.5.17",
+    "4.5.3",
+    "4.5.4",
+    "4.5.5",
+    "4.5.6",
+    "4.5.7",
+    "4.6",
+    "4.8.3",
+    "4.8.5",
+    "5.0",
+    "5.1.3",
+    "5.1.4",
+    "5.1.7",
+    "5.2.2",
+    "5.2.3",
+    "5.2.6",
+    "5.5.2",
+    "5.6",
+    "6.3",
+    "6.5",
+    "7.12",
+    "7.5",
+    "7.7",
+    "8.1",
+    "8.13",
+    "8.2",
+    "8.3",
+    "A.2",
+    "C.6",
+    "E.4",
+    "E.7.1",
+    "L.7",
+    "L.8",
+    "R.2.4",
+    "R.6",
+    "SGAI for Linear and Non-Linear Ads in MPEG-DASH"
+   ],
+   "removed": [
+    "Refinement gaps"
+   ],
+   "added": [],
+   "units": [
+    "DP-1#p1",
+    "DP-1.1#p1",
+    "DP-1.1#p2",
+    "DP-1.2#p1",
+    "DP-2#p1",
+    "DP-2#p2",
+    "DP-2#p3",
+    "DP-3#p1",
+    "OOS-1#p1",
+    "OOS-4#p1",
+    "R1#p1",
+    "R1#p2",
+    "R1.1",
+    "R1.2",
+    "R1.3",
+    "R1.4",
+    "R1.5",
+    "R10.1",
+    "R10.2",
+    "R11#p1",
+    "R11#p2",
+    "R11#p3",
+    "R11.1",
+    "R11.2",
+    "R11.3",
+    "R11.4",
+    "R11.5",
+    "R12.1",
+    "R12.2",
+    "R12.3",
+    "R12.4",
+    "R13#p1",
+    "R13.1",
+    "R13.4",
+    "R14.1",
+    "R14.2",
+    "R14.3",
+    "R15.2",
+    "R15.3",
+    "R16.1",
+    "R16.2",
+    "R17.4",
+    "R18.1",
+    "R18.2",
+    "R2.1",
+    "R2.2",
+    "R2.3",
+    "R2.4",
+    "R20.1",
+    "R20.2",
+    "R20.3",
+    "R20.4",
+    "R20.5",
+    "R20.6",
+    "R21.1",
+    "R22.1",
+    "R23.1",
+    "R24#p1",
+    "R24#p2",
+    "R24.1",
+    "R25#p1",
+    "R25.1",
+    "R26.1",
+    "R26.2",
+    "R26.3",
+    "R27.1",
+    "R27.3",
+    "R28#p1",
+    "R28.1",
+    "R29.1",
+    "R29.5",
+    "R29.6",
+    "R29.7",
+    "R29.8",
+    "R3.2",
+    "R3.3",
+    "R30.1",
+    "R30.2",
+    "R31.2",
+    "R32.1",
+    "R32.3",
+    "R33.1",
+    "R33.2",
+    "R33.3",
+    "R33.4",
+    "R34.1",
+    "R34.2",
+    "R34.3",
+    "R34.4",
+    "R35.1",
+    "R35.2",
+    "R36.1",
+    "R36.4",
+    "R37.1",
+    "R37.2",
+    "R37.3",
+    "R38.1",
+    "R38.3",
+    "R38.4",
+    "R38.5",
+    "R38.6",
+    "R39.1",
+    "R39.2",
+    "R39.4",
+    "R39.5",
+    "R4#p1",
+    "R4.1",
+    "R4.10",
+    "R4.11",
+    "R4.2",
+    "R4.3",
+    "R4.5",
+    "R4.6",
+    "R4.7",
+    "R4.8",
+    "R4.9",
+    "R40.1",
+    "R40.2",
+    "R40.7",
+    "R40.8",
+    "R5#p1",
+    "R5#p2",
+    "R5#p3",
+    "R5.1",
+    "R5.2",
+    "R5.3",
+    "R5.4",
+    "R5.5",
+    "R5.6",
+    "R5.7",
+    "R6#p1",
+    "R6.1",
+    "R6.2",
+    "R6.3",
+    "R6.7",
+    "R7#p1",
+    "R7#p2",
+    "R7.1",
+    "R7.2",
+    "R7.3",
+    "R7.4",
+    "R7.5",
+    "R8.1",
+    "R8.2",
+    "R9.1",
+    "R9.2",
+    "R9.3",
+    "UC-03",
+    "UC-05",
+    "UC-12"
+   ]
+  }
+  [exit 0]
+carry: 150 stale unit(s); quotations broken in 1 unit(s): ['R11.4']; outside the stale units: []
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-trace.py output-analysis/v12.7-trace.json --population .project/phases/10-code-first-pipeline/tasks/T-08/population-924afcb.tsv --summary
+  {
+   "by_source": {
+    "code": 31,
+    "llm": 133,
+    "vector-pending": 47
+   },
+   "by_verdict": {
+    "met": 207,
+    "partial": 4
+   },
+   "findings": {},
+   "quotes": 347,
+   "section_refs": 386,
+   "units": 211,
+   "with_residual": 13
+  }
+  [exit 0]
+--- the restore of a failed incremental (patches 2, 1, 0 reversed), on a copy
+$ python3 bin/apply-spec-patch.py --reverse output-analysis/v12.7-delta-patch-2.json --source <scratch>/.w/src-copy/sgai-spec.src.md
+  undone: v12.7-delta-patch-2.json; sections restored ['5.1.3', '7.12'], sections removed []; files restored []; prose sha256 now ef87fdd18e5160cf80775635fb53df11915fea35bb3d4c86e26a2eddb698a48f
+  [exit 0]
+$ python3 bin/apply-spec-patch.py --reverse output-analysis/v12.7-delta-patch-1.json --source <scratch>/.w/src-copy/sgai-spec.src.md
+  undone: v12.7-delta-patch-1.json; sections restored [], sections removed []; files restored ['examples/annex-a/A.2-1.mpd', 'syntax/syntax.yaml']; prose sha256 now ef87fdd18e5160cf80775635fb53df11915fea35bb3d4c86e26a2eddb698a48f
+  [exit 0]
+$ python3 bin/apply-spec-patch.py --reverse output-analysis/v12.7-delta-patch-0.json --source <scratch>/.w/src-copy/sgai-spec.src.md
+  undone: v12.7-delta-patch-0.json; sections restored ['1.2', '1.4', '3.1', '4.1', '4.2', '4.4', '4.5.1', '4.5.10', '4.5.17', '4.5.3', '4.5.4', '4.5.5', '4.5.6', '4.5.7', '4.6', '4.8.3', '4.8.5', '5.0', '5.1.3', '5.1.7', '5.2.3', '5.5.2', '6.3', '6.5', '7.12', '7.5', '7.7', '8.1', '8.13', '8.2', '8.3', 'C.6', 'E.4', 'E.7.1', 'L.7', 'L.8', 'R.2.4', 'R.6', 'Refinement gaps', 'SGAI for Linear and Non-Linear Ads in MPEG-DASH'], sections removed []; files restored ['syntax/syntax.yaml']; prose sha256 now 6e56205c8749a5102899e88e8c25f04480d2bf075b1056c977d71d933a091b51
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/gen-syntax-tables.py --source <scratch>/.w/src-copy --findings <scratch>/.w/f.md --write
+  wrote 17 tables; 8 disagreements, 11 overrides, 0 rows missing
+  [exit 0]
+$ python3 bin/assemble-spec.py --source <scratch>/.w/src-copy --check output/v12.6-sgai-spec.md
+  identical: output/v12.6-sgai-spec.md is the assembly of .w/src-copy (sha256 197cbd888adccd34b13c7e085e36907d7f7d859d9906b90e65949ba559e88a22); the prose has no {{version}}; this says nothing about whether the source is right
+  [exit 0]
+$ diff <scratch>/.w/base-all.sha256 <scratch>/.w/restored-all.sha256
+  [exit 0]
+=================== (a) MINOR v12.7 -> v12.8, and its rollback ===================
+$ python3 bin/assemble-spec.py --check output/v12.7-sgai-spec.md
+  identical: output/v12.7-sgai-spec.md is the assembly of spec-source (sha256 3626f2620b870ba7b3ae04d69f1977c64ee23e197cb39a1521b4b41239150c87); version 12.7 at 1 place(s); this says nothing about whether the source is right
+  [exit 0]
+--- 9.1 refine (the hand-written patch stands in for refine-spec)
+$ python3 bin/apply-spec-patch.py output-analysis/v12.8-patch.json --record output-analysis/v12.8-patch.json
+  applied: 2 op(s); sections changed ['8.4']; files changed ['syntax/syntax.yaml'] (0.3% of the document's lines); every change declared
+  [exit 0]
+--- 9.2 assemble, lint, Step 6.1
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/gen-syntax-tables.py --write
+  wrote 17 tables; 8 disagreements, 9 overrides, 0 rows missing
+  [exit 0]
+$ python3 bin/assemble-spec.py --version v12.8 --out output/v12.8-sgai-spec.md --manifest output-analysis/v12.8-source.sha256
+  wrote output/v12.8-sgai-spec.md: 111 inclusions from 111 files; sha256 cf5b9d4eee99573d558c2ac279c1f07a14db27facb5d44016069d068f0e555a5; version 12.8 at 1 place(s)
+  [exit 0]
+$ python3 bin/lint-spec.py output/v12.8-sgai-spec.md
+  CLEAN: output/v12.8-sgai-spec.md: 0 finding(s) (none); 305 numbered headings, 173 ids, 84 xml blocks. A green covers the six rules only; see --help.
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/emit-extension-xsd.py output/v12.8-sgai-spec.md
+  wrote output/v12.8-sgai-extension.xsd from xml#9 (line 2801); compiles together with ISO 6th-edition DASH-MPD.xsd
+  [exit 0]
+$ cmp output/v12.8-sgai-extension.xsd spec-source/syntax/sgai-extension.xsd
+  [exit 0]
+$ python3 bin/assemble-spec.py --check output/v12.8-sgai-spec.md
+  identical: output/v12.8-sgai-spec.md is the assembly of spec-source (sha256 cf5b9d4eee99573d558c2ac279c1f07a14db27facb5d44016069d068f0e555a5); version 12.8 at 1 place(s); this says nothing about whether the source is right
+  [exit 0]
+--- 9.3 conformance tests over the source
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-dash-conformance.py --source spec-source --out-md output-analysis/v12.8-conformance-tests.md --out-json output-analysis/v12.8-conformance-tests.json
+  exit 1: PASS 1201  FAIL 6  NOT_VERIFIABLE 273  NOT_APPLICABLE 1537
+  [exit 1]
+--- 9.4 validation scope: check-trace stale, and the carried trace checked
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-trace.py stale output-analysis/v12.7-trace.json --old output/v12.7-sgai-spec.md --new output/v12.8-sgai-spec.md
+  {
+   "changed": [
+    "5.2.2",
+    "8.4",
+    "SGAI for Linear and Non-Linear Ads in MPEG-DASH"
+   ],
+   "removed": [],
+   "added": [],
+   "units": []
+  }
+  [exit 0]
+carry: 0 stale unit(s); quotations broken in 0 unit(s): []; outside the stale units: []
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/check-trace.py output-analysis/v12.8-trace.json --population .project/phases/10-code-first-pipeline/tasks/T-08/population-924afcb.tsv --summary
+  {
+   "by_source": {
+    "code": 31,
+    "llm": 133,
+    "vector-pending": 47
+   },
+   "by_verdict": {
+    "met": 207,
+    "partial": 4
+   },
+   "findings": {},
+   "quotes": 347,
+   "section_refs": 386,
+   "units": 211,
+   "with_residual": 13
+  }
+  [exit 0]
+--- 9.4a names: the code half
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/gen-syntax-tables.py --check
+  identical: 17 tables; 8 disagreements, 9 overrides, 0 rows missing. This says the tables are generated and every disagreement is listed; it does not say a description is right or that a finding was acted on
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/name-candidates.py
+  name-candidates: 9 of 71 declared names of <scratch>/spec-source/syntax/sgai-extension.xsd are equal or close to one of the 479 of ISO DASH-MPD.xsd (6th edition)
+  
+  - attribute duration — declared in RenderableAssetType (line 150, xs:duration)
+      exact  duration: attribute in PeriodType: xs:duration (line 187); attribute in EventType: xs:unsignedLong (line 237); attribute in MultipleSegmentBaseType: xs:unsignedInt (line 863); attribute in RangeType: xs:duration (line 1080)
+      affix  maxDuration: attribute in AlternativeMPDEventType: xs:unsignedLong (line 1197)
+      affix  presentationDuration: attribute in SegmentBaseType: xs:unsignedLong (line 845)
+      sections: 3.1, 3.5, 4.5.4, 4.6, 4.7.1, 4.7.5, 4.8.1, 4.8.2, 5.0, 5.1.3, 5.2.1, 5.2.3, 5.4, 5.10.1, 6.6, 7.13, 8.2, A.2, A.5, A.7, C.8, Q.2, R.3, R.6
+  - attribute durationCap — declared in OverlayPresentationType (line 98, xs:unsignedLong), PauseAdPresentationType (line 112, xs:unsignedLong)
+      affix  duration: attribute in PeriodType: xs:duration (line 187); attribute in EventType: xs:unsignedLong (line 237); attribute in MultipleSegmentBaseType: xs:unsignedInt (line 863); attribute in RangeType: xs:duration (line 1080)
+      sections: 3.1, 4.2, 4.5.4, 4.8.2, 4.8.3, 8.2, R.2.1, R.2.4, R.6
+  - attribute earliestResolutionTimeOffset — declared in OverlayPresentationType (line 99, xs:unsignedLong), PauseAdPresentationType (line 113, xs:unsignedLong)
+      exact  earliestResolutionTimeOffset: attribute in ImportedMpdType: xs:double (line 195); attribute in AlternativeMPDEventType: xs:unsignedLong (line 1195)
+      sections: 4.2, 4.8.1, 4.8.2, 5.1.3, 6.2, 6.3, A.2, E.2
+  - attribute executeOnce — declared in PauseAdPresentationType (line 115, xs:boolean)
+      exact  executeOnce: attribute in AlternativeMPDEventType: xs:boolean (line 1198)
+      sections: 3.1, 4.2, 4.5.6, 4.8.1, 4.8.2, 7.7, 8.2, E.2, R.2.1, R.2.4
+  - attribute mimeType — declared in RenderableAssetType (line 149, xs:string)
+      exact  mimeType: attribute in RepresentationBaseType: xs:string (line 618)
+      sections: 3.5, 4.2, 4.4, 4.7.1, 4.7.8, 4.8.2, 5.3.2, 5.4, 5.10.1, 8.2, C.8, R.2.3
+  - attribute uri — declared in OverlayPresentationType (line 97, xs:anyURI), PauseAdPresentationType (line 111, xs:anyURI), ClickThroughType (line 160, xs:anyURI)
+      exact  uri: attribute in AlternativeMPDEventType: xs:anyURI (line 1194)
+      sections: 1.2, 3.1, 4.4, 4.7.3, 4.7.6, 4.7.7, 4.8.1, 4.8.2, 4.8.4, 5.8, 5.8.1, 5.8.4, 6.1, 6.2, 7.13, 7.16, 8.13, G.6, N.4, R.4, R.7
+  - attribute validFor — declared in OverlayListType (line 129, xs:duration)
+      affix  valid: attribute in FailoverContentType: xs:boolean (line 902)
+      sections: 4.4, 4.8.2, 5.0, 5.2.5, 8.2, 8.9, R.2.3, R.2.4
+  - element AdTitle — declared in (schema) (line 166, xs:string)
+      affix  Title: element in ProgramInformationType: xs:string (line 1041)
+      sections: 4.8.2, 5.2.1, 6.6, A.7
+  - enumeration repeat — declared in OnExhaustedType (line 81, OnExhaustedType)
+      exact  repeat: enumeration in EventStatusType: EventStatusType (line 256)
+      sections: 4.4, 7.7, E.7.1, R.2.4
+  
+  This list is input for the naming review (categories 3 and 4), not a verdict.
+  [exit 0]
+--- 9.7 WORSE: the restore
+$ python3 bin/apply-spec-patch.py --reverse output-analysis/v12.8-patch.json
+  undone: v12.8-patch.json; sections restored ['8.4'], sections removed []; files restored ['syntax/syntax.yaml']; prose sha256 now 55d9cd275bc7786a725cba5b5231f75cf7f6738ed61a86879462bdabe84d5b92
+  [exit 0]
+$ uv run -q --with lxml==6.1.3 --with pyyaml==6.0.3 --with jsonschema==4.25.1 python3 bin/gen-syntax-tables.py --write
+  wrote 17 tables; 8 disagreements, 9 overrides, 0 rows missing
+  [exit 0]
+$ python3 bin/assemble-spec.py --check output/v12.7-sgai-spec.md
+  identical: output/v12.7-sgai-spec.md is the assembly of spec-source (sha256 3626f2620b870ba7b3ae04d69f1977c64ee23e197cb39a1521b4b41239150c87); version 12.7 at 1 place(s); this says nothing about whether the source is right
+  [exit 0]
+$ diff <scratch>/.w/before-minor.sha256 <scratch>/.w/after-rollback.sha256
+  [exit 0]
+  spec-source sha256 of the file list: before a800a4534663e885  after a800a4534663e885
+--- a second --reverse is refused, nothing written
+$ python3 bin/apply-spec-patch.py --reverse output-analysis/v12.8-patch.json
+  REFUSED: the source moved since the patch was applied: ['sgai-spec.src.md', 'syntax/syntax.yaml']; nothing undone
+  [exit 1]
+=================== the real tree's invariant ===================
+$ python3 bin/assemble-spec.py --check dist/sgai-spec.md
+  identical: dist/sgai-spec.md is the assembly of spec-source (sha256 197cbd888adccd34b13c7e085e36907d7f7d859d9906b90e65949ba559e88a22); the prose has no {{version}}; this says nothing about whether the source is right
+  [exit 0]

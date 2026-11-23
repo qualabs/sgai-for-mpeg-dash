@@ -1,0 +1,9 @@
+{"ops": [
+  {"section": "8.4", "find": "A Player that retries does best to do so only while the opportunity is\nstill ahead",
+   "replace": "A Player that retries does best to retry only while the opportunity is\nstill ahead",
+   "reason": "v12.7-spec-validation.md#T1 (dry run)"},
+  {"file": "syntax/syntax.yaml",
+   "find": "How long the document stays usable after the Player receives it (§5.2.5).",
+   "replace": "How long the document stays usable once the Player receives it (§5.2.5).",
+   "reason": "v12.7-detail-review.md#flag-1 (dry run)"}
+]}

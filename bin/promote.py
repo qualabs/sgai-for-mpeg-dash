@@ -8,8 +8,9 @@ The gates, in order; every one runs and every failure is named:
   3. trace      bin/check-trace.py on output-analysis/v<N>-trace.json exits 0
   4. promotable bin/check-promotable.py on the candidate's sidecars exits 0
   5. compare    bin/compare-candidates.py v<N> says BETTER THAN PUBLISHED
-  6. conformance bin/check-dash-conformance.py on the candidate exits 0
-     (with its extension XSD, output/v<N>-sgai-extension.xsd)
+  6. conformance bin/check-dash-conformance.py --source spec-source exits 0
+     (the source the assemble gate proved to be the candidate's, run by
+     declared class as Step 8.0 runs it)
   7. files      every file of the published set exists for the candidate
 
 When all hold, it copies the published set into the dist directory under
@@ -92,11 +93,11 @@ def gates(v, dist):
     if code == 0 and not line.startswith("BETTER THAN PUBLISHED"):
         code = 1
     res.append(("compare", code, line))
-    if os.path.isfile(path["sgai-extension.xsd"]):
-        res.append(("conformance",) + run(os.path.join(BIN, "check-dash-conformance.py"), spec,
-                                          "--xsd", path["sgai-extension.xsd"]))
-    else:
-        res.append(("conformance", 2, "no extension XSD"))
+    # On the source, as Step 8.0 runs it: the assemble gate above proves the
+    # source is this candidate's, and the document mode would read the
+    # legacy-view examples as Publisher MPDs (ADR 0063).
+    res.append(("conformance",) + run(os.path.join(BIN, "check-dash-conformance.py"), "--out-md", os.devnull, "--source",
+                                      os.path.join(ROOT, "spec-source")))
     return res
 
 

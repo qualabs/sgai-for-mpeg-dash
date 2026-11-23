@@ -312,15 +312,15 @@ remove it at the end.
 
 ```bash
 python3 bin/check-promotable.py --population > W/population.tsv
-python3 bin/check-dash-conformance.py output/v<N>-sgai-spec.md \
-  --out-json W/conformance.json --out-md W/conformance.md
-python3 bin/check-trace.py sources W/conformance.json > W/sources.json
+python3 bin/check-trace.py sources output-analysis/v<N>-conformance-tests.json > W/sources.json
 ```
 
-The conformance run goes to `W/` because the sidecars
-`v<N>-conformance-tests.*` belong to Step 8.0 of `build-all`, which runs
-after the detail review. Exit 1 of the conformance run is a result (its
-FAILs are verdicts); exit 2 stops this step.
+`v<N>-conformance-tests.json` is the output of Step 8.0 of `build-all`,
+which runs before this step, on the source (`check-dash-conformance.py
+--source spec-source`). If it is missing, this step stops: it does not run
+the conformance tests itself, because a run on the assembled document reads
+the `legacy-view` examples as Publisher documents and gives verdicts the
+source run does not. Exit 1 of that run is a result (its FAILs are verdicts).
 
 `W/sources.json` gives each unit its **source**:
 

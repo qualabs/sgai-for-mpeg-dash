@@ -8,15 +8,24 @@ does not duplicate them.
 `v<N>.<M>` from Step 9):
 - `context-analysis/` — pre-spec generated artefacts (5 files, one per
   Step 1-5 prompt). See `1-pre-spec/*.prompt` for individual contracts.
-- `output/v<N>-sgai-spec.md` — the spec itself (Step 6,
-  `2-build/build-spec.prompt`), and `output/v<N>-sgai-extension.xsd`,
-  its extension schema extracted from it (Step 6.1).
-- `output-analysis/v<N>-*` — 4 sidecars per major iteration: the
-  validation (Step 7), the detail review (Step 7.5), the conformance
-  tests (Step 8.0, a `.md` and a `.json`) and the audit's suspicions
-  (Step 8); see `3-post-spec/`. Auto-refine iterations (Step 9) produce
-  the extension schema, the same 4 sidecars and a `vN.M-comparison.md`
-  (see `4-auto-refine/`).
+- `spec-source/` — the source of the spec (ADR 0060), edited by patches
+  (ADR 0066). **Invariant: `spec-source/` is always the source of the
+  newest candidate in `output/`** (`bin/assemble-spec.py --check` on it
+  exits 0); every step that edits it either assembles a new candidate or
+  undoes its edit.
+- `output/v<N>-sgai-spec.md` — the spec, assembled from `spec-source/`
+  after the major delta (Step 6, `2-build/apply-context-delta.prompt` in
+  major mode), and `output/v<N>-sgai-extension.xsd`, its extension schema
+  (Step 6.1). The patch records, the source manifest and the trace
+  (`output-analysis/v<N>-delta-patch-<k>.json`, `v<N>-source.sha256`,
+  `v<N>-context-delta.md`) go with it.
+- `output-analysis/v<N>-*` — per major iteration: the conformance tests
+  (Step 8.0, a `.md` and a `.json`), the validation with its trace and
+  summary (Step 7), the detail review and its patch (Step 7.5) and the
+  audit's suspicions (Step 8); see `3-post-spec/`. Auto-refine iterations
+  (Step 9) produce their patch, the candidate and its schema, the same
+  sidecars except the audit (carried, ADR 0071), and a
+  `vN.M-comparison.md` (see `4-auto-refine/`).
 
 Every output above is a **candidate**. This orchestrator never writes
 to `dist/`, which holds the published build and receives a candidate
@@ -190,12 +199,15 @@ output file is overwritten in place.
 
 ### Stage 2 — Build (`2-build/`)
 
-#### Step 6 — Spec build
+#### Step 6 — Major delta on the source
 
-The `build-spec` prompt produces a single artifact: the spec
-itself (`output/v<N>-sgai-spec.md`). The validation sidecar and
-the audit are produced by separate steps (7 and 8) that run in
-**fresh subagent** contexts.
+A major is no longer a document generated from scratch (ADR 0067): it is
+`prompts/2-build/apply-context-delta.prompt` in **major mode** — the same
+path as an incremental, with no changed-fraction cap and allowed to add
+and retire constructs and sections — applied to `spec-source/`, the source
+of the newest candidate. It runs in a **fresh subagent** context, and the
+validation and the audit are separate steps (7 and 8) in fresh subagents
+of their own.
 
 Before invoking the prompt, resolve the iteration number `N` as
 described in the header (Version numbering): scan
@@ -206,16 +218,58 @@ happened**: read the promoted candidate from `dist/PROVENANCE.md` and
 count from there instead. Only when there is neither a candidate in
 `output/` nor a `dist/PROVENANCE.md` is `N = 1`. Reusing a number git
 history already holds for a different document is the failure this
-guards against. Pass `N` to the `build-spec` prompt as an input.
+guards against.
 
-- Find the newest `output/v*-sgai-spec.md` file (if any). If it
-  exists AND its mtime is newer than the newest mtime in `context/`
-  AND newer than `context-analysis/dash-gap-analysis.md` AND newer than
-  `context-analysis/iab-ad-templates.md` → log
-  `[SKIPPED] build-spec → <latest filename>`.
-- Else → invoke the spec-build instructions in
-  `prompts/2-build/build-spec.prompt` with iteration number `N` and log
-  `[BUILT] build-spec → output/v<N>-sgai-spec.md`.
+The base `v<B>` is the newest candidate in `output/` (compared numerically
+on both components). Preconditions, each stopping the build with its
+reason verbatim:
+
+1. `output/` holds a candidate. If it does not, stop: a major is a delta
+   on a base, and the source alone does not say which commit of
+   `context/` it was built from.
+2. `python3 bin/assemble-spec.py --check output/v<B>-sgai-spec.md` exits
+   0 (the invariant in the header).
+3. `git status --porcelain -- context/` prints nothing.
+4. `ANCHOR` is `bin/check-incremental.py anchor v<B>`; exit 2 stops.
+
+Skip rule: if `git diff --quiet ANCHOR..HEAD -- context/` holds (no
+delta), no `needs-structure` row is pending (an
+`output-analysis/v<X>-context-delta.md` with no `output/v<X>-sgai-spec.md`
+and `Context base:` equal to `ANCHOR`) and no `MAJOR_BRIEF` was given →
+log `[SKIPPED] apply-context-delta (major) → output/v<B>-sgai-spec.md`, and
+from here on `v<N>` means `v<B>`: the post-spec steps and the loop run on
+it under their own skip rules.
+
+Otherwise → dispatch a fresh subagent that follows
+`prompts/2-build/apply-context-delta.prompt` with `MODE=major`, base
+`v<B>`, target `v<N>`, `ANCHOR`, `HEAD` and `MAJOR_BRIEF` if any, and log
+`[BUILT] apply-context-delta (major) → output/v<N>-sgai-spec.md`. The step
+applies the one-time cleanup of the old pipeline's marks first
+(`bin/strip-legacy-annotations.py`, its §1): the first build on the new
+pipeline removes them, every later one finds nothing.
+
+Then, before paying for any analysis:
+
+```bash
+python3 bin/assemble-spec.py --check output/v<N>-sgai-spec.md
+python3 bin/lint-spec.py output/v<N>-sgai-spec.md
+python3 bin/check-incremental.py scope v<B> v<N> --max-fraction inf
+```
+
+All three exit 0, or the build stops: the first two say the candidate is
+the source's and clean, the third that it changed exactly the sections
+its trace declares (no cap: a major may change any amount). On a failure
+the candidate does not go on: undo the patches (Step 9.7's restore,
+applied to every `v<N>-delta-patch-<k>.json` from the highest `k` down,
+and delete the files the trace lists as `added` under **Artefacts
+changed**), check that `bin/assemble-spec.py --check
+output/v<B>-sgai-spec.md` exits 0 again, delete the candidate, keep the
+trace and the patches for inspection, and report the outputs verbatim.
+
+`bin/check-incremental.py anchor v<N>` reads `Context head` from
+`output-analysis/v<N>-context-delta.md`, so the next incremental starts
+from the right commit without the candidate having to be committed
+first.
 
 #### Step 6.1 — Emit the extension schema (blocking)
 
@@ -223,11 +277,15 @@ Right after Step 6, run inline (deterministic code, no subagent):
 
 ```bash
 bin/emit-extension-xsd.py output/v<N>-sgai-spec.md
+cmp output/v<N>-sgai-extension.xsd spec-source/syntax/sgai-extension.xsd
 ```
 
-It copies the spec's §5.10.1 `xs:schema` block byte for byte to
-`output/v<N>-sgai-extension.xsd` (ADR 0047), and writes it only if it
-compiles together with ISO's 6th-edition `DASH-MPD.xsd`.
+The §5.10.1 block is `spec-source/syntax/sgai-extension.xsd` included by
+the `{{xsd}}` directive, so the emitted file is that file: the script
+copies the block byte for byte (ADR 0047) and writes it only if it
+compiles together with ISO's 6th-edition `DASH-MPD.xsd`, and `cmp` says
+the copy is the source. A `cmp` difference is a runtime error: the
+candidate is not the source's.
 
 - **Exit 0** — log `[BUILT] emit-extension-xsd → output/v<N>-sgai-extension.xsd`
   and continue.
@@ -237,137 +295,146 @@ compiles together with ISO's 6th-edition `DASH-MPD.xsd`.
   without its schema does not go on to Step 7.
 - **Exit 64** — the invocation was wrong; fix the call.
 
-Skip rule: if `output/v<N>-sgai-extension.xsd` exists AND its mtime is
-newer than `output/v<N>-sgai-spec.md` → log
+Skip rule: if `output/v<N>-sgai-extension.xsd` exists AND `cmp` with
+`spec-source/syntax/sgai-extension.xsd` holds AND `bin/assemble-spec.py
+--check output/v<N>-sgai-spec.md` exits 0 → log
 `[SKIPPED] emit-extension-xsd → output/v<N>-sgai-extension.xsd`.
 
 ### Stage 3 — Post-spec analysis (`3-post-spec/`)
 
-Run after each major or minor spec iteration to produce the 4 sidecars.
+Run after the major (or incremental) delta. The order is the order of
+what each step reads: code first, so the LLM steps read its results.
 
-#### Step 7 — Validate spec (fresh subagent)
+**8.0 → 7 → 7.5 → 8.** The conformance tests run first because the
+validation takes its `code` verdicts from them; the detail review reads
+the validation's flag ids; the audit reads the tests and the trace of what
+changed. The numbers are kept from the old order so references to them
+stay valid.
 
-This step MUST dispatch a **fresh subagent** — do not run inline
-in the orchestrator's own context. The validation agent has zero
-context overlap with the spec-build agent. Independent peer review
-of the spec draft is the whole point; sharing context defeats it.
+#### Step 8.0 — Conformance tests (deterministic, inline, first)
 
-- Find the newest `output-analysis/v*-spec-validation.md` file (if any). If
-  it exists AND its mtime is newer than the newest mtime in
-  `context/` AND newer than the newest `output/v*-sgai-spec.md` →
-  log `[SKIPPED] validate-spec → <latest filename>`.
-- Else → dispatch a fresh subagent that follows the instructions in
-  `prompts/3-post-spec/validate-spec.prompt` with iteration number `N` and log
-  `[BUILT] validate-spec → output-analysis/v<N>-spec-validation.md`.
-
-#### Step 7.5 — Review spec details
-
-This step catches the kind of micro-consistency issues that emerged
-as Marginal items M-3 and M-4 in the 2026-05-12 conformance audit —
-naming reuse with different semantics, format inconsistencies (e.g.
-the `@profiles` delimiter), cross-reference typos, and annex/chapter
-mismatches. It runs after `validate-spec` (which checks the spec
-against `context/` requirements) and before the conformance tests and
-the audit (which check the spec against the external MPEG-DASH 6th
-edition). The progression is: high-level conformance → low-level
-internal consistency → external-standard conformance. The output
-handed to Step 8.0 is therefore the post-detail-review spec, not the
-raw output of Step 6.
-
-**Inputs**: the most recent `output/v*-sgai-spec.md` (from Step 6),
-the matching `output-analysis/v*-spec-validation.md` (from Step 7),
-and `context/` (read-only).
-
-**Outputs**:
-- `output-analysis/v<N>-detail-review.md` (the review log).
-- In-place autofixes to the spec for deterministic, low-risk
-  corrections (delimiters, whitespace, cross-ref typos, missing
-  `xmlns:svta=` on examples, annex examples regenerated to match
-  chapter declarations). Issues that require a semantic decision
-  (e.g. a rename driven by `context/06-naming-and-namespaces.md`)
-  are flagged in the log only; the spec is not touched for those.
-
-**Execution mode**: this step is deterministic (it consults no
-external authority); it
-may run inline rather than dispatching a fresh subagent. The skip
-rule is owned by the prompt itself.
-
-- Find the newest `output-analysis/v*-detail-review.md` file (if any). Apply
-  the skip rule in `prompts/3-post-spec/review-spec-details.prompt`: skip if
-  the review log is newer than ALL of the matching spec, the
-  matching validation sidecar, `context/06-naming-and-namespaces.md`,
-  `context/07-backward-compat-checklist.md`, and the prompt itself
-  → log `[SKIPPED] review-spec-details → <latest filename>`.
-- Else → invoke the instructions in
-  `prompts/3-post-spec/review-spec-details.prompt` with iteration number `N`
-  and log
-  `[BUILT] review-spec-details → output-analysis/v<N>-detail-review.md`.
-  If autofixes were applied, the spec's mtime advances — this is
-  expected and does not trigger a Step 6 re-run on the same build.
-
-#### Step 8.0 — Conformance tests (deterministic, inline)
-
-The conformance verdict is computed by code (ADR 0053). Two commands,
-run inline — they are deterministic, so no subagent:
+The conformance verdict is computed by code (ADR 0053), over the source
+(ADR 0063), which is the candidate's by the header's invariant. Run
+inline — deterministic, so no subagent:
 
 ```bash
-bin/emit-extension-xsd.py output/v<N>-sgai-spec.md
-python3 bin/check-dash-conformance.py output/v<N>-sgai-spec.md \
+python3 bin/assemble-spec.py --check output/v<N>-sgai-spec.md
+python3 bin/check-dash-conformance.py --source spec-source \
   --out-md output-analysis/v<N>-conformance-tests.md \
   --out-json output-analysis/v<N>-conformance-tests.json
 ```
 
-The schema is extracted again because Step 7.5 may have autofixed the
-spec in place, and `check-dash-conformance` gives `FAIL` when the file
-and the block differ. The same exits as Step 6.1 apply to the first
-command.
-
-`check-dash-conformance` runs levels 1 and 2: the extension schema and
-the spec's example documents against ISO/IEC 23009-1 6th edition
-(E-1..E-4, the identity of the schema file with the block, the base
-standard's rules the schema cannot express), and the document criteria
-of `context/03`. Its exit is recorded, and **it does not stop the
-build**: `0` nothing fails, `1` at least one `FAIL`, `2` cannot tell
-(ISO's pinned schema unavailable or mismatched, no single schema block,
-a level-2 rule that no longer matches `context/03`), `64` wrong command
-line. A `FAIL` is an issue for Step 9 and blocks promotion through
-`bin/check-promotable.py`; a `2` makes that check exit `2`.
+The first command must exit 0 (otherwise the source is not the
+candidate's and the tests would judge another document: runtime error).
+`--source` runs levels 1 and 2 on each fixture by the class
+`examples/index.yaml` declares, with the source's extension schema, plus
+the source-only rules (FIX-1, FIX-2, C06-1a/b, DASH-REF): see its
+`--help`. Its exit is recorded, and **it does not stop the build**: `0`
+nothing fails, `1` at least one `FAIL`, `2` cannot tell (ISO's pinned
+schema unavailable or mismatched, a level-2 rule that no longer matches
+`context/03`), `64` wrong command line. A `FAIL` is an issue for Step 9
+and blocks promotion through `bin/check-promotable.py`; a `2` makes that
+check exit `2`.
 
 Its green says every rule decidable by code passed on the instances the
-spec contains. It says nothing about what is `NOT_VERIFIABLE` (listed
+source contains. It says nothing about what is `NOT_VERIFIABLE` (listed
 with its reason) or about constructs the spec has no example of.
 
 The legacy Players (`--players`, level 3a) are not a build step: they
-inform and do not block until their runs are stable (ADR 0057). They
-are run by hand, or through the demo (`--demo`).
+inform and do not block until their runs are stable (ADR 0057). They are
+run by hand, or through the demo (`--demo`), on the assembled document.
 
-- If `output-analysis/v<N>-conformance-tests.json` exists AND its mtime
-  is newer than both `output/v<N>-sgai-spec.md` and
-  `output/v<N>-sgai-extension.xsd` → log
+- If `output-analysis/v<N>-conformance-tests.json` exists AND the
+  `assemble-spec --check` above exits 0 AND the `.json` is newer than every
+  file `output-analysis/v<N>-source.sha256` lists → log
   `[SKIPPED] check-dash-conformance → output-analysis/v<N>-conformance-tests.json`.
-- Else → run both commands and log
+- Else → run them and log
   `[BUILT] check-dash-conformance → output-analysis/v<N>-conformance-tests.{md,json} (exit <e>)`.
 
-#### Step 8 — Suspicions audit (fresh subagent)
+#### Step 7 — Validate spec (fresh subagent)
 
-The LLM audit runs after the tests as their complement: it reads
-`output-analysis/v<N>-conformance-tests.md` and reports, as
-suspicions, the places where it suspects the base standard is violated
-or ambiguous and no test decides. It gives no verdict and blocks
-nothing; a suspicion blocks only once someone turns it into a rule and
-that rule fails (ADR 0053, 0057).
+This step MUST dispatch a **fresh subagent** — do not run inline in the
+orchestrator's own context. The validation agent has zero context overlap
+with the agent that applied the delta: independent review is the point.
 
-This step MUST also dispatch a **fresh subagent** — separate from
-both the spec-build agent (Step 6) and the validate-spec agent
-(Step 7). Context overlap with prior steps biases the reading.
+`prompts/3-post-spec/validate-spec.prompt` with iteration `N` and its
+mode (`major` here; `incremental` from `build-incremental`; `refine` in
+Step 9). It writes the sidecar, the trace (`v<N>-trace.json`, checked by
+`bin/check-trace.py`) and the machine summary; it reads the units' source
+(`code` / `vector-pending` / `llm`) from the conformance tests of Step
+8.0. In a major and an incremental it walks every unit that code does not
+decide and runs the **open search** — the one read of the whole document
+in the pipeline (ADR 0068); in a refine, only the units whose sections
+changed (`bin/check-trace.py stale`).
 
-- Find the newest `output-analysis/v*-dash-conformance-audit.md` file (if
-  any). If it exists AND its mtime is newer than the newest
-  `output/v*-sgai-spec.md` and the matching
-  `output-analysis/v*-conformance-tests.md` → log
-  `[SKIPPED] audit-dash-conformance → <latest filename>`.
-- Else → dispatch a fresh subagent that follows the instructions in
-  `prompts/3-post-spec/audit-dash-conformance.prompt` with iteration number `N`
+- If the three outputs exist AND the sidecar is newer than
+  `output/v<N>-sgai-spec.md` and than
+  `output-analysis/v<N>-conformance-tests.json` → log
+  `[SKIPPED] validate-spec → output-analysis/v<N>-spec-validation.md`.
+- Else → dispatch and log
+  `[BUILT] validate-spec → output-analysis/v<N>-spec-validation.md (+ trace, summary)`.
+
+#### Step 7.5 — Review the names
+
+`prompts/3-post-spec/review-spec-details.prompt` judges only what needs
+judgement: an extension name that reuses a base DASH name with different
+semantics, or a new name for a base concept (ADR 0069). It reads the list
+`bin/name-candidates.py` builds from the extension schema and ISO's
+`DASH-MPD.xsd`, and only the sections that list names — never the spec
+whole. The other categories the old review covered are code: tables
+generated (`bin/gen-syntax-tables.py --check`), cross-references and ids
+(`bin/lint-spec.py`), examples included byte for byte and validated (Step
+8.0).
+
+**It edits nothing.** A fix it is sure of is written as patch ops in
+`output-analysis/v<N>-detail-review.patch.json`, which the next refine
+(9.1) includes in its own patch; a name that needs a decision is a flag in
+the log. So the candidate validated in Step 7 is the candidate promoted,
+byte for byte.
+
+**Execution mode**: deterministic over its inputs; it may run inline.
+
+Before it, run the code half of the old review, inline, and record each
+exit in the log line (a non-zero exit is an issue for Step 9, not a stop):
+
+```bash
+python3 bin/gen-syntax-tables.py --check
+python3 bin/lint-spec.py output/v<N>-sgai-spec.md
+```
+
+- Skip rule (owned by the prompt): the log exists AND is newer than all of
+  `output/v<N>-sgai-spec.md`, `spec-source/syntax/sgai-extension.xsd`,
+  `context/06-naming-and-namespaces.md`, `bin/name-candidates.py` and the
+  prompt → log `[SKIPPED] review-spec-details → output-analysis/v<N>-detail-review.md`.
+- Else → invoke `prompts/3-post-spec/review-spec-details.prompt` with
+  iteration `N` and log
+  `[BUILT] review-spec-details → output-analysis/v<N>-detail-review.md (<f> flags, <m> with patch ops)`.
+
+#### Step 8 — Suspicions audit (fresh subagent, once per major or incremental)
+
+The LLM audit is the tests' complement: it reports, as suspicions, places
+where it suspects the base standard is violated or ambiguous and no test
+decides. It gives no verdict and blocks nothing (ADR 0053, 0057). It runs
+**once per major or incremental, over the constructs new or changed**
+(ADR 0071) — the sections and artefact files of
+`output-analysis/v<N>-context-delta.md` — and **never inside the Step 9
+loop**: a refine adds no construct, and a suspicion confirmed by code
+becomes a rule of the tests, which the loop does run.
+
+This step MUST dispatch a **fresh subagent**, separate from the agent that
+applied the delta and from the validation's. Context overlap biases the
+reading.
+
+- If `output-analysis/v<N>-dash-conformance-audit.md` exists AND is newer
+  than `output-analysis/v<N>-context-delta.md` and
+  `output-analysis/v<N>-conformance-tests.md` → log
+  `[SKIPPED] audit-dash-conformance → output-analysis/v<N>-dash-conformance-audit.md`.
+- If Step 6 was skipped (no delta, so nothing new or changed) and the
+  candidate has an audit → log the same `[SKIPPED]`; with none, there is
+  nothing to scope it to: log `[SKIPPED] audit-dash-conformance → no
+  delta to audit`.
+- Else → dispatch a fresh subagent that follows
+  `prompts/3-post-spec/audit-dash-conformance.prompt` with iteration `N`
   and log
   `[BUILT] audit-dash-conformance → output-analysis/v<N>-dash-conformance-audit.md`.
 
@@ -377,51 +444,85 @@ Loop until convergence (or `MAX_REFINEMENTS`, or regression).
 
 #### Step 9 — Auto-refine until convergence
 
-After the major build (steps 1-8) produces `v<N>-sgai-spec.md` plus
-its extension schema and its four sidecars, the orchestrator enters a minor-refinement loop
-that drives the spec toward convergence without changing
-requirements. The loop is gated by `BUILD_ALL_AUTO_REFINE` (default
-`true`) and capped at `MAX_REFINEMENTS` iterations (default `5`);
-both are configurable via `.env.agent` — see "Step 9 configuration"
-below.
+After the major delta (steps 6–8) produces `v<N>-sgai-spec.md`, its
+extension schema and its sidecars, the orchestrator enters a
+minor-refinement loop that drives the spec toward convergence without
+changing requirements. The loop is gated by `BUILD_ALL_AUTO_REFINE`
+(default `true`) and capped at `MAX_REFINEMENTS` iterations (default `5`);
+both are configurable via `.env.agent` — see "Step 9 configuration" below.
 
 If `BUILD_ALL_AUTO_REFINE=false`, skip the loop entirely and log
-`[SKIPPED] auto-refine → BUILD_ALL_AUTO_REFINE=false`. The major
-build artefacts (`v<N>-...`) are the final outputs of this run.
+`[SKIPPED] auto-refine → BUILD_ALL_AUTO_REFINE=false`. The major build
+artefacts (`v<N>-...`) are the final outputs of this run.
+
+A round reads sections, never the document: the refine reads the sections
+its issues point at, the validation walks only the units whose sections
+changed, and the rest is code. The audit does not run in the loop (ADR
+0071).
 
 Otherwise, let `M := 0` (the major spec is the implicit `v<N>.0`
-baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
+baseline; below, `v<N>.<M>` with `M = 0` names `v<N>`) and iterate
+`K = 1` to `MAX_REFINEMENTS`:
 
-  9.1 Run `prompts/4-auto-refine/refine-spec.prompt`.
-      - Input: the latest `output/v<N>.<M>-sgai-spec.md` (the
-        major `v<N>-sgai-spec.md` on iteration K=1, then the
-        previously accepted minor on subsequent iterations) and the
-        sidecars matching `v<N>.<M>`.
-      - Output: `output/v<N>.<M+1>-sgai-spec.md`.
-      - Log `[BUILT] refine-spec → output/v<N>.<M+1>-sgai-spec.md`.
-      - Then run Step 6.1 against `v<N>.<M+1>`. Exit 1 or 2 is a
-        runtime error of the iteration (see below): the candidate
-        does not go on.
+  9.1 **Refine, as a patch.** Run `prompts/4-auto-refine/refine-spec.prompt`
+      (fresh subagent).
+      - Input: `v<N>.<M>`, its source (`spec-source/`, the invariant), its
+        sidecars, and `output-analysis/v<N>.<M>-detail-review.patch.json`
+        if Step 7.5 wrote one (the refine includes its ops).
+      - Output: `output-analysis/v<N>.<M+1>-patch.json` (the patch as
+        recorded by `bin/apply-spec-patch.py --record`, with what undoing
+        it needs), `spec-source/` patched, and
+        `output-analysis/v<N>.<M+1>-refine-gaps.md` when something could not
+        be resolved by a minimal edit.
+      - Log `[BUILT] refine-spec → output-analysis/v<N>.<M+1>-patch.json (<X> ops, <S> sections, <F> files)`.
 
-  9.2 Run `prompts/3-post-spec/validate-spec.prompt` against
-      `v<N>.<M+1>`.
-      - Output: `output-analysis/v<N>.<M+1>-spec-validation.md`.
+  9.2 **Assemble and check, inline:**
 
-  9.3 Run `prompts/3-post-spec/review-spec-details.prompt` against
-      `v<N>.<M+1>`.
-      - Output: `output-analysis/v<N>.<M+1>-detail-review.md`.
-      - May apply in-place autofixes per its semantics.
+      ```bash
+      python3 bin/gen-syntax-tables.py --write      # only if the patch changed syntax/
+      python3 bin/assemble-spec.py --version v<N>.<M+1> \
+        --out output/v<N>.<M+1>-sgai-spec.md \
+        --manifest output-analysis/v<N>.<M+1>-source.sha256
+      python3 bin/lint-spec.py output/v<N>.<M+1>-sgai-spec.md
+      ```
 
-  9.3a Run Step 8.0 against `v<N>.<M+1>`: re-emit the schema, then
-      `bin/check-dash-conformance.py`.
-      - Output: `output-analysis/v<N>.<M+1>-conformance-tests.md` and
-        `.json`.
+      (The refine may already have assembled: then `bin/assemble-spec.py
+      --check output/v<N>.<M+1>-sgai-spec.md` exiting 0 replaces the
+      second command.) Then Step 6.1 against `v<N>.<M+1>` (emit the schema,
+      `cmp` with the source's). An assembly exit 2 or a schema that does
+      not compile is a runtime error of the iteration (below).
 
-  9.4 Run `prompts/3-post-spec/audit-dash-conformance.prompt`
-      against `v<N>.<M+1>`.
-      - Output:
-        `output-analysis/v<N>.<M+1>-dash-conformance-audit.md`
-        (suspicions only).
+      **A lint finding is a defect the refine introduced** (the major
+      left the document clean, Step 6). Undo the round (the restore of
+      9.7), and run 9.1 once more with `lint-spec`'s output added to the
+      refine's issue list. A second lint failure undoes the round again
+      and ends the loop as `[ERROR] iter K: lint`.
+
+  9.3 **Conformance tests** — Step 8.0 against `v<N>.<M+1>`.
+      - Output: `output-analysis/v<N>.<M+1>-conformance-tests.md` and `.json`.
+
+  9.4 **Validation, scoped to what changed** — Step 7 against
+      `v<N>.<M+1>` in `refine` mode: `validate-spec` walks the units of
+      `bin/check-trace.py stale output-analysis/v<N>.<M>-trace.json --old
+      output/v<N>.<M>-sgai-spec.md --new output/v<N>.<M+1>-sgai-spec.md`
+      (plus the new and the not-`met` ones, as its §B.2 says), carries
+      every other unit over from `v<N>.<M>`, and re-examines the open
+      search only on the changed sections.
+      - Output: `output-analysis/v<N>.<M+1>-spec-validation.md`, its
+        `.summary.json` and `v<N>.<M+1>-trace.json`.
+
+  9.4a **Names** — Step 7.5 against `v<N>.<M+1>` (its code half and the
+      names-only review). Its patch, if any, is the next round's input.
+      - Output: `output-analysis/v<N>.<M+1>-detail-review.md` and, if any,
+        `v<N>.<M+1>-detail-review.patch.json`.
+
+  9.4b **The audit is carried, not re-run.** Copy
+      `output-analysis/v<N>.<M>-dash-conformance-audit.md` to
+      `output-analysis/v<N>.<M+1>-dash-conformance-audit.md` unchanged
+      (`cp`): its header still names the candidate it audited, which is
+      true, and the promotion's file set and `check-promotable.py` find
+      the sidecar where they look for it. Log
+      `[CARRIED] audit-dash-conformance → v<N>.<M+1> (audited v<N>.<M'>)`.
 
   9.5 Run `bin/check-promotable.py`. This is the loop's **stop
       condition**, and it runs before the comparison because a stop
@@ -524,7 +625,7 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
 
       - **BETTER THAN PUBLISHED** (the rule of
         `bin/compare-candidates.py`, see "Step 9 configuration"):
-          keep `v<N>.<M+1>`, its extension schema, its four sidecars
+          keep `v<N>.<M+1>`, its extension schema, its sidecars
           and its comparison.
           Log `[ITER K] BETTER THAN PUBLISHED, <X> issues below
           dist/, <Y> remaining`.
@@ -538,19 +639,50 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
 
       - **WORSE THAN PUBLISHED** (a unit, the conformance `FAIL` or
         the blocking routed findings got worse than the published build):
-          rollback — delete the eight artefacts produced in this
-          iteration:
+          rollback — **the source first, then the files** (the restore
+          below, which 9.2 and the error handling also use):
+
+          ```bash
+          python3 bin/apply-spec-patch.py --reverse output-analysis/v<N>.<M+1>-patch.json
+          python3 bin/gen-syntax-tables.py --write    # only if the record's files_changed has syntax/
+          python3 bin/assemble-spec.py --check output/v<N>.<M>-sgai-spec.md
+          ```
+
+          `--reverse` rebuilds the source from the record: it refuses,
+          writing nothing, when `spec-source/` moved since the patch was
+          applied (its sha256 is not the record's after) or when what it
+          rebuilds is not the source before (not the record's sha256
+          before). The last command must exit 0: `spec-source/` is again,
+          byte for byte, the source of `v<N>.<M>`. A refusal or a
+          non-zero exit is an `[ERROR]` (below) with the outputs verbatim,
+          and nothing is deleted: the operator has to see the state.
+
+          Then delete what the iteration produced:
             `output/v<N>.<M+1>-sgai-spec.md`,
             `output/v<N>.<M+1>-sgai-extension.xsd`,
-            `output-analysis/v<N>.<M+1>-spec-validation.md`,
-            `output-analysis/v<N>.<M+1>-detail-review.md`,
+            `output-analysis/v<N>.<M+1>-patch.json`,
+            `output-analysis/v<N>.<M+1>-source.sha256`,
+            `output-analysis/v<N>.<M+1>-refine-gaps.md` (if any),
             `output-analysis/v<N>.<M+1>-conformance-tests.md`,
             `output-analysis/v<N>.<M+1>-conformance-tests.json`,
+            `output-analysis/v<N>.<M+1>-spec-validation.md`,
+            `output-analysis/v<N>.<M+1>-spec-validation.summary.json`,
+            `output-analysis/v<N>.<M+1>-trace.json`,
+            `output-analysis/v<N>.<M+1>-detail-review.md`,
+            `output-analysis/v<N>.<M+1>-detail-review.patch.json` (if any),
             `output-analysis/v<N>.<M+1>-dash-conformance-audit.md`,
             `output-analysis/v<N>.<M+1>-comparison.md`.
           Log `[WORSE] at iter K, <N> net issues above dist/,
           kept v<N>.<M> as final`.
           Break the loop and proceed to Final summary.
+
+          Why the record and not git: the pipeline commits nothing
+          (commits are the operator's), so there is no commit of
+          `v<N>.<M>`'s source to return to, and stashing would sweep up
+          whatever else the tree holds. The record already carries the
+          state before and both sha256, so the undo is checked at both
+          ends by the script and a third time, independently, by the
+          assembly check against the previous candidate.
 
       Accepting a minor here means the loop keeps building on it.
       **No verdict promotes anything into `dist/`.** Step 9 never
@@ -568,8 +700,13 @@ On runtime errors during any sub-step (model failure, timeout,
 sidecar generation exception): break the loop, keep the last
 successful `v<N>.<M>`, log
 `[ERROR] iter K: <one-line reason>, kept v<N>.<M> as final` and
-proceed to Final summary. Do NOT attempt to clean up partial
-artefacts on error — surface them so the operator can inspect.
+proceed to Final summary. Do NOT delete partial artefacts on error —
+surface them so the operator can inspect. One thing is restored: if the
+round's patch was applied and `output/v<N>.<M+1>-sgai-spec.md` was not
+assembled, run the restore of 9.7 (its three commands), so that
+`spec-source/` is again the source of the newest candidate in `output/`
+(the header's invariant). When the candidate was assembled, the source is
+already its source and nothing is undone.
 
 ##### Step 9 configuration
 
@@ -592,16 +729,18 @@ Print a summary block:
 
 ```
 SGAI build summary (iteration v<N>, head v<N>.<M_final>, YYYY-MM-DD HH:MM):
-  [BUILT|SKIPPED] analyze-dash-gap                → context-analysis/dash-gap-analysis.md (mtime: ...)
-  [BUILT|SKIPPED] build-error-semantics           → context-analysis/error-semantics.md (mtime: ...)
-  [BUILT]         analyze-iab-ad-templates        → context-analysis/iab-ad-templates.md (mtime: ...)
-  [BUILT|SKIPPED] build-spec                      → output/v<N>-sgai-spec.md (mtime: ...)
-  [BUILT|SKIPPED] emit-extension-xsd              → output/v<N>-sgai-extension.xsd (mtime: ...)
-  [BUILT|SKIPPED] validate-spec                   → output-analysis/v<N>-spec-validation.md (mtime: ...)
-  [BUILT|SKIPPED] review-spec-details             → output-analysis/v<N>-detail-review.md (mtime: ...)
-  [BUILT|SKIPPED] check-dash-conformance          → output-analysis/v<N>-conformance-tests.{md,json} (exit <e>; FAIL <f>, NOT_VERIFIABLE <nv>)
-  [BUILT|SKIPPED] audit-dash-conformance          → output-analysis/v<N>-dash-conformance-audit.md (<s> suspicions)
-  [SKIPPED|CLEAR|NEEDS_HUMAN|CONTEXT_CHANGE|UNCERTAIN|NO_BETTER|WORSE|NO_BASELINE|MAX_ITER|ERROR] auto-refine → head=v<N>.<M_final> after <K> iterations
+  [OK|FAIL]       gates 0, 0.5, 0.6, 0.7
+  [BUILT|SKIPPED] analyze-dash-gap                → context-analysis/dash-gap-analysis.md
+  [BUILT|SKIPPED] build-error-semantics           → context-analysis/error-semantics.md
+  [BUILT]         analyze-iab-ad-templates        → context-analysis/iab-ad-templates.md
+  [BUILT|SKIPPED] legacy cleanup                  → output-analysis/v<N>-delta-patch-0.json (<c> comments, <g> gaps sections, <s> status lines) | none left
+  [BUILT|SKIPPED] apply-context-delta (major)     → output/v<N>-sgai-spec.md (base v<B>; <p> placed, <u> not placed; <S> sections, <F> artefact files; lint 0; scope IN_SCOPE)
+  [BUILT|SKIPPED] emit-extension-xsd              → output/v<N>-sgai-extension.xsd (= spec-source/syntax/sgai-extension.xsd)
+  [BUILT|SKIPPED] check-dash-conformance          → output-analysis/v<N>-conformance-tests.{md,json} (--source; exit <e>; FAIL <f>, NOT_VERIFIABLE <nv>)
+  [BUILT|SKIPPED] validate-spec                   → output-analysis/v<N>-spec-validation.md (+ trace, summary; check-trace exit 0)
+  [BUILT|SKIPPED] review-spec-details             → output-analysis/v<N>-detail-review.md (<f> flags, <m> with patch ops; gen-syntax-tables --check <e1>, lint <e2>)
+  [BUILT|SKIPPED] audit-dash-conformance          → output-analysis/v<N>-dash-conformance-audit.md (<s> suspicions, over <S> sections and <F> files)
+  [SKIPPED|CLEAR|NEEDS_HUMAN|CONTEXT_CHANGE|UNCERTAIN|NO_BETTER|WORSE|NO_BASELINE|MAX_ITER|ERROR] auto-refine → head=v<N>.<M_final> after <K> iterations (<R> rolled back, source restored: assemble --check v<N>.<M_final> exit 0)
 ```
 
 The auto-refine line summarises the Step 9 outcome:

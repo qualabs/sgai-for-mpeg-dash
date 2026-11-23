@@ -1,9 +1,17 @@
 # DASH conformance audit — suspicions no test covers
 
 **Inputs**:
-- The most recent `../output/v*-sgai-spec.md`.
+- The candidate `../output/v<N>-sgai-spec.md` of a major or an
+  incremental, **read by section only** (`bin/spec-section.py get <key>
+  --file output/v<N>-sgai-spec.md`).
+- `../output-analysis/v<N>-context-delta.md` — the delta that produced it:
+  its `## Sections changed` and `## Artefacts changed` tables are the
+  audit's scope (ADR 0071).
 - `../output-analysis/v<N>-conformance-tests.md`, the conformance tests
   of the same candidate (Step 8.0), read first.
+- The previous audit, `../output-analysis/v<B>-dash-conformance-audit.md`
+  of the base candidate the trace names, if there is one: its suspicions
+  outside the scope are carried.
 - The iteration number `N` (a positive integer) passed in by the
   orchestrator (`build-all.prompt`) — used to construct the output
   filename. It MUST match the `v<N>` prefix of the spec being
@@ -17,9 +25,14 @@
 matching the spec's iteration version.
 
 **Skip if**: `../output-analysis/v<N>-dash-conformance-audit.md` exists AND
-its mtime is newer than the spec and than
-`../output-analysis/v<N>-conformance-tests.md`. Audit re-runs whenever
-the spec or the tests rebuild.
+its mtime is newer than `../output-analysis/v<N>-context-delta.md` and
+than `../output-analysis/v<N>-conformance-tests.md`.
+
+**When it runs**: once per major or incremental, never in a refine round
+(ADR 0071): a refine adds no construct, and what an audit suspects is
+turned into a rule of the tests, which every round runs. Invoked on a
+candidate with no `v<N>-context-delta.md` (a refine), **fail the step**:
+there is no scope, and the whole document is not this audit's to read.
 
 **Execution mode**: MUST run in a fresh subagent context,
 **separate** from both the spec-build agent and the validate-spec
@@ -67,11 +80,23 @@ reading, and a `FAIL` is already an issue the pipeline fixes. A rule
 `NOT_VERIFIABLE` on a construct, or a construct no rule applies to, is
 where this audit looks.
 
-### 1. Inventory
+### 1. Inventory — of what the delta made new or changed
 
-Read the latest `../output/v*-sgai-spec.md` (full document, all
-chapters + annexes). Inventory every construct that is **new or
-modified** by the spec:
+The scope is the delta, not the document. Read:
+
+- each section of `## Sections changed` whose Change is `modified` or
+  `added` (`bin/spec-section.py get <key> --file
+  output/v<N>-sgai-spec.md`); `cleanup` and `version` rows changed no
+  construct and are skipped, `removed` ones have nothing left to read;
+- each file of `## Artefacts changed` that is `added` or `modified` under
+  `spec-source/` (a fixture, `syntax/sgai-extension.xsd`,
+  `syntax/syntax.yaml`), read as a file.
+
+Nothing else: not the whole spec, not sections outside the scope. A
+construct the scope uses but does not define is located with
+`bin/spec-section.py find` and read by key, only as far as needed to know
+what it is. In those sections and files, inventory every construct the
+spec introduces or modifies with respect to the base standard:
 
 - New scheme URIs (e.g. `urn:svta:dash:event:*:<year>`).
 - New XML elements in `urn:svta:dash:*` (or other extension)
@@ -85,6 +110,12 @@ modified** by the spec:
 
 For each item: name / URI, placement, what the spec says it does, and
 which test rules cover it (from step 0), if any.
+
+**Carried suspicions.** Each row of the previous audit's `## Suspicions`
+table whose construct lies wholly outside the scope is copied into this
+audit's table with its text and `carried from v<B>` at the start of the
+Suspicion cell, renumbered in table order. One whose construct the scope
+touches is re-judged with the rest.
 
 ### 2. Searches against the primary copy
 
@@ -162,6 +193,7 @@ against the primary copy.
 [brief]
 
 ## Method summary
+- Scope: <S> sections and <F> files of `v<N>-context-delta.md`; <c> suspicions carried from v<B>
 - Inventory built from sections ...
 - Test coverage read from the conformance tests ...
 - N clause searches against the primary copy ...

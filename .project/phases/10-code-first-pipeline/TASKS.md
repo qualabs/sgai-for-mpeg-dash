@@ -13,7 +13,7 @@
 | T-09 | La revisión de detalles queda en los nombres, sobre la lista que arma el código        | done | agent | —    | `bin/name-candidates.py`, `bin/test_name_candidates.py`, `tasks/T-09/`        |
 | T-10 | La comparación es código y no compara poblaciones distintas                              | done | agent | —    | `bin/compare-candidates.py`, `bin/test_compare_candidates.py`, `tasks/T-10/`        |
 | T-11 | El pre-spec no produce lo que nadie lee y saltea por hash                                | done | agent | —    | `bin/step-inputs.py`, `bin/test_step_inputs.py`, `tasks/T-11/`        |
-| T-12 | Los orquestadores corren sobre la fuente: artefactos primero, prosa por parche           | pending | agent | —    | —        |
+| T-12 | Los orquestadores corren sobre la fuente: artefactos primero, prosa por parche           | done | agent | —    | `prompts/build-all.prompt`, `build-incremental`, `apply-context-delta`, `bin/strip-legacy-annotations.py`, `--reverse`, `{{version}}`, `tasks/T-12/`        |
 | T-13 | La promoción es un script que exige todo y copia el juego completo                       | done | agent | —    | `bin/promote.py`, `bin/test_promote.py`, `tasks/T-13/`        |
 | T-14 | La suite de tests cubre todo lo nuevo de `bin/` y corre verde entera                     | pending | agent | —    | —        |
 | T-15 | `CLAUDE.md`, `README.md`, `prompts/README.md` y `SETUP.md` dicen el pipeline nuevo       | pending | agent | —    | —        |
@@ -262,6 +262,7 @@ los encabezados de la copia).
   `lint`, `check-trace` y la identidad; los prompts no piden leer la spec
   entera fuera de la búsqueda abierta.
 - **nivel de verificación:** alto. Es lo que corre sin nadie mirando.
+- **post-ejecución:** 2026-11-23, `promote.py` corría la conformidad sobre el documento armado, donde el ejemplo `legacy-view` G.3 da 2 FAIL que el modo `--source` (Step 8.0) no da; pasó a `--source spec-source`. Y `validate-spec` corría su propia conformidad sobre el documento porque el 8.0 iba después; ahora lee `v<N>-conformance-tests.json` del 8.0, que va antes. El borrado de `build-spec.prompt` quedó dentro del commit 7227e02 (estaba en el stage).
 
 ## T-13 — La promoción es un script que exige todo y copia el juego completo
 - **Objective:** promover sólo es posible con todo en verde y deja `dist/`

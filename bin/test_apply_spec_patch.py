@@ -215,6 +215,113 @@ class FileOps(unittest.TestCase):
         self.refused({"file": "examples/annex-c/C.2-1.mpd", "find": "<MPD", "replace": "<MPD"}, "unchanged")
 
 
+class Reverse(unittest.TestCase):
+    """--reverse: the rollback of a refine round. The source comes back byte
+    for byte, or nothing is written."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.dir = os.path.join(self.tmp.name, "spec-source")
+        shutil.copytree(os.path.join(ROOT, "spec-source"), self.dir)
+        self.src = os.path.join(self.dir, "sgai-spec.src.md")
+        self.fx = os.path.join(self.dir, "examples", "annex-c", "C.2-1.mpd")
+        self.rec = os.path.join(self.tmp.name, "rec.json")
+        self.before = (sha(self.src), sha(self.fx))
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def main(self, *args):
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            code = asp.main(list(args))
+        return code, buf.getvalue()
+
+    def apply(self, ops):
+        p = os.path.join(self.tmp.name, "p.json")
+        with open(p, "w") as fh:
+            json.dump({"ops": ops}, fh)
+        code, out = self.main(p, "--source", self.src, "--record", self.rec)
+        self.assertEqual(code, 0, out)
+
+    ALL = [
+        {"section": "5.1.3", "find": "What the span means.", "replace": "What the span denotes.", "reason": "t"},
+        {"section": "1.3", "replace_section": "### 1.3 Same key\n\nNew body.\n\n", "reason": "t"},
+        {"insert_after": "5.1.7", "section_text": "#### 5.1.8 New\n\nText.\n\n", "reason": "t"},
+        {"delete_section": "1.2", "reason": "t"},
+        {"file": "examples/annex-c/C.2-1.mpd", "find": 'xmlns="urn:mpeg:dash:schema:mpd:2011"',
+         "replace": 'xmlns="urn:mpeg:dash:schema:mpd:2011" ', "reason": "t"},
+    ]
+
+    def test_every_op_kind_comes_back_byte_for_byte(self):
+        self.apply(self.ALL)
+        self.assertNotEqual((sha(self.src), sha(self.fx)), self.before)
+        code, out = self.main("--reverse", self.rec, "--source", self.src)
+        self.assertEqual(code, 0, out)
+        self.assertEqual((sha(self.src), sha(self.fx)), self.before)
+
+    def test_dry_run_writes_nothing(self):
+        self.apply(self.ALL)
+        after = (sha(self.src), sha(self.fx))
+        code, out = self.main("--reverse", self.rec, "--source", self.src, "--dry-run")
+        self.assertEqual(code, 0, out)
+        self.assertEqual((sha(self.src), sha(self.fx)), after)
+
+    def test_edit_after_the_patch_in_a_changed_section_is_refused(self):
+        # Rebuilding from the recorded text would give the right sha before
+        # and silently drop this edit: only the check of the sha after sees it.
+        self.apply(self.ALL[:1])
+        t = open(self.src).read().replace("What the span denotes.", "What the span denotes!", 1)
+        open(self.src, "w").write(t)
+        moved = sha(self.src)
+        code, out = self.main("--reverse", self.rec, "--source", self.src)
+        self.assertEqual(code, 1, out)
+        self.assertIn("moved", out)
+        self.assertEqual(sha(self.src), moved)
+
+    def test_edit_after_the_patch_in_a_changed_file_is_refused(self):
+        self.apply(self.ALL[4:])
+        open(self.fx, "a").write("<!-- later -->\n")
+        moved = sha(self.fx)
+        code, out = self.main("--reverse", self.rec, "--source", self.src)
+        self.assertEqual(code, 1, out)
+        self.assertIn("C.2-1.mpd", out)
+        self.assertEqual(sha(self.fx), moved)
+
+    def test_twice_is_refused(self):
+        self.apply(self.ALL)
+        self.assertEqual(self.main("--reverse", self.rec, "--source", self.src)[0], 0)
+        code, out = self.main("--reverse", self.rec, "--source", self.src)
+        self.assertEqual(code, 1, out)
+        self.assertEqual((sha(self.src), sha(self.fx)), self.before)
+
+    def test_tampered_record_is_refused(self):
+        self.apply(self.ALL[:1])
+        r = json.load(open(self.rec))
+        r["reverse"]["sections_before"]["5.1.3"] += "tampered\n"
+        json.dump(r, open(self.rec, "w"))
+        after = sha(self.src)
+        code, out = self.main("--reverse", self.rec, "--source", self.src)
+        self.assertEqual(code, 1, out)
+        self.assertIn("source_sha256_before", out)
+        self.assertEqual(sha(self.src), after)
+
+    def test_record_without_reverse_data_cannot_tell(self):
+        self.apply(self.ALL[:1])
+        r = json.load(open(self.rec))
+        del r["reverse"]
+        json.dump(r, open(self.rec, "w"))
+        self.assertEqual(self.main("--reverse", self.rec, "--source", self.src)[0], 2)
+
+    def test_cli(self):
+        p = subprocess.run([sys.executable, "-I", os.path.join(BIN, "apply-spec-patch.py"), "--reverse"],
+                           capture_output=True, text=True)
+        self.assertEqual(p.returncode, 64)
+        p = subprocess.run([sys.executable, "-I", os.path.join(BIN, "apply-spec-patch.py"), "--reverse",
+                            self.rec, "--max-fraction", "0.3"], capture_output=True, text=True)
+        self.assertEqual(p.returncode, 64)
+
+
 class Sections(unittest.TestCase):
     def test_split_is_lossless_and_keys_unique(self):
         with open(SRC) as fh:

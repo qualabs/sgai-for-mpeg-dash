@@ -9,13 +9,23 @@ directive is replaced by what it names, byte for byte:
   {{include:<path>}}       spec-source/<path>   (a generated fragment)
 
 An included file must end with a newline, so that the line after the
-directive stays a line. Nothing else in the prose is touched.
+directive stays a line.
+
+One token is replaced inside a line of the prose (never inside an included
+file): `{{version}}`, by the candidate's build iteration without its `v`
+(`v13.2` -> `13.2`), so the status line says which build it is without a
+patch per build. The version is `--version`; without it, the one in the
+name of the --out / --check file (`v13.2-sgai-spec.md`); without either,
+--out exits 2, and --check reads it from DOC: the token matches a version
+(digits and dots, `13.2`), the same one at every place, and the output says
+which it read. That last case is what lets `--check dist/sgai-spec.md` hold
+after a promotion. Nothing else in the prose is touched.
 
 Usage:
-  bin/assemble-spec.py [--source DIR] --out FILE [--manifest FILE]
+  bin/assemble-spec.py [--source DIR] [--version V] --out FILE [--manifest FILE]
       write the assembled document; with --manifest, the sha256 of every
       source file it used (the prose first, then each included file once).
-  bin/assemble-spec.py [--source DIR] --check DOC
+  bin/assemble-spec.py [--source DIR] [--version V] --check DOC
       is DOC the assembly of the source? On a difference, names the first
       differing line and the source file that produced it.
   bin/assemble-spec.py [--source DIR] --list
@@ -27,7 +37,8 @@ checks' job (conformance, lint, trace).
 
 Exit codes: 0 written / identical · 1 differs (--check) · 2 a directive
 names a file that does not exist, an unknown directive, or an included file
-without a final newline · 64 wrong command line.
+without a final newline, or a `{{version}}` with no version to put there
+(--out) · 64 wrong command line, or a --version that is not `[v]N[.M…]`.
 """
 from __future__ import annotations
 
@@ -38,6 +49,9 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIRECTIVE = re.compile(r"^\{\{(example|xsd|include)(?::([^}]+))?\}\}\n?$")
+TOKEN = "{{version}}"
+VERSION = re.compile(r"^v?(\d+(?:\.\d+)*)$")
+NAMED = re.compile(r"^v(\d+(?:\.\d+)*)-sgai-spec\.md$")
 
 
 class SourceError(Exception):
@@ -59,10 +73,11 @@ def target(source, kind, arg):
     raise SourceError(f"malformed directive {{{{{kind}{':' + arg if arg else ''}}}}}")
 
 
-def assemble(source):
-    """Return (text, regions, used): regions are (first_line, last_line, file)
-    of the assembled document, 1-based and inclusive; used is the ordered list
-    of files read."""
+def assemble(source, version=None):
+    """Return (text, regions, used, tokens): regions are (first_line,
+    last_line, file) of the assembled document, 1-based and inclusive; used is
+    the ordered list of files read; tokens is how many `{{version}}` the prose
+    holds, replaced by `version` unless it is None (then left in place)."""
     prose = os.path.join(source, "sgai-spec.src.md")
     if not os.path.isfile(prose):
         raise SourceError(f"no prose at {prose}")
@@ -72,9 +87,13 @@ def assemble(source):
     line_no = 0
     with open(prose, encoding="utf-8", newline="") as fh:
         src_lines = fh.readlines()
+    tokens = 0
     for n, line in enumerate(src_lines, 1):
         m = DIRECTIVE.match(line)
         if not m:
+            tokens += line.count(TOKEN)
+            if version is not None:
+                line = line.replace(TOKEN, version)
             out.append(line)
             line_no += line.count("\n") or 1
             continue
@@ -91,7 +110,18 @@ def assemble(source):
         line_no += k
         if path not in used:
             used.append(path)
-    return "".join(out), regions, used
+    return "".join(out), regions, used, tokens
+
+
+def version_in(doc, text):
+    """The version DOC carries at the token's first place, or None when DOC
+    is not `text` with a version there. That every place carries the same
+    one is left to the comparison that follows, which fills every place with
+    this value."""
+    parts = text.split(TOKEN)
+    pat = "(\\d+(?:\\.\\d+)*)".join(re.escape(p) for p in parts)
+    m = re.fullmatch(pat, doc, re.S)
+    return m.group(1) if m else None
 
 
 def rel(path):
@@ -107,12 +137,12 @@ def sha(path):
 
 def main(argv):
     source = os.path.join(ROOT, "spec-source")
-    out = manifest = check = None
+    out = manifest = check = version = None
     listing = False
     i = 0
     while i < len(argv):
         a = argv[i]
-        if a in ("--source", "--out", "--manifest", "--check"):
+        if a in ("--source", "--out", "--manifest", "--check", "--version"):
             if i + 1 >= len(argv):
                 usage(f"{a} needs a value")
             v = argv[i + 1]
@@ -122,6 +152,11 @@ def main(argv):
                 out = v
             elif a == "--manifest":
                 manifest = v
+            elif a == "--version":
+                m = VERSION.match(v)
+                if not m:
+                    usage(f"--version {v!r} is not [v]N[.M...]")
+                version = m.group(1)
             else:
                 check = v
             i += 2
@@ -144,13 +179,23 @@ def main(argv):
                     print(f"{n}\t{line.strip()}")
         return 0
 
+    if version is None:
+        m = NAMED.match(os.path.basename(out or check or ""))
+        version = m.group(1) if m else None
     try:
-        text, regions, used = assemble(source)
+        text, regions, used, tokens = assemble(source, version)
     except SourceError as e:
         print(f"exit 2: {e}")
         return 2
+    if tokens == 0:
+        vnote = "; the prose has no {{version}}"
+    else:
+        vnote = f"; version {version} at {tokens} place(s)"
 
     if out:
+        if tokens and version is None:
+            print(f"exit 2: the prose has {tokens} {TOKEN} and no version was given (--version, or an --out named v<N>-sgai-spec.md)")
+            return 2
         with open(out, "w", encoding="utf-8", newline="") as fh:
             fh.write(text)
         if manifest:
@@ -158,14 +203,19 @@ def main(argv):
                 fh.write("# sha256 of the spec-source files assembled into " + os.path.basename(out) + "\n")
                 for p in used:
                     fh.write(f"{sha(p)}  {rel(p)}\n")
-        print(f"wrote {out}: {len(regions)} inclusions from {len(used) - 1} files; sha256 {hashlib.sha256(text.encode()).hexdigest()}")
+        print(f"wrote {out}: {len(regions)} inclusions from {len(used) - 1} files; sha256 {hashlib.sha256(text.encode()).hexdigest()}{vnote}")
         return 0
 
     with open(check, encoding="utf-8", newline="") as fh:
         doc = fh.read()
+    if tokens and version is None:
+        found = version_in(doc, text)
+        if found is not None:
+            vnote = f"; version {found}, read from the document, at {tokens} place(s)"
+            text = text.replace(TOKEN, found)
     if doc == text:
         print(f"identical: {check} is the assembly of {rel(source)} "
-              f"(sha256 {hashlib.sha256(text.encode()).hexdigest()}); this says nothing about whether the source is right")
+              f"(sha256 {hashlib.sha256(text.encode()).hexdigest()}){vnote}; this says nothing about whether the source is right")
         return 0
     a, b = text.splitlines(keepends=True), doc.splitlines(keepends=True)
     first = next((k for k in range(min(len(a), len(b))) if a[k] != b[k]), min(len(a), len(b)))

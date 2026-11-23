@@ -28,7 +28,9 @@ Exit codes, same contract as check-promotable.py:
 
 See --help for usage.
 """
+import glob
 import importlib.util
+import json
 import os
 import re
 import subprocess
@@ -51,6 +53,10 @@ _spec = importlib.util.spec_from_file_location(
     "check_promotable", os.path.join(ROOT, "bin", "check-promotable.py"))
 promotable = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(promotable)
+sys.path.insert(0, os.path.join(ROOT, "bin"))
+import spec_sections as ss  # noqa: E402
+
+UNCOUNTED = {"cleanup", "version"}
 
 
 HELP = """bin/check-incremental.py — the checks of the incremental path
@@ -62,7 +68,9 @@ USAGE
       was built from. A refinement consumes no context/, so this is the
       anchor of the nearest version at or below vN.M that did: the
       `Context head` recorded by output-analysis/<vN.k>-context-delta.md
-      for the highest k <= M that has one (an incremental), else the
+      for the highest k <= M that has one (an incremental; k = 0 is
+      output-analysis/<vN>-context-delta.md, the trace a major built on
+      spec-source/ writes), else the
       commit that ADDED output/vN-sgai-spec.md (the major) to git — the
       commit that added it, not the last one that touched it, because
       review-spec-details autofixes a spec in place and a later commit of
@@ -75,11 +83,22 @@ USAGE
       Split both specs into sections (one per heading line, headings
       inside code fences ignored) and compare them byte for byte against
       the `## Sections changed` table of output-analysis/<head>-context-delta.md.
+      A row names its section by heading text (`4.5 Player conformance`)
+      or by key as bin/spec_sections.py computes it (`4.5`, `Annex A`,
+      the heading text when it has no number).
       Fails (RESULT=REJECT) when a section changed without being declared,
-      or was declared and did not change. Fails (RESULT=MAJOR) when the
+      or was declared and did not change, or when a section a patch record
+      output-analysis/<head>-delta-patch-<k>.json lists in
+      `sections_changed` is not declared (the table must carry every
+      recorded section; a record that cannot be read is exit 2).
+      Fails (RESULT=MAJOR) when the
       changed sections exceed F of the base spec's lines, or when the
       trace's `## Not placed` table has a row of class `needs-structure`.
-      F defaults to INCREMENTAL_MAX_CHANGED_FRACTION, else 0.30.
+      Sections whose rows all say Change `cleanup` (the one-time removal
+      of the old pipeline's marks) or `version` (the status line's build
+      iteration) must still have changed, and do not count toward F.
+      F defaults to INCREMENTAL_MAX_CHANGED_FRACTION, else 0.30; a major
+      passes `--max-fraction inf`.
 
   degradation <base vN.M> <head vN.M>
       Joins the obligation coverage maps of both validation sidecars by
@@ -136,8 +155,8 @@ def anchor(version):
     the nearest version at or below it that did: an incremental (its
     trace records the commit) or else the major it descends from."""
     major, _, minor = version[1:].partition(".")
-    for m in range(int(minor or 0), 0, -1):
-        trace = trace_path("v%s.%d" % (major, m))
+    for m in range(int(minor or 0), -1, -1):
+        trace = trace_path("v%s.%d" % (major, m) if m else "v%s" % major)
         if os.path.isfile(trace):
             found = re.search(r"Context head:\**\s*`?([0-9a-f]{7,40})`?", read(trace))
             if not found:
@@ -166,27 +185,31 @@ def anchor(version):
 # ------------------------------------------------------------------- scope
 
 def sections(text):
-    """heading text -> section bytes (heading line + body up to next heading)."""
+    """heading text -> section bytes (heading line + body up to next heading).
+
+    Lines keep their newline, so a section's bytes do not depend on whether
+    it is the last one: deleting the last section leaves the one before it
+    unchanged, as it is."""
     out = {}
     order = []
     current = "(preamble)"
     buf = []
     fence = False
-    for line in text.split("\n"):
+    for line in text.splitlines(keepends=True):
         if line.lstrip().startswith("```"):
             fence = not fence
-        m = None if fence else re.match(r"^#{1,6} (.*\S)\s*$", line)
+        m = None if fence else re.match(r"^#{1,6} (.*\S)\s*$", line.rstrip("\n"))
         if m:
             if current in out:
                 raise CannotTell("encabezado repetido: %r" % current)
-            out[current] = "\n".join(buf)
+            out[current] = "".join(buf)
             order.append(current)
             current = m.group(1)
             buf = []
         buf.append(line)
     if current in out:
         raise CannotTell("encabezado repetido: %r" % current)
-    out[current] = "\n".join(buf)
+    out[current] = "".join(buf)
     order.append(current)
     return out, order
 
@@ -214,15 +237,46 @@ def scope(base, head, max_fraction):
     def name(s):
         return promotable.strip_marks(s).lstrip("# ").strip()
 
-    declared = set(name(r[0]) for r in rows if r)
+    col_change = promotable.column(header, "change")
+    declared = {}
+    for r in rows:
+        if not r:
+            continue
+        kind = promotable.strip_marks(r[col_change]).strip().lower() if (
+            col_change is not None and len(r) > col_change) else ""
+        declared.setdefault(name(r[0]), set()).add(kind)
+
+    def aliases(heading):
+        h = name(heading)
+        return {h, ss.key_of(h)}
 
     changed = set(k for k in set(old) | set(new) if old.get(k) != new.get(k))
-    undeclared = sorted(set(name(k) for k in changed) - declared)
-    phantom = sorted(declared - set(name(k) for k in changed))
+    undeclared = sorted(name(k) for k in changed if not aliases(k) & set(declared))
+    hit = set()
+    for k in changed:
+        hit |= aliases(k) & set(declared)
+    phantom = sorted(set(declared) - hit)
 
-    base_lines = sum(s.count("\n") + 1 for s in old.values())
-    touched_lines = sum(old[k].count("\n") + 1 for k in changed if k in old)
-    touched_lines += sum(new[k].count("\n") + 1 for k in changed if k not in old)
+    recorded = set()
+    for path in sorted(glob.glob(os.path.join(ANALYSIS, "%s-delta-patch-*.json" % head))):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                recorded |= set(json.load(fh)["sections_changed"])
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            raise CannotTell("no puedo leer el registro %s: %r" % (os.path.basename(path), exc))
+    declared_keys = set(declared) | set(ss.key_of(d) for d in declared)
+    unrecorded = sorted(k for k in recorded if k not in declared_keys)
+
+    def uncounted(heading):
+        kinds = set()
+        for a in aliases(heading) & set(declared):
+            kinds |= declared[a]
+        return bool(kinds) and kinds <= UNCOUNTED
+
+    counted = [k for k in changed if not uncounted(k)]
+    base_lines = sum(s.count("\n") or 1 for s in old.values())
+    touched_lines = sum(old[k].count("\n") or 1 for k in counted if k in old)
+    touched_lines += sum(new[k].count("\n") or 1 for k in counted if k not in old)
     fraction = touched_lines / float(base_lines or 1)
 
     _, unplaced = trace_table(trace, "not placed")
@@ -238,16 +292,18 @@ def scope(base, head, max_fraction):
     print("Base %s -> candidato %s" % (base, head))
     print("  secciones: %d en la base, %d en el candidato, %d cambiaron, %d declaradas"
           % (len(old), len(new), len(changed), len(declared)))
-    print("  lineas en secciones cambiadas: %d de %d (%.1f%%, tope %.0f%%)"
-          % (touched_lines, base_lines, 100 * fraction, 100 * max_fraction))
+    print("  lineas en secciones cambiadas: %d de %d (%.1f%%, tope %.0f%%; %d secciones de cleanup/version no cuentan)"
+          % (touched_lines, base_lines, 100 * fraction, 100 * max_fraction, len(changed) - len(counted)))
     for k in undeclared:
         print("  CAMBIO SIN DECLARAR: %s" % k)
     for k in phantom:
         print("  DECLARADA Y SIN CAMBIO: %s" % k)
+    for k in unrecorded:
+        print("  REGISTRADA EN UN PARCHE Y SIN DECLARAR: %s" % k)
     for row in structural:
         print("  NECESITA ESTRUCTURA: %s" % row)
 
-    if undeclared or phantom:
+    if undeclared or phantom or unrecorded:
         print("RESULT=REJECT")
         return 1
     if fraction > max_fraction or structural:

@@ -1,0 +1,10 @@
+{"ops": [
+  {"file": "examples/annex-a/A.2-1.mpd",
+   "find": "<!-- Pre-roll: an Alternative MPD Insertion event at the start. -->",
+   "replace": "<!-- Pre-roll: one Alternative MPD Insertion event at the start. -->",
+   "reason": "R20@dry-run (stand-in artefact edit)"},
+  {"file": "syntax/syntax.yaml",
+   "find": "The dismissal declaration of the overlay or pause slot (§5.2.4).",
+   "replace": "The dismissal declaration of the overlay slot or the pause slot (§5.2.4).",
+   "reason": "R20@dry-run (stand-in artefact edit)"}
+]}
