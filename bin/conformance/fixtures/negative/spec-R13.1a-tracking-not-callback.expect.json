@@ -1,0 +1,6 @@
+{
+ "rule": "R13.1a",
+ "xpath_contains": "Tracking",
+ "derived_from": "dist/sgai-spec.md xml#58 (line 6060)",
+ "change": "the tracking carrier's scheme is not the callback scheme"
+}

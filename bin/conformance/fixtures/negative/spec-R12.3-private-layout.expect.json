@@ -1,0 +1,6 @@
+{
+ "rule": "R12.3",
+ "xpath_contains": "RenderableAsset",
+ "derived_from": "dist/sgai-spec.md xml#19 (line 4312)",
+ "change": "layout overlay-corner -> overlay-top-right"
+}

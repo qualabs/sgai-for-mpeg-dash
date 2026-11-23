@@ -1,0 +1,1 @@
+GET /nl/pause?title=film12&sgai-video-decoders=2&sgai-image-over-video=yes&sgai-html-over-video=1&sgai-allowed-layouts=pause-fullscreen%20pause-partial HTTP/1.1

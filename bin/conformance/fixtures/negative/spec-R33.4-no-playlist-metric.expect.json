@@ -1,0 +1,6 @@
+{
+ "rule": "R33.4",
+ "xpath_contains": "/MPD",
+ "derived_from": "dist/sgai-spec.md xml#39 (line 5189)",
+ "change": "Metrics@metrics PlayList -> BufferLevel"
+}

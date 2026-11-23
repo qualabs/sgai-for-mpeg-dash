@@ -1,0 +1,6 @@
+{
+ "rule": "R40.7",
+ "xpath_contains": "InsertPresentation",
+ "derived_from": "dist/sgai-spec.md xml#39 (line 5189)",
+ "change": "an extension-namespace attribute added to the InsertPresentation"
+}

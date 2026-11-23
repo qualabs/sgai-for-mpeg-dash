@@ -1,0 +1,6 @@
+{
+ "rule": "R39.2a",
+ "xpath_contains": "OverlayPresentation",
+ "derived_from": "dist/sgai-spec.md xml#78 (line 6918)",
+ "change": "custom removed from allowed layouts, custom region kept"
+}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011"
+                  xmlns:svta="urn:svta:dash:sgai:2026"
+                  family="overlay"
+                  
+                  validFor="PT2M">
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/301/cr301v.mpd"
+                          mimeType="application/dash+xml" layout="overlay-lower-third"/>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/301/banner.html"
+                          mimeType="text/html" duration="PT15S" layout="overlay-lower-third"/>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/301/banner.png"
+                          mimeType="image/png" duration="PT15S" layout="overlay-lower-third"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/imp?cr=301</Event>
+      <Event presentationTime="7500" id="2">https://t.example.com/mid?cr=301</Event>
+      <Event presentationTime="15000" id="3">https://t.example.com/complete?cr=301</Event>
+    </svta:Tracking>
+    <svta:ClickThrough uri="https://brand-b.example.com/tickets"
+                       trackingUris="https://t.example.com/click?cr=301"/>
+    <svta:AdSystem>ExampleAds</svta:AdSystem>
+    <svta:AdTitle>Concert tickets</svta:AdTitle>
+  </svta:Ad>
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/302/cr302v.mpd"
+                          mimeType="application/dash+xml" layout="squeezeback-double-box"/>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/302/underlay.jpg"
+                          mimeType="image/jpeg" duration="PT15S" layout="squeezeback-l-shape-upper-left"/>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/nl/302/corner.png"
+                          mimeType="image/png" duration="PT15S" layout="overlay-corner"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/imp?cr=302</Event>
+      <Event presentationTime="15000" id="2">https://t.example.com/complete?cr=302</Event>
+    </svta:Tracking>
+    <svta:AdSystem>ExampleAds</svta:AdSystem>
+    <svta:AdTitle>Streaming bundle</svta:AdTitle>
+  </svta:Ad>
+</svta:OverlayList>

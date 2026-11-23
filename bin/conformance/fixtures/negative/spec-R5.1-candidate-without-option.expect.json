@@ -1,0 +1,6 @@
+{
+ "rule": "R5.1",
+ "xpath_contains": "Ad[1]",
+ "derived_from": "dist/sgai-spec.md xml#58 (line 6060)",
+ "change": "the candidate's only RenderableAsset removed"
+}

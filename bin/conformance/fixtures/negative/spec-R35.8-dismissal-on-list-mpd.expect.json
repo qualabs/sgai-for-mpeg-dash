@@ -1,0 +1,6 @@
+{
+ "rule": "R35.8",
+ "xpath_contains": "Period[1]",
+ "derived_from": "dist/sgai-spec.md xml#11 (line 3855)",
+ "change": "svta:dismissAfter added to a List MPD candidate"
+}

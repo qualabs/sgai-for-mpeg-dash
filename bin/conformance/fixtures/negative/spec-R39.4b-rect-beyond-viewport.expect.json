@@ -1,0 +1,6 @@
+{
+ "rule": "R39.4b",
+ "xpath_contains": "RenderableAsset[1]",
+ "derived_from": "dist/sgai-spec.md xml#79 (line 6968)",
+ "change": "rect width 25 -> 40, x + width = 105"
+}

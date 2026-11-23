@@ -1,0 +1,6 @@
+{
+ "rule": "R40.1",
+ "xpath_contains": "PauseAdPresentation",
+ "derived_from": "dist/sgai-spec.md xml#39 (line 5189)",
+ "change": "linearRelation=supersede added to the pause window"
+}

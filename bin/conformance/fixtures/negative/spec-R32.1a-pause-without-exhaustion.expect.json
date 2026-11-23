@@ -1,0 +1,6 @@
+{
+ "rule": "R32.1a",
+ "xpath_contains": "OverlayList",
+ "derived_from": "dist/sgai-spec.md xml#29 (line 4764)",
+ "change": "@onExhausted removed from a pause document"
+}

@@ -1,0 +1,6 @@
+{
+ "rule": "R12.2",
+ "xpath_contains": "OverlayPresentation",
+ "derived_from": "dist/sgai-spec.md xml#39 (line 5189)",
+ "change": "allowed layout squeezeback-l-shape-upper-left replaced by the bare squeezeback"
+}

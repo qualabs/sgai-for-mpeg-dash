@@ -1,0 +1,6 @@
+{
+ "rule": "R19.3a",
+ "xpath_contains": "RenderableAsset",
+ "derived_from": "dist/sgai-spec.md xml#19 (line 4312)",
+ "change": "@duration removed from the HTML option"
+}

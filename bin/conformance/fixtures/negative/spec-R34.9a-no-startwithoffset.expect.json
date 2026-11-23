@@ -1,0 +1,6 @@
+{
+ "rule": "R34.9a",
+ "xpath_contains": "startWithOffset",
+ "derived_from": "dist/sgai-spec.md xml#9 (line 2831)",
+ "change": "none: the published schema already gives the overlay window no @startWithOffset; the positive in the test adds it"
+}

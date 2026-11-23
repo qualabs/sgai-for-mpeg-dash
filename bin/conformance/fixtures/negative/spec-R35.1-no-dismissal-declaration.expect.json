@@ -1,0 +1,6 @@
+{
+ "rule": "R35.1",
+ "xpath_contains": "OverlayList",
+ "derived_from": "dist/sgai-spec.md xml#19 (line 4312)",
+ "change": "@dismissAfter removed"
+}

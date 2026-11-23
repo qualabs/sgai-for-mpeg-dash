@@ -1,0 +1,6 @@
+{
+ "rule": "R12.1a",
+ "xpath_contains": "overlay-corner",
+ "derived_from": "dist/sgai-spec.md xml#9 (line 2831)",
+ "change": "the overlay-corner enumeration removed from LayoutTokenType"
+}

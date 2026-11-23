@@ -1,0 +1,6 @@
+{
+ "rule": "R39.4a",
+ "xpath_contains": "RenderableAsset[1]",
+ "derived_from": "dist/sgai-spec.md xml#79 (line 6968)",
+ "change": "@rect removed from the custom option"
+}

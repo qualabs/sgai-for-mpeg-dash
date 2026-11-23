@@ -1,0 +1,6 @@
+{
+ "rule": "R27.1a",
+ "xpath_contains": "RenderableAsset",
+ "derived_from": "dist/sgai-spec.md xml#67 (line 6432)",
+ "change": "@background added to the L-shape option"
+}

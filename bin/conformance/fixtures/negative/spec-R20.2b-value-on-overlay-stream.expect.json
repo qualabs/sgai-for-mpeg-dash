@@ -1,0 +1,6 @@
+{
+ "rule": "R20.2b",
+ "xpath_contains": "EventStream[2]",
+ "derived_from": "dist/sgai-spec.md xml#39 (line 5189)",
+ "change": "@value added to the overlay EventStream"
+}

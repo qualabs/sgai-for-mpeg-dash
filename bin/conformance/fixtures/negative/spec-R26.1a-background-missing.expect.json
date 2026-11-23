@@ -1,0 +1,6 @@
+{
+ "rule": "R26.1a",
+ "xpath_contains": "RenderableAsset[2]",
+ "derived_from": "dist/sgai-spec.md xml#53 (line 5864)",
+ "change": "@background removed from the image double-box-background option"
+}

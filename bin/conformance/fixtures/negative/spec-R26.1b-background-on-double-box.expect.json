@@ -1,0 +1,6 @@
+{
+ "rule": "R26.1b",
+ "xpath_contains": "RenderableAsset[4]",
+ "derived_from": "dist/sgai-spec.md xml#53 (line 5864)",
+ "change": "@background added to the squeezeback-double-box option"
+}

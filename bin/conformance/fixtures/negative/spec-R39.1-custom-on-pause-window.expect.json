@@ -1,0 +1,6 @@
+{
+ "rule": "R39.1",
+ "xpath_contains": "PauseAdPresentation",
+ "derived_from": "dist/sgai-spec.md xml#28 (line 4704)",
+ "change": "custom added to the pause window's allowed layouts"
+}

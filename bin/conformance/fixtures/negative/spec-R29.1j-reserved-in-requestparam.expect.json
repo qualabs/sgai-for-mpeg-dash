@@ -1,0 +1,6 @@
+{
+ "rule": "R29.1j",
+ "xpath_contains": "RequestParam",
+ "derived_from": "dist/sgai-spec.md xml#39 (line 5189)",
+ "change": "a RequestParam naming a reserved parameter added at MPD level"
+}

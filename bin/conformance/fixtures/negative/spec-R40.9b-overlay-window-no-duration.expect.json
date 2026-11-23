@@ -1,0 +1,6 @@
+{
+ "rule": "R40.9b",
+ "xpath_contains": "EventStream[2]/Event[1]",
+ "derived_from": "dist/sgai-spec.md xml#39 (line 5189)",
+ "change": "Event@duration removed from the overlay window"
+}

@@ -1,0 +1,6 @@
+{
+ "rule": "R20.2a",
+ "xpath_contains": "EventStream[2]",
+ "derived_from": "dist/sgai-spec.md xml#59 (line 6118)",
+ "change": "the overlay stream split in two streams of the same scheme"
+}

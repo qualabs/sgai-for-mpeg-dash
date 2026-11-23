@@ -1,0 +1,6 @@
+{
+ "rule": "R29.1h",
+ "xpath_contains": "sgai-custom-region",
+ "derived_from": "dist/sgai-spec.md request (line 6958)",
+ "change": "custom region with three numbers"
+}

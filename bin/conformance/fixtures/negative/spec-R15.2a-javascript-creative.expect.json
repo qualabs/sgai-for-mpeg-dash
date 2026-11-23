@@ -1,0 +1,6 @@
+{
+ "rule": "R15.2a",
+ "xpath_contains": "RenderableAsset",
+ "derived_from": "dist/sgai-spec.md xml#19 (line 4312)",
+ "change": "mimeType text/html -> application/javascript"
+}

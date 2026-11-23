@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     type="static"
+     profiles="urn:mpeg:dash:profile:isoff-live:2011"
+     mediaPresentationDuration="PT50M"
+     minBufferTime="PT2S">
+  <BaseURL>https://content.example.com/show8/ep1/</BaseURL>
+  <Period id="main" start="PT0S">
+    <!-- The standard break: base constructs only. -->
+    <EventStream schemeIdUri="urn:mpeg:dash:event:alternativeMPD:insert:2025"
+                 timescale="1000">
+      <Event id="1" presentationTime="900000" duration="30000">
+        <InsertPresentation uri="https://aps.example.com/linear/mid?show=8&amp;b=1"
+                            earliestResolutionTimeOffset="60000"
+                            maxDuration="30000"/>
+      </Event>
+    </EventStream>
+    <!-- An overlay window over the same span, superseding the break. -->
+    <EventStream schemeIdUri="urn:svta:dash:sgai-overlay:2026" timescale="1000">
+      <Event id="1" presentationTime="900000" duration="30000">
+        <svta:OverlayPresentation uri="https://aps.example.com/nl/overlay?show=8&amp;w=1"
+                                  durationCap="30000"
+                                  earliestResolutionTimeOffset="60000"
+                                  allowedLayouts="squeezeback-l-shape-upper-left overlay-lower-third"
+                                  linearRelation="supersede"/>
+      </Event>
+    </EventStream>
+    <!-- A pause window over the whole episode. -->
+    <EventStream schemeIdUri="urn:svta:dash:sgai-pause-trigger:2026" timescale="1000">
+      <Event id="1" presentationTime="0" duration="3000000">
+        <svta:PauseAdPresentation uri="https://aps.example.com/nl/pause?show=8"
+                                  durationCap="60000"/>
+      </Event>
+    </EventStream>
+    <AdaptationSet id="1" contentType="video" mimeType="video/mp4"
+                   codecs="avc1.64001F" segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="4000" startNumber="1"
+                       initialization="video/$RepresentationID$/init.mp4"
+                       media="video/$RepresentationID$/$Number$.m4s"/>
+      <Representation id="v1080" bandwidth="6000000" width="1920" height="1080"/>
+    </AdaptationSet>
+    <AdaptationSet id="2" contentType="audio" mimeType="audio/mp4"
+                   codecs="mp4a.40.2" lang="en" segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="4000" startNumber="1"
+                       initialization="audio/$RepresentationID$/init.mp4"
+                       media="audio/$RepresentationID$/$Number$.m4s"/>
+      <Representation id="a128" bandwidth="128000" audioSamplingRate="48000"/>
+    </AdaptationSet>
+  </Period>
+  <Metrics metrics="BufferLevel">
+    <Reporting schemeIdUri="urn:example:reporting:2026" value="collector-1"/>
+  </Metrics>
+</MPD>

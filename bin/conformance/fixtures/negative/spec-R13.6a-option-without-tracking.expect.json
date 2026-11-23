@@ -1,0 +1,6 @@
+{
+ "rule": "R13.6a",
+ "xpath_contains": "RenderableAsset",
+ "derived_from": "dist/sgai-spec.md xml#9 (line 2831)",
+ "change": "none: the published schema already gives the option no tracking carrier; the positive in the test adds it"
+}

@@ -1,0 +1,6 @@
+{
+ "rule": "R28.1a",
+ "xpath_contains": "ClickThrough[2]",
+ "derived_from": "dist/sgai-spec.md xml#58 (line 6060)",
+ "change": "a second ClickThrough added to the candidate"
+}

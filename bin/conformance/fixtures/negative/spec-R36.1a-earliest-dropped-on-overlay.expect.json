@@ -1,0 +1,6 @@
+{
+ "rule": "R36.1a",
+ "xpath_contains": "OverlayPresentation",
+ "derived_from": "dist/sgai-spec.md xml#9 (line 2831)",
+ "change": "@earliestResolutionTimeOffset removed from OverlayPresentationType"
+}

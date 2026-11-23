@@ -1,0 +1,6 @@
+{
+ "rule": "R34.1a",
+ "xpath_contains": "PauseAdPresentation",
+ "derived_from": "dist/sgai-spec.md xml#9 (line 2831)",
+ "change": "@executeOnce removed from PauseAdPresentationType"
+}

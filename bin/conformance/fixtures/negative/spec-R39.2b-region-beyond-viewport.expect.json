@@ -1,0 +1,6 @@
+{
+ "rule": "R39.2b",
+ "xpath_contains": "OverlayPresentation",
+ "derived_from": "dist/sgai-spec.md xml#78 (line 6918)",
+ "change": "region width 35 -> 45, so x + width = 105"
+}

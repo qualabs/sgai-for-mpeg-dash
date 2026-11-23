@@ -1,0 +1,6 @@
+{
+ "rule": "R24.1",
+ "xpath_contains": "AdaptationSet",
+ "derived_from": "dist/sgai-spec.md xml#12 (line 3898)",
+ "change": "the sub-MPD's video AdaptationSet @mimeType -> image/png"
+}

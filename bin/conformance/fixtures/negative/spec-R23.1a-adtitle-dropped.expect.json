@@ -1,0 +1,6 @@
+{
+ "rule": "R23.1a",
+ "xpath_contains": "AdTitle",
+ "derived_from": "dist/sgai-spec.md xml#9 (line 2831)",
+ "change": "the global AdTitle element removed"
+}

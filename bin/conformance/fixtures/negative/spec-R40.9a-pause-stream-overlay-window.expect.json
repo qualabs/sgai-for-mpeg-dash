@@ -1,0 +1,6 @@
+{
+ "rule": "R40.9a",
+ "xpath_contains": "pause-trigger",
+ "derived_from": "dist/sgai-spec.md xml#39 (line 5189)",
+ "change": "the pause stream's window element is an OverlayPresentation"
+}
