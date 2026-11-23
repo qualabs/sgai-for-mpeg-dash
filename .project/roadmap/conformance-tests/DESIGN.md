@@ -1,5 +1,5 @@
 ---
-description: "Testing completo de la spec en tres niveles, con veredictos de código y no de un LLM: (1) el XSD de las extensiones como artefacto del build y su conformidad con ISO/IEC 23009-1 6ta; (2) las reglas de context/03 sobre los documentos como código con su cita; (3) la conducta de los Players, legacy aquí y el que implementa la extensión (referencia sobre dash.js) en la fase siguiente."
+description: "Testing completo de la spec en tres niveles, con veredictos de código y no de un LLM: (1) el XSD de las extensiones como artefacto del build y su conformidad con ISO/IEC 23009-1 6ta; (2) las reglas de context/03 sobre los documentos como código con su cita; (3) la conducta de los Players, legacy aquí y el que implementa la extensión (referencia sobre dash.js) en reference-player. Las dos fases van antes del v13."
 status: designing
 category: chore
 origin: "el líder del proyecto, 2026-11-23, hilo #sgai: «tal vez hay una parte del proceso que es justamente testear contra la norma», con la analogía de projects/tests-de-planos"
@@ -363,7 +363,7 @@ implementa el lineal de la base.
   Player de referencia de D-8 entre como un adaptador más y no como un harness
   nuevo.
 
-### D-8 — Nivel 3b: el Player que implementa la extensión, sobre dash.js, en la fase siguiente
+### D-8 — Nivel 3b: el Player que implementa la extensión, sobre dash.js, en una fase propia antes del v13
 
 Probar que un Player que soporta la extensión hace lo que la spec dice
 necesita un Player que la soporte, y no existe ninguno. Hace falta una
@@ -379,38 +379,34 @@ observa (pedidos de red con sus parámetros, beacons y su momento, eventos del
 Player, la geometría de lo que se dibuja), y lo esperado. Lo que un test de
 caja negra no puede observar sale `NOT_VERIFIABLE` con su motivo.
 
-**Va en la fase siguiente, no en ésta.** Las dos opciones, medidas en tasks:
+**Va en una fase propia, `reference-player`, entre ésta y el v13.** El orden
+es `conformance-tests` → `reference-player` → `major-build-v13` (el líder del
+proyecto: *"todos estos cambios tenemos que hacerlos ANTES de v13"*), y está
+escrito en los `depends_on` de los dos ítems. Es una fase aparte y no tasks de
+ésta porque es otro tipo de trabajo: esta fase escribe checks sobre
+documentos, y la referencia es construir un Player, el prototipo que
+`PROJECT.md` ya nombra como segundo entregable del proyecto, con decisiones de
+diseño propias (dónde vive el código, cómo se engancha en dash.js) que no
+están tomadas.
 
-| | Esta fase | La implementación de referencia |
-|---|---|---|
-| A — todo junto | 12 tasks | ~10 más dentro de la misma fase: 22 |
-| B — fase siguiente (recomendada) | 12 tasks | una fase propia de ~10 tasks |
+Su tamaño, ~10 tasks: su diseño, el APS de prueba, la clasificación de los ~60
+criterios del Player en observables o no, la implementación por familias (el
+lineal de la 6ta, que dash.js no trae; overlay y los 12 tokens de layout;
+pausa; tracking y beacons; fallback y errores; el pedido con sus parámetros),
+los tests de conducta, la demo y el cierre. No hay estimación en días que se
+pueda respaldar: lo que se sabe es que su parte más grande es dibujar cada
+layout.
 
-Las ~10 de la referencia: su diseño (dónde vive el código, cómo se engancha en
-dash.js), el APS de prueba, la clasificación de los ~60 criterios del Player
-en observables o no, la implementación por familias (el lineal de la 6ta, que
-dash.js no trae; overlay y los 12 tokens de layout; pausa; tracking y beacons;
-fallback y errores; el pedido con sus parámetros), los tests de conducta, la
-demo y el cierre. No hay estimación en días que se pueda respaldar: lo que se
-sabe es que es construir un Player, no escribir checks, y que su parte más
-grande es dibujar cada layout.
-
-Razones de B:
-
-- **Es otro tipo de trabajo.** Esta fase escribe checks sobre documentos; la
-  referencia es el prototipo que `PROJECT.md` ya nombra como segundo
-  entregable del proyecto, con decisiones de diseño propias que no están
-  tomadas.
-- **El v13 mueve justo esa parte.** Los carriers de beacons (R42, y R1.6, R5.9
-  y R47 que cuelgan de él), audio (R41) y otros los dejó sin ubicar el
-  incremental (`roadmap/major-build-v13`). Implementar la conducta antes del
-  v13 es implementar algo que va a cambiar; los checks de documentos, en
-  cambio, se re-corren solos sobre lo que el v13 publique.
-- **La demo de los niveles 1 y 2 llega antes**, y el harness de D-7 queda
-  listo para enchufar la referencia.
-
-Está anotado como ítem `reference-player` del roadmap, con `depends_on:
-[conformance-tests, major-build-v13]`.
+**Cómo se absorbe el v13.** La referencia y sus tests se construyen contra el
+`context/03` de hoy, y el v13 los va a mover: el incremental dejó sin ubicar
+los carriers de beacons (R42, y R1.6, R5.9 y R47 que cuelgan de él), de audio
+(R41) y otros (`roadmap/major-build-v13`). Eso no se resuelve esperando sino
+con el mismo mecanismo que el nivel 2: cada test de conducta guarda el id y el
+hash del texto de su criterio, y cuando el v13 cambia o retira un criterio, el
+check sale `2` y lista qué tests de conducta, qué reglas del nivel 2 y, por
+ellos, qué partes de la referencia hay que revisar. El v13 llega con los tres
+niveles andando: lo que cambia aparece como una lista, y adaptar la referencia
+a los carriers nuevos es trabajo del v13, que tiene esa lista para medirlo.
 
 ### D-9 — Dónde encaja en el pipeline, y el audit deja de ser juez
 
@@ -438,7 +434,7 @@ sospechas, lugares donde cree que la norma se viola o es ambigua y que ningún
 test cubre. Una sospecha no bloquea nada por sí misma; se vuelve un bloqueo
 sólo cuando alguien la convierte en una regla y esa regla falla. El informe
 del audit lo dice en su primera línea, y `check-promotable` deja de leer sus
-filas como veredictos (ver P-1). Sacarlo del todo perdería al único lector que
+filas como veredictos (D-13). Sacarlo del todo perdería al único lector que
 busca lo que nadie pensó en testear; dejarlo como juez contradice el criterio
 rector.
 
@@ -493,6 +489,27 @@ agarró, la oración citada y el XPath. Es lo que el líder del proyecto le pued
 mostrar a alguien: el mismo comando, el mismo resultado cada vez, y un
 documento roto que el código rechaza diciendo por qué.
 
+### D-13 — La promoción exige los tests en verde, y el audit deja de bloquear
+
+El criterio de promoción (el líder del proyecto, 2026-09-27) era
+`check-promotable` en `0` y la comparación `BETTER THAN PUBLISHED`. Se suma
+una tercera condición: **`check-dash-conformance` sale `0`** sobre el
+candidato. Un `FAIL` de código bloquea por la ruta del pipeline; un
+`NOT_VERIFIABLE` no bloquea y se lista con su número; **las filas del audit
+del LLM dejan de bloquear**, y una sospecha suya bloquea sólo cuando es una
+regla que falla (D-9). **Los Players informan y no bloquean** hasta tener
+corridas estables. Decisión del líder del proyecto, 2026-11-23; T-09 la
+escribe en `CLAUDE.md` y en `check-promotable`.
+
+### D-14 — El issue a DASH-IF, con la medición del tool corriendo y con OK explícito
+
+Que el tool de DASH-IF valida contra la 5ta se le avisa a DASH-IF, con un
+issue en `Dash-Industry-Forum/DASH-IF-Conformance`. La evidencia es la de
+T-08, con el tool corriendo sobre los 41 ejemplos de ISO, y no sólo su XSD.
+Es hacia afuera: T-08 deja el borrador del issue en su evidencia y **no se
+publica sin el OK explícito del líder del proyecto**, que decide en ese
+momento quién lo manda.
+
 ## Lo que la fase no hace
 
 - **SVTA 2053**, en ninguna versión. Decisión del líder del proyecto,
@@ -501,7 +518,9 @@ documento roto que el código rechaza diciendo por qué.
   en espera del feedback de DASH-IF/MPEG). Si se agregan después, los tests
   los cubren por construcción: corren sobre lo que la spec publique.
 - **La implementación de referencia sobre dash.js** y sus tests de conducta:
-  van en la fase siguiente (D-8).
+  son `reference-player`, la fase que sigue a ésta y va antes del v13 (D-8).
+- **Publicar el issue a DASH-IF** sin el OK explícito del líder del proyecto
+  (D-14).
 - **Conformidad de segmentos.** Los ejemplos de la spec no traen medios; el
   contenido de D-7 es nuestro y su conformidad no dice nada de la spec.
 - **Tocar `context/` o `dist/`**, ni promover nada. Correr los tests sobre
@@ -523,8 +542,8 @@ Todas `who: agent`. El número de fase lo toma al arrancar (hoy sería 09).
 | T-05 | Nivel 2, reglas de la spec (D-6): clasificación de los 165 criterios, una regla por elemento del índice y por criterio sobre documentos, y el chequeo de reglas viejas | alto |
 | T-06 | Positivos y negativos (D-10): los 41 ejemplos de ISO en verde, un negativo commiteado por regla y por cada E con su resultado esperado, y la suite que los corre | alto |
 | T-07 | Nivel 3a (D-7): contenido de prueba con ffmpeg, server local, dash.js upstream y Shaka fijados detrás de un adaptador por Player, el criterio de UC-07 como test | alto |
-| T-08 | El tool de DASH-IF como segundo auditor: subir el build a `v3.1.0`, línea de base sobre los ejemplos de ISO, correr sobre la spec, descartar el XSD de la 5ta | bajo |
-| T-09 | Pipeline (D-9): Steps 6.1 y 8.0 en `build-all`, `build-incremental` y el camino minor; la promoción copia el XSD; `audit-dash-conformance.prompt` pasa de veredictos a sospechas; `check-promotable` según P-1; `CLAUDE.md` y `prompts/README.md` | alto |
+| T-08 | El tool de DASH-IF como segundo auditor: subir el build a `v3.1.0`, línea de base sobre los ejemplos de ISO, correr sobre la spec, descartar el XSD de la 5ta; el borrador del issue a DASH-IF (D-14), sin publicar | bajo |
+| T-09 | Pipeline (D-9): Steps 6.1 y 8.0 en `build-all`, `build-incremental` y el camino minor; la promoción copia el XSD; `audit-dash-conformance.prompt` pasa de veredictos a sospechas; `check-promotable` y el criterio de promoción de `CLAUDE.md` según D-13; `CLAUDE.md` y `prompts/README.md` | alto |
 | T-10 | La demo (D-12): `--demo` con positivos y negativos lado a lado, y el informe con la cita y el XPath de cada `FAIL`; corrida dos veces, mismo resultado byte a byte | bajo |
 | T-11 | Primera corrida sobre `dist/sgai-spec.md`: el XSD emitido de su §5.10.1, el informe de los tres niveles, y la comparación construcción por construcción contra el veredicto del audit publicado | alto |
 | T-12 | Cierre: REPORT.md, LOG y validador | mínimo |
@@ -545,27 +564,4 @@ contra (`FAIL`, y entonces el LLM se había equivocado), o sin evidencia
 | ISO mueve o cambia el zip | El hash fijado: el check sale `2` y dice por qué (D-2) |
 | Los Players cambian y el resultado se mueve | Versiones fijadas en `package.json` (D-7) |
 | El tool de DASH-IF da falsos positivos en la 6ta además del XSD | La línea de base sobre los ejemplos de ISO (D-9); lo que no se pueda separar, se reporta y no bloquea |
-| Un Player headless da resultados que varían entre corridas | No bloquea hasta tener corridas estables (P-1); T-07 lo corre tres veces y reporta la varianza |
-
-## Preguntas abiertas
-
-**P-1 — ¿Los tests bloquean la promoción?** El criterio de promoción (el líder
-del proyecto, 2026-09-27) es `check-promotable` en `0` y la comparación
-`BETTER THAN PUBLISHED`. Recomendación: **sumar que `check-dash-conformance`
-salga `0`, y que las filas del audit del LLM dejen de bloquear**: un `FAIL` de
-código bloquea por la ruta del pipeline; un `NOT_VERIFIABLE` no bloquea y se
-lista con su número; una sospecha del audit no bloquea hasta que es una regla
-que falla (D-9). Los Players informan y no bloquean hasta tener corridas
-estables.
-
-**P-2 — ¿El v13 espera a esta fase?** Recomendación: **sí**, agregar
-`conformance-tests` a `depends_on` de `major-build-v13`. La fase no depende de
-document-first ni de multiview y puede correr ya, así el v13 es el primer build
-mayor que sale con tests y con su XSD como archivo. `reference-player`, en
-cambio, va después del v13 (D-8).
-
-**P-3 — Avisarle a DASH-IF que el tool valida contra la 5ta.** Es hacia afuera:
-un issue en `Dash-Industry-Forum/DASH-IF-Conformance` con la medición de los 8
-ejemplos de ISO rechazados. Recomendación: **sí, después de T-08**, que lo mide
-con el tool corriendo y no sólo con su XSD; lo manda quien el líder del
-proyecto diga.
+| Un Player headless da resultados que varían entre corridas | No bloquea hasta tener corridas estables (D-13); T-07 lo corre tres veces y reporta la varianza |
