@@ -10,9 +10,11 @@
 - The matching `../output-analysis/v*-detail-review.md` (autofixes
   already applied + flagged items requiring semantic decisions —
   Step 7.5 log).
-- The matching `../output-analysis/v*-dash-conformance-audit.md`
-  (V / M / N verdicts per construct + remedy sequence — Step 8
-  audit).
+- The matching `../output-analysis/v*-conformance-tests.md` (the
+  conformance verdicts computed by code — Step 8.0). Its `FAIL` rows
+  are issues to fix.
+- Optional: the matching `../output-analysis/v*-dash-conformance-audit.md`
+  (the audit's suspicions no test covers — Step 8). Never a verdict.
 - `../context/` (read-only here; used only for grounding existing
   claims, NEVER for regeneration). The refinement does not consume
   new context — by definition requirements stay fixed across a
@@ -27,11 +29,12 @@ its mtime is newer than ALL of:
 - the input spec `../output/v<N.M>-sgai-spec.md`,
 - `../output-analysis/v<N.M>-spec-validation.md`,
 - `../output-analysis/v<N.M>-detail-review.md`,
-- `../output-analysis/v<N.M>-dash-conformance-audit.md`,
+- `../output-analysis/v<N.M>-conformance-tests.md`,
+- `../output-analysis/v<N.M>-dash-conformance-audit.md`, if it exists,
 - this prompt (`prompts/4-auto-refine/refine-spec.prompt`).
 
 **Execution mode**: fresh subagent context. The agent reads only
-the spec, the three analysis sidecars, and `../context/` for
+the spec, the analysis sidecars listed above, and `../context/` for
 grounding. It MUST NOT query any external authority, the primary copy
 of the base standard included —
 grounding happened in the major build, and a minor refinement
@@ -42,8 +45,8 @@ operates strictly inside that grounding envelope.
 ## What this prompt is for
 
 A minor refinement (vN.M+1) addresses issues surfaced by the
-validation sidecar, the detail-review log, and the DASH conformance
-audit, WITHOUT changing requirements and WITHOUT changing
+validation sidecar, the detail-review log, and the conformance tests,
+WITHOUT changing requirements and WITHOUT changing
 architectural choices. It is delta-only: untouched sections of the
 spec carry over byte-identical from the input.
 
@@ -54,8 +57,8 @@ Two iteration scales coexist in the project:
   edits inside `../context/`. Built from scratch by
   `build-all.prompt` (which calls `build-spec.prompt`).
 - **Minor (vN.M+1)** — requirements unchanged, only wording /
-  internal consistency / cross-reference accuracy / DASH conformance
-  remedies for issues documented in the analyses. Built by this
+  internal consistency / cross-reference accuracy / remedies for
+  conformance-test failures documented in the analyses. Built by this
   prompt.
 
 The intent is to converge a single major version through a few
@@ -72,7 +75,8 @@ re-grounding the whole spec on every fix.
   alone.
 - **Delta-only edits.** Sections of the spec that have NO issue in
   the validation sidecar, the detail-review log, or the conformance
-  audit MUST be carried over byte-identical. The refinement is not
+  tests (nor a suspicion the refine chose to act on) MUST be carried
+  over byte-identical. The refinement is not
   a rewrite.
 - **Same header, same edition.** The refined spec MUST start with
   the same `# SGAI for MPEG-DASH ...` title and the same edition /
@@ -82,15 +86,16 @@ re-grounding the whole spec on every fix.
   an HTML comment `<!-- refine: <issue-id> -->` placed at the
   nearest line above the edited content. The `<issue-id>` is the
   identifier of the issue in the source analysis (e.g.
-  `v4-detail-review.md#flag-3`, `v4-dash-conformance-audit.md#N1`,
-  `v4-spec-validation.md#gap-2`). Markdown ignores HTML comments,
+  `v4-detail-review.md#flag-3`, `v4-spec-validation.md#gap-2`; a
+  conformance-test `FAIL` is `<rule>@<subject>`, as the tests report it,
+  e.g. `E-2@<subject>`). Markdown ignores HTML comments,
   so this does not affect rendering — but a downstream auditor can
   grep them to audit which changes came from which input.
 - **No external grounding.** Do NOT open the primary copy of the base
   standard or any other external authority. Do NOT cite
-  new external sources. If a remedy in the conformance audit
-  references a DASH 6th rule, the audit already grounded that rule;
-  this prompt only applies the remedy.
+  new external sources. A conformance-test `FAIL` carries the rule's
+  quoted sentence; that is the grounding, and this prompt only applies
+  the remedy.
 - **History preserved.** The input spec `v<N.M>-sgai-spec.md`
   MUST remain untouched. Never overwrite it.
 
@@ -120,22 +125,25 @@ is v4.1", etc.).
 
 Identify the most recent `../output/v*-sgai-spec.md` (call its
 version `v<N.M>`; the major case is `M=∅`, treat as `M=0` for the
-arithmetic above). Identify the three matching analysis sidecars in
+arithmetic above). Identify the matching analysis sidecars in
 `../output-analysis/` using the same `v<N.M>` prefix.
 
-If any of the three sidecars is missing, abort with a message:
+If any of the three required sidecars is missing, abort with a message:
 
 ```
 ABORT: refine-spec requires all three sidecars for v<N.M>:
   - spec-validation.md
   - detail-review.md
-  - dash-conformance-audit.md
+  - conformance-tests.md
 Run the corresponding prompts first.
 ```
 
+The audit (`dash-conformance-audit.md`) is optional: without it there
+are no suspicions to consider, and nothing else changes.
+
 ### 2. Collect the issue list
 
-Read the three sidecars end to end and collect every issue that
+Read the sidecars end to end and collect every issue that
 proposes a change to the spec:
 
 - From `v<N.M>-spec-validation.md`:
@@ -199,14 +207,23 @@ proposes a change to the spec:
     recommends "rename X to Y", do the rename consistently across
     the whole spec.
 
-- From `v<N.M>-dash-conformance-audit.md`:
-  - **Non-conforming (N)** items: apply the suggested fix.
-  - **Marginal (M)** items: apply the clarification the audit
-    proposes (typically a tightening sentence, a unit suffix, or
-    an explicit cross-reference).
-  - **Conforming (V)** items: nothing to do.
-  - If the audit has a final "remedy sequence", treat it as the
-    canonical ordered list of edits — apply in that order.
+- From `v<N.M>-conformance-tests.md`:
+  - **Every row of `## FAIL`** is an issue to fix: the rule, its quoted
+    sentence, the subject and the place (`xpath`) say what is broken
+    and where. Apply the minimal edit that makes the document satisfy
+    the quoted sentence, and annotate it
+    `<!-- refine: <rule>@<subject> -->`. A `FAIL` whose fix needs a new
+    construct or requirement goes to Refinement gaps, as any other
+    issue.
+  - `PASS`, `NOT_APPLICABLE` and `NOT_VERIFIABLE`: nothing to do.
+    Rules starting with `P-` (Players) inform and are not issues.
+
+- From `v<N.M>-dash-conformance-audit.md`, if present — **optional
+  input**: the rows of its `## Suspicions` table are doubts no test
+  decides, not issues. Act on one only when its fix is a minimal,
+  clearly correct edit inside the spec's existing grounding; annotate
+  it `<!-- refine: v<N.M>-dash-conformance-audit.md#S-<n> -->`.
+  Otherwise leave it: it is not carried into Refinement gaps.
 
 ### 3. Apply edits
 
@@ -219,7 +236,8 @@ For each collected issue:
 4. Annotate with `<!-- refine: <issue-id> -->` on the line above
    the edit. The `<issue-id>` references the analysis file and a
    stable handle: e.g. `v4-detail-review.md#flag-3`,
-   `v4-dash-conformance-audit.md#N1`, `v4-spec-validation.md#amb-7`.
+   `v4-spec-validation.md#amb-7`, or `<rule>@<subject>` for a
+   conformance-test `FAIL`.
 5. If the change requires updating multiple places (e.g. renaming
    an attribute affects chapter 5, the annex examples, and the
    syntax tables), apply consistently across all sites. Annotate
@@ -281,7 +299,7 @@ Where:
   constructs, namespaces, or actor responsibilities.
 - Does NOT modify anything in `../context/`,
   `../context-analysis/`, `../prompts/`, the input spec
-  `../output/v<N.M>-sgai-spec.md`, or the three input sidecars in
+  `../output/v<N.M>-sgai-spec.md`, or the input sidecars in
   `../output-analysis/`.
 - Does NOT collapse build history — every prior `v*-sgai-spec.md`
   stays on disk.

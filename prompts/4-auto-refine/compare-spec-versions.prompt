@@ -2,15 +2,18 @@
 
 **Inputs**:
 - The **published** sidecars, in `../dist/`:
-  `spec-validation.md`, `detail-review.md`, `dash-conformance-audit.md`
+  `spec-validation.md`, `detail-review.md`, `conformance-tests.json`,
+  and `dash-conformance-audit.md` if present
 - The **candidate's** sidecars, in `../output-analysis/`:
   `v<N.M>-spec-validation.md`, `v<N.M>-detail-review.md`,
-  `v<N.M>-dash-conformance-audit.md`
+  `v<N.M>-conformance-tests.json`, and
+  `v<N.M>-dash-conformance-audit.md` if present
 
 The candidate is the most recent version in `../output-analysis/` for
-which all three sidecars exist. What it is compared against is **not
-the sibling before it** but whatever is published in `../dist/` — the
-build that was promoted, whenever that was.
+which the three required sidecars exist (the audit is optional). What
+it is compared against is **not the sibling before it** but whatever is
+published in `../dist/` — the build that was promoted, whenever that
+was.
 
 That is the question worth answering. A candidate beating the file
 generated just before it says nothing about whether it beats what the
@@ -29,7 +32,7 @@ notes. Replaces any prior file with the same name.
 
 **Skip if**: `../output-analysis/v<N.M>-comparison.md` exists AND
 its mtime is newer than ALL of:
-- the six input sidecars listed above, the three in `../dist/` included,
+- the input sidecars listed above, those in `../dist/` included,
 - this prompt (`prompts/4-auto-refine/compare-spec-versions.prompt`).
 
 If any input is newer, regenerate the comparison. A promotion into
@@ -49,7 +52,7 @@ sidecars are the only source.
 ## What this prompt is for
 
 Each refinement is supposed to reduce the issue count surfaced by the
-three analyses. Without an explicit comparison step, there is no signal
+validation, the detail review and the conformance tests. Without an explicit comparison step, there is no signal
 whether it converged, stalled, or regressed.
 
 The question this prompt answers is **"is this better than what we
@@ -63,25 +66,29 @@ a candidate-beats-its-sibling number is not.
 ### 1. Identify the candidate and the baseline
 
 The **candidate** is the highest version in `../output-analysis/` for
-which all three sidecars exist:
+which all three required sidecars exist:
 - `v<N.M>-spec-validation.md`,
 - `v<N.M>-detail-review.md`,
-- `v<N.M>-dash-conformance-audit.md`.
+- `v<N.M>-conformance-tests.json`.
 
 The **baseline** is what `../dist/` publishes, under stable names:
 - `spec-validation.md`,
 - `detail-review.md`,
-- `dash-conformance-audit.md`.
+- `conformance-tests.json`.
+
+The audit (`dash-conformance-audit.md`) is read on both sides when
+present, for its suspicion count only.
 
 There is no version to resolve on the baseline side and no history to
 walk: the predecessor is whatever is published, and `../dist/` holds
 one build at a time.
 
-If the candidate set is incomplete, abort with a message:
+If the candidate's required set is incomplete, abort with a message:
 
 ```
 ABORT: compare-spec-versions requires all three sidecars for the
-candidate v<N.M>. Missing: <list>.
+candidate v<N.M> (spec-validation.md, detail-review.md,
+conformance-tests.json). Missing: <list>.
 ```
 
 If `../dist/` carries none of the three, do not abort and do not pick a
@@ -101,8 +108,10 @@ the one reading that makes the candidate look worse than it is.
 
 ### 2. Extract counts per category
 
-For each version, parse the three sidecars and extract integer
-counts. Each sidecar typically carries a `## Summary` section AND
+For each version, parse the sidecars and extract integer counts. The
+conformance tests are read from the `.json`, not from prose: counts
+come from its `results` list, and the level of each result from
+`rules[<rule>].level`. Each sidecar typically carries a `## Summary` section AND
 an inline stdout-style line (e.g. "wrote ..., N gaps, M edge
 cases"). Treat both as evidence; if they disagree, prefer the
 `## Summary` section (it is the canonical artefact). If a count is
@@ -115,7 +124,8 @@ Categories to extract:
 |-----------------------------|-----------------------------------------------------------------------------|
 | `v<X>-spec-validation.md`   | Gaps, Edge cases, Ambiguities, obligation coverage (met / force-lost / contradicted / partial / gap / governance) |
 | `v<X>-detail-review.md`     | Autofixes applied, Flagged                                                  |
-| `v<X>-dash-conformance-audit.md` | Conforming (V), Marginal (M), Non-conforming (N), Fetch-failed         |
+| `v<X>-conformance-tests.json` | FAIL per level, NOT_VERIFIABLE per level (results whose rule starts with `P-`, the Players, excluded), and `cannot` (non-empty ⇒ the run could not tell) |
+| `v<X>-dash-conformance-audit.md` (optional) | Suspicions (rows of its `## Suspicions` table), Fetch-failed — reported, **outside the total** |
 
 `Obligation coverage` is split into six sub-counts (met / force-lost /
 contradicted / partial / gap / governance) — extract each separately
@@ -131,9 +141,16 @@ objects — 33 requirements against 108 criteria is a change of
 denominator, and a delta across it measures the change of unit and not
 a change in the spec.
 
-`Fetch-failed` is the count of items the audit could not locate in the
-primary copy of the base standard and tagged `[fetch-failed]`. If the
-audit does not surface this category explicitly, treat it as `0`.
+If a `conformance-tests.json` carries a non-empty `cannot` list, the
+run could not tell: its FAIL and NOT_VERIFIABLE counts are `?`, and the
+reasons go in the verdict section.
+
+The audit's counts are reported and **never enter the verdict**: the
+audit is a complement and never evidence of conformance (ADR 0057). An
+audit written before ADR 0057 has verdicts and no `## Suspicions`
+table; record its suspicion count as `?`. `Fetch-failed` is the count
+of items the audit could not locate in the primary copy and tagged
+`[fetch-failed]`; `0` if not surfaced.
 
 ### 3. Compute deltas and trends
 
@@ -142,15 +159,16 @@ For each category:
 - Trend marker:
   - For **issue** categories (Gaps, Edge cases, Ambiguities,
     obligation coverage force-lost / contradicted / partial / gap,
-    Flagged,
-    Marginal, Non-conforming, Fetch-failed): `Δ < 0` ⇒ ✅; `Δ > 0` ⇒
+    Flagged, conformance FAIL and NOT_VERIFIABLE per level, and the
+    audit's Suspicions and Fetch-failed): `Δ < 0` ⇒ ✅; `Δ > 0` ⇒
     ⚠️; `Δ = 0` ⇒ ➖.
   - For **good** categories (obligation coverage met, obligation
-    coverage governance, Conforming, Autofixes applied): `Δ > 0` ⇒ ✅;
+    coverage governance, Autofixes applied): `Δ > 0` ⇒ ✅;
     `Δ < 0` ⇒ ⚠️; `Δ = 0` ⇒ ➖.
 
 Compute a **Total issues** row by summing only the issue
-categories above (NOT the good ones). The total is the headline
+categories above (NOT the good ones, and NOT the audit's Suspicions
+and Fetch-failed). The total is the headline
 convergence number.
 
 ### 4. Emit the report
@@ -190,16 +208,18 @@ commentary rather than averaging over — the numbers in the table above
 are illustrative and do not sum to any real population.)
 | Autofixes applied (detail-review) | 6 | 3 | -3 | ⚠️ |
 | Flagged (detail-review) | 5 | 2 | -3 | ✅ |
-| Conforming (audit) | 20 | 24 | +4 | ✅ |
-| Marginal (audit) | 4 | 2 | -2 | ✅ |
-| Non-conforming (audit) | 3 | 1 | -2 | ✅ |
-| Fetch-failed | 0 | 0 | 0 | ➖ |
-| **Total issues** | **35** | **17** | **-18** | **✅** |
+| Conformance FAIL — level 1 | 3 | 1 | -2 | ✅ |
+| Conformance FAIL — level 2 | 2 | 0 | -2 | ✅ |
+| Conformance NOT_VERIFIABLE — level 1 | 4 | 4 | 0 | ➖ |
+| Conformance NOT_VERIFIABLE — level 2 | 6 | 5 | -1 | ✅ |
+| **Total issues** | **60** | **33** | **-27** | **✅** |
+| Suspicions (audit, not in the total) | 5 | 3 | -2 | ✅ |
+| Fetch-failed (audit, not in the total) | 0 | 0 | 0 | ➖ |
 
 Trend legend:
-- ✅ — fewer issues (delta < 0) OR more conforming / coverage-full
-  / governance / autofixes (delta > 0).
-- ⚠️ — more issues OR less conforming / coverage-full / governance.
+- ✅ — fewer issues (delta < 0) OR more coverage-full / governance /
+  autofixes (delta > 0).
+- ⚠️ — more issues OR less coverage-full / governance.
 - ➖ — no change.
 
 ## Verdict
@@ -217,27 +237,15 @@ Trend legend:
   costs more than it gains against the published build.
 
 **This verdict does not promote anything.** It measures a candidate
-against the published build and stops there. Whether a candidate
-becomes the published build is a separate decision, made elsewhere,
-against a criterion this project has not yet written — see
-`## Promotion` below.
-
-## Promotion
-
-**Not defined.** No criterion for promoting a candidate into `dist/`
-exists yet, and this prompt does not invent one. A verdict of
-BETTER THAN PUBLISHED is an input to that decision and not the
-decision: it says the candidate has fewer issues, which is not the
-same as saying it is ready to be what the project stands behind.
-
-Until a criterion is written, promotion is a human act. This section
-exists so that the absence is visible rather than inferred from
-silence.
+against the published build and stops there. BETTER THAN PUBLISHED is
+one of the three conditions of the promotion criterion in `CLAUDE.md`
+(with `bin/check-promotable.py` and `bin/check-dash-conformance.py`
+both exiting `0`), not the decision.
 
 ## Per-category notes
 
 [Optional. 2-5 bullets ONLY when a specific category shows
-striking movement worth flagging (e.g. Non-conforming dropped to
+striking movement worth flagging (e.g. conformance FAIL dropped to
 zero, Ambiguities ticked up despite overall drop, an obligation
 coverage gap persists, a contradicted criterion survived a
 refinement). Skip the section entirely if every delta is small and
@@ -246,10 +254,11 @@ expected.]
 
 The total issues sum is the **sum of issue categories only** —
 Gaps + Edge cases + Ambiguities + obligation coverage (force-lost +
-contradicted + partial + gap) + Flagged + Marginal + Non-conforming +
-Fetch-failed. Obligation coverage met / governance, Conforming, and Autofixes applied
-are NOT added to the total (they are "good" categories tracked
-separately).
+contradicted + partial + gap) + Flagged + conformance FAIL and
+NOT_VERIFIABLE (every level). Obligation coverage met / governance and
+Autofixes applied are NOT added to the total (they are "good"
+categories tracked separately), and neither are the audit's
+Suspicions and Fetch-failed (reported, outside the verdict).
 
 If any count is `?`, write `?` in the cell, set `Δ` to `?`, set
 the trend to `➖`, and add a note in the verdict section stating
@@ -277,7 +286,7 @@ wrote ../output-analysis/v<N.M>-comparison.md, no baseline in dist/ — counts r
   published build is read-only here, in every mode and for every
   verdict.
 - Does NOT modify any analysis sidecar in `../output-analysis/` —
-  the six inputs are strictly read-only.
+  the inputs are strictly read-only.
 - Does NOT consult `../context/` or `../context-analysis/`.
 - Does NOT call any external authority, the primary copy included.
 - Does NOT invent counts — if a number is not extractable from the

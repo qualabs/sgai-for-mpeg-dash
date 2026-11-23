@@ -223,13 +223,10 @@ every one of:
 2. **every coverage-map row of §4 whose verdict is not `met` or
    `governance`** — the `Disposition` column carries it, and the row
    also appears in the §5 table its bucket names;
-3. **every `Non-conforming` and every `Marginal` item of the DASH
-   conformance audit** (`../output-analysis/v<N>-dash-conformance-audit.md`),
-   by its audit id (`K-36`, …);
-4. **every flagged item of the detail review**
+3. **every flagged item of the detail review**
    (`../output-analysis/v<N>-detail-review.md`), by its flag number.
 
-Items 2–4 are the ones that used to arrive unrouted, and a routing
+Items 2 and 3 are the ones that used to arrive unrouted, and a routing
 that covers a third of what a build produces is not a routing: the
 classification of the v7.2 findings had to be redone by hand for
 exactly the rows this list adds.
@@ -279,11 +276,10 @@ when none answers is it `5.b` or `5.c`, and then it carries a
 recommendation. Record in each `5.b` / `5.c` row which of the three
 you searched, so the reader can see what was looked at.
 
-One consequence worth stating, because it is where the disposition
-decides something the verdict cannot: a `Marginal` audit item routed
-to `5.a` is a defect with a known correct fix that nobody applied, and
-it is treated as blocking. The same `Marginal` routed to `5.b` is an
-open question and is not.
+Conformance with the base standard is not routed here: a `FAIL` of
+the conformance tests (`v<N>-conformance-tests.json`, computed by
+code) blocks on its own in `bin/check-promotable.py`, and the
+suspicions of the LLM audit never block (ADR 0057).
 
 #### 5.a Actionable TODOs (high-certainty, refine-spec MUST apply)
 

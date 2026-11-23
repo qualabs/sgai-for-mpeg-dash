@@ -9,10 +9,14 @@ does not duplicate them.
 - `context-analysis/` — pre-spec generated artefacts (5 files, one per
   Step 1-5 prompt). See `1-pre-spec/*.prompt` for individual contracts.
 - `output/v<N>-sgai-spec.md` — the spec itself (Step 6,
-  `2-build/build-spec.prompt`).
-- `output-analysis/v<N>-*.md` — 3 sidecars per major iteration (Steps 7,
-  7.5, 8, see `3-post-spec/`). Auto-refine iterations (Step 9) produce
-  the same 3 sidecars + a `vN.M-comparison.md` (see `4-auto-refine/`).
+  `2-build/build-spec.prompt`), and `output/v<N>-sgai-extension.xsd`,
+  its extension schema extracted from it (Step 6.1).
+- `output-analysis/v<N>-*` — 4 sidecars per major iteration: the
+  validation (Step 7), the detail review (Step 7.5), the conformance
+  tests (Step 8.0, a `.md` and a `.json`) and the audit's suspicions
+  (Step 8); see `3-post-spec/`. Auto-refine iterations (Step 9) produce
+  the extension schema, the same 4 sidecars and a `vN.M-comparison.md`
+  (see `4-auto-refine/`).
 
 Every output above is a **candidate**. This orchestrator never writes
 to `dist/`, which holds the published build and receives a candidate
@@ -229,8 +233,8 @@ output file is overwritten in place.
 
 The `build-spec` prompt produces a single artifact: the spec
 itself (`output/v<N>-sgai-spec.md`). The validation sidecar and
-the DASH conformance audit are produced by separate steps
-(7 and 8) that run in **fresh subagent** contexts.
+the audit are produced by separate steps (7 and 8) that run in
+**fresh subagent** contexts.
 
 Before invoking the prompt, resolve the iteration number `N` as
 described in the header (Version numbering): scan
@@ -252,9 +256,33 @@ guards against. Pass `N` to the `build-spec` prompt as an input.
   `prompts/2-build/build-spec.prompt` with iteration number `N` and log
   `[BUILT] build-spec → output/v<N>-sgai-spec.md`.
 
+#### Step 6.1 — Emit the extension schema (blocking)
+
+Right after Step 6, run inline (deterministic code, no subagent):
+
+```bash
+bin/emit-extension-xsd.py output/v<N>-sgai-spec.md
+```
+
+It copies the spec's §5.10.1 `xs:schema` block byte for byte to
+`output/v<N>-sgai-extension.xsd` (ADR 0047), and writes it only if it
+compiles together with ISO's 6th-edition `DASH-MPD.xsd`.
+
+- **Exit 0** — log `[BUILT] emit-extension-xsd → output/v<N>-sgai-extension.xsd`
+  and continue.
+- **Exit 1** (the block does not compile, E-1) or **exit 2** (no such
+  block, more than one, or ISO's pinned schema unavailable) — **stop
+  the build** and report the script's output verbatim. A candidate
+  without its schema does not go on to Step 7.
+- **Exit 64** — the invocation was wrong; fix the call.
+
+Skip rule: if `output/v<N>-sgai-extension.xsd` exists AND its mtime is
+newer than `output/v<N>-sgai-spec.md` → log
+`[SKIPPED] emit-extension-xsd → output/v<N>-sgai-extension.xsd`.
+
 ### Stage 3 — Post-spec analysis (`3-post-spec/`)
 
-Run after each major or minor spec iteration to produce the 3 sidecars.
+Run after each major or minor spec iteration to produce the 4 sidecars.
 
 #### Step 7 — Validate spec (fresh subagent)
 
@@ -278,12 +306,12 @@ as Marginal items M-3 and M-4 in the 2026-05-12 conformance audit —
 naming reuse with different semantics, format inconsistencies (e.g.
 the `@profiles` delimiter), cross-reference typos, and annex/chapter
 mismatches. It runs after `validate-spec` (which checks the spec
-against `context/` requirements) and before `audit-dash-conformance`
-(which checks the spec against the external MPEG-DASH 6th edition).
-The progression is: high-level conformance → low-level internal
-consistency → external-standard conformance. The output handed to
-Step 8 is therefore the post-detail-review spec, not the raw output
-of Step 6.
+against `context/` requirements) and before the conformance tests and
+the audit (which check the spec against the external MPEG-DASH 6th
+edition). The progression is: high-level conformance → low-level
+internal consistency → external-standard conformance. The output
+handed to Step 8.0 is therefore the post-detail-review spec, not the
+raw output of Step 6.
 
 **Inputs**: the most recent `output/v*-sgai-spec.md` (from Step 6),
 the matching `output-analysis/v*-spec-validation.md` (from Step 7),
@@ -316,16 +344,66 @@ rule is owned by the prompt itself.
   If autofixes were applied, the spec's mtime advances — this is
   expected and does not trigger a Step 6 re-run on the same build.
 
-#### Step 8 — DASH conformance audit (fresh subagent)
+#### Step 8.0 — Conformance tests (deterministic, inline)
+
+The conformance verdict is computed by code (ADR 0053). Two commands,
+run inline — they are deterministic, so no subagent:
+
+```bash
+bin/emit-extension-xsd.py output/v<N>-sgai-spec.md
+python3 bin/check-dash-conformance.py output/v<N>-sgai-spec.md \
+  --out-md output-analysis/v<N>-conformance-tests.md \
+  --out-json output-analysis/v<N>-conformance-tests.json
+```
+
+The schema is extracted again because Step 7.5 may have autofixed the
+spec in place, and `check-dash-conformance` gives `FAIL` when the file
+and the block differ. The same exits as Step 6.1 apply to the first
+command.
+
+`check-dash-conformance` runs levels 1 and 2: the extension schema and
+the spec's example documents against ISO/IEC 23009-1 6th edition
+(E-1..E-4, the identity of the schema file with the block, the base
+standard's rules the schema cannot express), and the document criteria
+of `context/03`. Its exit is recorded, and **it does not stop the
+build**: `0` nothing fails, `1` at least one `FAIL`, `2` cannot tell
+(ISO's pinned schema unavailable or mismatched, no single schema block,
+a level-2 rule that no longer matches `context/03`), `64` wrong command
+line. A `FAIL` is an issue for Step 9 and blocks promotion through
+`bin/check-promotable.py`; a `2` makes that check exit `2`.
+
+Its green says every rule decidable by code passed on the instances the
+spec contains. It says nothing about what is `NOT_VERIFIABLE` (listed
+with its reason) or about constructs the spec has no example of.
+
+The legacy Players (`--players`, level 3a) are not a build step: they
+inform and do not block until their runs are stable (ADR 0057). They
+are run by hand, or through the demo (`--demo`).
+
+- If `output-analysis/v<N>-conformance-tests.json` exists AND its mtime
+  is newer than both `output/v<N>-sgai-spec.md` and
+  `output/v<N>-sgai-extension.xsd` → log
+  `[SKIPPED] check-dash-conformance → output-analysis/v<N>-conformance-tests.json`.
+- Else → run both commands and log
+  `[BUILT] check-dash-conformance → output-analysis/v<N>-conformance-tests.{md,json} (exit <e>)`.
+
+#### Step 8 — Suspicions audit (fresh subagent)
+
+The LLM audit runs after the tests as their complement: it reads
+`output-analysis/v<N>-conformance-tests.md` and reports, as
+suspicions, the places where it suspects the base standard is violated
+or ambiguous and no test decides. It gives no verdict and blocks
+nothing; a suspicion blocks only once someone turns it into a rule and
+that rule fails (ADR 0053, 0057).
 
 This step MUST also dispatch a **fresh subagent** — separate from
 both the spec-build agent (Step 6) and the validate-spec agent
-(Step 7). Independent third-party check against DASH 6th spec
-rules; context overlap with prior steps biases the review.
+(Step 7). Context overlap with prior steps biases the reading.
 
 - Find the newest `output-analysis/v*-dash-conformance-audit.md` file (if
   any). If it exists AND its mtime is newer than the newest
-  `output/v*-sgai-spec.md` → log
+  `output/v*-sgai-spec.md` and the matching
+  `output-analysis/v*-conformance-tests.md` → log
   `[SKIPPED] audit-dash-conformance → <latest filename>`.
 - Else → dispatch a fresh subagent that follows the instructions in
   `prompts/3-post-spec/audit-dash-conformance.prompt` with iteration number `N`
@@ -339,7 +417,7 @@ Loop until convergence (or `MAX_REFINEMENTS`, or regression).
 #### Step 9 — Auto-refine until convergence
 
 After the major build (steps 1-8) produces `v<N>-sgai-spec.md` plus
-its three sidecars, the orchestrator enters a minor-refinement loop
+its extension schema and its four sidecars, the orchestrator enters a minor-refinement loop
 that drives the spec toward convergence without changing
 requirements. The loop is gated by `BUILD_ALL_AUTO_REFINE` (default
 `true`) and capped at `MAX_REFINEMENTS` iterations (default `5`);
@@ -357,9 +435,12 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
       - Input: the latest `output/v<N>.<M>-sgai-spec.md` (the
         major `v<N>-sgai-spec.md` on iteration K=1, then the
         previously accepted minor on subsequent iterations) and the
-        three sidecars matching `v<N>.<M>`.
+        sidecars matching `v<N>.<M>`.
       - Output: `output/v<N>.<M+1>-sgai-spec.md`.
       - Log `[BUILT] refine-spec → output/v<N>.<M+1>-sgai-spec.md`.
+      - Then run Step 6.1 against `v<N>.<M+1>`. Exit 1 or 2 is a
+        runtime error of the iteration (see below): the candidate
+        does not go on.
 
   9.2 Run `prompts/3-post-spec/validate-spec.prompt` against
       `v<N>.<M+1>`.
@@ -370,10 +451,16 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
       - Output: `output-analysis/v<N>.<M+1>-detail-review.md`.
       - May apply in-place autofixes per its semantics.
 
+  9.3a Run Step 8.0 against `v<N>.<M+1>`: re-emit the schema, then
+      `bin/check-dash-conformance.py`.
+      - Output: `output-analysis/v<N>.<M+1>-conformance-tests.md` and
+        `.json`.
+
   9.4 Run `prompts/3-post-spec/audit-dash-conformance.prompt`
       against `v<N>.<M+1>`.
       - Output:
-        `output-analysis/v<N>.<M+1>-dash-conformance-audit.md`.
+        `output-analysis/v<N>.<M+1>-dash-conformance-audit.md`
+        (suspicions only).
 
   9.5 Run `bin/check-promotable.py`. This is the loop's **stop
       condition**, and it runs before the comparison because a stop
@@ -476,7 +563,8 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
         count against the published build, across all categories,
         weighted equally — see "Step 9 configuration" below for the
         criterion):
-          keep `v<N>.<M+1>` plus its four sidecars.
+          keep `v<N>.<M+1>`, its extension schema, its four sidecars
+          and its comparison.
           Log `[ITER K] BETTER THAN PUBLISHED, <X> issues below
           dist/, <Y> remaining`.
           Set `M := M+1`, continue the loop.
@@ -489,11 +577,14 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
 
       - **WORSE THAN PUBLISHED** (net increase in issue count
         against the published build):
-          rollback — delete the five artefacts produced in this
+          rollback — delete the eight artefacts produced in this
           iteration:
             `output/v<N>.<M+1>-sgai-spec.md`,
+            `output/v<N>.<M+1>-sgai-extension.xsd`,
             `output-analysis/v<N>.<M+1>-spec-validation.md`,
             `output-analysis/v<N>.<M+1>-detail-review.md`,
+            `output-analysis/v<N>.<M+1>-conformance-tests.md`,
+            `output-analysis/v<N>.<M+1>-conformance-tests.json`,
             `output-analysis/v<N>.<M+1>-dash-conformance-audit.md`,
             `output-analysis/v<N>.<M+1>-comparison.md`.
           Log `[WORSE] at iter K, <N> net issues above dist/,
@@ -505,7 +596,7 @@ baseline) and iterate `K = 1` to `MAX_REFINEMENTS`:
       writes there, in any branch, including the one where the
       candidate beats the published build by a wide margin.
       Promotion is a decision taken outside this pipeline, against
-      a criterion this project has not defined yet.
+      the criterion in `CLAUDE.md` (the `dist/` entry of "Layout").
 
   9.8 If `K == MAX_REFINEMENTS` was reached without a
       NO BETTER / WORSE exit:
@@ -530,8 +621,9 @@ artefacts on error — surface them so the operator can inspect.
 - **BETTER THAN PUBLISHED criterion**: any net reduction in total
   issue count against the published build, where the total is the
   sum of all three categories — spec validation issues,
-  detail-review flagged items, and DASH conformance issues —
-  weighted equally. Cross-category trades are accepted as long as
+  detail-review flagged items, and conformance-test results (`FAIL`
+  and `NOT_VERIFIABLE`) — weighted equally. The audit's suspicions are
+  reported and do not enter the total. Cross-category trades are accepted as long as
   the net is negative (e.g. -5 conformance, +2 validation,
   +1 detail-review = -2 net → better).
 - **WORSE THAN PUBLISHED criterion**: strict. A net increase of
@@ -554,9 +646,11 @@ SGAI build summary (iteration v<N>, head v<N>.<M_final>, YYYY-MM-DD HH:MM):
   [BUILT|SKIPPED] extract-conformance-assertions  → context-analysis/conformance-assertions.md (mtime: ...)
   [BUILT]         analyze-iab-ad-templates        → context-analysis/iab-ad-templates.md (mtime: ...)
   [BUILT|SKIPPED] build-spec                      → output/v<N>-sgai-spec.md (mtime: ...)
+  [BUILT|SKIPPED] emit-extension-xsd              → output/v<N>-sgai-extension.xsd (mtime: ...)
   [BUILT|SKIPPED] validate-spec                   → output-analysis/v<N>-spec-validation.md (mtime: ...)
   [BUILT|SKIPPED] review-spec-details             → output-analysis/v<N>-detail-review.md (mtime: ...)
-  [BUILT|SKIPPED] audit-dash-conformance          → output-analysis/v<N>-dash-conformance-audit.md (mtime: ...)
+  [BUILT|SKIPPED] check-dash-conformance          → output-analysis/v<N>-conformance-tests.{md,json} (exit <e>; FAIL <f>, NOT_VERIFIABLE <nv>)
+  [BUILT|SKIPPED] audit-dash-conformance          → output-analysis/v<N>-dash-conformance-audit.md (<s> suspicions)
   [SKIPPED|CLEAR|NEEDS_HUMAN|CONTEXT_CHANGE|UNCERTAIN|NO_BETTER|WORSE|NO_BASELINE|MAX_ITER|ERROR] auto-refine → head=v<N>.<M_final> after <K> iterations
 ```
 

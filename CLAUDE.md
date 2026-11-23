@@ -51,8 +51,8 @@ projects/sgai-for-mpeg-dash/
 ├── prompts/              build scripts — .prompt files for LLM agents
 ├── context-analysis/     pre-spec artefacts — derived from context/ and consumed by the spec build
 ├── dist/                 the published spec + its analyses — unversioned names; arrives by promotion, never by build
-├── output/               candidate specs, one per build iteration (versioned, vN-sgai-spec.md)
-├── output-analysis/      per-candidate analyses of the spec (validation, detail-review, audit) + ad-hoc research / errata
+├── output/               candidate specs and their extension XSD, one per build iteration (vN-sgai-spec.md, vN-sgai-extension.xsd)
+├── output-analysis/      per-candidate analyses of the spec (validation, detail-review, conformance tests, audit) + ad-hoc research / errata
 ├── .github-ai/           GitHub-feedback pipelines (Stages 5 & 6) — prompts + scratch
 │   ├── prompts/
 │   │   ├── issues/       Stage 5 prompts — GitHub issues triage + auto-response
@@ -119,7 +119,9 @@ What does NOT go where:
   exits, and the same meaning of `2`.
   `check-promotable.py` is the auto-refine
   loop's stop condition, and the same script a promotion consults: it
-  reads the candidate's three sidecars, checks that the walk covered
+  reads the candidate's validation, detail review and
+  `conformance-tests.json` (the audit only for its suspicions, which
+  never block), checks that the walk covered
   every obligation `context/` states, and reports what blocks grouped
   by **who lifts it** — the pipeline, the coordinator applying a
   `context/` change a written source dictates, or a person — as the
@@ -140,6 +142,39 @@ What does NOT go where:
   modals did not drop). Same
   exits as `check-promotable.py`, whose coverage-map parser it imports
   so the two cannot read a sidecar differently.
+  `emit-extension-xsd.py` is Step 6.1: it copies the spec's §5.10.1
+  `xs:schema` block byte for byte to `v<N>-sgai-extension.xsd` beside
+  the candidate, and writes it only if it compiles with ISO's
+  6th-edition `DASH-MPD.xsd`. Its green says the file is the block and
+  compiles; nothing about whether the extensions conform. Exits `0`
+  written, `1` does not compile, `2` no single block or no ISO schema,
+  `64` wrong command line.
+  `check-dash-conformance.py` is Step 8.0, and the conformance verdict
+  is its exit, not an LLM's reading (ADR 0053): levels 1 and 2 — the
+  extension XSD and the spec's example documents against ISO/IEC
+  23009-1 6th edition (E-1..E-4, the file-to-block identity, the base
+  standard's rules the XSD cannot express) and the document criteria
+  of `context/03` — written to `--out-md` and `--out-json`. Its green
+  says every rule decidable by code passed on the instances the spec
+  contains; it says nothing about what is `NOT_VERIFIABLE` (listed with
+  its reason) nor about constructs the spec has no example of. Same
+  exits as `check-promotable.py`. `--players` adds level 3a and
+  `--demo` runs the committed positives and negatives side by side;
+  neither is a build step.
+  `conformance/` is the code behind it: `dash/` the level-1 rule
+  catalogue, `spec/` the level-2 one, each rule with its quoted
+  sentence, and `fixtures/` the committed negatives. A rule's green
+  is only as good as its transcription; its negative is what shows it
+  can fail.
+  `players/` pins the legacy Players (dash.js 5.3.0 upstream, Shaka
+  5.3.6, headless Chromium through Playwright) for level 3a. They
+  inform and do not block until their runs are stable (ADR 0057), so
+  they run by hand or in the demo, never in the build.
+  `dashif/` builds the pinned DASH-IF conformance tool (`v3.1.0`) as a
+  Docker image, a second auditor (ADR 0053). Its XSD module validates
+  against the 5th edition, so that verdict is discarded, and what it
+  flags on ISO's own 6th-edition examples is its false-positive
+  baseline.
   `check-dist-freshness.py` is not a build
   step: it answers whether what is published in `dist/` was built from
   the inputs as they stand now, by comparing `context/`,
@@ -159,37 +194,48 @@ What does NOT go where:
   `.project/decisions/` or inside the spec. No post-spec
   artefacts — those go to `output/` or `output-analysis/`.
 - `dist/` — the published spec and its analyses, under names with no
-  version: `sgai-spec.md`, `spec-validation.md`, `detail-review.md`,
-  `dash-conformance-audit.md`, `comparison.md`. This is what the
+  version: `sgai-spec.md`, `sgai-extension.xsd`,
+  `spec-validation.md`, `detail-review.md`, `conformance-tests.md`,
+  `conformance-tests.json`, `dash-conformance-audit.md`,
+  `comparison.md`. This is what the
   project stands behind; anyone asking "what does the spec say" is
   answered from here and from nowhere else.
 
   **No build writes here.** Files arrive by **promotion** — a
-  candidate in `output/` and its sidecars in `output-analysis/` are
+  candidate and its extension XSD in `output/` and its sidecars in
+  `output-analysis/` are
   judged good enough and moved in, replacing what was there. A build
   step that writes into `dist/` has confused producing a candidate
   with publishing one, which is the distinction this directory
   exists to hold.
 
-  **The promotion criterion** (the project lead, 2026-09-27): a candidate is
-  promoted when `bin/check-promotable.py` exits `0` on its sidecars
-  (nothing blocks, nothing uncertain) **and** its
-  `output-analysis/v<N.M>-comparison.md` verdict is `BETTER THAN
-  PUBLISHED`. When both hold, the coordinator promotes it (copies the
-  candidate and its sidecars into `dist/` under the unversioned names,
-  rewrites `dist/inputs.sha256`) and tells the project lead; it does not ask.
-  Anything short of both stays a candidate.
+  **The promotion criterion** (the project lead, 2026-09-27; the third
+  condition 2026-11-23): a candidate is promoted when
+  `bin/check-promotable.py` exits `0` on its sidecars (nothing blocks,
+  nothing uncertain), its `output-analysis/v<N.M>-comparison.md`
+  verdict is `BETTER THAN PUBLISHED`, **and**
+  `bin/check-dash-conformance.py` exits `0` on the candidate. A
+  conformance `FAIL` blocks; a `NOT_VERIFIABLE` does not, and is listed
+  with its count. The LLM audit blocks nothing: a suspicion of it
+  blocks only once it is a rule that fails. The Players inform and do
+  not block (ADR 0057). When all three hold, the coordinator promotes
+  it (copies the candidate, its extension XSD and its sidecars into
+  `dist/` under the unversioned names, rewrites `dist/inputs.sha256`)
+  and tells the project lead; it does not ask. Anything short of all
+  three stays a candidate.
 
   The unversioned names are deliberate. A link to the spec has to
   survive the next build, and the spec's own title carries no version
   either (`# SGAI for Linear and Non-Linear Ads in MPEG-DASH`), so a
   versioned filename was the only place the version lived. History
   lives in git and in `output/`.
-- `output/` — the candidate spec, and only that. One file per build
-  iteration: `v<N>-sgai-spec.md`. A candidate is what a build
+- `output/` — the candidate spec and its extension XSD, and only
+  that. Two files per build iteration: `v<N>-sgai-spec.md` and
+  `v<N>-sgai-extension.xsd`, the spec's §5.10.1 block extracted by
+  code (ADR 0047). A candidate is what a build
   produced; it becomes what the project publishes only if it is
   promoted into `dist/`. Any post-spec artefact — the validation
-  sidecar, the detail-review log, the DASH conformance audit —
+  sidecar, the detail-review log, the conformance tests, the audit —
   belongs to `output-analysis/`, not here. No half-built artefacts
   from intermediate steps — those go to `context-analysis/`.
   Never edit by hand; if a build came out wrong, fix the context
@@ -197,7 +243,7 @@ What does NOT go where:
 - `output-analysis/` — every analysis of a specific candidate.
   This includes both (a) the per-candidate analyses
   produced by `build-all` (validation sidecar, detail review,
-  DASH conformance audit) and (b) ad-hoc analyses created by hand
+  conformance tests, audit) and (b) ad-hoc analyses created by hand
   when a specific output needs deeper investigation (research
   informing the next build, errata clarifying a prior audit,
   follow-up conformance studies grounded against a particular
@@ -224,8 +270,9 @@ What does NOT go where:
   (`dash-gap-analysis.md`).
 - **`output/` files**: version **prefix** `vN-`, where N is the
   iteration number of the build that produced the artefact. The
-  filesystem sorts builds by iteration. Only one canonical pattern:
-  `v<N>-sgai-spec.md` (the spec). N is computed by the build-all
+  filesystem sorts builds by iteration. Two canonical patterns:
+  `v<N>-sgai-spec.md` (the spec) and `v<N>-sgai-extension.xsd` (its
+  extension schema). N is computed by the build-all
   orchestrator as `max(v* in output/) + 1`. Files are **not
   overwritten**; each build keeps history.
 - **`output-analysis/` files**: prefix `vN-` matching the
@@ -233,7 +280,8 @@ What does NOT go where:
   Per-iteration analyses produced by `build-all`:
   `v<N>-spec-validation.md` (validation sidecar, Step 7),
   `v<N>-detail-review.md` (detail review log, Step 7.5),
-  `v<N>-dash-conformance-audit.md` (DASH 6th conformance audit,
+  `v<N>-conformance-tests.md` and `.json` (conformance tests, Step
+  8.0), `v<N>-dash-conformance-audit.md` (the audit's suspicions,
   Step 8). Ad-hoc analyses created by hand follow
   `v<N>-<name>.md` (e.g. `v3-non-video-carrier-research.md`,
   `v3-non-video-carrier-research-errata-1.md`).
@@ -335,8 +383,9 @@ Three iteration scales coexist in this project:
   hand), and `prompts/2-build/apply-context-delta.prompt` writes
   `v<N.M+1>` with only the affected sections changed, plus
   `output-analysis/v<N.M+1>-context-delta.md` mapping each change to
-  where it landed. Then the three analyses over the whole spec, the
-  comparison and the Step 9 loop, as in a major. `context/` must be
+  where it landed. Then the extension XSD (Step 6.1), the analyses
+  over the whole spec — the conformance tests (Step 8.0) among them —,
+  the comparison and the Step 9 loop, as in a major. `context/` must be
   committed first: an uncommitted change is a delta no commit records.
   The path stops and says `MAJOR RECOMMENDED` when the change exceeds
   `INCREMENTAL_MAX_CHANGED_FRACTION` of the spec, when a change needs
@@ -345,31 +394,38 @@ Three iteration scales coexist in this project:
   major itself.
 - **Minor (vN.M+1)** — `context/` unchanged. The latest analyses
   (`v<N.M>-spec-validation.md`, `v<N.M>-detail-review.md`,
-  `v<N.M>-dash-conformance-audit.md`) surfaced issues that can be
+  `v<N.M>-conformance-tests.md`) surfaced issues that can be
   fixed without altering requirements. Use the minor-refinement
   path:
 
   ```bash
   claude -p "$(cat prompts/4-auto-refine/refine-spec.prompt)" \
-    > /dev/shm/refine.out 2> /dev/shm/refine.err
+    > "$XDG_RUNTIME_DIR/cto/refine.out" 2> "$XDG_RUNTIME_DIR/cto/refine.err"
   ```
 
   This produces `output/v<N.M+1>-sgai-spec.md` from
   `output/v<N.M>-sgai-spec.md` plus the three analysis sidecars
-  matching `v<N.M>`. The refinement is delta-only: sections without
+  matching `v<N.M>` (the audit's suspicions, if present, only as
+  optional input). The refinement is delta-only: sections without
   issues are carried over byte-identical, and every applied edit is
   annotated with an inline HTML comment
   `<!-- refine: <issue-id> -->` for audit.
 
-  After the refine, re-run `validate-spec`, `review-spec-details`
-  and `audit-dash-conformance` against the new candidate to produce
-  its three sidecars.
+  After the refine, emit its extension XSD
+  (`bin/emit-extension-xsd.py output/v<N.M+1>-sgai-spec.md`; exit 1 or
+  2 and the candidate goes no further), re-run `validate-spec` and
+  `review-spec-details`, then the conformance tests (emit the XSD
+  again, since the detail review may autofix the spec, and run
+  `bin/check-dash-conformance.py` with `--out-md` / `--out-json` into
+  `output-analysis/v<N.M+1>-conformance-tests.*`), then
+  `audit-dash-conformance` — Steps 6.1, 7, 7.5, 8.0 and 8 of
+  `build-all`, against the new candidate.
 
   Then run `compare-spec-versions`:
 
   ```bash
   claude -p "$(cat prompts/4-auto-refine/compare-spec-versions.prompt)" \
-    > /dev/shm/compare.out 2> /dev/shm/compare.err
+    > "$XDG_RUNTIME_DIR/cto/compare.out" 2> "$XDG_RUNTIME_DIR/cto/compare.err"
   ```
 
   This produces `output-analysis/v<N.M+1>-comparison.md` with a
@@ -394,7 +450,7 @@ Three iteration scales coexist in this project:
 | New architectural decision (new construct, retired construct)            | Major       |
 | A delta too large to be an increment, or one the incremental cannot place| Major       |
 | Wording precision / cross-reference fixes                                | Minor       |
-| DASH conformance remedy for a Marginal or Non-conforming item            | Minor       |
+| Fix for a conformance-test `FAIL`                                         | Minor       |
 | Renaming an attribute when an existing flagged issue says so             | Minor       |
 
 The operator picks the path. What the incremental path decides on its

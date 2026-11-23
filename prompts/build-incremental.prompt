@@ -12,9 +12,11 @@ repeated here.
   none (Stage 2).
 - `output/v<N.M+1>-sgai-spec.md` and
   `output-analysis/v<N.M+1>-context-delta.md` — the delta applied, and
-  its trace (Stage 3).
-- `output-analysis/v<N.M+1>-*.md` — the three sidecars and the
-  comparison (Stages 4–5), and those of every minor Stage 6 accepts.
+  its trace (Stage 3); `output/v<N.M+1>-sgai-extension.xsd`, its
+  extension schema (Stage 3).
+- `output-analysis/v<N.M+1>-*` — the four sidecars (the conformance
+  tests as a `.md` and a `.json`) and the comparison (Stages 4–5), and
+  those of every minor Stage 6 accepts.
 
 Every output is a **candidate**. Nothing here writes to `dist/`.
 
@@ -104,7 +106,13 @@ bin/check-incremental.py scope v<N.M> v<N.M+1>
 
 and branch on its exit and its last line:
 
-- **0, `RESULT=IN_SCOPE`** — continue to Stage 4.
+- **0, `RESULT=IN_SCOPE`** — run **Step 6.1 of
+  `prompts/build-all.prompt`** against `v<N.M+1>` (emit the extension
+  schema). A candidate without its schema does not go on: exit 1 (the
+  block does not compile) deletes the candidate spec as `REJECT` does,
+  reports verbatim and stops with final line `REJECTED`; exit 2 (cannot
+  tell) reports verbatim and stops with final line `UNCERTAIN`.
+  Otherwise continue to Stage 4.
 - **1, `RESULT=REJECT`** — the candidate changed sections its trace does
   not declare, or declares sections it did not change. The apply step
   broke its contract. Delete `output/v<N.M+1>-sgai-spec.md` (so it
@@ -119,8 +127,10 @@ and branch on its exit and its last line:
 
 ## Stage 4 — Post-spec analyses of the whole candidate
 
-Run **Steps 7, 7.5 and 8 of `prompts/build-all.prompt`** against
-`v<N.M+1>`, with their execution modes (7 and 8 in fresh subagents).
+Run **Steps 7, 7.5, 8.0 and 8 of `prompts/build-all.prompt`** against
+`v<N.M+1>`, with their execution modes (7 and 8 in fresh subagents,
+8.0 inline: it re-emits the schema and runs
+`bin/check-dash-conformance.py`, before the audit).
 They walk the **entire** spec, not the delta: an edit in one section
 can break an obligation stated in another, and only a full walk sees
 it.
@@ -151,7 +161,7 @@ Stage 7 with head `v<N.M+1>`.
 
 Otherwise run **Step 9 of `prompts/build-all.prompt`** with its
 starting point set to `v<N.M+1>` instead of the major `v<N>`: 9.1 takes
-`v<N.M+1>` and its three sidecars and produces `v<N.M+2>`, and the rest
+`v<N.M+1>` and its sidecars and produces `v<N.M+2>`, and the rest
 of the loop — the `check-promotable.py` stop condition in 9.5 and its
 re-check before stopping in 9.5a, the comparison in 9.6, the verdict branches in 9.7, the cap in 9.8, the
 error handling — applies unchanged. The loop's head when it ends is
@@ -208,7 +218,10 @@ SGAI incremental summary (base v<N.M>, anchor <ANCHOR short>..<HEAD short>, head
   [BUILT|SKIPPED] baseline validate-spec          → output-analysis/v<N.M>-spec-validation.md
   [BUILT]         apply-context-delta             → output/v<N.M+1>-sgai-spec.md
   [IN_SCOPE|REJECT|MAJOR|UNCERTAIN] scope         → <S> sections changed, <pct>% of base lines
-  [BUILT|SKIPPED] validate / detail / audit       → output-analysis/v<N.M+1>-*.md
+  [BUILT|SKIPPED] emit-extension-xsd              → output/v<N.M+1>-sgai-extension.xsd
+  [BUILT|SKIPPED] validate / detail               → output-analysis/v<N.M+1>-*.md
+  [BUILT|SKIPPED] check-dash-conformance          → output-analysis/v<N.M+1>-conformance-tests.{md,json} (exit <e>; FAIL <f>, NOT_VERIFIABLE <nv>)
+  [BUILT|SKIPPED] audit-dash-conformance          → output-analysis/v<N.M+1>-dash-conformance-audit.md (<s> suspicions)
   [<verdict>|NO_BASELINE] compare vs dist/        → output-analysis/v<N.M+1>-comparison.md
   [<Step 9 outcome>] auto-refine                  → head=<head> after <K> iterations
   [NOT_DEGRADED|MAJOR|UNCERTAIN] degradation      → <regressions> regressions, modals <base>→<head>

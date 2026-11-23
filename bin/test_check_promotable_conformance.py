@@ -63,11 +63,13 @@ class Conformance(unittest.TestCase):
     def test_audit_non_conforming_does_not_block(self):
         _, base, _ = run(self.d)
         path = os.path.join(self.d, "dash-conformance-audit.md")
-        text = open(path).read()
+        with open(path) as fh:
+            text = fh.read()
         new = text.replace("| K-1 | Namespace `urn:svta:dash:sgai:2026` | Extension namespace | Elements and attributes in MPDs, List MPDs, standalone document | Conforming |",
                            "| K-1 | Namespace `urn:svta:dash:sgai:2026` | Extension namespace | Elements and attributes in MPDs, List MPDs, standalone document | Non-conforming |", 1)
         self.assertNotEqual(new, text, "the audit row to edit was not found")
-        open(path, "w").write(new)
+        with open(path, "w") as fh:
+            fh.write(new)
         _, after, _ = run(self.d)
         self.assertEqual(after["BLOCKERS"], base["BLOCKERS"])
         self.assertEqual(int(after["OPEN"]), int(base["OPEN"]) + 1)

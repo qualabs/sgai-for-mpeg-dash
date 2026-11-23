@@ -79,13 +79,18 @@ flows and the D-decisions that shape each.
    ┌──────────────────────────────────────────────────────────┐
    │                        2-build/                          │
    │  build-spec → output/v<N>-sgai-spec.md                  │
+   │  6.1 bin/emit-extension-xsd.py                          │
+   │        → output/v<N>-sgai-extension.xsd (blocking)      │
    └────────────────────────────┬─────────────────────────────┘
                                 ▼
    ┌──────────────────────────────────────────────────────────┐
    │                       3-post-spec/                       │
    │  validate-spec → v<N>-spec-validation.md                │
    │  review-spec-details → v<N>-detail-review.md            │
+   │  8.0 bin/check-dash-conformance.py (code, inline)       │
+   │        → v<N>-conformance-tests.md / .json              │
    │  audit-dash-conformance → v<N>-dash-conformance-audit.md │
+   │        (suspicions no test covers; blocks nothing)      │
    └────────────────────────────┬─────────────────────────────┘
                                 ▼
    ┌──────────────────────────────────────────────────────────┐
@@ -93,7 +98,7 @@ flows and the D-decisions that shape each.
    │  ┌── loop (gated by BUILD_ALL_AUTO_REFINE,              │
    │  │         capped at MAX_REFINEMENTS) ───────────────┐  │
    │  │  refine-spec → v<N>.<M+1>-sgai-spec.md           │  │
-   │  │  (re-run 3-post-spec/* against the new minor)     │  │
+   │  │  (6.1, then 3-post-spec/* and 8.0 again)          │  │
    │  │  compare-spec-versions → v<N>.<M+1>-comparison.md │  │
    │  │    (candidate vs what is published in dist/)      │  │
    │  │  verdict: BETTER THAN PUBLISHED   → continue      │  │
@@ -106,7 +111,12 @@ flows and the D-decisions that shape each.
 No step above writes to `../dist/`. The pipeline produces
 **candidates**; `dist/` holds the **published** build, and a
 candidate gets there by promotion — a decision made outside the
-pipeline, against a criterion this project has not written yet.
+pipeline, against the criterion in `../CLAUDE.md` (the `dist/` entry
+of "Layout").
+
+The legacy Players (`bin/check-dash-conformance.py --players`, level
+3a) are not a pipeline step: they inform and do not block, and run by
+hand or in the demo (`--demo`).
 
 Stage 5 runs as a **separate orchestrator** (not chained into the
 build-all flow above):
@@ -202,7 +212,7 @@ itself.
 
 | Prompt                              | When to invoke                                                          | Lives in            |
 |-------------------------------------|-------------------------------------------------------------------------|---------------------|
-| `build-all`                         | Full major build from scratch (steps 1-8 + auto-refine loop step 9)     | root                |
+| `build-all`                         | Full major build from scratch (steps 1-8, with 6.1 and 8.0 in code, + auto-refine loop step 9) | root |
 | `build-incremental`                 | `context/` changed by a bounded delta; absorb it into the latest candidate without regenerating it | root |
 | `analyze-dash-gap`                  | `context/` changed; pre-spec gap analysis is stale                      | `1-pre-spec/`       |
 | `build-uc-coverage-matrix`          | `context/03-requirements.md` or `context/04-use-cases.md` changed       | `1-pre-spec/`       |
@@ -213,7 +223,7 @@ itself.
 | `apply-context-delta`               | Called by `build-incremental`: applies `git diff <anchor>..HEAD -- context/` to `v<N.M>`, writes `v<N.M+1>` + its `context-delta` trace | `2-build/` |
 | `validate-spec`                     | New spec exists without matching `v<N>-spec-validation.md`              | `3-post-spec/`      |
 | `review-spec-details`               | New spec / validation sidecar / naming-and-namespaces changed           | `3-post-spec/`      |
-| `audit-dash-conformance`            | New spec exists without matching `v<N>-dash-conformance-audit.md`       | `3-post-spec/`      |
+| `audit-dash-conformance`            | After the conformance tests of a new spec: suspicions no test covers, no verdict (`v<N>-dash-conformance-audit.md`) | `3-post-spec/` |
 | `refine-spec`                       | Minor refinement on existing spec; called by Step 9 (or by hand)        | `4-auto-refine/`    |
 | `compare-spec-versions`             | Compare the latest candidate against the published build in `dist/`     | `4-auto-refine/`    |
 | `orchestrate-issues`                | Process open GitHub issues end-to-end (regenerate `meta.md` + per-cycle triage/impact/response). Dry-run default; `--live` to post | `.github-ai/prompts/issues/` |
@@ -240,7 +250,7 @@ in its own header — this table is a quick-pick index, not the spec.
 | New architectural decision (new construct, retired construct)            | Major       |
 | A delta too large to be an increment, or one the incremental cannot place| Major       |
 | Wording precision / cross-reference fixes                                | Minor       |
-| DASH conformance remedy for a Marginal or Non-conforming item            | Minor       |
+| Fix for a conformance-test `FAIL`                                         | Minor       |
 | Renaming an attribute when a flagged issue says so                       | Minor       |
 
 - **Major** (`build-all`) regenerates the spec from `context/`: pre-spec
@@ -275,10 +285,11 @@ Per iteration `K`, the loop:
 1. Calls `4-auto-refine/refine-spec.prompt` → produces
    `v<N>.<M+1>-sgai-spec.md` (delta-only edits, every change
    annotated with `<!-- refine: <issue-id> -->`).
-2. Re-runs `3-post-spec/validate-spec.prompt`,
-   `3-post-spec/review-spec-details.prompt`, and
-   `3-post-spec/audit-dash-conformance.prompt` against the new
-   minor version → three fresh sidecars.
+2. Emits the new minor's extension XSD (Step 6.1), then re-runs
+   `3-post-spec/validate-spec.prompt`,
+   `3-post-spec/review-spec-details.prompt`, the conformance tests
+   (Step 8.0) and `3-post-spec/audit-dash-conformance.prompt` against
+   it → four fresh sidecars.
    Then runs `../bin/check-promotable.py`, the loop's stop condition
    (`build-all` 9.5 and 9.5a own the branches): pipeline work keeps
    the loop going; a `context/` change a written source dictates
@@ -292,7 +303,7 @@ Per iteration `K`, the loop:
      build) → accept the new minor, set `M := M+1`, loop again.
    - **NO BETTER THAN PUBLISHED** (net delta zero) → break loop.
    - **WORSE THAN PUBLISHED** (net issue count above it) → rollback
-     (delete the five just-generated files), keep the previous head,
+     (delete the eight just-generated files), keep the previous head,
      break loop.
 
    Accepting a minor here means the loop keeps building on it. It
@@ -320,8 +331,9 @@ The verdict is computed by
 published build in `../dist/`:
 
 - **BETTER THAN PUBLISHED** — any net reduction in total issue count
-  across the three categories (spec validation, detail review, DASH
-  conformance), weighted equally. Cross-category trades are
+  across the three categories (spec validation, detail review,
+  conformance tests: `FAIL` and `NOT_VERIFIABLE`), weighted equally.
+  The audit's suspicions are reported and stay out of the total. Cross-category trades are
   accepted as long as the net is negative.
 - **WORSE THAN PUBLISHED** — strict. A net increase of `+1` or more
   triggers rollback. No tolerance for "fixed 5, broke 6".
@@ -331,14 +343,14 @@ When `../dist/` holds no sidecars there is no baseline: the step
 records the counts and emits no verdict, and the loop breaks rather
 than guessing.
 
-### The promotion criterion — not defined
+### The promotion criterion
 
 Nothing here decides when a candidate becomes the published build.
 The loop's verdicts govern whether to keep refining; promotion into
-`../dist/` is a separate decision, made by a human today, against a
-criterion this project has not written. It is named here so that its
-absence is a fact on the page rather than something a reader has to
-infer from not finding it.
+`../dist/` is a separate decision, against the criterion in
+`../CLAUDE.md`: `bin/check-promotable.py` and
+`bin/check-dash-conformance.py` both exit `0`, and the comparison says
+`BETTER THAN PUBLISHED`.
 
 ## Prompt conventions
 

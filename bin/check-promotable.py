@@ -66,8 +66,8 @@ AUDIT_CLEAR = {"conforming"}
 
 WHO = {"5.a": "pipeline", "5.b": "owner", "5.c": "owner", "5.d": "coordinator"}
 
-# Buckets whose rows are a known fix, so a Marginal audit item or a
-# detail-review flag routed to one of them blocks instead of travelling
+# Buckets whose rows are a known fix, so a detail-review flag routed to
+# one of them blocks instead of travelling
 # as open: 5.a the spec edit, 5.d the `context/` edit a source dictates.
 KNOWN_FIX = {"5.a", "5.d"}
 
