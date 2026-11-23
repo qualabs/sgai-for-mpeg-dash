@@ -15,7 +15,7 @@
 | T-11 | El pre-spec no produce lo que nadie lee y saltea por hash                                | done | agent | —    | `bin/step-inputs.py`, `bin/test_step_inputs.py`, `tasks/T-11/`        |
 | T-12 | Los orquestadores corren sobre la fuente: artefactos primero, prosa por parche           | done | agent | —    | `prompts/build-all.prompt`, `build-incremental`, `apply-context-delta`, `bin/strip-legacy-annotations.py`, `--reverse`, `{{version}}`, `tasks/T-12/`        |
 | T-13 | La promoción es un script que exige todo y copia el juego completo                       | done | agent | —    | `bin/promote.py`, `bin/test_promote.py`, `tasks/T-13/`        |
-| T-14 | La suite de tests cubre todo lo nuevo de `bin/` y corre verde entera                     | pending | agent | —    | —        |
+| T-14 | La suite de tests cubre todo lo nuevo de `bin/` y corre verde entera                     | done | agent | —    | `tasks/T-14/`        |
 | T-15 | `CLAUDE.md`, `README.md`, `prompts/README.md` y `SETUP.md` dicen el pipeline nuevo       | pending | agent | —    | —        |
 | T-16 | La medición A/B dice cuánto bajó el costo, medido contra medido                          | pending | agent | —    | —        |
 | T-17 | Cierre: REPORT.md (Mode D), LOG y validador                                              | pending | agent | —    | —        |
