@@ -1,0 +1,104 @@
+# UC-16 — Custom overlay inside a Publisher region (optional), as walked by
+# Annex P.
+# Expected behaviour: context/04 UC-16. Documents, ids and times: Annex P
+# (P.2 main MPD, P.3 the request, P.4 the resolution document, P.5 the
+# containment check, P.6 the walk). The candidate carries no @id, so it is
+# named by document order.
+#
+# P.6 places D1, D3 and D4 among the Players that support `custom`, so
+# every class here declares sgai-custom-layout 1 and sends the request of
+# P.3-1. The Player that does not support `custom` (P.6 row 2: renders the
+# lower-third) and the rectangle outside the region (P.7) are not written:
+# the format has no per-variant capabilities, and P.7 has no document.
+# Both are reported to the coordinator.
+#
+# Neither the UC nor the annex states when the window is resolved (no
+# earliest resolution on the window): the request is written as the window
+# from the MPD's load (session 0) to the window's start. Playback starts
+# 10 s before the window.
+format: sgai-scenario/1
+uc: UC-16
+uc_sha256: ce7b10917cadced62d5e88937451ea3fd19364a27e28eb5e897ee19c66cb0f89
+timescale: 1000
+tolerance: 250
+play_from: 470000
+observe_until: 35000
+entry: examples/annex-p/P.2-1.mpd
+fixtures:
+  - path: examples/annex-p/P.2-1.mpd
+  - path: examples/annex-p/P.3-1.http
+  - path: examples/annex-p/P.4-1.xml
+    url: https://aps.example.com/nl/overlay?k=4&e=12
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 1, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 1, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 1, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 1, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 1, sgai-ad-audio: 0}
+# P.3-1: "A Player that supports custom" sends sgai-custom-layout=1.
+sends_capabilities: [sgai-custom-layout]
+actions: []
+
+outcomes:
+  D1:
+    summary: The badge at x 65%, y 8%, 25% x 20% of the video, inside the Publisher's upper-right region, over the playing programme for 15 s.
+    requests:
+      - &resolve
+        at: {from: 0, to: 10000}
+        url: https://aps.example.com/nl/overlay?k=4&e=12
+        query: {sgai-allowed-layouts: custom overlay-lower-third, sgai-custom-region: 60 5 35 30, sgai-custom-layout: "1"}
+        answered_by: examples/annex-p/P.4-1.xml
+        matches: examples/annex-p/P.3-1.http
+    selection:
+      - opportunity: &opp {fixture: examples/annex-p/P.2-1.mpd, event_id: "1"}
+        result: presented
+        presented: &custom_sel
+          - {candidate: &c1 {fixture: examples/annex-p/P.4-1.xml, index: 1}, option: {index: 1}, layout: custom}
+    presentation: &custom
+      - {start: 0, end: 10000, layout: none, shows: [{element: primary, from: 470000}]}
+      - start: 10000
+        end: 25000
+        layout: custom
+        shows: [{element: primary, from: 480000}, {element: ad, candidate: *c1, option: {index: 1}, region: "x 65%, y 8%, 25% x 20% (rect 65 8 25 20, inside region 60 5 35 30)"}]
+      - {start: 25000, end: 35000, layout: none, shows: [{element: primary, from: 495000}]}
+    beacons: &all_beacons
+      - {at: 10000, fixture: examples/annex-p/P.4-1.xml, candidate: *c1, id: "1", url: "https://t.example.com/imp?cr=1601"}
+      - {at: 25000, fixture: examples/annex-p/P.4-1.xml, candidate: *c1, id: "2", url: "https://t.example.com/complete?cr=1601"}
+  D2:
+    summary: Nothing — neither image option renders without a non-video surface over video; the programme plays uninterrupted.
+    requests: [*resolve]
+    selection: &declined
+      - opportunity: *opp
+        result: declined
+        presented: []
+    presentation: &uninterrupted
+      - {start: 0, end: 35000, layout: none, shows: [{element: primary, from: 470000}]}
+    beacons: []
+  D3:
+    summary: The custom badge inside the region, as D1.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented: *custom_sel
+    presentation: *custom
+    beacons: *all_beacons
+  D4:
+    summary: The custom badge inside the region, as D1.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented: *custom_sel
+    presentation: *custom
+    beacons: *all_beacons
+  D5:
+    summary: Nothing — no overlay surface; the programme plays uninterrupted.
+    requests: [*resolve]
+    selection: *declined
+    presentation: *uninterrupted
+    beacons: []
+
+missing_carrier: []
+
+disagreements: []

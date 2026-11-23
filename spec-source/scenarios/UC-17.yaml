@@ -1,0 +1,165 @@
+# UC-17 — A non-linear ad supersedes a linear break, which stays as the
+# fallback, as walked by Annex Q.
+# Expected behaviour: context/04 UC-17. Documents, ids and times: Annex Q
+# (Q.2 main MPD, Q.3 the overlay resolution document, Q.4 the break's List
+# MPD and sub-MPDs, Q.5 the walk per device class). The overlay candidate
+# carries no @id, so it is named by document order; the break's candidates
+# by their Period@id.
+#
+# Both opportunities of Q.2-1 carry Event@id "1" (one in the insertion
+# EventStream, one in the overlay EventStream), and an opportunity is named
+# by fixture and @id only. In every `selection` below the overlay window is
+# listed first and the insertion second; the comments say which is which.
+#
+# Playback starts at 13:50, so the resolution window of both events (from
+# 14:00, offset 60 s) opens at session 10 s and the span (15:00) at 70 s.
+# Q.5: the Player "knows before 15:00 whether it will present an ad". Neither
+# the UC nor the annex says whether a Player that presents the overlay also
+# fetches the break's List MPD ahead; none is recorded for D1, D3, D4.
+format: sgai-scenario/1
+uc: UC-17
+uc_sha256: fd7cfae3a8194e1059fb9a872886c80fd727029e3c30cc3ea7a51a63bf3b8dd4
+timescale: 1000
+tolerance: 250
+play_from: 830000
+observe_until: 110000
+entry: examples/annex-q/Q.2-1.mpd
+fixtures:
+  - path: examples/annex-q/Q.2-1.mpd
+  - path: examples/annex-q/Q.5-1.http
+  - path: examples/annex-q/Q.3-1.xml
+    url: https://aps.example.com/nl/overlay?d=6&e=5
+  - path: examples/annex-q/Q.4-1.mpd
+    url: https://aps.example.com/linear/mid?d=6&e=5
+  - path: examples/annex-q/Q.4-2.mpd
+    url: https://ads-cdn.example.com/cr/1702/cr1702.mpd
+  - path: examples/annex-q/Q.4-3.mpd
+    url: https://ads-cdn.example.com/cr/1703/cr1703.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  legacy: {predates_spec: true}
+# Q.5-1 carries the forwarded layouts only.
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1:
+    summary: 15:00–15:30 the L-shape — the programme in the upper-left 60%, the image creative around it — then full screen; the break is not executed.
+    requests:
+      # Q.5: resolved from 14:00 (offset 60 s), before 15:00.
+      - &resolve
+        at: {from: 10000, to: 70000}
+        url: https://aps.example.com/nl/overlay?d=6&e=5
+        query: {sgai-allowed-layouts: squeezeback-l-shape-upper-left overlay-lower-third}
+        answered_by: examples/annex-q/Q.3-1.xml
+        matches: examples/annex-q/Q.5-1.http
+    selection: &lshape_sel
+      # The overlay window (the supersede event).
+      - opportunity: &opp {fixture: examples/annex-q/Q.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c1 {fixture: examples/annex-q/Q.3-1.xml, index: 1}, option: {index: 1}, layout: squeezeback-l-shape-upper-left}
+    presentation: &lshape
+      - {start: 0, end: 70000, layout: none, shows: [{element: primary, from: 830000}]}
+      - start: 70000
+        end: 100000
+        layout: squeezeback-l-shape-upper-left
+        shows: [{element: primary, from: 900000, region: upper-left 60%}, {element: ad, candidate: *c1, option: {index: 1}, region: full frame}]
+      - {start: 100000, end: 110000, layout: none, shows: [{element: primary, from: 930000}]}
+    beacons: &lshape_beacons
+      - {at: 70000, fixture: examples/annex-q/Q.3-1.xml, candidate: *c1, id: "1", url: "https://t.example.com/imp?cr=1701"}
+      - {at: 85000, fixture: examples/annex-q/Q.3-1.xml, candidate: *c1, id: "2", url: "https://t.example.com/mid?cr=1701"}
+      - {at: 100000, fixture: examples/annex-q/Q.3-1.xml, candidate: *c1, id: "3", url: "https://t.example.com/complete?cr=1701"}
+  D2:
+    summary: Neither option renders, so the window presents no ad; the 30 s break executes at 15:00 full screen and the programme resumes at 15:00.
+    requests:
+      - *resolve
+      # The break resolves once the window is known to present nothing,
+      # within the insertion's resolution window (offset 60 s).
+      - &list
+        at: {from: 10000, to: 70000}
+        url: https://aps.example.com/linear/mid?d=6&e=5
+        answered_by: examples/annex-q/Q.4-1.mpd
+      # Q.4-1: first ImportedMPD resolvable 60 s before its PeriodStart.
+      - &sub1702
+        at: {from: 10000, to: 70000}
+        url: https://ads-cdn.example.com/cr/1702/cr1702.mpd
+        answered_by: examples/annex-q/Q.4-2.mpd
+      # Q.4-1: second resolvable 15 s before its PeriodStart (15 s into the break).
+      - &sub1703
+        at: {from: 70000, to: 85000}
+        url: https://ads-cdn.example.com/cr/1703/cr1703.mpd
+        answered_by: examples/annex-q/Q.4-3.mpd
+    selection: &break_sel
+      # The overlay window: the document was received, nothing renders.
+      - opportunity: *opp
+        result: declined
+        presented: []
+      # The insertion event, executed because the window presented no ad.
+      - opportunity: *opp
+        result: presented
+        presented: &break_cands
+          - {candidate: {fixture: examples/annex-q/Q.4-1.mpd, id: ad-1702}, option: null, layout: linear}
+          - {candidate: {fixture: examples/annex-q/Q.4-1.mpd, id: ad-1703}, option: null, layout: linear}
+    presentation: &break
+      - {start: 0, end: 70000, layout: none, shows: [{element: primary, from: 830000}]}
+      - start: 70000
+        end: 85000
+        layout: linear
+        shows: [{element: ad, candidate: {fixture: examples/annex-q/Q.4-1.mpd, id: ad-1702}, option: null}]
+      - start: 85000
+        end: 100000
+        layout: linear
+        shows: [{element: ad, candidate: {fixture: examples/annex-q/Q.4-1.mpd, id: ad-1703}, option: null}]
+      # Q.5: "the programme resumes at 15:00" (insertion).
+      - {start: 100000, end: 110000, layout: none, shows: [{element: primary, from: 900000}]}
+    beacons: &break_beacons
+      - {at: 70000, fixture: examples/annex-q/Q.4-2.mpd, id: "1", url: "https://t.example.com/imp?cr=1702"}
+      - {at: 85000, fixture: examples/annex-q/Q.4-2.mpd, id: "2", url: "https://t.example.com/complete?cr=1702"}
+      - {at: 85000, fixture: examples/annex-q/Q.4-3.mpd, id: "11", url: "https://t.example.com/imp?cr=1703"}
+      - {at: 100000, fixture: examples/annex-q/Q.4-3.mpd, id: "12", url: "https://t.example.com/complete?cr=1703"}
+  D3:
+    summary: The L-shape image, as D1; the break is not executed.
+    requests: [*resolve]
+    selection: *lshape_sel
+    presentation: *lshape
+    beacons: *lshape_beacons
+  D4:
+    summary: The L-shape image, as D1; the break is not executed.
+    requests: [*resolve]
+    selection: *lshape_sel
+    presentation: *lshape
+    beacons: *lshape_beacons
+  D5:
+    summary: No overlay surface, so the window presents no ad; the break executes, as D2.
+    requests: [*resolve, *list, *sub1702, *sub1703]
+    selection: *break_sel
+    presentation: *break
+    beacons: *break_beacons
+  legacy:
+    summary: Does not recognise the window and plays the break, as D2.
+    requests:
+      # No overlay request: the window is not recognised. The break resolves
+      # from 14:00 (offset 60 s).
+      - *list
+      - *sub1702
+      - *sub1703
+    selection:
+      # The overlay window.
+      - opportunity: *opp
+        result: ignored
+        presented: []
+      # The insertion event.
+      - opportunity: *opp
+        result: presented
+        presented: *break_cands
+    presentation: *break
+    beacons: *break_beacons
+
+missing_carrier: []
+
+disagreements: []

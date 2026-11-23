@@ -1,0 +1,193 @@
+# UC-13 — One ad, Player-declared capabilities, resolved by the APS to a
+# single option, as walked by Annex M.
+# Expected behaviour: context/04 UC-13. Documents, ids and queries: Annex M
+# (M.2 main MPD, M.3 the five requests, M.4 what the APS derives, M.5 the
+# resolution documents, M.6 the sub-MPDs, M.7 the Player's check). The walk
+# itself, and the takeover's resume point, are Annex I's (I.6), which M.7
+# says every class repeats. The candidate carries no @id, so it is named by
+# document order.
+#
+# Every class requests the same URL and is answered by a different
+# document (M.5): which one is the class's query. Annex M has no .http
+# fixture, so each query is copied from the M.3 table.
+#
+# Neither annex states when the window is resolved (no earliest resolution
+# on the window): the request is written as the window from the MPD's load
+# (session 0) to the window's start. Playback starts 10 s before the window.
+format: sgai-scenario/1
+uc: UC-13
+uc_sha256: 20082014d5f1b11bdf7ff061f4ba47f679ab9b45cd20d8049b8c0ee7f2dc696f
+timescale: 1000
+tolerance: 250
+play_from: 1490000
+observe_until: 40000
+entry: examples/annex-m/M.2-1.mpd
+fixtures:
+  - path: examples/annex-m/M.2-1.mpd
+  - path: examples/annex-m/M.5-1.xml
+    url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+  - path: examples/annex-m/M.5-2.xml
+    url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+  - path: examples/annex-m/M.5-3.xml
+    url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+  - path: examples/annex-m/M.5-4.xml
+    url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+  - path: examples/annex-m/M.6-1.mpd
+    url: https://ads-cdn.example.com/nl/901/db-video.mpd
+  - path: examples/annex-m/M.6-2.mpd
+    url: https://ads-cdn.example.com/nl/901/takeover.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+# The union of what the classes send (M.3). The classes do NOT send the same
+# names, which schema.json's description assumes: D3 omits the HTML axis
+# (R29.3) and D4 sends none (R29.2). Each request's `query` says what that
+# class sends.
+sends_capabilities: [sgai-video-decoders, sgai-image-over-video, sgai-html-over-video]
+actions: []
+
+outcomes:
+  D1:
+    summary: The double box with the background — the programme in one box, the ad video in the other, the advertiser's image in the bands — for 20 s; the programme plays throughout.
+    requests:
+      - at: {from: 0, to: 10000}
+        url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+        query: &q_d1
+          sgai-video-decoders: "2"
+          sgai-image-over-video: "1"
+          sgai-html-over-video: "1"
+          sgai-allowed-layouts: squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear
+        answered_by: examples/annex-m/M.5-1.xml
+      - at: {from: 0, to: 10000}
+        url: https://ads-cdn.example.com/nl/901/db-video.mpd
+        answered_by: examples/annex-m/M.6-1.mpd
+    selection:
+      - opportunity: &opp {fixture: examples/annex-m/M.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c_d1 {fixture: examples/annex-m/M.5-1.xml, index: 1}, option: {index: 1}, layout: squeezeback-double-box-background}
+    presentation:
+      - &before {start: 0, end: 10000, layout: none, shows: [{element: primary, from: 1490000}]}
+      - start: 10000
+        end: 30000
+        layout: squeezeback-double-box-background
+        shows:
+          - {element: primary, from: 1500000, region: one box}
+          - {element: ad, candidate: *c_d1, option: {index: 1}, region: the other box}
+          - {element: background, region: the bands around the boxes}
+        note: M.7 / I.6 D1 "The programme in one box, the ad video in the other, the advertiser's image in the bands."
+      - &after_overlay {start: 30000, end: 40000, layout: none, shows: [{element: primary, from: 1520000}]}
+    beacons:
+      - {at: 10000, fixture: examples/annex-m/M.5-1.xml, candidate: *c_d1, id: "1", url: "https://t.example.com/imp?cr=901"}
+      - {at: 20000, fixture: examples/annex-m/M.5-1.xml, candidate: *c_d1, id: "2", url: "https://t.example.com/mid?cr=901"}
+      - {at: 30000, fixture: examples/annex-m/M.5-1.xml, candidate: *c_d1, id: "3", url: "https://t.example.com/complete?cr=901"}
+  D2:
+    summary: A 20 s full-screen video takeover; the programme is suspended and resumes where it was.
+    requests:
+      - at: {from: 0, to: 10000}
+        url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+        query:
+          sgai-video-decoders: "2"
+          sgai-image-over-video: "0"
+          sgai-html-over-video: "0"
+          sgai-allowed-layouts: squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear
+        answered_by: examples/annex-m/M.5-2.xml
+      - &sub_takeover
+        at: {from: 0, to: 10000}
+        url: https://ads-cdn.example.com/nl/901/takeover.mpd
+        answered_by: examples/annex-m/M.6-2.mpd
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: &c_to {fixture: examples/annex-m/M.5-2.xml, index: 1}, option: {index: 1}, layout: linear}
+    presentation: &takeover_presentation
+      - *before
+      - start: 10000
+        end: 30000
+        layout: linear
+        shows: [{element: ad, candidate: *c_to, option: {index: 1}}]
+      # I.6: "the programme resumes where it was suspended" (on demand, §5.3.6).
+      - {start: 30000, end: 40000, layout: none, shows: [{element: primary, from: 1500000}]}
+    beacons: &takeover_beacons
+      - {at: 10000, fixture: examples/annex-m/M.5-2.xml, candidate: *c_to, id: "1", url: "https://t.example.com/imp?cr=901"}
+      - {at: 20000, fixture: examples/annex-m/M.5-2.xml, candidate: *c_to, id: "2", url: "https://t.example.com/mid?cr=901"}
+      - {at: 30000, fixture: examples/annex-m/M.5-2.xml, candidate: *c_to, id: "3", url: "https://t.example.com/complete?cr=901"}
+  D3:
+    summary: The L-shape — the programme in the upper-left 60%, the image creative full frame behind it — for 20 s; the programme plays throughout.
+    requests:
+      # M.3: the HTML axis is omitted, not sent empty (R29.3).
+      - at: {from: 0, to: 10000}
+        url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+        query:
+          sgai-video-decoders: "1"
+          sgai-image-over-video: "1"
+          sgai-allowed-layouts: squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear
+        answered_by: examples/annex-m/M.5-3.xml
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: &c_d3 {fixture: examples/annex-m/M.5-3.xml, index: 1}, option: {index: 1}, layout: squeezeback-l-shape-upper-left}
+    presentation:
+      - *before
+      - start: 10000
+        end: 30000
+        layout: squeezeback-l-shape-upper-left
+        shows: [{element: primary, from: 1500000, region: upper-left 60%}, {element: ad, candidate: *c_d3, option: {index: 1}, region: full frame}]
+      - *after_overlay
+    beacons:
+      - {at: 10000, fixture: examples/annex-m/M.5-3.xml, candidate: *c_d3, id: "1", url: "https://t.example.com/imp?cr=901"}
+      - {at: 20000, fixture: examples/annex-m/M.5-3.xml, candidate: *c_d3, id: "2", url: "https://t.example.com/mid?cr=901"}
+      - {at: 30000, fixture: examples/annex-m/M.5-3.xml, candidate: *c_d3, id: "3", url: "https://t.example.com/complete?cr=901"}
+  D4:
+    summary: Receives all four options, fails the double box (two decoders) and renders the L-shape, as D3.
+    requests:
+      # M.3: it declares nothing; only the forwarded layouts.
+      - at: {from: 0, to: 10000}
+        url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+        query:
+          sgai-allowed-layouts: squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear
+        answered_by: examples/annex-m/M.5-4.xml
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: &c_d4 {fixture: examples/annex-m/M.5-4.xml, index: 1}, option: {index: 2}, layout: squeezeback-l-shape-upper-left}
+    presentation:
+      - *before
+      - start: 10000
+        end: 30000
+        layout: squeezeback-l-shape-upper-left
+        shows: [{element: primary, from: 1500000, region: upper-left 60%}, {element: ad, candidate: *c_d4, option: {index: 2}, region: full frame}]
+      - *after_overlay
+    beacons:
+      - {at: 10000, fixture: examples/annex-m/M.5-4.xml, candidate: *c_d4, id: "1", url: "https://t.example.com/imp?cr=901"}
+      - {at: 20000, fixture: examples/annex-m/M.5-4.xml, candidate: *c_d4, id: "2", url: "https://t.example.com/mid?cr=901"}
+      - {at: 30000, fixture: examples/annex-m/M.5-4.xml, candidate: *c_d4, id: "3", url: "https://t.example.com/complete?cr=901"}
+  D5:
+    summary: A 20 s full-screen video takeover, as D2, reached because D5 composites nothing over video.
+    requests:
+      - at: {from: 0, to: 10000}
+        url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+        query:
+          sgai-video-decoders: "1"
+          sgai-image-over-video: "0"
+          sgai-html-over-video: "0"
+          sgai-allowed-layouts: squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear
+        answered_by: examples/annex-m/M.5-2.xml
+      - *sub_takeover
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c_to, option: {index: 1}, layout: linear}
+    presentation: *takeover_presentation
+    beacons: *takeover_beacons
+
+missing_carrier: []
+
+disagreements: []
