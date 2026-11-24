@@ -1,0 +1,20 @@
+$ python3 bin/test_behaviour_compare.py SuspendedSurface PrimaryFromTolerance HeldThenWindow   # new tests against HEAD comparator
+FAIL: test_restore_after_a_long_gap_is_one_presentation (__main__.SuspendedSurface.test_restore_after_a_long_gap_is_one_presentation)
+AssertionError: <Outcome.FAIL: 'FAIL'> != <Outcome.PASS: 'PASS'>
+FAIL: test_element_tolerance_does_not_break_a_silent_boundary (__main__.PrimaryFromTolerance.test_element_tolerance_does_not_break_a_silent_boundary)
+AssertionError: <Outcome.FAIL: 'FAIL'> != <Outcome.PASS: 'PASS'>
+FAIL: test_from_takes_the_element_tolerance (__main__.PrimaryFromTolerance.test_from_takes_the_element_tolerance)
+AssertionError: <Outcome.FAIL: 'FAIL'> != <Outcome.PASS: 'PASS'> : 20250
+FAIL: test_zero (__main__.PrimaryFromTolerance.test_zero)
+AssertionError: <Outcome.PASS: 'PASS'> != <Outcome.FAIL: 'FAIL'>
+FAIL: test_held_then_ad_late_in_the_window (__main__.HeldThenWindow.test_held_then_ad_late_in_the_window)
+AssertionError: <Outcome.FAIL: 'FAIL'> != <Outcome.PASS: 'PASS'> : observed a change at 6976 from none [primary (paused)] to overlay-lower-third [ad behaviour/fixtures/X/list.mpd:c1 option #1], which the vector does not have; presentation[2] 6000..70
+FAIL: test_window_edges (__main__.HeldThenWindow.test_window_edges)
+AssertionError: <Outcome.FAIL: 'FAIL'> != <Outcome.PASS: 'PASS'> : 7250
+Ran 13 tests in 0.011s
+FAILED (failures=6)
+
+$ python3 bin/test_behaviour_compare.py   # after the fix
+Ran 92 tests in 0.132s
+
+OK

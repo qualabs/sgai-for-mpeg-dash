@@ -12,6 +12,13 @@
 # frame). More than one frame interval between the resume and the first frame
 # without the ad is a FAIL.
 #
+# The primary's own `tolerance` puts its `from` back on the usual 250 ms:
+# R16.1 bounds when the ad leaves and that the content returns, not the media
+# position to the frame, and a resumed <video> reports a time some tens of ms
+# past where it paused (the reference: paused at 3027, first sample after the
+# resume 3076, 5 ms after the ad left). The 17 ms would fail that position
+# while saying nothing about the criterion.
+#
 # The rest of the file keeps the usual 250 ms: R16.1 bounds the resume only,
 # not when the pause ad appears at 3 s nor when the request is made.
 format: sgai-scenario/1
@@ -55,5 +62,5 @@ outcomes:
     presentation:
       - {start: 0, end: 3000, layout: none, shows: [{element: primary, from: 0}]}
       - {start: 3000, end: 6000, layout: pause-fullscreen, shows: [{element: ad, candidate: *p, option: {index: 1}}], note: 3 s of a 20 s image}
-      - {start: 6000, end: 8000, tolerance: 17, layout: none, shows: [{element: primary, from: 3000}], note: the ad gone by the next frame after the resume}
+      - {start: 6000, end: 8000, tolerance: 17, layout: none, shows: [{element: primary, from: 3000, tolerance: 250}], note: the ad gone by the next frame after the resume}
     beacons: []

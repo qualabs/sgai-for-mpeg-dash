@@ -1,0 +1,17 @@
+== pass ignored (run key without pass); tests SuspendedSurface
+FAIL: test_a_restarted_video_is_a_new_presentation (__main__.SuspendedSurface.test_a_restarted_video_is_a_new_presentation)
+FAILED (failures=1)
+== inst ignored (run key without inst); tests SuspendedSurface
+FAIL: test_a_new_element_is_a_new_presentation (__main__.SuspendedSurface.test_a_new_element_is_a_new_presentation)
+FAILED (failures=1)
+== tolerance counted in a surface's identity; tests PrimaryFromTolerance
+FAIL: test_element_tolerance_does_not_break_a_silent_boundary (__main__.PrimaryFromTolerance.test_element_tolerance_does_not_break_a_silent_boundary)
+FAILED (failures=1)
+== element tolerance ignored; tests PrimaryFromTolerance
+FAIL: test_from_takes_the_element_tolerance (__main__.PrimaryFromTolerance.test_from_takes_the_element_tolerance)
+FAIL: test_zero (__main__.PrimaryFromTolerance.test_zero)
+FAILED (failures=2)
+== nearest-boundary matching instead of in-order; tests HeldThenWindow
+FAIL: test_held_then_ad_late_in_the_window (__main__.HeldThenWindow.test_held_then_ad_late_in_the_window)
+FAIL: test_window_edges (__main__.HeldThenWindow.test_window_edges)
+FAILED (failures=2)

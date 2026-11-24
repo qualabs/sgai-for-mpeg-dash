@@ -2,6 +2,29 @@
 # documents, with the test APS answering the window's resolution request
 # with a 500 and no body: a failed execution (R20.1, "a final HTTP status
 # other than 200").
+#
+# When the insertion starts. R40.9 sends the event to the base
+# specification, and with @earliestResolutionTimeOffset 0 the List MPD "can
+# be retrieved at any time between PRT – T and PRT" (5.16.5.2), that is at
+# 6 s and not before. The ad's first frame cannot precede that request, its
+# answer, the ad MPD and the ad's first segments, so the boundary cannot be
+# 6 s exactly. The base specification bounds how late it may be: the event
+# is executed at PRTA with "PRT ≤ PRTA ≤ EAP" (5.16.2.1), and "the
+# execution may happen later, i.e. when PRTA > PRT and PRTA = PHP. If the
+# event is no longer active, it is ignored" (5.16.2.2.1). EAP is PRT + Event@duration = 7 s. So
+# the ad starts in the window 6000..7000 (written 6001..7000 on the segment,
+# which must be longer than the hold before it; strictly after PRT, since the
+# List MPD is only requested at PRT; the tolerance makes the 1 ms moot), and
+# everything timed from it (the ad MPD's request, its end, its two beacons,
+# the programme's return) moves with it by up to the same 1000. While the break resolves the Player may
+# hold the programme at 6 s (5.16.2.2.6, NOTE 2: "Attempting resolution at
+# time PRTA is an acceptable practice, however this can result in a
+# non-smooth transition") or play on; the second segment is that hold, and
+# it may be empty (a Player that plays on, or holds for less than the
+# tolerance, shows no change at 6 s). The programme returns at RT = PRTA,
+# "For Insertion events RT is defined as PRTA" (5.16.2.2.1): its `from` is
+# the same window. The hold counts on the session clock at wall time
+# (scenarios/README.md), as the content it stands for would have.
 format: sgai-scenario/1
 criterion: R40.9
 criterion_sha256: 5719078dc00fc9a2bd5b425b7a4bbc84c49fc6a42827348ba3a7b6f6d46d0a7c
@@ -42,7 +65,7 @@ outcomes:
       - at: 6000
         url: https://aps.example.com/beh/r40-9/break
         answered_by: behaviour/fixtures/R40.9/list.mpd
-      - at: {from: 6000, to: 6250}
+      - at: {from: 6000, to: 7000}
         url: https://ads-cdn.example.com/beh/r40-9/ad.mpd
         answered_by: behaviour/fixtures/R40.9/ad.mpd
     selection:
@@ -52,9 +75,10 @@ outcomes:
           - {candidate: &lin {fixture: behaviour/fixtures/R40.9/list.mpd, id: ad-1}, option: null, layout: linear}
     presentation:
       - {start: 0, end: 6000, layout: none, shows: [{element: primary, from: 0}]}
-      - {start: 6000, end: 12000, layout: linear, shows: [{element: ad, candidate: *lin, option: null}]}
-      - {start: 12000, end: 14000, layout: none, shows: [{element: primary, from: 6000}]}
+      - {start: 6000, end: &ad-in {from: 6001, to: 7000}, layout: none, shows: [{element: primary, from: 6000}], note: the programme held while the break resolves; may be empty}
+      - {start: *ad-in, end: &ad-out {from: 12000, to: 13000}, layout: linear, shows: [{element: ad, candidate: *lin, option: null}]}
+      - {start: *ad-out, end: 14000, layout: none, shows: [{element: primary, from: &prta {from: 6000, to: 7000}}], note: RT = PRTA}
     beacons:
-      - {at: 6000, fixture: behaviour/fixtures/R40.9/ad.mpd, id: "1", url: "https://t.example.com/r40-9/imp"}
-      - {at: 12000, fixture: behaviour/fixtures/R40.9/ad.mpd, id: "2", url: "https://t.example.com/r40-9/complete"}
+      - {at: *prta, fixture: behaviour/fixtures/R40.9/ad.mpd, id: "1", url: "https://t.example.com/r40-9/imp"}
+      - {at: *ad-out, fixture: behaviour/fixtures/R40.9/ad.mpd, id: "2", url: "https://t.example.com/r40-9/complete"}
   D4: *fallback

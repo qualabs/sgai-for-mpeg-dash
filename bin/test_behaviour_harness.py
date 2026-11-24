@@ -309,11 +309,12 @@ class Sequence(unittest.TestCase):
         self.assertEqual(self.check([sel(("first.xml", "c1"))], smp)[0], Outcome.PASS)
         self.assertEqual(self.check([sel(*[("first.xml", "c1")] * 2)], smp)[0], Outcome.FAIL)
 
-    def test_flicker_shorter_than_the_tolerance_is_the_same(self):
-        smp = samples((2000, 4000, ad(URL)), (4200, 8000, ad(URL)))      # a 200 gap, tolerance 250
-        self.assertEqual(self.check([sel(("first.xml", "c1"))], smp)[0], Outcome.PASS)
-        smp = samples((2000, 4000, ad(URL)), (4300, 8000, ad(URL)))      # 300: back after a gap
-        self.assertEqual(self.check([sel(("first.xml", "c1"))], smp)[0], Outcome.FAIL)
+    def test_the_same_element_back_after_any_gap_is_the_same(self):
+        # a flicker, or a suspension and its restore (R17, R40.4): no gap
+        # length makes the same element and pass a new presentation
+        for gap in (200, 300, 3000):
+            smp = samples((2000, 4000, ad(URL)), (4000 + gap, 8000, ad(URL)))
+            self.assertEqual(self.check([sel(("first.xml", "c1"))], smp)[0], Outcome.PASS, gap)
 
     def test_declined_then_presented(self):
         smp = samples((10000, 13000, ad(URL)))

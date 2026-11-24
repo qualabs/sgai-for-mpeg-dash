@@ -1,0 +1,57 @@
+PASS            R16.1 D1                     requests      1 request(s) as expected
+PASS            R16.1 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            R16.1 D1                     presentation  presentation[2] primary from expected 3000, observed 3076 [startup 584; observed: 0..3011 none [primary] from 21; 3011..6009 pause-fullscreen [ad behaviour/fixtures/R16.1/pause.xml:#1 option #1]; 6009..8000 none [primary] from 3076]
+PASS            R16.1 D1                     beacons       no beacon, as expected
+PASS            R17.1 D1                     requests      2 request(s) as expected
+FAIL            R17.1 D1                     selection     selection[0] event 1 of behaviour/fixtures/R17.1/main.mpd: 1 presentation(s) more than the vector lists: overlay-lower-third [ad behaviour/fixtures/R17.1/overlay.xml:#1 option #1]
+PASS            R17.1 D1                     presentation  5 segment(s) as expected; startup 567 before the first frame
+FAIL            R17.1 D1                     beacons       beacons[0] https://t.example.com/r17-1/ov-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r17-1/ov-mid (@id 2) expected at 10000; observed at never; beacons[2] https://t.example.com/r17-1/ov-complete (@id 3) expected at 15000; observed at never
+PASS            R17.2 D1                     requests      2 request(s) as expected
+FAIL            R17.2 D1                     selection     selection[0] event 1 of behaviour/fixtures/R17.2/main.mpd: 1 presentation(s) more than the vector lists: overlay-lower-third [ad behaviour/fixtures/R17.2/overlay.xml:#1 option #1]
+PASS            R17.2 D1                     presentation  5 segment(s) as expected; startup 649 before the first frame
+FAIL            R17.2 D1                     beacons       beacons[0] https://t.example.com/r17-2/ov-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r17-2/ov-mid (@id 2) expected at 10000; observed at never; beacons[2] https://t.example.com/r17-2/ov-complete (@id 3) expected at 15000; observed at never
+PASS            R17.5 D1                     requests      3 request(s) as expected
+FAIL            R17.5 D1                     selection     selection[0] event 1 of behaviour/fixtures/R17.5/main.mpd: 1 presentation(s) more than the vector lists: linear [ad behaviour/fixtures/R17.5/list.mpd:ad-1 option null]
+PASS            R17.5 D1                     presentation  5 segment(s) as expected; startup 208 before the first frame
+PASS            R17.5 D1                     beacons       3 beacon(s) as expected
+PASS            R40.4-1 D1                   requests      3 request(s) as expected
+FAIL            R40.4-1 D1                   selection     selection[0] event 1 of behaviour/fixtures/R40.4/main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R40.4/overlay.xml:#1 option #1, overlay-lower-third behaviour/fixtures/R40.4/overlay.xml:#2 option #1; observed overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1], overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1]; selection[0] event 1 of behaviour/fixtures/R40.4/main.mpd: 1 presentation(s) more than the vector lists: overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#2 option #1]
+PASS            R40.4-1 D1                   presentation  6 segment(s) as expected; startup 329 before the first frame
+FAIL            R40.4-1 D1                   beacons       beacons[0] https://t.example.com/r40-4/a-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r40-4/a-2s (@id 2) expected at 4000; observed at never; beacons[4] https://t.example.com/r40-4/a-complete (@id 3) expected at 16000; observed at never; beacons[5] https://t.example.com/r40-4/b-imp (@id 1) expected at 16000; observed at never; beacons[6] https://t.example.com/r40-4/b-complete (@id 2) expected at 24000; observed at never
+PASS            R40.4-1 D4                   requests      3 request(s) as expected
+FAIL            R40.4-1 D4                   selection     selection[0] event 1 of behaviour/fixtures/R40.4/main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R40.4/overlay.xml:#1 option #1, overlay-lower-third behaviour/fixtures/R40.4/overlay.xml:#2 option #1; observed overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1], overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1]; selection[0] event 1 of behaviour/fixtures/R40.4/main.mpd: 1 presentation(s) more than the vector lists: overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#2 option #1]
+PASS            R40.4-1 D4                   presentation  6 segment(s) as expected; startup 1235 before the first frame
+FAIL            R40.4-1 D4                   beacons       beacons[0] https://t.example.com/r40-4/a-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r40-4/a-2s (@id 2) expected at 4000; observed at never; beacons[4] https://t.example.com/r40-4/a-complete (@id 3) expected at 16000; observed at never; beacons[5] https://t.example.com/r40-4/b-imp (@id 1) expected at 16000; observed at never; beacons[6] https://t.example.com/r40-4/b-complete (@id 2) expected at 24000; observed at never
+PASS            R40.4-2 D1                   requests      3 request(s) as expected
+PASS            R40.4-2 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-2 D1                   presentation  4 segment(s) as expected; startup 201 before the first frame
+FAIL            R40.4-2 D1                   beacons       beacons[0] https://t.example.com/r40-4/r-imp (@id 1) expected at 2000; observed at never; beacons[2] https://t.example.com/r40-4/complete (@id 2) expected at 10000; observed at never
+PASS            R40.4-2 D4                   requests      3 request(s) as expected
+PASS            R40.4-2 D4                   selection     2 opportunit(y/ies) as expected
+FAIL            R40.4-2 D4                   presentation  observed a change at 10659 from none [nothing] to none [primary], which the vector does not have; presentation[3] 10000..12000 expected none [primary from 10000]; observed none [nothing] from 10048 to 10659 [startup 203; observed: 0..1998 none [primary] from 14; 1998..4010 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay-r.xml:#1 option #1] from 2012; 4010..10048 linear [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]; 10048..10659 none [nothing]; 10659..12000 none [primary] from 9997]
+FAIL            R40.4-2 D4                   beacons       beacons[0] https://t.example.com/r40-4/r-imp (@id 1) expected at 2000; observed at never; beacons[2] https://t.example.com/r40-4/complete (@id 2) expected at 10000; observed at never
+PASS            R40.9-1 D1                   requests      2 request(s) as expected
+PASS            R40.9-1 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.9-1 D1                   presentation  7 segment(s) as expected; startup 234 before the first frame
+FAIL            R40.9-1 D1                   beacons       beacons[0] https://t.example.com/r40-9/a-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r40-9/a-3s (@id 2) expected at 5000; observed at never
+PASS            R40.9-1 D4                   requests      2 request(s) as expected
+PASS            R40.9-1 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.9-1 D4                   presentation  7 segment(s) as expected; startup 533 before the first frame
+FAIL            R40.9-1 D4                   beacons       beacons[0] https://t.example.com/r40-9/a-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r40-9/a-3s (@id 2) expected at 5000; observed at never
+PASS            R40.9-2 D1                   requests      1 request(s) as expected
+PASS            R40.9-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R40.9-2 D1                   presentation  3 segment(s) as expected; startup 219 before the first frame
+FAIL            R40.9-2 D1                   beacons       beacons[0] https://t.example.com/r40-9/s-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r40-9/s-complete (@id 2) expected at 12000; observed at never
+PASS            R40.9-2 D4                   requests      1 request(s) as expected
+PASS            R40.9-2 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R40.9-2 D4                   presentation  3 segment(s) as expected; startup 209 before the first frame
+FAIL            R40.9-2 D4                   beacons       beacons[0] https://t.example.com/r40-9/s-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r40-9/s-complete (@id 2) expected at 12000; observed at never
+PASS            R40.9-3 D1                   requests      3 request(s) as expected
+PASS            R40.9-3 D1                   selection     1 opportunit(y/ies) as expected
+FAIL            R40.9-3 D1                   presentation  observed a change at 6976 from none [primary (paused)] to linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null], which the vector does not have; observed a change at 13211 from linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null] to none [primary], which the vector does not have; presentation[2] expected a change at 12000 to none [primary from 6000]; none observed within 250 (on screen: linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null] from 6976); presentation[1] 6000..12000 expected linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null]; observed none [primary (paused)] from 6056 to 6976; presentation[2] 12000..14000 expected none [primary from 6000]; observed linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null] from 6976 to 13211 [startup 470; observed: 0..6056 none [primary] from 21; 6056..6976 none [primary (paused)] from 6018; 6976..13211 linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null]; 13211..14000 none [primary] from 6018]
+FAIL            R40.9-3 D1                   beacons       beacons[0] https://t.example.com/r40-9/imp (@id 1) expected at 6000; observed at 6976; beacons[1] https://t.example.com/r40-9/complete (@id 2) expected at 12000; observed at 12965; unexpected beacon https://t.example.com/r40-9/imp at 6976; unexpected beacon https://t.example.com/r40-9/complete at 12965
+PASS            R40.9-3 D4                   requests      3 request(s) as expected
+PASS            R40.9-3 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R40.9-3 D4                   presentation  3 segment(s) as expected; startup 217 before the first frame
+PASS            R40.9-3 D4                   beacons       2 beacon(s) as expected
+exit 1: PASS 37  FAIL 19  NOT_VERIFIABLE 0; wall 147.8 s; content 0.0 s (0 ffmpeg runs, 3 cuts from the cache), players 146.9 s

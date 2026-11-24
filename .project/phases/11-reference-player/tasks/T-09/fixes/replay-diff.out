@@ -1,0 +1,32 @@
+== after-crit.raw.json  before: 82 PASS, 30 FAIL   after: 82 PASS, 30 FAIL (exit 0)
+== after-uc.raw.json  before: 45 PASS, 15 FAIL   after: 45 PASS, 15 FAIL (exit 0)
+== before.raw.json  before: 37 PASS, 19 FAIL   after: 45 PASS, 11 FAIL (exit 0)
+1d0
+< FAIL R16.1 D1 presentation
+3d1
+< FAIL R17.1 D1 selection
+5,6d2
+< FAIL R17.2 D1 selection
+< FAIL R17.5 D1 selection
+8d3
+< FAIL R40.4-1 D1 selection
+10d4
+< FAIL R40.4-1 D4 selection
+18,19d11
+< FAIL R40.9-3 D1 beacons
+< FAIL R40.9-3 D1 presentation
+20a13
+> PASS R16.1 D1 presentation
+24a18
+> PASS R17.1 D1 selection
+26a21
+> PASS R17.2 D1 selection
+29a25
+> PASS R17.5 D1 selection
+31a28
+> PASS R40.4-1 D1 selection
+33a31
+> PASS R40.4-1 D4 selection
+50a49,50
+> PASS R40.9-3 D1 beacons
+> PASS R40.9-3 D1 presentation

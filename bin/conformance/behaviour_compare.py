@@ -735,7 +735,8 @@ def _silent(prev: dict, nxt: dict, actions: list, timescale: int) -> bool:
     if prev["layout"] != nxt["layout"] or isinstance(nxt["start"], dict) or isinstance(prev["start"], dict):
         return False
     def idents(seg):
-        return sorted(json.dumps({k: v for k, v in e.items() if k not in ("from", "region")}, sort_keys=True)
+        return sorted(json.dumps({k: v for k, v in e.items() if k not in ("from", "region", "tolerance")},
+                                 sort_keys=True)
                       for e in seg["shows"])
     if idents(prev) != idents(nxt):
         return False
@@ -768,13 +769,15 @@ def compare_presentation(expected: list, obs: Observed, end: float, tol: float, 
                          actions: list, timescale: int) -> tuple[Outcome, str]:
     """The written segments against the observed ones. Every change observed
     must be a written boundary within its tolerance (the segment's own, else
-    the vector's), or inside the window a boundary written `{from, to}` gives;
-    every written boundary must be observed, except one across which nothing
-    observable changes (same surfaces, a primary playing on: `_silent`). Each
-    written segment must show its layout and exactly its surfaces, and a
-    primary the main-presentation time `from` at the segment's start, within
-    that tolerance (or inside `from` when it is a window). `region` and `note`
-    are for a person and not compared."""
+    the vector's), or inside the window a boundary written `{from, to}` gives,
+    changes and boundaries paired in order (`_match_in_order`); every written
+    boundary must be observed, except one across which nothing observable
+    changes (same surfaces, a primary playing on: `_silent`). Each written
+    segment must show its layout and exactly its surfaces, and a primary the
+    main-presentation time `from` at the segment's start, within the primary's
+    own `tolerance`, else the segment's, else the vector's (or inside `from`
+    when it is a window). `region` and `note` are for a person and not
+    compared."""
     segs, startup = observed_segments(obs.samples, end, tol)
     if obs.startup is not None:
         startup = obs.startup
@@ -784,13 +787,10 @@ def compare_presentation(expected: list, obs: Observed, end: float, tol: float, 
     eb = [(_made_at(expected[i]["start"], obs.actions, timescale), _silent(expected[i - 1], expected[i], actions,
                                                                            timescale), i,
            tol_of(expected[i], tol)) for i in range(1, len(expected))]
-    matched: dict[int, int] = {}
+    matched = _match_in_order([segs[j].start for j in range(1, len(segs))], eb)
     for j in range(1, len(segs)):
         t = segs[j].start
-        cands = [(dist(t, bt), i) for bt, _, i, bt_tol in eb if i not in matched and dist(t, bt) <= bt_tol]
-        if cands:
-            matched[min(cands)[1]] = j
-        else:
+        if j not in matched.values():
             problems.append(f"observed a change at {_r(t)} from {describe_obs(segs[j - 1].layout, segs[j - 1].elements, fx)}"
                             f" to {describe_obs(segs[j].layout, segs[j].elements, fx)}, which the vector does not have")
     for bt, silent, i, bt_tol in eb:
@@ -813,7 +813,7 @@ def compare_presentation(expected: list, obs: Observed, end: float, tol: float, 
         pe = next((x for x in e["shows"] if x["element"] == "primary"), None)
         if pe is not None and sg.from_ is not None:
             got = sg.from_ if at_start else _primary_time_at(obs.samples, lo(e["start"]))
-            if got is None or not within(got, pe["from"], tol_of(e, tol)):
+            if got is None or not within(got, pe["from"], pe.get("tolerance", tol_of(e, tol))):
                 problems.append(f"presentation[{i}] primary from expected {fmt_when(pe['from'])}, "
                                 f"observed {None if got is None else _r(got)}")
     detail = (f"{len(expected)} segment(s) as expected; startup {_r(startup)} before the first frame"
@@ -824,6 +824,41 @@ def compare_presentation(expected: list, obs: Observed, end: float, tol: float, 
             f"{_r(s.start)}..{_r(s.end)} {describe_obs(s.layout, s.elements, fx)}"
             + (f" from {_r(s.from_)}" if s.from_ is not None else "") for s in segs[:8]) + "]"
     return out, d
+
+
+def _match_in_order(changes: list, eb: list) -> dict:
+    """Observed changes (times, in order; change k is observed segment k+1)
+    against the written boundaries `eb` ((when, silent, index, tolerance), in
+    order): the matching that keeps both orders (a change never matches a
+    boundary written before one an earlier change matched), pairs only within
+    a boundary's tolerance, matches as many as it can and, among those, has
+    the least total distance. -> {boundary index: observed segment index}.
+    Matching each change to its nearest boundary instead pairs a change with a
+    window it falls into while an exact boundary just before it goes without
+    (a hold at 6000 and a window 6000..7000)."""
+    n, m = len(changes), len(eb)
+    # best[a][b]: (matched, -distance) over the first a changes and b boundaries
+    best = [[(0, 0.0)] * (m + 1) for _ in range(n + 1)]
+    for a in range(1, n + 1):
+        for b in range(1, m + 1):
+            cand = max(best[a - 1][b], best[a][b - 1])
+            bt, _, _, bt_tol = eb[b - 1]
+            d = dist(changes[a - 1], bt)
+            if d <= bt_tol:
+                c, nd = best[a - 1][b - 1]
+                cand = max(cand, (c + 1, nd - d))
+            best[a][b] = cand
+    out: dict = {}
+    a, b = n, m
+    while a > 0 and b > 0:
+        if best[a][b] == best[a - 1][b]:
+            a -= 1
+        elif best[a][b] == best[a][b - 1]:
+            b -= 1
+        else:
+            out[eb[b - 1][2]] = a
+            a, b = a - 1, b - 1
+    return out
 
 
 def _primary_time_at(samples: list, t: float) -> float | None:
@@ -854,12 +889,13 @@ def _seg_at(segs: list, t: float) -> Seg:
 
 def presentations(obs: Observed, tol: float, fx: Fixtures) -> dict:
     """Per opportunity (fixture, Event@id), the ad presentations observed, in
-    order of appearance: [(element, layout)]. One presentation is one surface
-    (its identity, its layout, its DOM element and, for a <video>, its pass)
-    on screen without a gap; the same surface back after a gap shorter than
-    the tolerance is the same presentation (a flicker), a new DOM element or
-    a video started again is a new one (a second pass of the same candidate).
-    Two surfaces of the same identity in one sample are one.
+    order of appearance: [(element, layout)]. One presentation is one surface:
+    its identity, its DOM element (`inst`) and, for a <video>, its pass. The
+    same surface back after any gap is the same presentation (a flicker, or a
+    suspension and its restore: R17, R40.4); a new DOM element or a video
+    started again is a new one (a second pass of the same candidate). Two
+    surfaces of the same identity in one sample are one. `tol` is not used:
+    no gap length tells a restore from a new presentation.
 
     Its layout is the one it was rendered with: `linear` for a linear
     candidate (a surface with no option, R12.5), else the viewport's layout
@@ -867,8 +903,7 @@ def presentations(obs: Observed, tol: float, fx: Fixtures) -> dict:
     stays (an `on-top` overlay arriving over a linear ad, R40.5) is not a
     new presentation of it."""
     seen: dict = {}
-    ended: dict = {}       # run key -> session time it was last on screen
-    live: set = set()
+    shown: set = set()     # every run key already counted
     for s in obs.samples:
         now = set()
         for e in s["elements"]:
@@ -878,14 +913,12 @@ def presentations(obs: Observed, tol: float, fx: Fixtures) -> dict:
             if run in now:
                 continue
             now.add(run)
-            if run in live or (run in ended and s["t"] - ended[run] < tol):
+            if run in shown:
                 continue
+            shown.add(run)
             linear = "optionId" not in e and "optionIndex" not in e
             key = (opp_of(e, fx) or e.get("opportunityDoc"), e.get("opportunityEvent"))
             seen.setdefault(key, []).append((e, "linear" if linear else s["layout"]))
-        for run in live - now:
-            ended[run] = s["t"]
-        live = now
     return seen
 
 

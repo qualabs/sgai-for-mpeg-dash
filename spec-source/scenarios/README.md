@@ -71,7 +71,12 @@ outcome for a class the UC does not state is a finding.
   same window when it plays across). `tolerance` is how far an executor may
   observe an exact time from the written one; a request, a beacon, a click,
   a destination or a segment (for its start and its `from`) may carry its
-  own `tolerance`, which replaces the vector's for that item alone.
+  own `tolerance`, which replaces the vector's for that item alone. A
+  `primary` may carry one too, for its `from` alone: when a criterion bounds
+  a boundary tighter than the instrument can place the content (R16.1's one
+  frame at a resume, while a resumed `<video>` reports a time some tens of
+  ms past where it paused), the segment's `tolerance` holds the boundary
+  and the primary's holds the position.
 - **`play_from`, `observe_until`**: where playback starts in the main
   presentation, and when observation ends. For a live entry (`type="dynamic"`)
   `play_from` is the live edge's position when playback starts: the

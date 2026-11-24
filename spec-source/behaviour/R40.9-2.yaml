@@ -3,6 +3,13 @@
 # image; a 6 s insertion at 6 s, inside its span, with
 # @earliestResolutionTimeOffset 0 so that it is resolved only at 6 s, if at
 # all.
+#
+# The break's List MPD and its ad are fixtures although the outcome expects
+# neither to be requested: served, a Player that lets the insertion through
+# plays it, and `requests` (one more document request) and `presentation`
+# (the ad at 6 s) say so. Unlisted, the harness would answer the request 204
+# as a non-document, no field would see it, and the failed insertion would
+# look like the suppressed one.
 format: sgai-scenario/1
 criterion: R40.9
 criterion_sha256: 5719078dc00fc9a2bd5b425b7a4bbc84c49fc6a42827348ba3a7b6f6d46d0a7c
@@ -17,6 +24,12 @@ fixtures:
   - path: behaviour/fixtures/R40.9/overlay-s.xml
     url: https://aps.example.com/beh/r40-9/overlay-s
     class: overlay-list
+  - path: behaviour/fixtures/R40.9/list.mpd
+    url: https://aps.example.com/beh/r40-9/break
+    class: list-mpd
+  - path: behaviour/fixtures/R40.9/ad.mpd
+    url: https://ads-cdn.example.com/beh/r40-9/ad.mpd
+    class: sps-mpd
 player_capabilities:
   D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
   D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}

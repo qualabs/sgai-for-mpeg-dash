@@ -1012,5 +1012,155 @@ class Origin(unittest.TestCase):
         self.assertEqual(verdicts(run(v, o, fx, raw))["beacons"], Outcome.FAIL)
 
 
+class SuspendedSurface(unittest.TestCase):
+    """A surface hidden and shown again (a suspension and its restore, R40.4,
+    R17) is one presentation when it is the same DOM element (`inst`) and, for
+    a <video>, the same pass; a new element or a restarted video is another."""
+
+    def setUp(self):
+        self.v, self.o, self.fx = small_vector()
+        del self.o["geometry"]
+        self.raw = synthetic_raw(self.v, self.o, self.fx)
+        samples = self.raw["observation"]["samples"]
+        s10 = next(s for s in samples if s["t"] == 10000)
+        self.ad = next(e for e in s10["elements"] if e["element"] == "ad")
+        self.ad["inst"], self.ad["pass"] = 2, 0
+        gone = {"t": 12000, "layout": "none", "elements": [
+            {"element": "primary", "rect": FULL, "time": 12000, "paused": False, "rate": 1}]}
+        self.back = copy.deepcopy(s10)
+        self.back["t"] = 15000
+        self.back["elements"][0]["time"] = 15000
+        samples += [gone, self.back]
+        samples.sort(key=lambda x: x["t"])
+        self.back_ad = next(e for e in self.back["elements"] if e["element"] == "ad")
+
+    def field(self):
+        rs = run(self.v, self.o, self.fx, self.raw)
+        return verdicts(rs)["selection"], details(rs)["selection"]
+
+    def test_restore_after_a_long_gap_is_one_presentation(self):
+        # 3000 ms hidden, far over the 250 tolerance
+        self.assertEqual(self.field()[0], Outcome.PASS)
+
+    def test_restore_with_no_gap_is_one_presentation(self):
+        self.back["t"] = 12000.5
+        self.raw["observation"]["samples"].sort(key=lambda x: x["t"])
+        self.assertEqual(self.field()[0], Outcome.PASS)
+
+    def test_a_new_element_is_a_new_presentation(self):
+        self.back_ad["inst"] = 3
+        out, d = self.field()
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn("1 presentation(s) more", d)
+
+    def test_a_restarted_video_is_a_new_presentation(self):
+        self.back_ad["pass"] = 1
+        out, d = self.field()
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn("1 presentation(s) more", d)
+
+
+class PrimaryFromTolerance(unittest.TestCase):
+    """A `primary` element's own `tolerance` holds its `from` and nothing
+    else: the segment's (R16.1's one frame) keeps holding the boundary."""
+
+    def setUp(self):
+        self.v, self.o, self.fx = small_vector()
+        del self.o["geometry"]
+        self.raw = synthetic_raw(self.v, self.o, self.fx)
+        self.o["presentation"][2]["tolerance"] = 17
+        self.o["presentation"][2]["shows"][0]["tolerance"] = 250
+        self.s20 = next(s for s in self.raw["observation"]["samples"] if s["t"] == 20000)
+
+    def verdict(self):
+        self.raw["observation"]["samples"].sort(key=lambda x: x["t"])
+        return verdicts(run(self.v, self.o, self.fx, self.raw))["presentation"]
+
+    def test_from_takes_the_element_tolerance(self):
+        for mt, want in ((20250, Outcome.PASS), (19750, Outcome.PASS), (20251, Outcome.FAIL),
+                         (19749, Outcome.FAIL)):
+            self.s20["elements"][0]["time"] = mt
+            self.assertEqual(self.verdict(), want, mt)
+
+    def test_boundary_keeps_the_segment_tolerance(self):
+        for t, want in ((20017, Outcome.PASS), (20018, Outcome.FAIL)):
+            self.s20["t"], self.s20["elements"][0]["time"] = t, 20000
+            self.assertEqual(self.verdict(), want, t)
+
+    def test_zero(self):
+        self.o["presentation"][2]["shows"][0]["tolerance"] = 0
+        self.s20["elements"][0]["time"] = 20000
+        self.assertEqual(self.verdict(), Outcome.PASS)
+        self.s20["elements"][0]["time"] = 20001
+        self.assertEqual(self.verdict(), Outcome.FAIL)
+
+    def test_absent_falls_back_to_the_segment(self):
+        del self.o["presentation"][2]["shows"][0]["tolerance"]
+        self.s20["elements"][0]["time"] = 20018
+        self.assertEqual(self.verdict(), Outcome.FAIL)
+
+    def test_element_tolerance_does_not_break_a_silent_boundary(self):
+        # the same primary on both sides, one carrying its own tolerance: the
+        # split stays silent (no change needs observing)
+        self.o["presentation"] = [
+            {"start": 0, "end": 5000, "layout": "none", "shows": [{"element": "primary", "from": 0}]},
+            {"start": 5000, "end": 30000, "layout": "none",
+             "shows": [{"element": "primary", "from": 5000, "tolerance": 100}]}]
+        self.o["selection"], self.o["beacons"], self.o["requests"] = [], [], []
+        self.raw["observation"]["samples"] = [{"t": 0, "layout": "none", "elements": [
+            {"element": "primary", "rect": FULL, "time": 0, "paused": False, "rate": 1}]}]
+        self.assertEqual(self.verdict(), Outcome.PASS)
+
+
+class HeldThenWindow(unittest.TestCase):
+    """R40.9-3's shape: the content held at an exact boundary while the break
+    resolves, then the ad from a window. The hold is optional (shorter than
+    the tolerance it folds away), so two observed changes must match the two
+    written boundaries in order, not each its nearest."""
+
+    def setUp(self):
+        self.v, self.o, self.fx = small_vector()
+        del self.o["geometry"]
+        self.raw = synthetic_raw(self.v, self.o, self.fx)     # replaced by record()
+        ad = self.o["presentation"][1]["shows"][1]
+        w, back = {"from": 6000, "to": 7000}, {"from": 12000, "to": 13000}
+        self.o["presentation"] = [
+            {"start": 0, "end": 6000, "layout": "none", "shows": [{"element": "primary", "from": 0}]},
+            {"start": 6000, "end": w, "layout": "none", "shows": [{"element": "primary", "from": 6000}]},
+            {"start": w, "end": back, "layout": "overlay-lower-third", "shows": [ad]},
+            {"start": back, "end": 30000, "layout": "none",
+             "shows": [{"element": "primary", "from": dict(w)}]}]
+        self.ad = next(e for s in self.raw["observation"]["samples"] for e in s["elements"] if e["element"] == "ad")
+
+    def record(self, hold, ad_at, ad_len=6000):
+        p = lambda t, mt, paused: {"t": t, "layout": "none", "elements": [  # noqa: E731
+            {"element": "primary", "rect": FULL, "time": mt, "paused": paused, "rate": 1}]}
+        s = [p(0, 0, False)]
+        if hold is not None:
+            s.append(p(hold, hold, True))
+        s.append({"t": ad_at, "layout": "overlay-lower-third", "elements": [dict(self.ad)]})
+        mt = hold if hold is not None else ad_at
+        s.append(p(ad_at + ad_len, mt, False))
+        self.raw["observation"]["samples"] = s
+        return verdicts(run(self.v, self.o, self.fx, self.raw))["presentation"], \
+            details(run(self.v, self.o, self.fx, self.raw))["presentation"]
+
+    def test_held_then_ad_late_in_the_window(self):
+        out, d = self.record(6050, 6976)
+        self.assertEqual(out, Outcome.PASS, d)
+
+    def test_no_hold(self):
+        self.assertEqual(self.record(None, 6100)[0], Outcome.PASS)
+
+    def test_window_edges(self):
+        for at, want in ((7250, Outcome.PASS), (7251, Outcome.FAIL)):
+            self.assertEqual(self.record(6050, at)[0], want, at)
+
+    def test_hold_not_at_the_exact_boundary(self):
+        # a hold that begins outside the exact boundary's tolerance is a change
+        # the vector does not have
+        self.assertEqual(self.record(6300, 6976)[0], Outcome.FAIL)
+
+
 if __name__ == "__main__":
     unittest.main()

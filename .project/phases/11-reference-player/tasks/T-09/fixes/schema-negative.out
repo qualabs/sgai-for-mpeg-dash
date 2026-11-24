@@ -1,0 +1,5 @@
+# negative: R16.1 copy with `tolerance: 5` on its ad element (schema allows it on a primary only)
+$ check-behaviour.py --source <copy of spec-source>
+B-SCHEMA	R16.1.yaml	outcomes/D1/presentation/1/shows/0: {'element': 'ad', 'candidate': {'fixture': 'behaviour/fixtures/R16.1/pause.xml', 'index': 1}, 'option': {'index': 1}, 'tolerance': 5} should not be valid under {'required': ['tolerance']}
+B-COVER	R16.1	no test and no entry in index.yaml
+exit 1

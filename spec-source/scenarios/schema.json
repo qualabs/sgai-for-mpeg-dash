@@ -187,12 +187,14 @@
       "properties": {
         "element": {"enum": ["primary", "ad", "background"]},
         "from": {"$ref": "#/$defs/when", "description": "primary: the main presentation time shown at the segment's start; a window {from, to} when that start is itself a window and the primary plays across it"},
+        "tolerance": {"$ref": "#/$defs/tolerance", "description": "primary: for its `from` alone, in place of the segment's"},
         "candidate": {"$ref": "#/$defs/candidate_ref"},
         "option": {"$ref": "#/$defs/option_ref"},
         "region": {"type": "string"}
       },
       "allOf": [
-        {"if": {"properties": {"element": {"const": "primary"}}}, "then": {"required": ["from"]}},
+        {"if": {"properties": {"element": {"const": "primary"}}}, "then": {"required": ["from"]},
+         "else": {"not": {"required": ["tolerance"]}}},
         {"if": {"properties": {"element": {"const": "ad"}}}, "then": {"required": ["candidate", "option"]}}
       ]
     },
@@ -282,7 +284,7 @@
             "properties": {
               "start": {"$ref": "#/$defs/when", "description": "a window {from, to} when the instant is the Player's to choose; the previous segment's `end` is the same value"},
               "end": {"$ref": "#/$defs/when"},
-              "tolerance": {"$ref": "#/$defs/tolerance", "description": "for this segment's start boundary and its primary's `from`, in place of the vector's"},
+              "tolerance": {"$ref": "#/$defs/tolerance", "description": "for this segment's start boundary and its primary's `from` (unless the primary carries its own), in place of the vector's"},
               "layout": {"type": "string", "description": "an R12.2 token, or `none` when only the primary content is on screen"},
               "shows": {"type": "array", "items": {"$ref": "#/$defs/element"}},
               "audio": {"enum": ["primary", "ad", "none"]},
