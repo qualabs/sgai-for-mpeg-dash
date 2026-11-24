@@ -1,0 +1,37 @@
+PASS            R6.4 D4                      requests      1 request(s) as expected
+PASS            R6.4 D4                      selection     1 opportunit(y/ies) as expected
+PASS            R6.4 D4                      presentation  3 segment(s) as expected; startup 416 before the first frame
+FAIL            R6.4 D4                      beacons       beacons[0] https://t.example.com/r6-4/imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r6-4/complete (@id 2) expected at 7000; observed at never
+PASS            R6.5-1 D4                    requests      1 request(s) as expected
+PASS            R6.5-1 D4                    selection     1 opportunit(y/ies) as expected
+PASS            R6.5-1 D4                    presentation  4 segment(s) as expected; startup 225 before the first frame
+FAIL            R6.5-1 D4                    beacons       beacons[0] https://t.example.com/r6-5-1/c1-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r6-5-1/c1-same-url (@id 3) expected at 3000; observed at never; beacons[2] https://t.example.com/r6-5-1/c1-mid (@id 2) expected at 4000; observed at never; beacons[3] https://t.example.com/r6-5-1/c2-imp (@id 1) expected at 6000; observed at never
+PASS            R6.5-2 D1                    requests      3 request(s) as expected
+PASS            R6.5-2 D1                    selection     1 opportunit(y/ies) as expected
+PASS            R6.5-2 D1                    presentation  4 segment(s) as expected; startup 397 before the first frame
+PASS            R6.5-2 D1                    beacons       2 beacon(s) as expected
+PASS            R13.1 D4                     requests      1 request(s) as expected
+PASS            R13.1 D4                     selection     1 opportunit(y/ies) as expected
+PASS            R13.1 D4                     presentation  4 segment(s) as expected; startup 208 before the first frame
+FAIL            R13.1 D4                     beacons       beacons[0] https://t.example.com/r13-1/c1-imp (@id 1) expected at 4000; observed at never; beacons[1] https://t.example.com/r13-1/c2-imp (@id 1) expected at 7000; observed at never; beacons[2] https://t.example.com/r13-1/c2-mid (@id 2) expected at 9000; observed at never; beacons[3] https://t.example.com/r13-1/c2-complete (@id 3) expected at 11000; observed at never
+PASS            R13.3-1 D4                   requests      1 request(s) as expected
+PASS            R13.3-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R13.3-1 D4                   presentation  3 segment(s) as expected; startup 256 before the first frame
+FAIL            R13.3-1 D4                   beacons       beacons[0] https://t.example.com/r13-3-1/imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r13-3-1/at-3s (@id 2) expected at 5000; observed at never
+PASS            R13.3-2 D4                   requests      1 request(s) as expected
+PASS            R13.3-2 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R13.3-2 D4                   presentation  3 segment(s) as expected; startup 280 before the first frame
+FAIL            R13.3-2 D4                   beacons       beacons[0] https://t.example.com/r13-3-2/imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r13-3-2/at-2s (@id 2) expected at 4000; observed at never
+PASS            R13.3-3 D4                   requests      1 request(s) as expected
+PASS            R13.3-3 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R13.3-3 D4                   presentation  3 segment(s) as expected; startup 289 before the first frame
+FAIL            R13.3-3 D4                   beacons       beacons[0] https://t.example.com/r13-3-3/imp (@id 1) expected at 3000; observed at never; beacons[1] https://t.example.com/r13-3-3/at-2s (@id 2) expected at 5000; observed at never
+PASS            R13.6 D3                     requests      1 request(s) as expected
+PASS            R13.6 D3                     selection     1 opportunit(y/ies) as expected
+PASS            R13.6 D3                     presentation  3 segment(s) as expected; startup 304 before the first frame
+FAIL            R13.6 D3                     beacons       beacons[0] https://t.example.com/r13-6/imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r13-6/complete (@id 2) expected at 8000; observed at never
+PASS            R13.6 D4                     requests      1 request(s) as expected
+PASS            R13.6 D4                     selection     1 opportunit(y/ies) as expected
+PASS            R13.6 D4                     presentation  3 segment(s) as expected; startup 217 before the first frame
+FAIL            R13.6 D4                     beacons       beacons[0] https://t.example.com/r13-6/imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r13-6/complete (@id 2) expected at 8000; observed at never
+exit 1: PASS 28  FAIL 8  NOT_VERIFIABLE 0; wall 102.1 s; content 0.0 s (0 ffmpeg runs, 3 cuts from the cache), players 100.8 s

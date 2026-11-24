@@ -19,6 +19,14 @@
 // option (§5.3.6), and the viewer's dismissal (§4.5.14). The beacons and the
 // click are T-08's.
 //
+// With T-08, the beacons (§5.5.2): each candidate's <svta:Tracking> callback
+// events, fired on the candidate's own presentation (time 0 when it begins
+// rendering, whichever option rendered, R13.1, R13.6), de-duplicated within
+// one presentation of the candidate by @id and by URL at one time (R6.5), and
+// never past the end of that presentation: its shown duration when the cap
+// trims it, the dismissal, the resume from a pause ad (R13.3). Elements and
+// attributes of other namespaces inside the carrier are not read (R6.4).
+//
 // Readings this file takes where the specification leaves room (each said
 // where used):
 // - a resolution request with no answer is given up after RESOLVE_TIMEOUT_MS
@@ -60,6 +68,8 @@
   const OVERLAY = 'urn:svta:dash:sgai-overlay:2026';
   const PAUSE = 'urn:svta:dash:sgai-pause-trigger:2026';
   const SVTA = 'urn:svta:dash:sgai:2026';
+  const DASH = 'urn:mpeg:dash:schema:mpd:2011';
+  const CALLBACK = 'urn:mpeg:dash:event:callback:2015';
   const TICK_MS = 10;
   const EPS = 0.02;                   // s
   const RESOLVE_TIMEOUT_MS = 10000;   // the longest a resolution request is waited for
@@ -157,6 +167,27 @@
   function rectOf(v) {
     const r = String(v || '').trim().split(/\s+/).map(Number);
     return r.length === 4 && r.every((x) => isFinite(x)) ? r : null;
+  }
+
+  // §5.5.2: a candidate's <svta:Tracking>, an EventStreamType of the
+  // callback scheme with @value 1 (Table 47), its DASH Events' values the
+  // URLs; @presentationTimeOffset subtracted, as the base. Returned as
+  // [{ id, at (s on the candidate's presentation), url }], in time order,
+  // document order kept between equal times (the first of two events sharing
+  // an @id is the one that fires, §5.10.2.4).
+  function trackingOf(ad) {
+    const out = [];
+    for (const es of children(ad, 'Tracking', SVTA)) {
+      if (es.getAttribute('schemeIdUri') !== CALLBACK || es.getAttribute('value') !== '1') continue;
+      const ts = num(es.getAttribute('timescale'), 1);
+      const pto = num(es.getAttribute('presentationTimeOffset'), 0);
+      for (const ev of children(es, 'Event', DASH)) {
+        const url = (ev.textContent || ev.getAttribute('messageData') || '').trim();
+        if (!url) continue;
+        out.push({ id: ev.getAttribute('id'), at: (num(ev.getAttribute('presentationTime'), 0) - pto) / ts, url });
+      }
+    }
+    return out.map((b, i) => [b, i]).sort((a, b) => a[0].at - b[0].at || a[1] - b[1]).map((e) => e[0]);
   }
 
   // One overlay or pause window, from its Event and its child element.
@@ -375,7 +406,7 @@
       };
       for (let i = 0; i < out.ads.length; i++) {
         const sel = await this.select(w, out.ads[i], url);
-        if (sel) out.plan.push(Object.assign({ index: i + 1, doc: url }, sel));
+        if (sel) out.plan.push(Object.assign({ index: i + 1, doc: url, beacons: trackingOf(out.ads[i]) }, sel));
         else this.log('nonlinear:candidate-skipped', { key: w.key, index: i + 1, reason: 'no option satisfiable (PLY-20)' });
       }
       return out;
@@ -539,6 +570,8 @@
       if (chain.windows.some((w) => w.executed)) return;
       const w = chain.windows.find((x) => !x.failed);
       if (!w) return;
+      const before = w.seen;
+      w.seen = php;
       if (php >= w.end - EPS) {
         // The span passed without an execution: nothing was presented.
         if (!w.inflight) this.fail(w, 'the span ended without a presentation');
@@ -559,7 +592,15 @@
       // Nothing is composited before the primary's first frame is shown (the
       // linear family keeps it hidden until its first processing has run).
       if (tl.main && this.ref.linear && this.ref.linear.gated) return;
-      if (w.doc && (this.usable(w, php) || w.doc.fresh)) { this.fire(w); return; }
+      if (w.doc && (this.usable(w, php) || w.doc.fresh)) {
+        // §3.1: an overlay's slot timeline is the timeline of the content it
+        // is composited over, so a window fired on the tick that crossed its
+        // start begins at PT, not at the tick (the beacon at the candidate's
+        // end would otherwise fall past the span's end by the tick's lag).
+        w.lateBy = before !== undefined && before < w.PT && php - w.PT <= MAX_STEP ? php - w.PT : 0;
+        this.fire(w);
+        return;
+      }
       // PLY-9: not usable when the opportunity fires: a new request, whose
       // document serves this opportunity whatever its @validFor.
       this.resolve(w, w.doc ? 'expired at the opportunity' : 'at the opportunity').then((r) => {
@@ -591,6 +632,8 @@
     // duration converted to the cap's timescale and rounded up.
     execute(w, d) {
       const php = w.tl.time();
+      const lateBy = w.lateBy || 0;
+      w.lateBy = 0;
       w.executed = true;
       const plan = [];
       let cumUnits = 0;
@@ -605,7 +648,7 @@
         plan.push({ c, start: t, shown });
         t += shown;
       }
-      const x = { w, d, PRTA: php, plan, k: -1, h: null, el: null, slotT: 0, lastT: php, seeks: w.tl.seeks,
+      const x = { w, d, PRTA: php, plan, k: -1, h: null, el: null, slotT: lateBy, lastT: php, seeks: w.tl.seeks,
         lastAlt: null, lastAd: null, lastWall: null, overAlt: null, heldMain: false, stall: null, shownAt: null };
       this.execs.push(x);
       this.log('nonlinear:execute', { key: w.key, PRTA: php, capUnits: w.capUnits, ts: w.ts,
@@ -668,7 +711,13 @@
       // that presentation ends.
       if (over && w.linearRelation === 'on-top' && lin.onScreen && x.h) x.overAlt = lin.alt;
       if (x.overAlt && (!lin || lin.alt !== x.overAlt)) { this.endExec(x, 'the alternative presentation it was composited over ended (R40.5)'); return; }
-      if (php >= w.end - EPS) { this.endExec(x, 'the span ended'); return; }
+      if (php >= w.end - EPS) {
+        // The candidate on screen is presented up to the span's end.
+        const p = x.plan[x.k];
+        if (p) this.beacons(p, x.slotT - p.start + Math.max(0, w.end - php), w.key);
+        this.endExec(x, 'the span ended');
+        return;
+      }
       // R40.9 default: suspended while an alternative presentation is output,
       // resumed in the same execution when the content comes back inside the
       // range (R40.4).
@@ -680,10 +729,17 @@
       const k = x.plan.findIndex((p) => x.slotT >= p.start - 1e-6 && x.slotT < p.start + p.shown - 1e-6);
       if (k < 0) {
         const last = x.plan[x.plan.length - 1];
-        if (x.slotT >= (last ? last.start + last.shown : 0) - 1e-6) this.endExec(x, 'candidates exhausted or the cap reached');
+        if (x.slotT >= (last ? last.start + last.shown : 0) - 1e-6) {
+          if (x.plan[x.k]) this.beacons(x.plan[x.k], x.plan[x.k].shown, w.key);   // it completed
+          this.endExec(x, 'candidates exhausted or the cap reached');
+        }
         return;
       }
-      if (k !== x.k) this.showCandidate(x, k);
+      if (k !== x.k) {
+        if (x.plan[x.k]) this.beacons(x.plan[x.k], x.plan[x.k].shown, w.key);   // it completed
+        this.showCandidate(x, k);
+      }
+      this.beacons(x.plan[k], x.slotT - x.plan[k].start, w.key);
       // PLY-52: during a pause ad, the overlay is suspended (the compositor
       // keeps the pause ad the only form on screen).
       this.syncAd(x, this.contentPlaying(x) && !this.pauseShown());
@@ -799,6 +855,28 @@
       else el.remove();
       x.h = null;
       x.el = null;
+    }
+
+    // §5.5.2: the beacons of one presentation of a candidate (a plan entry)
+    // whose time its presentation has reached (`upTo`, s from its start),
+    // never past what it shows (R13.3: a time after the trim is not reached).
+    // §5.5.2, R6.5: within the presentation, a second event with an @id
+    // already processed, or the same URL at the same time, is the same beacon.
+    beacons(p, upTo, key) {
+      const bs = p.c.beacons;
+      if (!bs || !bs.length) return;
+      if (!p.beacons) p.beacons = { next: 0, seen: new Set() };
+      const st = p.beacons;
+      const limit = Math.min(upTo, p.shown) + 1e-6;
+      while (st.next < bs.length && bs[st.next].at <= limit) {
+        const b = bs[st.next++];
+        const keys = [`url|${b.at.toFixed(6)}|${b.url}`];
+        if (b.id !== null) keys.push(`id|${b.id}`);
+        if (keys.some((k) => st.seen.has(k))) { this.log('nonlinear:beacon-ignored', { key, candidate: p.c.index, id: b.id, at: b.at, url: b.url }); continue; }
+        for (const k of keys) st.seen.add(k);
+        this.log('nonlinear:beacon', { key, candidate: p.c.index, option: p.c.option.index, id: b.id, at: b.at, url: b.url });
+        fetch(b.url, { mode: 'no-cors', credentials: 'omit', cache: 'no-store', keepalive: true }).catch(() => {});
+      }
     }
 
     endExec(x, why) {
@@ -936,10 +1014,16 @@
       if (!slot.plan) return;
       const t = (now() - slot.t0) / 1000;
       const k = slot.plan.findIndex((p) => t >= p.start && t < p.start + p.shown);
+      const prev = slot.plan[slot.k];
       if (k >= 0) {
-        if (k !== slot.k) this.showPause(slot, k);
+        if (k !== slot.k) {
+          if (prev) this.beacons(prev, prev.shown, slot.w.key);   // it completed
+          this.showPause(slot, k);
+        }
+        this.beacons(slot.plan[k], t - slot.plan[k].start, slot.w.key);
         return;
       }
+      if (prev) this.beacons(prev, prev.shown, slot.w.key);   // the last one completed
       // §5.2.6, PLY-65: the candidates are exhausted while still paused.
       const how = slot.d.onExhausted;
       slot.plan = null;

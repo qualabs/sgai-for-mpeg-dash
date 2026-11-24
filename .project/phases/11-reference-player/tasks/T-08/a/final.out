@@ -1,0 +1,80 @@
+== M3-R13.3-trim-ignored (R13.3-1) exact beacon set
+4 PASS
+exit 0; wall 12.5 s; full log: /run/user/1000/cto/t08a-logs/mx-M3-R13.3-trim-ignored/behaviour.log
+DIFF R13.3-1 D4: expected 2, fired 4; extra {'https://t.example.com/r13-3-1/at-5s': 1, 'https://t.example.com/r13-3-1/complete': 1}; missing {}
+beacon_set exit 1
+== M4-R13.3-dismiss-flushes (R13.3-2) exact beacon set
+4 PASS
+exit 0; wall 12.4 s; full log: /run/user/1000/cto/t08a-logs/mx-M4-R13.3-dismiss-flushes/behaviour.log
+DIFF R13.3-2 D4: expected 2, fired 4; extra {'https://t.example.com/r13-3-2/at-6s': 1, 'https://t.example.com/r13-3-2/complete': 1}; missing {}
+beacon_set exit 1
+== M5-R13.3-resume-flushes (R13.3-3) exact beacon set
+4 PASS
+exit 0; wall 12.4 s; full log: /run/user/1000/cto/t08a-logs/mx-M5-R13.3-resume-flushes/behaviour.log
+DIFF R13.3-3 D4: expected 2, fired 4; extra {'https://t.example.com/r13-3-3/at-6s': 1, 'https://t.example.com/r13-3-3/complete': 1}; missing {}
+beacon_set exit 1
+== M6-R6.5-no-dedup (R6.5-1) exact beacon set
+3 PASS, 1 FAIL
+exit 1; wall 15.5 s; full log: /run/user/1000/cto/t08a-logs/mx-M6-R6.5-no-dedup/behaviour.log
+DIFF R6.5-1 D4: expected 4, fired 6; extra {'https://t.example.com/r6-5-1/c1-same-url': 1, 'https://t.example.com/r6-5-1/c1-mid-again': 1}; missing {}
+beacon_set exit 1
+== FINAL mine + edges
+44 PASS
+exit 0; wall 141.9 s; full log: /run/user/1000/cto/t08a-logs/final-mine/behaviour.log
+OK   R6.4 D4: expected 2, fired 2
+OK   R6.5-1 D4: expected 4, fired 4
+OK   R6.5-2 D1: expected 2, fired 2
+OK   R13.1 D4: expected 4, fired 4
+OK   R13.3-1 D4: expected 2, fired 2
+OK   R13.3-2 D4: expected 2, fired 2
+OK   R13.3-3 D4: expected 2, fired 2
+OK   R13.6 D3: expected 2, fired 2
+OK   R13.6 D4: expected 2, fired 2
+OK   T08-E1 D4: expected 2, fired 2
+OK   T08-E2 D4: expected 3, fired 3
+beacon_set exit 0
+== FINAL T-07 list
+100 PASS, 12 FAIL
+FAIL R17.1 D1 selection | expected: (see log) | observed: selection[0] event 1 of behaviour/fixtures/R17.1/main.mpd: 1 presentation(s) more than the vector lists: overlay-lower-third [ad behaviour/fixtures/R17.1/overlay.xml:#1 option #1] | log: /run/user/1000/cto/t08a-logs/final-t07/behaviour.log:2
+FAIL R17.2 D1 selection | expected: (see log) | observed: selection[0] event 1 of behaviour/fixtures/R17.2/main.mpd: 1 presentation(s) more than the vector lists: overlay-lower-third [ad behaviour/fixtures/R17.2/overlay.xml:#1 option #1] | log: /run/user/1000/cto/t08a-logs/final-t07/behaviour.log:6
+FAIL R40.4-1 D1 selection | expected: selection[0] event 1 of behaviour/fixtures/R40.4/main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R40.4/overlay.xml:#1 option #1, overlay-lower-third behaviour/fixtures/R40.4/o... | observed: observed overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1], overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#1 
+FAIL R40.4-1 D4 selection | expected: selection[0] event 1 of behaviour/fixtures/R40.4/main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R40.4/overlay.xml:#1 option #1, overlay-lower-third behaviour/fixtures/R40.4/o... | observed: observed overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1], overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#1 
+FAIL R40.4-2 D1 beacons | expected: beacons[2] https://t.example.com/r40-4/complete (@id 2) expected at 10000 | observed: observed at never | log: /run/user/1000/cto/t08a-logs/final-t07/behaviour.log:68
+FAIL R40.4-2 D4 beacons | expected: beacons[2] https://t.example.com/r40-4/complete (@id 2) expected at 10000 | observed: observed at never | log: /run/user/1000/cto/t08a-logs/final-t07/behaviour.log:72
+FAIL R40.5-1 D1 selection | expected: selection[0] event 1 of behaviour/fixtures/R40.5/main-cap.mpd (presented): expected linear behaviour/fixtures/R40.5/list.mpd:ad-1 option null | observed: observed overlay-lower-third [ad behaviour/fixtures/R40.5/list.mpd:ad-1 option null]; selection[0] event 1 of behaviour/fixtures/R40.5/main-cap.mpd: 1 presentation(s) more than the vector lists: li... | log: 
+FAIL R40.5-1 D4 selection | expected: selection[0] event 1 of behaviour/fixtures/R40.5/main-cap.mpd (presented): expected linear behaviour/fixtures/R40.5/list.mpd:ad-1 option null | observed: observed overlay-lower-third [ad behaviour/fixtures/R40.5/list.mpd:ad-1 option null]; selection[0] event 1 of behaviour/fixtures/R40.5/main-cap.mpd: 1 presentation(s) more than the vector lists: li... | log: 
+FAIL R40.5-2 D1 selection | expected: selection[0] event 1 of behaviour/fixtures/R40.5/main-end.mpd (presented): expected linear behaviour/fixtures/R40.5/list-short.mpd:ad-2 option null | observed: observed overlay-lower-third [ad behaviour/fixtures/R40.5/list-short.mpd:ad-2 option null] | log: /run/user/1000/cto/t08a-logs/final-t07/behaviour.log:82
+FAIL R40.5-2 D4 selection | expected: selection[0] event 1 of behaviour/fixtures/R40.5/main-end.mpd (presented): expected linear behaviour/fixtures/R40.5/list-short.mpd:ad-2 option null | observed: observed overlay-lower-third [ad behaviour/fixtures/R40.5/list-short.mpd:ad-2 option null] | log: /run/user/1000/cto/t08a-logs/final-t07/behaviour.log:86
+FAIL R40.9-3 D1 presentation | expected: observed a change at 7051 from none [primary (paused)] to linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null], which the vector does not have | observed: observed a change at 13060 from linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null] to none [primary], which the vector does not have; presentation[2] expected a change at 12000 to no
+FAIL R40.9-3 D1 beacons | expected: beacons[0] https://t.example.com/r40-9/imp (@id 1) expected at 6000 | observed: observed at 7073; beacons[1] https://t.example.com/r40-9/complete (@id 2) expected at 12000; observed at 13020; unexpected beacon https://t.example.com/r40-9/imp at 7073; unexpected beacon https://... | log: /run/user/1000/cto/t08a-logs/final-t07/behaviour.log:108
+exit 1; wall 484.2 s; full log: /run/user/1000/cto/t08a-logs/final-t07/behaviour.log
+OK   R17.1 D1: expected 3, fired 3
+OK   R17.2 D1: expected 3, fired 3
+OK   R19.1 D1: expected 6, fired 6
+OK   R19.1 D2: expected 6, fired 6
+OK   R19.3 D1: expected 3, fired 3
+OK   R19.3 D4: expected 3, fired 3
+OK   R22.1 D1: expected 4, fired 4
+OK   R22.1 D4: expected 4, fired 4
+OK   R31.2 D1: expected 3, fired 3
+OK   R31.2 D4: expected 3, fired 3
+OK   R35.4-1 D1: expected 1, fired 1
+OK   R35.4-1 D4: expected 1, fired 1
+OK   R35.4-2 D1: expected 1, fired 1
+OK   R35.4-2 D4: expected 1, fired 1
+OK   R40.4-1 D1: expected 7, fired 7
+OK   R40.4-1 D4: expected 7, fired 7
+DIFF R40.4-2 D1: expected 3, fired 2; extra {}; missing {'https://t.example.com/r40-4/complete': 1}
+DIFF R40.4-2 D4: expected 3, fired 2; extra {}; missing {'https://t.example.com/r40-4/complete': 1}
+OK   R40.5-1 D1: expected 4, fired 4
+OK   R40.5-1 D4: expected 4, fired 4
+OK   R40.5-2 D1: expected 4, fired 4
+OK   R40.5-2 D4: expected 4, fired 4
+OK   R40.9-1 D1: expected 2, fired 2
+OK   R40.9-1 D4: expected 2, fired 2
+OK   R40.9-2 D1: expected 2, fired 2
+OK   R40.9-2 D4: expected 2, fired 2
+OK   R40.9-3 D1: expected 2, fired 2
+OK   R40.9-3 D4: expected 2, fired 2
+beacon_set exit 1
+final-done

@@ -1,0 +1,34 @@
+== M1-R13.1-window-timebase (R13.1)
+3 PASS, 1 FAIL
+FAIL R13.1 D4 beacons | expected: beacons[2] https://t.example.com/r13-1/c2-mid (@id 2) expected at 9000 | observed: observed at 7014; beacons[3] https://t.example.com/r13-1/c2-complete (@id 3) expected at 11000; observed at 7996; unexpected beacon https://t.example.com/r13-1/c2-mid at 7014; unexpected beacon htt... | log: /run/
+exit 1; wall 19.7 s; full log: /run/user/1000/cto/t08a-logs/mut-M1-R13.1-window-timebase/behaviour.log
+== M2-R13.6-first-option-only (R13.6)
+7 PASS, 1 FAIL
+FAIL R13.6 D4 beacons | expected: beacons[0] https://t.example.com/r13-6/imp (@id 1) expected at 2000 | observed: observed at never; beacons[1] https://t.example.com/r13-6/complete (@id 2) expected at 8000; observed at never | log: /run/user/1000/cto/t08a-logs/mut-M2-R13.6-first-option-only/behaviour.log:8
+exit 1; wall 31.9 s; full log: /run/user/1000/cto/t08a-logs/mut-M2-R13.6-first-option-only/behaviour.log
+== M3-R13.3-trim-ignored (R13.3-1)
+4 PASS
+exit 0; wall 17.5 s; full log: /run/user/1000/cto/t08a-logs/mut-M3-R13.3-trim-ignored/behaviour.log
+== M4-R13.3-dismiss-flushes (R13.3-2)
+4 PASS
+exit 0; wall 10.8 s; full log: /run/user/1000/cto/t08a-logs/mut-M4-R13.3-dismiss-flushes/behaviour.log
+== M5-R13.3-resume-flushes (R13.3-3)
+4 PASS
+exit 0; wall 12.3 s; full log: /run/user/1000/cto/t08a-logs/mut-M5-R13.3-resume-flushes/behaviour.log
+== M6-R6.5-no-dedup (R6.5-1)
+3 PASS, 1 FAIL
+FAIL R6.5-1 D4 beacons | expected: (see log) | observed: unexpected beacon https://t.example.com/r6-5-1/c1-same-url at 3009 | log: /run/user/1000/cto/t08a-logs/mut-M6-R6.5-no-dedup/behaviour.log:4
+exit 1; wall 18.3 s; full log: /run/user/1000/cto/t08a-logs/mut-M6-R6.5-no-dedup/behaviour.log
+== M7-R6.5-document-scope (R6.5-1)
+3 PASS, 1 FAIL
+FAIL R6.5-1 D4 beacons | expected: beacons[3] https://t.example.com/r6-5-1/c2-imp (@id 1) expected at 6000 | observed: observed at never | log: /run/user/1000/cto/t08a-logs/mut-M7-R6.5-document-scope/behaviour.log:4
+exit 1; wall 22.2 s; full log: /run/user/1000/cto/t08a-logs/mut-M7-R6.5-document-scope/behaviour.log
+== M8-R6.4-drop-foreign-attr-events (R6.4)
+3 PASS, 1 FAIL
+FAIL R6.4 D4 beacons | expected: beacons[0] https://t.example.com/r6-4/imp (@id 1) expected at 2000 | observed: observed at never; beacons[1] https://t.example.com/r6-4/complete (@id 2) expected at 7000; observed at never | log: /run/user/1000/cto/t08a-logs/mut-M8-R6.4-drop-foreign-attr-events/behaviour.log:4
+exit 1; wall 14.5 s; full log: /run/user/1000/cto/t08a-logs/mut-M8-R6.4-drop-foreign-attr-events/behaviour.log
+== M9-slot-not-anchored-at-PT (R19.1)
+6 PASS, 2 FAIL
+FAIL R19.1 D1 beacons | expected: beacons[2] https://t.example.com/r19-1/ov-complete (@id 3) expected at 6000 | observed: observed at never | log: /run/user/1000/cto/t08a-logs/mut-M9-slot-not-anchored-at-PT/behaviour.log:4
+exit 1; wall 59.7 s; full log: /run/user/1000/cto/t08a-logs/mut-M9-slot-not-anchored-at-PT/behaviour.log
+campaign-done
