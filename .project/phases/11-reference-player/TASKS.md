@@ -137,8 +137,8 @@ repo y no entra a él: se citan oraciones, nunca páginas.
   congelada. Depende de T-05 (convivencia con el lineal) y de los tests de
   T-04.
 - **Definition of done:** los tests de la familia pasan, incluidos los de
-  geometría, o el FAIL que queda está clasificado; una captura por token en
-  `tasks/T-07/`.
+  geometría, o el FAIL que queda está clasificado. La geometría se verifica
+  por código (las cajas medidas), sin capturas.
 - **nivel de verificación:** alto. La parte visual se ve, pero los tiempos de
   suspensión y reanudación entre familias no, y son la parte riesgosa.
 
