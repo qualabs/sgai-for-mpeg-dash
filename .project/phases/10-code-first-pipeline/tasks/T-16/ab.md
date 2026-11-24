@@ -20,6 +20,32 @@ Medido con `bin/measure-run.py` (una vez por llamada; los subagentes cargados al
 - **El veredicto de la vuelta (WORSE) no es del pipeline:** la base v12.7 es v12.6 limpia, que nunca absorbió los cambios de `context/` posteriores; el refine no puede arreglar los 6 FAIL de carriers. Los artefactos de v12.8 se borraron como manda 9.7.
 - Una vuelta de mantenimiento con la traza ya con hashes caminaría ~56 unidades: estimado ~0,6M de validación, ~8M la vuelta, dominada por los tres agentes.
 
-## El incremental
+## El incremental: el mismo delta del 2026-10-27
 
-(pendiente)
+En `.worktrees/ab-inc`: el código del pipeline nuevo, `context/` en `61f7a8b` (la cabeza de aquella corrida), base v12.6, anchor `924afcb` (el mismo `git diff --stat`: 7 archivos, +1046 −281). Dos desvíos obligados por correr un `context/` anterior a chequeos atados al de hoy: se saltó el gate 0.7 (el índice "Interfaces" no existía) y el nivel 2 de conformidad y los escenarios reportan pins viejos (exit 2) que el bucle de artefactos tomó como conocidos. Las dos corridas terminan igual: **MAJOR RECOMMENDED**.
+
+| Paso | Viejo (2026-10-27) | Nuevo |
+|---|---|---|
+| orquestador | 2,73M | 2,90M |
+| `analyze-dash-gap` | 5,91M | 2,12M |
+| `build-error-semantics` | 1,39M | 1,73M |
+| `analyze-iab-ad-templates` | 1,05M | 1,30M |
+| `extract-conformance-assertions` | 4,11M | retirado |
+| `build-uc-coverage-matrix` | 1,41M | retirado |
+| `apply-context-delta` | 25,24M | 4,14M |
+| **Total** | **41,83M** | **12,18M (−71%)** |
+
+- **Lo comparable uno a uno** es el pre-spec: 13,87M → 5,15M (−63%), por los dos pasos retirados y el gap más barato.
+- **El apply no es comparable uno a uno.** El viejo editó 82 secciones antes de que el chequeo de alcance dijera MAJOR; el nuevo dejó de editar al primer cambio que necesita estructura (`REFUSED: MAJOR`, su §9) y restauró la fuente. El resultado es el mismo y el trabajo que el viejo descartaba ya no se paga, pero el número no mide un incremental que llega al final.
+- **Hallazgo:** el apply clasificó 68 cambios como `needs-structure`; según su propio informe, unos 16 lo son (los cinco constructs sin carrier y lo que cuelga de ellos) y el resto tenía lugar. Que un solo cambio estructural haga abandonar el incremental entero es la lectura literal de §9; queda como entrada para el v13, que es un mayor y lo aplica todo sin tope.
+- La limpieza única de las marcas viejas toca el 29,7% de las líneas: el chequeo de alcance no la cuenta, pero queda al borde del tope de 0,30.
+- **No se midió:** un incremental que llegue a validar y refinar. Con lo medido en la vuelta de refine (validación ~1–2M por código), un incremental completo quedaría en el orden de 12M + ~10M de la vuelta.
+
+## Resultado
+
+| Corrida | Viejo | Nuevo | Δ |
+|---|---|---|---|
+| Vuelta de refine | > 51,1M (cota inferior) | 9,99M | ≤ −80% |
+| Incremental hasta el chequeo de alcance | 41,8M | 12,2M | −71% |
+
+La meta (≥ −70% en los dos) se cumplió. Lo que queda caro son los agentes LLM que siguen siendo agentes (orquestadores, apply, refine, revisión de nombres): cada llamada paga ~64k de contexto fijo (`fixed-cost-per-call.md`). Pasarlos a llamadas de un turno es el próximo escalón, y no entra en esta fase.

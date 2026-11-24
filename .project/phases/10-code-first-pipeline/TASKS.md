@@ -17,7 +17,7 @@
 | T-13 | La promoción es un script que exige todo y copia el juego completo                       | done | agent | —    | `bin/promote.py`, `bin/test_promote.py`, `tasks/T-13/`        |
 | T-14 | La suite de tests cubre todo lo nuevo de `bin/` y corre verde entera                     | done | agent | —    | `tasks/T-14/`        |
 | T-15 | `CLAUDE.md`, `README.md`, `prompts/README.md` y `SETUP.md` dicen el pipeline nuevo       | done | agent | —    | `CLAUDE.md`, `README.md`, `SETUP.md`, `prompts/README.md`        |
-| T-16 | La medición A/B dice cuánto bajó el costo, medido contra medido                          | pending | agent | —    | —        |
+| T-16 | La medición A/B dice cuánto bajó el costo, medido contra medido                          | done | agent | —    | `tasks/T-16/ab.md`, `fixed-cost-per-call.md`, `bin/validate.py`, `bin/walk-batches.py`        |
 | T-17 | Cierre: REPORT.md (Mode D), LOG y validador                                              | pending | agent | —    | —        |
 
 Lo común a todas: las decisiones están en `PHASE.md` y en las ADR 0060 a 0074;
@@ -313,6 +313,7 @@ los encabezados de la copia).
   comandos.
 - **nivel de verificación:** alto. Es el número que se le da al líder del
   proyecto.
+- **post-ejecución:** 2026-11-23, la primera medición dio 24,7M en la vuelta de refine (cortada): cada subagente caminante arrancaba en ~64k de contexto fijo. Se pasó la validación a código (`bin/validate.py`) con el modelo sólo en llamadas de un turno validadas por código (`bin/walk-batches.py`), con el OK del coordinador, y se re-midió: 9,99M. La corrida mostró dos bugs, arreglados (listas de secciones de la búsqueda abierta; tercera llamada a la unidad que sólo pide secciones), y dos de la promoción (`check-promotable` no ruteaba flags; `compare-candidates` no toleraba la renumeración de `context/03`).
 
 ## T-17 — Cierre: REPORT.md (Mode D), LOG y validador
 - **Objective:** la fase queda cerrada con su informe.

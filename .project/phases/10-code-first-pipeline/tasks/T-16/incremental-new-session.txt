@@ -1,0 +1,9 @@
+session: ff7ab40f-1a8c-4ab5-893d-2f4af33f7ea3.jsonl
+step                                                           input    c.read   c.write   output  calls  max ctx
+(orchestrator)                                                 2.90M     2.80M     0.10M    11.3k     30    0.12M
+prompts/1-pre-spec/analyze-dash-gap.prompt                     2.12M     2.03M     91.3k    11.6k     26    91.3k
+prompts/1-pre-spec/analyze-iab-ad-templates.prompt             1.30M     1.19M     0.10M     5.3k     15    0.10M
+prompts/2-build/apply-context-delta.prompt                     4.14M     3.96M     0.18M    35.7k     33    0.18M
+prompts/1-pre-spec/build-error-semantics.prompt                1.73M     1.56M     0.17M    11.4k     14    0.17M
+TOTAL                                                         12.18M    11.54M     0.64M    75.4k    118
+counted once per API call (message.id); input = fresh + cache write + cache read; no prices applied
