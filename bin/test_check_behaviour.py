@@ -22,6 +22,8 @@ each on a copy of spec-source/ and context/:
     expect_red (exact, a rule missing, a rule extra), clicks and destinations
     (references, schema), extra_query_pattern, requests_not_compared, a
     presentation boundary written as a window;
+  * S-DOC on R40.9-2: as written; its List MPD unlisted, then answered by
+    `aps`; its ad unlisted;
   * a UC vector that also names a criterion fails the schema;
   * the command line: 64, --help, criterion, uncovered, --json.
 
@@ -441,6 +443,9 @@ class TestExtensions(Base):
     def red(self, rules):
         v = a_test()
         v["fixtures"].append({"path": self.R410, "class": "publisher-mpd", **({"expect_red": rules} if rules else {})})
+        # its window's @uri answered without a document, so that S-DOC stays out of what this tests
+        v.setdefault("aps", []).extend({"url": u, "status": 404}
+                                       for _, u in cb.cs.pointed_documents(cb.cs.Doc(self.t.src / self.R410).root))
         self.t.put("R4.9.yaml", v)
         return self.t.run()
 
@@ -558,6 +563,44 @@ class TestExtensions(Base):
         v["outcomes"]["D1"]["presentation"][1]["tolerance"] = -1
         self.t.put("R4.9.yaml", v)
         self.assertTrue(found(self.t.run(), "B-SCHEMA", "R4.9.yaml"))
+
+
+class TestDoc(Base):
+    """S-DOC on the test it was found judging: R40.9-2, whose List MPD the
+    superseding window must keep from being requested."""
+
+    def r40_9_2(self):
+        return yaml.safe_load((ROOT / "spec-source/behaviour/R40.9-2.yaml").read_text())
+
+    def test_as_written(self):
+        self.t.put("R40.9-2.yaml", self.r40_9_2())
+        out = self.t.run()
+        self.assertEqual(found(out, "S-DOC"), [])
+        self.only(out, "B-COVER", None)
+
+    def test_list_mpd_unlisted(self):
+        v = self.r40_9_2()
+        v["fixtures"] = [f for f in v["fixtures"] if not f["path"].endswith("/list.mpd")]
+        self.t.put("R40.9-2.yaml", v)
+        out = self.t.run()
+        self.only(out, "S-DOC", "R40.9-2.yaml",
+                  "main-supersede.mpd: InsertPresentation@uri https://aps.example.com/beh/r40-9/break is neither")
+        self.assertEqual(len(found(out, "S-DOC")), 1)
+        self.assertEqual(out["exit"], 1)
+
+    def test_list_mpd_answered_by_aps(self):
+        v = self.r40_9_2()
+        v["fixtures"] = [f for f in v["fixtures"] if not f["path"].endswith("/list.mpd")]
+        v["aps"] = [{"url": "https://aps.example.com/beh/r40-9/break", "status": 404}]
+        self.t.put("R40.9-2.yaml", v)
+        self.assertEqual(found(self.t.run(), "S-DOC"), [])
+
+    def test_ad_unlisted(self):
+        v = self.r40_9_2()
+        v["fixtures"] = [f for f in v["fixtures"] if not f["path"].endswith("/ad.mpd")]
+        self.t.put("R40.9-2.yaml", v)
+        self.only(self.t.run(), "S-DOC", "R40.9-2.yaml",
+                  "list.mpd: ImportedMPD https://ads-cdn.example.com/beh/r40-9/ad.mpd")
 
 
 class TestScenarioSchema(Base):

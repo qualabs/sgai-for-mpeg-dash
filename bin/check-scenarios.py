@@ -40,6 +40,16 @@ Checks, each a finding `<check>  <UC>  <detail>`:
              is the text of that event; a click's candidate has one
              ClickThrough and its `url` is one of that ClickThrough's
              @trackingUris; a destination's candidate has one ClickThrough
+  S-DOC      every document URL a fixture of the vector points to (an
+             InsertPresentation / ReplacePresentation @uri, an
+             alternative-MPD Event's @value that is a URL, an
+             OverlayPresentation / PauseAdPresentation @uri, an
+             ImportedMPD's content, an @xlink:href) is absolute and is
+             covered by a fixture's `url` or an `aps` entry, as the harness
+             matches a request to them. Otherwise a run answers that
+             request 204 as `other`, and no field sees a Player fetch it.
+             Media segments, creatives, beacons and ClickThrough
+             destinations are not documents and are not checked
   S-CAPS     each class's first three capability values form that class's
              row of the R3.1 table, read from context/03
   S-LAYOUT   every layout is an R12.2 token (read from context/03) or `none`
@@ -451,6 +461,66 @@ def check_refs(v: dict, where: str, o: dict, docs: dict, find) -> None:
             find("S-REF", f"{where}.beacons[{i}]: url {b['url']} is not the event's text {(ev.text or '').strip()}")
 
 
+XLINK_HREF = "{http://www.w3.org/1999/xlink}href"
+RESOLVE_TO_ZERO = "urn:mpeg:dash:resolve-to-zero:2013"
+ALT_MPD_SCHEME = "urn:mpeg:dash:event:alternativeMPD:"
+
+
+def pointed_documents(root) -> list[tuple[str, str]]:
+    """(what points, URL) for every document URL a parsed fixture points to:
+    an InsertPresentation / ReplacePresentation @uri and an alternative-MPD
+    Event's @value when it is a URL (the break's List MPD), an
+    OverlayPresentation / PauseAdPresentation @uri (the resolution document),
+    an ImportedMPD's content (a List MPD's ad), and any @xlink:href but
+    resolve-to-zero (a sub-MPD link). Media (BaseURL, segments), creatives
+    (src, background), beacons (Event text, trackingUris) and ClickThrough
+    destinations are not documents and are not here."""
+    sys.path.insert(0, str(HERE))
+    from conformance.spec import vocab
+    D, S = vocab.DASH, vocab.SGAI
+    by_uri = {f"{{{D}}}InsertPresentation", f"{{{D}}}ReplacePresentation"}
+    by_uri |= {f"{{{S}}}{w}" for w in vocab.WINDOW.values()}
+    out = []
+    if root is None:
+        return out
+    for e in root.iter():
+        if not isinstance(e.tag, str):
+            continue
+        name = _local(e)
+        if e.tag in by_uri and e.get("uri"):
+            out.append((f"{name}@uri", e.get("uri").strip()))
+        if e.tag == f"{{{D}}}ImportedMPD" and (e.text or "").strip():
+            out.append(("ImportedMPD", e.text.strip()))
+        if e.get(XLINK_HREF) and e.get(XLINK_HREF).strip() != RESOLVE_TO_ZERO:
+            out.append((f"{name}@xlink:href", e.get(XLINK_HREF).strip()))
+        if (e.tag == f"{{{D}}}Event" and e.getparent() is not None
+                and (e.getparent().get("schemeIdUri") or "").startswith(ALT_MPD_SCHEME)
+                and urlsplit((e.get("value") or "").strip()).scheme):
+            out.append((f"Event@value (id {e.get('id')})", e.get("value").strip()))
+    return out
+
+
+def check_pointed(v: dict, docs: dict, find) -> None:
+    """S-DOC: every document URL a fixture of the vector points to is
+    answered by the vector: a fixture's `url` or an `aps` entry covers it,
+    as the harness decides it (behaviour_compare.added_query, the scheme
+    compared too: bin/players/behaviour.mjs `covers`). Anything else the
+    harness answers 204 as kind `other`, which no field compares."""
+    sys.path.insert(0, str(HERE))
+    from conformance.behaviour_compare import added_query
+    declared = [f["url"] for f in v["fixtures"] if f.get("url")] + [a["url"] for a in v.get("aps", [])]
+
+    def covered(u):
+        return any(urlsplit(d).scheme == urlsplit(u).scheme and added_query(d, u) is not None for d in declared)
+
+    for p, d in docs.items():
+        for what, u in pointed_documents(d.root):
+            if urlsplit(u).scheme not in ("http", "https"):
+                find("S-DOC", f"{p}: {what} {u} is not an absolute http(s) URL; the vector cannot say what answers it")
+            elif not covered(u):
+                find("S-DOC", f"{p}: {what} {u} is neither a fixture's url nor an `aps` entry of this vector")
+
+
 def check_vector(path: Path, v: dict, ctx: dict, find) -> None:
     uc = v["uc"]
     if path.stem != uc:
@@ -516,6 +586,7 @@ def check_body(key: str, v: dict, ctx: dict, find) -> None:
     for i, a in enumerate(v.get("aps", [])):
         if "document" in a and a["document"] not in docs:
             find("S-FIXTURE", f"aps[{i}].document: {a['document']} is not a fixture of this vector")
+    check_pointed(v, docs, find)
     ctx["scenario_fixtures"].update(scen)
     ctx["used_fixtures"].setdefault(key, []).extend(docs)
 

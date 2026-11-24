@@ -1,0 +1,18 @@
+# One break per clause of pointed_documents / check_pointed (bin/check-scenarios.py), running only
+# test_check_scenarios.py TestDoc TestDocOnTree and test_check_behaviour.py TestDoc. File restored (cmp OK).
+M1 Insert dropped                        RED  scen: FAILED (failures=2)  behav: FAILED (failures=1)
+M2 Replace dropped                       RED  scen: FAILED (failures=1)  behav: OK
+M3 windows dropped                       RED  scen: FAILED (failures=4)  behav: OK
+M4 ImportedMPD dropped                   RED  scen: FAILED (failures=6)  behav: FAILED (failures=1)
+M5 xlink dropped                         RED  scen: FAILED (failures=2)  behav: OK
+M6 resolve-to-zero not excluded          RED  scen: FAILED (failures=1)  behav: OK
+M7 Event@value dropped                   RED  scen: FAILED (failures=1)  behav: OK
+M8 any scheme's Event@value              RED  scen: FAILED (failures=1)  behav: OK
+M9 Event@value not required to be a URL  RED  scen: FAILED (failures=1)  behav: OK
+M10 fixture urls ignored                 RED  scen: FAILED (failures=10)  behav: FAILED (failures=3)
+M11 aps urls ignored                     RED  scen: FAILED (failures=8)  behav: FAILED (failures=1)
+M12 scheme not compared                  RED  scen: FAILED (failures=1)  behav: OK
+M13 query ignored                        RED  scen: FAILED (failures=1)  behav: OK
+M14 relative accepted                    RED  scen: FAILED (failures=1)  behav: OK
+M15 rule not called                      RED  scen: FAILED (failures=2)  behav: FAILED (failures=2)
+restored

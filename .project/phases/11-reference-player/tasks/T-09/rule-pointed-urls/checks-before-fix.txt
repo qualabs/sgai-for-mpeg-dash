@@ -1,0 +1,12 @@
+# bin/check-scenarios.py with the S-DOC rule, before UC-07's `aps` entries (exit 1):
+S-DOC	UC-07	examples/annex-g/G.2-1.mpd: OverlayPresentation@uri https://aps.example.com/nl/overlay?show=8&w=1 is neither a fixture's url nor an `aps` entry of this vector
+S-DOC	UC-07	examples/annex-g/G.2-1.mpd: PauseAdPresentation@uri https://aps.example.com/nl/pause?show=8 is neither a fixture's url nor an `aps` entry of this vector
+22 vectors of 22 use cases; 2 findings; without a vector: none
+exit 1
+# bin/check-behaviour.py with the rule: exit 0 (no behaviour test flagged)
+
+# Pointers the rule examined over all vectors (spec-source/behaviour/R*.yaml + scenarios/UC-*.yaml):
+111 vectors 177 pointers {'OverlayPresentation@uri': 95, 'PauseAdPresentation@uri': 23, 'InsertPresentation@uri': 26, 'ImportedMPD': 28, 'ReplacePresentation@uri': 5}
+# Independent count (raw lxml walk over every listed fixture, every attribute/text holding "http"):
+95 OverlayPresentation@uri, 23 PauseAdPresentation@uri, 26 InsertPresentation@uri, 28 ImportedMPD#text, 5 ReplacePresentation@uri
+(also 281 Event#text, 174 RenderableAsset@src, 169 BaseURL, 19 ClickThrough@uri, 13 ClickThrough@trackingUris, 11 RenderableAsset@background: not documents)

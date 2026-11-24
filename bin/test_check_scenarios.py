@@ -13,6 +13,11 @@ copy of spec-source/ and context/:
     fixture green / broken / with a contradicted class, a reference to a
     file that is not a fixture of the vector, a request that is not its .http;
   * S-REF: a candidate, an option, a beacon id, a beacon scope, a beacon url;
+  * S-DOC: each document pointer unanswered / answered by a fixture / by an
+    `aps` entry with no document; query subset both ways; another path, host
+    or scheme; a relative URL; what is not a document (media, creatives,
+    beacons, destinations, resolve-to-zero); on the tree, UC-07's `aps`
+    removed and a listed fixture's `url` dropped;
   * S-CAPS: a value off its class's row, and the row read from context/03;
   * S-LAYOUT, S-TIME, S-CARRIER: one break each;
   * the command line: 64 on a wrong flag or directory, --help 0, --json.
@@ -241,6 +246,9 @@ class TestFixture(Base):
         (d / "main.mpd").write_text(text)
         v = self.t.vec("UC-01")
         v["fixtures"].append({"path": "scenarios/fixtures/UC-01/main.mpd", "class": cls})
+        # its window's @uri answered without a document, so that S-DOC stays out of what this tests
+        v.setdefault("aps", []).extend({"url": u, "status": 404}
+                                       for _, u in cs.pointed_documents(cs.Doc(d / "main.mpd").root))
         self.t.put("UC-01", v)
         return self.t.run()
 
@@ -378,6 +386,144 @@ class TestLayoutTimeCarrier(Base):
         v["missing_carrier"][0]["requirement"] = "R999"
         self.t.put("UC-03", v)
         self.only(self.t.run(), "S-CARRIER", "UC-03", "R999")
+
+
+DASH_NS = "urn:mpeg:dash:schema:mpd:2011"
+SGAI_NS = "urn:svta:dash:sgai:2026"
+
+
+def mpd(body: str) -> str:
+    return (f'<?xml version="1.0"?>\n<MPD xmlns="{DASH_NS}" xmlns:svta="{SGAI_NS}" '
+            f'xmlns:xlink="http://www.w3.org/1999/xlink" type="static">{body}</MPD>')
+
+
+class TestDoc(unittest.TestCase):
+    """S-DOC on check_pointed directly: fixtures written to a temporary
+    directory, no conformance run."""
+
+    ALT = "urn:mpeg:dash:event:alternativeMPD:insert:2025"
+    U = "https://aps.example.com/w"
+
+    def setUp(self):
+        base = Path(TMP) / "cto" if TMP else None
+        if base:
+            base.mkdir(parents=True, exist_ok=True)
+        self.dir = Path(tempfile.mkdtemp(prefix="sdoc-", dir=base))
+
+    def tearDown(self):
+        shutil.rmtree(self.dir)
+
+    def check(self, text, urls=(), aps=(), name="main.mpd"):
+        """Findings of S-DOC for one fixture `text`, with fixtures served at
+        `urls` and `aps` entries at `aps`."""
+        (self.dir / name).write_text(text)
+        v = {"fixtures": [{"path": name}] + [{"path": f"x{i}.xml", "url": u} for i, u in enumerate(urls)],
+             "aps": [{"url": u, "status": 404} for u in aps]}
+        got = []
+        cs.check_pointed(v, {name: cs.Doc(self.dir / name)}, lambda c, d: got.append((c, d)))
+        self.assertTrue(all(c == "S-DOC" for c, _ in got), got)
+        return [d for _, d in got]
+
+    POINTERS = {
+        "InsertPresentation@uri": f'<Period><EventStream schemeIdUri="{ALT}"><Event id="1">'
+                                  f'<InsertPresentation uri="{U}"/></Event></EventStream></Period>',
+        "ReplacePresentation@uri": f'<Period><EventStream schemeIdUri="{ALT}"><Event id="1">'
+                                   f'<ReplacePresentation uri="{U}"/></Event></EventStream></Period>',
+        "OverlayPresentation@uri": f'<Period><EventStream schemeIdUri="urn:svta:dash:sgai-overlay:2026">'
+                                   f'<Event id="1"><svta:OverlayPresentation uri="{U}"/></Event></EventStream></Period>',
+        "PauseAdPresentation@uri": f'<Period><EventStream schemeIdUri="urn:svta:dash:sgai-pause-trigger:2026">'
+                                   f'<Event id="1"><svta:PauseAdPresentation uri="{U}"/></Event></EventStream></Period>',
+        "ImportedMPD": f'<Period id="p"><ImportedMPD>{U}</ImportedMPD></Period>',
+        "Period@xlink:href": f'<Period xlink:href="{U}"/>',
+        "Event@value": f'<Period><EventStream schemeIdUri="{ALT}"><Event id="1" value="{U}"/></EventStream></Period>',
+    }
+
+    def test_each_pointer_unanswered(self):
+        for what, body in self.POINTERS.items():
+            with self.subTest(what):
+                got = self.check(mpd(body))
+                self.assertEqual(len(got), 1, got)
+                self.assertIn(f"{what}", got[0])
+                self.assertIn("neither a fixture's url nor an `aps` entry", got[0])
+
+    def test_each_pointer_answered_by_a_fixture(self):
+        for what, body in self.POINTERS.items():
+            with self.subTest(what):
+                self.assertEqual(self.check(mpd(body), urls=[self.U]), [])
+
+    def test_each_pointer_answered_by_aps_without_document(self):
+        for what, body in self.POINTERS.items():
+            with self.subTest(what):
+                self.assertEqual(self.check(mpd(body), aps=[self.U]), [])
+
+    def test_no_pointer_no_vector_url(self):
+        self.assertEqual(self.check(mpd("<Period/>")), [])
+        self.assertEqual(self.check(mpd("<Period/>"), urls=[self.U]), [])
+
+    def test_request_fixture_and_unparsable_have_no_pointers(self):
+        self.assertEqual(self.check("GET /w HTTP/1.1\nHost: aps.example.com\n", name="r.http"), [])
+        self.assertEqual(self.check("<MPD", name="bad.mpd"), [])
+
+    def test_two_pointers_one_answered(self):
+        body = (f'<Period><ImportedMPD>{self.U}</ImportedMPD></Period>'
+                f'<Period xlink:href="{self.U}2"/>')
+        got = self.check(mpd(body), urls=[self.U])
+        self.assertEqual(len(got), 1, got)
+        self.assertIn(f"{self.U}2", got[0])
+
+    def test_query(self):
+        body = self.POINTERS["OverlayPresentation@uri"].replace(self.U, self.U + "?show=8&amp;w=1")
+        # the declared URL's query a subset of the pointer's: the harness answers it
+        self.assertEqual(self.check(mpd(body), urls=[self.U + "?show=8"]), [])
+        self.assertEqual(self.check(mpd(body), aps=[self.U]), [])
+        # a declared parameter the pointer lacks, or with another value: not answered
+        self.assertEqual(len(self.check(mpd(body), urls=[self.U + "?show=8&w=1&x=1"])), 1)
+        self.assertEqual(len(self.check(mpd(body), aps=[self.U + "?show=9"])), 1)
+
+    def test_other_path_host_scheme(self):
+        body = self.POINTERS["ImportedMPD"]
+        for other in ("https://aps.example.com/w/", "https://aps.example.com/v",
+                      "https://aps2.example.com/w", "http://aps.example.com/w"):
+            with self.subTest(other):
+                self.assertEqual(len(self.check(mpd(body), urls=[other], aps=[other])), 1)
+
+    def test_relative(self):
+        body = self.POINTERS["InsertPresentation@uri"].replace(self.U, "break.mpd")
+        got = self.check(mpd(body), urls=["https://aps.example.com/break.mpd"])
+        self.assertEqual(len(got), 1, got)
+        self.assertIn("not an absolute http(s) URL", got[0])
+
+    def test_not_documents(self):
+        body = (f'<BaseURL>{self.U}/media/</BaseURL><Period xlink:href="urn:mpeg:dash:resolve-to-zero:2013">'
+                f'<EventStream schemeIdUri="urn:mpeg:dash:event:callback:2015"><Event id="1" value="{self.U}">'
+                f'{self.U}/beacon</Event></EventStream>'
+                f'<EventStream schemeIdUri="{self.ALT}"><Event id="2" value="1"/></EventStream></Period>')
+        self.assertEqual(self.check(mpd(body)), [])
+        olist = (f'<svta:OverlayList xmlns:svta="{SGAI_NS}"><svta:Ad id="a"><svta:RenderableAsset src="{self.U}/a.png" '
+                 f'background="{self.U}/bg.png"/><svta:ClickThrough uri="{self.U}/offer" '
+                 f'trackingUris="{self.U}/click"/></svta:Ad></svta:OverlayList>')
+        self.assertEqual(self.check(olist, name="list.xml"), [])
+
+    def test_window_in_another_namespace_is_not_ours(self):
+        body = self.POINTERS["OverlayPresentation@uri"].replace("svta:OverlayPresentation", "OverlayPresentation")
+        self.assertEqual(self.check(mpd(body)), [])
+
+
+class TestDocOnTree(Base):
+    def test_uc07_aps_removed(self):
+        v = self.t.vec("UC-07")
+        del v["aps"]
+        self.t.put("UC-07", v)
+        out = self.t.run()
+        self.only(out, "S-DOC", "UC-07", "G.2-1.mpd: OverlayPresentation@uri https://aps.example.com/nl/overlay")
+        self.assertEqual(len(found(out, "S-DOC", "UC-07")), 2)
+        self.assertEqual(out["exit"], 1)
+
+    def test_listed_fixture_url_dropped(self):
+        v = self.t.vec("UC-07")
+        del v["fixtures"][2]["url"]      # G.5-1, the sub-MPD the List MPD's ImportedMPD names
+        self.t.put("UC-07", v)
+        self.assertTrue(found(self.t.run(), "S-DOC", "UC-07", "G.4-1.mpd: ImportedMPD https://ads-cdn.example.com/cr/701"))
 
 
 class TestCommandLine(unittest.TestCase):

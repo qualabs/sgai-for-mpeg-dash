@@ -42,6 +42,13 @@ player_capabilities:
   legacy: {predates_spec: true}
 # A legacy Player discloses nothing (C5 "not in this MPD", G.7).
 sends_capabilities: []
+# The two SGAI windows' @uri, answered 404: Annex G contains no resolution
+# document for either. A request to them is what this UC must not see; with
+# no entry the harness would answer it 204 as a non-document and no field
+# would compare it.
+aps:
+  - {url: "https://aps.example.com/nl/overlay?show=8&w=1", status: 404}
+  - {url: "https://aps.example.com/nl/pause?show=8", status: 404}
 actions: []
 
 outcomes:

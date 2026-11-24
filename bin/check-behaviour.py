@@ -45,7 +45,7 @@ Checks, each a finding `<check>  <test file or criterion>  <detail>`:
              its content went elsewhere, and the test must follow it
   S-*        on every test, the checks of bin/check-scenarios.py that do not
              depend on a UC: S-CAPS, S-FIXTURE (fixtures green on levels 1
-             and 2), S-REF, S-LAYOUT, S-TIME, S-GEOM, S-SCHEMA
+             and 2), S-REF, S-DOC, S-LAYOUT, S-TIME, S-GEOM, S-SCHEMA
 
 Then, for every test and class: `NOT_VERIFIABLE — no executor`, and for every
 index entry: `NOT_VERIFIABLE — <reason>`. No Player runs a test here and no

@@ -1,0 +1,9 @@
+$ python3 bin/check-scenarios.py | grep -v "	NOT_VERIFIABLE"; echo exit
+22 vectors of 22 use cases; 0 findings; without a vector: none
+A green run says the vectors are well formed, cover every UC x class, rest on green fixtures and match the UCs as they are now; no Player has run them (NOT_VERIFIABLE — no executor).
+exit 0
+
+$ python3 bin/check-behaviour.py | tail -2; echo exit
+population 76 (from the level-2 catalogue): 59 with a test, 17 NOT_VERIFIABLE in index.yaml, 0 uncovered; 0 findings
+A green run says the tests are well formed, rest on green fixtures, cover the population and match the criteria as they are now; no Player has run them (NOT_VERIFIABLE — no executor).
+exit 0

@@ -1,0 +1,35 @@
+# Whole suite, once (for t in bin/test_*.py; uv run ... python3 $t): rc, wall, file, unittest tail
+0 2s bin/test_apply_spec_patch.py Ran 35 tests in 1.746s OK 
+0 6s bin/test_assemble_spec.py Ran 15 tests in 5.696s OK 
+0 0s bin/test_behaviour_compare.py Ran 92 tests in 0.118s OK 
+0 3s bin/test_behaviour_harness.py Ran 47 tests in 2.416s OK 
+0 6s bin/test_behaviour_opt_in.py Ran 11 tests in 5.876s OK 
+0 0s bin/test_behaviour_summary.py Ran 12 tests in 0.001s OK 
+1 69s bin/test_check_behaviour.py Ran 62 tests in 66.898s FAILED (failures=4) 
+0 1s bin/test_check_context_interfaces.py Ran 19 tests in 1.175s OK 
+0 0s bin/test_check_incremental.py Ran 15 tests in 0.083s OK 
+0 1s bin/test_check_promotable_conformance.py Ran 5 tests in 0.611s OK 
+0 0s bin/test_check_promotable_flags.py Ran 1 test in 0.000s OK 
+1 42s bin/test_check_scenarios.py Ran 55 tests in 41.734s FAILED (failures=4) 
+0 1s bin/test_check_trace.py Ran 38 tests in 0.594s OK 
+0 1s bin/test_compare_candidates.py Ran 11 tests in 0.649s OK 
+0 1s bin/test_conformance_core.py Ran 9 tests in 0.710s OK 
+0 0s bin/test_conformance_dash.py Ran 6 tests in 0.386s OK 
+0 44s bin/test_conformance_players.py Ran 6 tests in 42.844s OK 
+0 10s bin/test_conformance_source.py Ran 32 tests in 8.589s OK 
+0 2s bin/test_conformance_spec.py Ran 59 tests in 1.734s OK 
+0 5s bin/test_gen_syntax_tables.py Ran 37 tests in 5.022s OK 
+0 2s bin/test_lint_spec.py Ran 32 tests in 1.551s OK 
+0 0s bin/test_measure_run.py Ran 4 tests in 0.341s OK 
+0 2s bin/test_name_candidates.py Ran 22 tests in 1.459s OK 
+0 0s bin/test_promote.py Ran 6 tests in 0.036s OK 
+0 0s bin/test_step_inputs.py Ran 7 tests in 0.064s OK 
+0 2s bin/test_strip_legacy_annotations.py Ran 9 tests in 1.530s OK 
+0 11s bin/test_validate.py Ran 34 tests in 10.233s OK 
+0 0s bin/test_validation_summary.py Ran 13 tests in 0.642s OK 
+0 1s bin/test_walk_batches.py Ran 9 tests in 0.008s OK 
+
+
+# The 8 failures: existing tests whose setup adds a fixture with an unanswered window @uri (R4.10/main.mpd; C.2-1 copy as scenarios/fixtures/UC-01/main.mpd) -> S-DOC. Setups now answer it with an aps 404. Re-run:
+Ran 55 tests in 47.828s OK  bin/test_check_scenarios.py
+Ran 62 tests in 72.058s OK  bin/test_check_behaviour.py
