@@ -1,0 +1,60 @@
+# R40.9 — `supersede`, when the window presents no ad. The R40.9-2
+# documents, with the test APS answering the window's resolution request
+# with a 500 and no body: a failed execution (R20.1, "a final HTTP status
+# other than 200").
+format: sgai-scenario/1
+criterion: R40.9
+criterion_sha256: 5719078dc00fc9a2bd5b425b7a4bbc84c49fc6a42827348ba3a7b6f6d46d0a7c
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 14000
+entry: behaviour/fixtures/R40.9/main-supersede.mpd
+fixtures:
+  - path: behaviour/fixtures/R40.9/main-supersede.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R40.9/list.mpd
+    url: https://aps.example.com/beh/r40-9/break
+    class: list-mpd
+  - path: behaviour/fixtures/R40.9/ad.mpd
+    url: https://ads-cdn.example.com/beh/r40-9/ad.mpd
+    class: sps-mpd
+aps:
+  - {url: "https://aps.example.com/beh/r40-9/overlay-s", status: 500}
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &fallback
+    summary: >-
+      Decides R40.9 "When the window presents no ad — every attempt to
+      resolve it is a failed execution under R20.1 ... — those events MUST be
+      executed as the base specification defines": the window's request
+      fails, nothing is overlaid, and the insertion at 6 s plays its 6 s ad;
+      the programme returns at 6 s.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r40-9/overlay-s
+      # @earliestResolutionTimeOffset 0: at 6 s.
+      - at: 6000
+        url: https://aps.example.com/beh/r40-9/break
+        answered_by: behaviour/fixtures/R40.9/list.mpd
+      - at: {from: 6000, to: 6250}
+        url: https://ads-cdn.example.com/beh/r40-9/ad.mpd
+        answered_by: behaviour/fixtures/R40.9/ad.mpd
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R40.9/main-supersede.mpd, event_id: "2"}
+        result: presented
+        presented:
+          - {candidate: &lin {fixture: behaviour/fixtures/R40.9/list.mpd, id: ad-1}, option: null, layout: linear}
+    presentation:
+      - {start: 0, end: 6000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 6000, end: 12000, layout: linear, shows: [{element: ad, candidate: *lin, option: null}]}
+      - {start: 12000, end: 14000, layout: none, shows: [{element: primary, from: 6000}]}
+    beacons:
+      - {at: 6000, fixture: behaviour/fixtures/R40.9/ad.mpd, id: "1", url: "https://t.example.com/r40-9/imp"}
+      - {at: 12000, fixture: behaviour/fixtures/R40.9/ad.mpd, id: "2", url: "https://t.example.com/r40-9/complete"}
+  D4: *fallback

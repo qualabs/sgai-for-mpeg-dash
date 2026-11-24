@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011"
+                  xmlns:svta="urn:svta:dash:sgai:2026"
+                  family="overlay"
+                  dismissAfter="never">
+  <svta:Ad>
+    <svta:RenderableAsset
+                              src="https://ads-cdn.example.com/beh/r27-3/l-shape-ad.mpd"
+                              mimeType="application/dash+xml"
+                              layout="squeezeback-l-shape-upper-left"/>
+    <svta:RenderableAsset
+                              src="https://ads-cdn.example.com/beh/r27-3/l-shape.html"
+                              mimeType="text/html"
+                              duration="PT4S"
+                              layout="squeezeback-l-shape-upper-left"/>
+    <svta:RenderableAsset
+                              src="https://ads-cdn.example.com/beh/r27-3/l-shape.png"
+                              mimeType="image/png"
+                              duration="PT4S"
+                              layout="squeezeback-l-shape-upper-left"/>
+  </svta:Ad>
+</svta:OverlayList>

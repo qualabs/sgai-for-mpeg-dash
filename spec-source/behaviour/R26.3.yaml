@@ -1,0 +1,103 @@
+# R26.3 — the side-by-side's decoder-and-surface budget. One overlay window
+# 2 s to 6 s; one candidate with three options in preference order:
+#   1. video ad, with an image background (two decoders AND an image surface)
+#   2. video ad, no background             (two decoders)
+#   3. image ad, with an image background  (one decoder, image surfaces)
+# Each class takes the first option it can composite (R5): D1 the first, D2
+# the second (it has two decoders but no image surface for the background),
+# D3 and D4 the third (one decoder), D5 none.
+format: sgai-scenario/1
+criterion: R26.3
+criterion_sha256: 85ac5df0ae20594fdb3a5b22b36749dd6dd6c6515101cca89c91286750b454d1
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 8000
+entry: behaviour/fixtures/R26.3/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R26.3/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R26.3/overlay.xml
+    url: https://aps.example.com/beh/r26-3/overlay
+    class: overlay-list
+  - path: behaviour/fixtures/R26.3/box-ad.mpd
+    url: https://ads-cdn.example.com/beh/r26-3/box-ad.mpd
+    class: sps-mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1:
+    summary: >-
+      Two decoders and an image surface: the video ad over the image
+      background (option 1).
+    requests:
+      - &resolve
+        at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r26-3/overlay
+        answered_by: behaviour/fixtures/R26.3/overlay.xml
+      - &sub
+        at: {from: 0, to: 2000}
+        url: https://ads-cdn.example.com/beh/r26-3/box-ad.mpd
+        answered_by: behaviour/fixtures/R26.3/box-ad.mpd
+    selection:
+      - opportunity: &opp {fixture: behaviour/fixtures/R26.3/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c {fixture: behaviour/fixtures/R26.3/overlay.xml, index: 1}, option: {index: 1}, layout: squeezeback-double-box-background}
+    presentation:
+      - &before {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 6000, layout: squeezeback-double-box-background, shows: [{element: background}, {element: primary, from: 2000}, {element: ad, candidate: *c, option: {index: 1}}]}
+      - &after {start: 6000, end: 8000, layout: none, shows: [{element: primary, from: 6000}]}
+    beacons: []
+  D2:
+    summary: >-
+      Decides "a non-video element (... the image background) MUST NOT be
+      selected on a device that cannot composite that surface type on top of
+      video (e.g. ... D2)": option 1 is skipped for its background, and the
+      video double box without one (option 2) is presented on the second
+      decoder.
+    requests: [*resolve, *sub]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c, option: {index: 2}, layout: squeezeback-double-box}
+    presentation:
+      - *before
+      - {start: 2000, end: 6000, layout: squeezeback-double-box, shows: [{element: primary, from: 2000}, {element: ad, candidate: *c, option: {index: 2}}]}
+      - *after
+    beacons: []
+  D3: &single
+    summary: >-
+      Decides "A side-by-side whose ad is video ... MUST NOT be selected on a
+      single-decoder device" and "a single-decoder image/HTML-capable device
+      can render" one whose ad is an image: options 1 and 2 are skipped, the
+      image ad over the image background (option 3) is presented, and the
+      video sub-MPD is not requested.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c, option: {index: 3}, layout: squeezeback-double-box-background}
+    presentation:
+      - *before
+      - {start: 2000, end: 6000, layout: squeezeback-double-box-background, shows: [{element: background}, {element: primary, from: 2000}, {element: ad, candidate: *c, option: {index: 3}}]}
+      - *after
+    beacons: []
+  D4: *single
+  D5:
+    summary: One decoder and no surface over video; no option is satisfiable and the programme plays alone.
+    requests: [*resolve]
+    selection:
+      - {opportunity: *opp, result: declined, presented: []}
+    presentation:
+      - {start: 0, end: 8000, layout: none, shows: [{element: primary, from: 0}]}
+    beacons: []

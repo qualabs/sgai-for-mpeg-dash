@@ -1,0 +1,50 @@
+# R40.9 — `supersede`, when the window presents its ad. An overlay window
+# 2 s to 12 s of the programme with linearRelation="supersede" and one 10 s
+# image; a 6 s insertion at 6 s, inside its span, with
+# @earliestResolutionTimeOffset 0 so that it is resolved only at 6 s, if at
+# all.
+format: sgai-scenario/1
+criterion: R40.9
+criterion_sha256: 5719078dc00fc9a2bd5b425b7a4bbc84c49fc6a42827348ba3a7b6f6d46d0a7c
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 14000
+entry: behaviour/fixtures/R40.9/main-supersede.mpd
+fixtures:
+  - path: behaviour/fixtures/R40.9/main-supersede.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R40.9/overlay-s.xml
+    url: https://aps.example.com/beh/r40-9/overlay-s
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &superseded
+    summary: >-
+      Decides R40.9 "supersede: the window MUST be presented, and the
+      inherited linear events whose presentation time falls within its span
+      MUST NOT be executed": the image from 2 s to 12 s over a programme that
+      never stops; the insertion at 6 s is not executed and its List MPD is
+      never requested.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r40-9/overlay-s
+        answered_by: behaviour/fixtures/R40.9/overlay-s.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R40.9/main-supersede.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &s {fixture: behaviour/fixtures/R40.9/overlay-s.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 12000, layout: overlay-lower-third, shows: [{element: primary, from: 2000}, {element: ad, candidate: *s, option: {index: 1}}], note: "the programme runs through 6 s; no insertion"}
+      - {start: 12000, end: 14000, layout: none, shows: [{element: primary, from: 12000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R40.9/overlay-s.xml, candidate: *s, id: "1", url: "https://t.example.com/r40-9/s-imp"}
+      - {at: 12000, fixture: behaviour/fixtures/R40.9/overlay-s.xml, candidate: *s, id: "2", url: "https://t.example.com/r40-9/s-complete"}
+  D4: *superseded

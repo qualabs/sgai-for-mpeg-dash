@@ -1,0 +1,64 @@
+# R36.5 — "When the opportunity fires, the Player MUST check whether the
+# resolution it holds is still usable. If it is not, the Player MUST request
+# a new one." A pause window over the first 60 s (fixtures/R36.5/main.mpd).
+# The first document, candidate A, is usable for 20 s from its receipt
+# (fixtures/R36.5/first.xml); the second, candidate B, for 10 min
+# (fixtures/R36.5/second.xml). Pauses at 2 s (resumed at 5 s) and at 30 s
+# (main 27 s), when A's document, received by 2 s at the latest, has expired.
+format: sgai-scenario/1
+criterion: R36.5
+criterion_sha256: 28f3328ae1168428eb346d3ae364a8cec007d57a7038bbd64b9e6c5582e4f407
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 35000
+entry: behaviour/fixtures/R36.5/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R36.5/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R36.5/first.xml
+    url: https://aps.example.com/behaviour/pause?w=1
+    class: overlay-list
+  - path: behaviour/fixtures/R36.5/second.xml
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+aps:
+  - {url: "https://aps.example.com/behaviour/pause?w=1", nth: 1, status: 200, document: behaviour/fixtures/R36.5/first.xml}
+  - {url: "https://aps.example.com/behaviour/pause?w=1", nth: 2, status: 200, document: behaviour/fixtures/R36.5/second.xml}
+actions:
+  - {at: 2000, do: pause}
+  - {at: 5000, do: resume}
+  - {at: 30000, do: pause}
+  - {at: 33000, do: resume}
+
+outcomes:
+  D1: &o
+    summary: >-
+      Pause 1 shows A 2-4 s. At pause 2 the held document has expired: the Player has requested a new one, and B, not A, is shown 30-32 s.
+    requests:
+      - {at: {from: 0, to: 2000}, url: "https://aps.example.com/behaviour/pause?w=1", answered_by: behaviour/fixtures/R36.5/first.xml}
+      - {at: {from: 5000, to: 30000}, url: "https://aps.example.com/behaviour/pause?w=1", answered_by: behaviour/fixtures/R36.5/second.xml}
+    selection:
+      - opportunity: &opp {fixture: behaviour/fixtures/R36.5/main.mpd, event_id: "1"}
+        result: presented
+        presented: [{candidate: &a {fixture: behaviour/fixtures/R36.5/first.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}]
+      - opportunity: *opp
+        result: presented
+        presented: [{candidate: &b {fixture: behaviour/fixtures/R36.5/second.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}]
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 4000, layout: pause-fullscreen, shows: [{element: ad, candidate: *a, option: {index: 1}}]}
+      - {start: 4000, end: 5000, layout: none, shows: [{element: primary, from: 2000}], note: the paused frame}
+      - {start: 5000, end: 30000, layout: none, shows: [{element: primary, from: 2000}]}
+      - {start: 30000, end: 32000, layout: pause-fullscreen, shows: [{element: ad, candidate: *b, option: {index: 1}}]}
+      - {start: 32000, end: 33000, layout: none, shows: [{element: primary, from: 27000}], note: the paused frame}
+      - {start: 33000, end: 35000, layout: none, shows: [{element: primary, from: 27000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R36.5/first.xml, candidate: *a, id: "1", url: "https://t.example.com/imp?cr=365a"}
+      - {at: 30000, fixture: behaviour/fixtures/R36.5/second.xml, candidate: *b, id: "1", url: "https://t.example.com/imp?cr=365b"}
+  D3: *o
+  D4: *o

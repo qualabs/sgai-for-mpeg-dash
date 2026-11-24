@@ -1,0 +1,69 @@
+# R40.4 — "When the presentation resumes at a point outside the window's
+# range, the execution has ended." An overlay window 2 s to 8 s of the
+# programme, no @linearRelation; one 6 s image candidate, R. A 6 s
+# replacement at 4 s suspends R 2 s in; the programme's time runs on during
+# a replacement (DASH §5.16.1), so it returns at 10 s (RT = PRT + APDA,
+# Table 57), past the window's end.
+format: sgai-scenario/1
+criterion: R40.4
+criterion_sha256: ca04ced87ebf9bdd667103fb1e76207c1c79aaac2bc083a0ee0f85ab0b91beae
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R40.4/main-replace.mpd
+fixtures:
+  - path: behaviour/fixtures/R40.4/main-replace.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R40.4/overlay-r.xml
+    url: https://aps.example.com/beh/r40-4/overlay-r
+    class: overlay-list
+  - path: behaviour/fixtures/R40.4/list.mpd
+    url: https://aps.example.com/beh/r40-4/replace
+    class: list-mpd
+  - path: behaviour/fixtures/R40.4/ad.mpd
+    url: https://ads-cdn.example.com/beh/r40-4/ad.mpd
+    class: sps-mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &ended
+    summary: >-
+      Decides R40.4 "When the presentation resumes at a point outside the
+      window's range, the execution has ended": R from 2 s to the replacement
+      at 4 s; the programme returns at 10 s, outside the window (2 s to 8 s),
+      and R is not shown again; its completion never fires.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r40-4/overlay-r
+        answered_by: behaviour/fixtures/R40.4/overlay-r.xml
+      # @earliestResolutionTimeOffset 4 s before 4 s: from the start.
+      - at: {from: 0, to: 4000}
+        url: https://aps.example.com/beh/r40-4/replace
+        answered_by: behaviour/fixtures/R40.4/list.mpd
+      - at: {from: 0, to: 4000}
+        url: https://ads-cdn.example.com/beh/r40-4/ad.mpd
+        answered_by: behaviour/fixtures/R40.4/ad.mpd
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R40.4/main-replace.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &r {fixture: behaviour/fixtures/R40.4/overlay-r.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+      - opportunity: {fixture: behaviour/fixtures/R40.4/main-replace.mpd, event_id: "2"}
+        result: presented
+        presented:
+          - {candidate: &lin {fixture: behaviour/fixtures/R40.4/list.mpd, id: ad-1}, option: null, layout: linear}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 4000, layout: overlay-lower-third, shows: [{element: primary, from: 2000}, {element: ad, candidate: *r, option: {index: 1}}]}
+      - {start: 4000, end: 10000, layout: linear, shows: [{element: ad, candidate: *lin, option: null}], note: "R suspended 2 s in"}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}], note: "outside the window: R's execution has ended"}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R40.4/overlay-r.xml, candidate: *r, id: "1", url: "https://t.example.com/r40-4/r-imp"}
+      - {at: 4000, fixture: behaviour/fixtures/R40.4/ad.mpd, id: "1", url: "https://t.example.com/r40-4/imp"}
+      - {at: 10000, fixture: behaviour/fixtures/R40.4/ad.mpd, id: "2", url: "https://t.example.com/r40-4/complete"}
+  D4: *ended

@@ -1,0 +1,56 @@
+# R35.4 — a dismissal ends the whole slot: a pause slot. A pause window over
+# the first minute; its document (dismissAfter="PT0S", onExhausted=
+# "request-again") holds two 4 s image candidates, A then B. The viewer
+# pauses at 2 s, dismisses at 3 s (1 s into A) and resumes at 10 s.
+#
+# On a pause slot the slot is the rest of that pause (spec PLY-75): the
+# exhaustion behaviour does not apply after a dismissal, so neither B nor a
+# second document follows, and the paused frame stays until the resume.
+format: sgai-scenario/1
+criterion: R35.4
+criterion_sha256: 509912f66eba59c65e88f9311c0257563dc7ad7c24ef1065b700ee83c2c56907
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R35.4/main-pause.mpd
+fixtures:
+  - path: behaviour/fixtures/R35.4/main-pause.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R35.4/pause.xml
+    url: https://aps.example.com/beh/r35-4/pause
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 2000, do: pause}
+  - {at: 3000, do: dismiss}
+  - {at: 10000, do: resume}
+
+outcomes:
+  D1: &dismissed
+    summary: >-
+      Decides R35.4 "A dismissal ends the whole slot ... MUST NOT advance to
+      another ad or another form within it" on a pause slot: A from 2 s to the
+      dismissal at 3 s, then the paused frame alone until the resume; B is not
+      presented and the document is not requested again.
+    requests:
+      # Exactly one: request-again does not follow a dismissal.
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r35-4/pause
+        answered_by: behaviour/fixtures/R35.4/pause.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R35.4/main-pause.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R35.4/pause.xml, index: 1}, option: {index: 1}, layout: pause-partial}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 3000, layout: pause-partial, shows: [{element: primary, from: 2000}, {element: ad, candidate: *a, option: {index: 1}}]}
+      - {start: 3000, end: 10000, layout: none, shows: [{element: primary, from: 2000}], note: "the paused frame; still paused, no further ad"}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 2000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R35.4/pause.xml, candidate: *a, id: "1", url: "https://t.example.com/r35-4/pa-imp"}
+  D4: *dismissed

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011"
+                  xmlns:svta="urn:svta:dash:sgai:2026"
+                  family="overlay"
+                  dismissAfter="never">
+  <svta:Ad>
+    <svta:RenderableAsset
+                              src="https://ads-cdn.example.com/beh/r26-1/box.png"
+                              mimeType="image/png"
+                              duration="PT4S"
+                              layout="squeezeback-double-box"/>
+  </svta:Ad>
+  <svta:Ad>
+    <svta:RenderableAsset
+                              src="https://ads-cdn.example.com/beh/r26-1/box-bg.png"
+                              mimeType="image/png"
+                              duration="PT4S"
+                              layout="squeezeback-double-box-background"
+                              background="https://ads-cdn.example.com/beh/r26-1/background.png"/>
+  </svta:Ad>
+</svta:OverlayList>

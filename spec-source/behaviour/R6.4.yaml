@@ -1,0 +1,66 @@
+# R6.4 — unknown namespaces on the tracking carriers are ignored. Loaded: one
+# overlay window, one 5 s image candidate whose <svta:Tracking>, its Events and
+# its <svta:ClickThrough> carry attributes and child elements of a namespace no
+# Player knows (urn:example:vendor). A Player that rejects the candidate or the
+# document, or drops the beacons, fails.
+format: sgai-scenario/1
+criterion: R6.4
+criterion_sha256: 2705a68728da1d477d45db635bed7b1e31c16f02e13ff12d999f57f5ba6b4fad
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 9000
+entry: behaviour/fixtures/R6.4/r6-4-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R6.4/r6-4-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R6.4/r6-4-list.xml, url: 'https://aps.example.com/b/r6-4/w', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D4:
+    summary: 'R6.4: "A Player MUST safely ignore unknown namespaces on tracking-related extension elements". The image from 2 s to 7
+      s with both beacons, as if the unknown attributes and elements were absent.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r6-4/w
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R6.4/r6-4-list.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R6.4/r6-4-main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R6.4/r6-4-list.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 2000
+      end: 7000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 2000}
+      - element: ad
+        candidate: *id001
+        option: {index: 1}
+    - start: 7000
+      end: 9000
+      layout: none
+      shows:
+      - {element: primary, from: 7000}
+    beacons:
+    - at: 2000
+      fixture: behaviour/fixtures/R6.4/r6-4-list.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/r6-4/imp
+    - at: 7000
+      fixture: behaviour/fixtures/R6.4/r6-4-list.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.com/r6-4/complete

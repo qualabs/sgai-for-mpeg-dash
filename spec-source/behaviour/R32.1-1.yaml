@@ -1,0 +1,54 @@
+# R32.1 — repeat: "the sequence is presented again from the start, for as
+# long as the pause lasts". A pause window over the first 60 s
+# (fixtures/R32.1/main.mpd); the document declares onExhausted="repeat" and
+# one 3 s candidate (fixtures/R32.1/repeat.xml). The viewer pauses at 2 s
+# and resumes at 10 s. Of R32.1 (held by the APS) only what binds the Player
+# at runtime is tested: what each declared value makes it do.
+format: sgai-scenario/1
+criterion: R32.1
+criterion_sha256: 8fef3afc4557ba66f99afcc820d7e30d0f7d0ed914979eb172ec4e8837970de0
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R32.1/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R32.1/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R32.1/repeat.xml
+    url: https://aps.example.com/behaviour/pause?w=1
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: [{at: 2000, do: pause}, {at: 10000, do: resume}]
+
+outcomes:
+  D1: &o
+    summary: >-
+      The candidate three times in a row, 2-5 s, 5-8 s and 8-10 s (cut by the
+      resume), its impression fired at each pass; one request; the film
+      continues from 2 s.
+    requests:
+      - {at: {from: 0, to: 2000}, url: "https://aps.example.com/behaviour/pause?w=1", answered_by: behaviour/fixtures/R32.1/repeat.xml}
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R32.1/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - &p {candidate: &c {fixture: behaviour/fixtures/R32.1/repeat.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+          - *p
+          - *p
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 5000, layout: pause-fullscreen, shows: [&ad {element: ad, candidate: *c, option: {index: 1}}]}
+      - {start: 5000, end: 8000, layout: pause-fullscreen, shows: [*ad], note: second pass}
+      - {start: 8000, end: 10000, layout: pause-fullscreen, shows: [*ad], note: "third pass, ended by the resume"}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 2000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R32.1/repeat.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=3211"}
+      - {at: 5000, fixture: behaviour/fixtures/R32.1/repeat.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=3211"}
+      - {at: 8000, fixture: behaviour/fixtures/R32.1/repeat.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=3211"}
+  D3: *o
+  D4: *o

@@ -1,0 +1,35 @@
+# R36.1 — "An offset of zero means the window is resolved only when it
+# fires." An overlay window 10-12 s declaring earliestResolutionTimeOffset 0
+# (fixtures/R36.1/main-zero.mpd).
+format: sgai-scenario/1
+criterion: R36.1
+criterion_sha256: 79148b5e0f6f8a42eaac546bbf9fa135f9d86d6bd8aa9eb67584c44fc13d202a
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R36.1/main-zero.mpd
+fixtures:
+  - path: behaviour/fixtures/R36.1/main-zero.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R36.1/empty.xml
+    url: https://aps.example.com/behaviour/r36-1?w=2
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &o
+    summary: >-
+      The request is made at the window's start, 10 s, and not before.
+    requests:
+      - {at: 10000, url: "https://aps.example.com/behaviour/r36-1?w=2", answered_by: behaviour/fixtures/R36.1/empty.xml}
+    selection:
+      - {opportunity: {fixture: behaviour/fixtures/R36.1/main-zero.mpd, event_id: "1"}, result: declined, presented: []}
+    presentation:
+      - {start: 0, end: 12000, layout: none, shows: [{element: primary, from: 0}]}
+    beacons: []
+  D4: *o

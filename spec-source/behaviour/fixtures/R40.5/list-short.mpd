@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     type="list"
+     profiles="urn:mpeg:dash:profile:list:2024"
+     minBufferTime="PT2S">
+  <Period id="ad-2" duration="PT6S">
+    <ImportedMPD earliestResolutionTimeOffset="10">https://ads-cdn.example.com/beh/r40-5/ad-short.mpd</ImportedMPD>
+  </Period>
+</MPD>

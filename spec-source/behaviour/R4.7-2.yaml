@@ -1,0 +1,32 @@
+# R4.7 on an overlay window — @durationCap="0": the window does not fire.
+# Loaded: an overlay window at 2 s, @durationCap 0, @earliestResolutionTimeOffset
+# 0 ("Zero means only at the start of the window"), whose APS would answer a 4 s
+# image. A Player that reads zero as a very short slot requests it and may show it.
+format: sgai-scenario/1
+criterion: R4.7
+criterion_sha256: 49581879ebd12a7cfdc8d7f0119754b0fc8629578761a8949559ea25ba5d8f31
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 6000
+entry: behaviour/fixtures/R4.7/r4-7-2-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R4.7/r4-7-2-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R4.7/r4-7-2-list.xml, url: 'https://aps.example.com/b/r4-7-2/w', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D4:
+    summary: 'R4.7: "A declared cap of zero means the opportunity does not fire" and "a zero cap is not a very short slot". No request,
+      the primary content throughout.'
+    requests: []
+    selection: []
+    presentation:
+    - start: 0
+      end: 6000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    beacons: []

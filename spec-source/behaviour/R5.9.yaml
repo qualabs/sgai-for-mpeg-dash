@@ -1,0 +1,50 @@
+# R5.9 — the first request for an option's resource fails. Option 1's image
+# answers 404 (`aps` below), option 2's answers as usual
+# (fixtures/R5.9/overlay-list.xml).
+format: sgai-scenario/1
+criterion: R5.9
+criterion_sha256: 9779bf29303db61404a4793824e8e0b3815fa689164981250ffe18bcc3893429
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R5.9/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R5.9/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R5.9/overlay-list.xml
+    url: https://aps.example.com/behaviour/r5-9?w=1
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+# "a final HTTP status outside the 2xx range" on the first request for option
+# 1's image. The entry names a creative, not a resolution URL: see the
+# evidence README (T-04/b) for what the schema says `aps` answers.
+aps:
+  - {url: "https://ads-cdn.example.com/behaviour/R5.9/missing.png", status: 404}
+actions: []
+
+outcomes:
+  D1: &o
+    summary: >-
+      "When that request fails ... the option is not satisfiable, and the
+      Player MUST move to the next option in document order": option 1 is
+      never on screen; option 2 is shown 5 s to 10 s, with the candidate's
+      impression.
+    requests:
+      - {at: {from: 0, to: 5000}, url: "https://aps.example.com/behaviour/r5-9?w=1", answered_by: behaviour/fixtures/R5.9/overlay-list.xml}
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R5.9/main.mpd, event_id: "1"}
+        result: presented
+        presented: [{candidate: &c {fixture: behaviour/fixtures/R5.9/overlay-list.xml, index: 1}, option: {index: 2}, layout: overlay-lower-third}]
+    presentation:
+      - {start: 0, end: 5000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 5000, end: 10000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *c, option: {index: 2}}]}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons:
+      - {at: 5000, fixture: behaviour/fixtures/R5.9/overlay-list.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=591"}
+  D3: *o
+  D4: *o

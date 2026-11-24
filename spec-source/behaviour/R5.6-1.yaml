@@ -1,0 +1,89 @@
+# R5.6 (a) — device capabilities. One candidate with three options of the
+# same layout in document order: video (an SPS sub-MPD), HTML, image
+# (fixtures/R5.6/forms.xml). Each class renders the first form it can.
+format: sgai-scenario/1
+criterion: R5.6
+criterion_sha256: a4c4c176daa5efaceff9544987e7bb4f76af11e0a6b7c0e6f7c5dbac72948781
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R5.6/main-capability.mpd
+fixtures:
+  - path: behaviour/fixtures/R5.6/main-capability.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R5.6/forms.xml
+    url: https://aps.example.com/behaviour/r5-6?w=1
+    class: overlay-list
+  - path: behaviour/fixtures/R5.6/cr561v.mpd
+    url: https://ads-cdn.example.com/behaviour/R5.6/cr561v.mpd
+    class: sps-mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &video
+    summary: >-
+      Two decoders: option 1, the video, 5 s to 10 s; its sub-MPD is fetched,
+      the HTML and image options are not used.
+    requests:
+      - &resolve {at: {from: 0, to: 5000}, url: "https://aps.example.com/behaviour/r5-6?w=1", answered_by: behaviour/fixtures/R5.6/forms.xml}
+      - {at: {from: 0, to: 5000}, url: "https://ads-cdn.example.com/behaviour/R5.6/cr561v.mpd", answered_by: behaviour/fixtures/R5.6/cr561v.mpd}
+    selection:
+      - opportunity: &opp {fixture: behaviour/fixtures/R5.6/main-capability.mpd, event_id: "1"}
+        result: presented
+        presented: [{candidate: &c {fixture: behaviour/fixtures/R5.6/forms.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}]
+    presentation:
+      - &before {start: 0, end: 5000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 5000, end: 10000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *c, option: {index: 1}}]}
+      - &after {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons: &imp
+      - {at: 5000, fixture: behaviour/fixtures/R5.6/forms.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=561"}
+  D2: *video
+  D3:
+    summary: >-
+      "it MUST NOT attempt to render an ad form ... its device cannot render":
+      one decoder, so the video option is passed over without fetching its
+      sub-MPD, and option 2, the HTML, is shown 5 s to 10 s.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented: [{candidate: *c, option: {index: 2}, layout: overlay-lower-third}]
+    presentation:
+      - *before
+      - {start: 5000, end: 10000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *c, option: {index: 2}}]}
+      - *after
+    beacons: *imp
+  D4:
+    summary: >-
+      No second decoder and no HTML surface: options 1 and 2 are passed over,
+      option 3, the image, is shown 5 s to 10 s.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented: [{candidate: *c, option: {index: 3}, layout: overlay-lower-third}]
+    presentation:
+      - *before
+      - {start: 5000, end: 10000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *c, option: {index: 3}}]}
+      - *after
+    beacons: *imp
+  D5:
+    summary: >-
+      No option is renderable: none is attempted, nothing is shown, no beacon
+      fires and no sub-MPD is fetched.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: declined
+        presented: []
+    presentation:
+      - {start: 0, end: 12000, layout: none, shows: [{element: primary, from: 0}]}
+    beacons: []

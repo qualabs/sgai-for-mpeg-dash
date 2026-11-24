@@ -1,0 +1,64 @@
+# R17.2 — on resume, the overlay is restored if its window is still active.
+# An overlay window 2 s to 12 s with one 10 s image lower-third, inside a
+# pause window over the first minute; the viewer pauses at 5 s and resumes at
+# 8 s, with 3 s of the overlay shown and the window still active (the
+# programme stands at 5 s of a window that runs to 12 s). The pause ad is
+# fullscreen here, so what this file decides is what happens after the
+# resume.
+format: sgai-scenario/1
+criterion: R17.2
+criterion_sha256: b31ea09d14860034a4a0c47e5273f333c6d013f0e904c361b972f3a7e69aa7f5
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 17000
+entry: behaviour/fixtures/R17.2/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R17.2/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R17.2/overlay.xml
+    url: https://aps.example.com/beh/r17-2/overlay
+    class: overlay-list
+  - path: behaviour/fixtures/R17.2/pause.xml
+    url: https://aps.example.com/beh/r17-2/pause
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 5000, do: pause}
+  - {at: 8000, do: resume}
+
+outcomes:
+  D1:
+    summary: >-
+      Decides R17.2 "the Player MUST restore the overlay rendering if the
+      overlay slot window is still active": at 8 s the lower-third is back
+      over the programme and runs its remaining 7 s to 15 s, which is also
+      where the window ends (12 s of the programme). No new resolution.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r17-2/overlay
+        answered_by: behaviour/fixtures/R17.2/overlay.xml
+      - at: {from: 0, to: 5000}
+        url: https://aps.example.com/beh/r17-2/pause
+        answered_by: behaviour/fixtures/R17.2/pause.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R17.2/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &o {fixture: behaviour/fixtures/R17.2/overlay.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+      - opportunity: {fixture: behaviour/fixtures/R17.2/main.mpd, event_id: "2"}
+        result: presented
+        presented:
+          - {candidate: &p {fixture: behaviour/fixtures/R17.2/pause.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 5000, layout: overlay-lower-third, shows: [{element: primary, from: 2000}, {element: ad, candidate: *o, option: {index: 1}}]}
+      - {start: 5000, end: 8000, layout: pause-fullscreen, shows: [{element: ad, candidate: *p, option: {index: 1}}]}
+      - {start: 8000, end: 15000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *o, option: {index: 1}}], note: the lower-third restored with its remaining 7 s}
+      - {start: 15000, end: 17000, layout: none, shows: [{element: primary, from: 12000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R17.2/overlay.xml, candidate: *o, id: "1", url: "https://t.example.com/r17-2/ov-imp"}
+      - {at: 10000, fixture: behaviour/fixtures/R17.2/overlay.xml, candidate: *o, id: "2", url: "https://t.example.com/r17-2/ov-mid"}
+      - {at: 15000, fixture: behaviour/fixtures/R17.2/overlay.xml, candidate: *o, id: "3", url: "https://t.example.com/r17-2/ov-complete"}

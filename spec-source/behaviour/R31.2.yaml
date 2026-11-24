@@ -1,0 +1,53 @@
+# R31.2 — the Player-side of the criterion (Publisher + Player): the cap
+# does not bound a pause slot. A pause window over the first minute whose
+# durationCap is 2 s; its document's one candidate is a 6 s image. The
+# viewer pauses at 2 s and resumes at 10 s.
+format: sgai-scenario/1
+criterion: R31.2
+criterion_sha256: e3765bd5739c22ae0f3ce01458372ec42023f55c74544cf95b83b99af027f4ed
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R31.2/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R31.2/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R31.2/pause.xml
+    url: https://aps.example.com/beh/r31-2/pause
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 2000, do: pause}
+  - {at: 10000, do: resume}
+
+outcomes:
+  D1: &uncapped
+    summary: >-
+      Decides R31.2 "The Publisher-declared slot cap (R4) MUST NOT be
+      interpreted as bounding the duration of a pause slot": the 6 s pause ad
+      runs its full 6 s (2 s to 8 s) under a 2 s cap, all three of its
+      beacons fire, and the paused frame stays until the resume
+      (onExhausted="stop").
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r31-2/pause
+        answered_by: behaviour/fixtures/R31.2/pause.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R31.2/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &p {fixture: behaviour/fixtures/R31.2/pause.xml, index: 1}, option: {index: 1}, layout: pause-partial}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 8000, layout: pause-partial, shows: [{element: primary, from: 2000}, {element: ad, candidate: *p, option: {index: 1}}], note: "the whole 6 s, past the 2 s cap"}
+      - {start: 8000, end: 10000, layout: none, shows: [{element: primary, from: 2000}], note: "the paused frame; still paused"}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 2000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R31.2/pause.xml, candidate: *p, id: "1", url: "https://t.example.com/r31-2/imp"}
+      - {at: 5000, fixture: behaviour/fixtures/R31.2/pause.xml, candidate: *p, id: "2", url: "https://t.example.com/r31-2/mid"}
+      - {at: 8000, fixture: behaviour/fixtures/R31.2/pause.xml, candidate: *p, id: "3", url: "https://t.example.com/r31-2/complete"}
+  D4: *uncapped

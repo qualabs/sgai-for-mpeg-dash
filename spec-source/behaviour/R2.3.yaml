@@ -1,0 +1,51 @@
+# R2.3 — the Player renders only the candidates that satisfy the
+# Publisher-declared constraints. The window admits overlay-corner only
+# (fixtures/R2.3/main.mpd); the APS returns a first candidate whose only
+# option is overlay-lower-third, then one in overlay-corner.
+format: sgai-scenario/1
+criterion: R2.3
+criterion_sha256: fad5c5ef733942f6c680d7bb7caa472220a64e8273736555d1b1d2be4d7f49c7
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 17000
+entry: behaviour/fixtures/R2.3/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R2.3/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R2.3/overlay-list.xml
+    url: https://aps.example.com/behaviour/r2-3?w=1
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &o
+    summary: >-
+      "validate the candidates in the resolution document against
+      Publisher-declared constraints and render only those that satisfy
+      them": candidate 1 (overlay-lower-third, not admitted) is never on
+      screen and fires nothing; candidate 2 (overlay-corner) is shown from the
+      window's start, 5 s to 10 s.
+    requests:
+      - at: {from: 0, to: 5000}
+        url: https://aps.example.com/behaviour/r2-3?w=1
+        query: {sgai-allowed-layouts: overlay-corner}
+        answered_by: behaviour/fixtures/R2.3/overlay-list.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R2.3/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c2 {fixture: behaviour/fixtures/R2.3/overlay-list.xml, index: 2}, option: {index: 1}, layout: overlay-corner}
+    presentation:
+      - {start: 0, end: 5000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 5000, end: 10000, layout: overlay-corner, shows: [{element: primary, from: 5000}, {element: ad, candidate: *c2, option: {index: 1}}]}
+      - {start: 10000, end: 17000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons:
+      - {at: 5000, fixture: behaviour/fixtures/R2.3/overlay-list.xml, candidate: *c2, id: "1", url: "https://t.example.com/imp?cr=232"}
+  D3: *o
+  D4: *o

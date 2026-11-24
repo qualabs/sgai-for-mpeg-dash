@@ -1,0 +1,42 @@
+# R39.3 — "When the slot declares a custom region, the Player MUST send it
+# on the resolution request together with the allowed layouts." The window
+# admits `custom` inside the region "60 5 35 30" (fixtures/R39.3/main.mpd),
+# resolved when it fires and answered by an empty resolution. The criterion
+# does not depend on whether the Player supports `custom`: D1 does, D4 does
+# not, and both send it.
+format: sgai-scenario/1
+criterion: R39.3
+criterion_sha256: 1e1b9d09019bd81c33b1ec116eba8bf09d7872c87db7a8c4221c34381a938fd0
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 6000
+entry: behaviour/fixtures/R39.3/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R39.3/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R39.3/empty.xml
+    url: https://aps.example.com/behaviour/r39-3?w=1
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 1, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &o
+    summary: >-
+      One request carrying both sgai-custom-region and sgai-allowed-layouts,
+      each with the window's value unchanged.
+    requests:
+      - at: 3000
+        url: https://aps.example.com/behaviour/r39-3?w=1
+        query: {sgai-allowed-layouts: overlay-lower-third custom, sgai-custom-region: 60 5 35 30}
+        answered_by: behaviour/fixtures/R39.3/empty.xml
+    selection:
+      - {opportunity: {fixture: behaviour/fixtures/R39.3/main.mpd, event_id: "1"}, result: declined, presented: []}
+    presentation:
+      - {start: 0, end: 6000, layout: none, shows: [{element: primary, from: 0}]}
+    beacons: []
+  D4: *o

@@ -1,0 +1,55 @@
+# R25.1 — live content: paused inside a pause window, the presentation time
+# stays frozen inside it for the whole pause, whatever the live edge does. A
+# live channel (2 s segments, 5 min time-shift buffer) with a pause window
+# from 60 s to 90 s of its timeline. Playback starts at 62 s of that
+# timeline; the viewer pauses at session 2 s (64 s of the channel) and
+# resumes 10 s later, by when the live edge has moved 10 s on.
+#
+# Observation ends 1 s after the resume: R25.1 lets the Player jump to the
+# live edge as its own action after the resume, so what follows is not this
+# criterion's.
+format: sgai-scenario/1
+criterion: R25.1
+criterion_sha256: aa49e302d5ff9972bc52563fe969df2e2d5187a0932155d730747bbf0382b6ae
+timescale: 1000
+tolerance: 250
+play_from: 62000
+observe_until: 13000
+entry: behaviour/fixtures/R25.1/live.mpd
+fixtures:
+  - path: behaviour/fixtures/R25.1/live.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R25.1/pause.xml
+    url: https://aps.example.com/beh/r25-1/pause
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 2000, do: pause}
+  - {at: 12000, do: resume}
+
+outcomes:
+  D1:
+    summary: >-
+      Decides R25.1 "the Player MUST keep its presentation time frozen inside
+      that window for the full duration of the pause, regardless of the live
+      edge advancing in wall-clock time": the paused frame under the partial
+      pause ad is the channel's 64 s for the 10 s of the pause, and playback
+      resumes from 64 s, inside the window, not from the live edge (74 s).
+    requests:
+      # @earliestResolutionTimeOffset 0: from the window's start, which
+      # precedes the start of playback; at the pause at the latest.
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r25-1/pause
+        answered_by: behaviour/fixtures/R25.1/pause.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R25.1/live.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &p {fixture: behaviour/fixtures/R25.1/pause.xml, index: 1}, option: {index: 1}, layout: pause-partial}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 62000}]}
+      - {start: 2000, end: 12000, layout: pause-partial, shows: [{element: primary, from: 64000}, {element: ad, candidate: *p, option: {index: 1}}], note: "the frame at 64 s of the channel, frozen for the whole pause"}
+      - {start: 12000, end: 13000, layout: none, shows: [{element: primary, from: 64000}], note: "resumed at the frozen position, not at the live edge"}
+    beacons: []

@@ -1,0 +1,56 @@
+# R32.2 — "Under request-again, a resolution document carrying no candidates
+# (R30) MUST be treated as stop for the remainder of that pause." The first
+# document declares request-again and one 3 s candidate
+# (fixtures/R32.2/request-again.xml); the second request is answered by an
+# empty document that also declares request-again (fixtures/R32.2/empty.xml).
+# Pause at 2 s, resume at 12 s.
+format: sgai-scenario/1
+criterion: R32.2
+criterion_sha256: 06dae8a974f90ee9dfc252963178ed638435ab2f2b16fe32b0d7b3971ebc6886
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 14000
+entry: behaviour/fixtures/R32.2/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R32.2/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R32.2/request-again.xml
+    url: https://aps.example.com/behaviour/pause?w=1
+    class: overlay-list
+  - path: behaviour/fixtures/R32.2/empty.xml
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+aps:
+  - {url: "https://aps.example.com/behaviour/pause?w=1", nth: 1, status: 200, document: behaviour/fixtures/R32.2/request-again.xml}
+  - {url: "https://aps.example.com/behaviour/pause?w=1", nth: 2, status: 200, document: behaviour/fixtures/R32.2/empty.xml}
+actions: [{at: 2000, do: pause}, {at: 12000, do: resume}]
+
+outcomes:
+  D1: &o
+    summary: >-
+      The candidate 2-5 s; a second request at 5 s returns no candidates; no
+      third request for the rest of the pause, although that document also
+      says request-again; the paused frame 5-12 s; the film continues from
+      2 s.
+    requests:
+      - {at: {from: 0, to: 2000}, url: "https://aps.example.com/behaviour/pause?w=1", answered_by: behaviour/fixtures/R32.2/request-again.xml}
+      - {at: 5000, url: "https://aps.example.com/behaviour/pause?w=1", answered_by: behaviour/fixtures/R32.2/empty.xml}
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R32.2/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c {fixture: behaviour/fixtures/R32.2/request-again.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 5000, layout: pause-fullscreen, shows: [{element: ad, candidate: *c, option: {index: 1}}]}
+      - {start: 5000, end: 12000, layout: none, shows: [{element: primary, from: 2000}], note: the paused frame}
+      - {start: 12000, end: 14000, layout: none, shows: [{element: primary, from: 2000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R32.2/request-again.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=3221"}
+  D3: *o
+  D4: *o

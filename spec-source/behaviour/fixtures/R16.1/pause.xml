@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011"
+                  xmlns:svta="urn:svta:dash:sgai:2026"
+                  family="pause"
+                  dismissAfter="never"
+                  onExhausted="stop">
+  <svta:Ad>
+    <svta:RenderableAsset
+                              src="https://ads-cdn.example.com/beh/r16-1/pause.png"
+                              mimeType="image/png"
+                              duration="PT20S"
+                              layout="pause-fullscreen"/>
+  </svta:Ad>
+</svta:OverlayList>

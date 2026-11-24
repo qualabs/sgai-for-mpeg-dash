@@ -1,0 +1,71 @@
+# R40.5 — an `on-top` window composited over the alternative presentation,
+# its cap accruing on that presentation's timeline. A 10 s insertion at 4 s;
+# an overlay window 4 s to 14 s of the programme, `on-top`, cap 6 s; its
+# one candidate a 15 s image. During the insertion the programme's timeline
+# stands still (RT = PRTA), so only the linear ad's timeline can bring the
+# cap to 6 s.
+format: sgai-scenario/1
+criterion: R40.5
+criterion_sha256: 3eec88e9ab16f18779cfe0127eeca0034f9f60e89391850eca526ce01706b85f
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 16000
+entry: behaviour/fixtures/R40.5/main-cap.mpd
+fixtures:
+  - path: behaviour/fixtures/R40.5/main-cap.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R40.5/overlay.xml
+    url: https://aps.example.com/beh/r40-5/overlay
+    class: overlay-list
+  - path: behaviour/fixtures/R40.5/list.mpd
+    url: https://aps.example.com/beh/r40-5/break
+    class: list-mpd
+  - path: behaviour/fixtures/R40.5/ad.mpd
+    url: https://ads-cdn.example.com/beh/r40-5/ad.mpd
+    class: sps-mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &capped
+    summary: >-
+      Decides R40.5 "A window that declares on top is composited over the
+      alternative presentation ... While composited, the window's cap accrues
+      on that presentation's timeline (R4.11)": the image over the linear ad
+      from 4 s, trimmed at 10 s when 6 s of the linear ad have played; the
+      linear ad alone to 14 s; nothing after the break, the cap being spent.
+    requests:
+      # Both @earliestResolutionTimeOffset 4 s before 4 s: from the start.
+      - at: {from: 0, to: 4000}
+        url: https://aps.example.com/beh/r40-5/break
+        answered_by: behaviour/fixtures/R40.5/list.mpd
+      - at: {from: 0, to: 4000}
+        url: https://ads-cdn.example.com/beh/r40-5/ad.mpd
+        answered_by: behaviour/fixtures/R40.5/ad.mpd
+      - at: {from: 0, to: 4000}
+        url: https://aps.example.com/beh/r40-5/overlay
+        answered_by: behaviour/fixtures/R40.5/overlay.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R40.5/main-cap.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &lin {fixture: behaviour/fixtures/R40.5/list.mpd, id: ad-1}, option: null, layout: linear}
+      - opportunity: {fixture: behaviour/fixtures/R40.5/main-cap.mpd, event_id: "2"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R40.5/overlay.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+    presentation:
+      - {start: 0, end: 4000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 4000, end: 10000, layout: overlay-lower-third, shows: [{element: ad, candidate: *lin, option: null}, {element: ad, candidate: *a, option: {index: 1}}], note: "the image over the linear ad, not over the programme"}
+      - {start: 10000, end: 14000, layout: linear, shows: [{element: ad, candidate: *lin, option: null}], note: "cap of 6 s reached on the linear ad's timeline"}
+      - {start: 14000, end: 16000, layout: none, shows: [{element: primary, from: 4000}]}
+    beacons:
+      - {at: 4000, fixture: behaviour/fixtures/R40.5/ad.mpd, id: "1", url: "https://t.example.com/r40-5/imp"}
+      - {at: 4000, fixture: behaviour/fixtures/R40.5/overlay.xml, candidate: *a, id: "1", url: "https://t.example.com/r40-5/a-imp"}
+      - {at: 7000, fixture: behaviour/fixtures/R40.5/overlay.xml, candidate: *a, id: "2", url: "https://t.example.com/r40-5/a-3s"}
+      - {at: 14000, fixture: behaviour/fixtures/R40.5/ad.mpd, id: "2", url: "https://t.example.com/r40-5/complete"}
+  D4: *capped

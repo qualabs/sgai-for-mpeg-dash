@@ -1,0 +1,56 @@
+# R12.5 — `linear` offered by a non-linear candidate: "the ad takes over the
+# primary content surface for the slot". An overlay window at 2 s that admits
+# only `linear`; its candidate is a 4 s video takeover. On a static
+# presentation the primary content is suspended and resumed where it was
+# (spec §5.3.6, the `linear` row), so it shows 2 s again at 6 s.
+format: sgai-scenario/1
+criterion: R12.5
+criterion_sha256: a6d320b9a5bf5ae07c1e23cbb907354b2b9839cc8f70b409499e1343f6087cdb
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 8000
+entry: behaviour/fixtures/R12.5/main-takeover.mpd
+fixtures:
+  - path: behaviour/fixtures/R12.5/main-takeover.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R12.5/takeover.xml
+    url: https://aps.example.com/beh/r12-5/takeover
+    class: overlay-list
+  - path: behaviour/fixtures/R12.5/takeover.mpd
+    url: https://ads-cdn.example.com/beh/r12-5/takeover.mpd
+    class: sps-mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  # The takeover reuses the one decoder sequentially: every class (§5.3.7).
+  D1: &takeover
+    summary: >-
+      Decides R12.5 "`linear`: the ad takes over the primary content surface
+      for the slot": from 2 s to 6 s only the ad is on screen, over the whole
+      viewport.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r12-5/takeover
+        query: {sgai-allowed-layouts: linear}
+        answered_by: behaviour/fixtures/R12.5/takeover.xml
+      - at: {from: 0, to: 2000}
+        url: https://ads-cdn.example.com/beh/r12-5/takeover.mpd
+        answered_by: behaviour/fixtures/R12.5/takeover.mpd
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R12.5/main-takeover.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &t {fixture: behaviour/fixtures/R12.5/takeover.xml, index: 1}, option: {index: 1}, layout: linear}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 6000, layout: linear, shows: [{element: ad, candidate: *t, option: {index: 1}}]}
+      - {start: 6000, end: 8000, layout: none, shows: [{element: primary, from: 2000}]}
+    beacons: []
+    geometry:
+      - {at: 4000, tolerance: 1, ad: {x: 0, y: 0, width: 100, height: 100}}
+  D5: *takeover

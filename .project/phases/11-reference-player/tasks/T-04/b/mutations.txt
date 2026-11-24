@@ -1,0 +1,87 @@
+baseline exit 1; findings naming the tests broken below: 0
+ok  R2.3     exit=1 want=S-REF     got=S-REF                expected candidate 3, which the document lacks
+      S-REF	R2.3.yaml	outcomes.D1.selection[0].presented[0]: no candidate #3 in behaviour/fixtures/R2.3/overlay-list.xml
+      S-REF	R2.3.yaml	outcomes.D1.presentation[1].shows[1]: no candidate #3 in behaviour/fixtures/R2.3/overlay-list.xml
+ok  R2.3     exit=1 want=S-FIXTURE got=S-FIXTURE            fixture: a layout outside the token enumeration
+      S-FIXTURE	R2.3.yaml	behaviour/fixtures/R2.3/overlay-list.xml is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 22 of the markdown: Element '{urn:svta:dash:sgai:2026}RenderableAsset
+      S-FIXTURE	R2.3.yaml	behaviour/fixtures/R2.3/overlay-list.xml is not green: R12.3: @layout='overlay-corners' is outside the R12.2 tokens
+XX  R2.3     exit=1 want=GREEN     got=S-REF                BEHAVIOURAL: expects the non-admitted candidate 1
+      S-REF	R2.3.yaml	outcomes.D1.beacons[0]: url https://t.example.com/imp?cr=232 is not the event's text https://t.example.com/imp?cr=231
+      S-REF	R2.3.yaml	outcomes.D3.beacons[0]: url https://t.example.com/imp?cr=232 is not the event's text https://t.example.com/imp?cr=231
+ok  R5.3     exit=1 want=S-REF     got=S-REF                beacon URL not the event's text
+      S-REF	R5.3.yaml	outcomes.D4.beacons[0]: url https://t.example.com/imp?cr=533 is not the event's text https://t.example.com/imp?cr=532
+ok  R5.3     exit=1 want=S-TIME    got=S-TIME               D4 presentation leaves a gap
+      S-TIME	R5.3.yaml	outcomes.D4.presentation[2] starts at 11000, expected 10000 (segments tile [0, observe_until] in order)
+ok  R5.6-1   exit=1 want=S-REF     got=S-REF                D4 expects option 4, which does not exist
+      S-REF	R5.6-1.yaml	outcomes.D4.selection[0].presented[0].option: no option {'index': 4} in that candidate
+ok  R5.6-1   exit=1 want=S-FIXTURE got=S-FIXTURE            fixture: sub-MPD duration not an xs:duration
+      S-FIXTURE	R5.6-1.yaml	behaviour/fixtures/R5.6/cr561v.mpd is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 7 of the markdown: Element '{urn:mpeg:dash:schema:mpd:2011}Period', attri
+      S-FIXTURE	R5.6-1.yaml	behaviour/fixtures/R5.6/cr561v.mpd is not green: E-4: invalid after removing other namespaces: line 7 of the markdown: Element '{urn:mpeg:dash:schema:mpd:2011}Period', attribute 
+ok  R5.6-1   exit=1 want=GREEN     got=GREEN                BEHAVIOURAL: D4 expected to render the video option
+ok  R5.6-2   exit=1 want=S-REF     got=S-REF                query names a parameter that is no slot parameter
+      S-REF	R5.6-2.yaml	outcomes.D1.requests[0].query: sgai-allowed-layout is neither a slot parameter nor in sends_capabilities
+      S-REF	R5.6-2.yaml	outcomes.D3.requests[0].query: sgai-allowed-layout is neither a slot parameter nor in sends_capabilities
+ok  R5.6-3   exit=1 want=S-LAYOUT  got=S-LAYOUT             layout not an R12.2 token
+      S-LAYOUT	R5.6-3.yaml	outcomes.D1: layout 'corner' is not an R12.2 token
+      S-LAYOUT	R5.6-3.yaml	outcomes.D3: layout 'corner' is not an R12.2 token
+ok  R5.9     exit=1 want=B-SCHEMA  got=B-SCHEMA             aps status below 100
+      B-SCHEMA	R5.9.yaml	aps/0/status: 99 is less than the minimum of 100
+ok  R5.9     exit=1 want=GREEN     got=GREEN                BEHAVIOURAL: expects the failed option 1
+ok  R29.2    exit=1 want=S-REF     got=S-REF                a capability parameter not in sends_capabilities
+      S-REF	R29.2.yaml	outcomes.D1.requests[1].query: sgai-video-decoders is neither a slot parameter nor in sends_capabilities
+      S-REF	R29.2.yaml	outcomes.D4.requests[1].query: sgai-video-decoders is neither a slot parameter nor in sends_capabilities
+ok  R29.2    exit=1 want=GREEN     got=GREEN                BEHAVIOURAL: window 2 expected to send a region it does not declare
+ok  R29.4    exit=1 want=S-REF     got=S-REF                query expects an unprefixed Player parameter
+      S-REF	R29.4.yaml	outcomes.D1.requests[0].query: model is neither a slot parameter nor in sends_capabilities
+      S-REF	R29.4.yaml	outcomes.D4.requests[0].query: model is neither a slot parameter nor in sends_capabilities
+ok  R32.1-1  exit=1 want=S-FIXTURE got=S-FIXTURE            fixture: onExhausted outside its enumeration
+      S-FIXTURE	R32.1-1.yaml	behaviour/fixtures/R32.1/repeat.xml is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 6 of the markdown: Element '{urn:svta:dash:sgai:2026}OverlayList', attr
+ok  R32.1-2  exit=1 want=S-FIXTURE got=S-FIXTURE            fixture: pause document without onExhausted (the 'declares none' case)
+      S-FIXTURE	R32.1-2.yaml	behaviour/fixtures/R32.1/second.xml is not green: R32.1a: pause document without @onExhausted
+ok  R32.1-3  exit=1 want=S-TIME    got=S-TIME               presentation leaves a gap
+      S-TIME	R32.1-3.yaml	outcomes.D1.presentation[3] starts at 8000, expected 7000 (segments tile [0, observe_until] in order)
+      S-TIME	R32.1-3.yaml	outcomes.D3.presentation[3] starts at 8000, expected 7000 (segments tile [0, observe_until] in order)
+ok  R32.2    exit=1 want=B-SCHEMA  got=B-SCHEMA             aps nth below 1
+      B-SCHEMA	R32.2.yaml	aps/1/nth: 0 is less than the minimum of 1
+ok  R32.2    exit=1 want=GREEN     got=GREEN                BEHAVIOURAL: the empty document read as request-again, candidate shown again
+ok  R34.1    exit=1 want=S-FIXTURE got=S-FIXTURE            fixture: executeOnce not an xs:boolean
+      S-FIXTURE	R34.1.yaml	behaviour/fixtures/R34.1/main.mpd is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 16 of the markdown: Element '{urn:svta:dash:sgai:2026}PauseAdPresentation',
+ok  R34.3    exit=2 want=B-HASH    got=B-HASH               stale criterion hash
+      B-HASH	R34.3.yaml	criterion_sha256 000da27caec1… is not R34.3's 778da27caec1…: the criterion changed
+ok  R34.6    exit=1 want=B-SCHEMA  got=B-SCHEMA             seek without `to`
+      B-SCHEMA	R34.6.yaml	actions/0: 'to' is a required property
+ok  R34.9    exit=1 want=S-TIME    got=S-TIME               beacon after observe_until
+      S-TIME	R34.9.yaml	outcomes.D1.beacons[1].at: 20000 is after observe_until 17000
+      S-TIME	R34.9.yaml	outcomes.D3.beacons[1].at: 20000 is after observe_until 17000
+ok  R34.9    exit=1 want=S-TIME    got=S-TIME               BEHAVIOURAL (partial): A cut to 5 s leaves a gap
+      S-TIME	R34.9.yaml	outcomes.D1.presentation[1] starts at 10000, expected 5000 (segments tile [0, observe_until] in order)
+      S-TIME	R34.9.yaml	outcomes.D3.presentation[1] starts at 10000, expected 5000 (segments tile [0, observe_until] in order)
+ok  R34.10   exit=1 want=B-SCHEMA  got=B-SCHEMA             negative aps delay
+      B-SCHEMA	R34.10.yaml	aps/0/delay: -1 is less than the minimum of 0
+ok  R36.1-1  exit=1 want=S-TIME    got=S-TIME               request window from > to
+      S-TIME	R36.1-1.yaml	outcomes.D1.requests[0].at: from 11000 > to 10000
+      S-TIME	R36.1-1.yaml	outcomes.D4.requests[0].at: from 11000 > to 10000
+ok  R36.1-1  exit=1 want=GREEN     got=GREEN                BEHAVIOURAL: request allowed before the offset
+ok  R36.1-2  exit=1 want=S-FIXTURE got=S-FIXTURE            fixture: negative offset
+      S-FIXTURE	R36.1-2.yaml	behaviour/fixtures/R36.1/main-zero.mpd is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 16 of the markdown: Element '{urn:svta:dash:sgai:2026}OverlayPresent
+ok  R36.1-3  exit=1 want=S-TIME    got=S-TIME               action after observe_until
+      S-TIME	R36.1-3.yaml	action seek at 20000 is after observe_until
+ok  R36.5-1  exit=1 want=S-FIXTURE got=S-FIXTURE            fixture: validFor not an xs:duration
+      S-FIXTURE	R36.5-1.yaml	behaviour/fixtures/R36.5/second.xml is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 7 of the markdown: Element '{urn:svta:dash:sgai:2026}OverlayList', attr
+ok  R36.5-2  exit=1 want=S-REF     got=S-REF                opportunity names an Event the MPD lacks
+      S-REF	R36.5-2.yaml	outcomes.D1.selection[0].opportunity: no Event @id=2 in behaviour/fixtures/R36.5/main.mpd
+      S-REF	R36.5-2.yaml	outcomes.D1.selection[1].opportunity: no Event @id=2 in behaviour/fixtures/R36.5/main.mpd
+ok  R38.2    exit=1 want=S-FIXTURE got=S-FIXTURE            aps serves a document that is not a fixture
+      S-FIXTURE	R38.2.yaml	aps[0].document: behaviour/fixtures/R38.2/none.xml is not a fixture of this vector
+ok  R38.2    exit=1 want=GREEN     got=GREEN                BEHAVIOURAL: expects the set reordered
+ok  R39.3    exit=1 want=S-FIXTURE got=S-FIXTURE            fixture: region with three numbers
+      S-FIXTURE	R39.3.yaml	behaviour/fixtures/R39.3/main.mpd is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 18 of the markdown: Element '{urn:svta:dash:sgai:2026}OverlayPresentation',
+      S-FIXTURE	R39.3.yaml	behaviour/fixtures/R39.3/main.mpd is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 18 of the markdown: Element '{urn:svta:dash:sgai:2026}OverlayPresentation',
+ok  R39.5-1  exit=1 want=S-GEOM    got=S-GEOM               geometry past the viewport
+      S-GEOM	R39.5-1.yaml	outcomes.D1.geometry[0].ad: extends past the viewport
+ok  R39.5-1  exit=1 want=S-FIXTURE got=S-FIXTURE            fixture: rectangle past the viewport (R39.4b)
+      S-FIXTURE	R39.5-1.yaml	behaviour/fixtures/R39.5/region.xml is not green: R39.4b: @rect='45 60 60 20' extends beyond the viewport, so beyond any region
+ok  R39.5-1  exit=1 want=GREEN     got=GREEN                BEHAVIOURAL: expects option 1's rectangle
+ok  R39.5-2  exit=1 want=S-GEOM    got=S-GEOM               geometry at an instant with no ad on screen
+      S-GEOM	R39.5-2.yaml	outcomes.D1.geometry[0].ad: the presentation shows no ad at 11000
+39 mutations, 1 not as expected

@@ -1,0 +1,53 @@
+# R19.3 — an image's declared duration is on the presentation timeline: on
+# screen for `duration / playback_speed`, while the cap and the beacon
+# schedule count the declared duration. The viewer sets the rate to 2 at the
+# start. An overlay window 4 s to 24 s of the programme with a cap of 8 s; two
+# 8 s image candidates, A and B.
+format: sgai-scenario/1
+criterion: R19.3
+criterion_sha256: 720a680e1bdadb854141ed4befd357dbea16493efc7d07cf0e8047bae807dcd3
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 14000
+entry: behaviour/fixtures/R19.3/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R19.3/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R19.3/overlay.xml
+    url: https://aps.example.com/beh/r19-3/overlay
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 0, do: rate, rate: 2}
+
+outcomes:
+  D1: &halved
+    summary: >-
+      Decides R19.3 "Its effective on-screen (wall-clock) length MUST be
+      `duration / playback_speed`, not the raw `duration` value; the cap
+      (R4.11) and the beacon schedule (R13.1) operate on the
+      presentation-timeline `duration`": A is on screen 4 s (2 s to 6 s), its
+      4 s beacon fires 2 s in, and A alone uses the 8 s cap, so B is not
+      presented although the window runs to 12 s of the session.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r19-3/overlay
+        answered_by: behaviour/fixtures/R19.3/overlay.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R19.3/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R19.3/overlay.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 6000, layout: overlay-lower-third, shows: [{element: primary, from: 4000}, {element: ad, candidate: *a, option: {index: 1}}], note: an 8 s image at rate 2}
+      - {start: 6000, end: 14000, layout: none, shows: [{element: primary, from: 12000}], note: the cap is spent; B is not presented}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R19.3/overlay.xml, candidate: *a, id: "1", url: "https://t.example.com/r19-3/a-imp"}
+      - {at: 4000, fixture: behaviour/fixtures/R19.3/overlay.xml, candidate: *a, id: "2", url: "https://t.example.com/r19-3/a-mid"}
+      - {at: 6000, fixture: behaviour/fixtures/R19.3/overlay.xml, candidate: *a, id: "3", url: "https://t.example.com/r19-3/a-complete"}
+  D4: *halved

@@ -1,0 +1,62 @@
+# R26.1 — the Player-side of the criterion (its holder is APS + Publisher;
+# what the APS writes is level 2's): "The primary content and the ad MUST be
+# composed as the two boxes; the background element MUST fill the bands the
+# two boxes leave uncovered, and with no background those bands MUST render
+# as black." One overlay window 2 s to 10 s; two 4 s image candidates, a
+# double box without background and one with it.
+#
+# Geometry as in R12.5-1 (boxes of 25% of the area: 50% x 50%, centred
+# vertically) [inferred, see R12.5-1]. With the background the ad layer's
+# bounding box is the whole frame. That the bands are BLACK without it is
+# not expressible: the schema places rectangles, not colours, so the
+# `squeezeback-double-box` geometry only says nothing of the ad layer lies
+# outside the right box.
+format: sgai-scenario/1
+criterion: R26.1
+criterion_sha256: 731ef6671dc365c2356dbff0fd806f9d02197fc7587ff9f0ebf47d1b853e2c7c
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R26.1/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R26.1/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R26.1/overlay.xml
+    url: https://aps.example.com/beh/r26-1/overlay
+    class: overlay-list
+# Image ad, image background: one decoder and an image surface (§5.3.7).
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &boxes
+    summary: >-
+      Decides R26.1's composition: from 2 s the programme in the left box and
+      the ad in the right box with black bands; from 6 s the same two boxes
+      over the advertiser's background, which fills the bands.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r26-1/overlay
+        answered_by: behaviour/fixtures/R26.1/overlay.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R26.1/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R26.1/overlay.xml, index: 1}, option: {index: 1}, layout: squeezeback-double-box}
+          - {candidate: &b {fixture: behaviour/fixtures/R26.1/overlay.xml, index: 2}, option: {index: 1}, layout: squeezeback-double-box-background}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 6000, layout: squeezeback-double-box, shows: [{element: primary, from: 2000, region: centre-left 25%}, {element: ad, candidate: *a, option: {index: 1}, region: centre-right 25%}], note: "the uncovered bands black; no background element"}
+      - {start: 6000, end: 10000, layout: squeezeback-double-box-background, shows: [{element: background}, {element: primary, from: 6000, region: centre-left 25%}, {element: ad, candidate: *b, option: {index: 1}, region: centre-right 25%}], note: "the background image fills the bands"}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons: []
+    geometry:
+      - {at: 4000, tolerance: 1, primary: {x: 0, y: 25, width: 50, height: 50}, ad: {x: 50, y: 25, width: 50, height: 50}}
+      - {at: 8000, tolerance: 1, primary: {x: 0, y: 25, width: 50, height: 50}, ad: {x: 0, y: 0, width: 100, height: 100}}
+  D3: *boxes
+  D4: *boxes

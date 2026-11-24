@@ -1,0 +1,49 @@
+# R12.5 — `pause-fullscreen`: "the pause-ad occupies the entire screen
+# surface". A pause window over the first minute; the viewer pauses at 3 s
+# and resumes at 6 s; the document's one candidate is a 10 s image with
+# that token.
+format: sgai-scenario/1
+criterion: R12.5
+criterion_sha256: a6d320b9a5bf5ae07c1e23cbb907354b2b9839cc8f70b409499e1343f6087cdb
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 8000
+entry: behaviour/fixtures/R12.5/main-pause.mpd
+fixtures:
+  - path: behaviour/fixtures/R12.5/main-pause.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R12.5/pause-fullscreen.xml
+    url: https://aps.example.com/beh/r12-5/pause
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 3000, do: pause}
+  - {at: 6000, do: resume}
+
+outcomes:
+  D1:
+    summary: >-
+      Decides R12.5 "`pause-fullscreen`: the pause-ad occupies the entire
+      screen surface": while paused only the ad is on screen, over the whole
+      viewport.
+    requests:
+      # The window carries the default @earliestResolutionTimeOffset (60 s):
+      # resolved from the start, or at the pause at the latest.
+      - at: {from: 0, to: 3000}
+        url: https://aps.example.com/beh/r12-5/pause
+        answered_by: behaviour/fixtures/R12.5/pause-fullscreen.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R12.5/main-pause.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &p {fixture: behaviour/fixtures/R12.5/pause-fullscreen.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+    presentation:
+      - {start: 0, end: 3000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 3000, end: 6000, layout: pause-fullscreen, shows: [{element: ad, candidate: *p, option: {index: 1}}]}
+      - {start: 6000, end: 8000, layout: none, shows: [{element: primary, from: 3000}]}
+    beacons: []
+    geometry:
+      - {at: 4500, tolerance: 1, ad: {x: 0, y: 0, width: 100, height: 100}}

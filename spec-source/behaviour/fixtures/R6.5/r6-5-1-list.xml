@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011"
+                  xmlns:svta="urn:svta:dash:sgai:2026"
+                  family="overlay"
+                  dismissAfter="PT5S">
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/b/r6-5-1/c1.png"
+                          mimeType="image/png" duration="PT4S" layout="overlay-lower-third"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/r6-5-1/c1-imp</Event>
+      <Event presentationTime="1000" id="3">https://t.example.com/r6-5-1/c1-same-url</Event>
+      <Event presentationTime="1000" id="4">https://t.example.com/r6-5-1/c1-same-url</Event>
+      <Event presentationTime="2000" id="2">https://t.example.com/r6-5-1/c1-mid</Event>
+      <Event presentationTime="3000" id="2">https://t.example.com/r6-5-1/c1-mid-again</Event>
+    </svta:Tracking>
+  </svta:Ad>
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/b/r6-5-1/c2.png"
+                          mimeType="image/png" duration="PT4S" layout="overlay-lower-third"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/r6-5-1/c2-imp</Event>
+    </svta:Tracking>
+  </svta:Ad>
+</svta:OverlayList>

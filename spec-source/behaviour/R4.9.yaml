@@ -1,0 +1,64 @@
+# R4.9 — the declared duration is converted to the cap's timescale and rounded UP.
+# Loaded: an overlay window on an EventStream of timescale 1 (whole seconds),
+# @presentationTime 2, @duration 20, @durationCap 11; two image candidates,
+# PT10.2S and PT5S. Rounded up, candidate 1 counts 11 = the cap: admitted, and
+# nothing remains for candidate 2. A Player that does not round (10.2) or rounds
+# down (10) shows candidate 2 for 0.8 s or 1 s from 12.2 s.
+format: sgai-scenario/1
+criterion: R4.9
+criterion_sha256: beddf69abded3f145e7d0ebbbae60c244f7e26c657a33d858bcf5f1df012a5ea
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 15000
+entry: behaviour/fixtures/R4.9/r4-9-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R4.9/r4-9-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R4.9/r4-9-list.xml, url: 'https://aps.example.com/b/r4-9/w', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D4:
+    summary: 'R4.9: "The Player MUST convert the candidate''s duration into the cap''s timescale before comparing the two, and MUST
+      round the converted value **up** to the next whole unit of that timescale. A candidate whose converted duration equals the cap
+      exactly is admitted." Timescale 1, cap 11: candidate 1 (PT10.2S) converts to 11, equal to the cap, and is shown whole (2-12.2
+      s); the cumulative duration has then reached the cap, so candidate 2 gets nothing.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r4-9/w
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R4.9/r4-9-list.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R4.9/r4-9-main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R4.9/r4-9-list.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 2000
+      end: 12200
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 2000}
+      - element: ad
+        candidate: *id001
+        option: {index: 1}
+    - start: 12200
+      end: 15000
+      layout: none
+      shows:
+      - {element: primary, from: 12200}
+    beacons:
+    - at: 2000
+      fixture: behaviour/fixtures/R4.9/r4-9-list.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/r4-9/c1-imp

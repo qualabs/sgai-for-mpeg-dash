@@ -1,0 +1,5 @@
+$ (scratch copy of spec-source/ with behaviour/R4.10.yaml and an overlay window lacking @durationCap)
+$ python3 bin/check-behaviour.py --source <scratch>  | grep R4.10
+S-FIXTURE	R4.10.yaml	behaviour/fixtures/R4.10/r4-10-main.mpd is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 15 of the markdown: Element '{urn:svta:dash:sgai:2026}OverlayPresentation': The attribute 'durationCap' is required but missing.
+S-FIXTURE	R4.10.yaml	behaviour/fixtures/R4.10/r4-10-main.mpd is not green: R4.1: overlay window without @durationCap
+R4.10.yaml	D4	NOT_VERIFIABLE — no executor

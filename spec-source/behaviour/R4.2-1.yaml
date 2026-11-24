@@ -1,0 +1,84 @@
+# R4.2 on an overlay slot — the cumulative cap stops the second candidate mid-ad.
+# Loaded: one overlay window (2-22 s, @durationCap 8000 at timescale 1000), its
+# document two 5 s image candidates. A Player that drops a candidate on its
+# declared duration ends the ad at 7 s; one that ignores the cap shows the second
+# until 12 s and fires its complete beacon.
+format: sgai-scenario/1
+criterion: R4.2
+criterion_sha256: 8ba33c5fd2d42cd56759784ec006b996d736085e2c4dea0180b855808174f53d
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R4.2/r4-2-1-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R4.2/r4-2-1-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R4.2/r4-2-1-list.xml, url: 'https://aps.example.com/b/r4-2-1/w', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D4:
+    summary: 'R4.2: "the Player MUST stop rendering once the cumulative duration of the accepted candidates would exceed it, even if
+      the stop falls mid-ad. A candidate whose declared duration would push the cumulative duration past the cap is played and stopped
+      at the cap". Cap 8 s, two 5 s image candidates: the first whole (2-7 s), the second from 7 s and stopped at 10 s, its complete
+      beacon not fired.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r4-2-1/w
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R4.2/r4-2-1-list.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R4.2/r4-2-1-main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R4.2/r4-2-1-list.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+      - candidate: &id002 {fixture: behaviour/fixtures/R4.2/r4-2-1-list.xml, index: 2}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 2000
+      end: 7000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 2000}
+      - element: ad
+        candidate: *id001
+        option: {index: 1}
+    - start: 7000
+      end: 10000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 7000}
+      - element: ad
+        candidate: *id002
+        option: {index: 1}
+    - start: 10000
+      end: 12000
+      layout: none
+      shows:
+      - {element: primary, from: 10000}
+    beacons:
+    - at: 2000
+      fixture: behaviour/fixtures/R4.2/r4-2-1-list.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/r4-2-1/c1-imp
+    - at: 7000
+      fixture: behaviour/fixtures/R4.2/r4-2-1-list.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.com/r4-2-1/c1-complete
+    - at: 7000
+      fixture: behaviour/fixtures/R4.2/r4-2-1-list.xml
+      candidate: *id002
+      id: '1'
+      url: https://t.example.com/r4-2-1/c2-imp

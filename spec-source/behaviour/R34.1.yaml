@@ -1,0 +1,57 @@
+# R34.1 — the pause half: "on a pause window, at most one pause ad MUST be
+# presented for that window for the duration of the session, and a later
+# qualifying pause inside the same window MUST leave the primary content
+# uninterrupted." A pause window over the first 60 s with
+# executeOnce="true" (fixtures/R34.1/main.mpd); one 3 s candidate, stop
+# (fixtures/R34.1/pause-list.xml). Pauses at 2 s (resumed at 6 s) and at 9 s
+# (resumed at 11 s).
+# The overlay and squeezeback half is not written: the overlay window
+# carries no once-per-session declaration in spec-source (@executeOnce is
+# on svta:PauseAdPresentation only; see the evidence README, T-04/b).
+# R34.1 is held by the Publisher; what is tested is what the declaration
+# obliges the Player to do.
+format: sgai-scenario/1
+criterion: R34.1
+criterion_sha256: 306331e1a30e17bcf9dbacd3b0ba77093f8424da14b444491c5f1f020768a8ec
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 13000
+entry: behaviour/fixtures/R34.1/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R34.1/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R34.1/pause-list.xml
+    url: https://aps.example.com/behaviour/pause-once?w=1
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: [{at: 2000, do: pause}, {at: 6000, do: resume}, {at: 9000, do: pause}, {at: 11000, do: resume}]
+
+outcomes:
+  D1: &o
+    summary: >-
+      The first pause shows the candidate 2-5 s and then the paused frame;
+      the second pause (main 5 s) shows only the paused frame, fires no
+      beacon and makes no request; the film continues from 5 s.
+    requests:
+      - {at: {from: 0, to: 2000}, url: "https://aps.example.com/behaviour/pause-once?w=1", answered_by: behaviour/fixtures/R34.1/pause-list.xml}
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R34.1/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c {fixture: behaviour/fixtures/R34.1/pause-list.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 5000, layout: pause-fullscreen, shows: [{element: ad, candidate: *c, option: {index: 1}}]}
+      - {start: 5000, end: 6000, layout: none, shows: [{element: primary, from: 2000}], note: the paused frame}
+      - {start: 6000, end: 9000, layout: none, shows: [{element: primary, from: 2000}]}
+      - {start: 9000, end: 11000, layout: none, shows: [{element: primary, from: 5000}], note: "the second pause: the paused frame and nothing else"}
+      - {start: 11000, end: 13000, layout: none, shows: [{element: primary, from: 5000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R34.1/pause-list.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=3411"}
+  D3: *o
+  D4: *o

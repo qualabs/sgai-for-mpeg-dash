@@ -1,0 +1,41 @@
+# R34.10 — "A resolution that arrives after the window it was requested for
+# has ended MUST NOT be presented; the Player discards it." An overlay window
+# 5-10 s resolved when it fires (fixtures/R34.10/main.mpd); the APS answers
+# 7 s after the request, at 12 s, two seconds after the window ended.
+format: sgai-scenario/1
+criterion: R34.10
+criterion_sha256: 4a7f104601ff7f0fb7487d1fb25dda5ac4faa517d7974e464a3e339ef7c1c305
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 15000
+entry: behaviour/fixtures/R34.10/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R34.10/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R34.10/overlay-list.xml
+    url: https://aps.example.com/behaviour/r34-10?w=1
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+aps:
+  - {url: "https://aps.example.com/behaviour/r34-10?w=1", status: 200, document: behaviour/fixtures/R34.10/overlay-list.xml, delay: 7000}
+actions: []
+
+outcomes:
+  D1: &o
+    summary: >-
+      The document arrives at 12 s, after the window's end at 10 s: nothing is
+      shown at any time, no beacon fires, the film plays uninterrupted.
+    requests:
+      - {at: 5000, url: "https://aps.example.com/behaviour/r34-10?w=1", answered_by: behaviour/fixtures/R34.10/overlay-list.xml}
+    selection:
+      - {opportunity: {fixture: behaviour/fixtures/R34.10/main.mpd, event_id: "1"}, result: declined, presented: []}
+    presentation:
+      - {start: 0, end: 15000, layout: none, shows: [{element: primary, from: 0}]}
+    beacons: []
+  D3: *o
+  D4: *o

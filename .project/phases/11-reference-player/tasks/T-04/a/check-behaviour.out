@@ -1,0 +1,181 @@
+B-COVER	R4.5	no test and no entry in index.yaml
+B-COVER	R4.10	no test and no entry in index.yaml
+B-COVER	R28.1	no test and no entry in index.yaml
+B-COVER	R28.2	no test and no entry in index.yaml
+R1.4.yaml	D1	NOT_VERIFIABLE — no executor
+R12.5-1.yaml	D1	NOT_VERIFIABLE — no executor
+R12.5-2.yaml	D1	NOT_VERIFIABLE — no executor
+R12.5-3.yaml	D1	NOT_VERIFIABLE — no executor
+R12.5-4.yaml	D1	NOT_VERIFIABLE — no executor
+R12.5-4.yaml	D5	NOT_VERIFIABLE — no executor
+R13.1.yaml	D4	NOT_VERIFIABLE — no executor
+R13.3-1.yaml	D4	NOT_VERIFIABLE — no executor
+R13.3-2.yaml	D4	NOT_VERIFIABLE — no executor
+R13.3-3.yaml	D4	NOT_VERIFIABLE — no executor
+R13.6.yaml	D3	NOT_VERIFIABLE — no executor
+R13.6.yaml	D4	NOT_VERIFIABLE — no executor
+R16.1.yaml	D1	NOT_VERIFIABLE — no executor
+R17.1.yaml	D1	NOT_VERIFIABLE — no executor
+R17.2.yaml	D1	NOT_VERIFIABLE — no executor
+R17.5.yaml	D1	NOT_VERIFIABLE — no executor
+R19.1.yaml	D1	NOT_VERIFIABLE — no executor
+R19.1.yaml	D2	NOT_VERIFIABLE — no executor
+R19.3.yaml	D1	NOT_VERIFIABLE — no executor
+R19.3.yaml	D4	NOT_VERIFIABLE — no executor
+R2.3.yaml	D1	NOT_VERIFIABLE — no executor
+R2.3.yaml	D3	NOT_VERIFIABLE — no executor
+R2.3.yaml	D4	NOT_VERIFIABLE — no executor
+R20.1-1.yaml	D4	NOT_VERIFIABLE — no executor
+R20.1-2.yaml	D4	NOT_VERIFIABLE — no executor
+R20.1-3.yaml	D4	NOT_VERIFIABLE — no executor
+R20.1-4.yaml	D4	NOT_VERIFIABLE — no executor
+R20.1-5.yaml	D4	NOT_VERIFIABLE — no executor
+R20.1-6.yaml	D4	NOT_VERIFIABLE — no executor
+R20.1-7.yaml	D1	NOT_VERIFIABLE — no executor
+R20.3-1.yaml	D4	NOT_VERIFIABLE — no executor
+R20.3-2.yaml	D1	NOT_VERIFIABLE — no executor
+R20.4.yaml	D4	NOT_VERIFIABLE — no executor
+R20.5.yaml	D4	NOT_VERIFIABLE — no executor
+R22.1.yaml	D1	NOT_VERIFIABLE — no executor
+R22.1.yaml	D4	NOT_VERIFIABLE — no executor
+R25.1.yaml	D1	NOT_VERIFIABLE — no executor
+R26.1.yaml	D1	NOT_VERIFIABLE — no executor
+R26.1.yaml	D3	NOT_VERIFIABLE — no executor
+R26.1.yaml	D4	NOT_VERIFIABLE — no executor
+R26.3.yaml	D1	NOT_VERIFIABLE — no executor
+R26.3.yaml	D2	NOT_VERIFIABLE — no executor
+R26.3.yaml	D3	NOT_VERIFIABLE — no executor
+R26.3.yaml	D4	NOT_VERIFIABLE — no executor
+R26.3.yaml	D5	NOT_VERIFIABLE — no executor
+R27.1.yaml	D1	NOT_VERIFIABLE — no executor
+R27.1.yaml	D3	NOT_VERIFIABLE — no executor
+R27.3.yaml	D1	NOT_VERIFIABLE — no executor
+R27.3.yaml	D2	NOT_VERIFIABLE — no executor
+R27.3.yaml	D3	NOT_VERIFIABLE — no executor
+R27.3.yaml	D4	NOT_VERIFIABLE — no executor
+R27.3.yaml	D5	NOT_VERIFIABLE — no executor
+R29.2.yaml	D1	NOT_VERIFIABLE — no executor
+R29.2.yaml	D4	NOT_VERIFIABLE — no executor
+R29.4.yaml	D1	NOT_VERIFIABLE — no executor
+R29.4.yaml	D4	NOT_VERIFIABLE — no executor
+R30.2.yaml	D1	NOT_VERIFIABLE — no executor
+R31.2.yaml	D1	NOT_VERIFIABLE — no executor
+R31.2.yaml	D4	NOT_VERIFIABLE — no executor
+R32.1-1.yaml	D1	NOT_VERIFIABLE — no executor
+R32.1-1.yaml	D3	NOT_VERIFIABLE — no executor
+R32.1-1.yaml	D4	NOT_VERIFIABLE — no executor
+R32.1-2.yaml	D1	NOT_VERIFIABLE — no executor
+R32.1-2.yaml	D3	NOT_VERIFIABLE — no executor
+R32.1-2.yaml	D4	NOT_VERIFIABLE — no executor
+R32.1-3.yaml	D1	NOT_VERIFIABLE — no executor
+R32.1-3.yaml	D3	NOT_VERIFIABLE — no executor
+R32.1-3.yaml	D4	NOT_VERIFIABLE — no executor
+R32.2.yaml	D1	NOT_VERIFIABLE — no executor
+R32.2.yaml	D3	NOT_VERIFIABLE — no executor
+R32.2.yaml	D4	NOT_VERIFIABLE — no executor
+R34.1.yaml	D1	NOT_VERIFIABLE — no executor
+R34.1.yaml	D3	NOT_VERIFIABLE — no executor
+R34.1.yaml	D4	NOT_VERIFIABLE — no executor
+R34.10.yaml	D1	NOT_VERIFIABLE — no executor
+R34.10.yaml	D3	NOT_VERIFIABLE — no executor
+R34.10.yaml	D4	NOT_VERIFIABLE — no executor
+R34.3.yaml	D1	NOT_VERIFIABLE — no executor
+R34.3.yaml	D3	NOT_VERIFIABLE — no executor
+R34.3.yaml	D4	NOT_VERIFIABLE — no executor
+R34.6.yaml	D1	NOT_VERIFIABLE — no executor
+R34.6.yaml	D3	NOT_VERIFIABLE — no executor
+R34.6.yaml	D4	NOT_VERIFIABLE — no executor
+R34.9.yaml	D1	NOT_VERIFIABLE — no executor
+R34.9.yaml	D3	NOT_VERIFIABLE — no executor
+R34.9.yaml	D4	NOT_VERIFIABLE — no executor
+R35.4-1.yaml	D1	NOT_VERIFIABLE — no executor
+R35.4-1.yaml	D4	NOT_VERIFIABLE — no executor
+R35.4-2.yaml	D1	NOT_VERIFIABLE — no executor
+R35.4-2.yaml	D4	NOT_VERIFIABLE — no executor
+R35.5.yaml	D1	NOT_VERIFIABLE — no executor
+R35.5.yaml	D5	NOT_VERIFIABLE — no executor
+R36.1-1.yaml	D1	NOT_VERIFIABLE — no executor
+R36.1-1.yaml	D4	NOT_VERIFIABLE — no executor
+R36.1-2.yaml	D1	NOT_VERIFIABLE — no executor
+R36.1-2.yaml	D4	NOT_VERIFIABLE — no executor
+R36.1-3.yaml	D1	NOT_VERIFIABLE — no executor
+R36.1-3.yaml	D4	NOT_VERIFIABLE — no executor
+R36.5-1.yaml	D1	NOT_VERIFIABLE — no executor
+R36.5-1.yaml	D3	NOT_VERIFIABLE — no executor
+R36.5-1.yaml	D4	NOT_VERIFIABLE — no executor
+R36.5-2.yaml	D1	NOT_VERIFIABLE — no executor
+R36.5-2.yaml	D3	NOT_VERIFIABLE — no executor
+R36.5-2.yaml	D4	NOT_VERIFIABLE — no executor
+R37.2.yaml	D1	NOT_VERIFIABLE — no executor
+R37.2.yaml	D4	NOT_VERIFIABLE — no executor
+R38.2.yaml	D1	NOT_VERIFIABLE — no executor
+R38.2.yaml	D4	NOT_VERIFIABLE — no executor
+R39.3.yaml	D1	NOT_VERIFIABLE — no executor
+R39.3.yaml	D4	NOT_VERIFIABLE — no executor
+R39.5-1.yaml	D1	NOT_VERIFIABLE — no executor
+R39.5-1.yaml	D4	NOT_VERIFIABLE — no executor
+R39.5-2.yaml	D1	NOT_VERIFIABLE — no executor
+R4.2-1.yaml	D4	NOT_VERIFIABLE — no executor
+R4.2-2.yaml	D1	NOT_VERIFIABLE — no executor
+R4.7-1.yaml	D1	NOT_VERIFIABLE — no executor
+R4.7-2.yaml	D4	NOT_VERIFIABLE — no executor
+R4.8.yaml	D1	NOT_VERIFIABLE — no executor
+R4.9.yaml	D4	NOT_VERIFIABLE — no executor
+R40.3-1.yaml	D1	NOT_VERIFIABLE — no executor
+R40.3-2.yaml	D1	NOT_VERIFIABLE — no executor
+R40.4-1.yaml	D1	NOT_VERIFIABLE — no executor
+R40.4-1.yaml	D4	NOT_VERIFIABLE — no executor
+R40.4-2.yaml	D1	NOT_VERIFIABLE — no executor
+R40.4-2.yaml	D4	NOT_VERIFIABLE — no executor
+R40.5-1.yaml	D1	NOT_VERIFIABLE — no executor
+R40.5-1.yaml	D4	NOT_VERIFIABLE — no executor
+R40.5-2.yaml	D1	NOT_VERIFIABLE — no executor
+R40.5-2.yaml	D4	NOT_VERIFIABLE — no executor
+R40.6.yaml	D1	NOT_VERIFIABLE — no executor
+R40.6.yaml	D4	NOT_VERIFIABLE — no executor
+R40.9-1.yaml	D1	NOT_VERIFIABLE — no executor
+R40.9-1.yaml	D4	NOT_VERIFIABLE — no executor
+R40.9-2.yaml	D1	NOT_VERIFIABLE — no executor
+R40.9-2.yaml	D4	NOT_VERIFIABLE — no executor
+R40.9-3.yaml	D1	NOT_VERIFIABLE — no executor
+R40.9-3.yaml	D4	NOT_VERIFIABLE — no executor
+R5.3.yaml	D3	NOT_VERIFIABLE — no executor
+R5.3.yaml	D4	NOT_VERIFIABLE — no executor
+R5.3.yaml	D5	NOT_VERIFIABLE — no executor
+R5.6-1.yaml	D1	NOT_VERIFIABLE — no executor
+R5.6-1.yaml	D2	NOT_VERIFIABLE — no executor
+R5.6-1.yaml	D3	NOT_VERIFIABLE — no executor
+R5.6-1.yaml	D4	NOT_VERIFIABLE — no executor
+R5.6-1.yaml	D5	NOT_VERIFIABLE — no executor
+R5.6-2.yaml	D1	NOT_VERIFIABLE — no executor
+R5.6-2.yaml	D3	NOT_VERIFIABLE — no executor
+R5.6-2.yaml	D4	NOT_VERIFIABLE — no executor
+R5.6-3.yaml	D1	NOT_VERIFIABLE — no executor
+R5.6-3.yaml	D3	NOT_VERIFIABLE — no executor
+R5.9.yaml	D1	NOT_VERIFIABLE — no executor
+R5.9.yaml	D3	NOT_VERIFIABLE — no executor
+R5.9.yaml	D4	NOT_VERIFIABLE — no executor
+R6.4.yaml	D4	NOT_VERIFIABLE — no executor
+R6.5-1.yaml	D4	NOT_VERIFIABLE — no executor
+R6.5-2.yaml	D1	NOT_VERIFIABLE — no executor
+R7.1.yaml	D1	NOT_VERIFIABLE — no executor
+R7.1.yaml	D4	NOT_VERIFIABLE — no executor
+R1.6	NOT_VERIFIABLE — how degradation is detected is the Player's own decision, and degradation cannot be induced repeatably from outside the Player; its failure beacon also has no carrier (R42, Not placed row 8)
+R3.2	NOT_VERIFIABLE — a defined behaviour for every opportunity type on every class is the sum of the other criteria and the UC vectors; no single test decides it
+R11.2	NOT_VERIFIABLE — a property of the architecture: the Player reads only the APS's resolution document, so no test can present it with an ADS format to fail on
+R15.3	NOT_VERIFIABLE — a permission (MAY skip), so skipping and not skipping both conform; the only document that would exercise it carries a mimeType outside the admissible set, which level 2 rejects (R15.2a), so no green fixture can carry it
+R21.1	NOT_VERIFIABLE — a permission (MAY release resources): every behaviour conforms, so nothing can fail
+R29.10	NOT_VERIFIABLE — whether a declared capability is the device's real one is a property of the device; the harness emulates classes by profile (ADR 0080) and has no real device to compare against
+R33.2	NOT_VERIFIABLE — binds only a Player that reports metrics, which is optional (DP-4), and the specification defines no channel a test could read the report from
+R37.1	NOT_VERIFIABLE — a permission (MAY implement a pause by any mechanism): every mechanism conforms, so nothing can fail; where the pause resumes is R37.2's
+R41.4	NOT_VERIFIABLE — no carrier: the option-level declaration of the ad's audio (R41.3) is not placed in the specification (Not placed row 4), so no option's audio can be heard
+R41.5	NOT_VERIFIABLE — no carrier: the window-level audio allowance (R41.2) and the option-level audio declaration are not placed (Not placed row 4)
+R41.6	NOT_VERIFIABLE — no carrier: no option can declare its audio (R41.3, Not placed row 4)
+R41.7	NOT_VERIFIABLE — no carrier: the second audio source the criterion bounds is an option that declares its audio (R41.3), which is not placed (Not placed row 4)
+R42.3	NOT_VERIFIABLE — no carrier: the occurrence-beacon carrier of R42.1 is not placed (Not placed row 8)
+R44.3	NOT_VERIFIABLE — running a verification SDK is optional, and the verification resources it would be handed have no carrier (R44.1, Not placed row 9)
+R47.2	NOT_VERIFIABLE — no carrier: viewability beacons ride the occurrence carrier of R42.1, not placed (Not placed rows 8 and 10)
+R48.3	NOT_VERIFIABLE — no carrier: the per-candidate disclosure carrier of R48.1 is not placed (Not placed row 11)
+population 76 (from the level-2 catalogue): 56 with a test, 16 NOT_VERIFIABLE in index.yaml, 4 uncovered; 4 findings
+A green run says the tests are well formed, rest on green fixtures, cover the population and match the criteria as they are now; no Player has run them (NOT_VERIFIABLE — no executor).
+exit 1

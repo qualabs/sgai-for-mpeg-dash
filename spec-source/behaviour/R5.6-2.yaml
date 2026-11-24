@@ -1,0 +1,44 @@
+# R5.6 (b) — the declared allowed layouts. The window admits overlay-corner
+# only and forwards it (fixtures/R5.6/main-declared.mpd); the APS still
+# returns overlay-lower-third first (fixtures/R5.6/layouts.xml). "Forwarding
+# the allowed layouts to the APS (R38.2) does not remove check (b)."
+format: sgai-scenario/1
+criterion: R5.6
+criterion_sha256: a4c4c176daa5efaceff9544987e7bb4f76af11e0a6b7c0e6f7c5dbac72948781
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R5.6/main-declared.mpd
+fixtures:
+  - path: behaviour/fixtures/R5.6/main-declared.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R5.6/layouts.xml
+    url: https://aps.example.com/behaviour/r5-6?w=2
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &o
+    summary: >-
+      Option 1 (overlay-lower-third) is not admitted and is not rendered;
+      option 2 (overlay-corner) is shown 5 s to 10 s.
+    requests:
+      - {at: {from: 0, to: 5000}, url: "https://aps.example.com/behaviour/r5-6?w=2", query: {sgai-allowed-layouts: overlay-corner}, answered_by: behaviour/fixtures/R5.6/layouts.xml}
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R5.6/main-declared.mpd, event_id: "1"}
+        result: presented
+        presented: [{candidate: &c {fixture: behaviour/fixtures/R5.6/layouts.xml, index: 1}, option: {index: 2}, layout: overlay-corner}]
+    presentation:
+      - {start: 0, end: 5000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 5000, end: 10000, layout: overlay-corner, shows: [{element: primary, from: 5000}, {element: ad, candidate: *c, option: {index: 2}}]}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons:
+      - {at: 5000, fixture: behaviour/fixtures/R5.6/layouts.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=562"}
+  D3: *o
+  D4: *o

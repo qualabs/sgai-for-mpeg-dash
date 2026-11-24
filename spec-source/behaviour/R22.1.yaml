@@ -1,0 +1,51 @@
+# R22.1 — at most one non-linear form on screen at any instant. One overlay
+# window 2 s to 14 s; its document holds two 4 s image candidates with
+# different placements (A a lower-third, B a corner), so two forms on screen
+# at once would be visible as two ad elements in one frame.
+format: sgai-scenario/1
+criterion: R22.1
+criterion_sha256: 65d6811669abb33cf8040b27f5b08f0a086570c993cd42892831dc6d49f67bdd
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R22.1/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R22.1/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R22.1/overlay.xml
+    url: https://aps.example.com/beh/r22-1/overlay
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &one
+    summary: >-
+      Decides R22.1 "At any instant `t`, the Player MUST keep at most ONE
+      non-linear ad form active on the screen": A alone from 2 s to 6 s, B
+      alone from 6 s to 10 s; no segment shows two ad elements.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r22-1/overlay
+        answered_by: behaviour/fixtures/R22.1/overlay.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R22.1/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R22.1/overlay.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+          - {candidate: &b {fixture: behaviour/fixtures/R22.1/overlay.xml, index: 2}, option: {index: 1}, layout: overlay-corner}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 6000, layout: overlay-lower-third, shows: [{element: primary, from: 2000}, {element: ad, candidate: *a, option: {index: 1}}]}
+      - {start: 6000, end: 10000, layout: overlay-corner, shows: [{element: primary, from: 6000}, {element: ad, candidate: *b, option: {index: 1}}]}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R22.1/overlay.xml, candidate: *a, id: "1", url: "https://t.example.com/r22-1/a-imp"}
+      - {at: 6000, fixture: behaviour/fixtures/R22.1/overlay.xml, candidate: *a, id: "2", url: "https://t.example.com/r22-1/a-complete"}
+      - {at: 6000, fixture: behaviour/fixtures/R22.1/overlay.xml, candidate: *b, id: "1", url: "https://t.example.com/r22-1/b-imp"}
+      - {at: 10000, fixture: behaviour/fixtures/R22.1/overlay.xml, candidate: *b, id: "2", url: "https://t.example.com/r22-1/b-complete"}
+  D4: *one

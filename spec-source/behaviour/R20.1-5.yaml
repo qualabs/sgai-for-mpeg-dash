@@ -1,0 +1,69 @@
+# R20.1: a resolution document none of whose candidates the device can render is
+# a failed execution. Loaded on D4 (no HTML over video): window 1 answered by one
+# HTML-only candidate, window 2 by one 5 s image.
+format: sgai-scenario/1
+criterion: R20.1
+criterion_sha256: 620e75eecd8499c6e4fa555f51deed1ac20f485cf73a5e4b8805e5ab1519f615
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 9000
+entry: behaviour/fixtures/R20.1/r20-1-5-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R20.1/r20-1-5-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R20.1/r20-1-5-w1.xml, url: 'https://aps.example.com/b/r20-1-5/w1', class: overlay-list}
+- {path: behaviour/fixtures/R20.1/r20-1-5-w2.xml, url: 'https://aps.example.com/b/r20-1-5/w2', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D4:
+    summary: 'R20.1: "An attempt **on a window** that does not produce an ad is a **failed execution**, and on a failed execution the
+      Player MUST attempt the next overlapping window of the same family." "A resolution document carrying candidates none of which
+      the device can render (R5.3) produced no ad, and is a failed execution." Window 1 is declined; window 2''s image from 2 s to 7
+      s.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r20-1-5/w1
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R20.1/r20-1-5-w1.xml
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r20-1-5/w2
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R20.1/r20-1-5-w2.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R20.1/r20-1-5-main.mpd, event_id: '1'}
+      result: declined
+      presented: []
+    - opportunity: {fixture: behaviour/fixtures/R20.1/r20-1-5-main.mpd, event_id: '2'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R20.1/r20-1-5-w2.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 2000
+      end: 7000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 2000}
+      - element: ad
+        candidate: *id001
+        option: {index: 1}
+    - start: 7000
+      end: 9000
+      layout: none
+      shows:
+      - {element: primary, from: 7000}
+    beacons:
+    - at: 2000
+      fixture: behaviour/fixtures/R20.1/r20-1-5-w2.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/r20-1-5/fb-imp

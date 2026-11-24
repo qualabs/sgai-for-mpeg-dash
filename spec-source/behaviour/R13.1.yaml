@@ -1,0 +1,88 @@
+# R13.1, the part that binds the Player: beacons fire when the presentation of
+# their candidate reaches their time. Loaded: an overlay window at 4 s
+# (@earliestResolutionTimeOffset 4 s), a 3 s image candidate then a 4 s image
+# candidate with beacons at 0, 2 and 4 s of its own presentation. A Player that
+# times them against the window or the Period fires them at 4/6/8 s or 0/2/4 s.
+format: sgai-scenario/1
+criterion: R13.1
+criterion_sha256: 5c600cc35c6ab8b4535d0e29374f38ca406d3b4cd22dd31fade016398d3e37c6
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 13000
+entry: behaviour/fixtures/R13.1/r13-1-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R13.1/r13-1-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R13.1/r13-1-list.xml, url: 'https://aps.example.com/b/r13-1/w', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D4:
+    summary: 'R13.1: "Their times are relative to **the presentation of the candidate that hosts them** ... Each beacon MUST fire when
+      the presentation of its ad reaches its time". Candidate 2 begins at 7 s: its beacons at 7, 9 and 11 s, not at 0, 2 and 4 s of
+      the window or of the Period.'
+    requests:
+    - at: {from: 0, to: 4000}
+      url: https://aps.example.com/b/r13-1/w
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R13.1/r13-1-list.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R13.1/r13-1-main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R13.1/r13-1-list.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+      - candidate: &id002 {fixture: behaviour/fixtures/R13.1/r13-1-list.xml, index: 2}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 4000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 4000
+      end: 7000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 4000}
+      - element: ad
+        candidate: *id001
+        option: {index: 1}
+    - start: 7000
+      end: 11000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 7000}
+      - element: ad
+        candidate: *id002
+        option: {index: 1}
+    - start: 11000
+      end: 13000
+      layout: none
+      shows:
+      - {element: primary, from: 11000}
+    beacons:
+    - at: 4000
+      fixture: behaviour/fixtures/R13.1/r13-1-list.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/r13-1/c1-imp
+    - at: 7000
+      fixture: behaviour/fixtures/R13.1/r13-1-list.xml
+      candidate: *id002
+      id: '1'
+      url: https://t.example.com/r13-1/c2-imp
+    - at: 9000
+      fixture: behaviour/fixtures/R13.1/r13-1-list.xml
+      candidate: *id002
+      id: '2'
+      url: https://t.example.com/r13-1/c2-mid
+    - at: 11000
+      fixture: behaviour/fixtures/R13.1/r13-1-list.xml
+      candidate: *id002
+      id: '3'
+      url: https://t.example.com/r13-1/c2-complete

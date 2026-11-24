@@ -1,0 +1,55 @@
+# R27.1 — the Player-side of the criterion (its holder is APS + Publisher;
+# the one-creative rule on the document is level 2's): "The option MUST be
+# composed of those two elements and no third: the ad creative covering the
+# whole frame underneath, and the shrunk primary content on top of it,
+# scaled into the region its `@layout` token denotes (R12.5)." One overlay
+# window 2 s to 6 s; one 4 s HTML L-shape with the programme upper-right.
+#
+# Geometry as in R12.5-1: the programme 60% of the frame's area, so
+# 77.46% x 77.46% at the upper-right corner [inferred, see R12.5-1].
+# `squeezeback-frame`, which R27.1 also names, has no token in the extension
+# schema and is not tested.
+format: sgai-scenario/1
+criterion: R27.1
+criterion_sha256: d239fb3937b8b5d10121ad0c7b6a2e4bd3f6a389ff8d7416adb07f10656ba8cd
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 8000
+entry: behaviour/fixtures/R27.1/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R27.1/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R27.1/overlay.xml
+    url: https://aps.example.com/beh/r27-1/overlay
+    class: overlay-list
+# An HTML creative: one decoder and an HTML surface (§5.3.7).
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &l
+    summary: >-
+      Decides R27.1's composition: from 2 s to 6 s exactly two elements, the
+      HTML creative over the whole frame underneath and the programme shrunk
+      into the upper-right 60% on top of it; no background element.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r27-1/overlay
+        answered_by: behaviour/fixtures/R27.1/overlay.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R27.1/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R27.1/overlay.xml, index: 1}, option: {index: 1}, layout: squeezeback-l-shape-upper-right}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 6000, layout: squeezeback-l-shape-upper-right, shows: [{element: ad, candidate: *a, option: {index: 1}, region: "full frame, underneath"}, {element: primary, from: 2000, region: "upper-right 60%, on top"}]}
+      - {start: 6000, end: 8000, layout: none, shows: [{element: primary, from: 6000}]}
+    beacons: []
+    geometry:
+      - {at: 4000, tolerance: 1, primary: {x: 22.54, y: 0, width: 77.46, height: 77.46}, ad: {x: 0, y: 0, width: 100, height: 100}}
+  D3: *l

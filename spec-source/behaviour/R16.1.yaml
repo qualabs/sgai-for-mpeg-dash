@@ -1,0 +1,61 @@
+# R16.1 — on resume, the pause ad leaves the screen "within one rendering
+# frame" and the primary content returns "immediately, whether or not an ad
+# is mid-presentation". A pause window over the first minute; the viewer
+# pauses at 3 s and resumes at 6 s, 3 s into a 20 s image pause ad.
+#
+# The one-frame bound is this file's `tolerance`: 17 ms, one frame at the
+# 60 Hz the harness's Chromium renders at. How the executor measures it: it
+# issues the resume from inside a requestAnimationFrame callback and records
+# that frame's timestamp; the pause ad must be absent from the next frame the
+# compositor produces (the next requestAnimationFrame callback, and the next
+# requestVideoFrameCallback of the primary <video>, showing the primary
+# frame). More than one frame interval between the resume and the first frame
+# without the ad is a FAIL.
+#
+# The schema has one tolerance per file, so it also applies to the start of
+# the pause ad at 3 s, which R16.1 does not bound: the executor may find that
+# boundary late for reasons that are not this criterion's (reported to the
+# coordinator as a missing per-boundary tolerance).
+format: sgai-scenario/1
+criterion: R16.1
+criterion_sha256: a3ddc2b1a716d997d4e457e955672325b0fd590bb0f4afbf887805c7a1050ac5
+timescale: 1000
+tolerance: 17
+play_from: 0
+observe_until: 8000
+entry: behaviour/fixtures/R16.1/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R16.1/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R16.1/pause.xml
+    url: https://aps.example.com/beh/r16-1/pause
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 3000, do: pause}
+  - {at: 6000, do: resume}
+
+outcomes:
+  D1:
+    summary: >-
+      Decides R16.1 "the Player MUST remove any rendered pause-ad form from
+      the screen within one rendering frame and return to the primary content
+      immediately, whether or not an ad is mid-presentation": the 20 s pause
+      ad is 3 s in when the viewer resumes at 6 s; by the next frame it is
+      gone and the primary content plays from 3 s.
+    requests:
+      - at: {from: 0, to: 3000}
+        url: https://aps.example.com/beh/r16-1/pause
+        answered_by: behaviour/fixtures/R16.1/pause.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R16.1/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &p {fixture: behaviour/fixtures/R16.1/pause.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+    presentation:
+      - {start: 0, end: 3000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 3000, end: 6000, layout: pause-fullscreen, shows: [{element: ad, candidate: *p, option: {index: 1}}], note: 3 s of a 20 s image}
+      - {start: 6000, end: 8000, layout: none, shows: [{element: primary, from: 3000}], note: the ad gone by the next frame after the resume}
+    beacons: []

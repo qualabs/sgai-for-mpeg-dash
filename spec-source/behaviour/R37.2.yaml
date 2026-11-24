@@ -1,0 +1,55 @@
+# R37.2 — on resume the primary content continues from where it was
+# suspended. A pause window over the first minute of a static programme;
+# the viewer pauses at 3 s for 5 s, and a fullscreen pause ad (which lets
+# the Player release the primary content's decoder, spec PLY-61) is shown
+# meanwhile.
+#
+# Not written: the criterion's live clause (a suspended position that left
+# the time-shift buffer resumes "at the earliest available media segment").
+# Where that segment is depends on the live edge the harness serves and on
+# the segment grid, which one file-wide tolerance cannot bound without
+# loosening every other time of the test.
+format: sgai-scenario/1
+criterion: R37.2
+criterion_sha256: c903d7a4d23580e8452c22ae0fa0a8b65aa11284c7c39df3cedfe1a3f52340e5
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 10000
+entry: behaviour/fixtures/R37.2/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R37.2/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R37.2/pause.xml
+    url: https://aps.example.com/beh/r37-2/pause
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 3000, do: pause}
+  - {at: 8000, do: resume}
+
+outcomes:
+  D1: &resumed
+    summary: >-
+      Decides R37.2 "On resume, the Player MUST continue the primary content
+      from the position at which it was suspended": the programme was
+      suspended at 3 s and plays from 3 s at the resume (8 s of the session),
+      reaching 5 s at 10 s.
+    requests:
+      - at: {from: 0, to: 3000}
+        url: https://aps.example.com/beh/r37-2/pause
+        answered_by: behaviour/fixtures/R37.2/pause.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R37.2/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &p {fixture: behaviour/fixtures/R37.2/pause.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+    presentation:
+      - {start: 0, end: 3000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 3000, end: 8000, layout: pause-fullscreen, shows: [{element: ad, candidate: *p, option: {index: 1}}]}
+      - {start: 8000, end: 10000, layout: none, shows: [{element: primary, from: 3000}], note: "the suspended position"}
+    beacons: []
+  D4: *resumed

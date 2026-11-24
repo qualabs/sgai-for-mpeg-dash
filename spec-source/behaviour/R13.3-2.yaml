@@ -1,0 +1,66 @@
+# R13.3, dismissed by the viewer. Loaded: an overlay window, a document with
+# @dismissAfter="PT0S" (dismissible at once), one 10 s image candidate with
+# beacons at 0, 2, 6 and 10 s; the viewer dismisses at 5 s. A Player that keeps
+# the schedule after the dismissal fires the last two.
+format: sgai-scenario/1
+criterion: R13.3
+criterion_sha256: e4f44c899c676e4a7e6628bbf67f86dabe69832b3ac5d0de182625b9c029e4a6
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 9000
+entry: behaviour/fixtures/R13.3/r13-3-2-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R13.3/r13-3-2-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R13.3/r13-3-2-list.xml, url: 'https://aps.example.com/b/r13-3-2/w', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+- {at: 5000, do: dismiss}
+outcomes:
+  D4:
+    summary: 'R13.3: "A beacon whose time falls after the presentation of its ad has ended — ... dismissed by the viewer (R35) ... —
+      MUST NOT be fired." Dismissed at 5 s (3 s into the ad): the beacons at 0 and 2 s fire, those at 6 and 10 s do not.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r13-3-2/w
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R13.3/r13-3-2-list.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R13.3/r13-3-2-main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R13.3/r13-3-2-list.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 2000
+      end: 5000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 2000}
+      - element: ad
+        candidate: *id001
+        option: {index: 1}
+    - start: 5000
+      end: 9000
+      layout: none
+      shows:
+      - {element: primary, from: 5000}
+    beacons:
+    - at: 2000
+      fixture: behaviour/fixtures/R13.3/r13-3-2-list.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/r13-3-2/imp
+    - at: 4000
+      fixture: behaviour/fixtures/R13.3/r13-3-2-list.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.com/r13-3-2/at-2s

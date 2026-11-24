@@ -1,0 +1,75 @@
+exit 2
+CAUGHT  R12.5-1.yaml   expect S-GEOM    (L-shape upper-right primary shifted 10 points right (out of the viewport))
+        S-GEOM	R12.5-1.yaml	outcomes.D1.geometry[2].primary: extends past the viewport
+CAUGHT  R12.5-2.yaml   expect S-LAYOUT  (a token that is not R12.2's)
+        S-LAYOUT	R12.5-2.yaml	outcomes.D1: layout 'pause-full' is not an R12.2 token
+CAUGHT  R12.5-3.yaml   expect S-FIXTURE (the fixture's layout token not in the schema)
+        S-FIXTURE	R12.5-3.yaml	behaviour/fixtures/R12.5/pause-partial.xml is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 12 of the markdown: Element '{urn:svta:dash:sgai:2026}RenderableAsset', attribute 'l
+        S-FIXTURE	R12.5-3.yaml	behaviour/fixtures/R12.5/pause-partial.xml is not green: R12.3: @layout='pause-half' is outside the R12.2 tokens
+CAUGHT  R12.5-4.yaml   expect S-GEOM    (an ad rectangle at an instant the presentation shows no ad)
+        S-GEOM	R12.5-4.yaml	outcomes.D1.geometry[0].ad: the presentation shows no ad at 7000
+        S-GEOM	R12.5-4.yaml	outcomes.D5.geometry[0].ad: the presentation shows no ad at 7000
+CAUGHT  R16.1.yaml     expect S-TIME    (a gap in the presentation (pause ad ends 100 ms early))
+        S-TIME	R16.1.yaml	outcomes.D1.presentation[2] starts at 6000, expected 5900 (segments tile [0, observe_until] in order)
+CAUGHT  R17.1.yaml     expect S-REF     (a pause candidate the document does not have)
+        S-REF	R17.1.yaml	outcomes.D1.selection[1].presented[0]: no candidate #2 in behaviour/fixtures/R17.1/pause.xml
+        S-REF	R17.1.yaml	outcomes.D1.presentation[2].shows[1]: no candidate #2 in behaviour/fixtures/R17.1/pause.xml
+CAUGHT  R17.2.yaml     expect S-REF     (a beacon URL that is not the event's text)
+        S-REF	R17.2.yaml	outcomes.D1.beacons[1]: url https://t.example.com/r17-2/ov-quartile is not the event's text https://t.example.com/r17-2/ov-mid
+CAUGHT  R17.5.yaml     expect S-REF     (a linear candidate id the List MPD does not have)
+        S-REF	R17.5.yaml	outcomes.D1.selection[0].presented[0]: no candidate ad-9 in behaviour/fixtures/R17.5/list.mpd
+        S-REF	R17.5.yaml	outcomes.D1.presentation[1].shows[0]: no candidate ad-9 in behaviour/fixtures/R17.5/list.mpd
+CAUGHT  R19.1.yaml     expect S-CAPS    (D2 declared with one decoder)
+        S-CAPS	R19.1.yaml	D2: sgai-video-decoders=1 is not R3.1's row for D2
+CAUGHT  R19.3.yaml     expect S-REF     (a beacon @id the candidate does not schedule)
+        S-REF	R19.3.yaml	outcomes.D1.beacons[1]: no Event @id=9 in behaviour/fixtures/R19.3/overlay.xml within that candidate
+        S-REF	R19.3.yaml	outcomes.D4.beacons[1]: no Event @id=9 in behaviour/fixtures/R19.3/overlay.xml within that candidate
+CAUGHT  R22.1.yaml     expect S-FIXTURE (an image option without @duration (DOC-6))
+        S-FIXTURE	R22.1.yaml	behaviour/fixtures/R22.1/overlay.xml is not green: R19.3a: image/png option declares no @duration
+CAUGHT  R25.1.yaml     expect S-FIXTURE (a pause window with no PlayList metrics (R33.4))
+        S-FIXTURE	R25.1.yaml	behaviour/fixtures/R25.1/live.mpd is not green: R33.4: 1 pause window(s) and no Metrics requesting PlayList at MPD level
+CAUGHT  R26.1.yaml     expect S-GEOM    (a double-box primary box that leaves the viewport)
+        S-GEOM	R26.1.yaml	outcomes.D1.geometry[1].primary: extends past the viewport
+        S-GEOM	R26.1.yaml	outcomes.D3.geometry[1].primary: extends past the viewport
+CAUGHT  R26.3.yaml     expect S-REF     (an option the candidate does not have)
+        S-REF	R26.3.yaml	outcomes.D2.selection[0].presented[0].option: no option {'index': 4} in that candidate
+CAUGHT  R27.1.yaml     expect S-FIXTURE (a background on an L-shape option)
+        S-FIXTURE	R27.1.yaml	behaviour/fixtures/R27.1/overlay.xml is not green: R27.1a: option with layout 'squeezeback-l-shape-upper-right' with @background: an L-shape or frame carries one creative and no third element
+CAUGHT  R27.3.yaml     expect S-FIXTURE (the video creative's sub-MPD deleted)
+        S-FIXTURE	R27.3.yaml	behaviour/fixtures/R27.3/l-shape-ad.mpd does not exist
+        S-FIXTURE	R27.3.yaml	outcomes.D1.requests[1].answered_by: behaviour/fixtures/R27.3/l-shape-ad.mpd is not a fixture of this vector
+CAUGHT  R31.2.yaml     expect B-HASH    (a hash that is not the criterion's)
+        B-HASH	R31.2.yaml	criterion_sha256 f3765bd5739c… is not R31.2's e3765bd5739c…: the criterion changed
+CAUGHT  R35.4-1.yaml   expect B-SCHEMA  (an action the schema does not know)
+        B-SCHEMA	R35.4-1.yaml	actions/0/do: 'skip' is not one of ['pause', 'resume', 'seek', 'dismiss', 'activate', 'rate']
+CAUGHT  R35.4-2.yaml   expect S-FIXTURE (answered by a fixture the test does not list)
+        S-FIXTURE	R35.4-2.yaml	outcomes.D1.requests[0].answered_by: behaviour/fixtures/R35.4/overlay.xml is not a fixture of this vector
+        S-FIXTURE	R35.4-2.yaml	outcomes.D4.requests[0].answered_by: behaviour/fixtures/R35.4/overlay.xml is not a fixture of this vector
+CAUGHT  R35.5.yaml     expect S-TIME    (a presentation that stops short of observe_until)
+        S-TIME	R35.5.yaml	outcomes.D1.presentation ends at 8000, expected observe_until 9000
+        S-TIME	R35.5.yaml	outcomes.D5.presentation ends at 8000, expected observe_until 9000
+CAUGHT  R37.2.yaml     expect B-        (a criterion that is not its file's)
+        B-SCHEMA	R37.2.yaml	`criterion` is R37.9 but the file is R37.2.yaml
+        B-POP	R37.2.yaml	R37.9 is not a criterion of context/03
+CAUGHT  R40.4-1.yaml   expect S-REF     (an opportunity the main MPD does not declare)
+        S-REF	R40.4-1.yaml	outcomes.D1.selection[1].opportunity: no Event @id=7 in behaviour/fixtures/R40.4/main.mpd
+        S-REF	R40.4-1.yaml	outcomes.D4.selection[1].opportunity: no Event @id=7 in behaviour/fixtures/R40.4/main.mpd
+CAUGHT  R40.4-2.yaml   expect S-SCHEMA  (a request with no answered_by and no aps entry)
+        S-SCHEMA	R40.4-2.yaml	outcomes.D1.requests[0]: no answered_by, and no `aps` entry answers https://aps.example.com/beh/r40-4/overlay-r without a document
+        S-SCHEMA	R40.4-2.yaml	outcomes.D4.requests[0]: no answered_by, and no `aps` entry answers https://aps.example.com/beh/r40-4/overlay-r without a document
+CAUGHT  R40.5-1.yaml   expect S-FIXTURE (a relation value the schema does not have)
+        S-FIXTURE	R40.5-1.yaml	behaviour/fixtures/R40.5/main-cap.mpd is not green: E-3: invalid against DASH-MPD.xsd + extension XSD: line 25 of the markdown: Element '{urn:svta:dash:sgai:2026}OverlayPresentation', attribute 'li
+CAUGHT  R40.5-2.yaml   expect S-TIME    (two overlapping presentation segments)
+        S-TIME	R40.5-2.yaml	outcomes.D1.presentation[2] starts at 3900, expected 4000 (segments tile [0, observe_until] in order)
+        S-TIME	R40.5-2.yaml	outcomes.D4.presentation[2] starts at 3900, expected 4000 (segments tile [0, observe_until] in order)
+CAUGHT  R40.6.yaml     expect S-FIXTURE (the alternative MPD declared as a non-linear document)
+        S-FIXTURE	R40.6.yaml	behaviour/fixtures/R40.6/alt.mpd is not green: FIX-2: declared overlay-list, but the document reads as mpd
+        S-FIXTURE	R40.6.yaml	behaviour/fixtures/R40.6/alt.mpd is not green: R35.1: no @dismissAfter: the APS declares dismissibility
+CAUGHT  R40.9-1.yaml   expect S-LAYOUT  (the bare `pause`, which is not a token)
+        S-LAYOUT	R40.9-1.yaml	outcomes.D1: layout 'pause' is not an R12.2 token
+        S-LAYOUT	R40.9-1.yaml	outcomes.D4: layout 'pause' is not an R12.2 token
+CAUGHT  R40.9-2.yaml   expect S-FIXTURE (an overlay window resolved by a pause-family document)
+        S-FIXTURE	R40.9-2.yaml	behaviour/fixtures/R40.9/overlay-s.xml is not green: R32.1a: pause document without @onExhausted
+CAUGHT  R40.9-3.yaml   expect B-SCHEMA  (an HTTP status out of range)
+        B-SCHEMA	R40.9-3.yaml	aps/0/status: 700 is greater than the maximum of 599
+29/29 caught

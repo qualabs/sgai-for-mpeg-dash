@@ -50,3 +50,9 @@ not_verifiable:
   - criterion: R44.3
     criterion_sha256: 7b4bf882e4a1f60b5b50aa2d8be7b60df1ed539761b683ed6dfca61aa8dc1398
     reason: "running a verification SDK is optional, and the verification resources it would be handed have no carrier (R44.1, Not placed row 9)"
+  - criterion: R15.3
+    criterion_sha256: e0b85c03f2d91b815791fdf9b7adf10894bd127b4b43f10a80420249c4312236
+    reason: "a permission (MAY skip), so skipping and not skipping both conform; the only document that would exercise it carries a mimeType outside the admissible set, which level 2 rejects (R15.2a), so no green fixture can carry it"
+  - criterion: R4.5
+    criterion_sha256: 76fae32053f47ae720938555154322f47aca924c2389eb366da358c279076bc5
+    reason: "no conforming document makes a candidate's rendered length exceed its declared duration: video renders no further than Period@duration, a List MPD takes the smaller of the two, image and HTML are shown for exactly @duration, and a stall or a pause does not accrue on the slot timeline; the criterion cannot be exercised from outside"

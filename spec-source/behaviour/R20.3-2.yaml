@@ -1,0 +1,46 @@
+# R20.3 on the linear family — oldest presentation time first, not document order.
+# Loaded: an InsertPresentation at PRT 4 s in the first EventStream and a
+# ReplacePresentation at PRT 2 s in the second, both active at 6 s, where playback
+# starts (play_from). The queue takes the replacement (PRT 2 s) first; a Player in
+# document order starts the insertion. Observed for 3 s only: the replacement is
+# still playing (APDA = min(10, max(8 - 6 + 2, 0)) = 4 s, Table 57).
+format: sgai-scenario/1
+criterion: R20.3
+criterion_sha256: be9de53fee730ca5889a9f80e7955cafec6fcf80eb308477466564f215e5157d
+timescale: 1000
+tolerance: 500
+play_from: 6000
+observe_until: 3000
+entry: behaviour/fixtures/R20.3/r20-3-2-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R20.3/r20-3-2-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R20.3/r20-3-2-insert-alt.mpd, url: 'https://aps.example.com/b/r20-3-2/insert', class: sps-mpd}
+- {path: behaviour/fixtures/R20.3/r20-3-2-replace-alt.mpd, url: 'https://aps.example.com/b/r20-3-2/replace', class: sps-mpd}
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: 'R20.3: the execution queue is *"a priority queue ... ordered by the presentation time PRT"* (§5.16.2.2.2), processed *"from
+      oldest PRT to the most recent"* (§5.16.2.2.5); "**It is not document order**". The replacement''s alternative from the start;
+      the insertion is not requested.'
+    requests:
+    - {at: 0, url: 'https://aps.example.com/b/r20-3-2/replace', answered_by: behaviour/fixtures/R20.3/r20-3-2-replace-alt.mpd}
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R20.3/r20-3-2-main.mpd, event_id: '2'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R20.3/r20-3-2-replace-alt.mpd, id: rep}
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 3000
+      layout: linear
+      shows:
+      - element: ad
+        candidate: *id001
+        option: null
+    beacons:
+    - {at: 0, fixture: behaviour/fixtures/R20.3/r20-3-2-replace-alt.mpd, id: '1', url: 'https://t.example.com/r20-3-2/replace-imp'}

@@ -1,0 +1,98 @@
+# R27.3 — the L-shape's decoder-and-surface budget follows the media type of
+# its full-frame creative. One overlay window 2 s to 6 s; one candidate with
+# three L-shape options in preference order: 1. video creative (two
+# decoders), 2. HTML creative (one decoder, HTML surface), 3. image creative
+# (one decoder, image surface). Each class takes the first it can composite
+# (R5): D1 and D2 the video, D3 the HTML, D4 the image, D5 none.
+format: sgai-scenario/1
+criterion: R27.3
+criterion_sha256: e48153c56ab156b1462fde461fdddb22276df6aae59a17b983f0eab700894dcd
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 8000
+entry: behaviour/fixtures/R27.3/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R27.3/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R27.3/overlay.xml
+    url: https://aps.example.com/beh/r27-3/overlay
+    class: overlay-list
+  - path: behaviour/fixtures/R27.3/l-shape-ad.mpd
+    url: https://ads-cdn.example.com/beh/r27-3/l-shape-ad.mpd
+    class: sps-mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &video
+    summary: >-
+      Decides "If the full-frame ad creative is a video, it consumes a second
+      video decoder": two decoders, so the video L-shape (option 1).
+    requests:
+      - &resolve
+        at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r27-3/overlay
+        answered_by: behaviour/fixtures/R27.3/overlay.xml
+      - at: {from: 0, to: 2000}
+        url: https://ads-cdn.example.com/beh/r27-3/l-shape-ad.mpd
+        answered_by: behaviour/fixtures/R27.3/l-shape-ad.mpd
+    selection:
+      - opportunity: &opp {fixture: behaviour/fixtures/R27.3/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c {fixture: behaviour/fixtures/R27.3/overlay.xml, index: 1}, option: {index: 1}, layout: squeezeback-l-shape-upper-left}
+    presentation:
+      - &before {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 6000, layout: squeezeback-l-shape-upper-left, shows: [{element: ad, candidate: *c, option: {index: 1}}, {element: primary, from: 2000}]}
+      - &after {start: 6000, end: 8000, layout: none, shows: [{element: primary, from: 6000}]}
+    beacons: []
+  D2: *video
+  D3:
+    summary: >-
+      Decides "the L-shape is NOT satisfiable on a single-decoder device" with
+      a video creative, and that with an HTML one "a single-decoder device
+      that can composite that surface type ... can render it": option 2; the
+      video sub-MPD is not requested.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c, option: {index: 2}, layout: squeezeback-l-shape-upper-left}
+    presentation:
+      - *before
+      - {start: 2000, end: 6000, layout: squeezeback-l-shape-upper-left, shows: [{element: ad, candidate: *c, option: {index: 2}}, {element: primary, from: 2000}]}
+      - *after
+    beacons: []
+  D4:
+    summary: >-
+      Decides "An image / HTML full-frame creative MUST NOT be selected on a
+      device that cannot composite that surface type together with video":
+      the HTML option is skipped on a device with no HTML over video, and the
+      image L-shape (option 3) is presented.
+    requests: [*resolve]
+    selection:
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: *c, option: {index: 3}, layout: squeezeback-l-shape-upper-left}
+    presentation:
+      - *before
+      - {start: 2000, end: 6000, layout: squeezeback-l-shape-upper-left, shows: [{element: ad, candidate: *c, option: {index: 3}}, {element: primary, from: 2000}]}
+      - *after
+    beacons: []
+  D5:
+    summary: One decoder and no surface over video; no option is satisfiable and the programme plays alone.
+    requests: [*resolve]
+    selection:
+      - {opportunity: *opp, result: declined, presented: []}
+    presentation:
+      - {start: 0, end: 8000, layout: none, shows: [{element: primary, from: 0}]}
+    beacons: []

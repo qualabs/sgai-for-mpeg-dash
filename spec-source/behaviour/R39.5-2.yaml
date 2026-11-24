@@ -1,0 +1,44 @@
+# R39.5 — "(or the viewport when no region is declared)". The window admits
+# `custom` and declares no region (fixtures/R39.5/main-viewport.mpd); option
+# 1 is custom "80 0 20 20", on the viewport's top and right edges, option 2
+# overlay-corner (fixtures/R39.5/viewport.xml). A rectangle outside the
+# viewport cannot be written: level 2 (R39.4b) rejects it, so only the
+# inside case is tested here.
+format: sgai-scenario/1
+criterion: R39.5
+criterion_sha256: e290784549992264b7d855a21de190291b103d8ad00f9674ac9052faebe0650f
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R39.5/main-viewport.mpd
+fixtures:
+  - path: behaviour/fixtures/R39.5/main-viewport.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R39.5/viewport.xml
+    url: https://aps.example.com/behaviour/r39-5?w=2
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 1, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1:
+    summary: >-
+      With no region the region is the viewport: option 1 lies inside it and
+      is shown 5-10 s at x 80 %, y 0 %, 20 % x 20 %.
+    requests:
+      - {at: {from: 0, to: 5000}, url: "https://aps.example.com/behaviour/r39-5?w=2", query: {sgai-allowed-layouts: custom overlay-corner}, answered_by: behaviour/fixtures/R39.5/viewport.xml}
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R39.5/main-viewport.mpd, event_id: "1"}
+        result: presented
+        presented: [{candidate: &c {fixture: behaviour/fixtures/R39.5/viewport.xml, index: 1}, option: {index: 1}, layout: custom}]
+    presentation:
+      - {start: 0, end: 5000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 5000, end: 10000, layout: custom, shows: [{element: primary, from: 5000}, {element: ad, candidate: *c, option: {index: 1}}]}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons:
+      - {at: 5000, fixture: behaviour/fixtures/R39.5/viewport.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=3952"}
+    geometry:
+      - {at: 7500, ad: {x: 80, y: 0, width: 20, height: 20}, tolerance: 1}

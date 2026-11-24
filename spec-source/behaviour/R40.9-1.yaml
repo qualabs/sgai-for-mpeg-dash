@@ -1,0 +1,75 @@
+# R40.9 — anchoring. An overlay window 2 s to 6 s of the programme with a
+# cap of 10 s and one 10 s image: the window's range, not the candidate's
+# length nor the cap, bounds what is shown. A pause window 10 s to 14 s
+# (@earliestResolutionTimeOffset 0): the viewer pauses at 8 s, outside it,
+# then at 13 s of the session (12 s of the programme), inside it.
+#
+# The relations (default, supersede, on-top) are the other files' and
+# R40.4's and R40.5's: default in R40.4-1 and R40.4-2, supersede in
+# R40.9-2 and R40.9-3, on-top in R40.5-1 and R40.5-2.
+format: sgai-scenario/1
+criterion: R40.9
+criterion_sha256: 5719078dc00fc9a2bd5b425b7a4bbc84c49fc6a42827348ba3a7b6f6d46d0a7c
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 17000
+entry: behaviour/fixtures/R40.9/main-anchor.mpd
+fixtures:
+  - path: behaviour/fixtures/R40.9/main-anchor.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R40.9/overlay.xml
+    url: https://aps.example.com/beh/r40-9/overlay
+    class: overlay-list
+  - path: behaviour/fixtures/R40.9/pause.xml
+    url: https://aps.example.com/beh/r40-9/pause
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 8000, do: pause}
+  - {at: 9000, do: resume}
+  - {at: 13000, do: pause}
+  - {at: 15000, do: resume}
+
+outcomes:
+  D1: &anchored
+    summary: >-
+      Decides R40.9 "its ad is shown while the presentation that declares it
+      plays through that range, and MUST NOT be shown outside it" and "A pause
+      window is anchored to the viewer's pause inside its range": the image
+      from 2 s to 6 s only (its 5 s beacon never fires); the pause at 8 s
+      shows the paused frame and no ad and resolves nothing; the pause at
+      13 s shows the pause ad until the resume at 15 s.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r40-9/overlay
+        answered_by: behaviour/fixtures/R40.9/overlay.xml
+      # @earliestResolutionTimeOffset 0: not before the window's start (11 s
+      # of the session); at the pause inside it at the latest.
+      - at: {from: 11000, to: 13000}
+        url: https://aps.example.com/beh/r40-9/pause
+        answered_by: behaviour/fixtures/R40.9/pause.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R40.9/main-anchor.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R40.9/overlay.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+      - opportunity: {fixture: behaviour/fixtures/R40.9/main-anchor.mpd, event_id: "2"}
+        result: presented
+        presented:
+          - {candidate: &p {fixture: behaviour/fixtures/R40.9/pause.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 6000, layout: overlay-lower-third, shows: [{element: primary, from: 2000}, {element: ad, candidate: *a, option: {index: 1}}]}
+      - {start: 6000, end: 8000, layout: none, shows: [{element: primary, from: 6000}], note: "the window's range ended; 6 s of the 10 s image unshown"}
+      - {start: 8000, end: 9000, layout: none, shows: [{element: primary, from: 8000}], note: "paused outside the pause window: no pause ad"}
+      - {start: 9000, end: 13000, layout: none, shows: [{element: primary, from: 8000}]}
+      - {start: 13000, end: 15000, layout: pause-fullscreen, shows: [{element: ad, candidate: *p, option: {index: 1}}]}
+      - {start: 15000, end: 17000, layout: none, shows: [{element: primary, from: 12000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R40.9/overlay.xml, candidate: *a, id: "1", url: "https://t.example.com/r40-9/a-imp"}
+      - {at: 5000, fixture: behaviour/fixtures/R40.9/overlay.xml, candidate: *a, id: "2", url: "https://t.example.com/r40-9/a-3s"}
+  D4: *anchored

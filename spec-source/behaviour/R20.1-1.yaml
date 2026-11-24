@@ -1,0 +1,67 @@
+# R20.1, first failure: the APS does not respond. Loaded: overlay window 1 (2-40 s)
+# whose APS never answers, overlay window 2 (20-40 s) answered with one 5 s image.
+# How long to wait is the Player's (no timeout is fixed); this test assumes the
+# Player gives up on window 1 before window 2 starts (18 s after window 1's start).
+# A Player that waits forever, or that does not fall back, shows nothing.
+format: sgai-scenario/1
+criterion: R20.1
+criterion_sha256: 620e75eecd8499c6e4fa555f51deed1ac20f485cf73a5e4b8805e5ab1519f615
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 27000
+entry: behaviour/fixtures/R20.1/r20-1-1-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R20.1/r20-1-1-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R20.1/r20-1-1-w2.xml, url: 'https://aps.example.com/b/r20-1-1/w2', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+aps:
+- {url: 'https://aps.example.com/b/r20-1-1/w1', no_response: true}
+outcomes:
+  D4:
+    summary: 'R20.1: "An attempt **on a window** that does not produce an ad is a **failed execution**, and on a failed execution the
+      Player MUST attempt the next overlapping window of the same family." "the APS does not respond ... — *"Alternative MPD is unavailable"*".
+      Window 1 never answers; window 2 (from 20 s) is resolved and presents its image.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r20-1-1/w1
+      query: {sgai-allowed-layouts: overlay-lower-third}
+    - at: {from: 2000, to: 20000}
+      url: https://aps.example.com/b/r20-1-1/w2
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R20.1/r20-1-1-w2.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R20.1/r20-1-1-main.mpd, event_id: '2'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R20.1/r20-1-1-w2.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 20000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 20000
+      end: 25000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 20000}
+      - element: ad
+        candidate: *id001
+        option: {index: 1}
+    - start: 25000
+      end: 27000
+      layout: none
+      shows:
+      - {element: primary, from: 25000}
+    beacons:
+    - at: 20000
+      fixture: behaviour/fixtures/R20.1/r20-1-1-w2.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/r20-1-1/fb-imp

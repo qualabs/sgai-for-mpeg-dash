@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011"
+                  xmlns:svta="urn:svta:dash:sgai:2026"
+                  family="overlay"
+                  dismissAfter="never">
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/behaviour/R39.5/outside.png"
+                          mimeType="image/png"
+                          duration="PT5S"
+                          layout="custom"
+                          rect="45 60 20 20"/>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/behaviour/R39.5/inside.png"
+                          mimeType="image/png"
+                          duration="PT5S"
+                          layout="custom"
+                          rect="60 60 40 40"/>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/behaviour/R39.5/corner.png"
+                          mimeType="image/png"
+                          duration="PT5S"
+                          layout="overlay-corner"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/imp?cr=395</Event>
+    </svta:Tracking>
+    <svta:AdSystem>ExampleAds</svta:AdSystem>
+    <svta:AdTitle>Three placements</svta:AdTitle>
+  </svta:Ad>
+</svta:OverlayList>

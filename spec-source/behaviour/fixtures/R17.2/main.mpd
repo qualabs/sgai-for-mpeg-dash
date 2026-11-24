@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- R17.2: an overlay window 2 s to 12 s inside a pause window over the first minute -->
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     xmlns:svta="urn:svta:dash:sgai:2026"
+     type="static"
+     profiles="urn:mpeg:dash:profile:isoff-live:2011"
+     mediaPresentationDuration="PT2M"
+     minBufferTime="PT2S">
+  <BaseURL>https://content.example.com/beh/r17-2/</BaseURL>
+  <Period id="main" start="PT0S">
+    <EventStream schemeIdUri="urn:svta:dash:sgai-overlay:2026" timescale="1000">
+      <Event id="1" presentationTime="2000" duration="10000">
+        <svta:OverlayPresentation
+                              uri="https://aps.example.com/beh/r17-2/overlay"
+                              durationCap="10000"/>
+      </Event>
+    </EventStream>
+    <EventStream schemeIdUri="urn:svta:dash:sgai-pause-trigger:2026" timescale="1000">
+      <Event id="2" presentationTime="0" duration="60000">
+        <svta:PauseAdPresentation
+                              uri="https://aps.example.com/beh/r17-2/pause"
+                              durationCap="60000"/>
+      </Event>
+    </EventStream>
+    <AdaptationSet id="1" contentType="video" mimeType="video/mp4"
+                   codecs="avc1.64001F" segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="2000" startNumber="1"
+                       initialization="video/$RepresentationID$/init.mp4"
+                       media="video/$RepresentationID$/$Number$.m4s"/>
+      <Representation id="v1080" bandwidth="6000000" width="1920" height="1080"/>
+    </AdaptationSet>
+    <AdaptationSet id="2" contentType="audio" mimeType="audio/mp4"
+                   codecs="mp4a.40.2" lang="en" segmentAlignment="true" startWithSAP="1">
+      <SegmentTemplate timescale="1000" duration="2000" startNumber="1"
+                       initialization="audio/$RepresentationID$/init.mp4"
+                       media="audio/$RepresentationID$/$Number$.m4s"/>
+      <Representation id="a128" bandwidth="128000" audioSamplingRate="48000"/>
+    </AdaptationSet>
+  </Period>
+  <Metrics metrics="PlayList">
+    <Reporting schemeIdUri="urn:example:reporting:2026" value="collector-1"/>
+  </Metrics>
+</MPD>

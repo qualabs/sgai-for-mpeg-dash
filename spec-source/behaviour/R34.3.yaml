@@ -1,0 +1,74 @@
+# R34.3 — "consumed when an ad from it begins rendering. An execution or a
+# pause that resolves to no renderable candidate MUST leave the window
+# available". A once-per-session pause window over the first 60 s
+# (fixtures/R34.3/main.mpd). The first request is answered by an empty
+# resolution usable for 5 s (fixtures/R34.3/empty.xml), the second by one
+# 3 s candidate (fixtures/R34.3/pause-list.xml). Pauses at 2 s (resumed at
+# 4 s), 10 s (resumed at 15 s) and 18 s (resumed at 20 s).
+# Only the pause half is written: an overlay window cannot be declared
+# once-per-session in spec-source, so "a seek over it" has no test (see the
+# evidence README, T-04/b).
+# Rests on usability being the document's lifetime (§5.2.5): the empty
+# document is usable during the first pause whenever it was requested, and
+# expired by the second.
+format: sgai-scenario/1
+criterion: R34.3
+criterion_sha256: 778da27caec1ee794dade94ad62caee872eab41fc99d368941069c0723b00a65
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 22000
+entry: behaviour/fixtures/R34.3/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R34.3/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R34.3/empty.xml
+    url: https://aps.example.com/behaviour/pause-once?w=1
+    class: overlay-list
+  - path: behaviour/fixtures/R34.3/pause-list.xml
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+aps:
+  - {url: "https://aps.example.com/behaviour/pause-once?w=1", nth: 1, status: 200, document: behaviour/fixtures/R34.3/empty.xml}
+  - {url: "https://aps.example.com/behaviour/pause-once?w=1", nth: 2, status: 200, document: behaviour/fixtures/R34.3/pause-list.xml}
+actions:
+  - {at: 2000, do: pause}
+  - {at: 4000, do: resume}
+  - {at: 10000, do: pause}
+  - {at: 15000, do: resume}
+  - {at: 18000, do: pause}
+  - {at: 20000, do: resume}
+
+outcomes:
+  D1: &o
+    summary: >-
+      Pause 1 resolves to nothing: the paused frame, and the window stays
+      available. Pause 2 (main 8 s) is resolved anew and shows the candidate
+      10-13 s: the window is consumed. Pause 3 (main 11 s) shows only the
+      paused frame and fires nothing.
+    requests:
+      - {at: {from: 0, to: 2000}, url: "https://aps.example.com/behaviour/pause-once?w=1", answered_by: behaviour/fixtures/R34.3/empty.xml}
+      - {at: {from: 4000, to: 10000}, url: "https://aps.example.com/behaviour/pause-once?w=1", answered_by: behaviour/fixtures/R34.3/pause-list.xml}
+    selection:
+      - {opportunity: &opp {fixture: behaviour/fixtures/R34.3/main.mpd, event_id: "1"}, result: declined, presented: []}
+      - opportunity: *opp
+        result: presented
+        presented:
+          - {candidate: &c {fixture: behaviour/fixtures/R34.3/pause-list.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 4000, layout: none, shows: [{element: primary, from: 2000}], note: "pause 1: the paused frame, empty resolution"}
+      - {start: 4000, end: 10000, layout: none, shows: [{element: primary, from: 2000}]}
+      - {start: 10000, end: 13000, layout: pause-fullscreen, shows: [{element: ad, candidate: *c, option: {index: 1}}]}
+      - {start: 13000, end: 15000, layout: none, shows: [{element: primary, from: 8000}], note: the paused frame}
+      - {start: 15000, end: 18000, layout: none, shows: [{element: primary, from: 8000}]}
+      - {start: 18000, end: 20000, layout: none, shows: [{element: primary, from: 11000}], note: "pause 3: the window is consumed"}
+      - {start: 20000, end: 22000, layout: none, shows: [{element: primary, from: 11000}]}
+    beacons:
+      - {at: 10000, fixture: behaviour/fixtures/R34.3/pause-list.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=3431"}
+  D3: *o
+  D4: *o

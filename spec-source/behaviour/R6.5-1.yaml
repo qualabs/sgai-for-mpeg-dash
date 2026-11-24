@@ -1,0 +1,92 @@
+# R6.5 on a non-linear resolution document — the @id scope is the candidate.
+# Loaded: one overlay window, two 4 s image candidates. Candidate 1 carries two
+# events with one URL at 1 s (@id 3 and 4) and two events with @id 2 (2 s and 3 s,
+# different URLs); both candidates use @id 1. A Player with a document-wide scope
+# drops candidate 2's @id 1; one with no de-duplication fires the URL at 1 s
+# twice and @id 2 twice. Which of two events sharing an @id is "the" beacon is
+# read as the first, as the base ignores an event whose @id it has already
+# processed (§5.10.2.4).
+format: sgai-scenario/1
+criterion: R6.5
+criterion_sha256: 3e3278cc0bd34e55ea410212200efba949f33f99e1d79c726bb84965a6211ece
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R6.5/r6-5-1-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R6.5/r6-5-1-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R6.5/r6-5-1-list.xml, url: 'https://aps.example.com/b/r6-5-1/w', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D4:
+    summary: 'R6.5: "Within a candidate, beacons sharing an `@id`, or the same URL at the same presentation time, are one beacon and
+      fire once. Two beacons carrying the same `@id` in two different candidates of one resolution document are two distinct beacons,
+      and both MUST fire." Candidate 1: @id 1 at 0; the two events with one URL at 1 s fire once; @id 2 fires once, at its first time
+      (2 s), and its second event (3 s) does not. Candidate 2: its own @id 1 fires.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r6-5-1/w
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R6.5/r6-5-1-list.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R6.5/r6-5-1-main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R6.5/r6-5-1-list.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+      - candidate: &id002 {fixture: behaviour/fixtures/R6.5/r6-5-1-list.xml, index: 2}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 2000
+      end: 6000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 2000}
+      - element: ad
+        candidate: *id001
+        option: {index: 1}
+    - start: 6000
+      end: 10000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 6000}
+      - element: ad
+        candidate: *id002
+        option: {index: 1}
+    - start: 10000
+      end: 12000
+      layout: none
+      shows:
+      - {element: primary, from: 10000}
+    beacons:
+    - at: 2000
+      fixture: behaviour/fixtures/R6.5/r6-5-1-list.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/r6-5-1/c1-imp
+    - at: 3000
+      fixture: behaviour/fixtures/R6.5/r6-5-1-list.xml
+      candidate: *id001
+      id: '3'
+      url: https://t.example.com/r6-5-1/c1-same-url
+    - at: 4000
+      fixture: behaviour/fixtures/R6.5/r6-5-1-list.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.com/r6-5-1/c1-mid
+    - at: 6000
+      fixture: behaviour/fixtures/R6.5/r6-5-1-list.xml
+      candidate: *id002
+      id: '1'
+      url: https://t.example.com/r6-5-1/c2-imp

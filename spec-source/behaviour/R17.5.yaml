@@ -1,0 +1,74 @@
+# R17.5 — a viewer pause while a linear ad occupies the screen, inside a
+# pause window applicable to it. A 10 s insertion at 3 s; a pause window over
+# the first minute of the programme that declares `on-top` (the R40.5 path
+# of the criterion: "a window of the triggering presentation that declares
+# on top"). The viewer pauses at 6 s, 3 s into the linear ad, and resumes at
+# 9 s.
+#
+# The schema has no position for an ad element (only `primary` carries
+# `from`), so where the linear ad resumes is decided by its beacons: its 5 s
+# beacon fires 2 s after the resume, at 11 s, and its completion at 16 s.
+format: sgai-scenario/1
+criterion: R17.5
+criterion_sha256: 6ab73b1390c5924e10fc7c6e090bd763ed5787379190b1d0de3f44054e819e8c
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 18000
+entry: behaviour/fixtures/R17.5/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R17.5/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R17.5/list.mpd
+    url: https://aps.example.com/beh/r17-5/break
+    class: list-mpd
+  - path: behaviour/fixtures/R17.5/ad.mpd
+    url: https://ads-cdn.example.com/beh/r17-5/ad.mpd
+    class: sps-mpd
+  - path: behaviour/fixtures/R17.5/pause.xml
+    url: https://aps.example.com/beh/r17-5/pause
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 6000, do: pause}
+  - {at: 9000, do: resume}
+
+outcomes:
+  D1:
+    summary: >-
+      Decides R17.5 "the Player MUST present the pause ad and MUST suspend the
+      linear ad, and MUST resume it from where it was suspended when the
+      viewer resumes": the pause ad from 6 s to 9 s, then the linear ad from
+      its 3rd second to its end at 16 s, then the programme from 3 s.
+    requests:
+      # @earliestResolutionTimeOffset 3 s before 3 s: from the start.
+      - at: {from: 0, to: 3000}
+        url: https://aps.example.com/beh/r17-5/break
+        answered_by: behaviour/fixtures/R17.5/list.mpd
+      - at: {from: 0, to: 3000}
+        url: https://ads-cdn.example.com/beh/r17-5/ad.mpd
+        answered_by: behaviour/fixtures/R17.5/ad.mpd
+      - at: {from: 0, to: 6000}
+        url: https://aps.example.com/beh/r17-5/pause
+        answered_by: behaviour/fixtures/R17.5/pause.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R17.5/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &lin {fixture: behaviour/fixtures/R17.5/list.mpd, id: ad-1}, option: null, layout: linear}
+      - opportunity: {fixture: behaviour/fixtures/R17.5/main.mpd, event_id: "2"}
+        result: presented
+        presented:
+          - {candidate: &p {fixture: behaviour/fixtures/R17.5/pause.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+    presentation:
+      - {start: 0, end: 3000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 3000, end: 6000, layout: linear, shows: [{element: ad, candidate: *lin, option: null}]}
+      - {start: 6000, end: 9000, layout: pause-fullscreen, shows: [{element: ad, candidate: *p, option: {index: 1}}], note: the linear ad suspended at its 3rd second}
+      - {start: 9000, end: 16000, layout: linear, shows: [{element: ad, candidate: *lin, option: null}], note: the linear ad resumed from its 3rd second}
+      - {start: 16000, end: 18000, layout: none, shows: [{element: primary, from: 3000}]}
+    beacons:
+      - {at: 3000, fixture: behaviour/fixtures/R17.5/ad.mpd, id: "1", url: "https://t.example.com/r17-5/imp"}
+      - {at: 11000, fixture: behaviour/fixtures/R17.5/ad.mpd, id: "2", url: "https://t.example.com/r17-5/mid"}
+      - {at: 16000, fixture: behaviour/fixtures/R17.5/ad.mpd, id: "3", url: "https://t.example.com/r17-5/complete"}

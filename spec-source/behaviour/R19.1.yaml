@@ -1,0 +1,81 @@
+# R19.1 — every ad form, linear or non-linear, at the primary content's
+# playback speed. The viewer sets the rate to 2 at the start. A video
+# overlay window 4 s to 12 s of the programme (an 8 s video lower-third) and
+# an 8 s insertion at 20 s. At rate 2 the programme advances 2 s per second
+# of session, so the overlay is on screen from 2 s to 6 s and the insertion
+# from 10 s to 14 s; each ad's 4 s beacon fires 2 s into it.
+format: sgai-scenario/1
+criterion: R19.1
+criterion_sha256: 2701e60af121d747dfecf3f48cc286823616d3b74c396e23b06192a2910aba1b
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 16000
+entry: behaviour/fixtures/R19.1/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R19.1/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R19.1/overlay.xml
+    url: https://aps.example.com/beh/r19-1/overlay
+    class: overlay-list
+  - path: behaviour/fixtures/R19.1/overlay-ad.mpd
+    url: https://ads-cdn.example.com/beh/r19-1/overlay-ad.mpd
+    class: sps-mpd
+  - path: behaviour/fixtures/R19.1/list.mpd
+    url: https://aps.example.com/beh/r19-1/break
+    class: list-mpd
+  - path: behaviour/fixtures/R19.1/break-ad.mpd
+    url: https://ads-cdn.example.com/beh/r19-1/break-ad.mpd
+    class: sps-mpd
+# The video lower-third needs a second decoder (§5.3.7): D1 and D2.
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D2: {sgai-video-decoders: 2, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 0, do: rate, rate: 2}
+
+outcomes:
+  D1: &double
+    summary: >-
+      Decides R19.1 "The Player MUST render every ad form (linear or
+      non-linear) at the same playback speed as the primary content at the
+      moment the ad is presented": the 8 s video overlay and the 8 s linear
+      ad each take 4 s at rate 2.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r19-1/overlay
+        answered_by: behaviour/fixtures/R19.1/overlay.xml
+      - at: {from: 0, to: 2000}
+        url: https://ads-cdn.example.com/beh/r19-1/overlay-ad.mpd
+        answered_by: behaviour/fixtures/R19.1/overlay-ad.mpd
+      # @earliestResolutionTimeOffset 10 s before 20 s: programme 10 s, session 5 s.
+      - at: {from: 5000, to: 10000}
+        url: https://aps.example.com/beh/r19-1/break
+        answered_by: behaviour/fixtures/R19.1/list.mpd
+      - at: {from: 5000, to: 10000}
+        url: https://ads-cdn.example.com/beh/r19-1/break-ad.mpd
+        answered_by: behaviour/fixtures/R19.1/break-ad.mpd
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R19.1/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &o {fixture: behaviour/fixtures/R19.1/overlay.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+      - opportunity: {fixture: behaviour/fixtures/R19.1/main.mpd, event_id: "2"}
+        result: presented
+        presented:
+          - {candidate: &lin {fixture: behaviour/fixtures/R19.1/list.mpd, id: ad-1}, option: null, layout: linear}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 6000, layout: overlay-lower-third, shows: [{element: primary, from: 4000}, {element: ad, candidate: *o, option: {index: 1}}], note: 8 s of video at rate 2}
+      - {start: 6000, end: 10000, layout: none, shows: [{element: primary, from: 12000}]}
+      - {start: 10000, end: 14000, layout: linear, shows: [{element: ad, candidate: *lin, option: null}], note: 8 s of video at rate 2}
+      - {start: 14000, end: 16000, layout: none, shows: [{element: primary, from: 20000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R19.1/overlay.xml, candidate: *o, id: "1", url: "https://t.example.com/r19-1/ov-imp"}
+      - {at: 4000, fixture: behaviour/fixtures/R19.1/overlay.xml, candidate: *o, id: "2", url: "https://t.example.com/r19-1/ov-mid"}
+      - {at: 6000, fixture: behaviour/fixtures/R19.1/overlay.xml, candidate: *o, id: "3", url: "https://t.example.com/r19-1/ov-complete"}
+      - {at: 10000, fixture: behaviour/fixtures/R19.1/break-ad.mpd, id: "1", url: "https://t.example.com/r19-1/imp"}
+      - {at: 12000, fixture: behaviour/fixtures/R19.1/break-ad.mpd, id: "2", url: "https://t.example.com/r19-1/mid"}
+      - {at: 14000, fixture: behaviour/fixtures/R19.1/break-ad.mpd, id: "3", url: "https://t.example.com/r19-1/complete"}
+  D2: *double

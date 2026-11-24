@@ -1,0 +1,76 @@
+# R1.4 — a runtime failure mid-ad aborts that ad; the aborted candidate counts as
+# rendered, so the fallback window is not attempted, and the primary content
+# continues. Loaded: two same-family overlay windows over one span (2 is 1's
+# fallback); window 1 resolves to one video candidate (12 s sub-MPD, 2 s
+# segments) whose segments 4 to 6 (6-12 s of the ad) answer 404, each after a
+# 3 s delay so the failure cannot be known before the ad has begun (at the
+# earliest 3 s after the first request, which is after 0; the ad begins at 2 s).
+# The abort instant is the Player's: written at the gap (ad time 6 s, session
+# 8 s) with a 2 s tolerance; see the T-04 evidence for why a window is needed.
+format: sgai-scenario/1
+criterion: R1.4
+criterion_sha256: 41058e93fb4ee7d5cd2aba902fbe146aa3756b9cd9eb621b9bf3d0202982ade7
+timescale: 1000
+tolerance: 2000
+play_from: 0
+observe_until: 14000
+entry: behaviour/fixtures/R1.4/main.mpd
+fixtures:
+- {path: behaviour/fixtures/R1.4/main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R1.4/w1-list.xml, url: 'https://aps.example.com/b/r1-4/w1', class: overlay-list}
+- {path: behaviour/fixtures/R1.4/w2-list.xml, url: 'https://aps.example.com/b/r1-4/w2', class: overlay-list}
+- {path: behaviour/fixtures/R1.4/ad.mpd, url: 'https://ads-cdn.example.com/b/r1-4/ad/ad.mpd', class: sps-mpd}
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+aps:
+- {url: 'https://ads-cdn.example.com/b/r1-4/ad/v/4.m4s', status: 404, delay: 3000}
+- {url: 'https://ads-cdn.example.com/b/r1-4/ad/v/5.m4s', status: 404, delay: 3000}
+- {url: 'https://ads-cdn.example.com/b/r1-4/ad/v/6.m4s', status: 404, delay: 3000}
+outcomes:
+  D1:
+    summary: 'R1.4: "When rendering an accepted ad fails at runtime after it has begun (... a mid-ad network loss) ... the Player MUST
+      abort that ad" and "A candidate that began rendering and was then aborted counts as rendered: the Player continues with the primary
+      content, and R20.1 does not apply." The video lower-third from 2 s until the ad can no longer be rendered (about 8 s), then the
+      primary content alone; window 2 is never requested; the complete beacon (12 s of the ad) never fires.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r1-4/w1
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R1.4/w1-list.xml
+    - at: {from: 0, to: 2000}
+      url: https://ads-cdn.example.com/b/r1-4/ad/ad.mpd
+      answered_by: behaviour/fixtures/R1.4/ad.mpd
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R1.4/main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R1.4/w1-list.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 2000
+      end: 8000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 2000}
+      - element: ad
+        candidate: *id001
+        option: {index: 1}
+    - start: 8000
+      end: 14000
+      layout: none
+      shows:
+      - {element: primary, from: 8000}
+    beacons:
+    - at: 2000
+      fixture: behaviour/fixtures/R1.4/w1-list.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/r1-4/imp

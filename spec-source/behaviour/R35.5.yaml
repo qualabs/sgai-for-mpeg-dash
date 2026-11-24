@@ -1,0 +1,56 @@
+# R35.5 — a dismissed slot does not shorten the primary content. The slot
+# that bounds a region of the primary timeline is the full-screen takeover
+# of a non-linear candidate on a static presentation: the programme is
+# suspended at 2 s for an 8 s video takeover (spec §5.3.6, the `linear`
+# row). The document is dismissible at once; the viewer dismisses at 4 s,
+# 2 s into the takeover.
+format: sgai-scenario/1
+criterion: R35.5
+criterion_sha256: d22c1f55238043c7c2c2826081508429e32ebd24d103453f7c2089b7374ffeb0
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 8000
+entry: behaviour/fixtures/R35.5/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R35.5/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R35.5/overlay.xml
+    url: https://aps.example.com/beh/r35-5/overlay
+    class: overlay-list
+  - path: behaviour/fixtures/R35.5/takeover.mpd
+    url: https://ads-cdn.example.com/beh/r35-5/takeover.mpd
+    class: sps-mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 4000, do: dismiss}
+
+outcomes:
+  D1: &continued
+    summary: >-
+      Decides R35.5 "the Player MUST continue from where the primary content
+      stands, and MUST NOT compress or skip any part of it": after the
+      dismissal at 4 s the programme continues from 2 s, where it was
+      suspended, not from 10 s, where the takeover would have returned it.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r35-5/overlay
+        query: {sgai-allowed-layouts: linear}
+        answered_by: behaviour/fixtures/R35.5/overlay.xml
+      - at: {from: 0, to: 2000}
+        url: https://ads-cdn.example.com/beh/r35-5/takeover.mpd
+        answered_by: behaviour/fixtures/R35.5/takeover.mpd
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R35.5/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &t {fixture: behaviour/fixtures/R35.5/overlay.xml, index: 1}, option: {index: 1}, layout: linear}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 4000, layout: linear, shows: [{element: ad, candidate: *t, option: {index: 1}}]}
+      - {start: 4000, end: 8000, layout: none, shows: [{element: primary, from: 2000}], note: "continued where it was suspended; nothing skipped"}
+    beacons: []
+  D5: *continued

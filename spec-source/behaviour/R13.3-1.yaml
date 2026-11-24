@@ -1,0 +1,64 @@
+# R13.3, trimmed by the cap. Loaded: an overlay window with @durationCap 4000, one
+# 8 s image candidate with beacons at 0, 3, 5 and 8 s. A Player that keeps the
+# schedule after the trim fires the last two (at 7 and 10 s, or at the trim).
+format: sgai-scenario/1
+criterion: R13.3
+criterion_sha256: e4f44c899c676e4a7e6628bbf67f86dabe69832b3ac5d0de182625b9c029e4a6
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 9000
+entry: behaviour/fixtures/R13.3/r13-3-1-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R13.3/r13-3-1-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R13.3/r13-3-1-list.xml, url: 'https://aps.example.com/b/r13-3-1/w', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D4:
+    summary: 'R13.3: "A beacon whose time falls after the presentation of its ad has ended — trimmed by the cap (R4) ... — MUST NOT
+      be fired." Trimmed at 4 s of the ad (6 s): the beacons at 0 and 3 s fire, those at 5 and 8 s do not.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r13-3-1/w
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R13.3/r13-3-1-list.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R13.3/r13-3-1-main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R13.3/r13-3-1-list.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 2000
+      end: 6000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 2000}
+      - element: ad
+        candidate: *id001
+        option: {index: 1}
+    - start: 6000
+      end: 9000
+      layout: none
+      shows:
+      - {element: primary, from: 6000}
+    beacons:
+    - at: 2000
+      fixture: behaviour/fixtures/R13.3/r13-3-1-list.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/r13-3-1/imp
+    - at: 5000
+      fixture: behaviour/fixtures/R13.3/r13-3-1-list.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.com/r13-3-1/at-3s

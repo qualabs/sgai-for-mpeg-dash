@@ -1,0 +1,38 @@
+# R36.1 — "A window that declares nothing may be resolved up to 60 seconds
+# ahead". An overlay window 65-67 s declaring no offset
+# (fixtures/R36.1/main-default.mpd). Playback starts at 0, more than 60 s
+# before it; a seek at session 2 s to 50 s brings it 15 s ahead, so the test
+# does not have to play a minute to reach the bound.
+format: sgai-scenario/1
+criterion: R36.1
+criterion_sha256: 79148b5e0f6f8a42eaac546bbf9fa135f9d86d6bd8aa9eb67584c44fc13d202a
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 19000
+entry: behaviour/fixtures/R36.1/main-default.mpd
+fixtures:
+  - path: behaviour/fixtures/R36.1/main-default.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R36.1/empty.xml
+    url: https://aps.example.com/behaviour/r36-1?w=3
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: [{at: 2000, do: seek, to: 50000}]
+
+outcomes:
+  D1: &o
+    summary: >-
+      Playback starts at 0, 65 s before the window: no request. The seek at 2 s to 50 s brings the window within 60 s; the request is made from then on, before the window's start at session 17 s.
+    requests:
+      - {at: {from: 2000, to: 17000}, url: "https://aps.example.com/behaviour/r36-1?w=3", answered_by: behaviour/fixtures/R36.1/empty.xml}
+    selection:
+      - {opportunity: {fixture: behaviour/fixtures/R36.1/main-default.mpd, event_id: "1"}, result: declined, presented: []}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 19000, layout: none, shows: [{element: primary, from: 50000}]}
+    beacons: []
+  D4: *o

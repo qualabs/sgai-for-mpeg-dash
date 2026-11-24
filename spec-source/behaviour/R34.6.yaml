@@ -1,0 +1,63 @@
+# R34.6 — "every entry of the playhead into the window's range ... a seek
+# back to a point before its end — is a new execution of the window. Each
+# execution resolves the opportunity anew ... and MUST be presented as the
+# first, with ... its own beacons". An overlay window 5-10 s resolved when it
+# fires (fixtures/R34.6/main.mpd). The first document (candidate A) is
+# usable for 2 s (fixtures/R34.6/first.xml), so it cannot serve the second
+# execution (R36.4); the second request is answered with candidate B
+# (fixtures/R34.6/second.xml). At session 12 s the viewer seeks back to 3 s.
+# R34.6 is held by the spec document; what is tested is the Player's side.
+format: sgai-scenario/1
+criterion: R34.6
+criterion_sha256: 1fd029562252b6590cf8126a7fcb757e243dffba2e482968ef917c8496faad11
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 21000
+entry: behaviour/fixtures/R34.6/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R34.6/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R34.6/first.xml
+    url: https://aps.example.com/behaviour/r34-6?w=1
+    class: overlay-list
+  - path: behaviour/fixtures/R34.6/second.xml
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+aps:
+  - {url: "https://aps.example.com/behaviour/r34-6?w=1", nth: 1, status: 200, document: behaviour/fixtures/R34.6/first.xml}
+  - {url: "https://aps.example.com/behaviour/r34-6?w=1", nth: 2, status: 200, document: behaviour/fixtures/R34.6/second.xml}
+actions: [{at: 12000, do: seek, to: 3000}]
+
+outcomes:
+  D1: &o
+    summary: >-
+      A over the film 5-10 s; after the seek back to 3 s, playback reaching
+      5 s again (session 14 s) is a new execution: a new request, and B, the
+      new resolution's first candidate, 14-19 s with its own impression.
+    requests:
+      - {at: 5000, url: "https://aps.example.com/behaviour/r34-6?w=1", answered_by: behaviour/fixtures/R34.6/first.xml}
+      - {at: 14000, url: "https://aps.example.com/behaviour/r34-6?w=1", answered_by: behaviour/fixtures/R34.6/second.xml}
+    selection:
+      - opportunity: &opp {fixture: behaviour/fixtures/R34.6/main.mpd, event_id: "1"}
+        result: presented
+        presented: [{candidate: &a {fixture: behaviour/fixtures/R34.6/first.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}]
+      - opportunity: *opp
+        result: presented
+        presented: [{candidate: &b {fixture: behaviour/fixtures/R34.6/second.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}]
+    presentation:
+      - {start: 0, end: 5000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 5000, end: 10000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *a, option: {index: 1}}]}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+      - {start: 12000, end: 14000, layout: none, shows: [{element: primary, from: 3000}]}
+      - {start: 14000, end: 19000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *b, option: {index: 1}}]}
+      - {start: 19000, end: 21000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons:
+      - {at: 5000, fixture: behaviour/fixtures/R34.6/first.xml, candidate: *a, id: "1", url: "https://t.example.com/imp?cr=346a"}
+      - {at: 14000, fixture: behaviour/fixtures/R34.6/second.xml, candidate: *b, id: "1", url: "https://t.example.com/imp?cr=346b"}
+  D3: *o
+  D4: *o

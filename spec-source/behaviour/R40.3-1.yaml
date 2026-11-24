@@ -1,0 +1,60 @@
+# R40.3 — a superseding window that presents no ad hands back the linear event.
+# Loaded: an overlay window (2-20 s, @linearRelation="supersede") whose APS
+# answers 404, and an InsertPresentation at 6 s inside its span answered by a 4 s
+# alternative MPD. A Player that keeps the event suppressed shows no break.
+format: sgai-scenario/1
+criterion: R40.3
+criterion_sha256: c2acaccabd0e87cd2ec8edd81d09269d237a5eef727ff1efbf9ae3a42d542bfe
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R40.3/r40-3-1-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R40.3/r40-3-1-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R40.3/r40-3-1-alt.mpd, url: 'https://aps.example.com/b/r40-3-1/break', class: sps-mpd}
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+aps:
+- {url: 'https://aps.example.com/b/r40-3-1/w', status: 404}
+outcomes:
+  D1:
+    summary: 'R40.3: "When a window that declares supersede presents no ad, the Player MUST execute the inherited linear events it stood
+      in for under the base specification''s rules, including those for an execution that starts after an event''s presentation time."
+      The window fails at once; the insertion executes at its PRT (6 s), back to PRTA after 4 s.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r40-3-1/w
+      query: {sgai-allowed-layouts: overlay-lower-third}
+    - at: {from: 4000, to: 6000}
+      url: https://aps.example.com/b/r40-3-1/break
+      answered_by: behaviour/fixtures/R40.3/r40-3-1-alt.mpd
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R40.3/r40-3-1-main.mpd, event_id: '2'}
+      result: presented
+      presented:
+      - candidate: &id001 {fixture: behaviour/fixtures/R40.3/r40-3-1-alt.mpd, id: alt}
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 6000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 6000
+      end: 10000
+      layout: linear
+      shows:
+      - element: ad
+        candidate: *id001
+        option: null
+    - start: 10000
+      end: 12000
+      layout: none
+      shows:
+      - {element: primary, from: 6000}
+    beacons:
+    - {at: 6000, fixture: behaviour/fixtures/R40.3/r40-3-1-alt.mpd, id: '1', url: 'https://t.example.com/r40-3-1/imp'}

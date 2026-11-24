@@ -1,0 +1,109 @@
+/run/user/1000/cto/t04a-20261123-2940/mutate.py:29: DeprecationWarning: 'count' is passed as positional argument
+  s = re.sub(r"criterion_sha256: ([0-9a-f])", lambda m: "criterion_sha256: " + ("0" if m.group(1) != "0" else "1"), s, 1)
+baseline: exit 1, findings other than B-COVER: 0
+R1.4      beacon-url    exit 1  CAUGHT  S-REF	R1.4.yaml	outcomes.D1.beacons[0]: url https://t.example.com/r1-4/imp-WRONG is not the event's text https://t.example.com/r1-4/imp
+R1.4      tiling        exit 1  CAUGHT  S-TIME	R1.4.yaml	outcomes.D1.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R1.4      candidate-ref exit 1  CAUGHT  S-REF	R1.4.yaml	outcomes.D1.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R1.4/w1-list.xml
+R1.4      hash          exit 2  CAUGHT  B-HASH	R1.4.yaml	criterion_sha256 01058e93fb4e… is not R1.4's 41058e93fb4e…: the criterion changed
+R4.2-1    beacon-url    exit 1  CAUGHT  S-REF	R4.2-1.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r4-2-1/c1-imp-WRONG is not the event's text https://t.example.com/r4-2-1/c1-imp
+R4.2-1    tiling        exit 1  CAUGHT  S-TIME	R4.2-1.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R4.2-1    candidate-ref exit 1  CAUGHT  S-REF	R4.2-1.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R4.2/r4-2-1-list.xml
+R4.2-1    hash          exit 2  CAUGHT  B-HASH	R4.2-1.yaml	criterion_sha256 0ba33c5fd2d4… is not R4.2's 8ba33c5fd2d4…: the criterion changed
+R4.2-2    tiling        exit 1  CAUGHT  S-TIME	R4.2-2.yaml	outcomes.D1.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R4.2-2    candidate-ref exit 1  CAUGHT  S-REF	R4.2-2.yaml	outcomes.D1.selection[0].presented[0]: no candidate nope in behaviour/fixtures/R4.2/linear-list.mpd
+R4.2-2    hash          exit 2  CAUGHT  B-HASH	R4.2-2.yaml	criterion_sha256 0ba33c5fd2d4… is not R4.2's 8ba33c5fd2d4…: the criterion changed
+R4.7-1    tiling        exit 1  CAUGHT  S-TIME	R4.7-1.yaml	outcomes.D1.presentation[0].end: 6100 is after observe_until 6000
+R4.7-1    hash          exit 2  CAUGHT  B-HASH	R4.7-1.yaml	criterion_sha256 09581879ebd1… is not R4.7's 49581879ebd1…: the criterion changed
+R4.7-2    tiling        exit 1  CAUGHT  S-TIME	R4.7-2.yaml	outcomes.D4.presentation[0].end: 6100 is after observe_until 6000
+R4.7-2    hash          exit 2  CAUGHT  B-HASH	R4.7-2.yaml	criterion_sha256 09581879ebd1… is not R4.7's 49581879ebd1…: the criterion changed
+R4.8      tiling        exit 1  CAUGHT  S-TIME	R4.8.yaml	outcomes.D1.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R4.8      candidate-ref exit 1  CAUGHT  S-REF	R4.8.yaml	outcomes.D1.selection[0].presented[0]: no candidate nope in behaviour/fixtures/R4.8/alt.mpd
+R4.8      hash          exit 2  CAUGHT  B-HASH	R4.8.yaml	criterion_sha256 02d30e81ae27… is not R4.8's 82d30e81ae27…: the criterion changed
+R4.9      beacon-url    exit 1  CAUGHT  S-REF	R4.9.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r4-9/c1-imp-WRONG is not the event's text https://t.example.com/r4-9/c1-imp
+R4.9      tiling        exit 1  CAUGHT  S-TIME	R4.9.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R4.9      candidate-ref exit 1  CAUGHT  S-REF	R4.9.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R4.9/r4-9-list.xml
+R4.9      hash          exit 2  CAUGHT  B-HASH	R4.9.yaml	criterion_sha256 0eddf69abded… is not R4.9's beddf69abded…: the criterion changed
+R7.1      beacon-url    exit 1  CAUGHT  S-REF	R7.1.yaml	outcomes.D1.beacons[0]: url https://t.example.com/r7-1/c1-imp-WRONG is not the event's text https://t.example.com/r7-1/c1-imp
+R7.1      tiling        exit 1  CAUGHT  S-TIME	R7.1.yaml	outcomes.D1.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R7.1      candidate-ref exit 1  CAUGHT  S-REF	R7.1.yaml	outcomes.D1.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R7.1/r7-1-list.xml
+R7.1      hash          exit 2  CAUGHT  B-HASH	R7.1.yaml	criterion_sha256 0bd654d4d530… is not R7.1's dbd654d4d530…: the criterion changed
+R20.1-1   beacon-url    exit 1  CAUGHT  S-REF	R20.1-1.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r20-1-1/fb-imp-WRONG is not the event's text https://t.example.com/r20-1-1/fb-imp
+R20.1-1   tiling        exit 1  CAUGHT  S-TIME	R20.1-1.yaml	outcomes.D4.presentation[1] starts at 20000, expected 20100 (segments tile [0, observe_until] in order)
+R20.1-1   candidate-ref exit 1  CAUGHT  S-REF	R20.1-1.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R20.1/r20-1-1-w2.xml
+R20.1-1   hash          exit 2  CAUGHT  B-HASH	R20.1-1.yaml	criterion_sha256 020e75eecd84… is not R20.1's 620e75eecd84…: the criterion changed
+R20.1-2   beacon-url    exit 1  CAUGHT  S-REF	R20.1-2.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r20-1-2/fb-imp-WRONG is not the event's text https://t.example.com/r20-1-2/fb-imp
+R20.1-2   tiling        exit 1  CAUGHT  S-TIME	R20.1-2.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R20.1-2   candidate-ref exit 1  CAUGHT  S-REF	R20.1-2.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R20.1/r20-1-2-w2.xml
+R20.1-2   hash          exit 2  CAUGHT  B-HASH	R20.1-2.yaml	criterion_sha256 020e75eecd84… is not R20.1's 620e75eecd84…: the criterion changed
+R20.1-3   beacon-url    exit 1  CAUGHT  S-REF	R20.1-3.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r20-1-3/fb-imp-WRONG is not the event's text https://t.example.com/r20-1-3/fb-imp
+R20.1-3   tiling        exit 1  CAUGHT  S-TIME	R20.1-3.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R20.1-3   candidate-ref exit 1  CAUGHT  S-REF	R20.1-3.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R20.1/r20-1-3-w2.xml
+R20.1-3   hash          exit 2  CAUGHT  B-HASH	R20.1-3.yaml	criterion_sha256 020e75eecd84… is not R20.1's 620e75eecd84…: the criterion changed
+R20.1-4   beacon-url    exit 1  CAUGHT  S-REF	R20.1-4.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r20-1-4/fb-imp-WRONG is not the event's text https://t.example.com/r20-1-4/fb-imp
+R20.1-4   tiling        exit 1  CAUGHT  S-TIME	R20.1-4.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R20.1-4   candidate-ref exit 1  CAUGHT  S-REF	R20.1-4.yaml	outcomes.D4.selection[1].presented[0]: no candidate #9 in behaviour/fixtures/R20.1/r20-1-4-w2.xml
+R20.1-4   hash          exit 2  CAUGHT  B-HASH	R20.1-4.yaml	criterion_sha256 020e75eecd84… is not R20.1's 620e75eecd84…: the criterion changed
+R20.1-5   beacon-url    exit 1  CAUGHT  S-REF	R20.1-5.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r20-1-5/fb-imp-WRONG is not the event's text https://t.example.com/r20-1-5/fb-imp
+R20.1-5   tiling        exit 1  CAUGHT  S-TIME	R20.1-5.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R20.1-5   candidate-ref exit 1  CAUGHT  S-REF	R20.1-5.yaml	outcomes.D4.selection[1].presented[0]: no candidate #9 in behaviour/fixtures/R20.1/r20-1-5-w2.xml
+R20.1-5   hash          exit 2  CAUGHT  B-HASH	R20.1-5.yaml	criterion_sha256 020e75eecd84… is not R20.1's 620e75eecd84…: the criterion changed
+R20.1-6   tiling        exit 1  CAUGHT  S-TIME	R20.1-6.yaml	outcomes.D4.presentation[0].end: 9100 is after observe_until 9000
+R20.1-6   hash          exit 2  CAUGHT  B-HASH	R20.1-6.yaml	criterion_sha256 020e75eecd84… is not R20.1's 620e75eecd84…: the criterion changed
+R20.1-7   tiling        exit 1  CAUGHT  S-TIME	R20.1-7.yaml	outcomes.D1.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R20.1-7   candidate-ref exit 1  CAUGHT  S-REF	R20.1-7.yaml	outcomes.D1.selection[0].presented[0]: no candidate nope in behaviour/fixtures/R20.1/r20-1-7-alt.mpd
+R20.1-7   hash          exit 2  CAUGHT  B-HASH	R20.1-7.yaml	criterion_sha256 020e75eecd84… is not R20.1's 620e75eecd84…: the criterion changed
+R20.3-1   beacon-url    exit 1  CAUGHT  S-REF	R20.3-1.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r20-3-1/first-imp-WRONG is not the event's text https://t.example.com/r20-3-1/fir
+R20.3-1   tiling        exit 1  CAUGHT  S-TIME	R20.3-1.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R20.3-1   candidate-ref exit 1  CAUGHT  S-REF	R20.3-1.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R20.3/r20-3-1-w1.xml
+R20.3-1   hash          exit 2  CAUGHT  B-HASH	R20.3-1.yaml	criterion_sha256 0e9de53fee73… is not R20.3's be9de53fee73…: the criterion changed
+R20.3-2   tiling        exit 1  CAUGHT  S-TIME	R20.3-2.yaml	outcomes.D1.presentation[0].end: 3100 is after observe_until 3000
+R20.3-2   candidate-ref exit 1  CAUGHT  S-REF	R20.3-2.yaml	outcomes.D1.selection[0].presented[0]: no candidate nope in behaviour/fixtures/R20.3/r20-3-2-replace-alt.mpd
+R20.3-2   hash          exit 2  CAUGHT  B-HASH	R20.3-2.yaml	criterion_sha256 0e9de53fee73… is not R20.3's be9de53fee73…: the criterion changed
+R20.4     beacon-url    exit 1  CAUGHT  S-REF	R20.4.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r20-4/fb-imp-WRONG is not the event's text https://t.example.com/r20-4/fb-imp
+R20.4     tiling        exit 1  CAUGHT  S-TIME	R20.4.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R20.4     candidate-ref exit 1  CAUGHT  S-REF	R20.4.yaml	outcomes.D4.selection[1].presented[0]: no candidate #9 in behaviour/fixtures/R20.4/r20-4-w2.xml
+R20.4     hash          exit 2  CAUGHT  B-HASH	R20.4.yaml	criterion_sha256 0be1124b94f8… is not R20.4's 9be1124b94f8…: the criterion changed
+R20.5     beacon-url    exit 1  CAUGHT  S-REF	R20.5.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r20-5/imp-WRONG is not the event's text https://t.example.com/r20-5/imp
+R20.5     tiling        exit 1  CAUGHT  S-TIME	R20.5.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R20.5     candidate-ref exit 1  CAUGHT  S-REF	R20.5.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R20.5/r20-5-w2.xml
+R20.5     hash          exit 2  CAUGHT  B-HASH	R20.5.yaml	criterion_sha256 0033ddc4e7eb… is not R20.5's d033ddc4e7eb…: the criterion changed
+R30.2     tiling        exit 1  CAUGHT  S-TIME	R30.2.yaml	outcomes.D1.presentation[1] starts at 4000, expected 4100 (segments tile [0, observe_until] in order)
+R30.2     candidate-ref exit 1  CAUGHT  S-REF	R30.2.yaml	outcomes.D1.selection[0].presented[0]: no candidate nope in behaviour/fixtures/R30.2/alt.mpd
+R30.2     hash          exit 2  CAUGHT  B-HASH	R30.2.yaml	criterion_sha256 03516ac22ad5… is not R30.2's d3516ac22ad5…: the criterion changed
+R40.3-1   tiling        exit 1  CAUGHT  S-TIME	R40.3-1.yaml	outcomes.D1.presentation[1] starts at 6000, expected 6100 (segments tile [0, observe_until] in order)
+R40.3-1   candidate-ref exit 1  CAUGHT  S-REF	R40.3-1.yaml	outcomes.D1.selection[0].presented[0]: no candidate nope in behaviour/fixtures/R40.3/r40-3-1-alt.mpd
+R40.3-1   hash          exit 2  CAUGHT  B-HASH	R40.3-1.yaml	criterion_sha256 02acaccabd0e… is not R40.3's c2acaccabd0e…: the criterion changed
+R40.3-2   tiling        exit 1  CAUGHT  S-TIME	R40.3-2.yaml	outcomes.D1.presentation[1] starts at 8000, expected 8100 (segments tile [0, observe_until] in order)
+R40.3-2   candidate-ref exit 1  CAUGHT  S-REF	R40.3-2.yaml	outcomes.D1.selection[0].presented[0]: no candidate nope in behaviour/fixtures/R40.3/r40-3-2-alt.mpd
+R40.3-2   hash          exit 2  CAUGHT  B-HASH	R40.3-2.yaml	criterion_sha256 02acaccabd0e… is not R40.3's c2acaccabd0e…: the criterion changed
+R6.4      beacon-url    exit 1  CAUGHT  S-REF	R6.4.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r6-4/imp-WRONG is not the event's text https://t.example.com/r6-4/imp
+R6.4      tiling        exit 1  CAUGHT  S-TIME	R6.4.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R6.4      candidate-ref exit 1  CAUGHT  S-REF	R6.4.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R6.4/r6-4-list.xml
+R6.4      hash          exit 2  CAUGHT  B-HASH	R6.4.yaml	criterion_sha256 0705a68728da… is not R6.4's 2705a68728da…: the criterion changed
+R6.5-1    beacon-url    exit 1  CAUGHT  S-REF	R6.5-1.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r6-5-1/c1-imp-WRONG is not the event's text https://t.example.com/r6-5-1/c1-imp
+R6.5-1    tiling        exit 1  CAUGHT  S-TIME	R6.5-1.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R6.5-1    candidate-ref exit 1  CAUGHT  S-REF	R6.5-1.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R6.5/r6-5-1-list.xml
+R6.5-1    hash          exit 2  CAUGHT  B-HASH	R6.5-1.yaml	criterion_sha256 0e3278cc0bd3… is not R6.5's 3e3278cc0bd3…: the criterion changed
+R6.5-2    tiling        exit 1  CAUGHT  S-TIME	R6.5-2.yaml	outcomes.D1.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R6.5-2    candidate-ref exit 1  CAUGHT  S-REF	R6.5-2.yaml	outcomes.D1.selection[0].presented[0]: no candidate nope in behaviour/fixtures/R6.5/linear-list.mpd
+R6.5-2    hash          exit 2  CAUGHT  B-HASH	R6.5-2.yaml	criterion_sha256 0e3278cc0bd3… is not R6.5's 3e3278cc0bd3…: the criterion changed
+R13.1     beacon-url    exit 1  CAUGHT  S-REF	R13.1.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r13-1/c1-imp-WRONG is not the event's text https://t.example.com/r13-1/c1-imp
+R13.1     tiling        exit 1  CAUGHT  S-TIME	R13.1.yaml	outcomes.D4.presentation[1] starts at 4000, expected 4100 (segments tile [0, observe_until] in order)
+R13.1     candidate-ref exit 1  CAUGHT  S-REF	R13.1.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R13.1/r13-1-list.xml
+R13.1     hash          exit 2  CAUGHT  B-HASH	R13.1.yaml	criterion_sha256 0c600cc35c6a… is not R13.1's 5c600cc35c6a…: the criterion changed
+R13.3-1   beacon-url    exit 1  CAUGHT  S-REF	R13.3-1.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r13-3-1/imp-WRONG is not the event's text https://t.example.com/r13-3-1/imp
+R13.3-1   tiling        exit 1  CAUGHT  S-TIME	R13.3-1.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R13.3-1   candidate-ref exit 1  CAUGHT  S-REF	R13.3-1.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R13.3/r13-3-1-list.xml
+R13.3-1   hash          exit 2  CAUGHT  B-HASH	R13.3-1.yaml	criterion_sha256 04f44c899c67… is not R13.3's e4f44c899c67…: the criterion changed
+R13.3-2   beacon-url    exit 1  CAUGHT  S-REF	R13.3-2.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r13-3-2/imp-WRONG is not the event's text https://t.example.com/r13-3-2/imp
+R13.3-2   tiling        exit 1  CAUGHT  S-TIME	R13.3-2.yaml	outcomes.D4.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R13.3-2   candidate-ref exit 1  CAUGHT  S-REF	R13.3-2.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R13.3/r13-3-2-list.xml
+R13.3-2   hash          exit 2  CAUGHT  B-HASH	R13.3-2.yaml	criterion_sha256 04f44c899c67… is not R13.3's e4f44c899c67…: the criterion changed
+R13.3-3   beacon-url    exit 1  CAUGHT  S-REF	R13.3-3.yaml	outcomes.D4.beacons[0]: url https://t.example.com/r13-3-3/imp-WRONG is not the event's text https://t.example.com/r13-3-3/imp
+R13.3-3   tiling        exit 1  CAUGHT  S-TIME	R13.3-3.yaml	outcomes.D4.presentation[1] starts at 3000, expected 3100 (segments tile [0, observe_until] in order)
+R13.3-3   candidate-ref exit 1  CAUGHT  S-REF	R13.3-3.yaml	outcomes.D4.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R13.3/r13-3-3-list.xml
+R13.3-3   hash          exit 2  CAUGHT  B-HASH	R13.3-3.yaml	criterion_sha256 04f44c899c67… is not R13.3's e4f44c899c67…: the criterion changed
+R13.6     beacon-url    exit 1  CAUGHT  S-REF	R13.6.yaml	outcomes.D3.beacons[0]: url https://t.example.com/r13-6/imp-WRONG is not the event's text https://t.example.com/r13-6/imp
+R13.6     tiling        exit 1  CAUGHT  S-TIME	R13.6.yaml	outcomes.D3.presentation[1] starts at 2000, expected 2100 (segments tile [0, observe_until] in order)
+R13.6     candidate-ref exit 1  CAUGHT  S-REF	R13.6.yaml	outcomes.D3.selection[0].presented[0]: no candidate #9 in behaviour/fixtures/R13.6/r13-6-list.xml
+R13.6     hash          exit 2  CAUGHT  B-HASH	R13.6.yaml	criterion_sha256 0961ccdb5c39… is not R13.6's f961ccdb5c39…: the criterion changed

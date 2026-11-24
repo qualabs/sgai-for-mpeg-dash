@@ -1,0 +1,48 @@
+# R35.4 — a dismissal ends the whole slot: an overlay slot. One overlay
+# window 2 s to 14 s; its document (dismissAfter="PT0S", dismissible at once)
+# holds two 6 s image candidates, A then B. The viewer dismisses at 4 s, 2 s
+# into A.
+format: sgai-scenario/1
+criterion: R35.4
+criterion_sha256: 509912f66eba59c65e88f9311c0257563dc7ad7c24ef1065b700ee83c2c56907
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 16000
+entry: behaviour/fixtures/R35.4/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R35.4/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R35.4/overlay.xml
+    url: https://aps.example.com/beh/r35-4/overlay
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 4000, do: dismiss}
+
+outcomes:
+  D1: &dismissed
+    summary: >-
+      Decides R35.4 "The Player MUST stop presenting every ad of that slot
+      and MUST NOT advance to another ad or another form within it": A ends at
+      the dismissal at 4 s, B is never presented although the window runs to
+      14 s, and A's beacon scheduled after the dismissal does not fire.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r35-4/overlay
+        answered_by: behaviour/fixtures/R35.4/overlay.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R35.4/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R35.4/overlay.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 4000, layout: overlay-lower-third, shows: [{element: primary, from: 2000}, {element: ad, candidate: *a, option: {index: 1}}]}
+      - {start: 4000, end: 16000, layout: none, shows: [{element: primary, from: 4000}], note: "the slot is over; B is not presented"}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R35.4/overlay.xml, candidate: *a, id: "1", url: "https://t.example.com/r35-4/a-imp"}
+  D4: *dismissed

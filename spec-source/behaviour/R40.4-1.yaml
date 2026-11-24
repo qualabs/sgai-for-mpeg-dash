@@ -1,0 +1,84 @@
+# R40.4 — a window with the default relation, resumed after an inherited
+# linear event: "the Player MUST present the suspended form from where it
+# was suspended, then the rest of the sequence, until the window ends or its
+# cap is reached". An overlay window 2 s to 22 s of the programme, no
+# @linearRelation, cap 20 s; two 8 s image candidates, A then B. A 6 s
+# insertion at 6 s suspends A 4 s in (R40.9: "a form on screen when the
+# alternative presentation begins is suspended"); the programme returns at
+# 6 s, still inside the window.
+#
+# This follows context/03. The specification says otherwise (§4.5.8 PLY-49:
+# "A form on screen when an alternative presentation begins ends there, and
+# the window presents nothing further"); a Player built to the specification
+# fails this test. The same disagreement is recorded in
+# scenarios/UC-22.yaml. Not resolved here.
+format: sgai-scenario/1
+criterion: R40.4
+criterion_sha256: ca04ced87ebf9bdd667103fb1e76207c1c79aaac2bc083a0ee0f85ab0b91beae
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 26000
+entry: behaviour/fixtures/R40.4/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R40.4/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R40.4/overlay.xml
+    url: https://aps.example.com/beh/r40-4/overlay
+    class: overlay-list
+  - path: behaviour/fixtures/R40.4/list.mpd
+    url: https://aps.example.com/beh/r40-4/break
+    class: list-mpd
+  - path: behaviour/fixtures/R40.4/ad.mpd
+    url: https://ads-cdn.example.com/beh/r40-4/ad.mpd
+    class: sps-mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &resumed
+    summary: >-
+      Decides R40.4: A from 2 s to the break at 6 s; the 6 s break alone; at
+      12 s A again from its 4th second to its end at 16 s, then B to 24 s.
+      The window is resolved once; A's 2 s beacon is not repeated and its
+      completion fires at 16 s.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r40-4/overlay
+        answered_by: behaviour/fixtures/R40.4/overlay.xml
+      # @earliestResolutionTimeOffset 4 s before 6 s.
+      - at: {from: 2000, to: 6000}
+        url: https://aps.example.com/beh/r40-4/break
+        answered_by: behaviour/fixtures/R40.4/list.mpd
+      - at: {from: 2000, to: 6000}
+        url: https://ads-cdn.example.com/beh/r40-4/ad.mpd
+        answered_by: behaviour/fixtures/R40.4/ad.mpd
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R40.4/main.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R40.4/overlay.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+          - {candidate: &b {fixture: behaviour/fixtures/R40.4/overlay.xml, index: 2}, option: {index: 1}, layout: overlay-lower-third}
+      - opportunity: {fixture: behaviour/fixtures/R40.4/main.mpd, event_id: "2"}
+        result: presented
+        presented:
+          - {candidate: &lin {fixture: behaviour/fixtures/R40.4/list.mpd, id: ad-1}, option: null, layout: linear}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 6000, layout: overlay-lower-third, shows: [{element: primary, from: 2000}, {element: ad, candidate: *a, option: {index: 1}}]}
+      - {start: 6000, end: 12000, layout: linear, shows: [{element: ad, candidate: *lin, option: null}], note: "A suspended 4 s in"}
+      - {start: 12000, end: 16000, layout: overlay-lower-third, shows: [{element: primary, from: 6000}, {element: ad, candidate: *a, option: {index: 1}}], note: "A resumed from its 4th second"}
+      - {start: 16000, end: 24000, layout: overlay-lower-third, shows: [{element: primary, from: 10000}, {element: ad, candidate: *b, option: {index: 1}}]}
+      - {start: 24000, end: 26000, layout: none, shows: [{element: primary, from: 18000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R40.4/overlay.xml, candidate: *a, id: "1", url: "https://t.example.com/r40-4/a-imp"}
+      - {at: 4000, fixture: behaviour/fixtures/R40.4/overlay.xml, candidate: *a, id: "2", url: "https://t.example.com/r40-4/a-2s"}
+      - {at: 6000, fixture: behaviour/fixtures/R40.4/ad.mpd, id: "1", url: "https://t.example.com/r40-4/imp"}
+      - {at: 12000, fixture: behaviour/fixtures/R40.4/ad.mpd, id: "2", url: "https://t.example.com/r40-4/complete"}
+      - {at: 16000, fixture: behaviour/fixtures/R40.4/overlay.xml, candidate: *a, id: "3", url: "https://t.example.com/r40-4/a-complete"}
+      - {at: 16000, fixture: behaviour/fixtures/R40.4/overlay.xml, candidate: *b, id: "1", url: "https://t.example.com/r40-4/b-imp"}
+      - {at: 24000, fixture: behaviour/fixtures/R40.4/overlay.xml, candidate: *b, id: "2", url: "https://t.example.com/r40-4/b-complete"}
+  D4: *resumed

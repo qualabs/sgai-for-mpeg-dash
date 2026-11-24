@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011"
+                  xmlns:svta="urn:svta:dash:sgai:2026"
+                  family="pause"
+                  onExhausted="request-again"
+                  dismissAfter="never">
+  <svta:Ad>
+    <svta:RenderableAsset src="https://ads-cdn.example.com/behaviour/R32.1/full-a.png"
+                          mimeType="image/png"
+                          duration="PT3S"
+                          layout="pause-fullscreen"/>
+    <svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1"
+                   timescale="1000">
+      <Event presentationTime="0" id="1">https://t.example.com/imp?cr=3212</Event>
+    </svta:Tracking>
+    <svta:AdSystem>ExampleAds</svta:AdSystem>
+    <svta:AdTitle>First document</svta:AdTitle>
+  </svta:Ad>
+</svta:OverlayList>

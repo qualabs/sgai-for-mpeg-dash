@@ -1,0 +1,69 @@
+# R40.5 — "a form on screen MUST end when that presentation ends". An
+# overlay window 2 s to 6 s of the programme, `on-top`, cap 20 s; its one
+# candidate a 15 s image. A 6 s insertion at 4 s. The image starts over the
+# programme at 2 s, stays over the linear ad, and must end with it at 10 s,
+# 8 s into its 15 s. The programme returns at 4 s, inside the window for
+# 2 s more, and the ended form does not come back: its 9 s beacon, which a
+# form still running would fire at 11 s, does not fire.
+format: sgai-scenario/1
+criterion: R40.5
+criterion_sha256: 3eec88e9ab16f18779cfe0127eeca0034f9f60e89391850eca526ce01706b85f
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 13000
+entry: behaviour/fixtures/R40.5/main-end.mpd
+fixtures:
+  - path: behaviour/fixtures/R40.5/main-end.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R40.5/overlay.xml
+    url: https://aps.example.com/beh/r40-5/overlay
+    class: overlay-list
+  - path: behaviour/fixtures/R40.5/list-short.mpd
+    url: https://aps.example.com/beh/r40-5/break-short
+    class: list-mpd
+  - path: behaviour/fixtures/R40.5/ad-short.mpd
+    url: https://ads-cdn.example.com/beh/r40-5/ad-short.mpd
+    class: sps-mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &ends
+    summary: >-
+      Decides R40.5 "a form on screen MUST end when that presentation ends":
+      the image over the programme from 2 s, over the linear ad from 4 s, and
+      gone at 10 s when the linear ad ends; the programme alone after.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r40-5/overlay
+        answered_by: behaviour/fixtures/R40.5/overlay.xml
+      - at: {from: 0, to: 4000}
+        url: https://aps.example.com/beh/r40-5/break-short
+        answered_by: behaviour/fixtures/R40.5/list-short.mpd
+      - at: {from: 0, to: 4000}
+        url: https://ads-cdn.example.com/beh/r40-5/ad-short.mpd
+        answered_by: behaviour/fixtures/R40.5/ad-short.mpd
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R40.5/main-end.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &lin {fixture: behaviour/fixtures/R40.5/list-short.mpd, id: ad-2}, option: null, layout: linear}
+      - opportunity: {fixture: behaviour/fixtures/R40.5/main-end.mpd, event_id: "2"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R40.5/overlay.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 4000, layout: overlay-lower-third, shows: [{element: primary, from: 2000}, {element: ad, candidate: *a, option: {index: 1}}]}
+      - {start: 4000, end: 10000, layout: overlay-lower-third, shows: [{element: ad, candidate: *lin, option: null}, {element: ad, candidate: *a, option: {index: 1}}], note: "the image carried over the linear ad"}
+      - {start: 10000, end: 13000, layout: none, shows: [{element: primary, from: 4000}], note: "the image ended with the linear ad"}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R40.5/overlay.xml, candidate: *a, id: "1", url: "https://t.example.com/r40-5/a-imp"}
+      - {at: 4000, fixture: behaviour/fixtures/R40.5/ad-short.mpd, id: "1", url: "https://t.example.com/r40-5/short-imp"}
+      - {at: 5000, fixture: behaviour/fixtures/R40.5/overlay.xml, candidate: *a, id: "2", url: "https://t.example.com/r40-5/a-3s"}
+      - {at: 10000, fixture: behaviour/fixtures/R40.5/ad-short.mpd, id: "2", url: "https://t.example.com/r40-5/short-complete"}
+  D4: *ends

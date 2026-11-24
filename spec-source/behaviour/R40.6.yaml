@@ -1,0 +1,65 @@
+# R40.6 — the non-linear windows of an alternative presentation's MPD are
+# that presentation's own. A 10 s insertion at 2 s of the programme whose
+# alternative MPD (alt.mpd, 10 s) declares an overlay window from its 2 s to
+# its 6 s; that window's one candidate is a 4 s image.
+#
+# The format has no element for an alternative presentation that is not a
+# List MPD candidate (as in scenarios/UC-14.yaml): while it is on screen the
+# segment's `shows` lists only the overlay, and the note says what is under
+# it.
+format: sgai-scenario/1
+criterion: R40.6
+criterion_sha256: 1c3a083220883cb2f745d4692e60e6dd43faae0c7892e0aa6582dce974d48b20
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 14000
+entry: behaviour/fixtures/R40.6/main.mpd
+fixtures:
+  - path: behaviour/fixtures/R40.6/main.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R40.6/alt.mpd
+    url: https://aps.example.com/beh/r40-6/alt
+    class: publisher-mpd
+  - path: behaviour/fixtures/R40.6/overlay.xml
+    url: https://aps.example.com/beh/r40-6/overlay
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+
+outcomes:
+  D1: &own
+    summary: >-
+      Decides R40.6 "The Player MUST process the non-linear windows declared
+      in an alternative presentation's `MPD` as that presentation's own: they
+      are presented over its content": the image over the alternative
+      presentation from its 2 s to its 6 s (session 4 s to 8 s), on that
+      presentation's timeline, not on the programme's (which stands still at
+      2 s throughout).
+    requests:
+      # @earliestResolutionTimeOffset 2 s before 2 s: from the start.
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r40-6/alt
+        answered_by: behaviour/fixtures/R40.6/alt.mpd
+      # The alternative's window: once alt.mpd is known, before its 2 s.
+      - at: {from: 0, to: 4000}
+        url: https://aps.example.com/beh/r40-6/overlay
+        answered_by: behaviour/fixtures/R40.6/overlay.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R40.6/alt.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &a {fixture: behaviour/fixtures/R40.6/overlay.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 4000, layout: none, shows: [], note: "the alternative presentation (alt.mpd) from its 0 s"}
+      - {start: 4000, end: 8000, layout: overlay-lower-third, shows: [{element: ad, candidate: *a, option: {index: 1}}], note: "the image over the alternative presentation, its 2 s to 6 s"}
+      - {start: 8000, end: 12000, layout: none, shows: [], note: "the alternative presentation alone, its 6 s to 10 s"}
+      - {start: 12000, end: 14000, layout: none, shows: [{element: primary, from: 2000}]}
+    beacons:
+      - {at: 4000, fixture: behaviour/fixtures/R40.6/overlay.xml, candidate: *a, id: "1", url: "https://t.example.com/r40-6/a-imp"}
+      - {at: 8000, fixture: behaviour/fixtures/R40.6/overlay.xml, candidate: *a, id: "2", url: "https://t.example.com/r40-6/a-complete"}
+  D4: *own
