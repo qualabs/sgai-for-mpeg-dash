@@ -1,0 +1,94 @@
+### M1 L-shape upper-left region [R12.5] exit 1
+  24 PASS, 1 FAIL
+  FAIL R12.5-1 D1 geometry | expected: geometry[1] at 8000 expected {'primary': {'x': 0, 'y': 0, 'width': 77.46, 'height': 77.46}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 0, 'width': 50, 'height': 50}, ad {'x': 0, 'y': 0, 'width': 100, 'height': 100}; geometry[4] at 2
+  exit 1; wall 60.5 s; full log: /run/user/1000/cto/behaviour-logs/20261124T171026-e45766/behaviour.log
+### M2 L-shape upper-right corner [R27.1] exit 1
+  8 PASS, 2 FAIL
+  FAIL R27.1 D1 geometry | expected: geometry[0] at 4000 expected {'primary': {'x': 22.54, 'y': 0, 'width': 77.46, 'height': 77.46}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 0, 'width': 77.46, 'height': 77.46}, ad {'x': 0, 'y': 0, 'width': 100, 'height': 100} | log: /r
+  FAIL R27.1 D3 geometry | expected: geometry[0] at 4000 expected {'primary': {'x': 22.54, 'y': 0, 'width': 77.46, 'height': 77.46}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 0, 'width': 77.46, 'height': 77.46}, ad {'x': 0, 'y': 0, 'width': 100, 'height': 100} | log: /r
+  exit 1; wall 19.2 s; full log: /run/user/1000/cto/behaviour-logs/20261124T171045-601119/behaviour.log
+### M3 double-box ad box [R12.5,R26.1] exit 1
+  36 PASS, 4 FAIL
+  FAIL R12.5-1 D1 geometry | expected: geometry[3] at 16000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 50, 'y': 25, 'width': 50, 'height': 50}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 0, 'width': 50, 'height': 50}; geometry[4] at 20000
+  FAIL R26.1 D1 geometry | expected: geometry[0] at 4000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 50, 'y': 25, 'width': 50, 'height': 50}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 0, 'width': 50, 'height': 50}; geometry[1] at 8000 exp
+  FAIL R26.1 D3 geometry | expected: geometry[0] at 4000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 50, 'y': 25, 'width': 50, 'height': 50}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 0, 'width': 50, 'height': 50}; geometry[1] at 8000 exp
+  FAIL R26.1 D4 geometry | expected: geometry[0] at 4000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 50, 'y': 25, 'width': 50, 'height': 50}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 0, 'width': 50, 'height': 50}; geometry[1] at 8000 exp
+  exit 1; wall 111.5 s; full log: /run/user/1000/cto/behaviour-logs/20261124T171237-9dd642/behaviour.log
+### M4 black band omitted [R26.1] exit 1
+  12 PASS, 3 FAIL
+  FAIL R26.1 D1 geometry | expected: geometry[1] at 8000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 25, 'width': 50, 'height': 50} | log: /run/user/1000/c
+  FAIL R26.1 D3 geometry | expected: geometry[1] at 8000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 25, 'width': 50, 'height': 50} | log: /run/user/1000/c
+  FAIL R26.1 D4 geometry | expected: geometry[1] at 8000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 25, 'width': 50, 'height': 50} | log: /run/user/1000/c
+  exit 1; wall 45.7 s; full log: /run/user/1000/cto/behaviour-logs/20261124T171323-6264f7/behaviour.log
+### M5 background not shown [R26.1] exit 1
+  9 PASS, 6 FAIL
+  FAIL R26.1 D1 presentation | expected: presentation[2] 6000..10000 expected squeezeback-double-box-background [background, primary from 6000, ad behaviour/fixtures/R26.1/overlay.xml:#2 option #1] | observed: observed squeezeback-double-box-background [primary, ad behaviour/fixtures/R26.1/overlay.xml:#2 option #1] from 6022 to 99
+  FAIL R26.1 D1 geometry | expected: geometry[1] at 8000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 25, 'width': 50, 'height': 50} | log: /run/user/1000/c
+  FAIL R26.1 D3 presentation | expected: presentation[2] 6000..10000 expected squeezeback-double-box-background [background, primary from 6000, ad behaviour/fixtures/R26.1/overlay.xml:#2 option #1] | observed: observed squeezeback-double-box-background [primary, ad behaviour/fixtures/R26.1/overlay.xml:#2 option #1] from 6032 to 10
+  FAIL R26.1 D3 geometry | expected: geometry[1] at 8000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 25, 'width': 50, 'height': 50} | log: /run/user/1000/c
+  FAIL R26.1 D4 presentation | expected: presentation[2] 6000..10000 expected squeezeback-double-box-background [background, primary from 6000, ad behaviour/fixtures/R26.1/overlay.xml:#2 option #1] | observed: observed squeezeback-double-box-background [primary, ad behaviour/fixtures/R26.1/overlay.xml:#2 option #1] from 6016 to 10
+  FAIL R26.1 D4 geometry | expected: geometry[1] at 8000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 25, 'width': 50, 'height': 50} | log: /run/user/1000/c
+  exit 1; wall 50.2 s; full log: /run/user/1000/cto/behaviour-logs/20261124T171414-05be0e/behaviour.log
+### M6 overlay transforms the content [R12.5] exit 1
+  24 PASS, 1 FAIL
+  FAIL R12.5-1 D1 geometry | expected: geometry[0] at 4000 expected {'primary': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 0, 'width': 90, 'height': 90}, ad {'x': 10, 'y': 70, 'width': 80, 'height': 20}; geometry[4] at 20000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 
+  exit 1; wall 65.9 s; full log: /run/user/1000/cto/behaviour-logs/20261124T171520-432448/behaviour.log
+### M7 pause-fullscreen not full [R12.5] exit 1
+  22 PASS, 3 FAIL
+  FAIL R12.5-1 D1 geometry | expected: geometry[4] at 20000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 25, 'width': 50, 'height': 50} | log: /run/user/100
+  FAIL R12.5-2 D1 presentation | expected: presentation[1] 3000..6000 expected pause-fullscreen [ad behaviour/fixtures/R12.5/pause-fullscreen.xml:#1 option #1] | observed: observed pause-fullscreen [primary (paused), ad behaviour/fixtures/R12.5/pause-fullscreen.xml:#1 option #1] from 3018 to 6057 [startup 240; observed: 0..3018 no
+  FAIL R12.5-2 D1 geometry | expected: geometry[0] at 4500 expected {'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 0, 'width': 100, 'height': 100}, ad {'x': 10, 'y': 70, 'width': 80, 'height': 20} | log: /run/user/1000/cto/behaviour-logs/20261124T171632-6d1fbe/behaviour.log
+  exit 1; wall 71.2 s; full log: /run/user/1000/cto/behaviour-logs/20261124T171632-6d1fbe/behaviour.log
+### M8 pause-partial hides the frame [R12.5] exit 1
+  22 PASS, 3 FAIL
+  FAIL R12.5-1 D1 geometry | expected: geometry[4] at 20000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 25, 'width': 50, 'height': 50} | log: /run/user/100
+  FAIL R12.5-3 D1 presentation | expected: presentation[1] 3000..6000 expected pause-partial [primary from 3000, ad behaviour/fixtures/R12.5/pause-partial.xml:#1 option #1] | observed: observed pause-partial [ad behaviour/fixtures/R12.5/pause-partial.xml:#1 option #1] from 3075 to 6066 [startup 177; observed: 0..3075 none [primary
+  FAIL R12.5-3 D1 geometry | expected: geometry[0] at 4500 expected {'primary': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary None, ad {'x': 0, 'y': 0, 'width': 100, 'height': 100} | log: /run/user/1000/cto/behaviour-logs/20261124T171743-be8d49/behaviour.log:15
+  exit 1; wall 70.4 s; full log: /run/user/1000/cto/behaviour-logs/20261124T171743-be8d49/behaviour.log
+### M9 takeover does not cover [R12.5] exit 1
+  21 PASS, 4 FAIL
+  FAIL R12.5-1 D1 geometry | expected: geometry[4] at 20000 expected {'primary': {'x': 0, 'y': 25, 'width': 50, 'height': 50}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp) | observed: observed primary {'x': 0, 'y': 25, 'width': 50, 'height': 50}, ad {'x': 50, 'y': 25, 'width': 50, 'height': 50} | log: /run/user/100
+  FAIL R12.5-2 D1 presentation | expected: presentation[1] 3000..6000 expected pause-fullscreen [ad behaviour/fixtures/R12.5/pause-fullscreen.xml:#1 option #1] | observed: observed pause-fullscreen [primary (paused), ad behaviour/fixtures/R12.5/pause-fullscreen.xml:#1 option #1] from 3075 to 6096 [startup 1502; observed: 0..3075 n
+  FAIL R12.5-4 D1 presentation | expected: observed a change at 6828 from linear [primary (paused), ad behaviour/fixtures/R12.5/takeover.xml:#1 option #1] to none [primary], which the vector does not have; presentation[2] expected a change ... | observed: none observed within 250 (on screen: linear [primary (paused), ad behaviour/
+  FAIL R12.5-4 D5 presentation | expected: observed a change at 7009 from linear [primary (paused), ad behaviour/fixtures/R12.5/takeover.xml:#1 option #1] to none [primary], which the vector does not have; presentation[2] expected a change ... | observed: none observed within 250 (on screen: linear [primary (paused), ad behaviour/
+  exit 1; wall 76.7 s; full log: /run/user/1000/cto/behaviour-logs/20261124T171900-8b7637/behaviour.log
+### M10 non-top forms stay visible [R22.1] exit 1
+  6 PASS, 2 FAIL
+  FAIL R22.1 D1 beacons | expected: beacons[0] https://t.example.com/r22-1/a-imp (@id 1) expected at 2000 | observed: observed at never; beacons[1] https://t.example.com/r22-1/a-complete (@id 2) expected at 6000; observed at never; beacons[2] https://t.example.com/r22-1/b-imp (@id 1) expected at 6000; observed at ... | log: /run/u
+  FAIL R22.1 D4 beacons | expected: beacons[0] https://t.example.com/r22-1/a-imp (@id 1) expected at 2000 | observed: observed at never; beacons[1] https://t.example.com/r22-1/a-complete (@id 2) expected at 6000; observed at never; beacons[2] https://t.example.com/r22-1/b-imp (@id 1) expected at 6000; observed at ... | log: /run/u
+  exit 1; wall 36.8 s; full log: /run/user/1000/cto/behaviour-logs/20261124T171937-a3b942/behaviour.log
+### M11 video ad at rate 1 [R19.1] exit 1
+  4 PASS, 4 FAIL
+  FAIL R19.1 D1 presentation | expected: observed a change at 14433 from none [nothing] to none [primary], which the vector does not have; presentation[4] 14000..16000 expected none [primary from 20000] | observed: observed none [nothing] from 14136 to 14433 [startup 686; observed: 0..2072 none [primary] from 21; 2072..6020 overla
+  FAIL R19.1 D1 beacons | expected: beacons[0] https://t.example.com/r19-1/ov-imp (@id 1) expected at 2000 | observed: observed at never; beacons[1] https://t.example.com/r19-1/ov-mid (@id 2) expected at 4000; observed at never; beacons[2] https://t.example.com/r19-1/ov-complete (@id 3) expected at 6000; observed a... | log: /run/
+  FAIL R19.1 D2 presentation | expected: observed a change at 14340 from none [nothing] to none [primary], which the vector does not have; presentation[4] 14000..16000 expected none [primary from 20000] | observed: observed none [nothing] from 14035 to 14340 [startup 965; observed: 0..2031 none [primary] from 11; 2031..6059 overla
+  FAIL R19.1 D2 beacons | expected: beacons[0] https://t.example.com/r19-1/ov-imp (@id 1) expected at 2000 | observed: observed at never; beacons[1] https://t.example.com/r19-1/ov-mid (@id 2) expected at 4000; observed at never; beacons[2] https://t.example.com/r19-1/ov-complete (@id 3) expected at 6000; observed a... | log: /run/
+  exit 1; wall 52.7 s; full log: /run/user/1000/cto/behaviour-logs/20261124T172030-7b2308/behaviour.log
+### M12 slot timeline ignores rate [R19.3] exit 1
+  4 PASS, 4 FAIL
+  FAIL R19.3 D1 presentation | expected: observed a change at 10025 from overlay-lower-third [primary, ad behaviour/fixtures/R19.3/overlay.xml:#1 option #1] to none [primary], which the vector does not have; presentation[2] expected a cha... | observed: none observed within 250 (on screen: overlay-lower-third [primary, ad behaviou
+  FAIL R19.3 D1 beacons | expected: beacons[0] https://t.example.com/r19-3/a-imp (@id 1) expected at 2000 | observed: observed at never; beacons[1] https://t.example.com/r19-3/a-mid (@id 2) expected at 4000; observed at never; beacons[2] https://t.example.com/r19-3/a-complete (@id 3) expected at 6000; observed at ... | log: /run/u
+  FAIL R19.3 D4 presentation | expected: observed a change at 10059 from overlay-lower-third [primary, ad behaviour/fixtures/R19.3/overlay.xml:#1 option #1] to none [primary], which the vector does not have; presentation[2] expected a cha... | observed: none observed within 250 (on screen: overlay-lower-third [primary, ad behaviou
+  FAIL R19.3 D4 beacons | expected: beacons[0] https://t.example.com/r19-3/a-imp (@id 1) expected at 2000 | observed: observed at never; beacons[1] https://t.example.com/r19-3/a-mid (@id 2) expected at 4000; observed at never; beacons[2] https://t.example.com/r19-3/a-complete (@id 3) expected at 6000; observed at ... | log: /run/u
+  exit 1; wall 42.7 s; full log: /run/user/1000/cto/behaviour-logs/20261124T172113-e44188/behaviour.log
+### M13 background needs no image surface [R26.3] exit 1
+  18 PASS, 2 FAIL
+  FAIL R26.3 D2 selection | expected: selection[0] event 1 of behaviour/fixtures/R26.3/main.mpd (presented): expected squeezeback-double-box behaviour/fixtures/R26.3/overlay.xml:#1 option #2 | observed: observed squeezeback-double-box-background [ad behaviour/fixtures/R26.3/overlay.xml:#1 option #1] | log: /run/user/1000/cto/behav
+  FAIL R26.3 D2 presentation | expected: presentation[1] 2000..6000 expected squeezeback-double-box [primary from 2000, ad behaviour/fixtures/R26.3/overlay.xml:#1 option #2] | observed: observed squeezeback-double-box-background [primary, ad behaviour/fixtures/R26.3/overlay.xml:#1 option #1, background behaviour/fixtures/R26.3/ove
+  exit 1; wall 44.7 s; full log: /run/user/1000/cto/behaviour-logs/20261124T172159-fe9546/behaviour.log
+### M14 HTML surface not required [R27.3] exit 1
+  16 PASS, 4 FAIL
+  FAIL R27.3 D4 selection | expected: selection[0] event 1 of behaviour/fixtures/R27.3/main.mpd (presented): expected squeezeback-l-shape-upper-left behaviour/fixtures/R27.3/overlay.xml:#1 option #3 | observed: observed squeezeback-l-shape-upper-left [ad behaviour/fixtures/R27.3/overlay.xml:#1 option #2] | log: /run/user/1000/cto/
+  FAIL R27.3 D4 presentation | expected: presentation[1] 2000..6000 expected squeezeback-l-shape-upper-left [ad behaviour/fixtures/R27.3/overlay.xml:#1 option #3, primary from 2000] | observed: observed squeezeback-l-shape-upper-left [primary, ad behaviour/fixtures/R27.3/overlay.xml:#1 option #2] from 2023 to 6005 [startup 167; ob
+  FAIL R27.3 D5 selection | expected: (see log) | observed: selection[0] event 1 of behaviour/fixtures/R27.3/main.mpd: 1 presentation(s) more than the vector lists: squeezeback-l-shape-upper-left [ad behaviour/fixtures/R27.3/overlay.xml:#1 option #2] | log: /run/user/1000/cto/behaviour-logs/20261124T172244-7a6f0b/behaviour.log:18
+  FAIL R27.3 D5 presentation | expected: observed a change at 2013 from none [primary] to squeezeback-l-shape-upper-left [primary, ad behaviour/fixtures/R27.3/overlay.xml:#1 option #2], which the vector does not have | observed: observed a change at 5988 from squeezeback-l-shape-upper-left [primary, ad behaviour/fixtures/R27.3/ove
+  exit 1; wall 44.7 s; full log: /run/user/1000/cto/behaviour-logs/20261124T172244-7a6f0b/behaviour.log
+### M15 previous candidate not removed [R22.1] exit 1
+  2 PASS, 6 FAIL
+  FAIL R22.1 D1 selection | expected: (see log) | observed: selection[0] event 1 of behaviour/fixtures/R22.1/main.mpd: 1 presentation(s) more than the vector lists: overlay-lower-third [ad behaviour/fixtures/R22.1/overlay.xml:#1 option #1] | log: /run/user/1000/cto/behaviour-logs/20261124T172346-5b4462/behaviour.log:2
+  FAIL R22.1 D1 presentation | expected: presentation[3] 10000..12000 expected none [primary from 10000] | observed: observed overlay-lower-third [primary, ad behaviour/fixtures/R22.1/overlay.xml:#1 option #1] from 9988 to 12000 [startup 420; observed: 0..2004 none [primary] from 17; 2004..6018 overlay-lower-thir... | log: /run/us
+  FAIL R22.1 D1 beacons | expected: beacons[0] https://t.example.com/r22-1/a-imp (@id 1) expected at 2000 | observed: observed at never; beacons[1] https://t.example.com/r22-1/a-complete (@id 2) expected at 6000; observed at never; beacons[2] https://t.example.com/r22-1/b-imp (@id 1) expected at 6000; observed at ... | log: /run/u
+  FAIL R22.1 D4 selection | expected: (see log) | observed: selection[0] event 1 of behaviour/fixtures/R22.1/main.mpd: 1 presentation(s) more than the vector lists: overlay-lower-third [ad behaviour/fixtures/R22.1/overlay.xml:#1 option #1] | log: /run/user/1000/cto/behaviour-logs/20261124T172346-5b4462/behaviour.log:6
+  FAIL R22.1 D4 presentation | expected: presentation[3] 10000..12000 expected none [primary from 10000] | observed: observed overlay-lower-third [primary, ad behaviour/fixtures/R22.1/overlay.xml:#1 option #1] from 10002 to 12000 [startup 1292; observed: 0..2005 none [primary] from 21; 2005..6017 overlay-lower-th... | log: /run/us
+  FAIL R22.1 D4 beacons | expected: beacons[0] https://t.example.com/r22-1/a-imp (@id 1) expected at 2000 | observed: observed at never; beacons[1] https://t.example.com/r22-1/a-complete (@id 2) expected at 6000; observed at never; beacons[2] https://t.example.com/r22-1/b-imp (@id 1) expected at 6000; observed at ... | log: /run/u
+  exit 1; wall 42.0 s; full log: /run/user/1000/cto/behaviour-logs/20261124T172346-5b4462/behaviour.log
