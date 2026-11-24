@@ -2426,3 +2426,7 @@ El líder del proyecto aprobó el diseño y la P-1 («Ok a todo»): una vuelta d
 ## 2026-11-23 — Diseño de `reference-player`
 
 El líder del proyecto aprobó abrir la fase de la referencia empezando por un diseño corto. `roadmap/reference-player/DESIGN.md` pasa a `designing`: la referencia como el dash.js 5.3.0 fijado sin tocar más un módulo nuestro, los tests de conducta como vectores con el esquema de los de UC, la población leída del catálogo del nivel 2 con su hash, el APS de prueba como rutas de Playwright, y el lineal de la 6ta acotado a lo que piden los criterios. Medido: 76 criterios con parte de nivel 3b, 61 testeables por conducta, 7 sin carrier hasta el v13, 8 no decidibles por caja negra; 13 necesitan el lineal, que dash.js 5.3.0 no trae. Cuatro decisiones esperan al líder (D-1, D-2, D-8, D-12). `PHASE.md` y `TASKS.md` se generan cuando apruebe. Además `major-build-v13` deja de depender de `multiview`, que salió del v13 el 2026-10-27.
+
+## 2026-11-23 — `reference-player`: diseño acordado y plan generado
+
+El líder del proyecto aprobó el diseño: *"Ok, construyamos pero que por defecto no se use porque es muy caro en tiempo"*. Eso es el OK a D-1, D-2, D-8 y D-12 como estaban recomendadas, más una decisión nueva, D-13: la batería de conducta es opt-in y sólo corre con `--behaviour`, con un test que lo verifica. La audiencia de la demo no la contestó: se asume el WG de DASH. La generación escribió `PHASE.md`, `TASKS.md` (12 tasks, todas `agent`) y las ADR 0075 a 0087, una por decisión. El proyecto no tiene `docs/arc42/`. La fase arranca ya.

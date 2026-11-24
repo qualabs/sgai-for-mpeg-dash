@@ -1,11 +1,3 @@
----
-description: "Implementación de referencia de la extensión SGAI sobre dash.js, con tests de conducta derivados de los criterios del Player de context/03: el nivel 3 del testing de la spec."
-status: designing
-category: feature
-depends_on: [conformance-tests, code-first-pipeline]
-origin: "el líder del proyecto, 2026-11-23, hilo #sgai: el testing en tres niveles («Me gusta los 3!!!») y «Dash.js tiene que ser la referencia»; abrir la fase empezando por un diseño corto, aprobado el 2026-11-23"
----
-
 # reference-player — diseño
 
 Un Player que implementa la extensión, sobre dash.js, y la batería que dice si
@@ -78,8 +70,8 @@ alcance, y lo dice T-01, que prueba primero el caso más difícil: un insert y u
 replace lineales que vuelven al punto correcto del principal. Queda descartado
 en esta fase un PR a dash.js upstream.
 
-**Es del líder** porque cambia la frase de D-8 y decide si esto puede ser un PR
-a dash.js algún día.
+Lo acordó el líder del proyecto al aprobar el diseño: cambia la frase de D-8
+de `conformance-tests` y deja para otro momento un PR a dash.js.
 
 ### D-2. El código vive en este repo, en `reference-player/`
 
@@ -89,8 +81,8 @@ dos repos cada cambio de `context/03` cruzaría los dos. Se separa el día que
 haya que publicarlo como paquete. El `CLAUDE.md` del proyecto suma la carpeta
 a su layout.
 
-**Es del líder** porque `PROJECT.md` deja abierto si el prototipo vive "in this
-folder or in an external repo".
+Lo acordó el líder del proyecto al aprobar el diseño; `PROJECT.md` dejaba
+abierto si el prototipo vive "in this folder or in an external repo".
 
 ### D-3. Un test de conducta es un vector, con el mismo esquema que los de UC
 
@@ -150,21 +142,19 @@ geometría de la capa del aviso en cada cambio. El JS mide y Python compara
 contra lo esperado, como hoy en `players.py`.
 
 Se corre con `check-dash-conformance.py --behaviour` (los tests de criterio y
-los vectores de UC). Con exits 0/1/2/64, como el resto de `bin/`, y no es un
-step del build, como `--players`. Las 5,35 h en serie se bajan con la
-concurrencia que `run.mjs` ya tiene y con contenido corto donde el vector lo
-permita; T-09 mide cuánto tarda la batería.
+los vectores de UC), con exits 0/1/2/64 como el resto de `bin/`, y sólo así
+(D-13). Las 5,35 h en serie se bajan con la concurrencia que `run.mjs` ya
+tiene y con contenido corto donde el vector lo permita; T-09 mide cuánto tarda
+la batería.
 
-### D-8. Un FAIL de conducta informa y no bloquea la promoción, en esta fase
+### D-8. Un FAIL de conducta informa y no bloquea la promoción
 
 ADR 0057: los Players informan y no bloquean. La referencia es nuestra, pero
 un FAIL puede ser un bug de la referencia o un hueco de la spec, y no se sabe
-cuál hasta mirarlo. **Se elige**: informa; el informe de T-09 clasifica cada
-FAIL (referencia o spec); al cerrar la fase se decide si pasa a gate para el
-v13. La alternativa, bloquear desde ya, ata la promoción a la calidad de un
-prototipo.
-
-**Es del líder** porque cambia lo que decide la promoción.
+cuál hasta mirarlo. **Se elige**: informa, y el informe de T-09 clasifica cada
+FAIL (referencia o spec). La alternativa, bloquear, ataba la promoción a la
+calidad de un prototipo y a una batería de horas; con D-13 la promoción ni
+siquiera la corre. Lo acordó el líder del proyecto al aprobar el diseño.
 
 ### D-9. Del lineal de la 6ta, lo que piden los criterios y los vectores
 
@@ -196,7 +186,20 @@ lineal, overlay y pausa (sale de un vector de UC), y la grabación de esa sesió
 con Playwright. Publicarla afuera (por ejemplo en un bucket público) no entra:
 sería mandarla a terceros, y lo decide el líder cuando la vea.
 
-**Es del líder** qué sesión muestra y para quién es.
+La audiencia es el WG de DASH, y la sesión, la que mejor muestre lineal,
+overlay y pausa juntos. El líder no lo contestó al aprobar; se le pregunta
+cuando la demo exista.
+
+### D-13. La batería de conducta es opt-in: nada la corre por defecto
+
+El líder del proyecto, al aprobar: *"Ok, construyamos pero que por defecto no
+se use porque es muy caro en tiempo"*. La batería corre sólo con `--behaviour`
+explícito. No la invocan `build-all`, el incremental, `promote.py`, la suite
+`bin/test_*.py`, ni `check-dash-conformance.py` sin flag. Un test de `bin/` lo
+verifica: arma cada camino por defecto y falla si alguno llama al ejecutor de
+la batería. Los tests de las piezas de la batería (el check, la comparación)
+corren sobre datos, sin Chromium. Por eso D-8 no tiene nada que gatear: la
+promoción no la ve.
 
 ## Lo que no se hace
 
@@ -207,7 +210,7 @@ sería mandarla a terceros, y lo decide el líder cuando la vea.
 - No se toca `context/`, ni `spec-source/` fuera de `behaviour/` y de la
   extensión del esquema. Un hueco de la spec que aparezca es un hallazgo (un
   ítem o un issue), no un cambio de esta fase.
-- No es un step del build.
+- No corre por defecto en ningún camino (D-13).
 - No hay VAST, SDK de verificación, métricas ni SCTE-35.
 - No se adapta a los carriers del v13: eso es trabajo del v13, con la lista
   que dan los `2`.
@@ -222,22 +225,3 @@ sería mandarla a terceros, y lo decide el líder cuando la vea.
 | La batería es larga (5,35 h en serie) | concurrencia y contenido corto; T-09 mide el tiempo |
 | La referencia pasa sus propios tests porque los escribió el mismo agente | D-11 |
 | La parte más grande es dibujar cada layout (D-8 de `conformance-tests`) | T-07 lleva su propia task y los tests de geometría (D-3) |
-
-## Tasks propuestas
-
-Se generan como `PHASE.md` y `TASKS.md` cuando el líder apruebe el diseño.
-
-| id | qué | nivel |
-|---|---|---|
-| T-01 | Spike: insert y replace lineales con dos `MediaPlayer` sobre el dash.js fijado; dice si alcanza (a) de D-1 | mínimo |
-| T-02 | Esquema extendido y check: población de los 76 del catálogo, `index.yaml`, hash por `criteria.py`, exits 0/1/2/64 | alto |
-| T-03 | Tests de conducta de los 61 criterios, escritos del texto antes de cada familia | alto |
-| T-04 | Harness: adaptador `sgai`, APS y beacons por rutas, observación, comparación en Python, `--behaviour` | alto |
-| T-05 | Referencia, el lineal de la 6ta (D-9) | alto |
-| T-06 | Referencia, resolución y selección: pedido y parámetros, validación, opciones, perfil de clase, fallback, cap | alto |
-| T-07 | Referencia, presentación no lineal: overlay, squeezeback con sus tokens, pausa, convivencia entre familias | alto |
-| T-08 | Referencia, tracking: callbacks, beacons de opción, click | alto |
-| T-09 | Correr la batería (61 criterios + 110 resultados de UC), medir el tiempo, clasificar cada FAIL | alto |
-| T-10 | Tests de `bin/` para el check y la comparación, con negativos | alto |
-| T-11 | Demo (D-12) | bajo |
-| T-12 | Cierre: REPORT.md, LOG y validador | mínimo |
