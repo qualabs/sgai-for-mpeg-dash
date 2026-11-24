@@ -2447,3 +2447,7 @@ El spike ejecutó insert y replace de la 6ta con la API pública del dash.js 5.3
 - T-05: el lineal de la 6ta.
 - T-06: resolución y selección no lineales. Lo que les falla queda clasificado: la máquina lenta (el principal reproduce a 0,3–0,99× del tiempo real, y por eso el reloj de sesión del harness va a pasar a avanzar con lo que se presenta) y defectos del harness y del comparador.
 - Se cortó una corrida por el límite de 5 h de la cuenta (2026-11-24 00:33) y se retomó del árbol.
+
+## 2026-11-24 — 11: cambio de método (pedido del líder del proyecto)
+
+Desde T-07 en adelante: cada criterio se verifica por código (aserciones sobre el DOM, las cajas, los tiempos, los beacons), nunca mirando capturas, que quedan como archivo para una persona. El runner le devuelve al agente sólo un resumen ("N PASS" y, por FAIL, el criterio, lo esperado, lo observado y el path del log), y el detalle va a un archivo. De los documentos de la fase se lee sólo la sección de la task. Cada subagente toma una familia de criterios, no una task entera. Por qué: T-07 midió 154 llamadas y 44,8M tokens de entrada; 21 lecturas de capturas PNG y de documentos de la fase sumaron 2M caracteres, que se releyeron en cada paso, contra 408k de todas las salidas de Bash. Las dos corridas en curso (T-07 y la ronda 2 del harness) se pararon para retomarlas con este método.
