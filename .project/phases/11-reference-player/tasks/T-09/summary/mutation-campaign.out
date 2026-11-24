@@ -1,0 +1,13 @@
+RED   counts: NOT_VERIFIABLE not shown
+RED   FAIL line: class dropped
+RED   FAIL line: observed not cut
+RED   cut: off by one
+RED   cut: newlines kept
+RED   log pointer: 0-based
+RED   PASS listed too
+RED   cannot tell dropped
+RED   exit line: exit code missing
+RED   split: no observed seam
+RED   subject: variant lost
+RED   log dir: not unique
+12/12 mutations caught

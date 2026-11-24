@@ -6,7 +6,9 @@
     check-dash-conformance.py --source DIR [--context DIR] [--out-md FILE] [--out-json FILE]
     check-dash-conformance.py --behaviour [--source DIR] [--only ID ...] [--class C ...]
                               [--vector FILE ...] [--concurrency N]
+                              [--clock presentation|wall] [--cpu-throttle N] [--reference DIR]
                               [--out-json FILE] [--save-raw FILE] [--replay FILE]
+                              [--log-dir DIR] [--verbose]
 
 Level 1: the extension schema and the example documents against ISO/IEC
 23009-1:2026 (E-1..E-4, the identity of the XSD file with the spec's block,
@@ -38,14 +40,26 @@ and it takes none of the other modes' options. --only UC-NN or R<n>.<m>
 (every test of that criterion), repeatable or comma-separated; --class D1..D5
 or legacy (legacy: the same dash.js without the module); --vector FILE runs a
 vector file as it is (a copy, a draft); --concurrency N jobs at once (default
-2, or SGAI_BEHAVIOUR_CONCURRENCY). --save-raw FILE keeps what the browser
-recorded; --replay FILE compares a kept record again without a browser. The
+2, or SGAI_BEHAVIOUR_CONCURRENCY). Times are on the session clock of
+spec-source/scenarios/README.md, which advances with what is presented;
+--clock wall puts them on wall time since the first frame instead (to compare
+the two), --cpu-throttle N slows every page N times (CDP), --reference DIR
+serves another copy of reference-player/src/. --save-raw FILE keeps what the
+browser recorded; --replay FILE compares a kept record again without a
+browser. The
 criteria of DIR/behaviour/index.yaml are listed NOT_VERIFIABLE with their
 reason. One job is a vector x variant x class; it yields a verdict per
 expected field (requests, selection, presentation, audio, beacons, geometry):
 PASS, FAIL with the field and what was observed against what was expected,
 or NOT_VERIFIABLE with the reason. bin/conformance/behaviour_compare.py says
 what each field compares; behaviour.py how a run is served.
+stdout gets only a summary: the counts, one line per FAIL (test, class,
+field, expected, observed, each cut to 200 characters, and the line of the
+full log it comes from), one per job that could not run, and the exit, wall
+clock and log path. The full per-field output goes to behaviour.log in
+--log-dir (default $XDG_RUNTIME_DIR/cto/behaviour-logs/<timestamp>-<random>/);
+--verbose prints that full output to stdout instead of the summary, for a
+person (the log is still written).
 
 Its green says: on every job run, what the page showed (read from the DOM
 by the observation contract of reference-player/src/sgai-reference.js), the

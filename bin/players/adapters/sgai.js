@@ -19,6 +19,21 @@
 // the primary <video> takes a sample at each of its first frames, so the
 // origin is not late by the sampling period.
 //
+// The session clock (adapters/sgai-clock.js, spec-source/scenarios/README.md)
+// starts at that first frame and advances with what is presented: the
+// primary's media time while it plays, a linear ad's while it has taken over
+// the screen, wall time while the viewer has paused and for image or HTML
+// takeovers. It is ticked at every sample from the <video> elements of the
+// viewport, never from the module; `sessionNow()` is what the runner schedules
+// the viewer's actions on and ends the observation by, and `clock.points`
+// ([ms since load(), session ms, what drove it]) is how the comparison maps
+// every wall time it holds (samples, requests) onto the session clock.
+// Configured `clock: 'wall'`, it is the wall clock since the first frame.
+//
+// Each surface carries `inst`, a serial of its DOM element, and an `ad`
+// <video> its media `time` and `pass` (how many times it went back to its
+// start): what tells a second pass of the same candidate from the first.
+//
 // A ClickThrough destination shown on screen (R28.1 lets the Player show its
 // URL instead of opening it) is read from any shown node carrying
 // `data-sgai-clickthrough="<the @uri>"`: `destinations` keeps the first time
@@ -31,7 +46,8 @@
   const VIEWPORT = { width: 960, height: 540 };
   const SAMPLE_MS = 25;
   const HEARTBEAT_MS = 500;
-  let cfg = { mode: 'sgai', klass: 'D1', capabilities: null, startTime: NaN };
+  let cfg = { mode: 'sgai', klass: 'D1', capabilities: null, sendsCapabilities: [], startTime: NaN,
+    clock: 'presentation' };
   let t0 = null;
   let container = null;
   let primary = null;
@@ -47,6 +63,15 @@
   let timer = null;
   let firstFrame = null;
   const destinations = [];
+  let clock = null;
+  let viewerPaused = false;
+  const serials = new WeakMap();
+  let nextSerial = 1;
+  const passes = new WeakMap();   // ad <video> -> { last (s), pass }
+  const serial = (el) => {
+    if (!serials.has(el)) serials.set(el, nextSerial++);
+    return serials.get(el);
+  };
 
   const now = () => Date.now() - t0;
   const r2 = (v) => Math.round(v * 100) / 100;
@@ -92,7 +117,7 @@
 
   function describe(el, rect) {
     const d = el.dataset;
-    const e = { element: d.sgaiElement, rect };
+    const e = { element: d.sgaiElement, rect, inst: serial(el) };
     for (const k of ['doc', 'candidateId', 'candidateIndex', 'optionId', 'optionIndex',
       'opportunityDoc', 'opportunityEvent']) {
       const v = d['sgai' + k[0].toUpperCase() + k.slice(1)];
@@ -102,8 +127,32 @@
       e.time = Math.round(primary.currentTime * 1000);
       e.paused = primary.paused;
       e.rate = primary.playbackRate;
+    } else if (el.tagName === 'VIDEO') {
+      const p = passes.get(el) || { last: 0, pass: 0 };
+      if (el.currentTime + 0.25 < p.last) p.pass += 1;
+      p.last = el.currentTime;
+      passes.set(el, p);
+      e.time = Math.round(el.currentTime * 1000);
+      e.pass = p.pass;
     }
     return e;
+  }
+
+  // The <video> elements of the viewport as the session clock reads them.
+  function clockState(box) {
+    const videos = [];
+    for (const el of container.querySelectorAll('video')) {
+      const role = el === primary ? 'primary' : (el.dataset.sgaiElement === 'ad' ? 'ad' : null);
+      if (!role) continue;
+      videos.push({ id: serial(el), role, shown: !!shownRect(el, box), paused: el.paused,
+        time: el.currentTime, rate: el.playbackRate, seeks: el === primary ? seeks : 0 });
+    }
+    return { viewerPaused, videos };
+  }
+
+  function tick(box) {
+    if (!clock || clock.origin === null) return null;
+    return clock.tick(now(), clockState(box || container.getBoundingClientRect()));
   }
 
   function sample(why) {
@@ -119,7 +168,10 @@
     if (firstFrame === null && elements.some((e) => e.element === 'primary' || e.element === 'ad')) {
       firstFrame = s.t;
       why = why || 'first-frame';
+      clock.start(s.t, clockState(box));
     }
+    const st = tick(box);
+    if (st !== null) s.st = Math.round(st);
     for (const el of container.querySelectorAll('[data-sgai-clickthrough]')) {
       const uri = el.dataset.sgaiClickthrough;
       if (shownRect(el, box) && !destinations.some((d) => d.uri === uri)) destinations.push({ t: s.t, uri });
@@ -163,6 +215,7 @@
 
     async load(video, url, harnessLog) {
       t0 = Date.now();
+      clock = new window.SGAI_CLOCK.SessionClock(cfg.clock);
       primary = video;
       setupViewport(video);
       watchPrimary(video);
@@ -180,6 +233,10 @@
         return;
       }
       const profile = window.SGAI_PROFILES.profileFor(cfg.klass, cfg.capabilities);
+      // The capability parameters this session discloses on a resolution
+      // request (the vector's `sends_capabilities`), read by the module from
+      // its profile.
+      profile.sendsCapabilities = (cfg.sendsCapabilities || []).slice();
       ref = new window.SgaiReference({ container, video, profile, log });
       ref.start(url, startTime);
       player = ref.player;
@@ -190,9 +247,20 @@
     // The sample time (ms since load()) of the first frame shown, or null.
     firstFrame() { sample(null); return firstFrame; },
 
-    // A viewer action; `activate` is a click, made by the runner.
+    // The session time now (ms since the first frame, on the session clock),
+    // or null before the first frame.
+    sessionNow() {
+      if (t0 === null || !container) return null;
+      if (firstFrame === null) { sample(null); return clock.now(); }
+      return tick(null);
+    },
+
+    // A viewer action; `activate` is a click, made by the runner. A `pause`
+    // runs the session clock on wall time until the `resume`.
     act(action) {
       sample('action:' + action.do);
+      if (action.do === 'pause') viewerPaused = true;
+      if (action.do === 'resume') viewerPaused = false;
       if (cfg.mode === 'legacy') {
         switch (action.do) {
           case 'pause': player.pause(); return { done: 'primary paused' };
@@ -220,7 +288,9 @@
       sample('end');
       if (timer) clearInterval(timer);
       timer = null;
-      return { t0, firstFrame, viewport: VIEWPORT, mode: cfg.mode, klass: cfg.klass, samples, destinations, moduleLog };
+      const clk = clock ? { mode: clock.mode, points: clock.points } : null;
+      return { t0, firstFrame, viewport: VIEWPORT, mode: cfg.mode, klass: cfg.klass, samples, destinations, moduleLog,
+        clock: clk };
     },
 
     inspect() {

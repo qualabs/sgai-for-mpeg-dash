@@ -1,0 +1,5 @@
+PASS            R4.9 D4                      requests      1 request(s) as expected
+PASS            R4.9 D4                      selection     1 opportunit(y/ies) as expected
+PASS            R4.9 D4                      presentation  3 segment(s) as expected; startup 303 before the first frame
+FAIL            R4.9 D4                      beacons       beacons[0] https://t.example.com/r4-9/c1-imp (@id 1) expected at 2000; observed at never
+exit 1: PASS 3  FAIL 1  NOT_VERIFIABLE 0; wall 17.1 s; content 0.0 s (0 ffmpeg runs, 2 cuts from the cache), players 16.4 s

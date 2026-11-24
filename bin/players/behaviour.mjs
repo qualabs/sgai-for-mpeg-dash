@@ -5,32 +5,52 @@
 //
 //   node behaviour.mjs < jobs.json > raw.json
 //
-// jobs.json: { origin, concurrency, jobs: [{
-//   id, mode ('sgai' | 'legacy'), klass, capabilities, startTime (s),
-//   entryUrl, observeMs, wallLimitMs,
+// jobs.json: { origin, concurrency, cpuThrottle, jobs: [{
+//   id, mode ('sgai' | 'legacy'), klass, capabilities, sendsCapabilities,
+//   startTime (s), clock ('presentation' | 'wall'), utcAtLoad (ms since the
+//   epoch, or null), entryUrl, observeMs, wallLimitMs,
 //   actions:   [{ atMs, do, to (s), rate }],
 //   documents: [{ url, path, body, contentType }],      the vector's fixtures
-//   aps:       [{ url, nth, status, path, body, contentType, delayMs, noResponse }],
-//   media:     [{ prefix, local }] }] }               external prefix -> local
+//   aps:       [{ url, nth, status, path, body, contentType, delayMs, noResponse,
+//                 media }],                           media: not a document
+//   media:     [{ prefix, local, segments }] }] }    external prefix -> local,
+//                                                     segments: local path regexes
 // raw.json: { browser, results: [{ id, ok, harnessError, t0, origin, startupMs,
-//   requests, actions, observation, pageErrors, mediaResponses, mediaErrors }] }
+//   clock, requests, actions, observation, pageErrors, mediaResponses, mediaErrors }] }
 //
 // The session clock (spec-source/scenarios/README.md) starts at the first
-// frame, not at load(): `t0` is the wall time of load(), `origin` the wall
-// time of the first frame the adapter saw (`startupMs` after `t0`; null when
-// none came within STARTUP_LIMIT_MS, and then the clock starts at `t0`).
-// Actions are made, and observation ends, on the session clock.
+// frame, not at load(), and is kept by the adapter (adapters/sgai-clock.js):
+// `t0` is the wall time of load(), `origin` the wall time of the first frame
+// the adapter saw (`startupMs` after `t0`; null when none came within
+// STARTUP_LIMIT_MS). Actions are made, and observation ends, at the session
+// times the adapter reports (`sessionNow()`), not at wall times: on a page
+// that plays slower than real time the two part. Each action records the
+// session time it was started and done at.
+//
+// `cpuThrottle` (> 1) slows every page's main thread by that factor (CDP
+// Emulation.setCPUThrottlingRate): how the clock's independence from the
+// machine is checked.
+//
+// A request to dash.js's default UTC timing source (time.akamai.com) is
+// answered here with the time the job's `utcAtLoad` puts at load() plus the
+// wall time since (kind 'time'): a live entry's `now` is its
+// availabilityStartTime plus `play_from`, so the Player joins where the
+// vector starts. Without `utcAtLoad` it is answered with this machine's time.
 //
 // Every request leaving the local origin, from the page or from a page it
 // opens (a ClickThrough destination opened as a popup), is answered here
 // (ADR 0079), and each is recorded with its wall time (ms since the epoch,
 // the clock of `t0` and `origin`):
 //   1. an `aps` entry for its URL (and request number): its status, document,
-//      delay, or no answer at all — kind 'aps';
+//      delay, or no answer at all — kind 'aps', or 'aps-media' when the URL is
+//      a media segment or a creative and not a document (`media`);
 //   2. a fixture whose URL it is (the fixture's query a subset of the
 //      request's) — kind 'document', 200 with the fixture;
-//   3. under a media prefix: fetched from the local content server, not
-//      recorded beyond a count (media requests are not compared);
+//   3. a segment a fixture MPD declares under a media prefix (its local path
+//      matches one of `segments`): fetched from the local content server, not
+//      recorded beyond a count (media requests are not compared). Anything
+//      else under the prefix (an image or an HTML creative that happens to
+//      sit there) goes on to 4;
 //   4. anything else — kind 'other', 204 (an image: a 1x1 PNG). Beacons are
 //      among these; which are beacons is decided in Python.
 // This file decides nothing.
@@ -45,6 +65,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
 const STARTUP_LIMIT_MS = 30000;
 const CORS = { 'access-control-allow-origin': '*', 'cache-control': 'no-store' };
+const TIME_HOSTS = ['time.akamai.com'];
+const POLL_MS = 10;
 
 // The declared URL covers the requested one: same origin and path, and every
 // query parameter of the declared one present with the same value.
@@ -63,7 +85,9 @@ async function runJob(browser, job) {
   const counts = new Map();
   let mediaResponses = 0;
   const mediaErrors = [];
-  const media = job.media.slice().sort((a, b) => b.prefix.length - a.prefix.length);
+  const media = job.media.slice().sort((a, b) => b.prefix.length - a.prefix.length)
+    .map((m) => Object.assign({}, m, { rx: (m.segments || []).map((x) => new RegExp(x)) }));
+  let loadWall = null;
   await context.route('**/*', async (route) => {
     const req = route.request();
     const url = req.url();
@@ -71,6 +95,15 @@ async function runJob(browser, job) {
     const wall = Date.now();
     const rec = { wall, url, method: req.method(), resourceType: req.resourceType() };
     try {
+      let host = null;
+      try { host = new URL(url).hostname; } catch (e) { /* not a URL */ }
+      if (TIME_HOSTS.includes(host)) {
+        const utc = job.utcAtLoad && loadWall !== null ? job.utcAtLoad + (Date.now() - loadWall) : Date.now();
+        Object.assign(rec, { kind: 'time', status: 200, answered: new Date(utc).toISOString() });
+        requests.push(rec);
+        return await route.fulfill({ status: 200, headers: CORS, contentType: 'text/plain',
+          body: new Date(utc).toISOString() });
+      }
       const aps = job.aps.filter((a) => covers(a.url, url));
       if (aps.length) {
         const key = aps[0].url;
@@ -78,7 +111,7 @@ async function runJob(browser, job) {
         counts.set(key, n);
         const rule = aps.find((a) => a.nth === n) || aps.find((a) => !a.nth);
         if (rule) {
-          Object.assign(rec, { kind: 'aps', nth: n, fixture: rule.path || null,
+          Object.assign(rec, { kind: rule.media ? 'aps-media' : 'aps', nth: n, fixture: rule.path || null,
             status: rule.noResponse ? null : rule.status });
           requests.push(rec);
           if (rule.noResponse) return; // left open until the context closes
@@ -93,7 +126,8 @@ async function runJob(browser, job) {
         requests.push(rec);
         return await route.fulfill({ status: 200, headers: CORS, contentType: doc.contentType, body: doc.body });
       }
-      const m = media.find((x) => url.startsWith(x.prefix));
+      const m = media.find((x) => url.startsWith(x.prefix)
+        && x.rx.some((r) => r.test(new URL(x.local + url.slice(x.prefix.length).split('?')[0]).pathname)));
       if (m) {
         const local = m.local + url.slice(m.prefix.length).split('?')[0];
         const resp = await route.fetch({ url: local });
@@ -116,15 +150,23 @@ async function runJob(browser, job) {
   const pageErrors = [];
   page.on('pageerror', (e) => pageErrors.push(String(e).slice(0, 300)));
 
-  const out = { id: job.id };
+  const out = { id: job.id, clock: job.clock };
   const actions = [];
   try {
+    if (input.cpuThrottle && input.cpuThrottle > 1) {
+      const cdp = await context.newCDPSession(page);
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: input.cpuThrottle });
+      out.cpuThrottle = input.cpuThrottle;
+    }
     await page.goto(`${input.origin}/harness.html?player=sgai`);
     out.version = (await page.evaluate(() => window.SGAI.ready)).version;
     await page.evaluate((c) => window.SGAI_ADAPTER.configure(c),
-      { mode: job.mode, klass: job.klass, capabilities: job.capabilities, startTime: job.startTime });
+      { mode: job.mode, klass: job.klass, capabilities: job.capabilities,
+        sendsCapabilities: job.sendsCapabilities || [], startTime: job.startTime, clock: job.clock });
+    loadWall = Date.now();
     const loaded = await page.evaluate((u) => { window.SGAI.load(u); return window.SGAI_ADAPTER.sessionStart(); },
       job.entryUrl);
+    loadWall = loaded;
     out.t0 = loaded;
     let first = null;
     while (first === null && Date.now() - loaded < Math.min(STARTUP_LIMIT_MS, job.wallLimitMs)) {
@@ -133,15 +175,18 @@ async function runJob(browser, job) {
     }
     out.startupMs = first;
     out.origin = first === null ? null : loaded + first;
-    const t0 = first === null ? loaded : loaded + first;
+    const session = async () => {
+      const s = await page.evaluate(() => window.SGAI_ADAPTER.sessionNow());
+      return s === null ? Date.now() - loaded : s;   // no frame yet: wall since load()
+    };
     const pending = job.actions.slice().sort((a, b) => a.atMs - b.atMs);
     for (;;) {
-      const t = Date.now() - t0;
+      const t = await session();
       if (t >= job.observeMs) break;
       if (Date.now() - loaded > job.wallLimitMs) { out.timedOut = true; break; }
       while (pending.length && pending[0].atMs <= t) {
         const a = pending.shift();
-        const rec = { at: a.atMs, do: a.do, startedAt: Date.now() - t0 };
+        const rec = { at: a.atMs, do: a.do, startedAt: Math.round(await session()) };
         if (a.do === 'activate') {
           const p = await page.evaluate(() => window.SGAI_ADAPTER.adPoint());
           if (p) {
@@ -154,11 +199,10 @@ async function runJob(browser, job) {
           rec.result = await page.evaluate((x) => window.SGAI_ADAPTER.act(x),
             { do: a.do, to: a.to, rate: a.rate });
         }
-        rec.doneAt = Date.now() - t0;
+        rec.doneAt = Math.round(await session());
         actions.push(rec);
       }
-      const next = pending.length ? pending[0].atMs - (Date.now() - t0) : 50;
-      await sleep(Math.max(1, Math.min(50, next, job.observeMs - (Date.now() - t0))));
+      await sleep(POLL_MS);
     }
     out.observation = await page.evaluate(() => window.SGAI_ADAPTER.observation());
     out.state = await page.evaluate(() => window.SGAI.state());
@@ -183,6 +227,6 @@ async function worker() {
   while (queue.length) results.push(await runJob(browser, queue.shift()));
 }
 await Promise.all(Array.from({ length: Math.max(1, input.concurrency || 1) }, worker));
-const out = { browser: `chromium ${browser.version()}`, results };
+const out = { browser: `chromium ${browser.version()}`, cpuThrottle: input.cpuThrottle || 1, results };
 await browser.close();
 process.stdout.write(JSON.stringify(out));

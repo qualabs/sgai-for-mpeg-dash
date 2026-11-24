@@ -1,0 +1,107 @@
+# A List MPD whose second Linked Period does not resolve (404). §5.3.2.6.3 step 2: the Linked
+# Period has no content of its own, so it is removed, and the third follows the first. Lazy
+# resolution: lb from PeriodStart 4 - 2 = 2 s of the alternative (session 4 s); after lb is
+# removed lc's PeriodStart is 4, so it is eligible at once (4 - 4 = 0).
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 11000
+entry: fixtures/list-hole-main.mpd
+fixtures:
+- path: fixtures/list-hole-main.mpd
+- path: fixtures/list-hole.mpd
+  url: https://aps.example.com/t05/list-hole
+- path: fixtures/la.mpd
+  url: https://ads-cdn.example.com/t05/la.mpd
+- path: fixtures/lc.mpd
+  url: https://ads-cdn.example.com/t05/lc.mpd
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+aps:
+- url: https://ads-cdn.example.com/t05/lb.mpd
+  status: 404
+outcomes:
+  D1:
+    summary: la 2-6 s, lc 6-10 s, then the programme from 2 s
+    requests:
+    - at:
+        from: 0
+        to: 2000
+      url: https://aps.example.com/t05/list-hole
+      answered_by: fixtures/list-hole.mpd
+    - at:
+        from: 0
+        to: 2000
+      url: https://ads-cdn.example.com/t05/la.mpd
+      answered_by: fixtures/la.mpd
+    - at: 4000
+      url: https://ads-cdn.example.com/t05/lb.mpd
+    - at:
+        from: 4000
+        to: 6000
+      url: https://ads-cdn.example.com/t05/lc.mpd
+      answered_by: fixtures/lc.mpd
+    selection:
+    - opportunity:
+        fixture: fixtures/list-hole-main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: fixtures/list-hole.mpd
+          id: la
+        option: null
+        layout: linear
+      - candidate:
+          fixture: fixtures/list-hole.mpd
+          id: lc
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - element: primary
+        from: 0
+    - start: 2000
+      end: 6000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: fixtures/list-hole.mpd
+          id: la
+        option: null
+    - start: 6000
+      end: 10000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: fixtures/list-hole.mpd
+          id: lc
+        option: null
+    - start: 10000
+      end: 11000
+      layout: none
+      shows:
+      - element: primary
+        from: 2000
+    beacons:
+    - at: 2000
+      fixture: fixtures/la.mpd
+      id: '1'
+      url: https://t.example.com/t05/la/imp
+    - at: 6000
+      fixture: fixtures/lc.mpd
+      id: '2'
+      url: https://t.example.com/t05/lc/imp

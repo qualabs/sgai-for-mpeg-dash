@@ -41,15 +41,26 @@ outcome for a class the UC does not state is a finding.
 
 ## The fields
 
-- **Times** are integers in `1/timescale` s on the **session clock**:
-  wall-clock time since playback started, pauses included. Playback starts
-  at the first frame presented: the primary content's, or what the Player
-  presents in its place (UC-01's pre-roll). What happens before that frame
-  (the requests of start-up) is at 0, so a vector never measures how long a
-  Player takes to start. Not the main presentation's timeline, which stands
-  still during a linear insertion and a pause; each `primary` element
-  carries `from`, the main presentation time it shows at the segment's
-  start, so that timeline can be read back. Where the source gives a window
+- **Times** are integers in `1/timescale` s on the **session clock**: how
+  far the session has got since playback started, measured by what is
+  presented. Playback starts at the first frame presented: the primary
+  content's, or what the Player presents in its place (UC-01's pre-roll).
+  What happens before that frame (the requests of start-up) is at 0, so a
+  vector never measures how long a Player takes to start. From that frame
+  the clock advances with the media time of what is on screen, divided by
+  its playback rate: the primary content's while it plays, a linear ad's
+  while it has taken over the screen. It advances with wall-clock time while
+  the viewer has paused (a pause has no media time) and while what is shown
+  has none (an image or HTML ad in place of the content, the content held
+  by the Player). A stall stands it still, and a seek's jump is not an
+  advance. So a Player on a slow machine is judged by what it presented and
+  when in that presentation, not by how late the machine ran; a Player that
+  shows something at the wrong point of the presentation is still late on
+  this clock. With nothing paused and everything at 1x it is wall-clock time.
+  Not the main presentation's timeline, which stands still during a linear
+  insertion and a pause; each `primary` element carries `from`, the main
+  presentation time it shows at the segment's start, so that timeline can
+  be read back. A viewer action's `at` is on this clock too. Where the source gives a window
   instead of an instant (a request "from 270 s", a fetch "before it plays",
   an abort whose instant is the Player's), write `{from, to}`; that holds
   for a presentation boundary too (the `end` of one segment and the `start`
@@ -59,10 +70,15 @@ outcome for a class the UC does not state is a finding.
   a destination or a segment (for its start and its `from`) may carry its
   own `tolerance`, which replaces the vector's for that item alone.
 - **`play_from`, `observe_until`**: where playback starts in the main
-  presentation, and when observation ends. End a little after the last
+  presentation, and when observation ends. For a live entry (`type="dynamic"`)
+  `play_from` is the live edge's position when playback starts: the
+  executor sets the Player's UTC clock to `availabilityStartTime` plus
+  `play_from` (plus the span the observation covers, so that a viewer
+  watching faster than real time stays behind the edge). End a little after the last
   thing the UC is about, not at the end of the content.
 - **`fixtures`**: every document the Player is given or fetches, as paths
-  under `spec-source/`; `url` is where the harness serves it, copied from
+  under `spec-source/` (a vector kept outside it, such as the reference's
+  own regression tests, may also name a path relative to its own file); `url` is where the harness serves it, copied from
   the document that points to it. Media (segments, images, HTML) are not
   fixtures and their requests are not recorded; the chosen option says which
   was used. `entry` is the main MPD. `expect_red: [rule ids]` marks a

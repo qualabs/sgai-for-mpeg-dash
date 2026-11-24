@@ -26,7 +26,10 @@ NOT_VERIFIABLE with its reason, or NOT_APPLICABLE (the requests of an outcome
 that says `requests_not_compared`). Times follow spec-source/scenarios/README.md:
 the session clock, in 1/timescale s since the first frame was presented
 (anything observed before it is at 0), an exact time matched within the
-tolerance, a window `{from, to}` widened by it. The tolerance is the item's own
+tolerance, a window `{from, to}` widened by it. The record carries the clock
+the adapter kept (`observation.clock.points`: ms since load() against session
+ms); every time of the record is mapped through it (`session_map`). A record
+without it (an earlier run) is on the wall clock since the first frame. The tolerance is the item's own
 `tolerance` when it has one (a request, a beacon, a click, a destination, a
 presentation segment's start), else the vector's. The semantics of each field
 are in the function that decides it.
@@ -127,26 +130,57 @@ def first_frame(samples: list) -> float | None:
     return None
 
 
+def session_map(points: list | None, ff: float):
+    """ms since load() -> session ms. `points` are the adapter's clock
+    ([ms since load(), session ms, ...], in order): piecewise linear between
+    them, 0 before the first, wall time after the last. Without points, the
+    wall clock since the first frame `ff`."""
+    pts = [(float(p[0]), float(p[1])) for p in (points or [])]
+    if not pts:
+        return lambda t: max(0.0, t - ff)
+
+    def f(t: float) -> float:
+        if t <= pts[0][0]:
+            return 0.0
+        lo_, hi_ = 0, len(pts) - 1
+        if t >= pts[hi_][0]:
+            return pts[hi_][1] + (t - pts[hi_][0])
+        while hi_ - lo_ > 1:
+            mid = (lo_ + hi_) // 2
+            if pts[mid][0] <= t:
+                lo_ = mid
+            else:
+                hi_ = mid
+        (a, sa), (b, sb) = pts[lo_], pts[hi_]
+        return sa + (sb - sa) * ((t - a) / (b - a) if b > a else 0.0)
+    return f
+
+
 def normalise(raw: dict, timescale: int) -> Observed:
     """bin/players/behaviour.mjs's record of one job -> Observed in 1/timescale s,
     on the session clock: its origin is the first frame (`origin`, or the
     adapter's `firstFrame`, or the first sample that shows something), and
-    whatever happened before it is at 0. With no frame at all the origin is
-    load() and `startup` is None."""
+    whatever happened before it is at 0; the adapter's clock points map every
+    time after it (session_map). With no frame at all the origin is load() and
+    `startup` is None. Only `aps` and `document` requests are document
+    requests; an `aps-media` one (an `aps` answer on a segment or a creative)
+    and a `time` one (the UTC timing source) are neither requests nor
+    beacons."""
     k = timescale / 1000.0
-    samples_raw = (raw.get("observation") or {}).get("samples", [])
+    obs_raw = raw.get("observation") or {}
+    samples_raw = obs_raw.get("samples", [])
     ff = raw.get("startupMs")
     if ff is None and raw.get("origin") is not None:
         ff = raw["origin"] - raw["t0"]
     if ff is None:
-        ff = (raw.get("observation") or {}).get("firstFrame")
+        ff = obs_raw.get("firstFrame")
     if ff is None:
         ff = first_frame(samples_raw)
     obs = Observed(startup=ff)
     ff = ff or 0
-    t0 = raw["t0"] + ff
+    smap = session_map((obs_raw.get("clock") or {}).get("points"), ff)
     for r in raw.get("requests", []):
-        at = max(0.0, (r["wall"] - t0) * k)
+        at = smap(r["wall"] - raw["t0"]) * k
         if r.get("kind") in ("aps", "document"):
             obs.requests.append({"at": at, "url": r["url"], "fixture": r.get("fixture"), "kind": r["kind"],
                                  "status": r.get("status")})
@@ -155,7 +189,7 @@ def normalise(raw: dict, timescale: int) -> Observed:
     obs.requests.sort(key=lambda r: r["at"])
     obs.others.sort(key=lambda r: r["at"])
     for s in samples_raw:
-        ss = {"t": max(0.0, (s["t"] - ff) * k), "layout": s.get("layout", "none"), "elements": []}
+        ss = {"t": smap(s["t"]) * k, "layout": s.get("layout", "none"), "elements": []}
         for e in s.get("elements", []):
             e = dict(e)
             if "time" in e:
@@ -166,8 +200,8 @@ def normalise(raw: dict, timescale: int) -> Observed:
         obs.samples.append(ss)
     obs.samples.sort(key=lambda s: s["t"])
     obs.actions = [dict(a) for a in raw.get("actions", [])]
-    obs.destinations = [{"at": max(0.0, (d["t"] - ff) * k), "uri": d["uri"]}
-                        for d in (raw.get("observation") or {}).get("destinations", [])]
+    obs.destinations = [{"at": smap(d["t"]) * k, "uri": d["uri"]}
+                        for d in obs_raw.get("destinations", [])]
     return obs
 
 
@@ -190,10 +224,55 @@ class Fixtures:
         return None
 
 
+def served_fixture(url: str | None, at: float, obs: Observed, fx: Fixtures) -> str | None:
+    """The fixture a document URL stood for at session time `at`: the one
+    served for the latest document request to that URL made at or before
+    `at` (a URL `aps` answers with a different document on its second request
+    serves two), else the fixture whose URL it is (Fixtures.of)."""
+    if not url:
+        return None
+    hit = None
+    for r in obs.requests:
+        if r["at"] > at:
+            break
+        if r.get("fixture") and (same_url(r["url"], url) or added_query(url, r["url"]) is not None
+                                 or added_query(r["url"], url) is not None):
+            hit = r["fixture"]
+    return hit or fx.of(url)
+
+
+def attribute(obs: Observed, fx: Fixtures) -> None:
+    """Sets `docFixture` and `oppFixture` on every surface of every sample:
+    the fixture its `data-sgai-doc` and `data-sgai-opportunity-doc` stood for
+    when that surface (the same identity and DOM element) appeared, kept for
+    as long as it stays on screen without a gap (served_fixture)."""
+    prev: dict = {}
+    for s in obs.samples:
+        cur = {}
+        for e in s["elements"]:
+            key = (_ident_el(e), e.get("inst"))
+            if key in prev:
+                e["docFixture"], e["oppFixture"] = prev[key]
+            else:
+                e["docFixture"] = served_fixture(e.get("doc"), s["t"], obs, fx)
+                e["oppFixture"] = served_fixture(e.get("opportunityDoc"), s["t"], obs, fx)
+            cur[key] = (e["docFixture"], e["oppFixture"])
+        prev = cur
+
+
+def doc_of(el: dict, fx: Fixtures) -> str | None:
+    """The fixture an observed surface's document is (attribute's, else by URL)."""
+    return el["docFixture"] if el.get("docFixture") else fx.of(el.get("doc"))
+
+
+def opp_of(el: dict, fx: Fixtures) -> str | None:
+    return el["oppFixture"] if el.get("oppFixture") else fx.of(el.get("opportunityDoc"))
+
+
 # --------------------------------------------------------------------------- identities
 
 def cand_matches(exp: dict, el: dict, fx: Fixtures) -> bool:
-    if fx.of(el.get("doc")) != exp["fixture"]:
+    if doc_of(el, fx) != exp["fixture"]:
         return False
     if "id" in exp:
         return el.get("candidateId") == exp["id"]
@@ -244,7 +323,7 @@ def describe_obs(layout: str, elements: list, fx: Fixtures) -> str:
         else:
             c = e.get("candidateId") or f"#{e.get('candidateIndex')}"
             o = e.get("optionId") or (f"#{e['optionIndex']}" if "optionIndex" in e else "null")
-            parts.append(f"{e.get('element')} {fx.of(e.get('doc')) or e.get('doc')}:{c} option {o}")
+            parts.append(f"{e.get('element')} {doc_of(e, fx) or e.get('doc')}:{c} option {o}")
     return f"{layout} [{', '.join(parts) or 'nothing'}]"
 
 
@@ -595,7 +674,10 @@ def observed_segments(samples: list, end: float, tol: float) -> tuple[list, floa
             break
         els = s["elements"]
         p = _primary(els)
-        ident = (s["layout"], tuple(sorted(_ident_el(e) for e in els)))
+        # a surface's identity includes the document it was attributed to
+        # (attribute): the same URL serving a second document is a change
+        ident = (s["layout"], tuple(sorted(_ident_el(e) + (("docFixture", str(e.get("docFixture"))),)
+                                           for e in els)))
         paused = p.get("paused") if p else None
         seek = bool(s.get("seek")) and abs(s["seek"]["to"] - s["seek"]["from"]) > tol
         if not segs or ident != segs[-1].ident or paused != segs[-1].paused or seek:
@@ -754,30 +836,60 @@ def _seg_at(segs: list, t: float) -> Seg:
 
 # ----------------------------------------------------------------- selection
 
-def compare_selection(expected: list, obs: Observed, fx: Fixtures) -> tuple[Outcome, str]:
-    """Per opportunity, the ad surfaces observed (attributed by their
-    `data-sgai-opportunity-*`), distinct by candidate, option and the layout
-    on screen, in order of first appearance, against `presented`. `declined`
-    and `ignored` both expect nothing presented; which of the two it was is
-    the requests field's to tell. An ad surface with no opportunity, or for
-    an opportunity the vector does not list, is a FAIL."""
+def presentations(obs: Observed, tol: float, fx: Fixtures) -> dict:
+    """Per opportunity (fixture, Event@id), the ad presentations observed, in
+    order of appearance: [(element, layout)]. One presentation is one surface
+    (its identity, its layout, its DOM element and, for a <video>, its pass)
+    on screen without a gap; the same surface back after a gap shorter than
+    the tolerance is the same presentation (a flicker), a new DOM element or
+    a video started again is a new one (a second pass of the same candidate).
+    Two surfaces of the same identity in one sample are one."""
     seen: dict = {}
+    ended: dict = {}       # run key -> session time it was last on screen
+    live: set = set()
     for s in obs.samples:
+        now = set()
         for e in s["elements"]:
             if e.get("element") != "ad":
                 continue
-            key = (fx.of(e.get("opportunityDoc")) or e.get("opportunityDoc"), e.get("opportunityEvent"))
-            entry = (_ident_el(e), s["layout"])
-            lst = seen.setdefault(key, [])
-            if entry not in [(_ident_el(x), lay) for x, lay in lst]:
-                lst.append((e, s["layout"]))
+            ident = (_ident_el(e), s["layout"])
+            run = (ident, e.get("inst"), e.get("pass"))
+            if run in now:
+                continue
+            now.add(run)
+            if run in live or (run in ended and s["t"] - ended[run] < tol):
+                continue
+            key = (opp_of(e, fx) or e.get("opportunityDoc"), e.get("opportunityEvent"))
+            seen.setdefault(key, []).append((e, s["layout"]))
+        for run in live - now:
+            ended[run] = s["t"]
+        live = now
+    return seen
+
+
+def compare_selection(expected: list, obs: Observed, fx: Fixtures, tol: float = 0) -> tuple[Outcome, str]:
+    """Per opportunity, the presentations observed (attributed by their
+    `data-sgai-opportunity-*`; `presentations`) as one ordered sequence,
+    against the vector's entries for that opportunity read in order: each
+    `presented` entry takes the next presentations, as many as it lists,
+    each with its candidate, option and layout; `declined` and `ignored` take
+    none (which of the two it was is the requests field's to tell). A
+    presentation left over after the last entry is a FAIL. Order is what is
+    compared: which execution of the opportunity a presentation belonged to
+    (a declined first pause and a presented second, or the reverse) is the
+    presentation field's to tell, by time. An ad surface with no opportunity,
+    or for an opportunity the vector does not list, is a FAIL."""
+    seen = presentations(obs, tol, fx)
     problems = []
-    keys = set()
+    pos: dict = {}
+    last: dict = {}
     for i, sel in enumerate(expected):
         key = (sel["opportunity"]["fixture"], str(sel["opportunity"]["event_id"]))
-        keys.add(key)
-        got = seen.get(key, [])
+        last[key] = i
         want = sel["presented"] if sel["result"] == "presented" else []
+        p = pos.get(key, 0)
+        got = seen.get(key, [])[p:p + len(want)]
+        pos[key] = p + len(want)
         ok = len(got) == len(want) and all(
             lay == w["layout"] and cand_matches(w["candidate"], el, fx) and opt_matches(w.get("option"), el)
             for (el, lay), w in zip(got, want))
@@ -787,9 +899,13 @@ def compare_selection(expected: list, obs: Observed, fx: Fixtures) -> tuple[Outc
                           f" option {_opt(x['option'])}" for x in want) or "nothing"
             problems.append(f"selection[{i}] event {key[1]} of {key[0]} ({sel['result']}): expected {w}; observed {g}")
     for key, lst in seen.items():
-        if key not in keys:
+        if key not in last:
             problems.append(f"ad presented for an opportunity the vector does not list: {key} "
                             f"({', '.join(describe_obs(lay, [el], fx) for el, lay in lst)})")
+        elif len(lst) > pos[key]:
+            extra = lst[pos[key]:]
+            problems.append(f"selection[{last[key]}] event {key[1]} of {key[0]}: {len(extra)} presentation(s) more "
+                            f"than the vector lists: {', '.join(describe_obs(lay, [el], fx) for el, lay in extra)}")
     n = len(expected)
     return _verdict(problems, [], f"{n} opportunit(y/ies) as expected" if n else "no opportunity, as expected")
 
@@ -878,6 +994,7 @@ def compare(vector: dict, outcome: dict, raw: dict, fx: Fixtures, subject: str,
         why = "no result from the harness" if not raw else raw.get("harnessError") or "the run did not start"
         return [Result(f, Outcome.NOT_VERIFIABLE, subject, detail=why) for f in fields]
     obs = normalise(raw, ts)
+    attribute(obs, fx)
     out = []
     for f in fields:
         if f == "requests" and outcome.get("requests_not_compared"):
@@ -885,7 +1002,7 @@ def compare(vector: dict, outcome: dict, raw: dict, fx: Fixtures, subject: str,
         elif f == "requests":
             o, d = compare_requests(outcome["requests"], obs, tol, fx, vector.get("entry"))
         elif f == "selection":
-            o, d = compare_selection(outcome["selection"], obs, fx)
+            o, d = compare_selection(outcome["selection"], obs, fx, tol)
         elif f == "presentation":
             o, d = compare_presentation(outcome["presentation"], obs, vector["observe_until"], tol, fx,
                                         actions, ts)

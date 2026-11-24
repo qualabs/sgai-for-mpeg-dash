@@ -584,7 +584,9 @@ class Selection(unittest.TestCase):
         s = next(s for s in self.raw["observation"]["samples"] if self.ad in s["elements"])
         late = copy.deepcopy(s)
         late["t"] += 3000
-        late["elements"] = [late["elements"][0], second]
+        # c2 joins c1 on screen (c1 stays: the record shows c1 again at the
+        # geometry sample, and an ad back after a gap is a new presentation)
+        late["elements"] = late["elements"] + [second]
         self.raw["observation"]["samples"].append(late)
         self.raw["observation"]["samples"].sort(key=lambda x: x["t"])
         self.assertEqual(self.field()[0], Outcome.FAIL)   # c1 came first

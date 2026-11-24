@@ -43,6 +43,7 @@ import shutil
 import signal
 import struct
 import subprocess
+import sys
 import threading
 import time
 from pathlib import Path
@@ -391,6 +392,14 @@ class _Server(http.server.ThreadingHTTPServer):
         super().__init__(("127.0.0.1", 0), _Handler)
         self.content = content
         self.mpds = {}     # key -> (text, plan)
+
+    def handle_error(self, request, client_address):
+        """A Player that closes the connection while it is being answered (a
+        seek, an aborted segment, the page closing) is not an error of the
+        harness and prints nothing; any other exception prints as before."""
+        if isinstance(sys.exc_info()[1], (BrokenPipeError, ConnectionResetError, ConnectionAbortedError)):
+            return
+        super().handle_error(request, client_address)
 
 
 STATIC = {
