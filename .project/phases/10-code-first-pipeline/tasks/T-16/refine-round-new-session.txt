@@ -1,0 +1,7 @@
+session: c075944c-4cc0-4cfd-8324-f877e5a46f1a.jsonl
+step                                                           input    c.read   c.write   output  calls  max ctx
+(orchestrator)                                                 3.56M     3.45M     0.11M    11.1k     34    0.12M
+prompts/4-auto-refine/refine-spec.prompt ← Refine v12.7 to     2.57M     2.45M     0.12M    13.9k     25    0.12M
+prompts/3-post-spec/review-spec-details.prompt ← Names rev     1.44M     1.35M     97.6k    12.4k     16    0.11M
+TOTAL                                                          7.58M     7.25M     0.33M    37.5k     75
+counted once per API call (message.id); input = fresh + cache write + cache read; no prices applied
