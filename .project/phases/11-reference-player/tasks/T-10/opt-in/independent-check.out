@@ -1,0 +1,73 @@
+$ independent check by hand: fenced check-dash-conformance commands per prompt (grep), vs the reader
+prompts/2-build/apply-context-delta.prompt:138:python3 bin/check-dash-conformance.py --source spec-source --out-json W/conf-base.json --out-md W/conf-base.md
+prompts/2-build/apply-context-delta.prompt:236:python3 bin/check-dash-conformance.py --source spec-source --out-json W/conf.json --out-md W/conf.md
+prompts/2-build/apply-context-delta.prompt:271:python3 bin/check-dash-conformance.py --source spec-source --out-json W/conf.json --out-md W/conf.md
+prompts/build-all.prompt:322:python3 bin/check-dash-conformance.py --source spec-source \
+
+prompts/2-build/apply-context-delta.prompt [['--source', 'spec-source', '--out-json', 'W/conf-base.json', '--out-md', 'W/conf-base.md'], ['--source', 'spec-source', '--out-json', 'W/conf.json', '--out-md', 'W/conf.md'], ['--source', 'spec-source', '--out-json', 'W/conf.json', '--out-md', 'W/conf.md']]
+prompts/build-all.prompt [['--source', 'spec-source', '--out-md', 'output-analysis/v<N>-conformance-tests.md', '--out-json', 'output-analysis/v<N>-conformance-tests.json']]
+bin findings incl. exempt files would be:
+  check-dash-conformance.py ['90: string carries --behaviour', '95: string carries --behaviour', '96: behaviour.main']
+  conformance/behaviour.py ['258: string carries behaviour.mjs', '269: string carries behaviour.mjs', '440: string carries --behaviour', '55: string carries --behaviour']
+  conformance/behaviour_compare.py []
+  players/adapters/sgai.js ['27: the runner behaviour.mjs']
+  players/behaviour.mjs ['3: the --behaviour flag', '6: the runner behaviour.mjs']
+  test_behaviour_opt_in.py ['288: string carries --behaviour', '330: string carries --behaviour', '338: string carries behaviour.mjs', '340: string carries --behaviour', '443: string carries --behaviour', '463: string carries --behaviour']
+
+$ grep (text, no AST) over bin/ and prompts for the three markers
+bin/check-dash-conformance.py:7:    check-dash-conformance.py --behaviour [--source DIR] [--only ID ...] [--class C ...]
+bin/check-dash-conformance.py:32:--behaviour (phase 11; ADR 0081, ADR 0087) runs the behaviour battery: the
+bin/check-dash-conformance.py:90:    if "--behaviour" in argv:
+bin/check-dash-conformance.py:94:        from conformance import behaviour
+bin/check-dash-conformance.py:95:        rest = [a for a in argv if a != "--behaviour"]
+bin/test_behaviour_opt_in.py:2:"""ADR 0087: the behaviour battery runs only with an explicit `--behaviour`.
+bin/test_behaviour_opt_in.py:5:`conformance.behaviour.run` / `drive` / `main`, or `bin/players/behaviour.mjs`.
+bin/test_behaviour_opt_in.py:10:  `--behaviour` (document, --source, --demo, --players, --dashif, the error
+bin/test_behaviour_opt_in.py:12:  with subprocess.Popen refusing any command that carries `--behaviour` or
+bin/test_behaviour_opt_in.py:13:  `behaviour.mjs`. A run that touches a trap is red. The Players' and the
+bin/test_behaviour_opt_in.py:22:  process as above, and no prompt mentions `--behaviour`, `behaviour.mjs` or
+bin/test_behaviour_opt_in.py:23:  `conformance.behaviour` at all.
+bin/test_behaviour_opt_in.py:29:  check-dash-conformance.py (its --behaviour branch is what the runtime
+bin/test_behaviour_opt_in.py:31:  players/behaviour.mjs, players/adapters/sgai.js, and this file.
+bin/test_behaviour_opt_in.py:35:one: `--behaviour` reaches it.
+bin/test_behaviour_opt_in.py:68:FLAG = re.compile(r"(?<![\w-])--behaviour\b")
+bin/test_behaviour_opt_in.py:69:RUNNER = "behaviour.mjs"
+bin/test_behaviour_opt_in.py:72:          "players/behaviour.mjs", "players/adapters/sgai.js", Path(__file__).name}
+bin/test_behaviour_opt_in.py:73:PROMPT_TEXT = [(FLAG, "the --behaviour flag"), (re.compile(re.escape(RUNNER)), "the runner behaviour.mjs"),
+bin/test_behaviour_opt_in.py:74:               (re.compile(r"conformance[./]behaviour\b(?!_)"), "the module conformance.behaviour")]
+bin/test_behaviour_opt_in.py:102:    from conformance import behaviour, dashif, players
+bin/test_behaviour_opt_in.py:106:            calls.append(f"conformance.behaviour.{name}")
+bin/test_behaviour_opt_in.py:288:                found.append(f"{node.lineno}: string carries --behaviour")
+bin/test_behaviour_opt_in.py:326:    """The traps themselves: --behaviour reaches them, so a green elsewhere
+bin/test_behaviour_opt_in.py:330:        code, calls, _, _ = run_conformance(["--behaviour", "--replay", "/nonexistent.json"])
+bin/test_behaviour_opt_in.py:332:        self.assertEqual(calls, ["conformance.behaviour.main"])
+bin/test_behaviour_opt_in.py:338:                subprocess.run(["node", "behaviour.mjs"])
+bin/test_behaviour_opt_in.py:340:                subprocess.run(["python3", "x.py", "--behaviour"])
+bin/test_behaviour_opt_in.py:341:            subprocess.run(["true", "--behaviours-not"], check=True)  # not the flag
+bin/test_behaviour_opt_in.py:346:    """check-dash-conformance.py without --behaviour never reaches the executor."""
+bin/test_behaviour_opt_in.py:443:        text = ("prose `bin/check-dash-conformance.py --behaviour` outside a block\n"
+bin/test_behaviour_opt_in.py:449:        self.assertEqual(text_findings("--behaviours and behaviour_compare and a behaviour"), [])
+bin/test_behaviour_opt_in.py:463:        self.assertTrue(any("--behaviour" in f for f in entry), entry)
+bin/test_behaviour_opt_in.py:470:            "from conformance import behaviour\nbehaviour.run(1)": 1,
+bin/test_behaviour_opt_in.py:471:            "from conformance import behaviour as b\nb.drive()": 1,
+bin/test_behaviour_opt_in.py:472:            "import conformance.behaviour\nconformance.behaviour.main([])": 1,
+bin/test_behaviour_opt_in.py:473:            "from conformance.behaviour import main": 1,
+bin/test_behaviour_opt_in.py:475:            "from conformance import behaviour\ngetattr(behaviour, 'run')()": 1,
+bin/test_behaviour_opt_in.py:476:            "x = ['node', 'behaviour.mjs']": 1,
+bin/test_behaviour_opt_in.py:477:            "argv = ['--behaviour']": 1,
+bin/test_behaviour_opt_in.py:478:            '"""Docstring naming behaviour.mjs and --behaviour."""': 0,
+bin/test_behaviour_opt_in.py:479:            "from conformance import behaviour\nbehaviour.fixtures_of(v, s)": 0,
+bin/test_behaviour_compare.py:6:outcome, the record bin/players/behaviour.mjs would write for a Player that
+bin/test_behaviour_compare.py:21:from conformance import behaviour  # noqa: E402
+bin/players/behaviour.mjs:3:// bin/conformance/behaviour.py, which `check-dash-conformance.py --behaviour`
+bin/players/behaviour.mjs:6://   node behaviour.mjs < jobs.json > raw.json
+bin/players/adapters/sgai.js:27:// (bin/players/behaviour.mjs), on the network.
+bin/conformance/behaviour.py:4:`check-dash-conformance.py --behaviour` (ADR 0087).
+bin/conformance/behaviour.py:17:3. bin/players/behaviour.mjs plays each job on the `sgai` adapter (ADR 0081):
+bin/conformance/behaviour.py:55:USAGE = """    check-dash-conformance.py --behaviour [--source DIR] [--only ID ...] [--class C ...]
+bin/conformance/behaviour.py:254:    """bin/players/behaviour.mjs in its own process group, stopped by the id
+bin/conformance/behaviour.py:258:    proc = subprocess.Popen(["node", "behaviour.mjs"], cwd=players.PLAYERS_DIR, stdin=subprocess.PIPE,
+bin/conformance/behaviour.py:269:        raise RuntimeError(f"behaviour.mjs exited {proc.returncode}: {err.strip()[-800:]}")
+bin/conformance/behaviour.py:440:            sys.stderr.write(f"--behaviour takes no {a}\n{USAGE}\n")
+bin/conformance/behaviour_compare.py:6:bin/players/behaviour.mjs recorded, and returns one Result per expected field:
+bin/conformance/behaviour_compare.py:131:    """bin/players/behaviour.mjs's record of one job -> Observed in 1/timescale s,

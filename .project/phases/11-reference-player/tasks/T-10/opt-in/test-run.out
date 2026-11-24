@@ -1,0 +1,16 @@
+test_positive_controls (__main__.Bin.test_positive_controls) ... ok
+test_rules (__main__.Bin.test_rules) ... ok
+test_scripts (__main__.Bin.test_scripts) ... ok
+test_suite (__main__.Bin.test_suite) ... ok
+test_every_default_mode (__main__.DefaultModes.test_every_default_mode) ... ok
+test_gates (__main__.Promote.test_gates) ... ok
+test_conformance_commands_of_the_prompts (__main__.Prompts.test_conformance_commands_of_the_prompts) ... ok
+test_no_prompt_mentions_the_battery (__main__.Prompts.test_no_prompt_mentions_the_battery) ... ok
+test_reader (__main__.Prompts.test_reader) ... ok
+test_flag_reaches_the_trap (__main__.Traps.test_flag_reaches_the_trap) ... ok
+test_process_trap (__main__.Traps.test_process_trap) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 8.714s
+
+OK

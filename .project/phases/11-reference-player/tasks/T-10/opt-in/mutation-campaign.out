@@ -1,0 +1,76 @@
+BASELINE (copy, unmutated): exit 0  OK
+
+M1 build-all.prompt: --behaviour on Step 8.0's conformance command
+  exit 1 -> RED
+  FAIL: test_conformance_commands_of_the_prompts (__main__.Prompts.test_conformance_commands_of_the_prompts) (prompt='prompts/build-all.prompt', argv=['--source', 'spec-source', '--behaviour', '--out-md', '/run/user/1000/tmphkk9gkfr/3-out-md', '--out-json', '/run/user/1000/tmphkk9gkfr/5-out-json'])
+  FAIL: test_no_prompt_mentions_the_battery (__main__.Prompts.test_no_prompt_mentions_the_battery)
+    AssertionError: '--source spec-source --behaviour --out-md /run/user/1000/tmphkk9gkfr/3-out-md --out-json /run/user/1000/tmphkk9gkfr/5-out-json' is not None
+    AssertionError: {'prompts/build-all.prompt': ['322: the --behaviour flag']} != {}
+
+M2 apply-context-delta.prompt (dispatched by the incremental): runs behaviour.mjs
+  exit 1 -> RED
+  FAIL: test_no_prompt_mentions_the_battery (__main__.Prompts.test_no_prompt_mentions_the_battery)
+    AssertionError: {'prompts/2-build/apply-context-delta.prom[34 chars]js']} != {}
+
+M3 promote.py: a gate that shells out to check-dash-conformance.py --behaviour
+  exit 1 -> RED
+  FAIL: test_scripts (__main__.Bin.test_scripts)
+  FAIL: test_gates (__main__.Promote.test_gates) (dry=True, command=['$SCRATCH/proj/bin/check-dash-conformance.py', '--behaviour'])
+  FAIL: test_gates (__main__.Promote.test_gates) (dry=True, conformance=['--behaviour'])
+  FAIL: test_gates (__main__.Promote.test_gates) (dry=False, command=['$SCRATCH/proj/bin/check-dash-conformance.py', '--behaviour'])
+  FAIL: test_gates (__main__.Promote.test_gates) (dry=False, conformance=['--behaviour'])
+    AssertionError: {'promote.py': ['101: string carries --behaviour']} != {}
+    AssertionError: '$SCRATCH/proj/bin/check-dash-conformance.py --behaviour' is not None
+    AssertionError: Lists differ: ['conformance.behaviour.main'] != []
+    AssertionError: '$SCRATCH/proj/bin/check-dash-conformance.py --behaviour' is not None
+    AssertionError: Lists differ: ['conformance.behaviour.main'] != []
+
+M4 promote.py: calls conformance.behaviour.run in process
+  exit 1 -> RED
+  FAIL: test_scripts (__main__.Bin.test_scripts)
+  FAIL: test_gates (__main__.Promote.test_gates)
+    AssertionError: {'promote.py': ['103: behaviour.run']} != {}
+    AssertionError: Lists differ: ['conformance.behaviour.run'] != []
+
+M5 check-dash-conformance.py: document mode calls behaviour.run
+  exit 1 -> RED
+  FAIL: test_every_default_mode (__main__.DefaultModes.test_every_default_mode) (argv=['dist/sgai-spec.md', '--out-md', '/dev/null'])
+  FAIL: test_every_default_mode (__main__.DefaultModes.test_every_default_mode) (argv=['dist/sgai-spec.md', '--players', '--dashif', '--out-md', '/dev/null'])
+        self.assertEqual(calls, [], f"{argv} reached the executor:\n{out[-2000:]}")
+    AssertionError: Lists differ: ['conformance.behaviour.run'] != []
+    + [] : ['dist/sgai-spec.md', '--out-md', '/dev/null'] reached the executor:
+        self.assertEqual(calls, [], f"{argv} reached the executor:\n{out[-2000:]}")
+    AssertionError: Lists differ: ['conformance.behaviour.run'] != []
+    + [] : ['dist/sgai-spec.md', '--players', '--dashif', '--out-md', '/dev/null'] reached the executor:
+
+M6 check-dash-conformance.py: --source mode calls behaviour.main
+  exit 1 -> RED
+  FAIL: test_every_default_mode (__main__.DefaultModes.test_every_default_mode) (argv=['--source', 'spec-source', '--out-md', '/dev/null'])
+  FAIL: test_gates (__main__.Promote.test_gates) (dry=True, conformance=['--out-md', '/dev/null', '--source', '$SCRATCH/proj/spec-source'])
+  FAIL: test_gates (__main__.Promote.test_gates) (dry=False, conformance=['--out-md', '/dev/null', '--source', '$SCRATCH/proj/spec-source'])
+  FAIL: test_conformance_commands_of_the_prompts (__main__.Prompts.test_conformance_commands_of_the_prompts) (prompt='prompts/2-build/apply-context-delta.prompt', argv=['--source', 'spec-source', '--out-json', '/run/user/1000/tmpj0qpusjb/2-out-json', '--out-md', '/run/user/1000/tmpj0qpusjb/4-out-md'])
+  FAIL: test_conformance_commands_of_the_prompts (__main__.Prompts.test_conformance_commands_of_the_prompts) (prompt='prompts/build-all.prompt', argv=['--source', 'spec-source', '--out-md', '/run/user/1000/tmpj0qpusjb/2-out-md', '--out-json', '/run/user/1000/tmpj0qpusjb/4-out-json'])
+        self.assertEqual(calls, [], f"{argv} reached the executor:\n{out[-2000:]}")
+    AssertionError: Lists differ: ['conformance.behaviour.main'] != []
+    + [] : ['--source', 'spec-source', '--out-md', '/dev/null'] reached the executor:
+    AssertionError: Lists differ: ['conformance.behaviour.main'] != []
+    AssertionError: Lists differ: ['conformance.behaviour.main'] != []
+    AssertionError: Lists differ: ['conformance.behaviour.main'] != []
+    AssertionError: Lists differ: ['conformance.behaviour.main'] != []
+
+M7 conformance/runner.py (a helper of the default path): calls behaviour.drive
+  exit 1 -> RED
+  FAIL: test_scripts (__main__.Bin.test_scripts)
+    AssertionError: {'conformance/runner.py': ['165: _b.drive']} != {}
+
+M8 test_behaviour_compare.py (the suite): a test calls the executor
+  exit 1 -> RED
+  FAIL: test_suite (__main__.Bin.test_suite)
+    AssertionError: {'test_behaviour_compare.py': ['28: behaviour.run']} != {}
+
+M9 players/run.mjs (level 3a): spawns behaviour.mjs
+  exit 1 -> RED
+  FAIL: test_scripts (__main__.Bin.test_scripts)
+    AssertionError: {'players/run.mjs': ['96: the runner behaviour.mjs']} != {}
+
+AFTER RESTORE: exit 0  OK

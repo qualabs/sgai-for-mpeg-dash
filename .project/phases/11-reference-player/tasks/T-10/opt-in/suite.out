@@ -1,0 +1,42 @@
+bin/test_apply_spec_patch.py exit 0 (2s): Ran 35 tests in 1.930s OK 
+bin/test_assemble_spec.py exit 0 (5s): Ran 15 tests in 5.158s OK 
+bin/test_behaviour_compare.py exit 0 (1s): Ran 54 tests in 0.112s OK 
+bin/test_behaviour_opt_in.py exit 0 (7s): Ran 11 tests in 7.222s OK 
+bin/test_check_behaviour.py exit 1 (142s): Ran 43 tests in 140.870s FAILED (failures=9) 
+    FAIL: test_tree (__main__.TestAsItIs.test_tree)
+    FAIL: test_json (__main__.TestCommandLine.test_json)
+    FAIL: test_uncovered (__main__.TestCommandLine.test_uncovered)
+    FAIL: test_entry_removed (__main__.TestCover.test_entry_removed)
+    FAIL: test_no_index (__main__.TestCover.test_no_index)
+    FAIL: test_index_format (__main__.TestSchema.test_index_format)
+    FAIL: test_all_covered_exit_0 (__main__.TestValid.test_all_covered_exit_0)
+    FAIL: test_covers (__main__.TestValid.test_covers)
+    FAIL: test_two_tests_one_criterion (__main__.TestValid.test_two_tests_one_criterion)
+bin/test_check_context_interfaces.py exit 0 (1s): Ran 19 tests in 1.346s OK 
+bin/test_check_incremental.py exit 0 (1s): Ran 15 tests in 0.101s OK 
+bin/test_check_promotable_conformance.py exit 0 (0s): Ran 5 tests in 0.670s OK 
+bin/test_check_promotable_flags.py exit 0 (1s): Ran 1 test in 0.000s OK 
+bin/test_check_scenarios.py exit 0 (45s): Ran 42 tests in 45.403s OK 
+bin/test_check_trace.py exit 0 (1s): Ran 38 tests in 0.712s OK 
+bin/test_compare_candidates.py exit 0 (1s): Ran 11 tests in 0.786s OK 
+bin/test_conformance_core.py exit 0 (1s): Ran 9 tests in 0.834s OK 
+bin/test_conformance_dash.py exit 0 (1s): Ran 6 tests in 0.441s OK 
+bin/test_conformance_players.py exit 0 (25s): Ran 6 tests in 24.083s OK 
+bin/test_conformance_source.py exit 0 (10s): Ran 32 tests in 8.302s OK 
+bin/test_conformance_spec.py exit 0 (3s): Ran 59 tests in 2.354s OK 
+bin/test_gen_syntax_tables.py exit 0 (6s): Ran 37 tests in 5.938s OK 
+bin/test_lint_spec.py exit 0 (2s): Ran 32 tests in 1.841s OK 
+bin/test_measure_run.py exit 0 (1s): Ran 4 tests in 0.408s OK 
+bin/test_name_candidates.py exit 0 (2s): Ran 22 tests in 2.077s OK 
+bin/test_promote.py exit 0 (0s): Ran 6 tests in 0.071s OK 
+bin/test_step_inputs.py exit 0 (1s): Ran 7 tests in 0.100s OK 
+bin/test_strip_legacy_annotations.py exit 0 (2s): Ran 9 tests in 2.413s OK 
+bin/test_validate.py exit 0 (11s): Ran 34 tests in 10.873s OK 
+bin/test_validation_summary.py exit 0 (1s): Ran 13 tests in 0.752s OK 
+bin/test_walk_batches.py exit 0 (1s): Ran 9 tests in 0.009s OK 
+total 274s
+--- node calls during the suite:
+node --input-type=module -e import {chromium} from 'playwright';console.log(chromium.executablePath())
+node --input-type=module -e import {chromium} from 'playwright';console.log(chromium.executablePath())
+node run.mjs
+(end, 3 calls)
