@@ -1,0 +1,391 @@
+R1.4 D1: startup 464 ms; primary media/wall over the run 0.929
+    session   -285  request            {"url": "https://aps.example.com/b/r1-4/w1?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session   -166  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 12]], "validFor": null}
+    session   2190  execute            {"PRTA": 2.003, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+12 -> media 14.003"], "windowEnd": 22}
+    session   2191  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.003, "slotT": 0}
+    session   8810  abort              {"reason": "video stalled 1010 ms at 5.606 s", "php": 8.517}
+    session   8814  end                {"why": "aborted (PLY-86)", "php": 8.517, "slotT": 6.513}
+R2.3 D1: startup 427 ms; primary media/wall over the run 0.902
+    session   -147  request            {"url": "https://aps.example.com/behaviour/r2-3?w=1&sgai-allowed-layouts=overlay-corner", "why": "early", "php": 0}
+    session   -135  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "layout overlay-lower-third not admitted by the window (PLY-18, PLY-19)"}
+    session   -135  candidate-skipped  {"index": 1, "reason": "no option satisfiable (PLY-20)"}
+    session   -110  resolved           {"candidates": 2, "plan": [[2, 1, "overlay-corner", 5]], "validFor": null}
+    session   5675  execute            {"PRTA": 5.003, "capUnits": 10000, "ts": 1000, "plan": ["c2/o1 overlay-corner slot 0+5 -> media 10.003"], "windowEnd": 15}
+    session   5675  show               {"candidate": 2, "option": 1, "layout": "overlay-corner", "php": 5.003, "slotT": 0}
+    session  10984  end                {"why": "candidates exhausted or the cap reached", "php": 10.014, "slotT": 5.011}
+R2.3 D3: startup 694 ms; primary media/wall over the run 0.872
+    session   -204  request            {"url": "https://aps.example.com/behaviour/r2-3?w=1&sgai-allowed-layouts=overlay-corner", "why": "early", "php": 0}
+    session   -108  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "layout overlay-lower-third not admitted by the window (PLY-18, PLY-19)"}
+    session   -108  candidate-skipped  {"index": 1, "reason": "no option satisfiable (PLY-20)"}
+    session    -94  resolved           {"candidates": 2, "plan": [[2, 1, "overlay-corner", 5]], "validFor": null}
+    session   5276  execute            {"PRTA": 5.006, "capUnits": 10000, "ts": 1000, "plan": ["c2/o1 overlay-corner slot 0+5 -> media 10.006"], "windowEnd": 15}
+    session   5276  show               {"candidate": 2, "option": 1, "layout": "overlay-corner", "php": 5.006, "slotT": 0}
+    session  10345  end                {"why": "candidates exhausted or the cap reached", "php": 10.012, "slotT": 5.006}
+R2.3 D4: startup 1196 ms; primary media/wall over the run 0.761
+    session   -518  request            {"url": "https://aps.example.com/behaviour/r2-3?w=1&sgai-allowed-layouts=overlay-corner", "why": "early", "php": 0}
+    session   -491  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "layout overlay-lower-third not admitted by the window (PLY-18, PLY-19)"}
+    session   -491  candidate-skipped  {"index": 1, "reason": "no option satisfiable (PLY-20)"}
+    session   -306  resolved           {"candidates": 2, "plan": [[2, 1, "overlay-corner", 5]], "validFor": null}
+    session   7506  execute            {"PRTA": 5.009, "capUnits": 10000, "ts": 1000, "plan": ["c2/o1 overlay-corner slot 0+5 -> media 10.009"], "windowEnd": 15}
+    session   7507  show               {"candidate": 2, "option": 1, "layout": "overlay-corner", "php": 5.009, "slotT": 0}
+    session  14283  end                {"why": "candidates exhausted or the cap reached", "php": 10.027, "slotT": 5.018}
+R20.1-1 D4: startup 1296 ms; primary media/wall over the run 0.832
+    session   -594  request            {"url": "https://aps.example.com/b/r20-1-1/w1?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session   9414  resolve-failed     {"reason": "no response within 10000 ms"}
+    session   9414  failed             {"reason": "no response within 10000 ms", "php": 5.579}
+    session   9489  request            {"url": "https://aps.example.com/b/r20-1-1/w2?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 5.633}
+    session   9604  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session  25293  execute            {"PRTA": 20.014, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 25.014"], "windowEnd": 40}
+    session  25295  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 20.014, "slotT": 0}
+    session  30562  end                {"why": "candidates exhausted or the cap reached", "php": 25.02, "slotT": 5.006}
+R20.1-2 D4: startup 315 ms; primary media/wall over the run 0.879
+    session   -192  request            {"url": "https://aps.example.com/b/r20-1-2/w1?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session   -188  resolve-failed     {"reason": "HTTP 404"}
+    session   -188  failed             {"reason": "HTTP 404", "php": 0}
+    session   -187  request            {"url": "https://aps.example.com/b/r20-1-2/w2?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -26  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   2103  execute            {"PRTA": 2.007, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 7.007"], "windowEnd": 22}
+    session   2104  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.007, "slotT": 0}
+    session   7643  end                {"why": "candidates exhausted or the cap reached", "php": 7.014, "slotT": 5.007}
+R20.1-3 D4: startup 393 ms; primary media/wall over the run 0.832
+    session   -151  request            {"url": "https://aps.example.com/b/r20-1-3/w1?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session   -102  resolve-failed     {"reason": "not a resolution document"}
+    session   -102  failed             {"reason": "not a resolution document", "php": 0}
+    session    -95  request            {"url": "https://aps.example.com/b/r20-1-3/w2?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -77  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   2096  execute            {"PRTA": 2.01, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 7.01"], "windowEnd": 22}
+    session   2098  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.01, "slotT": 0}
+    session   8896  end                {"why": "candidates exhausted or the cap reached", "php": 7.019, "slotT": 5.009}
+R20.1-4 D4: startup 417 ms; primary media/wall over the run 0.814
+    session   -280  request            {"url": "https://aps.example.com/b/r20-1-4/w1?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session   -270  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   -262  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 0}
+    session   -252  request            {"url": "https://aps.example.com/b/r20-1-4/w2?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -90  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   2479  execute            {"PRTA": 2.009, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 7.009"], "windowEnd": 22}
+    session   2481  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.009, "slotT": 0}
+    session   8939  end                {"why": "candidates exhausted or the cap reached", "php": 7.018, "slotT": 5.009}
+R20.1-5 D4: startup 203 ms; primary media/wall over the run 0.903
+    session    -92  request            {"url": "https://aps.example.com/b/r20-1-5/w1?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -86  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "the device cannot composite HTML over video (PLY-4)"}
+    session    -86  candidate-skipped  {"index": 1, "reason": "no option satisfiable (PLY-20)"}
+    session    -86  resolved           {"candidates": 1, "plan": [], "validFor": null}
+    session    -86  failed             {"reason": "no candidate renderable (PLY-41)", "php": 0}
+    session    -73  request            {"url": "https://aps.example.com/b/r20-1-5/w2?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -64  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   2335  execute            {"PRTA": 2.007, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 7.007"], "windowEnd": 22}
+    session   2335  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.007, "slotT": 0}
+    session   7365  end                {"why": "candidates exhausted or the cap reached", "php": 7.015, "slotT": 5.009}
+R20.1-6 D4: startup 496 ms; primary media/wall over the run 0.834
+    session   -387  request            {"url": "https://aps.example.com/b/r20-1-6/w1?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session   -372  resolve-failed     {"reason": "HTTP 404"}
+    session   -372  failed             {"reason": "HTTP 404", "php": 0}
+    session   -368  request            {"url": "https://aps.example.com/b/r20-1-6/w2?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session   -284  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   -284  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 0}
+R20.3-1 D4: startup 286 ms; primary media/wall over the run 0.8
+    session   -157  request            {"url": "https://aps.example.com/b/r20-3-1/w1?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -56  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   3043  execute            {"PRTA": 2.005, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 7.005"], "windowEnd": 22}
+    session   3043  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.005, "slotT": 0}
+    session   9699  end                {"why": "candidates exhausted or the cap reached", "php": 7.019, "slotT": 5.014}
+R20.4 D4: startup 223 ms; primary media/wall over the run 0.782
+    session   -105  request            {"url": "https://aps.example.com/b/r20-4/w1?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -84  resolve-failed     {"reason": "document of family pause for a overlay window (PLY-42)"}
+    session    -84  failed             {"reason": "document of family pause for a overlay window (PLY-42)", "php": 0}
+    session    -84  request            {"url": "https://aps.example.com/b/r20-4/w2?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -21  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   2673  execute            {"PRTA": 2.025, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 7.025"], "windowEnd": 22}
+    session   2676  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.025, "slotT": 0}
+    session  10085  end                {"why": "candidates exhausted or the cap reached", "php": 7.028, "slotT": 5.003}
+R20.5 D4: startup 702 ms; primary media/wall over the run 0.646
+    session   -115  request            {"url": "https://aps.example.com/b/r20-5/w1?sgai-allowed-layouts=overlay-corner", "why": "early", "php": 0}
+    session   -107  resolve-failed     {"reason": "HTTP 404"}
+    session   -107  failed             {"reason": "HTTP 404", "php": 0}
+    session   -106  request            {"url": "https://aps.example.com/b/r20-5/w2?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -34  option-skipped     {"option": 1, "layout": "overlay-corner", "why": "layout overlay-corner not admitted by the window (PLY-18, PLY-19)"}
+    session    -21  resolved           {"candidates": 1, "plan": [[1, 2, "overlay-lower-third", 8]], "validFor": null}
+    session   3295  execute            {"PRTA": 2.001, "capUnits": 4000, "ts": 1000, "plan": ["c1/o2 overlay-lower-third slot 0+4 -> media 6.001"], "windowEnd": 22}
+    session   3295  show               {"candidate": 1, "option": 2, "layout": "overlay-lower-third", "php": 2.001, "slotT": 0}
+    session  10063  end                {"why": "candidates exhausted or the cap reached", "php": 6.037, "slotT": 4.037}
+R29.2 D1: startup 2003 ms; primary media/wall over the run 0.72
+    session   5693  request            {"url": "https://aps.example.com/behaviour/r29-2?w=1&sgai-allowed-layouts=custom%20overlay-corner&sgai-custom-region=50%200%2050%2050", "why": "early", "php": 3.002}
+    session   5705  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   5712  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 3.017}
+    session   9214  request            {"url": "https://aps.example.com/behaviour/r29-2?w=2&sgai-allowed-layouts=overlay-corner", "why": "early", "php": 6.011}
+    session   9220  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   9222  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 6.02}
+    session  12588  request            {"url": "https://aps.example.com/behaviour/r29-2?w=3", "why": "early", "php": 9.002}
+    session  12592  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session  12592  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 9.006}
+R29.2 D4: startup 528 ms; primary media/wall over the run 0.768
+    session   3233  request            {"url": "https://aps.example.com/behaviour/r29-2?w=1&sgai-allowed-layouts=custom%20overlay-corner&sgai-custom-region=50%200%2050%2050", "why": "early", "php": 3.009}
+    session   3238  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   3243  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 3.019}
+    session   8102  request            {"url": "https://aps.example.com/behaviour/r29-2?w=2&sgai-allowed-layouts=overlay-corner", "why": "early", "php": 6.001}
+    session   8175  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   8182  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 6.039}
+    session  12112  request            {"url": "https://aps.example.com/behaviour/r29-2?w=3", "why": "early", "php": 9.009}
+    session  12117  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session  12122  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 9.019}
+R29.4 D1: startup 712 ms; primary media/wall over the run 0.677
+    session   5171  request            {"url": "https://aps.example.com/behaviour/r29-4?title=beh294&device=tv&sgai-allowed-layouts=overlay-corner", "why": "early", "php": 3.03}
+    session   5188  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   5189  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 3.057}
+R29.4 D4: startup 301 ms; primary media/wall over the run 0.833
+    session   3875  request            {"url": "https://aps.example.com/behaviour/r29-4?title=beh294&device=tv&sgai-allowed-layouts=overlay-corner", "why": "early", "php": 3.005}
+    session   3901  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   3905  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 3.035}
+R34.10 D1: startup 502 ms; primary media/wall over the run 0.856
+    session   6357  request            {"url": "https://aps.example.com/behaviour/r34-10?w=1", "why": "early", "php": 5.008}
+    session  13377  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session  13384  failed             {"reason": "the span ended without a presentation", "php": 11.826}
+R34.10 D3: startup 1585 ms; primary media/wall over the run 0.725
+    session   7164  request            {"url": "https://aps.example.com/behaviour/r34-10?w=1", "why": "early", "php": 5.003}
+    session  14303  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session  14304  failed             {"reason": "the span ended without a presentation", "php": 10.773}
+R34.10 D4: startup 1299 ms; primary media/wall over the run 0.692
+    session   7959  request            {"url": "https://aps.example.com/behaviour/r34-10?w=1", "why": "early", "php": 5.009}
+    session  14968  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session  14969  failed             {"reason": "the span ended without a presentation", "php": 10.355}
+R34.9 D1: startup 1379 ms; primary media/wall over the run 0.77
+    session   -855  seek               {"to": 15}
+    session   -804  request            {"url": "https://aps.example.com/behaviour/r34-9?w=1", "why": "early", "php": 15}
+    session   -483  resolved           {"candidates": 2, "plan": [[1, 1, "overlay-lower-third", 10], [2, 1, "overlay-lower-third", 10]], "validFor": null}
+    session      1  execute            {"PRTA": 15.011, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+10 -> media 25.011", "c2/o1 overlay-lower-third slot 10+10 -> media 35.011"], "windowEnd": 30}
+    session      5  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 15.011, "slotT": 0}
+    session  13996  show               {"candidate": 2, "option": 1, "layout": "overlay-lower-third", "php": 25.048, "slotT": 10.037}
+    session  19680  end                {"why": "the span ended", "php": 29.988, "slotT": 14.977}
+R34.9 D3: startup 1208 ms; primary media/wall over the run 0.735
+    session   -694  request            {"url": "https://aps.example.com/behaviour/r34-9?w=1", "why": "early", "php": 15}
+    session   -691  seek               {"to": 15}
+    session   -223  resolved           {"candidates": 2, "plan": [[1, 1, "overlay-lower-third", 10], [2, 1, "overlay-lower-third", 10]], "validFor": null}
+    session     -5  execute            {"PRTA": 15.019, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+10 -> media 25.019", "c2/o1 overlay-lower-third slot 10+10 -> media 35.019"], "windowEnd": 30}
+    session     -4  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 15.019, "slotT": 0}
+    session  13311  show               {"candidate": 2, "option": 1, "layout": "overlay-lower-third", "php": 25.029, "slotT": 10.01}
+    session  20801  end                {"why": "the span ended", "php": 29.981, "slotT": 14.961}
+R34.9 D4: startup 299 ms; primary media/wall over the run 0.736
+    session   -130  request            {"url": "https://aps.example.com/behaviour/r34-9?w=1", "why": "early", "php": 15}
+    session   -129  seek               {"to": 15}
+    session    -95  resolved           {"candidates": 2, "plan": [[1, 1, "overlay-lower-third", 10], [2, 1, "overlay-lower-third", 10]], "validFor": null}
+    session     -3  execute            {"PRTA": 15.006, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+10 -> media 25.006", "c2/o1 overlay-lower-third slot 10+10 -> media 35.006"], "windowEnd": 30}
+    session     -2  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 15.006, "slotT": 0}
+    session  12966  show               {"candidate": 2, "option": 1, "layout": "overlay-lower-third", "php": 25.01, "slotT": 10.004}
+    session  20866  end                {"why": "the span ended", "php": 29.987, "slotT": 14.981}
+R36.1-1 D1: startup 1293 ms; primary media/wall over the run 0.745
+    session   9769  request            {"url": "https://aps.example.com/behaviour/r36-1?w=1", "why": "early", "php": 7.002}
+    session   9774  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   9779  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 7.012}
+R36.1-1 D4: startup 1575 ms; primary media/wall over the run 0.764
+    session  10890  request            {"url": "https://aps.example.com/behaviour/r36-1?w=1", "why": "early", "php": 7.01}
+    session  10897  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session  10900  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 7.02}
+R36.1-2 D1: startup 788 ms; primary media/wall over the run 0.705
+    session  13994  request            {"url": "https://aps.example.com/behaviour/r36-1?w=2", "why": "early", "php": 10.004}
+    session  14010  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session  14013  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 10.024}
+R36.1-2 D4: startup 329 ms; primary media/wall over the run 0.749
+    session  13771  request            {"url": "https://aps.example.com/behaviour/r36-1?w=2", "why": "early", "php": 10.005}
+    session  13879  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session  13882  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 10.028}
+R38.2 D1: startup 1503 ms; primary media/wall over the run 0.744
+    session   5389  request            {"url": "https://aps.example.com/behaviour/r38-2?w=1&sgai-allowed-layouts=overlay-corner%20squeezeback-double-box%20overlay-lower-third", "why": "early", "php": 3.009}
+    session   5394  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   5399  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 3.018}
+    session   9449  request            {"url": "https://aps.example.com/behaviour/r38-2?w=2", "why": "early", "php": 6.002}
+    session   9488  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   9489  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 6.039}
+R38.2 D4: startup 352 ms; primary media/wall over the run 0.664
+    session   5401  request            {"url": "https://aps.example.com/behaviour/r38-2?w=1&sgai-allowed-layouts=overlay-corner%20squeezeback-double-box%20overlay-lower-third", "why": "early", "php": 3.005}
+    session   5409  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   5411  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 3.016}
+    session  10035  request            {"url": "https://aps.example.com/behaviour/r38-2?w=2", "why": "early", "php": 6.038}
+    session  10040  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session  10041  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 6.044}
+R39.3 D1: startup 1795 ms; primary media/wall over the run 0.731
+    session   5229  request            {"url": "https://aps.example.com/behaviour/r39-3?w=1&sgai-allowed-layouts=overlay-lower-third%20custom&sgai-custom-region=60%205%2035%2030", "why": "early", "php": 3.0}
+    session   5233  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   5238  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 3.01}
+R39.3 D4: startup 369 ms; primary media/wall over the run 0.699
+    session   3667  request            {"url": "https://aps.example.com/behaviour/r39-3?w=1&sgai-allowed-layouts=overlay-lower-third%20custom&sgai-custom-region=60%205%2035%2030", "why": "early", "php": 3.003}
+    session   3672  resolved           {"candidates": 0, "plan": [], "validFor": null}
+    session   3677  failed             {"reason": "empty resolution (PLY-39, PLY-44)", "php": 3.013}
+R39.5-1 D1: startup 1791 ms; primary media/wall over the run 0.862
+    session   -888  request            {"url": "https://aps.example.com/behaviour/r39-5?w=1&sgai-allowed-layouts=custom%20overlay-corner&sgai-custom-region=50%2050%2050%2050", "why": "early", "php": 0}
+    session   -499  option-skipped     {"option": 1, "layout": "custom", "why": "rect 45 60 20 20 outside the region 50 50 50 50 (PLY-21)"}
+    session   -391  resolved           {"candidates": 1, "plan": [[1, 2, "custom", 5]], "validFor": null}
+    session   6992  execute            {"PRTA": 5.011, "capUnits": 5000, "ts": 1000, "plan": ["c1/o2 custom slot 0+5 -> media 10.011"], "windowEnd": 10}
+    session   6993  show               {"candidate": 1, "option": 2, "layout": "custom", "php": 5.011, "slotT": 0}
+    session  12069  end                {"why": "the span ended", "php": 9.982, "slotT": 4.971}
+R39.5-1 D4: startup 1878 ms; primary media/wall over the run 0.839
+    session   -903  request            {"url": "https://aps.example.com/behaviour/r39-5?w=1&sgai-allowed-layouts=custom%20overlay-corner&sgai-custom-region=50%2050%2050%2050", "why": "early", "php": 0}
+    session   -793  option-skipped     {"option": 1, "layout": "custom", "why": "the Player does not support custom (PLY-21)"}
+    session   -792  option-skipped     {"option": 2, "layout": "custom", "why": "the Player does not support custom (PLY-21)"}
+    session   -590  resolved           {"candidates": 1, "plan": [[1, 3, "overlay-corner", 5]], "validFor": null}
+    session   6787  execute            {"PRTA": 5.014, "capUnits": 5000, "ts": 1000, "plan": ["c1/o3 overlay-corner slot 0+5 -> media 10.014"], "windowEnd": 10}
+    session   6788  show               {"candidate": 1, "option": 3, "layout": "overlay-corner", "php": 5.014, "slotT": 0}
+    session  12644  end                {"why": "the span ended", "php": 9.986, "slotT": 4.973}
+R39.5-2 D1: startup 2502 ms; primary media/wall over the run 0.701
+    session   -814  request            {"url": "https://aps.example.com/behaviour/r39-5?w=2&sgai-allowed-layouts=custom%20overlay-corner", "why": "early", "php": 0}
+    session   -514  resolved           {"candidates": 1, "plan": [[1, 1, "custom", 5]], "validFor": null}
+    session   6308  execute            {"PRTA": 5.001, "capUnits": 5000, "ts": 1000, "plan": ["c1/o1 custom slot 0+5 -> media 10.001"], "windowEnd": 10}
+    session   6308  show               {"candidate": 1, "option": 1, "layout": "custom", "php": 5.001, "slotT": 0}
+    session  14274  end                {"why": "the span ended", "php": 10.027, "slotT": 5.025}
+R4.10 D1: startup 685 ms; primary media/wall over the run 0.828
+R4.10 D4: startup 282 ms; primary media/wall over the run 0.883
+R4.2-1 D4: startup 1294 ms; primary media/wall over the run 0.813
+    session   -903  request            {"url": "https://aps.example.com/b/r4-2-1/w?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session   -607  resolved           {"candidates": 2, "plan": [[1, 1, "overlay-lower-third", 5], [2, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   3536  execute            {"PRTA": 2.003, "capUnits": 8000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 7.003", "c2/o1 overlay-lower-third slot 5+3 -> media 10.003"], "windowEnd": 22}
+    session   3537  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.003, "slotT": 0}
+    session   9116  show               {"candidate": 2, "option": 1, "layout": "overlay-lower-third", "php": 7.007, "slotT": 5.004}
+    session  13166  end                {"why": "candidates exhausted or the cap reached", "php": 10.011, "slotT": 8.009}
+R4.7-2 D4: startup 689 ms; primary media/wall over the run 0.663
+R4.9 D4: startup 501 ms; primary media/wall over the run 0.8
+    session   -182  request            {"url": "https://aps.example.com/b/r4-9/w?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -90  resolved           {"candidates": 2, "plan": [[1, 1, "overlay-lower-third", 10.2], [2, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   2882  execute            {"PRTA": 2.017, "capUnits": 11, "ts": 1, "plan": ["c1/o1 overlay-lower-third slot 0+10.2 -> media 12.217"], "windowEnd": 22}
+    session   2884  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.017, "slotT": 0}
+    session  14582  end                {"why": "candidates exhausted or the cap reached", "php": 12.224, "slotT": 10.207}
+R40.3-1 D1: startup 1596 ms; primary media/wall over the run 0.52
+    session   -613  request            {"url": "https://aps.example.com/b/r40-3-1/w?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session   -602  resolve-failed     {"reason": "HTTP 404"}
+    session   -602  failed             {"reason": "HTTP 404", "php": 0}
+    session   -602  supersede-released {}
+R40.3-2 D1: startup 479 ms; primary media/wall over the run 0.634
+    session   2867  request            {"url": "https://aps.example.com/b/r40-3-2/w?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 2.003}
+    session   8871  resolve-failed     {"reason": "HTTP 404"}
+    session   8871  failed             {"reason": "HTTP 404", "php": 7.773}
+    session   8871  supersede-released {}
+R5.3 D3: startup 1775 ms; primary media/wall over the run 0.824
+    session   -775  request            {"url": "https://aps.example.com/behaviour/r5-3?w=1", "why": "early", "php": 0}
+    session   -287  resolved           {"candidates": 2, "plan": [[1, 1, "overlay-lower-third", 5], [2, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   7107  execute            {"PRTA": 5.003, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 10.003", "c2/o1 overlay-lower-third slot 5+5 -> media 15.003"], "windowEnd": 15}
+    session   7115  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 5.003, "slotT": 0}
+    session  12296  show               {"candidate": 2, "option": 1, "layout": "overlay-lower-third", "php": 10.006, "slotT": 5.003}
+    session  17976  end                {"why": "the span ended", "php": 14.984, "slotT": 9.981}
+R5.3 D4: startup 251 ms; primary media/wall over the run 0.844
+    session   -114  request            {"url": "https://aps.example.com/behaviour/r5-3?w=1", "why": "early", "php": 0}
+    session    -88  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "the device cannot composite HTML over video (PLY-4)"}
+    session    -88  candidate-skipped  {"index": 1, "reason": "no option satisfiable (PLY-20)"}
+    session    -81  resolved           {"candidates": 2, "plan": [[2, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   5299  execute            {"PRTA": 5.003, "capUnits": 10000, "ts": 1000, "plan": ["c2/o1 overlay-lower-third slot 0+5 -> media 10.003"], "windowEnd": 15}
+    session   5299  show               {"candidate": 2, "option": 1, "layout": "overlay-lower-third", "php": 5.003, "slotT": 0}
+    session  11049  end                {"why": "candidates exhausted or the cap reached", "php": 10.005, "slotT": 5.003}
+R5.3 D5: startup 1427 ms; primary media/wall over the run 0.871
+    session   -329  request            {"url": "https://aps.example.com/behaviour/r5-3?w=1", "why": "early", "php": 0}
+    session   -206  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "the device cannot composite HTML over video (PLY-4)"}
+    session   -206  candidate-skipped  {"index": 1, "reason": "no option satisfiable (PLY-20)"}
+    session   -206  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "the device cannot composite an image over video (PLY-4)"}
+    session   -206  candidate-skipped  {"index": 2, "reason": "no option satisfiable (PLY-20)"}
+    session   -206  resolved           {"candidates": 2, "plan": [], "validFor": null}
+    session   -132  failed             {"reason": "no candidate renderable (PLY-41)", "php": 0}
+R5.6-1 D1: startup 286 ms; primary media/wall over the run 0.876
+    session   -123  request            {"url": "https://aps.example.com/behaviour/r5-6?w=1", "why": "early", "php": 0}
+    session    -22  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   6041  execute            {"PRTA": 5.01, "capUnits": 5000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 10.01"], "windowEnd": 10}
+    session   6042  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 5.01, "slotT": 0}
+    session  11064  end                {"why": "the span ended", "php": 9.987, "slotT": 4.977}
+R5.6-1 D2: startup 1164 ms; primary media/wall over the run 0.813
+    session   -480  request            {"url": "https://aps.example.com/behaviour/r5-6?w=1", "why": "early", "php": 0}
+    session   -179  resolved           {"candidates": 1, "plan": [[1, 1, "overlay-lower-third", 5]], "validFor": null}
+    session   6736  execute            {"PRTA": 5.002, "capUnits": 5000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+5 -> media 10.002"], "windowEnd": 10}
+    session   6746  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 5.002, "slotT": 0}
+    session  12933  end                {"why": "the span ended", "php": 9.99, "slotT": 4.987}
+R5.6-1 D3: startup 804 ms; primary media/wall over the run 0.871
+    session   -516  request            {"url": "https://aps.example.com/behaviour/r5-6?w=1", "why": "early", "php": 0}
+    session   -429  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "a video over video needs two decoders (\u00a75.3.7)"}
+    session   -407  option-skipped     {"option": 2, "layout": "overlay-lower-third", "why": "the HTML's first request answered 404 (R5.9)"}
+    session   -105  option-skipped     {"option": 3, "layout": "overlay-lower-third", "why": "the image's first request failed (R5.9)"}
+    session   -105  candidate-skipped  {"index": 1, "reason": "no option satisfiable (PLY-20)"}
+    session   -105  resolved           {"candidates": 1, "plan": [], "validFor": null}
+    session    -28  failed             {"reason": "no candidate renderable (PLY-41)", "php": 0}
+R5.6-1 D4: startup 904 ms; primary media/wall over the run 0.917
+    session   -699  request            {"url": "https://aps.example.com/behaviour/r5-6?w=1", "why": "early", "php": 0}
+    session   -692  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "a video over video needs two decoders (\u00a75.3.7)"}
+    session   -692  option-skipped     {"option": 2, "layout": "overlay-lower-third", "why": "the device cannot composite HTML over video (PLY-4)"}
+    session   -502  option-skipped     {"option": 3, "layout": "overlay-lower-third", "why": "the image's first request failed (R5.9)"}
+    session   -502  candidate-skipped  {"index": 1, "reason": "no option satisfiable (PLY-20)"}
+    session   -502  resolved           {"candidates": 1, "plan": [], "validFor": null}
+    session   -497  failed             {"reason": "no candidate renderable (PLY-41)", "php": 0}
+R5.6-1 D5: startup 171 ms; primary media/wall over the run 0.859
+    session    -86  request            {"url": "https://aps.example.com/behaviour/r5-6?w=1", "why": "early", "php": 0}
+    session    -50  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "a video over video needs two decoders (\u00a75.3.7)"}
+    session    -50  option-skipped     {"option": 2, "layout": "overlay-lower-third", "why": "the device cannot composite HTML over video (PLY-4)"}
+    session    -50  option-skipped     {"option": 3, "layout": "overlay-lower-third", "why": "the device cannot composite an image over video (PLY-4)"}
+    session    -50  candidate-skipped  {"index": 1, "reason": "no option satisfiable (PLY-20)"}
+    session    -50  resolved           {"candidates": 1, "plan": [], "validFor": null}
+    session    -50  failed             {"reason": "no candidate renderable (PLY-41)", "php": 0}
+R5.6-2 D1: startup 202 ms; primary media/wall over the run 0.892
+    session    -96  request            {"url": "https://aps.example.com/behaviour/r5-6?w=2&sgai-allowed-layouts=overlay-corner", "why": "early", "php": 0}
+    session    -78  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "layout overlay-lower-third not admitted by the window (PLY-18, PLY-19)"}
+    session    -38  resolved           {"candidates": 1, "plan": [[1, 2, "overlay-corner", 5]], "validFor": null}
+    session   5555  execute            {"PRTA": 5.01, "capUnits": 5000, "ts": 1000, "plan": ["c1/o2 overlay-corner slot 0+5 -> media 10.01"], "windowEnd": 10}
+    session   5557  show               {"candidate": 1, "option": 2, "layout": "overlay-corner", "php": 5.01, "slotT": 0}
+    session  11144  end                {"why": "the span ended", "php": 9.981, "slotT": 4.971}
+R5.6-2 D3: startup 177 ms; primary media/wall over the run 0.807
+    session    -66  request            {"url": "https://aps.example.com/behaviour/r5-6?w=2&sgai-allowed-layouts=overlay-corner", "why": "early", "php": 0}
+    session    -36  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "layout overlay-lower-third not admitted by the window (PLY-18, PLY-19)"}
+    session    -19  resolved           {"candidates": 1, "plan": [[1, 2, "overlay-corner", 5]], "validFor": null}
+    session   5964  execute            {"PRTA": 5.028, "capUnits": 5000, "ts": 1000, "plan": ["c1/o2 overlay-corner slot 0+5 -> media 10.028"], "windowEnd": 10}
+    session   5966  show               {"candidate": 1, "option": 2, "layout": "overlay-corner", "php": 5.028, "slotT": 0}
+    session  13398  end                {"why": "the span ended", "php": 9.989, "slotT": 4.961}
+R5.6-2 D4: startup 475 ms; primary media/wall over the run 0.901
+    session   -348  request            {"url": "https://aps.example.com/behaviour/r5-6?w=2&sgai-allowed-layouts=overlay-corner", "why": "early", "php": 0}
+    session   -306  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "layout overlay-lower-third not admitted by the window (PLY-18, PLY-19)"}
+    session   -301  resolved           {"candidates": 1, "plan": [[1, 2, "overlay-corner", 5]], "validFor": null}
+    session   5802  execute            {"PRTA": 5.004, "capUnits": 5000, "ts": 1000, "plan": ["c1/o2 overlay-corner slot 0+5 -> media 10.004"], "windowEnd": 10}
+    session   5804  show               {"candidate": 1, "option": 2, "layout": "overlay-corner", "php": 5.004, "slotT": 0}
+    session  10871  end                {"why": "the span ended", "php": 9.988, "slotT": 4.984}
+R5.6-3 D1: startup 498 ms; primary media/wall over the run 0.851
+    session   -298  request            {"url": "https://aps.example.com/behaviour/r5-6?w=3", "why": "early", "php": 0}
+    session   -276  option-skipped     {"option": 1, "layout": "custom", "why": "layout custom not admitted by the window (PLY-18, PLY-19)"}
+    session    -98  resolved           {"candidates": 1, "plan": [[1, 2, "overlay-corner", 5]], "validFor": null}
+    session   6629  execute            {"PRTA": 5.01, "capUnits": 5000, "ts": 1000, "plan": ["c1/o2 overlay-corner slot 0+5 -> media 10.01"], "windowEnd": 10}
+    session   6629  show               {"candidate": 1, "option": 2, "layout": "overlay-corner", "php": 5.01, "slotT": 0}
+    session  11949  end                {"why": "the span ended", "php": 9.988, "slotT": 4.979}
+R5.6-3 D3: startup 421 ms; primary media/wall over the run 0.814
+    session   -214  request            {"url": "https://aps.example.com/behaviour/r5-6?w=3", "why": "early", "php": 0}
+    session   -208  option-skipped     {"option": 1, "layout": "custom", "why": "layout custom not admitted by the window (PLY-18, PLY-19)"}
+    session   -190  resolved           {"candidates": 1, "plan": [[1, 2, "overlay-corner", 5]], "validFor": null}
+    session   6700  execute            {"PRTA": 5.004, "capUnits": 5000, "ts": 1000, "plan": ["c1/o2 overlay-corner slot 0+5 -> media 10.004"], "windowEnd": 10}
+    session   6701  show               {"candidate": 1, "option": 2, "layout": "overlay-corner", "php": 5.004, "slotT": 0}
+    session  12170  end                {"why": "the span ended", "php": 9.985, "slotT": 4.98}
+R5.9 D1: startup 1050 ms; primary media/wall over the run 0.901
+    session   -601  request            {"url": "https://aps.example.com/behaviour/r5-9?w=1", "why": "early", "php": 0}
+    session   -493  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "the image's first request failed (R5.9)"}
+    session   -483  resolved           {"candidates": 1, "plan": [[1, 2, "overlay-lower-third", 5]], "validFor": null}
+    session   6518  execute            {"PRTA": 5.009, "capUnits": 5000, "ts": 1000, "plan": ["c1/o2 overlay-lower-third slot 0+5 -> media 10.009"], "windowEnd": 10}
+    session   6519  show               {"candidate": 1, "option": 2, "layout": "overlay-lower-third", "php": 5.009, "slotT": 0}
+    session  11688  end                {"why": "the span ended", "php": 9.987, "slotT": 4.978}
+R5.9 D3: startup 614 ms; primary media/wall over the run 0.857
+    session   -362  request            {"url": "https://aps.example.com/behaviour/r5-9?w=1", "why": "early", "php": 0}
+    session   -294  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "the image's first request failed (R5.9)"}
+    session   -289  resolved           {"candidates": 1, "plan": [[1, 2, "overlay-lower-third", 5]], "validFor": null}
+    session   6933  execute            {"PRTA": 5.006, "capUnits": 5000, "ts": 1000, "plan": ["c1/o2 overlay-lower-third slot 0+5 -> media 10.006"], "windowEnd": 10}
+    session   6934  show               {"candidate": 1, "option": 2, "layout": "overlay-lower-third", "php": 5.006, "slotT": 0}
+    session  12403  end                {"why": "the span ended", "php": 9.985, "slotT": 4.979}
+R5.9 D4: startup 209 ms; primary media/wall over the run 0.849
+    session   -101  request            {"url": "https://aps.example.com/behaviour/r5-9?w=1", "why": "early", "php": 0}
+    session    -81  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "the image's first request failed (R5.9)"}
+    session    -77  resolved           {"candidates": 1, "plan": [[1, 2, "overlay-lower-third", 5]], "validFor": null}
+    session   6439  execute            {"PRTA": 5.006, "capUnits": 5000, "ts": 1000, "plan": ["c1/o2 overlay-lower-third slot 0+5 -> media 10.006"], "windowEnd": 10}
+    session   6440  show               {"candidate": 1, "option": 2, "layout": "overlay-lower-third", "php": 5.006, "slotT": 0}
+    session  12549  end                {"why": "the span ended", "php": 9.985, "slotT": 4.979}
+R7.1 D1: startup 280 ms; primary media/wall over the run 0.894
+    session   -164  request            {"url": "https://aps.example.com/b/r7-1/w?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -83  resolved           {"candidates": 3, "plan": [[1, 1, "overlay-lower-third", 4], [2, 1, "overlay-lower-third", 2], [3, 1, "overlay-lower-third", 4]], "validFor": null}
+    session   3200  execute            {"PRTA": 2.005, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+4 -> media 6.005", "c2/o1 overlay-lower-third slot 4+2 -> media 8.005", "c3/o1 overlay-lower-third slot 6+4 -> media 12.005"], "windowEnd": 22}
+    session   3201  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.005, "slotT": 0}
+    session   7288  show               {"candidate": 2, "option": 1, "layout": "overlay-lower-third", "php": 6.015, "slotT": 4.009}
+    session   9878  show               {"candidate": 3, "option": 1, "layout": "overlay-lower-third", "php": 8.007, "slotT": 6.001}
+    session  13966  end                {"why": "candidates exhausted or the cap reached", "php": 12.012, "slotT": 10.006}
+R7.1 D4: startup 199 ms; primary media/wall over the run 0.834
+    session    -86  request            {"url": "https://aps.example.com/b/r7-1/w?sgai-allowed-layouts=overlay-lower-third", "why": "early", "php": 0}
+    session    -64  option-skipped     {"option": 1, "layout": "overlay-lower-third", "why": "the device cannot composite HTML over video (PLY-4)"}
+    session    -64  candidate-skipped  {"index": 2, "reason": "no option satisfiable (PLY-20)"}
+    session    -59  resolved           {"candidates": 3, "plan": [[1, 1, "overlay-lower-third", 4], [3, 1, "overlay-lower-third", 4]], "validFor": null}
+    session   2854  execute            {"PRTA": 2.004, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+4 -> media 6.004", "c3/o1 overlay-lower-third slot 4+4 -> media 10.004"], "windowEnd": 22}
+    session   2854  show               {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.004, "slotT": 0}
+    session   7314  show               {"candidate": 3, "option": 1, "layout": "overlay-lower-third", "php": 6.016, "slotT": 4.012}
+    session  11495  end                {"why": "candidates exhausted or the cap reached", "php": 10.005, "slotT": 8.001}

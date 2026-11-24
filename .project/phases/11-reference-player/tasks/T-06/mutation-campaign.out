@@ -1,0 +1,90 @@
+baseline R5.6 ['D1']: session 6/12 PASS, media 8/12 PASS
+M01 CAUGHT — PLY-18/19 allowed layouts checked [R5.6 ['D1']]: R5.6-2 D1 presentation (media); R5.6-2 D1 selection (media); R5.6-2 D1 selection (session); R5.6-3 D1 presentation (media); R5.6-3 D1 selection (media); R5.6-3 D1 selection (session)
+    FAIL            R5.6-1 D1                    presentation  presentation[2] expected a change at 10000 to none [primary from 10000]; none observed within 250 (on screen: overlay-lower-third [primary, ad behaviour/fixtures/R5.6/forms.xml:#1 option #1] from 4995); presentation[2] 10000..12000 expected none [primary from 10000]; observed overlay-lower-third [primary, ad behaviour/fixtures/R5.6/forms.x
+M02 CAUGHT — §3.4.3 family default excludes custom [R5.6 ['D1']]: R5.6-3 D1 presentation (media); R5.6-3 D1 selection (media); R5.6-3 D1 selection (session)
+    FAIL            R5.6-1 D1                    presentation  presentation[2] expected a change at 10000 to none [primary from 10000]; none observed within 250 (on screen: overlay-lower-third [primary, ad behaviour/fixtures/R5.6/forms.xml:#1 option #1] from 5051); presentation[2] 10000..12000 expected none [primary from 10000]; observed overlay-lower-third [primary, ad behaviour/fixtures/R5.6/forms.x
+baseline R5.6 ['D3']: session 5/12 PASS, media 6/12 PASS
+M03 CAUGHT — §5.3.7 video over video needs two decoders [R5.6 ['D3']]: R5.6-1 D3 requests (media); R5.6-1 D3 requests (session); R5.6-2 D3 presentation (media)
+    FAIL            R5.6-1 D3                    requests      unexpected request https://ads-cdn.example.com/behaviour/R5.6/cr561v.mpd at 0 (answered_by behaviour/fixtures/R5.6/cr561v.mpd)
+baseline R5.3 ['D4']: session 2/4 PASS, media 3/4 PASS
+M04 CAUGHT — PLY-4 HTML surface capability [R5.3 ['D4']]: R5.3 D4 presentation (media); R5.3 D4 selection (media); R5.3 D4 selection (session)
+    FAIL            R5.3 D4                      selection     selection[0] event 1 of behaviour/fixtures/R5.3/main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R5.3/overlay-list.xml:#2 option #1; observed overlay-lower-third [ad behaviour/fixtures/R5.3/overlay-list.xml:#1 option #1], overlay-lower-third [ad behaviour/fixtures/R5.3/overlay-list.xml:#2 option #1]
+baseline R5.9 ['D1']: session 1/4 PASS, media 1/4 PASS
+M05 CAUGHT — R5.9 first-request failure moves to the next option [R5.9 ['D1']]: R5.9 D1 selection (media); R5.9 D1 selection (session)
+    FAIL            R5.9 D1                      requests      unexpected request https://ads-cdn.example.com/behaviour/R5.9/missing.png at 0 (answered_by None)
+baseline R39.5 ['D1']: session 6/10 PASS, media 8/10 PASS
+M06 CAUGHT — PLY-21 custom containment [R39.5 ['D1']]: R39.5-1 D1 geometry (media); R39.5-1 D1 geometry (session); R39.5-1 D1 presentation (media); R39.5-1 D1 selection (media); R39.5-1 D1 selection (session)
+    FAIL            R39.5-1 D1                   selection     selection[0] event 1 of behaviour/fixtures/R39.5/main-region.mpd (presented): expected custom behaviour/fixtures/R39.5/region.xml:#1 option #2; observed custom [ad behaviour/fixtures/R39.5/region.xml:#1 option #1]
+baseline R39.5 ['D4']: session 2/4 PASS, media 2/4 PASS
+M07 CAUGHT — PLY-21 custom unsupported is not renderable [R39.5 ['D4']]: R39.5-1 D4 selection (media); R39.5-1 D4 selection (session)
+    FAIL            R39.5-1 D4                   selection     selection[0] event 1 of behaviour/fixtures/R39.5/main-region.mpd (presented): expected overlay-corner behaviour/fixtures/R39.5/region.xml:#1 option #3; observed custom [ad behaviour/fixtures/R39.5/region.xml:#1 option #2]
+baseline R38.2 ['D1']: session 3/4 PASS, media 4/4 PASS
+M08 CAUGHT — PLY-15 allowed layouts sent [R38.2 ['D1']]: R38.2 D1 requests (media)
+    FAIL            R38.2 D1                     requests      requests[0] https://aps.example.com/behaviour/r38-2?w=1 expected at 3000, query {'sgai-allowed-layouts': 'overlay-corner squeezeback-double-box overlay-lower-third'}, answered_by behaviour/fixtures/R38.2/empty.xml; observed https://aps.example.com/behaviour/r38-2?w=1 at 3002, query {}, answered_by behaviour/fixtures/R38.2/empty.xml; unexpe
+baseline R39.3 ['D1']: session 3/4 PASS, media 4/4 PASS
+M09 CAUGHT — PLY-16 custom region sent [R39.3 ['D1']]: R39.3 D1 requests (media)
+    FAIL            R39.3 D1                     requests      requests[0] https://aps.example.com/behaviour/r39-3?w=1 expected at 3000, query {'sgai-allowed-layouts': 'overlay-lower-third custom', 'sgai-custom-region': '60 5 35 30'}, answered_by behaviour/fixtures/R39.3/empty.xml; observed https://aps.example.com/behaviour/r39-3?w=1&sgai-allowed-layouts=overlay-lower-third%20custom at 2995, query {'s
+M10 CAUGHT — PLY-15 nothing sent when none declared [R38.2 ['D1']]: R38.2 D1 requests (media)
+    FAIL            R38.2 D1                     requests      requests[1] https://aps.example.com/behaviour/r38-2?w=2 expected at 6000, query {}, answered_by behaviour/fixtures/R38.2/empty.xml; observed https://aps.example.com/behaviour/r38-2?w=2&sgai-allowed-layouts=overlay%20overlay-corner%20overlay-lower-third%20squeezeback-l-shape-upper-left%20squeezeback-l-shape-upper-right%20squeezeback-double-
+baseline R29.4 ['D1']: session 3/4 PASS, media 4/4 PASS
+M11 CAUGHT — PLY-14 only prefixed own parameters [R29.4 ['D1']]: R29.4 D1 requests (media)
+    FAIL            R29.4 D1                     requests      requests[0] https://aps.example.com/behaviour/r29-4?title=beh294&device=tv expected at 3000, query {'sgai-allowed-layouts': 'overlay-corner'}, answered_by behaviour/fixtures/R29.4/empty.xml; observed https://aps.example.com/behaviour/r29-4?title=beh294&device=tv&sgai-allowed-layouts=overlay-corner&model=reference at 3004, query {'model': '
+baseline R4.2 ['D4']: session 2/4 PASS, media 3/4 PASS
+M12 CAUGHT — PLY-24 cumulative cap stops mid-ad [R4.2 ['D4']]: R4.2-1 D4 presentation (media)
+    FAIL            R4.2-1 D4                    presentation  presentation[3] expected a change at 10000 to none [primary from 10000]; none observed within 250 (on screen: overlay-lower-third [primary, ad behaviour/fixtures/R4.2/r4-2-1-list.xml:#2 option #1] from 7028); presentation[3] 10000..12000 expected none [primary from 10000]; observed overlay-lower-third [primary, ad behaviour/fixtures/R4.2/r
+baseline R4.9 ['D4']: session 3/4 PASS, media 3/4 PASS
+M13 CAUGHT — PLY-28 duration rounded up to the cap's timescale [R4.9 ['D4']]: R4.9 D4 presentation (media); R4.9 D4 presentation (session); R4.9 D4 selection (media); R4.9 D4 selection (session)
+    FAIL            R4.9 D4                      selection     selection[0] event 1 of behaviour/fixtures/R4.9/r4-9-main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R4.9/r4-9-list.xml:#1 option #1; observed overlay-lower-third [ad behaviour/fixtures/R4.9/r4-9-list.xml:#1 option #1], overlay-lower-third [ad behaviour/fixtures/R4.9/r4-9-list.xml:#2 option #1]
+baseline R4.7 all: session 8/8 PASS, media 8/8 PASS
+M14 CAUGHT — PLY-30 a cap of zero does not fire [R4.7 all]: R4.7-2 D4 requests (media); R4.7-2 D4 requests (session)
+    FAIL            R4.7-2 D4                    requests      unexpected request https://aps.example.com/b/r4-7-2/w?sgai-allowed-layouts=overlay-lower-third at 1990 (answered_by behaviour/fixtures/R4.7/r4-7-2-list.xml)
+baseline R4.10 ['D1']: session 3/4 PASS, media 3/4 PASS
+M15 NOT CAUGHT — PLY-29 no cap is not a window [R4.10 ['D1']]
+baseline R20.1 all: session 16/28 PASS, media 23/28 PASS
+M16 CAUGHT — PLY-38 fallback to the next window [R20.1 all]: R20.1-1 D4 presentation (media); R20.1-1 D4 requests (media); R20.1-1 D4 requests (session); R20.1-1 D4 selection (media); R20.1-1 D4 selection (session); R20.1-2 D4 presentation (media)
+    FAIL            R20.1-1 D4                   requests      requests[1] https://aps.example.com/b/r20-1-1/w2 at 2000..20000: not observed
+baseline R20.4 all: session 2/4 PASS, media 3/4 PASS
+M17 CAUGHT — PLY-42 a document of another family fails [R20.4 all]: R20.4 D4 presentation (media); R20.4 D4 requests (media); R20.4 D4 requests (session); R20.4 D4 selection (media); R20.4 D4 selection (session)
+    FAIL            R20.4 D4                     requests      requests[1] https://aps.example.com/b/r20-4/w2 at 0..2000: not observed
+baseline R20.5 all: session 2/4 PASS, media 3/4 PASS
+M18 CAUGHT — PLY-43 each window binds with its own declarations [R20.5 all]: R20.5 D4 presentation (media); R20.5 D4 selection (media); R20.5 D4 selection (session)
+    FAIL            R20.5 D4                     selection     selection[0] event 2 of behaviour/fixtures/R20.5/r20-5-main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R20.5/r20-5-w2.xml:#1 option #2; observed overlay-corner [ad behaviour/fixtures/R20.5/r20-5-w2.xml:#1 option #1]
+baseline R20.3 all: session 6/8 PASS, media 7/8 PASS
+M19 CAUGHT — PLY-40 order by PT then document order [R20.3 all]: R20.3-1 D4 presentation (media); R20.3-1 D4 requests (media); R20.3-1 D4 requests (session); R20.3-1 D4 selection (media); R20.3-1 D4 selection (session)
+    FAIL            R20.3-1 D4                   requests      requests[0] https://aps.example.com/b/r20-3-1/w1 at 0..2000: not observed; unexpected request https://aps.example.com/b/r20-3-1/w2?sgai-allowed-layouts=overlay-lower-third at 0 (answered_by behaviour/fixtures/R20.3/r20-3-1-w2.xml)
+baseline R34.3 ['D1']: session 1/4 PASS, media 1/4 PASS
+M20 NOT CAUGHT — PLY-64 consumed when rendering begins, not at the pause [R34.3 ['D1']]
+baseline R34.1 ['D1']: session 3/4 PASS, media 3/4 PASS
+M21 CAUGHT — PLY-63 once per session [R34.1 ['D1']]: R34.1 D1 presentation (media); R34.1 D1 presentation (session)
+    FAIL            R34.1 D1                     presentation  observed a change at 8621 from none [primary] to pause-fullscreen [ad behaviour/fixtures/R34.1/pause-list.xml:#1 option #1], which the vector does not have; observed a change at 10592 from pause-fullscreen [ad behaviour/fixtures/R34.1/pause-list.xml:#1 option #1] to none [primary], which the vector does not have; presentation[5] expected a
+baseline R32.1 ['D1']: session 6/12 PASS, media 5/12 PASS
+M22 CAUGHT — §5.2.6 repeat [R32.1 ['D1']]: R32.1-1 D1 presentation (session); R32.1-3 D1 presentation (media)
+    FAIL            R32.1-1 D1                   selection     selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1; observed pause-fullscreen [ad behaviour/fixtures/R32.1/repea
+baseline R32.2 ['D1']: session 3/4 PASS, media 3/4 PASS
+M23 CAUGHT — PLY-66 request-again + empty = stop [R32.2 ['D1']]: R32.2 D1 presentation (media); R32.2 D1 presentation (session); R32.2 D1 requests (media); R32.2 D1 requests (session)
+    FAIL            R32.2 D1                     requests      requests[1] https://aps.example.com/behaviour/pause?w=1 expected at 5000, query {}, answered_by behaviour/fixtures/R32.2/empty.xml; observed https://aps.example.com/behaviour/pause?w=1 at 4529, query {}, answered_by behaviour/fixtures/R32.2/empty.xml; unexpected request https://aps.example.com/behaviour/pause?w=1 at 4529 (answered_by behav
+baseline R36.5 ['D1']: session 2/8 PASS, media 2/8 PASS
+M24 CAUGHT — PLY-9 / §5.2.5 usable lifetime [R36.5 ['D1']]: R36.5-1 D1 requests (media); R36.5-1 D1 requests (session); R36.5-2 D1 requests (media); R36.5-2 D1 requests (session)
+    FAIL            R36.5-1 D1                   requests      requests[1] https://aps.example.com/behaviour/pause?w=1 at 5000..30000: not observed
+baseline R36.1 ['D1']: session 10/12 PASS, media 9/12 PASS
+M25 CAUGHT — PLY-6 not earlier than the offset [R36.1 ['D1']]: R36.1-1 D1 requests (media); R36.1-1 D1 requests (session); R36.1-3 D1 requests (session)
+    FAIL            R36.1-1 D1                   requests      requests[0] https://aps.example.com/behaviour/r36-1?w=1 expected at 7000..10000, query {}, answered_by behaviour/fixtures/R36.1/empty.xml; observed https://aps.example.com/behaviour/r36-1?w=1 at 0, query {}, answered_by behaviour/fixtures/R36.1/empty.xml; unexpected request https://aps.example.com/behaviour/r36-1?w=1 at 0 (answered_by beha
+baseline R34.10 ['D1']: session 3/4 PASS, media 4/4 PASS
+M26 CAUGHT — R34.10 a document after the window's end is dropped [R34.10 ['D1']]: R34.10 D1 presentation (media); R34.10 D1 presentation (session); R34.10 D1 selection (media); R34.10 D1 selection (session)
+    FAIL            R34.10 D1                    selection     selection[0] event 1 of behaviour/fixtures/R34.10/main.mpd (declined): expected nothing; observed overlay-lower-third [ad behaviour/fixtures/R34.10/overlay-list.xml:#1 option #1]
+baseline R34.9 ['D1']: session 2/4 PASS, media 2/4 PASS
+M27 NOT CAUGHT — R34.9 a late execution starts the sequence from its first candidate [R34.9 ['D1']]
+baseline R40.3 all: session 3/8 PASS, media 4/8 PASS
+M28 CAUGHT — PLY-48 a superseding window that presents no ad releases the linear events [R40.3 all]: R40.3-1 D1 beacons (media); R40.3-1 D1 requests (media); R40.3-1 D1 requests (session); R40.3-1 D1 selection (media); R40.3-1 D1 selection (session); R40.3-2 D1 selection (media)
+    FAIL            R40.3-1 D1                   requests      requests[1] https://aps.example.com/b/r40-3-1/break at 4000..6000: not observed
+baseline R1.4 all: session 1/4 PASS, media 2/4 PASS
+M29 CAUGHT — PLY-86 / R1.4 an aborted ad counts as rendered [R1.4 all]: R1.4 D1 presentation (media); R1.4 D1 selection (media); R1.4 D1 selection (session)
+    FAIL            R1.4 D1                      requests      unexpected request https://ads-cdn.example.com/b/r1-4/ad/v/4.m4s at 577 (answered_by None); unexpected request https://ads-cdn.example.com/b/r1-4/ad/v/4.m4s at 2625 (answered_by None); unexpected request https://ads-cdn.example.com/b/r1-4/ad/v/4.m4s at 5803 (answered_by None); unexpected request https://aps.example.com/b/r1-4/w2?sgai-allow
+M30 NOT CAUGHT — §5.1.3 the span ends the presentation [R34.9 ['D1']]
+baseline R7.1 ['D1']: session 2/4 PASS, media 2/4 PASS
+M31 CAUGHT — PLY-33/36 document order of candidates [R7.1 ['D1']]: R7.1 D1 selection (media); R7.1 D1 selection (session)
+    FAIL            R7.1 D1                      selection     selection[0] event 1 of behaviour/fixtures/R7.1/r7-1-main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R7.1/r7-1-list.xml:#1 option #1, overlay-lower-third behaviour/fixtures/R7.1/r7-1-list.xml:#2 option #1, overlay-lower-third behaviour/fixtures/R7.1/r7-1-list.xml:#3 option #1; observed overlay-lower-third [ad behaviou
+baseline R7.1 ['D4']: session 2/4 PASS, media 3/4 PASS
+M32 CAUGHT — PLY-34 a dropped candidate takes no time [R7.1 ['D4']]: R7.1 D4 presentation (media); R7.1 D4 selection (media); R7.1 D4 selection (session)
+    FAIL            R7.1 D4                      selection     selection[0] event 1 of behaviour/fixtures/R7.1/r7-1-main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R7.1/r7-1-list.xml:#1 option #1, overlay-lower-third behaviour/fixtures/R7.1/r7-1-list.xml:#3 option #1; observed overlay-lower-third [ad behaviour/fixtures/R7.1/r7-1-list.xml:#1 option #1], overlay-lower-third [ad beh
+exit 0

@@ -40,7 +40,7 @@
 // may publish itself on `ref` for the others (the linear family is
 // `ref.linear`).
 (function (global) {
-  const FAMILY_FILES = ['sgai-linear.js'];
+  const FAMILY_FILES = ['sgai-linear.js', 'sgai-nonlinear.js'];
   const base = (document.currentScript && document.currentScript.src) || location.href;
   const loading = FAMILY_FILES.map((f) => new Promise((resolve, reject) => {
     const s = document.createElement('script');
