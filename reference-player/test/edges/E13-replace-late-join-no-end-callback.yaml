@@ -1,0 +1,62 @@
+# E12's documents joined late: playback starts at 4 s, inside the active interval [2, 12] s.
+# Table 57: PRTA = 4, APDadj = max(6 - 4 + 2, 0) = 4, APDA = min(6 - 0, 4) = 4, RT = PRT + APDA
+# = 6. The cut (2 s) equals PRTA - PRT, but nothing played the primary up to PRT: the
+# alternative was shown for 4 s of its 6, and its callback at 6 s is not reached.
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 4000
+observe_until: 7000
+entry: fixtures/rep-end-main.mpd
+fixtures:
+- path: fixtures/rep-end-main.mpd
+- path: fixtures/rep-end.mpd
+  url: https://aps.example.com/t05/rep-end
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: the alternative for 4 s from its start, without its end callback, then the programme from 6 s
+    requests:
+    - at: 0
+      url: https://aps.example.com/t05/rep-end
+      answered_by: fixtures/rep-end.mpd
+    selection:
+    - opportunity:
+        fixture: fixtures/rep-end-main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: fixtures/rep-end.mpd
+          id: rep-end
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 4000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: fixtures/rep-end.mpd
+          id: rep-end
+        option: null
+    - start: 4000
+      end: 7000
+      layout: none
+      shows:
+      - element: primary
+        from: 6000
+    beacons:
+    - at: 0
+      fixture: fixtures/rep-end.mpd
+      id: '1'
+      url: https://t.example.com/t05/rep-end/start

@@ -185,6 +185,37 @@ is never resolved nor executed.""",
        summary="the programme from 4 s, nothing else",
        requests=[], selection=[], presentation=[prim(0, 4000, 4000)], beacons=[])
 
+REP_END = F + "rep-end.mpd"
+vector("E12-replace-end-callback-on-time", """
+A replacement executed on time, whose callback sits at the alternative's own end. PRT 2 s,
+APDmax 6 s = APD 6 s, @clip absent (true). A Player executes at the first instant it sees
+PHP >= PRT, so PRTA = PRT + d with d a fraction of a frame; Table 57 then gives APDadj =
+6 - d, APDA = min(6 - 0, 6 - d) = 6 - d, RT = PRT + APDA = 8 - d. A cut no longer than
+the lag of an execution on time is the alternative's end, so its callback at 6 s (session
+8 s) fires; d is below the vector's tolerance everywhere else.""",
+       entry=F + "rep-end-main.mpd",
+       fixtures=[{"path": F + "rep-end-main.mpd"}, {"path": REP_END, "url": "https://aps.example.com/t05/rep-end"}],
+       play_from=0, observe=10000,
+       summary="the programme, the 6 s alternative 2-8 s with both its callbacks, then the programme from 8 s",
+       requests=[{"at": {"from": 0, "to": 2000}, "url": "https://aps.example.com/t05/rep-end", "answered_by": REP_END}],
+       selection=sel(F + "rep-end-main.mpd", [(REP_END, "rep-end")]),
+       presentation=[prim(0, 2000, 0), ad(2000, 8000, REP_END, "rep-end"), prim(8000, 10000, 8000)],
+       beacons=[b(2000, 1, "start", REP_END, "rep-end"), b(8000, 2, "complete", REP_END, "rep-end")])
+
+vector("E13-replace-late-join-no-end-callback", """
+E12's documents joined late: playback starts at 4 s, inside the active interval [2, 12] s.
+Table 57: PRTA = 4, APDadj = max(6 - 4 + 2, 0) = 4, APDA = min(6 - 0, 4) = 4, RT = PRT + APDA
+= 6. The cut (2 s) equals PRTA - PRT, but nothing played the primary up to PRT: the
+alternative was shown for 4 s of its 6, and its callback at 6 s is not reached.""",
+       entry=F + "rep-end-main.mpd",
+       fixtures=[{"path": F + "rep-end-main.mpd"}, {"path": REP_END, "url": "https://aps.example.com/t05/rep-end"}],
+       play_from=4000, observe=7000,
+       summary="the alternative for 4 s from its start, without its end callback, then the programme from 6 s",
+       requests=[{"at": 0, "url": "https://aps.example.com/t05/rep-end", "answered_by": REP_END}],
+       selection=sel(F + "rep-end-main.mpd", [(REP_END, "rep-end")]),
+       presentation=[ad(0, 4000, REP_END, "rep-end"), prim(4000, 7000, 6000)],
+       beacons=[b(0, 1, "start", REP_END, "rep-end")])
+
 vector("E11-pause-during-linear-ad", """
 The viewer pauses during a linear alternative and resumes 2 s later, with no pause window:
 the linear ad is suspended and resumed where it was (the linear part of R17.5; the primary

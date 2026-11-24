@@ -92,6 +92,11 @@ FILES = {
         'uri="https://aps.example.com/t05/rep" earliestResolutionTimeOffset="0" maxDuration="3000"')),
     "rep.mpd": ad_mpd("rep", 8, [(0, "b0"), (2000, "b2"), (5000, "b5")]),
     "ins.mpd": ad_mpd("ins", 4, [(0, "imp")]),
+    # a replacement whose @maxDuration equals its 6 s alternative, @clip absent (true),
+    # with a callback at the alternative's own end
+    "rep-end-main.mpd": main_mpd("rep-end", stream("replace", 1, 2000, 10000,
+        'uri="https://aps.example.com/t05/rep-end" earliestResolutionTimeOffset="2000" maxDuration="6000"')),
+    "rep-end.mpd": ad_mpd("rep-end", 6, [(0, "start"), (6000, "complete")]),
     # a List MPD whose middle Linked Period does not resolve
     "list-hole-main.mpd": main_mpd("list-hole", stream("insert", 1, 2000, 1000,
         'uri="https://aps.example.com/t05/list-hole" earliestResolutionTimeOffset="2000" executeOnce="true"')),

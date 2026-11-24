@@ -373,9 +373,18 @@
     }
 
     tick() {
-      if (this.alt) { this.tickAlt(); return; }
-      if (this.holding || this.seeking || !this.streamReady || this.main.readyState < 1) return;
+      if (this.alt) { this.last = null; this.tickAlt(); return; }
+      if (this.holding || this.seeking || !this.streamReady || this.main.readyState < 1) { this.last = null; return; }
       const php = this.main.currentTime;
+      // The previous tick's playhead, kept only while playback runs on from
+      // it: no more media time passed than wall time at the rate (a seek, a
+      // start at an offset, a return to RT do not), so PRT was crossed by
+      // playing up to it.
+      const now = performance.now();
+      const last = this.last;
+      this.last = { php, now };
+      const crossed = (E) => !!last && last.php < E.PRT
+        && php - last.php <= ((now - last.now) / 1000) * (this.main.playbackRate || 1) + EPS;
       // §5.16.2.2.6: resolve when the playhead is between ERT and PRT.
       // @maxDuration zero: the event is not executed (§5.16.5), so it is never resolved.
       for (const E of this.queue) {
@@ -391,7 +400,7 @@
         if (E.EAP <= php) { this.log('linear:expired', { key: E.key, php }); continue; }
         if (E.executeOnce && E.c > 0) continue;
         if (!(E.APDmax > 0)) { this.log('linear:not-executed', { key: E.key, reason: '@maxDuration is zero' }); continue; }
-        this.execute(E, php);
+        this.execute(E, php, crossed(E));
         return;
       }
       if (this.gated && this.main.readyState >= 2) {
@@ -450,7 +459,7 @@
     }
 
     // §5.16.2.2.5 2b–2d and §5.16.2.2.6.
-    async execute(E, php) {
+    async execute(E, php, crossed = false) {
       const wasPlaying = !this.main.paused;
       this.main.pause();
       const PRTA = php;
@@ -472,7 +481,10 @@
       // APDadj = max(APDmax − PRTA + PRT, 0) with @clip true or absent, else APDmax.
       const ASO = isReplace && E.startWithOffset ? PRTA - E.PRT : 0;
       const APDadj = isReplace && E.clip ? Math.max(E.APDmax - PRTA + E.PRT, 0) : E.APDmax;
-      const alt = { E, parts, PRTA, ASO, APDadj, wasPlaying, index: -1, started: false, startWall: Date.now(),
+      // An execution on time is still late by the time between PRT and the
+      // tick that saw it; @clip's APDadj takes exactly that off the end.
+      const lag = crossed ? PRTA - E.PRT : 0;
+      const alt = { E, parts, PRTA, ASO, APDadj, lag, wasPlaying, index: -1, started: false, startWall: Date.now(),
         rate: this.main.playbackRate || 1, fired: new Set() };
       // "If at time PRTA the duration APDA is determined to be 0, the event is
       // not executed" (§5.16.2.2.1 step 3).
@@ -480,7 +492,7 @@
       if (!(this.apda(alt) > 0)) return this.failed(E, wasPlaying, 'APDA is 0', parts);
       this.holding = null;
       this.alt = alt;
-      this.log('linear:execute', { key: E.key, PRT: E.PRT, PRTA, ASO, APDadj, APD: this.apd(alt), APDA: this.apda(alt), parts: parts.map((p) => p.id) });
+      this.log('linear:execute', { key: E.key, PRT: E.PRT, PRTA, lag, ASO, APDadj, APD: this.apd(alt), APDA: this.apda(alt), parts: parts.map((p) => p.id) });
       // ASO falls in the Part whose span holds it.
       let i = parts.findIndex((p) => ASO < p.start + p.duration);
       if (i < 0) i = parts.length - 1;
@@ -625,8 +637,16 @@
       else if (E.returnOffset !== null) RT = E.PRT + E.returnOffset;
       else if (!E.clip) RT = alt.PRTA + APDA;
       else RT = E.PRT + APDA;
+      // The callbacks up to where the alternative stops. A stop within EPS of
+      // the Part's end, or within the lag of an execution on time, counts as
+      // its end, as when it plays to it: otherwise @clip would take an ad's
+      // own end-of-ad callback for the time a Player needs to see PRT (an
+      // event at the Period's end has no media sample of its own either).
       const cur = alt.parts[alt.index];
-      if (cur && cur.shown) this.fireCallbacks(alt, cur, Math.min(cur.duration, APDA + alt.ASO - cur.start));
+      if (cur && cur.shown) {
+        const reached = APDA + alt.ASO - cur.start;
+        this.fireCallbacks(alt, cur, reached >= cur.duration - Math.max(EPS, alt.lag) ? cur.duration : reached);
+      }
       this.alt = null;
       for (const p of alt.parts) p.destroy();
       this.gated = false;

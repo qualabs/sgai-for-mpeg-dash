@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The reference's own regression tests of the 6th edition's linear model: the
-edge vectors E1-E11 beside this file, run on the reference in headless
+edge vectors E1-E13 beside this file, run on the reference in headless
 Chromium through the behaviour battery. They test the base standard's rules
 (Table 57, the queue, @clip, @startWithOffset, @returnOffset, a List MPD's
 Linked Periods, a pause in a linear ad), not criteria of context/03, which is

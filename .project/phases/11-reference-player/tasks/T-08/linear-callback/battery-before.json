@@ -1,0 +1,404 @@
+{
+ "results": [
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "6 segment(s) as expected; startup 1040 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "7 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "6 segment(s) as expected; startup 1030 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "7 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "4 segment(s) as expected; startup 2700 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "beacons[2] https://t.example.com/r40-4/complete (@id 2) expected at 10000; observed at never"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "4 segment(s) as expected; startup 3091 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "beacons[2] https://t.example.com/r40-4/complete (@id 2) expected at 10000; observed at never"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D1",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D1",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 1772 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "UC-02 D1",
+   "xpath": "",
+   "detail": "beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 60000; observed at never"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D2",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D2",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "FAIL",
+   "subject": "UC-02 D2",
+   "xpath": "",
+   "detail": "observed a change at 60547 from none [nothing] to none [primary], which the vector does not have; presentation[2] 60000..70000 expected none [primary from 630000]; observed none [nothing] from 60031 to 60547 [startup 1904; observed: 0..29984 none [primary] from 570018; 29984..60031 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 60031..60547 none [nothing]; 60547..70000 none [primary] from 630001]"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D2",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D3",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D3",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D3",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 403 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "UC-02 D3",
+   "xpath": "",
+   "detail": "beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 60000; observed at never"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D4",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D4",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D4",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 1107 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "UC-02 D4",
+   "xpath": "",
+   "detail": "beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 60000; observed at never"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D5",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D5",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "FAIL",
+   "subject": "UC-02 D5",
+   "xpath": "",
+   "detail": "observed a change at 60672 from none [nothing] to none [primary], which the vector does not have; presentation[2] 60000..70000 expected none [primary from 630000]; observed none [nothing] from 60050 to 60672 [startup 149; observed: 0..30003 none [primary] from 570015; 30003..60050 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 60050..60672 none [nothing]; 60672..70000 none [primary] from 630022]"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "UC-02 D5",
+   "xpath": "",
+   "detail": "beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 60000; observed at never"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D1 [trick-play-2x]",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D1 [trick-play-2x]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "FAIL",
+   "subject": "UC-02 D1 [trick-play-2x]",
+   "xpath": "",
+   "detail": "observed a change at 30642 from none [nothing] to none [primary], which the vector does not have; presentation[2] 30000..70000 expected none [primary from 630000]; observed none [nothing] from 30017 to 30642 [startup 150; observed: 0..15011 none [primary] from 570009; 15011..30017 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30017..30642 none [nothing]; 30642..70000 none [primary] from 630010]"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "UC-02 D1 [trick-play-2x]",
+   "xpath": "",
+   "detail": "beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000; observed at never"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D2 [trick-play-2x]",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D2 [trick-play-2x]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "FAIL",
+   "subject": "UC-02 D2 [trick-play-2x]",
+   "xpath": "",
+   "detail": "observed a change at 31053 from none [nothing] to none [primary], which the vector does not have; presentation[2] 30000..70000 expected none [primary from 630000]; observed none [nothing] from 30164 to 31053 [startup 2198; observed: 0..15104 none [primary] from 570051; 15104..30164 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30164..31053 none [nothing]; 31053..70000 none [primary] from 630016]"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "UC-02 D2 [trick-play-2x]",
+   "xpath": "",
+   "detail": "beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000; observed at never"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D3 [trick-play-2x]",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D3 [trick-play-2x]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "FAIL",
+   "subject": "UC-02 D3 [trick-play-2x]",
+   "xpath": "",
+   "detail": "observed a change at 31294 from none [nothing] to none [primary], which the vector does not have; presentation[2] 30000..70000 expected none [primary from 630000]; observed none [nothing] from 30119 to 31294 [startup 524; observed: 0..15056 none [primary] from 570020; 15056..30119 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30119..31294 none [nothing]; 31294..70000 none [primary] from 630006]"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "UC-02 D3 [trick-play-2x]",
+   "xpath": "",
+   "detail": "beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000; observed at never"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D4 [trick-play-2x]",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D4 [trick-play-2x]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D4 [trick-play-2x]",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 188 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "UC-02 D4 [trick-play-2x]",
+   "xpath": "",
+   "detail": "beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000; observed at never"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D5 [trick-play-2x]",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D5 [trick-play-2x]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "FAIL",
+   "subject": "UC-02 D5 [trick-play-2x]",
+   "xpath": "",
+   "detail": "observed a change at 31093 from none [nothing] to none [primary], which the vector does not have; presentation[2] 30000..70000 expected none [primary from 630000]; observed none [nothing] from 30111 to 31093 [startup 146; observed: 0..15050 none [primary] from 570008; 15050..30111 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30111..31093 none [nothing]; 31093..70000 none [primary] from 630003]"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "UC-02 D5 [trick-play-2x]",
+   "xpath": "",
+   "detail": "beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000; observed at never"
+  }
+ ],
+ "cannot": [],
+ "notes": [],
+ "wall_seconds": 568.4,
+ "timings": {
+  "content_seconds": 0.0,
+  "run_seconds": 567.2,
+  "browser": "chromium 149.0.7827.55"
+ }
+}

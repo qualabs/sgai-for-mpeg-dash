@@ -1,0 +1,404 @@
+{
+ "results": [
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "6 segment(s) as expected; startup 1524 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "7 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "6 segment(s) as expected; startup 1719 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "7 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "4 segment(s) as expected; startup 1298 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "3 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "4 segment(s) as expected; startup 1669 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "3 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D1",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D1",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 694 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D1",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D2",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D2",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D2",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 1091 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D2",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D3",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D3",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D3",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 1628 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D3",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D4",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D4",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D4",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 593 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D4",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D5",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D5",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D5",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 175 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D5",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D1 [trick-play-2x]",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D1 [trick-play-2x]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D1 [trick-play-2x]",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 169 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D1 [trick-play-2x]",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D2 [trick-play-2x]",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D2 [trick-play-2x]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D2 [trick-play-2x]",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 176 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D2 [trick-play-2x]",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D3 [trick-play-2x]",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D3 [trick-play-2x]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D3 [trick-play-2x]",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 176 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D3 [trick-play-2x]",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D4 [trick-play-2x]",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D4 [trick-play-2x]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D4 [trick-play-2x]",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 147 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D4 [trick-play-2x]",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-02 D5 [trick-play-2x]",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-02 D5 [trick-play-2x]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-02 D5 [trick-play-2x]",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 148 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-02 D5 [trick-play-2x]",
+   "xpath": "",
+   "detail": "5 beacon(s) as expected"
+  }
+ ],
+ "cannot": [],
+ "notes": [],
+ "wall_seconds": 436.6,
+ "timings": {
+  "content_seconds": 0.0,
+  "run_seconds": 435.7,
+  "browser": "chromium 149.0.7827.55"
+ }
+}

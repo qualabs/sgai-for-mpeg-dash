@@ -1,6 +1,6 @@
 # Edge vectors of the linear model
 
-E1-E11: the reference's regression tests of the 6th edition's linear model
+E1-E13: the reference's regression tests of the 6th edition's linear model
 (the execution queue, Table 57's arithmetic, `@executeOnce`, `@clip`,
 `@startWithOffset`, `@returnOffset`, a List MPD whose Linked Period fails, a
 pause during a linear ad). Each expected value is worked from the base

@@ -1,0 +1,40 @@
+{
+ "results": [
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E12-replace-end-callback-on-time D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E12-replace-end-callback-on-time D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E12-replace-end-callback-on-time D1",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 367 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E12-replace-end-callback-on-time D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  }
+ ],
+ "cannot": [],
+ "notes": [],
+ "wall_seconds": 12.7,
+ "timings": {
+  "content_seconds": 0.0,
+  "run_seconds": 11.9,
+  "browser": "chromium 149.0.7827.55"
+ }
+}

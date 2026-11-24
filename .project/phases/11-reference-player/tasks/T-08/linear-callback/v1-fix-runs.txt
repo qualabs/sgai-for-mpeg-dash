@@ -1,0 +1,4 @@
+First fix (tolerance EPS = 0.02 s only, no lag term), R40.4,UC-02 --concurrency 2, run 2 of 2:
+UC-02 D5 beacons | complete?cr=201 expected at 60000 | observed at never
+module log of that job: PRT 600, PRTA 600.057263 (lag 57.3 ms > EPS), APDA 29.942737, RT 630
+=> EPS alone does not cover the tick lag under load; the final fix adds the lag of an on-time execution.

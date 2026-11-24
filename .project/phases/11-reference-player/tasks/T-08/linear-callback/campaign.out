@@ -1,0 +1,15 @@
+== baseline exit=0
+12 PASS
+== M1-no-end-tolerance exit=1
+11 PASS, 1 FAIL
+FAIL E12-replace-end-callback-on-time D1 beacons | expected: beacons[1] https://t.example.com/t05/rep-end/complete (@id 2) expected at 8000 | observed: observed at never | log: /run/user/1000/cto/behaviour-logs/20261124T203623-104
+== M2-always-part-end exit=1
+10 PASS, 2 FAIL
+FAIL E3-replace-late-clip D1 beacons | expected: (see log) | observed: unexpected beacon https://t.example.com/t05/rep/b5 at 3991 | log: /run/user/1000/cto/behaviour-logs/20261124T203643-e16e9d/behaviour.log:4
+FAIL E13-replace-late-join-no-end-callback D1 beacons | expected: (see log) | observed: unexpected beacon https://t.example.com/t05/rep-end/complete at 4000 | log: /run/user/1000/cto/behaviour-logs/20261124T203643-e16e9d/behaviour
+== M3-crossing-always exit=1
+11 PASS, 1 FAIL
+FAIL E13-replace-late-join-no-end-callback D1 beacons | expected: (see log) | observed: unexpected beacon https://t.example.com/t05/rep-end/complete at 3986 | log: /run/user/1000/cto/behaviour-logs/20261124T203703-3a26f9/behaviour
+== M4-lag-dropped exit=0
+12 PASS
+restored
