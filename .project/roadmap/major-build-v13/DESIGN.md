@@ -16,5 +16,7 @@ R5.9 y R47), R44, R48, R23.2 y los beacons de slot de R13.7.
 El líder del proyecto: se hace al final, juntando la fase 07 con document-first y multiview, en vez de un mayor por cada
 una. El perfil multi-asset no entra: quedó en el backlog (2026-10-27).
 
+Después, el mismo 2026-10-27, multiview también salió del v13 y quedó en backlog (LOG.md).
+
 Se invoca como dice el `CLAUDE.md` del proyecto (`build-all.prompt`, con
 `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0`, en background).
