@@ -1,0 +1,49 @@
+PASS            R28.1-1 D1                   requests      1 request(s) as expected
+PASS            R28.1-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D1                   presentation  3 segment(s) as expected; startup 1050 before the first frame
+PASS            R28.1-1 D1                   beacons       1 beacon(s) as expected
+FAIL            R28.1-1 D1                   clicks        clicks[0] https://t.example.com/r28-1/click expected at 4000; observed at never; clicks[1] https://t2.example.com/r28-1/click expected at 4000; observed at never
+FAIL            R28.1-1 D1                   destinations  destinations[0] https://brand-r28.example.com/offer expected at 4000; observed: never
+PASS            R28.1-1 D4                   requests      1 request(s) as expected
+PASS            R28.1-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D4                   presentation  3 segment(s) as expected; startup 1004 before the first frame
+PASS            R28.1-1 D4                   beacons       1 beacon(s) as expected
+FAIL            R28.1-1 D4                   clicks        clicks[0] https://t.example.com/r28-1/click expected at 4000; observed at never; clicks[1] https://t2.example.com/r28-1/click expected at 4000; observed at never
+FAIL            R28.1-1 D4                   destinations  destinations[0] https://brand-r28.example.com/offer expected at 4000; observed: never
+PASS            R28.1-1 D1 [no-activation]   requests      1 request(s) as expected
+PASS            R28.1-1 D1 [no-activation]   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D1 [no-activation]   presentation  3 segment(s) as expected; startup 887 before the first frame
+PASS            R28.1-1 D1 [no-activation]   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D1 [no-activation]   clicks        no click-tracking, as expected
+PASS            R28.1-1 D1 [no-activation]   destinations  no destination made available, as expected
+PASS            R28.1-1 D4 [no-activation]   requests      1 request(s) as expected
+PASS            R28.1-1 D4 [no-activation]   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D4 [no-activation]   presentation  3 segment(s) as expected; startup 1389 before the first frame
+PASS            R28.1-1 D4 [no-activation]   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D4 [no-activation]   clicks        no click-tracking, as expected
+PASS            R28.1-1 D4 [no-activation]   destinations  no destination made available, as expected
+NOT_APPLICABLE  R28.1-2 D1                   requests      requests not compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires
+PASS            R28.1-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-2 D1                   presentation  1 segment(s) as expected; startup 1508 before the first frame
+PASS            R28.1-2 D1                   beacons       3 beacon(s) as expected
+FAIL            R28.1-2 D1                   clicks        clicks[0] https://t.example.com/click?cr=101 expected at 5000; observed at never
+FAIL            R28.1-2 D1                   destinations  destinations[0] https://brand-a.example.com/spring expected at 5000; observed: never
+NOT_APPLICABLE  R28.1-2 D5                   requests      requests not compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires
+PASS            R28.1-2 D5                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-2 D5                   presentation  1 segment(s) as expected; startup 1888 before the first frame
+PASS            R28.1-2 D5                   beacons       3 beacon(s) as expected
+FAIL            R28.1-2 D5                   clicks        clicks[0] https://t.example.com/click?cr=101 expected at 5000; observed at never
+FAIL            R28.1-2 D5                   destinations  destinations[0] https://brand-a.example.com/spring expected at 5000; observed: never
+PASS            R28.2 D1                     requests      1 request(s) as expected
+PASS            R28.2 D1                     selection     1 opportunit(y/ies) as expected
+PASS            R28.2 D1                     presentation  4 segment(s) as expected; startup 1104 before the first frame
+PASS            R28.2 D1                     beacons       2 beacon(s) as expected
+FAIL            R28.2 D1                     clicks        clicks[0] https://t.example.com/r28-2/click?c=2 expected at 7000; observed at never; clicks[1] https://t2.example.com/r28-2/click?c=2 expected at 7000; observed at never
+FAIL            R28.2 D1                     destinations  destinations[0] https://brand-r28.example.com/c1 expected at 3000; observed: never; destinations[1] https://brand-r28.example.com/c2 expected at 7000; observed: never
+PASS            R28.2 D4                     requests      1 request(s) as expected
+PASS            R28.2 D4                     selection     1 opportunit(y/ies) as expected
+PASS            R28.2 D4                     presentation  4 segment(s) as expected; startup 1701 before the first frame
+PASS            R28.2 D4                     beacons       2 beacon(s) as expected
+FAIL            R28.2 D4                     clicks        clicks[0] https://t.example.com/r28-2/click?c=2 expected at 7000; observed at never; clicks[1] https://t2.example.com/r28-2/click?c=2 expected at 7000; observed at never
+FAIL            R28.2 D4                     destinations  destinations[0] https://brand-r28.example.com/c1 expected at 3000; observed: never; destinations[1] https://brand-r28.example.com/c2 expected at 7000; observed: never
+exit 1: PASS 34  FAIL 12  NOT_VERIFIABLE 0; wall 60.5 s; content 0.0 s (0 ffmpeg runs, 8 cuts from the cache), players 59.6 s

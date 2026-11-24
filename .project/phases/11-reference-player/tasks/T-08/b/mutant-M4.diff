@@ -1,0 +1,4 @@
+430c430
+<           click: clickThroughOf(out.ads[i], url) }, sel));
+---
+>           click: clickThroughOf(out.ads[(i + 1) % out.ads.length], url) }, sel));

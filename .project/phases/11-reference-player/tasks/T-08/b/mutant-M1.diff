@@ -1,0 +1,4 @@
+871c871
+<       for (const u of ct.tracking) fetch(u, { mode: 'no-cors', credentials: 'omit', cache: 'no-store', keepalive: true }).catch(() => {});
+---
+>       for (const u of []) fetch(u, { mode: 'no-cors', credentials: 'omit', cache: 'no-store', keepalive: true }).catch(() => {});

@@ -1,0 +1,49 @@
+PASS            R28.1-1 D1                   requests      1 request(s) as expected
+PASS            R28.1-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D1                   presentation  3 segment(s) as expected; startup 1494 before the first frame
+PASS            R28.1-1 D1                   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D1                   clicks        2 click-tracking fire(s) as expected
+PASS            R28.1-1 D1                   destinations  1 destination(s) as expected
+PASS            R28.1-1 D4                   requests      1 request(s) as expected
+PASS            R28.1-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D4                   presentation  3 segment(s) as expected; startup 1400 before the first frame
+PASS            R28.1-1 D4                   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D4                   clicks        2 click-tracking fire(s) as expected
+PASS            R28.1-1 D4                   destinations  1 destination(s) as expected
+PASS            R28.1-1 D1 [no-activation]   requests      1 request(s) as expected
+PASS            R28.1-1 D1 [no-activation]   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D1 [no-activation]   presentation  3 segment(s) as expected; startup 2190 before the first frame
+PASS            R28.1-1 D1 [no-activation]   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D1 [no-activation]   clicks        no click-tracking, as expected
+PASS            R28.1-1 D1 [no-activation]   destinations  no destination made available, as expected
+PASS            R28.1-1 D4 [no-activation]   requests      1 request(s) as expected
+PASS            R28.1-1 D4 [no-activation]   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D4 [no-activation]   presentation  3 segment(s) as expected; startup 2102 before the first frame
+PASS            R28.1-1 D4 [no-activation]   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D4 [no-activation]   clicks        no click-tracking, as expected
+PASS            R28.1-1 D4 [no-activation]   destinations  no destination made available, as expected
+NOT_APPLICABLE  R28.1-2 D1                   requests      requests not compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires
+PASS            R28.1-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-2 D1                   presentation  1 segment(s) as expected; startup 3881 before the first frame
+PASS            R28.1-2 D1                   beacons       3 beacon(s) as expected
+FAIL            R28.1-2 D1                   clicks        clicks[0] https://t.example.com/click?cr=101 expected at 5000; observed at never
+FAIL            R28.1-2 D1                   destinations  destinations[0] https://brand-a.example.com/spring expected at 5000; observed: never
+NOT_APPLICABLE  R28.1-2 D5                   requests      requests not compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires
+PASS            R28.1-2 D5                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-2 D5                   presentation  1 segment(s) as expected; startup 3909 before the first frame
+PASS            R28.1-2 D5                   beacons       3 beacon(s) as expected
+FAIL            R28.1-2 D5                   clicks        clicks[0] https://t.example.com/click?cr=101 expected at 5000; observed at never
+FAIL            R28.1-2 D5                   destinations  destinations[0] https://brand-a.example.com/spring expected at 5000; observed: never
+PASS            R28.2 D1                     requests      1 request(s) as expected
+PASS            R28.2 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            R28.2 D1                     presentation  observed a change at 2350 from none [primary] to overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#1 option #1], which the vector does not have; observed a change at 6342 from overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#1 option #1] to overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#2 option #1], which the vector does not have; observed a change at 10368 from overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#2 option #1] to none [primary], which the vector does not have; presentation[1] expected a change at 2000 to overlay-corner [primary from 2000, ad behaviour/fixtures/R28.2/list.xml:#1 option #1]; none observed within 250 (on screen: none [primary] from 0); presentation[2] expected a change at 6000 to overlay-corner [primary from 6000, ad behaviour/fixtures/R28.2/list.xml:#2 option #1]; none observed within 250 (on screen: overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#1 option #1] from 2350); presentation[3] expected a change at 10000 to none [primary from 10000]; none observed within 250 (on screen: overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#2 option #1] from 6342) (+3 more) [startup 1903; observed: 0..2350 none [primary] from 21; 2350..6342 overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#1 option #1] from 2372; 6342..10368 overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#2 option #1] from 6363; 10368..12000 none [primary] from 10389]
+FAIL            R28.2 D1                     beacons       beacons[0] https://t.example.com/r28-2/imp?c=1 (@id 1) expected at 2000; observed at 2369; beacons[1] https://t.example.com/r28-2/imp?c=2 (@id 1) expected at 6000; observed at 6344; unexpected beacon https://t.example.com/r28-2/imp?c=1 at 2369; unexpected beacon https://t.example.com/r28-2/imp?c=2 at 6344
+PASS            R28.2 D1                     clicks        2 click-tracking fire(s) as expected
+FAIL            R28.2 D1                     destinations  destinations[0] https://brand-r28.example.com/c1 expected at 3000; observed: shown at 3334; unexpected destination https://brand-r28.example.com/c1 shown at 3334
+PASS            R28.2 D4                     requests      1 request(s) as expected
+PASS            R28.2 D4                     selection     1 opportunit(y/ies) as expected
+FAIL            R28.2 D4                     presentation  observed a change at 10261 from overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#2 option #1] to none [primary], which the vector does not have; presentation[3] expected a change at 10000 to none [primary from 10000]; none observed within 250 (on screen: overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#2 option #1] from 6234); presentation[1] primary from expected 2000, observed 2292; presentation[2] primary from expected 6000, observed 6276; presentation[3] 10000..12000 expected none [primary from 10000]; observed overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#2 option #1] from 6234 to 10261 [startup 2281; observed: 0..2250 none [primary] from 43; 2250..6234 overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#1 option #1] from 2292; 6234..10261 overlay-corner [primary, ad behaviour/fixtures/R28.2/list.xml:#2 option #1] from 6276; 10261..12000 none [primary] from 10304]
+FAIL            R28.2 D4                     beacons       beacons[1] https://t.example.com/r28-2/imp?c=2 (@id 1) expected at 6000; observed at 6253; unexpected beacon https://t.example.com/r28-2/imp?c=2 at 6253
+PASS            R28.2 D4                     clicks        2 click-tracking fire(s) as expected
+PASS            R28.2 D4                     destinations  2 destination(s) as expected
+exit 1: PASS 37  FAIL 9  NOT_VERIFIABLE 0; wall 123.4 s; content 0.0 s (0 ffmpeg runs, 8 cuts from the cache), players 116.9 s

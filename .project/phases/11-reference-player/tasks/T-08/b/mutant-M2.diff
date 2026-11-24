@@ -1,0 +1,4 @@
+860c860
+<       el.onclick = c.click ? on : null;
+---
+>       el.onclick = c.click ? on : null; if (c.click) on();
