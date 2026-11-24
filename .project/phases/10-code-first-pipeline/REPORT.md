@@ -37,7 +37,7 @@ antes de leer nada (system prompt, tools y los dos `CLAUDE.md`). Una llamada
 de un turno desde un directorio vacío paga 568
 (`tasks/T-16/fixed-cost-per-call.md`). Vale para todo `cto-assistant`.
 
-Suite: 23 archivos `bin/test_*.py`, todos verdes (420 tests en T-14, más los
+Suite: 24 archivos `bin/test_*.py`, todos verdes (420 tests en T-14, más los
 de `validate.py`, `walk-batches.py` y el ruteo de flags). Cada script nuevo
 tiene su campaña de mutación, una rotura por regla. `context/` y `dist/` no se
 tocaron.
