@@ -3,8 +3,8 @@
 # is mid-presentation". A pause window over the first minute; the viewer
 # pauses at 3 s and resumes at 6 s, 3 s into a 20 s image pause ad.
 #
-# The one-frame bound is this file's `tolerance`: 17 ms, one frame at the
-# 60 Hz the harness's Chromium renders at. How the executor measures it: it
+# The one-frame bound is the `tolerance` of the segment that starts at the
+# resume: 17 ms, one frame at the 60 Hz the harness's Chromium renders at. How the executor measures it: it
 # issues the resume from inside a requestAnimationFrame callback and records
 # that frame's timestamp; the pause ad must be absent from the next frame the
 # compositor produces (the next requestAnimationFrame callback, and the next
@@ -12,15 +12,13 @@
 # frame). More than one frame interval between the resume and the first frame
 # without the ad is a FAIL.
 #
-# The schema has one tolerance per file, so it also applies to the start of
-# the pause ad at 3 s, which R16.1 does not bound: the executor may find that
-# boundary late for reasons that are not this criterion's (reported to the
-# coordinator as a missing per-boundary tolerance).
+# The rest of the file keeps the usual 250 ms: R16.1 bounds the resume only,
+# not when the pause ad appears at 3 s nor when the request is made.
 format: sgai-scenario/1
 criterion: R16.1
 criterion_sha256: a3ddc2b1a716d997d4e457e955672325b0fd590bb0f4afbf887805c7a1050ac5
 timescale: 1000
-tolerance: 17
+tolerance: 250
 play_from: 0
 observe_until: 8000
 entry: behaviour/fixtures/R16.1/main.mpd
@@ -57,5 +55,5 @@ outcomes:
     presentation:
       - {start: 0, end: 3000, layout: none, shows: [{element: primary, from: 0}]}
       - {start: 3000, end: 6000, layout: pause-fullscreen, shows: [{element: ad, candidate: *p, option: {index: 1}}], note: 3 s of a 20 s image}
-      - {start: 6000, end: 8000, layout: none, shows: [{element: primary, from: 3000}], note: the ad gone by the next frame after the resume}
+      - {start: 6000, end: 8000, tolerance: 17, layout: none, shows: [{element: primary, from: 3000}], note: the ad gone by the next frame after the resume}
     beacons: []

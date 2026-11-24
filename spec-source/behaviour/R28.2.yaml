@@ -1,0 +1,61 @@
+# R28.2 — the Player reads the ClickThrough carrier "with the meaning R28.1
+# gives it": @uri is the destination made available, @trackingUris the
+# click-tracking URLs fired, all of them, for the candidate that was
+# activated. An overlay window at 2 s (cap 8 s) resolves to two 4 s corner
+# images (fixtures/R28.2/list.xml): candidate 1's ClickThrough has a
+# destination and no click-tracking, candidate 2's has a destination and two
+# click-tracking URLs. The viewer activates at 3 s (candidate 1) and at 7 s
+# (candidate 2). A Player that requests @uri as a click-tracking ping, opens a
+# @trackingUris URL as the destination, fires only the first URL of the list,
+# or attaches the click to the other candidate fails `clicks` or
+# `destinations`. The outcome assumes the Player keeps presenting after a
+# click, as in R28.1-1.
+format: sgai-scenario/1
+criterion: R28.2
+criterion_sha256: 19e96ae36bac385a1d0c0d3281eb5dee0ad37cb539499da18179ed3c8c93b005
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R28.2/main.mpd
+fixtures:
+- {path: behaviour/fixtures/R28.2/main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R28.2/list.xml, url: 'https://aps.example.com/b/r28-2/w', class: overlay-list}
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+- {at: 3000, do: activate}
+- {at: 7000, do: activate}
+outcomes:
+  D1: &o
+    summary: 'R28.2: "A Player conformant to this specification MUST read the carrier of R28.1 with the meaning R28.1 gives it."
+      Activating candidate 1 at 3 s makes its @uri available and fires nothing; activating candidate 2 at 7 s fires both of its
+      @trackingUris and makes its own @uri available.'
+    requests:
+    - at: 2000
+      url: https://aps.example.com/b/r28-2/w
+      query: {sgai-allowed-layouts: overlay-corner}
+      answered_by: behaviour/fixtures/R28.2/list.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R28.2/main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - {candidate: &c1 {fixture: behaviour/fixtures/R28.2/list.xml, index: 1}, option: {index: 1}, layout: overlay-corner}
+      - {candidate: &c2 {fixture: behaviour/fixtures/R28.2/list.xml, index: 2}, option: {index: 1}, layout: overlay-corner}
+    presentation:
+    - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+    - {start: 2000, end: 6000, layout: overlay-corner, shows: [{element: primary, from: 2000}, {element: ad, candidate: *c1, option: {index: 1}}]}
+    - {start: 6000, end: 10000, layout: overlay-corner, shows: [{element: primary, from: 6000}, {element: ad, candidate: *c2, option: {index: 1}}]}
+    - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons:
+    - {at: 2000, fixture: behaviour/fixtures/R28.2/list.xml, candidate: *c1, id: '1', url: 'https://t.example.com/r28-2/imp?c=1'}
+    - {at: 6000, fixture: behaviour/fixtures/R28.2/list.xml, candidate: *c2, id: '1', url: 'https://t.example.com/r28-2/imp?c=2'}
+    clicks:
+    - {at: 7000, fixture: behaviour/fixtures/R28.2/list.xml, candidate: *c2, url: 'https://t.example.com/r28-2/click?c=2'}
+    - {at: 7000, fixture: behaviour/fixtures/R28.2/list.xml, candidate: *c2, url: 'https://t2.example.com/r28-2/click?c=2'}
+    destinations:
+    - {at: 3000, fixture: behaviour/fixtures/R28.2/list.xml, candidate: *c1}
+    - {at: 7000, fixture: behaviour/fixtures/R28.2/list.xml, candidate: *c2}
+  D4: *o

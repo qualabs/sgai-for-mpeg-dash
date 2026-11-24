@@ -31,24 +31,29 @@ Checks, each a finding `<check>  <UC>  <detail>`:
   S-FIXTURE  every fixture exists; one under examples/ is in its index, one
              under scenarios/fixtures/ declares its class; each is green on
              levels 1 and 2 (no FAIL whose subject is that file, in the run
-             of bin/check-dash-conformance.py --source on it); `entry`,
+             of bin/check-dash-conformance.py --source on it), or, with
+             `expect_red`, fails exactly the rules it lists; `entry`,
              `answered_by`, `matches` and every reference name a fixture of
              the vector; a request's `matches` equals that .http request
   S-REF      every candidate, option, opportunity and beacon reference is in
              its fixture (by @id or document order), and a beacon's `url`
-             is the text of that event
+             is the text of that event; a click's candidate has one
+             ClickThrough and its `url` is one of that ClickThrough's
+             @trackingUris; a destination's candidate has one ClickThrough
   S-CAPS     each class's first three capability values form that class's
              row of the R3.1 table, read from context/03
   S-LAYOUT   every layout is an R12.2 token (read from context/03) or `none`
   S-TIME     times lie in [0, observe_until], a range has from <= to, and
              each outcome's presentation tiles [0, observe_until] with no gap
-             and no overlap
+             and no overlap (a boundary written as a window ends one segment
+             and starts the next with the same window)
   S-GEOM     every `geometry` rectangle lies inside the viewport, and at its
              instant the presentation shows the element it places
   S-CARRIER  each `missing_carrier` names a requirement context/03 defines
 
 S-SCHEMA also finds a request with no `answered_by` that no `aps` entry
-answers without a document. The schema and every check but S-COVER and
+answers without a document, and an `extra_query_pattern` that is not a
+regular expression. The schema and every check but S-COVER and
 S-HASH are shared with the behaviour tests (bin/check-behaviour.py).
 
 Then, for every vector and class: `NOT_VERIFIABLE — no executor`. No Player
@@ -287,12 +292,23 @@ class Doc:
 
 # ---------------------------------------------------------------- the vector
 
+def _lo(t):
+    return t["from"] if isinstance(t, dict) else t
+
+
+def _hi(t):
+    return t["to"] if isinstance(t, dict) else t
+
+
 def _times(o: dict):
     """(label, value) of every time of an outcome."""
     for i, r in enumerate(o.get("requests", [])):
         yield f"requests[{i}].at", r["at"]
     for i, b in enumerate(o.get("beacons", [])):
         yield f"beacons[{i}].at", b["at"]
+    for f in ("clicks", "destinations"):
+        for i, c in enumerate(o.get(f, [])):
+            yield f"{f}[{i}].at", c["at"]
     for i, s in enumerate(o.get("presentation", [])):
         yield f"presentation[{i}].start", s["start"]
         yield f"presentation[{i}].end", s["end"]
@@ -316,7 +332,7 @@ def check_times(v: dict, where: str, o: dict, find) -> None:
         if s["start"] != at:
             find("S-TIME", f"{where}.presentation[{i}] starts at {s['start']}, expected {at} "
                            "(segments tile [0, observe_until] in order)")
-        if s["end"] <= s["start"]:
+        if _lo(s["end"]) <= _lo(s["start"]) or _hi(s["end"]) <= _hi(s["start"]):
             find("S-TIME", f"{where}.presentation[{i}]: end {s['end']} <= start {s['start']}")
         at = s["end"]
     if at != lim:
@@ -330,7 +346,7 @@ def check_geometry(v: dict, where: str, o: dict, find) -> None:
         if g["at"] > v["observe_until"]:
             find("S-TIME", f"{where}.geometry[{i}].at: {g['at']} is after observe_until {v['observe_until']}")
             continue
-        seg = next((s for s in o["presentation"] if s["start"] <= g["at"] < s["end"]), None)
+        seg = next((s for s in o["presentation"] if _lo(s["start"]) <= g["at"] < _lo(s["end"])), None)
         if seg is None and o["presentation"] and g["at"] == o["presentation"][-1]["end"]:
             seg = o["presentation"][-1]
         shown = {e["element"] for e in seg["shows"]} if seg else set()
@@ -368,6 +384,11 @@ def check_refs(v: dict, where: str, o: dict, docs: dict, find) -> None:
 
     no_doc = {a["url"] for a in v.get("aps", []) if "document" not in a}
     for i, r in enumerate(o["requests"]):
+        if "extra_query_pattern" in r:
+            try:
+                re.compile(r["extra_query_pattern"])
+            except re.error as e:
+                find("S-SCHEMA", f"{where}.requests[{i}].extra_query_pattern: not a regular expression ({e})")
         if "answered_by" in r:
             doc(r["answered_by"], f"requests[{i}].answered_by")
         elif r["url"] not in no_doc:
@@ -403,6 +424,16 @@ def check_refs(v: dict, where: str, o: dict, docs: dict, find) -> None:
             if "candidate" in e:
                 opt(cand(e["candidate"], f"presentation[{i}].shows[{j}]"), e.get("option"),
                     f"presentation[{i}].shows[{j}].option")
+    for f in ("clicks", "destinations"):
+        for i, c in enumerate(o.get(f, [])):
+            cnd = cand(c["candidate"], f"{f}[{i}].candidate")
+            if cnd is None:
+                continue
+            cts = [e for e in cnd.iter() if _local(e) == "ClickThrough"]
+            if len(cts) != 1:
+                find("S-REF", f"{where}.{f}[{i}]: that candidate has {len(cts)} ClickThrough, not one")
+            elif f == "clicks" and c["url"] not in (cts[0].get("trackingUris") or "").split():
+                find("S-REF", f"{where}.clicks[{i}]: url {c['url']} is not one of the ClickThrough's @trackingUris")
     for i, b in enumerate(o["beacons"]):
         d = doc(b["fixture"], f"beacons[{i}]")
         if d is None or d.root is None:
@@ -477,6 +508,8 @@ def check_body(key: str, v: dict, ctx: dict, find) -> None:
                 find("S-FIXTURE", f"{p}: a scenario fixture declares its class")
             else:
                 scen[p] = f["class"]
+        if "expect_red" in f:
+            ctx.setdefault("expect_red", {})[(key, p)] = set(f["expect_red"])
         docs[p] = Doc(src / p)
     if v["entry"] not in docs:
         find("S-FIXTURE", f"entry {v['entry']} is not a fixture of this vector")
@@ -592,13 +625,23 @@ def green_fixtures(ctx: dict, context_dir: Path, out: dict, finder) -> None:
     out["cannot"].extend(cannot)
     if cannot:
         return
+    red = ctx.get("expect_red", {})
     for key, paths in used.items():
         for p in paths:
             subj = p[len("examples/"):] if p.startswith("examples/") else p
             if subj not in fails:
                 finder(key)("S-FIXTURE", f"{p}: no conformance result names it")
+            want = red.get((key, p))
+            if want is None:
+                for d in fails.get(subj, []):
+                    finder(key)("S-FIXTURE", f"{p} is not green: {d}")
+                continue
+            got = {d.split(":", 1)[0] for d in fails.get(subj, [])}
             for d in fails.get(subj, []):
-                finder(key)("S-FIXTURE", f"{p} is not green: {d}")
+                if d.split(":", 1)[0] not in want:
+                    finder(key)("S-FIXTURE", f"{p} fails a rule expect_red does not list: {d}")
+            for r in sorted(want - got):
+                finder(key)("S-FIXTURE", f"{p}: expect_red lists {r}, which does not fail on it")
 
 
 def exit_code(out: dict) -> int:

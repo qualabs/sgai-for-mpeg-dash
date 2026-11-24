@@ -10,7 +10,13 @@ How a run works:
 2. Test content: bin/conformance/players.py's ffmpeg content and local
    server, unchanged, with two settings of this process only: CONTENT_S is
    60 s (so 3 s segments divide it as 4 s ones do), and /reference/ serves
-   reference-player/src/. Each fixture MPD with media is rewritten (only its
+   reference-player/src/. The content is kept across runs (CachedContent):
+   under ~/.cache/cto-tmp/sgai-behaviour-content/<key>/, mode 0700, where the
+   key hashes everything the content is generated from (CONTENT_S, the frame
+   rate, the generating code of players.Content, the ffmpeg version), so a
+   change to any of them generates it anew. `--clear-content-cache` deletes
+   the cache before the run; SGAI_BEHAVIOUR_CONTENT_CACHE=0 generates the
+   content in the run's temporary directory, removed with it. Each fixture MPD with media is rewritten (only its
    BaseURLs, as players.rewrite proves) to compute where its segments sit on
    the local server; the page receives the fixture untouched, and the runner
    maps the external media URL onto the local one.
@@ -25,6 +31,9 @@ Selection, files and output: see `--help` of check-dash-conformance.py.
 from __future__ import annotations
 
 import contextlib
+import fcntl
+import hashlib
+import inspect
 import json
 import math
 import os
@@ -50,11 +59,13 @@ CONTENT_S = 60
 ENTRY_HOST = "https://sgai-entry.invalid/"
 JOB_MARGIN_MS = 60000
 D = players.D
+CACHE_ROOT = Path.home() / ".cache" / "cto-tmp" / "sgai-behaviour-content"
 
 
 USAGE = """    check-dash-conformance.py --behaviour [--source DIR] [--only ID ...] [--class C ...]
                               [--vector FILE ...] [--concurrency N]
-                              [--out-json FILE] [--save-raw FILE] [--replay FILE]"""
+                              [--out-json FILE] [--save-raw FILE] [--replay FILE]
+                              [--clear-content-cache]"""
 
 
 # --------------------------------------------------------------------------- selection
@@ -226,6 +237,84 @@ def build_job(jid: str, v: dict, fx: Fixtures, media_map: list, cls: str, action
     }
 
 
+# --------------------------------------------------------------------------- content cache
+
+def content_key() -> str:
+    """What the content is generated from: if any of it changes, the cached
+    content is not that content."""
+    try:
+        v = subprocess.run(["ffmpeg", "-version"], capture_output=True, text=True).stdout.splitlines()[0]
+    except (OSError, IndexError):
+        v = "ffmpeg ?"
+    parts = [str(players.CONTENT_S), str(players.FPS), v,
+             inspect.getsource(players.Content._master), inspect.getsource(players.Content.prepare)]
+    return hashlib.sha256("\x00".join(parts).encode("utf-8")).hexdigest()[:16]
+
+
+class CachedContent(players.Content):
+    """players.Content whose masters and cuts survive the run. A file or a cut
+    is reused only when its completion marker exists, written after ffmpeg
+    finished; anything else found is partial and is generated again. Two
+    runs sharing the cache serialise on a lock file."""
+
+    def __init__(self, root: Path):
+        super().__init__(root)
+        self.lock = threading.RLock()     # prepare() holds it while the parent's prepare takes it again
+        self.hits = 0
+
+    @contextlib.contextmanager
+    def _flock(self):
+        with open(self.root / ".lock", "w") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(f, fcntl.LOCK_UN)
+
+    def _master(self, track) -> Path:
+        name = f"master-{track[1]}x{track[2]}.mp4" if track[0] == "video" else "master-audio.mp4"
+        f, ok = self.root / name, self.root / (name + ".ok")
+        if f.exists() and ok.exists():
+            return f
+        f.unlink(missing_ok=True)
+        out = super()._master(track)
+        ok.touch()
+        return out
+
+    def prepare(self, track, segdur: int):
+        with self.lock, self._flock():
+            key = (track, segdur)
+            if key in self.cut:
+                return self.cut[key]
+            d = self.root / ("-".join(map(str, track)) + f"-{segdur}s")
+            ok = d.with_name(d.name + ".ok")
+            if d.is_dir() and ok.exists():
+                k = players.CONTENT_S // segdur
+                self.cut[key] = (d, k, players._mdhd_timescale((d / "init.mp4").read_bytes()))
+                self.hits += 1
+                return self.cut[key]
+            if d.exists():
+                shutil.rmtree(d)
+            ok.unlink(missing_ok=True)
+            out = super().prepare(track, segdur)
+            ok.touch()
+            return out
+
+
+def content_root(tmp: Path, clear: bool) -> tuple[Path, bool]:
+    """(where the content goes, whether it is the cache)."""
+    if os.environ.get("SGAI_BEHAVIOUR_CONTENT_CACHE", "1") == "0":
+        return tmp, False
+    if clear and CACHE_ROOT.exists():
+        shutil.rmtree(CACHE_ROOT)
+    for d in (CACHE_ROOT.parent, CACHE_ROOT):
+        d.mkdir(mode=0o700, exist_ok=True)
+        os.chmod(d, 0o700)
+    root = CACHE_ROOT / content_key()
+    root.mkdir(mode=0o700, exist_ok=True)
+    return root, True
+
+
 # --------------------------------------------------------------------------- running
 
 @contextlib.contextmanager
@@ -286,7 +375,7 @@ def load_vectors(files: list, report: Report) -> list:
 
 
 def run(source: Path, files: list, classes: list, concurrency: int, report: Report,
-        raw_out: dict | None = None) -> None:
+        raw_out: dict | None = None, clear_cache: bool = False) -> None:
     vectors = load_vectors(files, report)
     plans = []   # (job id, path, vector, fx, variant, class, actions, outcome)
     for path, v in vectors:
@@ -310,7 +399,8 @@ def run(source: Path, files: list, classes: list, concurrency: int, report: Repo
     server = None
     try:
         with serving():
-            server = players._Server(players.Content(tmp))
+            croot, cached = content_root(tmp, clear_cache)
+            server = players._Server(CachedContent(croot) if cached else players.Content(croot))
             threading.Thread(target=server.serve_forever, daemon=True).start()
             origin = f"http://127.0.0.1:{server.server_address[1]}"
             media = Media(server, origin)
@@ -345,12 +435,15 @@ def run(source: Path, files: list, classes: list, concurrency: int, report: Repo
         if raw_out is not None:
             raw_out.update({"browser": got.get("browser"), "content_seconds": round(content_s, 1),
                             "run_seconds": round(run_s, 1), "ffmpeg_seconds": server.content.log,
-                            "source": _rel(source), "jobs": []})
+                            "content_cache": str(croot) if cached else None,
+                            "content_cache_hits": getattr(server.content, "hits", 0),
+                            "source": _rel(source)})
+            # Every record first, so --save-raw keeps the whole run even when
+            # a comparison raises.
+            raw_out["jobs"] = [{"vector": _rel(p[1]), "variant": p[4], "class": p[5], "raw": results.get(p[0])}
+                               for p in runnable]
         for jid, path, v, fx, variant, cls, actions, outcome in runnable:
-            r = results.get(jid)
-            if raw_out is not None:
-                raw_out["jobs"].append({"vector": _rel(path), "variant": variant, "class": cls, "raw": r})
-            judge(report, path, v, fx, variant, cls, actions, outcome, r)
+            judge(report, path, v, fx, variant, cls, actions, outcome, results.get(jid))
     except RuntimeError as e:
         report.cannot.append(f"behaviour: {e}")
     finally:
@@ -425,9 +518,12 @@ def main(argv: list, default_source: Path) -> int:
     lists = {"--only": [], "--class": [], "--vector": []}
     opts = {"--source": None, "--concurrency": None, "--out-json": None, "--save-raw": None, "--replay": None}
     args = list(argv)
+    clear_cache = False
     while args:
         a = args.pop(0)
-        if a in lists or a in opts:
+        if a == "--clear-content-cache":
+            clear_cache = True
+        elif a in lists or a in opts:
             if not args or args[0].startswith("--"):
                 sys.stderr.write(f"{a} needs a value\n{USAGE}\n")
                 return 64
@@ -456,8 +552,9 @@ def main(argv: list, default_source: Path) -> int:
     t0 = time.monotonic()
     raw: dict | None = None
     if opts["--replay"]:
-        if lists["--only"] or lists["--vector"] or lists["--class"] or opts["--save-raw"]:
-            sys.stderr.write(f"--replay takes no --only, --class, --vector or --save-raw\n{USAGE}\n")
+        if lists["--only"] or lists["--vector"] or lists["--class"] or opts["--save-raw"] or clear_cache:
+            sys.stderr.write(f"--replay takes no --only, --class, --vector, --save-raw or --clear-content-cache\n"
+                             f"{USAGE}\n")
             return 64
         try:
             raw = json.loads(Path(opts["--replay"]).read_text(encoding="utf-8"))
@@ -481,10 +578,12 @@ def main(argv: list, default_source: Path) -> int:
         crit = [t for t in lists["--only"] if t.startswith("R")]
         if not lists["--vector"] and (crit or not lists["--only"]):
             report.add(index_entries(source, crit))
-        raw = {} if opts["--save-raw"] else None
-        run(source, files, lists["--class"], conc, report, raw)
-        if opts["--save-raw"] and raw:
-            Path(opts["--save-raw"]).write_text(json.dumps(raw, indent=1) + "\n", encoding="utf-8")
+        raw = {}
+        try:
+            run(source, files, lists["--class"], conc, report, raw, clear_cache)
+        finally:
+            if opts["--save-raw"] and raw:
+                Path(opts["--save-raw"]).write_text(json.dumps(raw, indent=1) + "\n", encoding="utf-8")
     wall = time.monotonic() - t0
     if opts["--out-json"]:
         Path(opts["--out-json"]).write_text(json.dumps({
@@ -501,7 +600,8 @@ def main(argv: list, default_source: Path) -> int:
     c = report.counts()
     timing = ""
     if raw and raw.get("run_seconds") is not None:
-        timing = f"; content {raw['content_seconds']} s, players {raw['run_seconds']} s"
+        timing = (f"; content {raw['content_seconds']} s ({len(raw.get('ffmpeg_seconds') or [])} ffmpeg runs, "
+                  f"{raw.get('content_cache_hits', 0)} cuts from the cache), players {raw['run_seconds']} s")
     print(f"exit {report.exit_code()}: PASS {c['PASS']}  FAIL {c['FAIL']}  NOT_VERIFIABLE "
           f"{c['NOT_VERIFIABLE']}; wall {wall:.1f} s{timing}")
     return report.exit_code()

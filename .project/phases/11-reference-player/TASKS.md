@@ -4,14 +4,14 @@
 | ---- | --------------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
 | T-01 | Se sabe si el lineal (insert y replace) sale con el módulo sobre el dash.js fijado             | done | agent | —    | `reference-player/spike/`, `tasks/T-01/`        |
 | T-02 | Un test de conducta tiene esquema, población y hash, y un check que lo juzga                   | done | agent | —    | `bin/check-behaviour.py`, `bin/test_check_behaviour.py`, `spec-source/behaviour/`, `tasks/T-02/`        |
-| T-03 | El harness corre un vector con el adaptador `sgai` y compara lo observado con lo esperado      | pending | agent | —    | —        |
-| T-04 | Los 61 criterios observables tienen su test, escrito del texto y visto fallar                  | pending | agent | —    | —        |
-| T-05 | La referencia ejecuta el lineal de la 6ta que piden los criterios y los vectores               | pending | agent | —    | —        |
-| T-06 | La referencia resuelve y elige: pedido, validación, opciones, perfil de clase, fallback, cap   | pending | agent | —    | —        |
-| T-07 | La referencia presenta el no lineal: overlay, squeezeback con sus tokens, pausa, convivencia   | pending | agent | —    | —        |
+| T-03 | El harness corre un vector con el adaptador `sgai` y compara lo observado con lo esperado      | done | agent | —    | `reference-player/src/`, `bin/players/adapters/sgai.js`, `bin/players/behaviour.mjs`, `bin/conformance/behaviour*.py`, `tasks/T-03/`        |
+| T-04 | Los 61 criterios observables tienen su test, escrito del texto y visto fallar                  | done | agent | —    | `spec-source/behaviour/`, `tasks/T-04/`        |
+| T-05 | La referencia ejecuta el lineal de la 6ta que piden los criterios y los vectores               | in-progress | agent | —    | —        |
+| T-06 | La referencia resuelve y elige: pedido, validación, opciones, perfil de clase, fallback, cap   | in-progress | agent | —    | —        |
+| T-07 | La referencia presenta el no lineal: overlay, squeezeback con sus tokens, pausa, convivencia   | in-progress | agent | —    | —        |
 | T-08 | La referencia dispara el tracking: callbacks, beacons de opción, click                         | pending | agent | —    | —        |
 | T-09 | La batería corrió entera, con su tiempo medido y cada FAIL clasificado                         | pending | agent | —    | —        |
-| T-10 | La suite de `bin/` cubre lo nuevo y prueba que nada corre la batería por defecto               | pending | agent | —    | —        |
+| T-10 | La suite de `bin/` cubre lo nuevo y prueba que nada corre la batería por defecto               | in-progress | agent | —    | —        |
 | T-11 | Hay una demo: página local y grabación de una sesión con lineal, overlay y pausa               | pending | agent | —    | —        |
 | T-12 | Cierre: REPORT.md (Mode D), LOG y validador                                                   | pending | agent | —    | —        |
 

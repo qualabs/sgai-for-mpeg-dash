@@ -1,0 +1,6 @@
+t0 (load, wall ms): 1795491425231
+startupMs: 337  origin: 1795491425568  origin - t0: 337
+first sample showing primary/ad: t = 337 why = loadeddata primary media time = [1]
+samples before it: [(102, None, 0)]
+actions: []
+requests (wall - origin): [('entry.invalid/examples/annex-a/A.2-1.mpd', -235)]

@@ -10,8 +10,20 @@
 // percent of the Player's viewport, taken every 25 ms and kept when anything
 // but the primary's media time changed, at every event of the primary <video>
 // that can start a new presentation segment, and every 500 ms regardless.
-// Times are session times: ms since load() was called, the instant the Player
-// is told to start playback. Requests and beacons are recorded by the runner
+// Sample times are ms since load() was called. The session clock of the
+// vectors starts later, at the first frame (spec-source/scenarios/README.md):
+// `firstFrame()` is the sample time of the first sample that shows a `primary`
+// or an `ad` surface (the primary content's first frame, or what the Player
+// presents in its place, UC-01's linear ad), and the runner and the
+// comparison move every time onto that origin. A requestVideoFrameCallback on
+// the primary <video> takes a sample at each of its first frames, so the
+// origin is not late by the sampling period.
+//
+// A ClickThrough destination shown on screen (R28.1 lets the Player show its
+// URL instead of opening it) is read from any shown node carrying
+// `data-sgai-clickthrough="<the @uri>"`: `destinations` keeps the first time
+// each URI was shown. A destination opened as a page is a request, recorded
+// by the runner. Requests and beacons are recorded by the runner
 // (bin/players/behaviour.mjs), on the network.
 //
 // This file measures; bin/conformance/behaviour_compare.py decides.
@@ -33,6 +45,8 @@
   let lastKey = null;
   let lastAt = -1e9;
   let timer = null;
+  let firstFrame = null;
+  const destinations = [];
 
   const now = () => Date.now() - t0;
   const r2 = (v) => Math.round(v * 100) / 100;
@@ -102,6 +116,14 @@
     }
     if (primary) lastTime = Math.round(primary.currentTime * 1000);
     const s = { t: now(), layout: container.dataset.sgaiLayout || 'none', elements, seeks };
+    if (firstFrame === null && elements.some((e) => e.element === 'primary' || e.element === 'ad')) {
+      firstFrame = s.t;
+      why = why || 'first-frame';
+    }
+    for (const el of container.querySelectorAll('[data-sgai-clickthrough]')) {
+      const uri = el.dataset.sgaiClickthrough;
+      if (shownRect(el, box) && !destinations.some((d) => d.uri === uri)) destinations.push({ t: s.t, uri });
+    }
     if (pendingSeek) { s.seek = pendingSeek; pendingSeek = null; }
     const key = JSON.stringify([s.layout, seeks, elements.map((e) => Object.assign({}, e, { time: undefined }))]);
     if (key !== lastKey || s.seek || why || s.t - lastAt >= HEARTBEAT_MS) {
@@ -120,6 +142,15 @@
     });
     for (const ev of ['playing', 'pause', 'seeked', 'ratechange', 'loadeddata', 'emptied', 'ended']) {
       video.addEventListener(ev, () => sample(ev));
+    }
+    if (video.requestVideoFrameCallback) {
+      let frames = 0;
+      const onFrame = () => {
+        sample('frame');
+        frames += 1;
+        if (frames < 3) video.requestVideoFrameCallback(onFrame);
+      };
+      video.requestVideoFrameCallback(onFrame);
     }
   }
 
@@ -156,6 +187,9 @@
 
     sessionStart() { return t0; },
 
+    // The sample time (ms since load()) of the first frame shown, or null.
+    firstFrame() { sample(null); return firstFrame; },
+
     // A viewer action; `activate` is a click, made by the runner.
     act(action) {
       sample('action:' + action.do);
@@ -186,7 +220,7 @@
       sample('end');
       if (timer) clearInterval(timer);
       timer = null;
-      return { t0, viewport: VIEWPORT, mode: cfg.mode, klass: cfg.klass, samples, moduleLog };
+      return { t0, firstFrame, viewport: VIEWPORT, mode: cfg.mode, klass: cfg.klass, samples, destinations, moduleLog };
     },
 
     inspect() {

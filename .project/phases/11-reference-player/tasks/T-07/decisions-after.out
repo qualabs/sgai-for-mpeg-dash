@@ -1,0 +1,371 @@
+R12.5-1 D1: startup 1507 ms; primary media/wall over the run 0.751
+    session   -615  nonlinear:request          {"url": "https://aps.example.com/beh/r12-5/overlay", "why": "early", "php": 0}
+    session   4124  nonlinear:execute          {"PRTA": 2.002, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay slot 0+4", "c2/o1 squeezeback-l-shape-upper-left slot 4+4", "c3/o1 squeezeback-l-shape-upper-right slot 8+4", "c4/o1 squeezeback-double-box slot 12+4", "c5/o1 squeezeback-double-box-backgro
+    session   4125  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay", "php": 2.002, "slotT": 0}
+    session   9026  nonlinear:show             {"candidate": 2, "option": 1, "layout": "squeezeback-l-shape-upper-left", "php": 6.007, "slotT": 4.005}
+    session  13194  nonlinear:show             {"candidate": 3, "option": 1, "layout": "squeezeback-l-shape-upper-right", "php": 10.005, "slotT": 8.003}
+    session  18314  nonlinear:show             {"candidate": 4, "option": 1, "layout": "squeezeback-double-box", "php": 14.016, "slotT": 12.014}
+    session  24003  nonlinear:show             {"candidate": 5, "option": 1, "layout": "squeezeback-double-box-background", "php": 18.03, "slotT": 16.028}
+R12.5-2 D1: startup 529 ms; primary media/wall over the run 0.483
+    session   3000  action pause       {"done": "primary paused inside a pause window"}
+    session   6001  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -102  nonlinear:request          {"url": "https://aps.example.com/beh/r12-5/pause", "why": "early", "php": 0}
+    session   3002  nonlinear:pause            {"php": 2.136, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#main"]}
+    session   3003  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-fullscreen"}
+    session   6004  nonlinear:pause-close      {"why": "resume"}
+R12.5-3 D1: startup 1470 ms; primary media/wall over the run 0.443
+    session   3002  action pause       {"done": "primary paused inside a pause window"}
+    session   6000  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -367  nonlinear:request          {"url": "https://aps.example.com/beh/r12-5/pause", "why": "early", "php": 0}
+    session   3027  nonlinear:pause            {"php": 2.112, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#main"]}
+    session   3106  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-partial"}
+    session   6005  nonlinear:pause-close      {"why": "resume"}
+R12.5-4 D1: startup 624 ms; primary media/wall over the run 0.295
+    session   -386  nonlinear:request          {"url": "https://aps.example.com/beh/r12-5/takeover?sgai-allowed-layouts=linear", "why": "early", "php": 0}
+    session   2302  nonlinear:execute          {"PRTA": 2.009, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 linear slot 0+4"], "windowEnd": 12}
+    session   2304  nonlinear:show             {"candidate": 1, "option": 1, "layout": "linear", "php": 2.01, "slotT": 0}
+    session   7577  nonlinear:end              {"why": "candidates exhausted or the cap reached", "php": 2.01, "slotT": 4}
+R12.5-4 D5: startup 1389 ms; primary media/wall over the run 0.454
+    session  -1176  nonlinear:request          {"url": "https://aps.example.com/beh/r12-5/takeover?sgai-allowed-layouts=linear", "why": "early", "php": 0}
+    session   4118  nonlinear:execute          {"PRTA": 2.006, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 linear slot 0+4"], "windowEnd": 12}
+    session   4132  nonlinear:show             {"candidate": 1, "option": 1, "layout": "linear", "php": 2.016, "slotT": 0}
+R16.1 D1: startup 1653 ms; primary media/wall over the run 0.364
+    session   3000  action pause       {"done": "primary paused inside a pause window"}
+    session   6000  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -634  nonlinear:request          {"url": "https://aps.example.com/beh/r16-1/pause", "why": "early", "php": 0}
+    session   3048  nonlinear:pause            {"php": 1.711, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#main"]}
+    session   3051  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-fullscreen"}
+    session   6048  nonlinear:pause-close      {"why": "resume"}
+R17.1 D1: startup 459 ms; primary media/wall over the run 0.613
+    session   5001  action pause       {"done": "primary paused inside a pause window"}
+    session   8001  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -289  nonlinear:request          {"url": "https://aps.example.com/beh/r17-1/overlay", "why": "early", "php": 0}
+    session   -287  nonlinear:request          {"url": "https://aps.example.com/beh/r17-1/pause", "why": "early", "php": 0}
+    session   2701  nonlinear:execute          {"PRTA": 2.031, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+10"], "windowEnd": 12}
+    session   2705  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.031, "slotT": 0}
+    session   5004  nonlinear:pause            {"php": 4.144, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#2#main"]}
+    session   5005  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-partial"}
+    session   8003  nonlinear:pause-close      {"why": "resume"}
+R17.2 D1: startup 2479 ms; primary media/wall over the run 0.52
+    session   5001  action pause       {"done": "primary paused inside a pause window"}
+    session   8000  action resume      {"done": "pause ad removed, primary resumed"}
+    session  -1192  nonlinear:request          {"url": "https://aps.example.com/beh/r17-2/overlay", "why": "early", "php": 0}
+    session  -1179  nonlinear:request          {"url": "https://aps.example.com/beh/r17-2/pause", "why": "early", "php": 0}
+    session   4299  nonlinear:execute          {"PRTA": 2.038, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+10"], "windowEnd": 12}
+    session   4305  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.038, "slotT": 0}
+    session   5101  nonlinear:pause            {"php": 2.392, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#2#main"]}
+    session   5104  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-fullscreen"}
+    session   8002  nonlinear:pause-close      {"why": "resume"}
+R17.5 D1: startup 1786 ms; primary media/wall over the run 0.31
+    session   6001  action pause       {"done": "primary paused inside a pause window"}
+    session   9000  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -397  nonlinear:request          {"url": "https://aps.example.com/beh/r17-5/pause", "why": "early", "php": 0}
+    session   -306  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r17-5/ad.mpd"}
+    session   6011  nonlinear:pause            {"php": 2.742, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#2#main"]}
+    session   6016  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-fullscreen"}
+    session   9002  nonlinear:pause-close      {"why": "resume"}
+    session   9252  linear:execute             {"PRT": 3, "PRTA": 3.0, "ASO": 0, "APDadj": 10, "APD": 10, "APDA": 10, "parts": ["ad-1"]}
+    session   9254  linear:started             {"gapMs": 3}
+R19.1 D1: startup 1486 ms; primary media/wall over the run 0.816
+    session      4  action rate        {"done": "primary rate 2"}
+    session   -369  nonlinear:request          {"url": "https://aps.example.com/beh/r19-1/overlay", "why": "early", "php": 0}
+    session   4911  nonlinear:execute          {"PRTA": 4.006, "capUnits": 8000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+8"], "windowEnd": 12}
+    session   4917  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 4.006, "slotT": 0}
+    session  11624  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r19-1/break-ad.mpd"}
+    session  14513  nonlinear:end              {"why": "the span ended", "php": 12.001, "slotT": 7.994}
+R19.1 D2: startup 1966 ms; primary media/wall over the run 0.997
+    session     11  action rate        {"done": "primary rate 2"}
+    session  -1002  nonlinear:request          {"url": "https://aps.example.com/beh/r19-1/overlay", "why": "early", "php": 0}
+    session   4503  nonlinear:execute          {"PRTA": 4.004, "capUnits": 8000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+8"], "windowEnd": 12}
+    session   4515  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 4.004, "slotT": 0}
+    session   9855  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r19-1/break-ad.mpd"}
+    session  12616  nonlinear:end              {"why": "the span ended", "php": 11.982, "slotT": 7.978}
+R19.3 D1: startup 820 ms; primary media/wall over the run 1.256
+    session     72  action rate        {"done": "primary rate 2"}
+    session   -404  nonlinear:request          {"url": "https://aps.example.com/beh/r19-3/overlay", "why": "early", "php": 0}
+    session   3675  nonlinear:execute          {"PRTA": 4.011, "capUnits": 8000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+8"], "windowEnd": 24}
+    session   3676  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 4.011, "slotT": 0}
+    session   8906  nonlinear:end              {"why": "candidates exhausted or the cap reached", "php": 12.039, "slotT": 8.028}
+R19.3 D4: startup 1772 ms; primary media/wall over the run 1.192
+    session     15  action rate        {"done": "primary rate 2"}
+    session   -788  nonlinear:request          {"url": "https://aps.example.com/beh/r19-3/overlay", "why": "early", "php": 0}
+    session   4054  nonlinear:execute          {"PRTA": 4.001, "capUnits": 8000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+8"], "windowEnd": 24}
+    session   4055  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 4.001, "slotT": 0}
+    session  10554  nonlinear:end              {"why": "candidates exhausted or the cap reached", "php": 12.012, "slotT": 8.011}
+R22.1 D1: startup 1596 ms; primary media/wall over the run 0.62
+    session   -820  nonlinear:request          {"url": "https://aps.example.com/beh/r22-1/overlay", "why": "early", "php": 0}
+    session   3680  nonlinear:execute          {"PRTA": 2.005, "capUnits": 12000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+4", "c2/o1 overlay-corner slot 4+4"], "windowEnd": 14}
+    session   3687  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.005, "slotT": 0}
+    session   9603  nonlinear:show             {"candidate": 2, "option": 1, "layout": "overlay-corner", "php": 6.008, "slotT": 4.003}
+R22.1 D4: startup 1396 ms; primary media/wall over the run 0.765
+    session   -600  nonlinear:request          {"url": "https://aps.example.com/beh/r22-1/overlay", "why": "early", "php": 0}
+    session   3003  nonlinear:execute          {"PRTA": 2.011, "capUnits": 12000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+4", "c2/o1 overlay-corner slot 4+4"], "windowEnd": 14}
+    session   3082  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.011, "slotT": 0}
+    session   7582  nonlinear:show             {"candidate": 2, "option": 1, "layout": "overlay-corner", "php": 6.059, "slotT": 4.047}
+R25.1 D1: startup 1484 ms; primary media/wall over the run 0.144
+    session   2007  action pause       {"done": "primary paused"}
+    session  12001  action resume      {"done": "primary resumed"}
+R26.1 D1: startup 470 ms; primary media/wall over the run 0.819
+    session   -254  nonlinear:request          {"url": "https://aps.example.com/beh/r26-1/overlay", "why": "early", "php": 0}
+    session   2600  nonlinear:execute          {"PRTA": 2.006, "capUnits": 8000, "ts": 1000, "plan": ["c1/o1 squeezeback-double-box slot 0+4", "c2/o1 squeezeback-double-box-background slot 4+4"], "windowEnd": 10}
+    session   2602  nonlinear:show             {"candidate": 1, "option": 1, "layout": "squeezeback-double-box", "php": 2.006, "slotT": 0}
+    session   6901  nonlinear:show             {"candidate": 2, "option": 1, "layout": "squeezeback-double-box-background", "php": 6.007, "slotT": 4.001}
+R26.1 D3: startup 1328 ms; primary media/wall over the run 0.719
+    session   -846  nonlinear:request          {"url": "https://aps.example.com/beh/r26-1/overlay", "why": "early", "php": 0}
+    session   2733  nonlinear:execute          {"PRTA": 2.008, "capUnits": 8000, "ts": 1000, "plan": ["c1/o1 squeezeback-double-box slot 0+4", "c2/o1 squeezeback-double-box-background slot 4+4"], "windowEnd": 10}
+    session   2751  nonlinear:show             {"candidate": 1, "option": 1, "layout": "squeezeback-double-box", "php": 2.008, "slotT": 0}
+    session   7176  nonlinear:show             {"candidate": 2, "option": 1, "layout": "squeezeback-double-box-background", "php": 6.021, "slotT": 4.013}
+R26.1 D4: startup 481 ms; primary media/wall over the run 0.775
+    session   -359  nonlinear:request          {"url": "https://aps.example.com/beh/r26-1/overlay", "why": "early", "php": 0}
+    session   2346  nonlinear:execute          {"PRTA": 2.007, "capUnits": 8000, "ts": 1000, "plan": ["c1/o1 squeezeback-double-box slot 0+4", "c2/o1 squeezeback-double-box-background slot 4+4"], "windowEnd": 10}
+    session   2348  nonlinear:show             {"candidate": 1, "option": 1, "layout": "squeezeback-double-box", "php": 2.007, "slotT": 0}
+    session   7167  nonlinear:show             {"candidate": 2, "option": 1, "layout": "squeezeback-double-box-background", "php": 6.017, "slotT": 4.009}
+R26.3 D1: startup 2003 ms; primary media/wall over the run 0.633
+    session  -1290  nonlinear:request          {"url": "https://aps.example.com/beh/r26-3/overlay", "why": "early", "php": 0}
+    session   3553  nonlinear:execute          {"PRTA": 2.005, "capUnits": 4000, "ts": 1000, "plan": ["c1/o1 squeezeback-double-box-background slot 0+4"], "windowEnd": 6}
+    session   3556  nonlinear:show             {"candidate": 1, "option": 1, "layout": "squeezeback-double-box-background", "php": 2.005, "slotT": 0}
+R26.3 D2: startup 427 ms; primary media/wall over the run 0.73
+    session   -309  nonlinear:request          {"url": "https://aps.example.com/beh/r26-3/overlay", "why": "early", "php": 0}
+    session   2974  nonlinear:execute          {"PRTA": 2.006, "capUnits": 4000, "ts": 1000, "plan": ["c1/o2 squeezeback-double-box slot 0+4"], "windowEnd": 6}
+    session   2985  nonlinear:show             {"candidate": 1, "option": 2, "layout": "squeezeback-double-box", "php": 2.006, "slotT": 0}
+R26.3 D3: startup 1535 ms; primary media/wall over the run 0.669
+    session   -936  nonlinear:request          {"url": "https://aps.example.com/beh/r26-3/overlay", "why": "early", "php": 0}
+    session   4159  nonlinear:execute          {"PRTA": 2.006, "capUnits": 4000, "ts": 1000, "plan": ["c1/o3 squeezeback-double-box-background slot 0+4"], "windowEnd": 6}
+    session   4169  nonlinear:show             {"candidate": 1, "option": 3, "layout": "squeezeback-double-box-background", "php": 2.006, "slotT": 0}
+R26.3 D4: startup 1683 ms; primary media/wall over the run 0.751
+    session   -587  nonlinear:request          {"url": "https://aps.example.com/beh/r26-3/overlay", "why": "early", "php": 0}
+    session   3397  nonlinear:execute          {"PRTA": 2.0, "capUnits": 4000, "ts": 1000, "plan": ["c1/o3 squeezeback-double-box-background slot 0+4"], "windowEnd": 6}
+    session   3399  nonlinear:show             {"candidate": 1, "option": 3, "layout": "squeezeback-double-box-background", "php": 2.0, "slotT": 0}
+    session   7956  nonlinear:end              {"why": "the span ended", "php": 5.984, "slotT": 3.984}
+R26.3 D5: startup 862 ms; primary media/wall over the run 0.63
+    session   -381  nonlinear:request          {"url": "https://aps.example.com/beh/r26-3/overlay", "why": "early", "php": 0}
+    session   -273  nonlinear:failed           {"reason": "no candidate renderable (PLY-41)", "php": 0}
+R27.1 D1: startup 1586 ms; primary media/wall over the run 0.575
+    session  -1157  nonlinear:request          {"url": "https://aps.example.com/beh/r27-1/overlay", "why": "early", "php": 0}
+    session   4169  nonlinear:execute          {"PRTA": 2.007, "capUnits": 4000, "ts": 1000, "plan": ["c1/o1 squeezeback-l-shape-upper-right slot 0+4"], "windowEnd": 6}
+    session   4173  nonlinear:show             {"candidate": 1, "option": 1, "layout": "squeezeback-l-shape-upper-right", "php": 2.007, "slotT": 0}
+R27.1 D3: startup 1200 ms; primary media/wall over the run 0.651
+    session   -315  nonlinear:request          {"url": "https://aps.example.com/beh/r27-1/overlay", "why": "early", "php": 0}
+    session   3594  nonlinear:execute          {"PRTA": 2.004, "capUnits": 4000, "ts": 1000, "plan": ["c1/o1 squeezeback-l-shape-upper-right slot 0+4"], "windowEnd": 6}
+    session   3597  nonlinear:show             {"candidate": 1, "option": 1, "layout": "squeezeback-l-shape-upper-right", "php": 2.004, "slotT": 0}
+R27.3 D1: startup 699 ms; primary media/wall over the run 0.818
+    session   -372  nonlinear:request          {"url": "https://aps.example.com/beh/r27-3/overlay", "why": "early", "php": 0}
+    session   2178  nonlinear:execute          {"PRTA": 2.003, "capUnits": 4000, "ts": 1000, "plan": ["c1/o1 squeezeback-l-shape-upper-left slot 0+4"], "windowEnd": 6}
+    session   2180  nonlinear:show             {"candidate": 1, "option": 1, "layout": "squeezeback-l-shape-upper-left", "php": 2.003, "slotT": 0}
+    session   7292  nonlinear:end              {"why": "the span ended", "php": 5.982, "slotT": 3.979}
+R27.3 D2: startup 460 ms; primary media/wall over the run 0.557
+    session   -312  nonlinear:request          {"url": "https://aps.example.com/beh/r27-3/overlay", "why": "early", "php": 0}
+    session   4890  nonlinear:execute          {"PRTA": 2.005, "capUnits": 4000, "ts": 1000, "plan": ["c1/o1 squeezeback-l-shape-upper-left slot 0+4"], "windowEnd": 6}
+    session   4900  nonlinear:show             {"candidate": 1, "option": 1, "layout": "squeezeback-l-shape-upper-left", "php": 2.005, "slotT": 0}
+R27.3 D3: startup 981 ms; primary media/wall over the run 0.587
+    session   -847  nonlinear:request          {"url": "https://aps.example.com/beh/r27-3/overlay", "why": "early", "php": 0}
+    session   3526  nonlinear:execute          {"PRTA": 2.005, "capUnits": 4000, "ts": 1000, "plan": ["c1/o2 squeezeback-l-shape-upper-left slot 0+4"], "windowEnd": 6}
+    session   3536  nonlinear:show             {"candidate": 1, "option": 2, "layout": "squeezeback-l-shape-upper-left", "php": 2.005, "slotT": 0}
+R27.3 D4: startup 1912 ms; primary media/wall over the run 0.616
+    session  -1001  nonlinear:request          {"url": "https://aps.example.com/beh/r27-3/overlay", "why": "early", "php": 0}
+    session   3788  nonlinear:execute          {"PRTA": 2.001, "capUnits": 4000, "ts": 1000, "plan": ["c1/o3 squeezeback-l-shape-upper-left slot 0+4"], "windowEnd": 6}
+    session   3792  nonlinear:show             {"candidate": 1, "option": 3, "layout": "squeezeback-l-shape-upper-left", "php": 2.001, "slotT": 0}
+R27.3 D5: startup 2115 ms; primary media/wall over the run 0.627
+    session  -1207  nonlinear:request          {"url": "https://aps.example.com/beh/r27-3/overlay", "why": "early", "php": 0}
+    session  -1097  nonlinear:failed           {"reason": "no candidate renderable (PLY-41)", "php": 0}
+R31.2 D1: startup 704 ms; primary media/wall over the run 0.242
+    session   2000  action pause       {"done": "primary paused inside a pause window"}
+    session  10000  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -587  nonlinear:request          {"url": "https://aps.example.com/beh/r31-2/pause", "why": "early", "php": 0}
+    session   2003  nonlinear:pause            {"php": 0.995, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#main"]}
+    session   2005  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-partial"}
+    session   8012  nonlinear:pause-exhausted  {"onExhausted": "stop"}
+    session  10002  nonlinear:pause-close      {"why": "resume"}
+R31.2 D4: startup 501 ms; primary media/wall over the run 0.24
+    session   2058  action pause       {"done": "primary paused inside a pause window"}
+    session  10000  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -228  nonlinear:request          {"url": "https://aps.example.com/beh/r31-2/pause", "why": "early", "php": 0}
+    session   2062  nonlinear:pause            {"php": 1.539, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#main"]}
+    session   2064  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-partial"}
+    session   8072  nonlinear:pause-exhausted  {"onExhausted": "stop"}
+    session  10004  nonlinear:pause-close      {"why": "resume"}
+R35.4-1 D1: startup 1603 ms; primary media/wall over the run 0.661
+    session   4000  action dismiss     {"done": null, "reason": "nothing on screen takes 'dismiss'"}
+    session   -997  nonlinear:request          {"url": "https://aps.example.com/beh/r35-4/overlay", "why": "early", "php": 0}
+    session   4081  nonlinear:execute          {"PRTA": 2.061, "capUnits": 12000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+6", "c2/o1 overlay-lower-third slot 6+6"], "windowEnd": 14}
+    session   4087  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.061, "slotT": 0}
+    session  13480  nonlinear:show             {"candidate": 2, "option": 1, "layout": "overlay-lower-third", "php": 8.09, "slotT": 6.029}
+R35.4-1 D4: startup 405 ms; primary media/wall over the run 0.767
+    session   4001  action dismiss     {"done": "slot dismissed"}
+    session   -275  nonlinear:request          {"url": "https://aps.example.com/beh/r35-4/overlay", "why": "early", "php": 0}
+    session   2283  nonlinear:execute          {"PRTA": 2.014, "capUnits": 12000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+6", "c2/o1 overlay-lower-third slot 6+6"], "windowEnd": 14}
+    session   2288  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.014, "slotT": 0}
+    session   4085  nonlinear:end              {"why": "dismissed by the viewer (R35.4)", "php": 3.093, "slotT": 1.079}
+R35.4-2 D1: startup 600 ms; primary media/wall over the run 0.173
+    session   2000  action pause       {"done": "primary paused inside a pause window"}
+    session   3001  action dismiss     {"done": "pause slot dismissed; the paused frame stays until the resume"}
+    session  10000  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -402  nonlinear:request          {"url": "https://aps.example.com/beh/r35-4/pause", "why": "early", "php": 0}
+    session   2010  nonlinear:pause            {"php": 0.448, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#main"]}
+    session   2013  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-partial"}
+    session   3005  nonlinear:dismissed        {"after": 0.991}
+    session  10001  nonlinear:pause-close      {"why": "resume"}
+R35.4-2 D4: startup 790 ms; primary media/wall over the run 0.231
+    session   2001  action pause       {"done": "primary paused inside a pause window"}
+    session   3001  action dismiss     {"done": "pause slot dismissed; the paused frame stays until the resume"}
+    session  10000  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -647  nonlinear:request          {"url": "https://aps.example.com/beh/r35-4/pause", "why": "early", "php": 0}
+    session   2008  nonlinear:pause            {"php": 0.775, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#main"]}
+    session   2012  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-partial"}
+    session   3004  nonlinear:dismissed        {"after": 0.992}
+    session  10001  nonlinear:pause-close      {"why": "resume"}
+R35.5 D1: startup 1084 ms; primary media/wall over the run 0.364
+    session   4000  action dismiss     {"done": null, "reason": "nothing on screen takes 'dismiss'"}
+    session   -908  nonlinear:request          {"url": "https://aps.example.com/beh/r35-5/overlay?sgai-allowed-layouts=linear", "why": "early", "php": 0}
+    session   4855  nonlinear:execute          {"PRTA": 2.001, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 linear slot 0+8"], "windowEnd": 12}
+    session   4857  nonlinear:show             {"candidate": 1, "option": 1, "layout": "linear", "php": 2.002, "slotT": 0}
+R35.5 D5: startup 2103 ms; primary media/wall over the run 0.581
+    session   4001  action dismiss     {"done": "slot dismissed"}
+    session  -1008  nonlinear:request          {"url": "https://aps.example.com/beh/r35-5/overlay?sgai-allowed-layouts=linear", "why": "early", "php": 0}
+    session   3621  nonlinear:execute          {"PRTA": 2.001, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 linear slot 0+8"], "windowEnd": 12}
+    session   3697  nonlinear:show             {"candidate": 1, "option": 1, "layout": "linear", "php": 2.028, "slotT": 0}
+    session   4110  nonlinear:end              {"why": "dismissed by the viewer (R35.4)", "php": 2.028, "slotT": 0.128}
+R37.2 D1: startup 1898 ms; primary media/wall over the run 0.352
+    session   3001  action pause       {"done": "primary paused inside a pause window"}
+    session   8000  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -805  nonlinear:request          {"url": "https://aps.example.com/beh/r37-2/pause", "why": "early", "php": 0}
+    session   3006  nonlinear:pause            {"php": 1.528, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#main"]}
+    session   3007  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-fullscreen"}
+    session   8002  nonlinear:pause-close      {"why": "resume"}
+R37.2 D4: startup 1587 ms; primary media/wall over the run 0.295
+    session   3000  action pause       {"done": "primary paused inside a pause window"}
+    session   8000  action resume      {"done": "pause ad removed, primary resumed"}
+    session  -1278  nonlinear:request          {"url": "https://aps.example.com/beh/r37-2/pause", "why": "early", "php": 0}
+    session   3003  nonlinear:pause            {"php": 1.219, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#main"]}
+    session   3004  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-fullscreen"}
+    session   8002  nonlinear:pause-close      {"why": "resume"}
+R40.4-1 D1: startup 980 ms; primary media/wall over the run 0.512
+    session   -377  nonlinear:request          {"url": "https://aps.example.com/beh/r40-4/overlay", "why": "early", "php": 0}
+    session   3050  nonlinear:execute          {"PRTA": 2.01, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+8", "c2/o1 overlay-lower-third slot 8+8"], "windowEnd": 22}
+    session   3052  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.01, "slotT": 0}
+    session   3065  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r40-4/ad.mpd"}
+    session   8669  linear:execute             {"PRT": 6, "PRTA": 6.007, "ASO": 0, "APDadj": 6, "APD": 6, "APDA": 6, "parts": ["ad-1"]}
+    session   8670  nonlinear:suspend          {"slotT": 3.997, "why": "an alternative presentation is output (R40.9)"}
+    session   8673  linear:started             {"gapMs": 4}
+    session  15963  linear:terminate           {"APDA": 6, "RT": 6.007, "played": [["ad-1", "ready"]]}
+    session  15966  nonlinear:alternative-gone {}
+    session  15966  nonlinear:resume           {"slotT": 4.051}
+    session  21420  nonlinear:show             {"candidate": 2, "option": 1, "layout": "overlay-lower-third", "php": 10.01, "slotT": 8.0}
+R40.4-1 D4: startup 2090 ms; primary media/wall over the run 0.466
+    session  -1115  nonlinear:request          {"url": "https://aps.example.com/beh/r40-4/overlay", "why": "early", "php": 0}
+    session   4488  nonlinear:execute          {"PRTA": 2.007, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+8", "c2/o1 overlay-lower-third slot 8+8"], "windowEnd": 22}
+    session   4493  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.007, "slotT": 0}
+    session   4604  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r40-4/ad.mpd"}
+    session  11180  linear:execute             {"PRT": 6, "PRTA": 6.006, "ASO": 0, "APDadj": 6, "APD": 6, "APDA": 6, "parts": ["ad-1"]}
+    session  11197  linear:started             {"gapMs": 18}
+    session  11198  nonlinear:suspend          {"slotT": 4.0, "why": "an alternative presentation is output (R40.9)"}
+    session  18397  linear:terminate           {"APDA": 6, "RT": 6.006, "played": [["ad-1", "ready"]]}
+    session  18402  nonlinear:alternative-gone {}
+    session  18403  nonlinear:resume           {"slotT": 4.0}
+    session  22684  nonlinear:show             {"candidate": 2, "option": 1, "layout": "overlay-lower-third", "php": 10.017, "slotT": 8.011}
+R40.4-2 D1: startup 377 ms; primary media/wall over the run 0.633
+    session   -195  nonlinear:request          {"url": "https://aps.example.com/beh/r40-4/overlay-r", "why": "early", "php": 0}
+    session    -94  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r40-4/ad.mpd"}
+    session   3122  nonlinear:execute          {"PRTA": 2.005, "capUnits": 6000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+6"], "windowEnd": 8}
+    session   3127  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.005, "slotT": 0}
+    session   6305  linear:execute             {"PRT": 4, "PRTA": 4.032, "ASO": 0, "APDadj": 5.968, "APD": 6, "APDA": 5.968, "parts": ["ad-1"]}
+    session   6309  nonlinear:suspend          {"slotT": 2.027, "why": "an alternative presentation is output (R40.9)"}
+    session   6322  linear:started             {"gapMs": 19}
+R40.4-2 D4: startup 1137 ms; primary media/wall over the run 0.55
+    session   -958  nonlinear:request          {"url": "https://aps.example.com/beh/r40-4/overlay-r", "why": "early", "php": 0}
+    session   -681  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r40-4/ad.mpd"}
+    session   3931  nonlinear:execute          {"PRTA": 2.006, "capUnits": 6000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+6"], "windowEnd": 8}
+    session   4000  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.006, "slotT": 0}
+    session   7001  linear:execute             {"PRT": 4, "PRTA": 4.009, "ASO": 0, "APDadj": 5.991, "APD": 6, "APDA": 5.991, "parts": ["ad-1"]}
+    session   7003  linear:started             {"gapMs": 3}
+    session   7004  nonlinear:suspend          {"slotT": 2.004, "why": "an alternative presentation is output (R40.9)"}
+R40.5-1 D1: startup 1477 ms; primary media/wall over the run 0.739
+    session   -677  nonlinear:request          {"url": "https://aps.example.com/beh/r40-5/overlay", "why": "early", "php": 0}
+    session   -280  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r40-5/ad.mpd"}
+    session   5406  linear:execute             {"PRT": 4, "PRTA": 4.011, "ASO": 0, "APDadj": 10, "APD": 10, "APDA": 10, "parts": ["ad-1"]}
+    session   5413  nonlinear:execute          {"PRTA": 4.011, "capUnits": 6000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+6"], "windowEnd": 14}
+    session   5418  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 4.011, "slotT": 0}
+    session   5499  linear:started             {"gapMs": 94}
+    session  13281  nonlinear:end              {"why": "candidates exhausted or the cap reached", "php": 4.011, "slotT": 6.0}
+R40.5-1 D4: startup 1803 ms; primary media/wall over the run 0.512
+    session   -909  nonlinear:request          {"url": "https://aps.example.com/beh/r40-5/overlay", "why": "early", "php": 0}
+    session   -498  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r40-5/ad.mpd"}
+    session   7429  nonlinear:execute          {"PRTA": 4.001, "capUnits": 6000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+6"], "windowEnd": 14}
+    session   7432  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 4.001, "slotT": 0}
+    session   7438  linear:execute             {"PRT": 4, "PRTA": 4.014, "ASO": 0, "APDadj": 10, "APD": 10, "APDA": 10, "parts": ["ad-1"]}
+    session   7443  linear:started             {"gapMs": 5}
+    session  14928  nonlinear:end              {"why": "candidates exhausted or the cap reached", "php": 4.015, "slotT": 6.005}
+R40.5-2 D1: startup 387 ms; primary media/wall over the run 0.556
+    session   -196  nonlinear:request          {"url": "https://aps.example.com/beh/r40-5/overlay", "why": "early", "php": 0}
+    session    -94  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r40-5/ad-short.mpd"}
+    session   4599  nonlinear:execute          {"PRTA": 2.015, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+15"], "windowEnd": 6}
+    session   4602  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.015, "slotT": 0}
+    session   7141  linear:execute             {"PRT": 4, "PRTA": 4.002, "ASO": 0, "APDadj": 6, "APD": 6, "APDA": 6, "parts": ["ad-2"]}
+    session   7143  linear:started             {"gapMs": 2}
+R40.5-2 D4: startup 1289 ms; primary media/wall over the run 0.608
+    session  -1003  nonlinear:request          {"url": "https://aps.example.com/beh/r40-5/overlay", "why": "early", "php": 0}
+    session   -806  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r40-5/ad-short.mpd"}
+    session   3611  nonlinear:execute          {"PRTA": 2.0, "capUnits": 20000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+15"], "windowEnd": 6}
+    session   3612  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.0, "slotT": 0}
+    session   6531  linear:execute             {"PRT": 4, "PRTA": 4.003, "ASO": 0, "APDadj": 6, "APD": 6, "APDA": 6, "parts": ["ad-2"]}
+    session   6533  linear:started             {"gapMs": 2}
+R40.6 D1: startup 1109 ms; primary media/wall over the run 0.382
+    session   -603  nonlinear:alternative      {"url": "https://aps.example.com/beh/r40-6/alt"}
+    session   4926  linear:execute             {"PRT": 2, "PRTA": 2.007, "ASO": 0, "APDadj": 10, "APD": 10, "APDA": 10, "parts": ["main"]}
+    session   4932  linear:started             {"gapMs": 7}
+    session   4933  nonlinear:request          {"url": "https://aps.example.com/beh/r40-6/overlay", "why": "early", "php": 2.007}
+    session   8005  nonlinear:execute          {"PRTA": 2.002, "capUnits": 4000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+4"], "windowEnd": 6}
+    session   8007  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.002, "slotT": 0}
+R40.6 D4: startup 2291 ms; primary media/wall over the run 0.545
+    session  -1275  nonlinear:alternative      {"url": "https://aps.example.com/beh/r40-6/alt"}
+    session   3354  linear:execute             {"PRT": 2, "PRTA": 2.005, "ASO": 0, "APDadj": 10, "APD": 10, "APDA": 10, "parts": ["main"]}
+    session   3357  linear:started             {"gapMs": 3}
+    session   3358  nonlinear:request          {"url": "https://aps.example.com/beh/r40-6/overlay", "why": "early", "php": 2.005}
+    session   5705  nonlinear:execute          {"PRTA": 2.008, "capUnits": 4000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+4"], "windowEnd": 6}
+    session   5706  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.008, "slotT": 0}
+    session  11315  nonlinear:end              {"why": "the span ended", "php": 5.989, "slotT": 3.98}
+R40.9-1 D1: startup 705 ms; primary media/wall over the run 0.673
+    session   8001  action pause       {"done": "primary paused"}
+    session   9000  action resume      {"done": "primary resumed"}
+    session  13000  action pause       {"done": "primary paused"}
+    session  15000  action resume      {"done": "primary resumed"}
+    session   -202  nonlinear:request          {"url": "https://aps.example.com/beh/r40-9/overlay", "why": "early", "php": 0}
+    session   3475  nonlinear:execute          {"PRTA": 2.0, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+10"], "windowEnd": 6}
+    session   3478  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.0, "slotT": 0}
+    session   9184  nonlinear:end              {"why": "the span ended", "php": 5.984, "slotT": 3.984}
+    session  15323  nonlinear:request          {"url": "https://aps.example.com/beh/r40-9/pause", "why": "early", "php": 10.007}
+R40.9-1 D4: startup 567 ms; primary media/wall over the run 0.804
+    session   8000  action pause       {"done": "primary paused"}
+    session   9000  action resume      {"done": "primary resumed"}
+    session  13001  action pause       {"done": "primary paused inside a pause window"}
+    session  15001  action resume      {"done": "pause ad removed, primary resumed"}
+    session   -326  nonlinear:request          {"url": "https://aps.example.com/beh/r40-9/overlay", "why": "early", "php": 0}
+    session   2122  nonlinear:execute          {"PRTA": 2.005, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+10"], "windowEnd": 6}
+    session   2123  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.005, "slotT": 0}
+    session   6122  nonlinear:end              {"why": "the span ended", "php": 5.984, "slotT": 3.979}
+    session  11331  nonlinear:request          {"url": "https://aps.example.com/beh/r40-9/pause", "why": "early", "php": 10.009}
+    session  13007  nonlinear:pause            {"php": 11.684, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#2#main"]}
+    session  13008  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-fullscreen"}
+    session  15004  nonlinear:pause-close      {"why": "resume"}
+R40.9-2 D1: startup 420 ms; primary media/wall over the run 0.976
+    session   -314  nonlinear:request          {"url": "https://aps.example.com/beh/r40-9/overlay-s", "why": "early", "php": 0}
+    session   2115  nonlinear:execute          {"PRTA": 2.002, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+10"], "windowEnd": 12}
+    session   2117  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.002, "slotT": 0}
+    session  12315  nonlinear:end              {"why": "the span ended", "php": 11.986, "slotT": 9.985}
+R40.9-2 D4: startup 496 ms; primary media/wall over the run 0.966
+    session   -306  nonlinear:request          {"url": "https://aps.example.com/beh/r40-9/overlay-s", "why": "early", "php": 0}
+    session   2261  nonlinear:execute          {"PRTA": 2.004, "capUnits": 10000, "ts": 1000, "plan": ["c1/o1 overlay-lower-third slot 0+10"], "windowEnd": 12}
+    session   2262  nonlinear:show             {"candidate": 1, "option": 1, "layout": "overlay-lower-third", "php": 2.004, "slotT": 0}
+    session  12411  nonlinear:end              {"why": "the span ended", "php": 11.984, "slotT": 9.979}
+R40.9-3 D1: startup 498 ms; primary media/wall over the run 0.869
+    session   -289  nonlinear:request          {"url": "https://aps.example.com/beh/r40-9/overlay-s", "why": "early", "php": 0}
+    session   -201  nonlinear:failed           {"reason": "HTTP 500", "php": 0}
+    session   6911  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r40-9/ad.mpd"}
+    session   6920  linear:execute             {"PRT": 6, "PRTA": 6.006, "ASO": 0, "APDadj": 6, "APD": 6, "APDA": 6, "parts": ["ad-1"]}
+    session   7778  linear:started             {"gapMs": 858}
+R40.9-3 D4: startup 875 ms; primary media/wall over the run 0.61
+    session   -606  nonlinear:request          {"url": "https://aps.example.com/beh/r40-9/overlay-s", "why": "early", "php": 0}
+    session   -579  nonlinear:failed           {"reason": "HTTP 500", "php": 0}
+    session   9808  nonlinear:alternative      {"url": "https://ads-cdn.example.com/beh/r40-9/ad.mpd"}
+    session   9814  linear:execute             {"PRT": 6, "PRTA": 6.003, "ASO": 0, "APDadj": 6, "APD": 6, "APDA": 6, "parts": ["ad-1"]}
+    session  10600  linear:started             {"gapMs": 786}

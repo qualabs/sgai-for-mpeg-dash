@@ -1,0 +1,41 @@
+# R4.10 — an overlay or pause slot declaration with no maximum duration is not
+# a slot of this specification: the Player presents no ad from it and goes on
+# with the primary content. Loaded: an overlay window at 2 s for 20 s with no
+# @durationCap and @earliestResolutionTimeOffset 0; its APS would answer a 4 s
+# lower-third image with an impression beacon. The main MPD is deliberately
+# defective (`expect_red`: the extension XSD requires @durationCap, and the
+# level-2 rule R4.1 fails), which is the only way to carry the case.
+# R4.10 forbids presenting, not requesting: whether the Player asks the APS is
+# not compared (`requests_not_compared`). A Player that reads the absence as
+# an unbounded slot shows the image from 2 s and fires its impression.
+format: sgai-scenario/1
+criterion: R4.10
+criterion_sha256: 48b8dfe9468cd6234dffe754a5d91a16735d52619353722fda01a29e9f8c4d84
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 8000
+entry: behaviour/fixtures/R4.10/main.mpd
+fixtures:
+- {path: behaviour/fixtures/R4.10/main.mpd, class: publisher-mpd, expect_red: [E-3, R4.1]}
+- {path: behaviour/fixtures/R4.10/list.xml, url: 'https://aps.example.com/b/r4-10/w', class: overlay-list}
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D1: &o
+    summary: 'R4.10: "The Player MUST NOT present ads from such a slot and MUST continue with the primary content." Nothing but the
+      primary content from 0 to 8 s, and the image''s impression never fires.'
+    requests_not_compared: R4.10 forbids presenting ads from the slot, not requesting its resolution document
+    requests: []
+    selection: []
+    presentation:
+    - start: 0
+      end: 8000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    beacons: []
+  D4: *o

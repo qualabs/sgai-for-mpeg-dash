@@ -1,0 +1,25 @@
+baseline R27.1 ['D1']: session 4/5 PASS, media 5/5 PASS
+M01 CAUGHT — R12.5/R27.1 an L-shape shrinks the content [R27.1 ['D1']]: R27.1 D1 geometry (media); R27.1 D1 geometry (session)
+    FAIL            R27.1 D1                     geometry      geometry[0] at 4000 expected {'primary': {'x': 22.54, 'y': 0, 'width': 77.46, 'height': 77.46}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp); observed primary {'x': 0, 'y': 0, 'width': 100, 'height': 100}, ad {'x': 0, 'y': 0, 'width': 100, 'height': 100}
+M02 CAUGHT — R12.5 the L-shape region is 60% of the AREA (side 77.46%) [R27.1 ['D1']]: R27.1 D1 geometry (media); R27.1 D1 geometry (session)
+    FAIL            R27.1 D1                     geometry      geometry[0] at 4000 expected {'primary': {'x': 22.54, 'y': 0, 'width': 77.46, 'height': 77.46}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp); observed primary {'x': 40, 'y': 0, 'width': 60, 'height': 60}, ad {'x': 0, 'y': 0, 'width': 100, 'height': 100}
+M03 CAUGHT — R27.1 the L-shape creative covers the whole frame [R27.1 ['D1']]: R27.1 D1 geometry (media); R27.1 D1 geometry (session)
+    FAIL            R27.1 D1                     geometry      geometry[0] at 4000 expected {'primary': {'x': 22.54, 'y': 0, 'width': 77.46, 'height': 77.46}, 'ad': {'x': 0, 'y': 0, 'width': 100, 'height': 100}} (±1 pp); observed primary {'x': 22.54, 'y': 0, 'width': 77.46, 'height': 77.46}, ad {'x': 0, 'y': 77.46, 'width': 100, 'height': 22.540000000000006}
+baseline R26.1 ['D1']: session 4/5 PASS, media 4/5 PASS
+M04 NOT CAUGHT — R26.1 double box: content centre-left, ad centre-right [R26.1 ['D1']]
+M05 CAUGHT — R26.1 the background image fills the bands [R26.1 ['D1']]: R26.1 D1 presentation (media); R26.1 D1 presentation (session)
+    FAIL            R26.1 D1                     presentation  presentation[2] 6000..10000 expected squeezeback-double-box-background [background, primary from 6000, ad behaviour/fixtures/R26.1/overlay.xml:#2 option #1]; observed squeezeback-double-box-background [primary, ad behaviour/fixtures/R26.1/overlay.xml:#2 option #1] from 6020 to 9995 [startup 389; observed: 0..2020 none [primary] from 3; 202
+baseline R12.5-2 ['D1']: session 5/5 PASS, media 5/5 PASS
+M06 CAUGHT — R12.5 pause-fullscreen: the ad alone [R12.5-2 ['D1']]: R12.5-2 D1 geometry (media); R12.5-2 D1 geometry (session); R12.5-2 D1 presentation (media); R12.5-2 D1 presentation (session)
+    FAIL            R12.5-2 D1                   presentation  presentation[1] 3000..6000 expected pause-fullscreen [ad behaviour/fixtures/R12.5/pause-fullscreen.xml:#1 option #1]; observed pause-fullscreen [primary (paused), ad behaviour/fixtures/R12.5/pause-fullscreen.xml:#1 option #1] from 2970 to 5967 [startup 384; observed: 0..2970 none [primary] from 21; 2970..5967 pause-fullscreen [primary (pau
+baseline R12.5-3 ['D1']: session 5/5 PASS, media 5/5 PASS
+M07 CAUGHT — R12.5 pause-partial: the paused frame stays [R12.5-3 ['D1']]: R12.5-3 D1 presentation (media); R12.5-3 D1 presentation (session)
+    FAIL            R12.5-3 D1                   presentation  presentation[1] 3000..6000 expected pause-partial [primary from 3000, ad behaviour/fixtures/R12.5/pause-partial.xml:#1 option #1]; observed pause-partial [ad behaviour/fixtures/R12.5/pause-partial.xml:#1 option #1] from 2898 to 5896 [startup 401; observed: 0..2898 none [primary] from 7; 2898..5896 pause-partial [ad behaviour/fixtures/R12.5
+baseline R12.5-4 ['D1']: session 5/5 PASS, media 5/5 PASS
+M08 CAUGHT — §5.3.6 a takeover suspends the primary (static) [R12.5-4 ['D1']]: R12.5-4 D1 presentation (media); R12.5-4 D1 presentation (session)
+    FAIL            R12.5-4 D1                   presentation  observed a change at 9637 from linear [ad behaviour/fixtures/R12.5/takeover.xml:#1 option #1] to none [primary], which the vector does not have; presentation[2] expected a change at 6000 to none [primary from 2000]; none observed within 1500 (on screen: linear [ad behaviour/fixtures/R12.5/takeover.xml:#1 option #1] from 2034); presentation
+baseline R17.1 ['D1']: session 2/4 PASS, media 2/4 PASS
+M09 CAUGHT — R17.1 PLY-52 a pause ad suspends the overlay (only the top form is shown) [R17.1 ['D1']]: R17.1 D1 selection (media); R17.1 D1 selection (session)
+    FAIL            R17.1 D1                     selection     selection[0] event 1 of behaviour/fixtures/R17.1/main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R17.1/overlay.xml:#1 option #1; observed overlay-lower-third [ad behaviour/fixtures/R17.1/overlay.xml:#1 option #1], pause-partial [ad behaviour/fixtures/R17.1/overlay.xml:#1 option #1]
+baseline R17.2 ['D1']: session 3/4 PASS, media 3/4 PASS
+M10 NOT CAUGHT — R17.2 PLY-53 the overlay is restored on resume [R17.2 ['D1']]

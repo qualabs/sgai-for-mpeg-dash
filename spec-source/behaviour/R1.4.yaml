@@ -5,13 +5,16 @@
 # segments) whose segments 4 to 6 (6-12 s of the ad) answer 404, each after a
 # 3 s delay so the failure cannot be known before the ad has begun (at the
 # earliest 3 s after the first request, which is after 0; the ad begins at 2 s).
-# The abort instant is the Player's: written at the gap (ad time 6 s, session
-# 8 s) with a 2 s tolerance; see the T-04 evidence for why a window is needed.
+# The abort instant is the Player's: a window on the boundary, from 3 s (the
+# earliest a 404 can be known, 3 s after a request for segment 4, which
+# cannot precede the sub-MPD) to 10 s (2 s past the gap at ad time 6 s,
+# session 8 s, for the Player to tell a stall from a failure). The primary
+# plays across it, so its `from` there is the same window.
 format: sgai-scenario/1
 criterion: R1.4
 criterion_sha256: 41058e93fb4ee7d5cd2aba902fbe146aa3756b9cd9eb621b9bf3d0202982ade7
 timescale: 1000
-tolerance: 2000
+tolerance: 250
 play_from: 0
 observe_until: 14000
 entry: behaviour/fixtures/R1.4/main.mpd
@@ -32,7 +35,7 @@ outcomes:
   D1:
     summary: 'R1.4: "When rendering an accepted ad fails at runtime after it has begun (... a mid-ad network loss) ... the Player MUST
       abort that ad" and "A candidate that began rendering and was then aborted counts as rendered: the Player continues with the primary
-      content, and R20.1 does not apply." The video lower-third from 2 s until the ad can no longer be rendered (about 8 s), then the
+      content, and R20.1 does not apply." The video lower-third from 2 s until the ad can no longer be rendered (an instant the Player chooses, between 3 s and 10 s), then the
       primary content alone; window 2 is never requested; the complete beacon (12 s of the ad) never fires.'
     requests:
     - at: {from: 0, to: 2000}
@@ -56,18 +59,19 @@ outcomes:
       shows:
       - {element: primary, from: 0}
     - start: 2000
-      end: 8000
+      end: {from: 3000, to: 10000}
       layout: overlay-lower-third
       shows:
       - {element: primary, from: 2000}
       - element: ad
         candidate: *id001
         option: {index: 1}
-    - start: 8000
+    - start: {from: 3000, to: 10000}
       end: 14000
       layout: none
       shows:
-      - {element: primary, from: 8000}
+      - element: primary
+        from: {from: 3000, to: 10000}
     beacons:
     - at: 2000
       fixture: behaviour/fixtures/R1.4/w1-list.xml

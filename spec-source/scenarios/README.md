@@ -42,13 +42,22 @@ outcome for a class the UC does not state is a finding.
 ## The fields
 
 - **Times** are integers in `1/timescale` s on the **session clock**:
-  wall-clock time since playback was started, pauses included. Not the main
-  presentation's timeline, which stands still during a linear insertion and
-  a pause; each `primary` element carries `from`, the main presentation time
-  it shows at the segment's start, so that timeline can be read back. Where
-  the source gives a window instead of an instant (a request "from 270 s",
-  a fetch "before it plays"), write `{from, to}`. `tolerance` is how far an
-  executor may observe an exact time from the written one.
+  wall-clock time since playback started, pauses included. Playback starts
+  at the first frame presented: the primary content's, or what the Player
+  presents in its place (UC-01's pre-roll). What happens before that frame
+  (the requests of start-up) is at 0, so a vector never measures how long a
+  Player takes to start. Not the main presentation's timeline, which stands
+  still during a linear insertion and a pause; each `primary` element
+  carries `from`, the main presentation time it shows at the segment's
+  start, so that timeline can be read back. Where the source gives a window
+  instead of an instant (a request "from 270 s", a fetch "before it plays",
+  an abort whose instant is the Player's), write `{from, to}`; that holds
+  for a presentation boundary too (the `end` of one segment and the `start`
+  of the next, the same window, and a `primary` whose `from` there is the
+  same window when it plays across). `tolerance` is how far an executor may
+  observe an exact time from the written one; a request, a beacon, a click,
+  a destination or a segment (for its start and its `from`) may carry its
+  own `tolerance`, which replaces the vector's for that item alone.
 - **`play_from`, `observe_until`**: where playback starts in the main
   presentation, and when observation ends. End a little after the last
   thing the UC is about, not at the end of the content.
@@ -56,11 +65,19 @@ outcome for a class the UC does not state is a finding.
   under `spec-source/`; `url` is where the harness serves it, copied from
   the document that points to it. Media (segments, images, HTML) are not
   fixtures and their requests are not recorded; the chosen option says which
-  was used. `entry` is the main MPD.
+  was used. `entry` is the main MPD. `expect_red: [rule ids]` marks a
+  fixture deliberately non-conformant (a test of what a Player does with a
+  defective document): the check then requires that exactly those rules of
+  levels 1 and 2 fail on it.
 - **`requests`**: the document requests, in order: `url` as the pointing
   document writes it, `query` the parameters the Player adds,
   `answered_by` the fixture served, `matches` the `.http` fixture this
-  request equals when the annex has one.
+  request equals when the annex has one. `query` is exact unless
+  `extra_query_pattern` (a regular expression over a whole parameter name)
+  admits further parameters, as R29.4's vendor-prefixed ones. An outcome
+  whose requests the source does not bind writes `requests: []` and
+  `requests_not_compared: <why>`; the executor then reports the field
+  NOT_APPLICABLE.
 - **`selection`**: per opportunity (the main MPD's `Event@id`), `presented`
   (each candidate and option the Player presents, in order, with its
   layout), `declined` (it had the document and presented nothing), or
@@ -70,10 +87,18 @@ outcome for a class the UC does not state is a finding.
 - **`presentation`**: segments that tile `[0, observe_until]` in order, no
   gap, no overlap; each says the `layout` (an R12.2 token, `none` for the
   primary alone) and what `shows`. `region` and `note` are free text for a
-  person; the executor compares `layout` and the elements.
+  person; the executor compares `layout` and the elements. An `ad` names
+  its `candidate` and `option`; a `background` may omit them, and then any
+  one background surface matches it.
 - **`beacons`**: every beacon fired, with its time, its fixture and `@id`,
   `candidate` when the `@id` is scoped by the candidate, and its `url`
   (checked against the event's text).
+- **`clicks`** and **`destinations`** (together, or neither): what an
+  `activate` makes happen on a candidate's `svta:ClickThrough`. `clicks`
+  lists each click-tracking URL fired (`url`, one of its `@trackingUris`),
+  `destinations` each time its `@uri` is made available, opened (a request
+  to it) or shown on screen. With them, click-tracking URLs are judged there
+  and not as beacons; `[]` says nothing of the kind happens.
 - **`actions`** and **`variants`**: viewer actions (`pause`, `resume`,
   `seek` with `to`, `dismiss`, `activate`, `rate` with `rate`). The main run
   is `outcomes` with `actions`. A second run the UC or its annex states

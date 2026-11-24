@@ -2,8 +2,10 @@
 """Tests of bin/check-behaviour.py (ADR 0077, ADR 0078), one break per check,
 each on a copy of spec-source/ and context/:
 
-  * the tree as it is: exit 1, the population of 76 read from the catalogue,
-    the 15 index entries, the 61 uncovered and nothing else;
+  * the tree as it is: no cannot-tell, every criterion of the population
+    counted once (with a test, with an index entry, or uncovered), and an
+    exit that agrees with the findings. Counts the tree has today are not
+    asserted: they change as tests are written;
   * the population rule: PLAYER prefix, "level 3" in a reason, "level 3a"
     alone, a rule with a check; an empty population and a criterion the
     catalogue names that 03 lacks are cannot-tell;
@@ -16,9 +18,16 @@ each on a copy of spec-source/ and context/:
   * B-POP: a criterion outside the population, one 03 does not define;
   * B-RETIRED: a retired criterion -> 2;
   * the shared checks on a test: aps (schema, document, a request with no
-    answered_by), geometry (schema, viewport, element shown, time);
+    answered_by), geometry (schema, viewport, element shown, time),
+    expect_red (exact, a rule missing, a rule extra), clicks and destinations
+    (references, schema), extra_query_pattern, requests_not_compared, a
+    presentation boundary written as a window;
   * a UC vector that also names a criterion fails the schema;
   * the command line: 64, --help, criterion, uncovered, --json.
+
+The synthetic trees are copies of spec-source/ and context/ with every test of
+behaviour/ removed and index.yaml kept: what is uncovered there is the
+population minus the index entries, whatever the live tree holds.
 
 Run (from the project root):  python3 bin/test_check_behaviour.py
 """
@@ -48,10 +57,12 @@ from conformance.spec import catalog, criteria  # noqa: E402
 
 TMP = os.environ.get("XDG_RUNTIME_DIR") or None
 TEXT03 = criteria.read(ROOT / "context")
+POP = len(cb.load_population())
+NV = [e["criterion"] for e in
+      yaml.safe_load((ROOT / "spec-source/behaviour/index.yaml").read_text())["not_verifiable"]]
+UNCOVERED = POP - len(NV)      # in a synthetic tree, before a test is added
 OTHERS = ["R4.8", "R6.5", "R7.1", "R12.5", "R13.1", "R13.6", "R19.3", "R20.4", "R26.1", "R27.1", "R28.1",
           "R32.1", "R34.1", "R34.6", "R34.9", "R36.1", "R40.9"]
-NV = ["R1.6", "R3.2", "R11.2", "R21.1", "R29.10", "R33.2", "R37.1", "R41.4", "R41.5", "R41.6", "R41.7",
-      "R42.3", "R44.3", "R47.2", "R48.3"]
 
 
 def sha(cid):
@@ -78,6 +89,8 @@ class Tree:
         shutil.copytree(ROOT / "spec-source", self.src)
         shutil.copytree(ROOT / "context", self.ctx)
         self.b = self.src / "behaviour"
+        for t in self.b.glob("R*.yaml"):
+            t.unlink()
 
     def close(self):
         shutil.rmtree(self.dir)
@@ -124,13 +137,21 @@ class TestAsItIs(unittest.TestCase):
     def test_tree(self):
         out = cb.run(ROOT / "spec-source", ROOT / "context")
         self.assertEqual(out["cannot"], [])
-        self.assertEqual(cb.exit_code(out), 1)
-        self.assertEqual(len(out["population"]), 76)
-        self.assertEqual(sorted(out["not_verifiable"], key=cb.order), sorted(NV, key=cb.order))
-        self.assertEqual(len(out["uncovered"]), 61)
-        self.assertEqual(set(out["uncovered"]) | set(NV), set(out["population"]))
-        self.assertEqual({f["check"] for f in out["findings"]}, {"B-COVER"})
-        self.assertEqual(out["tests"], {})
+        pop = set(out["population"])
+        self.assertEqual(pop, cb.load_population())
+        tested, nv, unc = set(out["tested"]), set(out["not_verifiable"]), set(out["uncovered"])
+        self.assertEqual(tested & nv, set())
+        self.assertEqual(len(tested) + len(nv) + len(unc), len(pop))
+        self.assertEqual(tested | nv | unc, pop)
+        self.assertEqual(sorted(nv, key=cb.order), sorted(NV, key=cb.order))
+        # every test file is reported, each of its classes with no executor
+        files = {p.name for p in (ROOT / "spec-source/behaviour").glob("R*.yaml")}
+        self.assertEqual(set(out["tests"]), files)
+        self.assertTrue(all(set(v.values()) == {cb.cs.NO_EXECUTOR} for v in out["tests"].values()))
+        # the exit agrees with the findings; an uncovered criterion is one
+        self.assertEqual(cb.exit_code(out), 1 if out["findings"] else 0)
+        self.assertEqual(len([f for f in out["findings"] if f["check"] == "B-COVER"
+                              and "no test and no entry" in f["detail"]]), len(unc))
 
 
 class TestPopulation(unittest.TestCase):
@@ -189,7 +210,7 @@ class TestValid(Base):
         out = self.t.run()
         self.assertEqual(out["exit"], 1)
         self.assertNotIn("R4.9", out["uncovered"])
-        self.assertEqual(len(out["uncovered"]), 60)
+        self.assertEqual(len(out["uncovered"]), UNCOVERED - 1)
         self.assertEqual(out["tests"]["R4.9.yaml"], {c: cb.cs.NO_EXECUTOR for c in cb.cs.CLASSES})
         self.only(out, "B-COVER", None)
 
@@ -197,7 +218,7 @@ class TestValid(Base):
         self.t.put("R4.9.yaml", a_test())
         self.t.put("R4.9-2.yaml", a_test())
         out = self.t.run()
-        self.assertEqual(len(out["uncovered"]), 60)
+        self.assertEqual(len(out["uncovered"]), UNCOVERED - 1)
         self.assertEqual(out["tested"], ["R4.9"])
 
     def test_all_covered_exit_0(self):
@@ -249,7 +270,7 @@ class TestSchema(Base):
         self.t.edit("behaviour/index.yaml", "sgai-behaviour-index/1", "sgai-behaviour-index/2")
         out = self.t.run()
         self.assertTrue(found(out, "B-SCHEMA", "index.yaml", "format"))
-        self.assertEqual(len(out["uncovered"]), 76)    # an invalid index covers nothing
+        self.assertEqual(len(out["uncovered"]), POP)    # an invalid index covers nothing
 
     def test_index_reason(self):
         i = self.t.index()
@@ -295,13 +316,13 @@ class TestCover(Base):
         self.t.put("index.yaml", i)
         out = self.t.run()
         self.assertIn("R21.1", out["uncovered"])
-        self.assertEqual(len(out["uncovered"]), 62)
+        self.assertEqual(len(out["uncovered"]), UNCOVERED + 1)
         self.assertTrue(found(out, "B-COVER", "R21.1", "no test and no entry"))
 
     def test_no_index(self):
         (self.t.b / "index.yaml").unlink()
         out = self.t.run()
-        self.assertEqual((out["exit"], len(out["uncovered"])), (1, 76))
+        self.assertEqual((out["exit"], len(out["uncovered"])), (1, POP))
 
     def test_test_and_entry(self):
         self.t.put("R21.1.yaml", a_test("R21.1"))
@@ -412,6 +433,133 @@ class TestGeometry(Base):
             self.assertTrue(found(self.geo(bad), "B-SCHEMA", "R4.9.yaml"), bad)
 
 
+class TestExtensions(Base):
+    """expect_red, clicks and destinations, extra_query_pattern,
+    requests_not_compared, and a presentation boundary written as a window."""
+    R410 = "behaviour/fixtures/R4.10/main.mpd"     # no @durationCap: fails E-3 and R4.1
+
+    def red(self, rules):
+        v = a_test()
+        v["fixtures"].append({"path": self.R410, "class": "publisher-mpd", **({"expect_red": rules} if rules else {})})
+        self.t.put("R4.9.yaml", v)
+        return self.t.run()
+
+    def test_expect_red_exact(self):
+        self.only(self.red(["E-3", "R4.1"]), "B-COVER", None)
+
+    def test_expect_red_absent_is_not_green(self):
+        out = self.red(None)
+        self.only(out, "S-FIXTURE", "R4.9.yaml", "is not green")
+        self.assertEqual(len(found(out, "S-FIXTURE", "R4.9.yaml")), 2)
+
+    def test_expect_red_missing_a_rule(self):
+        self.only(self.red(["E-3"]), "S-FIXTURE", "R4.9.yaml", "a rule expect_red does not list: R4.1")
+
+    def test_expect_red_extra_rule(self):
+        self.only(self.red(["E-3", "R4.1", "R4.7"]), "S-FIXTURE", "R4.9.yaml", "lists R4.7, which does not fail")
+
+    def test_expect_red_on_a_green_fixture(self):
+        v = a_test()
+        v["fixtures"][1]["expect_red"] = ["R4.1"]
+        self.t.put("R4.9.yaml", v)
+        self.only(self.t.run(), "S-FIXTURE", "R4.9.yaml", "lists R4.1")
+
+    def clicks(self, clicks, dests):
+        v = a_test()
+        v["outcomes"]["D1"]["clicks"] = clicks
+        v["outcomes"]["D1"]["destinations"] = dests
+        self.t.put("R4.9.yaml", v)
+        return self.t.run()
+
+    A31 = "examples/annex-a/A.3-1.mpd"
+
+    def test_clicks_valid(self):
+        c = {"fixture": self.A31, "id": "ad-101"}
+        self.only(self.clicks([{"at": 5000, "fixture": self.A31, "candidate": c,
+                                "url": "https://t.example.com/click?cr=101"}],
+                              [{"at": 5000, "fixture": self.A31, "candidate": c}]), "B-COVER", None)
+
+    def test_click_url_not_in_tracking_uris(self):
+        c = {"fixture": self.A31, "id": "ad-101"}
+        self.only(self.clicks([{"at": 5000, "fixture": self.A31, "candidate": c,
+                                "url": "https://brand-a.example.com/spring"}], []),
+                  "S-REF", "R4.9.yaml", "not one of the ClickThrough's @trackingUris")
+
+    def test_candidate_without_clickthrough(self):
+        c = {"fixture": self.A31, "id": "ad-102"}
+        self.only(self.clicks([], [{"at": 5000, "fixture": self.A31, "candidate": c}]),
+                  "S-REF", "R4.9.yaml", "has 0 ClickThrough")
+
+    def test_click_after_observe_until(self):
+        c = {"fixture": self.A31, "id": "ad-101"}
+        self.only(self.clicks([], [{"at": 35001, "fixture": self.A31, "candidate": c}]),
+                  "S-TIME", "R4.9.yaml", "destinations[0].at")
+
+    def test_schema(self):
+        c = {"fixture": self.A31, "id": "ad-101"}
+        for o_extra in ({"clicks": []},                                      # without destinations
+                        {"destinations": []},                                # without clicks
+                        {"clicks": [{"at": 0, "fixture": self.A31, "candidate": c}], "destinations": []},  # no url
+                        {"requests_not_compared": ""}):                      # an empty reason
+            v = a_test()
+            v["outcomes"]["D1"].update(o_extra)
+            self.t.put("R4.9.yaml", v)
+            self.assertTrue(found(self.t.run(), "B-SCHEMA", "R4.9.yaml"), o_extra)
+        for f in ({"expect_red": []}, {"expect_red": ["r4.1"]}):           # empty, not a rule id
+            v = a_test()
+            v["fixtures"][0].update(f)
+            self.t.put("R4.9.yaml", v)
+            self.assertTrue(found(self.t.run(), "B-SCHEMA", "R4.9.yaml"), f)
+
+    def test_requests_not_compared(self):
+        v = a_test()
+        v["outcomes"]["D1"]["requests_not_compared"] = "not this criterion's"
+        self.t.put("R4.9.yaml", v)
+        self.assertTrue(found(self.t.run(), "B-SCHEMA", "R4.9.yaml", "outcomes/D1/requests"))   # not empty
+        v["outcomes"]["D1"]["requests"] = []
+        self.t.put("R4.9.yaml", v)
+        self.only(self.t.run(), "B-COVER", None)
+
+    def test_extra_query_pattern(self):
+        v = a_test()
+        v["outcomes"]["D1"]["requests"][0]["extra_query_pattern"] = "x-[a-z]+-.+"
+        self.t.put("R4.9.yaml", v)
+        self.only(self.t.run(), "B-COVER", None)
+        v["outcomes"]["D1"]["requests"][0]["extra_query_pattern"] = "x-[a-z+-.+"
+        self.t.put("R4.9.yaml", v)
+        self.only(self.t.run(), "S-SCHEMA", "R4.9.yaml", "not a regular expression")
+
+    def window(self, end, start, frm=None):
+        v = a_test()
+        segs = v["outcomes"]["D1"]["presentation"]
+        segs[0]["end"], segs[1]["start"] = end, start
+        if frm is not None:
+            segs[1]["shows"][0]["from"] = frm
+        self.t.put("R4.9.yaml", v)
+        return self.t.run()
+
+    def test_window_boundary(self):
+        w = {"from": 14000, "to": 16000}
+        self.only(self.window(w, w), "B-COVER", None)
+        self.only(self.window(w, {"from": 14000, "to": 16500}), "S-TIME", "R4.9.yaml", "starts at")   # not the same
+        self.only(self.window({"from": 16000, "to": 14000}, {"from": 16000, "to": 14000}),
+                  "S-TIME", "R4.9.yaml", "from 16000 > to 14000")
+        # a window that reaches past the segment's end leaves it empty
+        self.only(self.window({"from": 14000, "to": 25000}, {"from": 14000, "to": 25000}),
+                  "S-TIME", "R4.9.yaml", "end")
+
+    def test_per_item_tolerance_schema(self):
+        v = a_test()
+        v["outcomes"]["D1"]["presentation"][1]["tolerance"] = 17
+        v["outcomes"]["D1"]["beacons"][0]["tolerance"] = 0
+        v["outcomes"]["D1"]["requests"][0]["tolerance"] = 1000
+        self.t.put("R4.9.yaml", v)
+        self.only(self.t.run(), "B-COVER", None)
+        v["outcomes"]["D1"]["presentation"][1]["tolerance"] = -1
+        self.t.put("R4.9.yaml", v)
+        self.assertTrue(found(self.t.run(), "B-SCHEMA", "R4.9.yaml"))
+
+
 class TestScenarioSchema(Base):
     def test_uc_vector_with_criterion(self):
         orig = yaml.safe_load((self.t.src / "scenarios/UC-01.yaml").read_text())
@@ -462,18 +610,33 @@ class TestCommandLine(unittest.TestCase):
         self.assertEqual(self.main("criterion", "R99.1")[0], 1)
 
     def test_uncovered(self):
-        rc, text = self.main("uncovered")
+        t = Tree()
+        try:
+            rc, text = self.main("uncovered", "--source", str(t.src), "--context", str(t.ctx))
+        finally:
+            t.close()
         self.assertEqual(rc, 1)
         lines = text.splitlines()
-        self.assertEqual(len(lines), 61)
+        self.assertEqual(len(lines), UNCOVERED)
         cid, holder, h = lines[0].split("\t")
         self.assertEqual((cid, h), ("R1.4", sha("R1.4")))
+        self.assertTrue(all(re.fullmatch(r"R\d+\.\d+\t[^\t]+\t[0-9a-f]{64}", ln) for ln in lines))
+
+    def test_uncovered_live(self):
+        # whatever the live tree holds: one line per uncovered criterion, and
+        # exit 1 exactly when there is one
+        rc, text = self.main("uncovered")
+        lines = text.splitlines()
+        self.assertEqual(rc, 1 if lines else 0)
         self.assertTrue(all(re.fullmatch(r"R\d+\.\d+\t[^\t]+\t[0-9a-f]{64}", ln) for ln in lines))
 
     def test_json(self):
         rc, text = self.main("--json")
         d = json.loads(text)
-        self.assertEqual((rc, d["exit"], len(d["uncovered"]), len(d["population"])), (1, 1, 61, 76))
+        self.assertEqual(rc, d["exit"])
+        self.assertEqual(len(d["population"]), POP)
+        self.assertEqual(d["exit"], 1 if d["findings"] else 0)
+        self.assertEqual(len(d["tested"]) + len(d["not_verifiable"]) + len(d["uncovered"]), POP)
 
 
 if __name__ == "__main__":

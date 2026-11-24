@@ -1,0 +1,28 @@
+# R25.1 on a live channel joinable at play_from (live_now.py: availabilityStartTime moved to now - 80 s; nothing else changed).
+## the module as delivered
+PASS            R25.1 D1                     requests      1 request(s) as expected
+PASS            R25.1 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            R25.1 D1                     presentation  presentation[1] primary from expected 64000, observed 62967; presentation[2] primary from expected 64000, observed 63009 [startup 1594; observed: 0..2084 none [primary] from 62010; 2084..12091 pause-partial [primary (paused), ad behaviour/fixtures/R25.1/pause.xml:#1 option #1] from 62967; 12091..13000 none [primary] from 63009]
+PASS            R25.1 D1                     beacons       no beacon, as expected
+exit 1: PASS 3  FAIL 1  NOT_VERIFIABLE 0; wall 0.0 s; content 0.0 s (0 ffmpeg runs, 2 cuts from the cache), players 20.7 s
+R25.1 D1: startup 1594 ms; primary media/wall over the run 0.111
+    session   2001  action pause       {"done": "primary paused inside a pause window"}
+    session  12001  action resume      {"done": "pause ad removed, primary resumed"}
+    session  -1016  nonlinear:request          {"url": "https://aps.example.com/beh/r25-1/pause", "why": "early", "php": 62}
+    session   2008  nonlinear:pause            {"php": 62.967, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#live"]}
+    session   2081  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-partial"}
+    session  12084  nonlinear:pause-close      {"why": "resume"}
+## negative control: resume seeks to the live edge (player.seek(duration))
+availabilityStartTime 2026-11-24T16:35:01Z (now - 80 s)
+PASS            R25.1 D1                     requests      1 request(s) as expected
+PASS            R25.1 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            R25.1 D1                     presentation  presentation[1] primary from expected 64000, observed 62987; presentation[2] primary from expected 64000, observed 103332 [startup 3476; observed: 0..2119 none [primary] from 62044; 2119..12068 pause-partial [primary (paused), ad behaviour/fixtures/R25.1/pause.xml:#1 option #1] from 62987; 12068..13000 none [primary] from 103332]
+PASS            R25.1 D1                     beacons       no beacon, as expected
+exit 1: PASS 3  FAIL 1  NOT_VERIFIABLE 0; wall 32.1 s; content 0.0 s (0 ffmpeg runs, 2 cuts from the cache), players 28.0 s
+R25.1 D1: startup 3476 ms; primary media/wall over the run 3.242
+    session   2000  action pause       {"done": "primary paused inside a pause window"}
+    session  12001  action resume      {"done": "pause ad removed, primary resumed"}
+    session  -1893  nonlinear:request          {"url": "https://aps.example.com/beh/r25-1/pause", "why": "early", "php": 62}
+    session   2105  nonlinear:pause            {"php": 62.987, "overLinear": false, "windows": ["main#urn:svta:dash:sgai-pause-trigger:2026#1#live"]}
+    session   2110  nonlinear:pause-show       {"candidate": 1, "option": 1, "layout": "pause-partial"}
+    session  12002  nonlinear:pause-close      {"why": "resume"}

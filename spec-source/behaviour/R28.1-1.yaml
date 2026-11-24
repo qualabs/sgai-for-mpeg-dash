@@ -1,0 +1,85 @@
+# R28.1 — "When the viewer activates the ClickThrough, its click-tracking URLs
+# MUST fire, and its destination MUST be made available to the viewer by the
+# means the device has." An overlay window at 2 s (cap 8 s) resolves to one
+# 8 s corner image whose ClickThrough carries a destination and two
+# click-tracking URLs (fixtures/R28.1/list.xml). The viewer activates the ad at
+# 4 s: both click-tracking URLs fire and the destination is made available
+# (opened, or its URL shown on screen: any of the means R28.1 admits). The
+# variant without an activation decides the converse: nothing fires and no
+# destination appears unless the viewer activates. What the Player shows after
+# the click is not this criterion's; the outcome assumes it keeps presenting,
+# and a Player that does otherwise fails the presentation field, not clicks.
+# A Player that fires the tracking on impression, fires only the first URL of
+# the list, or never makes the destination available fails `clicks` or
+# `destinations`.
+format: sgai-scenario/1
+criterion: R28.1
+criterion_sha256: aa29cb47cf2d11b8d0af56991d231853b55e4a6976c1d23a6d47b67bc19207dd
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 12000
+entry: behaviour/fixtures/R28.1/main.mpd
+fixtures:
+- {path: behaviour/fixtures/R28.1/main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R28.1/list.xml, url: 'https://aps.example.com/b/r28-1/w', class: overlay-list}
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+- {at: 4000, do: activate}
+outcomes:
+  D1: &o
+    summary: 'R28.1: "When the viewer activates the ClickThrough, its click-tracking URLs MUST fire, and its destination MUST be made
+      available to the viewer". The corner image from 2 s to 10 s; at the activation (4 s) both click-tracking URLs fire and the
+      destination is made available.'
+    requests:
+    - at: 2000
+      url: https://aps.example.com/b/r28-1/w
+      query: {sgai-allowed-layouts: overlay-corner}
+      answered_by: behaviour/fixtures/R28.1/list.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R28.1/main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - {candidate: &c {fixture: behaviour/fixtures/R28.1/list.xml, index: 1}, option: {index: 1}, layout: overlay-corner}
+    presentation:
+    - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+    - {start: 2000, end: 10000, layout: overlay-corner, shows: [{element: primary, from: 2000}, {element: ad, candidate: *c, option: {index: 1}}]}
+    - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons:
+    - {at: 2000, fixture: behaviour/fixtures/R28.1/list.xml, candidate: *c, id: '1', url: 'https://t.example.com/r28-1/imp'}
+    clicks:
+    - {at: 4000, fixture: behaviour/fixtures/R28.1/list.xml, candidate: *c, url: 'https://t.example.com/r28-1/click'}
+    - {at: 4000, fixture: behaviour/fixtures/R28.1/list.xml, candidate: *c, url: 'https://t2.example.com/r28-1/click'}
+    destinations:
+    - {at: 4000, fixture: behaviour/fixtures/R28.1/list.xml, candidate: *c}
+  D4: *o
+variants:
+- id: no-activation
+  description: the same session with no click; the click-tracking and the destination are tied to the activation
+  actions: []
+  outcomes:
+    D1: &n
+      summary: 'R28.1 ties the click-tracking and the destination to "When the viewer activates the ClickThrough": with no
+        activation, the image is presented as in the main run and neither fires nor is made available.'
+      requests:
+      - at: 2000
+        url: https://aps.example.com/b/r28-1/w
+        query: {sgai-allowed-layouts: overlay-corner}
+        answered_by: behaviour/fixtures/R28.1/list.xml
+      selection:
+      - opportunity: {fixture: behaviour/fixtures/R28.1/main.mpd, event_id: '1'}
+        result: presented
+        presented:
+        - {candidate: *c, option: {index: 1}, layout: overlay-corner}
+      presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 10000, layout: overlay-corner, shows: [{element: primary, from: 2000}, {element: ad, candidate: *c, option: {index: 1}}]}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+      beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R28.1/list.xml, candidate: *c, id: '1', url: 'https://t.example.com/r28-1/imp'}
+      clicks: []
+      destinations: []
+    D4: *n

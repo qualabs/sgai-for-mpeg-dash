@@ -1,0 +1,14 @@
+# R16.1 / PLY-57: the resume issued inside a requestAnimationFrame callback (dev copy of bin/players/behaviour.mjs, SGAI_RAF_RESUME=1);
+# adsBefore = ad surfaces shown in that frame before the resume, adsNextFrame = those shown at the next rAF callback (by their data-sgai-doc file name).
+# 'mutant' = the removal deferred 50 ms by setTimeout (M25); 'base' = the module as delivered.
+mutant R16.1.yaml D1 resume at 6001 {"done": "pause ad removed, primary resumed", "raf": {"adsBefore": ["pause"], "adsNextFrame": ["pause"], "frameMs": 16.7}}
+mutant R17.1.yaml D1 resume at 8000 {"done": "pause ad removed, primary resumed", "raf": {"adsBefore": ["pause"], "adsNextFrame": ["pause"], "frameMs": 16.6}}
+base R16.1.yaml D1 resume at 6000 {"done": "pause ad removed, primary resumed", "raf": {"adsBefore": ["pause"], "adsNextFrame": [], "frameMs": 16.6}}
+base R17.1.yaml D1 resume at 8001 {"done": "pause ad removed, primary resumed", "raf": {"adsBefore": ["pause"], "adsNextFrame": ["overlay"], "frameMs": 16.7}}
+# the earlier pass (counts only) over the other resume tests:
+base R16.1.yaml D1 resume at 6000 {"done": "pause ad removed, primary resumed", "raf": {"adsBefore": 1, "adsNextFrame": 0, "frameMs": 16.7}}
+base R12.5-2.yaml D1 resume at 6001 {"done": "pause ad removed, primary resumed", "raf": {"adsBefore": 1, "adsNextFrame": 0, "frameMs": 16.7}}
+base R12.5-3.yaml D1 resume at 6000 {"done": "pause ad removed, primary resumed", "raf": {"adsBefore": 1, "adsNextFrame": 0, "frameMs": 16.7}}
+base R17.1.yaml D1 resume at 8000 {"done": "pause ad removed, primary resumed", "raf": {"adsBefore": 1, "adsNextFrame": 1, "frameMs": 16.6}}
+base R37.2.yaml D1 resume at 8000 {"done": "pause ad removed, primary resumed", "raf": {"adsBefore": 1, "adsNextFrame": 0, "frameMs": 16.7}}
+base R31.2.yaml D1 resume at 10001 {"done": "pause ad removed, primary resumed", "raf": {"adsBefore": 0, "adsNextFrame": 0, "frameMs": 16.6}}

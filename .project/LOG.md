@@ -2438,3 +2438,12 @@ El spike ejecutó insert y replace de la 6ta con la API pública del dash.js 5.3
 ## 2026-11-23 — 11 T-02: esquema, población y check de los tests de conducta
 
 `bin/check-behaviour.py` lee la población del catálogo del nivel 2: 76 criterios, 15 `NOT_VERIFIABLE` en `spec-source/behaviour/index.yaml`, 61 sin test (exit 1, la lista de T-04). `scenarios/schema.json` suma `criterion`, `aps` y `geometry`; `check-scenarios.py` sigue en 0 con sus 22 vectores. Suite de `bin/` verde (25 archivos); campaña de 24 mutaciones, 3 sobrevivieron y se cerraron con tests nuevos. R41.7 queda en el índice como dice ADR 0084, aunque una parte (overlay de video sin audio) sería observable hoy. Pendiente para el cierre: `scenarios/README.md`, `CLAUDE.md` y `SETUP.md` no nombran lo nuevo.
+
+## 2026-11-24 — 11 T-03 a T-06 y la guarda de opt-in
+
+- T-03: el harness de conducta (`--behaviour`, adaptador `sgai`, APS y beacons por rutas de Playwright, comparación en Python).
+- T-04: 59 criterios con test y 17 `NOT_VERIFIABLE` (se sumaron R15.3, un MAY sin fixture admisible, y R4.5, que ningún documento conforme ejercita). El reloj de sesión arranca en el primer frame del principal. Se agregó un cache del contenido de prueba (UC-01 D1 pasa de 76 a 37 s). Corrida D-11 contra el esqueleto sin lógica de avisos: criterios 614 s con concurrencia 4, UC 5132 s con concurrencia 6, con la máquina cargada (load ~41 por un render ajeno). Todo FAIL salvo los MUST NOT que un Player inerte cumple (R4.7, R4.10), y declinaciones.
+- T-10: test de opt-in (ADR 0087), 9 de 9 cortes en rojo.
+- T-05: el lineal de la 6ta.
+- T-06: resolución y selección no lineales. Lo que les falla queda clasificado: la máquina lenta (el principal reproduce a 0,3–0,99× del tiempo real, y por eso el reloj de sesión del harness va a pasar a avanzar con lo que se presenta) y defectos del harness y del comparador.
+- Se cortó una corrida por el límite de 5 h de la cuenta (2026-11-24 00:33) y se retomó del árbol.

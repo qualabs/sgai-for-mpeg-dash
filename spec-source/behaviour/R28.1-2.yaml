@@ -1,0 +1,54 @@
+# R28.1 on a linear candidate — the ClickThrough is carried in the List MPD's
+# Period (Annex A, A.3-1: ad-101's ClickThrough, destination
+# https://brand-a.example.com/spring, click-tracking
+# https://t.example.com/click?cr=101). UC-01's pre-roll; the viewer activates
+# the ad at 5 s, 5 s into ad-101. Observation ends at 6 s: what follows the
+# click is not this criterion's. The resolution requests are UC-01's to decide
+# (when cr102.mpd is fetched falls inside this window or not by the Player's
+# choice), so they are not compared here. A Player that reads the ClickThrough
+# only in an OverlayList, and not in a List MPD's Period, fires nothing.
+format: sgai-scenario/1
+criterion: R28.1
+criterion_sha256: aa29cb47cf2d11b8d0af56991d231853b55e4a6976c1d23a6d47b67bc19207dd
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 6000
+entry: examples/annex-a/A.2-1.mpd
+fixtures:
+  - path: examples/annex-a/A.2-1.mpd
+  - path: examples/annex-a/A.3-1.mpd
+    url: https://aps.example.com/linear/preroll?show=42&ep=7
+  - path: examples/annex-a/A.4-1.mpd
+    url: https://ads-cdn.example.com/cr/101/cr101.mpd
+  - path: examples/annex-a/A.4-2.mpd
+    url: https://ads-cdn.example.com/cr/102/cr102.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D5: {sgai-video-decoders: 1, sgai-image-over-video: 0, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 5000, do: activate}
+outcomes:
+  D1: &o
+    summary: 'R28.1: "When the viewer activates the ClickThrough, its click-tracking URLs MUST fire, and its destination MUST be made
+      available to the viewer". Ad-101 on screen from 0; at the activation (5 s) its click-tracking fires and its destination is
+      made available.'
+    requests_not_compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires
+    requests: []
+    selection:
+      - opportunity: {fixture: examples/annex-a/A.2-1.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &c {fixture: examples/annex-a/A.3-1.mpd, id: ad-101}, option: null, layout: linear}
+    presentation:
+      - {start: 0, end: 6000, layout: linear, shows: [{element: ad, candidate: *c, option: null}]}
+    beacons:
+      - {at: 0, fixture: examples/annex-a/A.4-1.mpd, id: "1", url: "https://t.example.com/imp?cr=101"}
+      - {at: 0, fixture: examples/annex-a/A.4-1.mpd, id: "2", url: "https://t.example.com/start?cr=101"}
+      - {at: 3750, fixture: examples/annex-a/A.4-1.mpd, id: "3", url: "https://t.example.com/q1?cr=101"}
+    clicks:
+      - {at: 5000, fixture: examples/annex-a/A.3-1.mpd, candidate: *c, url: "https://t.example.com/click?cr=101"}
+    destinations:
+      - {at: 5000, fixture: examples/annex-a/A.3-1.mpd, candidate: *c}
+  D5: *o

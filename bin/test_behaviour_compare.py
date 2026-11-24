@@ -95,7 +95,10 @@ def synthetic_raw(v, outcome, fx, startup_ms=200, shift_ms=0):
                 e["rect"] = dict(g["ad"])
         samples.append(s)
         samples.sort(key=lambda x: x["t"])
-    return {"id": "j1", "ok": True, "t0": T0, "requests": reqs, "actions": [],
+    # Already on the session clock: the origin is load() (startupMs 0), and
+    # the first frame `startup_ms` after it folds into the first segment.
+    # The Origin tests below build records whose origin is the first frame.
+    return {"id": "j1", "ok": True, "t0": T0, "startupMs": 0, "origin": T0, "requests": reqs, "actions": [],
             "observation": {"t0": T0, "samples": samples}}
 
 
@@ -497,6 +500,52 @@ class Presentation(unittest.TestCase):
                                     30000, 250)
         self.assertEqual(len(segs), 1)
 
+    def background_vector(self, with_candidate):
+        """The overlay segment of the small vector with a `background` added,
+        written as R12.5-1 writes it (no candidate) or as UC-09 does."""
+        seg = self.o["presentation"][1]
+        bg = {"element": "background"}
+        if with_candidate:
+            bg.update(candidate=seg["shows"][1]["candidate"], option={"index": 1})
+        seg["shows"].append(bg)
+        self.bg_el = dict(self.sample_at(10000)["elements"][1], element="background")
+
+    def show_background(self, *els):
+        """Put `els` on screen wherever the overlay is (its samples at 10000
+        and at 15000, the geometry's)."""
+        for s in self.samples:
+            if any(e["element"] == "ad" for e in s["elements"]):
+                s["elements"].extend(els)
+
+    def test_background_without_candidate_never_shown(self):
+        # The D-11 crash: a written boundary into a segment whose background
+        # has no candidate, not observed, made describe_exp raise KeyError.
+        self.background_vector(with_candidate=False)
+        self.samples[:] = [s for s in self.samples if s["t"] < 10000]
+        out, d = self.field()
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn("expected a change at 10000 to overlay-lower-third [primary from 10000, "
+                      "ad behaviour/fixtures/X/list.mpd:c1 option #1, background]", d)
+
+    def test_background_without_candidate_matches_any_background(self):
+        self.background_vector(with_candidate=False)
+        self.assertEqual(self.field()[0], Outcome.FAIL)            # no background on screen
+        self.show_background(self.bg_el)
+        self.assertEqual(self.field()[0], Outcome.PASS)
+        self.bg_el["candidateId"] = "c9"                           # its candidate is not compared
+        self.assertEqual(self.field()[0], Outcome.PASS)
+        self.show_background(dict(self.bg_el))                     # but it is counted
+        self.assertEqual(self.field()[0], Outcome.FAIL)
+
+    def test_background_with_candidate_is_compared(self):
+        self.background_vector(with_candidate=True)
+        self.show_background(self.bg_el)
+        self.assertEqual(self.field()[0], Outcome.PASS)
+        self.bg_el["candidateId"] = "c9"
+        out, d = self.field()
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn("background behaviour/fixtures/X/list.mpd:c1 option #1]", d)
+
 
 class Selection(unittest.TestCase):
     def setUp(self):
@@ -634,10 +683,254 @@ class UC01(unittest.TestCase):
         self.assertEqual(set(got.values()), {Outcome.FAIL})
 
 
+class ItemTolerance(unittest.TestCase):
+    """A request's, a beacon's or a segment's own `tolerance` replaces the
+    vector's for that item only."""
+
+    def setUp(self):
+        self.v, self.o, self.fx = small_vector()
+        self.raw = synthetic_raw(self.v, self.o, self.fx)
+
+    def verdict(self, f):
+        return verdicts(run(self.v, self.o, self.fx, self.raw))[f]
+
+    def test_request(self):
+        self.o["requests"][0]["at"] = 7000
+        self.o["requests"][0]["tolerance"] = 10
+        req = self.raw["requests"][1]
+        for at, want in ((7010, Outcome.PASS), (7011, Outcome.FAIL), (6990, Outcome.PASS), (6989, Outcome.FAIL)):
+            req["wall"] = T0 + at
+            self.assertEqual(self.verdict("requests"), want, at)
+
+    def test_beacon(self):
+        self.o["beacons"][0]["tolerance"] = 0
+        b = next(r for r in self.raw["requests"] if r["url"] == "https://t.example.com/imp?c=1")
+        b["wall"] = T0 + 10000
+        self.assertEqual(self.verdict("beacons"), Outcome.PASS)
+        b["wall"] = T0 + 10001
+        self.assertEqual(self.verdict("beacons"), Outcome.FAIL)
+        # the other beacon keeps the vector's 250
+        e = next(r for r in self.raw["requests"] if r["url"] == "https://t.example.com/end?c=1")
+        e["wall"] = T0 + 20250
+        b["wall"] = T0 + 10000
+        self.assertEqual(self.verdict("beacons"), Outcome.PASS)
+
+    def test_segment_boundary_and_its_from(self):
+        # R16.1's shape: 17 on one boundary, the vector's 250 elsewhere
+        self.o["presentation"][2]["tolerance"] = 17
+        s20 = next(s for s in self.raw["observation"]["samples"] if s["t"] == 20000)
+        s10 = next(s for s in self.raw["observation"]["samples"] if s["t"] == 10000)
+        s10["t"], s10["elements"][0]["time"] = 10200, 10200       # 200 late: within 250
+        for t, want in ((20017, Outcome.PASS), (20018, Outcome.FAIL)):
+            s20["t"], s20["elements"][0]["time"] = t, 20000
+            self.raw["observation"]["samples"].sort(key=lambda x: x["t"])
+            self.assertEqual(self.verdict("presentation"), want, t)
+        s20["t"] = 20000
+        for mt, want in ((20017, Outcome.PASS), (20018, Outcome.FAIL)):     # its `from` too
+            s20["elements"][0]["time"] = mt
+            self.assertEqual(self.verdict("presentation"), want, mt)
+
+
+class Windows(unittest.TestCase):
+    """A presentation boundary written {from, to}: the Player's instant."""
+
+    def setUp(self):
+        self.v, self.o, self.fx = small_vector()
+        del self.o["geometry"]          # its sample at 15000 would be a change of its own
+        self.raw = synthetic_raw(self.v, self.o, self.fx)
+        w = {"from": 15000, "to": 18000}
+        self.o["presentation"][1]["end"] = w
+        self.o["presentation"][2]["start"] = w
+        self.o["presentation"][2]["shows"][0]["from"] = dict(w)
+        self.s20 = next(s for s in self.raw["observation"]["samples"] if s["t"] == 20000)
+
+    def at(self, t):
+        self.s20["t"] = t
+        self.s20["elements"][0]["time"] = t
+        self.raw["observation"]["samples"].sort(key=lambda x: x["t"])
+        return verdicts(run(self.v, self.o, self.fx, self.raw))["presentation"]
+
+    def test_edges(self):
+        for t, want in ((15000, Outcome.PASS), (16500, Outcome.PASS), (18000, Outcome.PASS),
+                        (14750, Outcome.PASS), (18250, Outcome.PASS),
+                        (14749, Outcome.FAIL), (18251, Outcome.FAIL)):
+            self.assertEqual(self.at(t), want, t)
+
+    def test_from_window(self):
+        self.at(16000)
+        self.s20["elements"][0]["time"] = 10000        # the primary jumped back: outside the window
+        self.assertEqual(verdicts(run(self.v, self.o, self.fx, self.raw))["presentation"], Outcome.FAIL)
+
+    def test_same_surfaces_across_a_window_are_not_silent(self):
+        # primary alone on both sides: a split written as a window must still
+        # be observed (an exact split there would be silent)
+        w = {"from": 15000, "to": 18000}
+        self.o["presentation"] = [
+            {"start": 0, "end": w, "layout": "none", "shows": [{"element": "primary", "from": 0}]},
+            {"start": w, "end": 30000, "layout": "none", "shows": [{"element": "primary", "from": 15000}]}]
+        self.raw["observation"]["samples"] = [{"t": 0, "layout": "none", "elements": [
+            {"element": "primary", "rect": FULL, "time": 0, "paused": False, "rate": 1}]}]
+        self.assertEqual(verdicts(run(self.v, self.o, self.fx, self.raw))["presentation"], Outcome.FAIL)
+
+    def test_a_window_is_never_silent(self):
+        # the change must be observed: without it, a FAIL even though the
+        # surfaces either side could look alike
+        self.raw["observation"]["samples"].remove(self.s20)
+        self.assertEqual(verdicts(run(self.v, self.o, self.fx, self.raw))["presentation"], Outcome.FAIL)
+
+
+class ExtraQuery(unittest.TestCase):
+    def setUp(self):
+        self.v, self.o, self.fx = small_vector()
+        self.raw = synthetic_raw(self.v, self.o, self.fx)
+        self.req = self.raw["requests"][1]
+        self.o["requests"][0]["extra_query_pattern"] = "x-[a-z0-9]+-.+"
+
+    def verdict(self, url):
+        self.req["url"] = url
+        return verdicts(run(self.v, self.o, self.fx, self.raw))["requests"]
+
+    def test_pattern(self):
+        base = "https://aps.example.com/ov?a=1&sgai-video-decoders=2"
+        self.assertEqual(self.verdict(base), Outcome.PASS)
+        self.assertEqual(self.verdict(base + "&x-acme-model=tv1"), Outcome.PASS)
+        self.assertEqual(self.verdict(base + "&x-acme-model=tv1&x-b-c=2"), Outcome.PASS)
+        self.assertEqual(self.verdict(base + "&model=tv1"), Outcome.FAIL)          # unprefixed
+        self.assertEqual(self.verdict(base + "&x-acme=tv1"), Outcome.FAIL)         # no name after the prefix
+        self.assertEqual(self.verdict(base + "&ax-acme-model=tv1"), Outcome.FAIL)   # the whole name
+        self.assertEqual(self.verdict("https://aps.example.com/ov?a=1&x-acme-model=1"), Outcome.FAIL)  # query missing
+
+    def test_without_pattern_exact(self):
+        del self.o["requests"][0]["extra_query_pattern"]
+        self.assertEqual(self.verdict("https://aps.example.com/ov?a=1&sgai-video-decoders=2&x-acme-model=1"),
+                         Outcome.FAIL)
+
+
+class NotCompared(unittest.TestCase):
+    def test_requests_not_compared(self):
+        v, o, fx = small_vector()
+        raw = synthetic_raw(v, o, fx)
+        o["requests"] = []
+        o["requests_not_compared"] = "R4.10 forbids presenting, not requesting"
+        rs = run(v, o, fx, raw)
+        self.assertEqual(verdicts(rs)["requests"], Outcome.NOT_APPLICABLE)
+        self.assertIn("R4.10 forbids", details(rs)["requests"])
+        del o["requests_not_compared"]
+        self.assertEqual(verdicts(run(v, o, fx, raw))["requests"], Outcome.FAIL)   # the request is unexpected
+
+
+LIST = """<svta:OverlayList xmlns="urn:mpeg:dash:schema:mpd:2011" xmlns:svta="urn:svta:dash:sgai:2026" family="overlay">
+<svta:Ad><svta:RenderableAsset src="https://cdn/a.png" mimeType="image/png" duration="PT4S" layout="overlay-corner"/>
+<svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1" timescale="1000">
+<Event presentationTime="0" id="1">https://t.example.com/imp?c=1</Event></svta:Tracking>
+<svta:ClickThrough uri="https://brand.example.com/c1"/></svta:Ad>
+<svta:Ad><svta:RenderableAsset src="https://cdn/b.png" mimeType="image/png" duration="PT4S" layout="overlay-corner"/>
+<svta:Tracking schemeIdUri="urn:mpeg:dash:event:callback:2015" value="1" timescale="1000">
+<Event presentationTime="0" id="1">https://t.example.com/imp?c=2</Event></svta:Tracking>
+<svta:ClickThrough uri="https://brand.example.com/c2" trackingUris="https://t.example.com/clk?c=2 https://t2.example.com/clk"/>
+</svta:Ad></svta:OverlayList>"""
+
+
+class Clicks(unittest.TestCase):
+    """R28.1's carrier: click-tracking fired and the destination made
+    available, at the activation; neither otherwise."""
+
+    def setUp(self):
+        self.v, self.o, self.fx = small_vector()
+        self.fx.texts["behaviour/fixtures/X/ol.xml"] = LIST
+        self.fx.urls["behaviour/fixtures/X/ol.xml"] = "https://aps.example.com/ol"
+        c1 = {"fixture": "behaviour/fixtures/X/ol.xml", "index": 1}
+        c2 = {"fixture": "behaviour/fixtures/X/ol.xml", "index": 2}
+        self.o["clicks"] = [{"at": 7000, "fixture": c2["fixture"], "candidate": c2, "url": "https://t.example.com/clk?c=2"},
+                            {"at": 7000, "fixture": c2["fixture"], "candidate": c2, "url": "https://t2.example.com/clk"}]
+        self.o["destinations"] = [{"at": 3000, "fixture": c1["fixture"], "candidate": c1},
+                                  {"at": 7000, "fixture": c2["fixture"], "candidate": c2}]
+        self.raw = synthetic_raw(self.v, self.o, self.fx)
+        self.add("https://t.example.com/clk?c=2", 7050)
+        self.add("https://t2.example.com/clk", 7060)
+        self.add("https://brand.example.com/c1", 3100)
+        self.raw["observation"]["destinations"] = [{"t": 7020, "uri": "https://brand.example.com/c2"}]
+
+    def add(self, url, at):
+        self.raw["requests"].append({"wall": T0 + at, "url": url, "kind": "other", "resourceType": "document"})
+
+    def got(self):
+        return verdicts(run(self.v, self.o, self.fx, self.raw))
+
+    def test_as_expected(self):
+        g = self.got()
+        self.assertEqual((g["clicks"], g["destinations"], g["beacons"]), (Outcome.PASS,) * 3)
+
+    def test_fields_only_with_clicks(self):
+        del self.o["clicks"], self.o["destinations"]
+        g = self.got()
+        self.assertNotIn("clicks", g)
+        # without `clicks`, a fired click-tracking URL is an unexpected beacon
+        self.assertEqual(g["beacons"], Outcome.FAIL)
+
+    def test_one_url_of_the_list_missing(self):
+        self.raw["requests"] = [r for r in self.raw["requests"] if r["url"] != "https://t2.example.com/clk"]
+        self.assertEqual(self.got()["clicks"], Outcome.FAIL)
+
+    def test_click_threshold(self):
+        r = next(r for r in self.raw["requests"] if r["url"] == "https://t2.example.com/clk")
+        for at, want in ((7250, Outcome.PASS), (7251, Outcome.FAIL), (6750, Outcome.PASS), (6749, Outcome.FAIL)):
+            r["wall"] = T0 + at
+            self.assertEqual(self.got()["clicks"], want, at)
+
+    def test_fired_twice_or_without_activation(self):
+        self.add("https://t.example.com/clk?c=2", 7100)
+        self.assertEqual(self.got()["clicks"], Outcome.FAIL)
+        self.raw["requests"].pop()
+        self.o["clicks"], self.o["destinations"] = [], []
+        g = self.got()
+        self.assertEqual((g["clicks"], g["destinations"]), (Outcome.FAIL, Outcome.FAIL))
+
+    def test_none_expected_none_observed(self):
+        self.o["clicks"], self.o["destinations"] = [], []
+        self.raw["requests"] = [r for r in self.raw["requests"] if "clk" not in r["url"] and "brand" not in r["url"]]
+        self.raw["observation"]["destinations"] = []
+        g = self.got()
+        self.assertEqual((g["clicks"], g["destinations"]), (Outcome.PASS, Outcome.PASS))
+
+    def test_destination_opened_or_shown(self):
+        # c2's destination shown on screen; also opened at the same time is no extra
+        self.add("https://brand.example.com/c2", 7030)
+        self.assertEqual(self.got()["destinations"], Outcome.PASS)
+        # c1's destination never made available
+        self.raw["requests"] = [r for r in self.raw["requests"] if r["url"] != "https://brand.example.com/c1"]
+        self.assertEqual(self.got()["destinations"], Outcome.FAIL)
+
+    def test_click_url_must_be_a_tracking_uri(self):
+        # an expected click on the destination URL is not a click-tracking URL
+        self.o["clicks"][1]["url"] = "https://brand.example.com/c2"
+        r = next(r for r in self.raw["requests"] if r["url"] == "https://t2.example.com/clk")
+        r["url"] = "https://brand.example.com/c2"
+        self.assertEqual(self.got()["clicks"], Outcome.NOT_VERIFIABLE)
+
+    def test_destination_swapped_for_tracking(self):
+        # a Player that opens the tracking URL and pings the destination
+        self.raw["observation"]["destinations"] = [{"t": 7020, "uri": "https://t.example.com/clk?c=2"}]
+        g = self.got()
+        self.assertEqual(g["destinations"], Outcome.FAIL)
+
+    def test_destination_too_late(self):
+        self.raw["observation"]["destinations"] = [{"t": 7251, "uri": "https://brand.example.com/c2"}]
+        self.assertEqual(self.got()["destinations"], Outcome.FAIL)
+
+    def test_overlay_candidate_scope_of_a_beacon(self):
+        # a beacon named by candidate and @id in an OverlayList, with no url
+        self.o["beacons"].append({"at": 9000, "fixture": "behaviour/fixtures/X/ol.xml",
+                                  "candidate": {"fixture": "behaviour/fixtures/X/ol.xml", "index": 2}, "id": "1"})
+        self.add("https://t.example.com/imp?c=2", 9000)
+        self.assertEqual(self.got()["beacons"], Outcome.PASS)
+
+
 class Normalise(unittest.TestCase):
     def test_units(self):
-        obs = normalise({"t0": 1000, "requests": [{"wall": 3000, "url": "u", "kind": "document"},
-                                                  {"wall": 2000, "url": "b", "kind": "other"}],
+        obs = normalise({"t0": 1000, "startupMs": 0,
+                         "requests": [{"wall": 3000, "url": "u", "kind": "document"},
+                                      {"wall": 2000, "url": "b", "kind": "other"}],
                          "observation": {"samples": [{"t": 500, "layout": "none", "elements": [
                              {"element": "primary", "time": 1000}], "seek": {"from": 0, "to": 1000}}]}},
                         90000)
@@ -646,6 +939,68 @@ class Normalise(unittest.TestCase):
         self.assertEqual(obs.samples[0]["t"], 45000)
         self.assertEqual(obs.samples[0]["elements"][0]["time"], 90000)
         self.assertEqual(obs.samples[0]["seek"]["to"], 90000)
+
+
+class Origin(unittest.TestCase):
+    """The session clock starts at the first frame presented, not at load()
+    (spec-source/scenarios/README.md): what happened before it is at 0."""
+
+    def raw(self, startup, **extra):
+        p = {"element": "primary", "rect": FULL, "time": 0, "paused": False, "rate": 1}
+        return dict({"t0": T0, "requests": [
+            {"wall": T0 + 100, "url": "https://x/early", "kind": "other"},
+            {"wall": T0 + startup + 2000, "url": "https://x/late", "kind": "other"}],
+            "observation": {"samples": [{"t": 50, "layout": "none", "elements": []},
+                                        {"t": startup, "layout": "none", "elements": [p]},
+                                        {"t": startup + 1000, "layout": "none", "elements": [dict(p, time=1000)]}],
+                            "destinations": [{"t": startup + 3000, "uri": "https://brand/x"}]}}, **extra)
+
+    def test_origin_from_each_source(self):
+        # the runner's origin, the adapter's firstFrame, or the first sample
+        # that shows something: the same instant, 565 ms after load()
+        for raw in (self.raw(565, startupMs=565, origin=T0 + 565),
+                    self.raw(565, origin=T0 + 565),
+                    dict(self.raw(565), observation=dict(self.raw(565)["observation"], firstFrame=565)),
+                    self.raw(565)):
+            obs = normalise(raw, 1000)
+            self.assertEqual(obs.startup, 565)
+            self.assertEqual([o["at"] for o in obs.others], [0, 2000])     # the early one at 0
+            self.assertEqual([s["t"] for s in obs.samples], [0, 0, 1000])
+            self.assertEqual(obs.destinations, [{"at": 3000, "uri": "https://brand/x"}])
+
+    def test_a_background_is_not_the_first_frame(self):
+        raw = self.raw(565)
+        raw["observation"]["samples"].insert(1, {"t": 300, "layout": "none", "elements": [
+            {"element": "background", "rect": FULL}]})
+        self.assertEqual(normalise(raw, 1000).startup, 565)
+
+    def test_no_frame_keeps_load(self):
+        raw = self.raw(565)
+        raw["observation"]["samples"] = [{"t": 50, "layout": "none", "elements": []}]
+        obs = normalise(raw, 1000)
+        self.assertIsNone(obs.startup)
+        self.assertEqual([o["at"] for o in obs.others], [100, 2565])
+
+    def test_instant_zero_survives_a_long_startup(self):
+        # T-03's finding: 227-565 ms from load() to the first frame against a
+        # 250 ms tolerance. A beacon fired with the first frame is at 0.
+        v, o, fx = small_vector()
+        o["beacons"][0]["at"] = 0
+        o["requests"] = []
+        raw = synthetic_raw(v, o, fx)
+        del raw["requests"][1:]
+        raw["requests"].append({"wall": T0 + 565, "url": "https://t.example.com/imp?c=1", "kind": "other"})
+        raw["requests"].append({"wall": T0 + 565 + 20000, "url": "https://t.example.com/end?c=1", "kind": "other"})
+        for s in raw["observation"]["samples"]:
+            s["t"] = s["t"] + 565 if s["t"] > 30 else s["t"]
+        raw["observation"]["samples"][1]["t"] = 565
+        del raw["startupMs"], raw["origin"]
+        got = verdicts(run(v, o, fx, raw))
+        self.assertEqual(got["beacons"], Outcome.PASS)
+        self.assertEqual(got["presentation"], Outcome.PASS)
+        # the same record on the load() clock: the beacon is 565 ms late
+        raw["startupMs"] = 0
+        self.assertEqual(verdicts(run(v, o, fx, raw))["beacons"], Outcome.FAIL)
 
 
 if __name__ == "__main__":

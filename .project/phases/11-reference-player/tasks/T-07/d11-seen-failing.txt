@@ -1,0 +1,60 @@
+# D-11 (ADR 0085): each job of T-07's tests on the reference WITHOUT T-07 (T-06's committed state, a932fcc),
+# session clock (baseline-before.out). A job is seen failing when a field other than beacons (T-08's) FAILs.
+R12.5-1 D1     SEEN FAILING: selection, presentation, geometry
+R12.5-2 D1     SEEN FAILING: presentation
+R12.5-3 D1     SEEN FAILING: presentation
+R12.5-4 D1     SEEN FAILING: presentation, geometry
+R12.5-4 D5     SEEN FAILING: presentation
+R16.1 D1       SEEN FAILING: presentation
+R17.1 D1       SEEN FAILING: presentation
+R17.2 D1       SEEN FAILING: presentation
+R17.5 D1       SEEN FAILING: selection, presentation
+R19.1 D1       SEEN FAILING: selection, presentation
+R19.1 D2       SEEN FAILING: requests, selection, presentation
+R19.3 D1       SEEN FAILING: presentation
+R19.3 D4       SEEN FAILING: presentation
+R22.1 D1       SEEN FAILING: presentation
+R22.1 D4       SEEN FAILING: presentation
+R25.1 D1       SEEN FAILING: requests, selection, presentation
+R26.1 D1       SEEN FAILING: presentation, geometry
+R26.1 D3       SEEN FAILING: presentation, geometry
+R26.1 D4       SEEN FAILING: presentation, geometry
+R26.3 D1       SEEN FAILING: presentation
+R26.3 D2       SEEN FAILING: presentation
+R26.3 D3       SEEN FAILING: presentation
+R26.3 D4       SEEN FAILING: presentation
+R26.3 D5       NOT seen failing: (all non-beacon fields PASS)
+R27.1 D1       SEEN FAILING: presentation, geometry
+R27.1 D3       SEEN FAILING: presentation, geometry
+R27.3 D1       SEEN FAILING: presentation
+R27.3 D2       SEEN FAILING: presentation
+R27.3 D3       SEEN FAILING: presentation
+R27.3 D4       SEEN FAILING: presentation
+R27.3 D5       NOT seen failing: (all non-beacon fields PASS)
+R31.2 D1       SEEN FAILING: presentation
+R31.2 D4       SEEN FAILING: presentation
+R35.4-1 D1     SEEN FAILING: selection, presentation
+R35.4-1 D4     SEEN FAILING: selection, presentation
+R35.4-2 D1     SEEN FAILING: selection, presentation
+R35.4-2 D4     SEEN FAILING: selection, presentation
+R35.5 D1       SEEN FAILING: presentation
+R35.5 D5       SEEN FAILING: presentation
+R37.2 D1       SEEN FAILING: presentation
+R37.2 D4       SEEN FAILING: presentation
+R40.4-1 D1     SEEN FAILING: selection, presentation
+R40.4-1 D4     SEEN FAILING: selection, presentation
+R40.4-2 D1     SEEN FAILING: presentation
+R40.4-2 D4     SEEN FAILING: presentation
+R40.5-1 D1     SEEN FAILING: selection, presentation
+R40.5-1 D4     SEEN FAILING: selection, presentation
+R40.5-2 D1     SEEN FAILING: selection, presentation
+R40.5-2 D4     SEEN FAILING: selection, presentation
+R40.6 D1       SEEN FAILING: requests, selection, presentation
+R40.6 D4       SEEN FAILING: requests, selection, presentation
+R40.9-1 D1     SEEN FAILING: requests, selection, presentation
+R40.9-1 D4     SEEN FAILING: requests, selection, presentation
+R40.9-2 D1     SEEN FAILING: presentation
+R40.9-2 D4     SEEN FAILING: presentation
+R40.9-3 D1     SEEN FAILING: requests, presentation
+R40.9-3 D4     SEEN FAILING: requests, presentation
+# 55 of 57 jobs seen failing

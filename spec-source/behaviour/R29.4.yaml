@@ -5,9 +5,10 @@
 # Player adds: the reserved slot parameter, and nothing else. A Player that
 # adds an unprefixed name of its own (`model=...`) adds a parameter this
 # outcome does not list.
-# Limit, said in the evidence README (T-04/b): `query` cannot admit a
-# vendor-prefixed parameter (`x-<vendor>-...`), which the criterion allows,
-# so this test also rejects a conformant Player that adds one.
+# A vendor-prefixed parameter is allowed (`extra_query_pattern`): the form of
+# the prefix is the specification's, `x-<vendor>-` (spec §5.8.4, "a vendor
+# prefix of the form `x-<vendor>-`"), since "vendor-specific prefix" alone
+# cannot tell a prefixed name from an unprefixed one.
 format: sgai-scenario/1
 criterion: R29.4
 criterion_sha256: 848946a5940c1716f61c2fbfc9f800fdfa541e49ea055b8d15403b48f604e195
@@ -32,11 +33,13 @@ outcomes:
   D1: &o
     summary: >-
       The Publisher's query is kept as written and the Player appends only
-      sgai-allowed-layouts; no unprefixed parameter of the Player's own.
+      sgai-allowed-layouts, plus only vendor-prefixed (x-<vendor>-) parameters
+      of its own; no unprefixed parameter of the Player's own.
     requests:
       - at: 3000
         url: https://aps.example.com/behaviour/r29-4?title=beh294&device=tv
         query: {sgai-allowed-layouts: overlay-corner}
+        extra_query_pattern: 'x-[a-z0-9]+-[A-Za-z0-9._~-]+'
         answered_by: behaviour/fixtures/R29.4/empty.xml
     selection:
       - {opportunity: {fixture: behaviour/fixtures/R29.4/main.mpd, event_id: "1"}, result: declined, presented: []}

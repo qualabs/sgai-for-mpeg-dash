@@ -1,0 +1,72 @@
+--- bin/players/behaviour.mjs	2026-11-24 00:23:59.751532569 -0300
++++ /home/nicolas/.cache/cto-tmp/t07-dev-1KMY/bin/players/behaviour.mjs	2026-11-24 13:34:01.497004608 -0300
+@@ -45,6 +45,18 @@
+ const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+ const STARTUP_LIMIT_MS = 30000;
+ const CORS = { 'access-control-allow-origin': '*', 'cache-control': 'no-store' };
++// T-07 dev copy only: screenshots at session times, and visible creatives.
++const SHOTS_DIR = process.env.SGAI_SHOTS_DIR || null;
++const SHOTS_AT = (process.env.SGAI_SHOTS_AT || '').split(',').filter(Boolean).map(Number);
++const PALETTE = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c'];
++function creative(url, kind) {
++  const name = url.split('/').slice(-2).join('/');
++  let h = 0; for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
++  const col = PALETTE[h % PALETTE.length];
++  const label = `${kind}: ${name}`;
++  if (kind === 'html') return `<!doctype html><body style="margin:0;background:${col};font:bold 28px sans-serif;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh">${label}</body>`;
++  return `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180" viewBox="0 0 320 180" preserveAspectRatio="none"><rect width="320" height="180" fill="${col}" fill-opacity="0.85"/><text x="160" y="95" font-family="sans-serif" font-size="16" fill="#fff" text-anchor="middle">${label}</text></svg>`;
++}
+ 
+ // The declared URL covers the requested one: same origin and path, and every
+ // query parameter of the declared one present with the same value.
+@@ -104,6 +116,8 @@
+       const image = req.resourceType() === 'image';
+       Object.assign(rec, { kind: 'other', status: image ? 200 : 204 });
+       requests.push(rec);
++      if (SHOTS_DIR && image) return await route.fulfill({ status: 200, headers: CORS, contentType: 'image/svg+xml', body: creative(url, url.includes('background') ? 'background' : 'image') });
++      if (SHOTS_DIR && /\.html(\?|$)/.test(url)) return await route.fulfill({ status: 200, headers: CORS, contentType: 'text/html', body: creative(url, 'html') });
+       return await route.fulfill(image
+         ? { status: 200, headers: CORS, contentType: 'image/png', body: PNG }
+         : { status: 204, headers: CORS, body: '' });
+@@ -135,6 +149,7 @@
+     out.origin = first === null ? null : loaded + first;
+     const t0 = first === null ? loaded : loaded + first;
+     const pending = job.actions.slice().sort((a, b) => a.atMs - b.atMs);
++    const shots = SHOTS_DIR ? SHOTS_AT.slice() : [];
+     for (;;) {
+       const t = Date.now() - t0;
+       if (t >= job.observeMs) break;
+@@ -150,6 +165,19 @@
+           } else {
+             rec.result = { done: null, reason: 'no ad surface on screen to click' };
+           }
++        } else if (process.env.SGAI_RAF_RESUME && a.do === 'resume') {
++          // T-07 dev copy only: the resume issued inside a rAF callback; the
++          // ad surfaces still shown at the next rAF callback are counted.
++          rec.result = await page.evaluate((x) => new Promise((res) => requestAnimationFrame((f0) => {
++            const vis = (el) => { const cs = getComputedStyle(el); const r = el.getBoundingClientRect();
++              return cs.display !== 'none' && cs.visibility === 'visible' && Number(cs.opacity) > 0 && r.width > 0 && el.isConnected; };
++            const before = [...document.querySelectorAll('[data-sgai-element="ad"]')].filter(vis).map((e) => e.dataset.sgaiDoc.split('/').pop());
++            const r = window.SGAI_ADAPTER.act(x);
++            requestAnimationFrame((f1) => {
++              const after = [...document.querySelectorAll('[data-sgai-element="ad"]')].filter(vis).map((e) => e.dataset.sgaiDoc.split('/').pop());
++              res(Object.assign({}, r, { raf: { adsBefore: before, adsNextFrame: after, frameMs: Math.round((f1 - f0) * 10) / 10 } }));
++            });
++          })), { do: a.do, to: a.to, rate: a.rate });
+         } else {
+           rec.result = await page.evaluate((x) => window.SGAI_ADAPTER.act(x),
+             { do: a.do, to: a.to, rate: a.rate });
+@@ -157,6 +185,13 @@
+         rec.doneAt = Date.now() - t0;
+         actions.push(rec);
+       }
++      while (shots.length && shots[0] <= Date.now() - t0) {
++        const at = shots.shift();
++        const real = Date.now() - t0;
++        const layout = await page.evaluate(() => document.getElementById('sgai-viewport').dataset.sgaiLayout);
++        await page.screenshot({ path: `${SHOTS_DIR}/${job.id.replace(/[^\w.-]+/g, '_')}-at${at}-${layout}.png`, clip: { x: 0, y: 0, width: 960, height: 540 } });
++        process.stderr.write(`shot ${job.id} at ${at} (taken ${real}) layout ${layout}\n`);
++      }
+       const next = pending.length ? pending[0].atMs - (Date.now() - t0) : 50;
+       await sleep(Math.max(1, Math.min(50, next, job.observeMs - (Date.now() - t0))));
+     }

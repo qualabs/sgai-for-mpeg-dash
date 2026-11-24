@@ -33,12 +33,23 @@ or an entry in `index.yaml` with its `NOT_VERIFIABLE` reason, never both.
   `../examples/index.yaml`), green on levels 1 and 2 like any fixture.
 - **`aps`**: how the test APS answers. One entry per URL (and `nth` to pick
   one request of several): `status` with an optional `document` (absent: an
-  empty body) and `delay`, or `no_response: true`. A URL no entry names is
+  empty body) and `delay`, or `no_response: true`. Any URL can be named: a
+  resolution request, a document, a media segment, a creative (R1.4 fails
+  an ad's segments, R5.9 an option's image). A URL no entry names is
   answered at once with `200` and the request's `answered_by`; a request
   answered without a document has no `answered_by`.
 - **`actions`**: as in a UC vector (`pause`, `resume`, `seek` with `to`,
   `rate` with `rate`, `dismiss`, `activate` for a click on the ad), at
   session times.
+- **What the schema has for a criterion's edges** (`../scenarios/README.md`,
+  "The fields", says how each is written): `expect_red` for a fixture that
+  is defective on purpose (R4.10's window without `@durationCap`);
+  `requests_not_compared` when the criterion binds what is presented and not
+  what is requested (R4.10); `clicks` and `destinations` for a ClickThrough
+  (R28.1, R28.2); a `{from, to}` presentation boundary when the instant is
+  the Player's (R1.4's abort); an item's own `tolerance` when the criterion
+  bounds one boundary and not the others (R16.1's one frame);
+  `extra_query_pattern` for parameters the Player may add (R29.4).
 - **`geometry`** (per outcome): at an instant `at`, the expected `primary`
   and `ad` rectangles, `{x, y, width, height}` in percent of the Player's
   viewport, origin top-left, with a `tolerance` in percentage points per

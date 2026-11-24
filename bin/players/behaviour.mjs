@@ -12,12 +12,19 @@
 //   documents: [{ url, path, body, contentType }],      the vector's fixtures
 //   aps:       [{ url, nth, status, path, body, contentType, delayMs, noResponse }],
 //   media:     [{ prefix, local }] }] }               external prefix -> local
-// raw.json: { browser, results: [{ id, ok, harnessError, t0, requests,
-//   actions, observation, pageErrors, mediaResponses, mediaErrors }] }
+// raw.json: { browser, results: [{ id, ok, harnessError, t0, origin, startupMs,
+//   requests, actions, observation, pageErrors, mediaResponses, mediaErrors }] }
 //
-// Every request leaving the local origin is answered here (ADR 0079), and
-// each is recorded with its wall time (ms since the epoch; the page's session
-// clock starts at `t0`, on the same clock):
+// The session clock (spec-source/scenarios/README.md) starts at the first
+// frame, not at load(): `t0` is the wall time of load(), `origin` the wall
+// time of the first frame the adapter saw (`startupMs` after `t0`; null when
+// none came within STARTUP_LIMIT_MS, and then the clock starts at `t0`).
+// Actions are made, and observation ends, on the session clock.
+//
+// Every request leaving the local origin, from the page or from a page it
+// opens (a ClickThrough destination opened as a popup), is answered here
+// (ADR 0079), and each is recorded with its wall time (ms since the epoch,
+// the clock of `t0` and `origin`):
 //   1. an `aps` entry for its URL (and request number): its status, document,
 //      delay, or no answer at all — kind 'aps';
 //   2. a fixture whose URL it is (the fixture's query a subset of the
@@ -36,6 +43,7 @@ const input = JSON.parse(await new Promise((resolve) => {
 }));
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+const STARTUP_LIMIT_MS = 30000;
 const CORS = { 'access-control-allow-origin': '*', 'cache-control': 'no-store' };
 
 // The declared URL covers the requested one: same origin and path, and every
@@ -56,7 +64,7 @@ async function runJob(browser, job) {
   let mediaResponses = 0;
   const mediaErrors = [];
   const media = job.media.slice().sort((a, b) => b.prefix.length - a.prefix.length);
-  await page.route('**/*', async (route) => {
+  await context.route('**/*', async (route) => {
     const req = route.request();
     const url = req.url();
     if (url.startsWith(input.origin)) return route.continue();
@@ -115,14 +123,22 @@ async function runJob(browser, job) {
     out.version = (await page.evaluate(() => window.SGAI.ready)).version;
     await page.evaluate((c) => window.SGAI_ADAPTER.configure(c),
       { mode: job.mode, klass: job.klass, capabilities: job.capabilities, startTime: job.startTime });
-    const t0 = await page.evaluate((u) => { window.SGAI.load(u); return window.SGAI_ADAPTER.sessionStart(); },
+    const loaded = await page.evaluate((u) => { window.SGAI.load(u); return window.SGAI_ADAPTER.sessionStart(); },
       job.entryUrl);
-    out.t0 = t0;
+    out.t0 = loaded;
+    let first = null;
+    while (first === null && Date.now() - loaded < Math.min(STARTUP_LIMIT_MS, job.wallLimitMs)) {
+      first = await page.evaluate(() => window.SGAI_ADAPTER.firstFrame());
+      if (first === null) await sleep(5);
+    }
+    out.startupMs = first;
+    out.origin = first === null ? null : loaded + first;
+    const t0 = first === null ? loaded : loaded + first;
     const pending = job.actions.slice().sort((a, b) => a.atMs - b.atMs);
     for (;;) {
       const t = Date.now() - t0;
       if (t >= job.observeMs) break;
-      if (t > job.wallLimitMs) { out.timedOut = true; break; }
+      if (Date.now() - loaded > job.wallLimitMs) { out.timedOut = true; break; }
       while (pending.length && pending[0].atMs <= t) {
         const a = pending.shift();
         const rec = { at: a.atMs, do: a.do, startedAt: Date.now() - t0 };
