@@ -1,0 +1,63 @@
+$ python3 bin/check-dash-conformance.py --behaviour --only UC-01 UC-02 --concurrency 2 --reference <HEAD's reference-player/src, scratch copy> 
+PASS            UC-01 D1                     requests      3 request(s) as expected
+PASS            UC-01 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D1                     presentation  3 segment(s) as expected; startup 964 before the first frame
+PASS            UC-01 D1                     beacons       9 beacon(s) as expected
+PASS            UC-01 D2                     requests      3 request(s) as expected
+PASS            UC-01 D2                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D2                     presentation  3 segment(s) as expected; startup 776 before the first frame
+PASS            UC-01 D2                     beacons       9 beacon(s) as expected
+PASS            UC-01 D3                     requests      3 request(s) as expected
+PASS            UC-01 D3                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D3                     presentation  3 segment(s) as expected; startup 748 before the first frame
+PASS            UC-01 D3                     beacons       9 beacon(s) as expected
+PASS            UC-01 D4                     requests      3 request(s) as expected
+PASS            UC-01 D4                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D4                     presentation  3 segment(s) as expected; startup 1284 before the first frame
+PASS            UC-01 D4                     beacons       9 beacon(s) as expected
+PASS            UC-01 D5                     requests      3 request(s) as expected
+PASS            UC-01 D5                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D5                     presentation  3 segment(s) as expected; startup 736 before the first frame
+PASS            UC-01 D5                     beacons       9 beacon(s) as expected
+PASS            UC-02 D1                     requests      2 request(s) as expected
+PASS            UC-02 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D1                     presentation  observed a change at 60237 from none [nothing] to none [primary], which the vector does not have; presentation[2] 60000..70000 expected none [primary from 630000]; observed none [nothing] from 59982 to 60237 [startup 191; observed: 0..29995 none [primary] from 570012; 29995..59982 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59982..60237 none [nothing]; 60237..70000 none [primary] from 630000]
+FAIL            UC-02 D1                     beacons       beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 60000; observed at never
+PASS            UC-02 D2                     requests      2 request(s) as expected
+PASS            UC-02 D2                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D2                     presentation  3 segment(s) as expected; startup 242 before the first frame
+FAIL            UC-02 D2                     beacons       beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 60000; observed at never
+PASS            UC-02 D3                     requests      2 request(s) as expected
+PASS            UC-02 D3                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D3                     presentation  observed a change at 60280 from none [nothing] to none [primary], which the vector does not have; presentation[2] 60000..70000 expected none [primary from 630000]; observed none [nothing] from 59984 to 60280 [startup 1153; observed: 0..29993 none [primary] from 570018; 29993..59984 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59984..60280 none [nothing]; 60280..70000 none [primary] from 630001]
+FAIL            UC-02 D3                     beacons       beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 60000; observed at never
+PASS            UC-02 D4                     requests      2 request(s) as expected
+PASS            UC-02 D4                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D4                     presentation  3 segment(s) as expected; startup 162 before the first frame
+FAIL            UC-02 D4                     beacons       beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 60000; observed at never
+PASS            UC-02 D5                     requests      2 request(s) as expected
+PASS            UC-02 D5                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D5                     presentation  observed a change at 60408 from none [nothing] to none [primary], which the vector does not have; presentation[2] 60000..70000 expected none [primary from 630000]; observed none [nothing] from 59994 to 60408 [startup 230; observed: 0..30010 none [primary] from 570013; 30010..59994 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59994..60408 none [nothing]; 60408..70000 none [primary] from 630001]
+FAIL            UC-02 D5                     beacons       beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 60000; observed at never
+PASS            UC-02 D1 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1 [trick-play-2x]     presentation  3 segment(s) as expected; startup 189 before the first frame
+FAIL            UC-02 D1 [trick-play-2x]     beacons       beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000; observed at never
+PASS            UC-02 D2 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D2 [trick-play-2x]     presentation  3 segment(s) as expected; startup 177 before the first frame
+FAIL            UC-02 D2 [trick-play-2x]     beacons       beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000; observed at never
+PASS            UC-02 D3 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D3 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D3 [trick-play-2x]     presentation  observed a change at 30653 from none [nothing] to none [primary], which the vector does not have; presentation[2] 30000..70000 expected none [primary from 630000]; observed none [nothing] from 30035 to 30653 [startup 277; observed: 0..15019 none [primary] from 570006; 15019..30035 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30035..30653 none [nothing]; 30653..70000 none [primary] from 630030]
+PASS            UC-02 D3 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D4 [trick-play-2x]     presentation  observed a change at 30614 from none [nothing] to none [primary], which the vector does not have; presentation[2] 30000..70000 expected none [primary from 630000]; observed none [nothing] from 30107 to 30614 [startup 528; observed: 0..15051 none [primary] from 570008; 15051..30107 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30107..30614 none [nothing]; 30614..70000 none [primary] from 630001]
+FAIL            UC-02 D4 [trick-play-2x]     beacons       beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000; observed at never
+PASS            UC-02 D5 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D5 [trick-play-2x]     presentation  observed a change at 30318 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to none [primary], which the vector does not have; presentation[2] expected a change at 30000 to none [primary from 630000]; none observed within 250 (on screen: linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] from 15081); presentation[2] 30000..70000 expected none [primary from 630000]; observed linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] from 15081 to 30318 [startup 1306; observed: 0..15081 none [primary] from 570007; 15081..30318 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30318..70000 none [primary] from 630001]
+FAIL            UC-02 D5 [trick-play-2x]     beacons       beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000; observed at never
+exit 1: PASS 45  FAIL 15  NOT_VERIFIABLE 0; wall 528.4 s; content 0.0 s (0 ffmpeg runs, 9 cuts from the cache), players 527.3 s
+exit 1

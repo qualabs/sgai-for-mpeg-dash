@@ -56,7 +56,7 @@ M = [
     ("M09", "R17.1 PLY-52 a pause ad suspends the overlay (only the top form is shown)",
      C, "        if (x === h) continue;", "        if (x === h || x.kind === 'overlay') continue;", "R17.1", ["D1"]),
     ("M10", "R17.2 PLY-53 the overlay is restored on resume",
-     N, "      if (x.h && x.h.suspended && !this.pauseShown()) { x.h.resume();", "      if (x.h && x.h.suspended && false) { x.h.resume();", "R17.2", ["D1"]),
+     N, "      for (const x of this.execs) if (x.h && x.h.suspended && !(x.w.tl.main", "      for (const x of this.execs.slice()) this.endExec(x, 'not restored'); for (const x of this.execs) if (x.h && x.h.suspended && !(x.w.tl.main", "R17.2", ["D1"]),
     ("M11", "R17.5 PLY-55 a pause ad over a linear ad (the act order)",
      R, "      for (const f of this.families.slice().reverse()) {", "      for (const f of this.families) {", "R17.5", ["D1"]),
     ("M12", "R19.3 PLY-69 the slot runs on media time (d/r on screen)",
@@ -70,7 +70,7 @@ M = [
     ("M15", "R35.4 PLY-75 a dismissal ends the whole overlay slot",
      N, "      this.endExec(x, 'dismissed by the viewer (R35.4)');", "      x.slotT = x.plan[x.k].start + x.plan[x.k].shown;", "R35.4-1", ["D1"]),
     ("M16", "R35.4 PLY-75 no request-again after a pause dismissal",
-     N, "        slot.stopped = true;   // no repeat, no request-again (PLY-75)", "        slot.stopped = false; slot.plan = [{ c: slot.plan[slot.k].c, start: 0, shown: 0 }];", "R35.4-2", ["D1"]),
+     N, "        slot.plan = null;\n        slot.stopped = true;   // no repeat, no request-again (PLY-75)", "        slot.plan = [];", "R35.4-2", ["D1"]),
     ("M17", "R35.5 PLY-76 a dismissed takeover does not skip the primary",
      N, "      this.endExec(x, 'dismissed by the viewer (R35.4)');", "      const left = x.plan.reduce((s, p) => s + p.shown, 0) - x.slotT; this.endExec(x, 'dismissed'); this.player.seek(this.main.currentTime + left);", "R35.5", ["D1"]),
     ("M18", "R37.2 PLY-59 resume from the suspended position",
@@ -198,6 +198,12 @@ def main():
                             caught.append(f"{k[0]} {k[1]} new item {','.join(sorted(extra))} ({clock})")
             print(f"{mid} {'CAUGHT' if caught else 'NOT CAUGHT'} — {rule} [{test} {classes or 'all'}]"
                   + (f": {'; '.join(sorted(set(caught))[:6])}" if caught else ""), flush=True)
+            if not caught:
+                _, _, ba, bb = baselines[key]
+                for lab, txt in (("baseline", bb), ("mutant", tb)):
+                    for ln in txt.splitlines():
+                        if ln.startswith("FAIL"):
+                            print(f"    {lab} (media clock): {ln[:300]}", flush=True)
             if caught:
                 first = next((ln for ln in tb.splitlines() if ln.startswith("FAIL")), "") or \
                     next((ln for ln in ta.splitlines() if ln.startswith("FAIL")), "")

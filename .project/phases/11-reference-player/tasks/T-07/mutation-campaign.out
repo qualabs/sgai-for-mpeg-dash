@@ -23,3 +23,49 @@ M09 CAUGHT — R17.1 PLY-52 a pause ad suspends the overlay (only the top form i
     FAIL            R17.1 D1                     selection     selection[0] event 1 of behaviour/fixtures/R17.1/main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R17.1/overlay.xml:#1 option #1; observed overlay-lower-third [ad behaviour/fixtures/R17.1/overlay.xml:#1 option #1], pause-partial [ad behaviour/fixtures/R17.1/overlay.xml:#1 option #1]
 baseline R17.2 ['D1']: session 3/4 PASS, media 3/4 PASS
 M10 NOT CAUGHT — R17.2 PLY-53 the overlay is restored on resume [R17.2 ['D1']]
+baseline R17.5 ['D1']: session 4/4 PASS, media 4/4 PASS
+M11 CAUGHT — R17.5 PLY-55 a pause ad over a linear ad (the act order) [R17.5 ['D1']]: R17.5 D1 presentation (media); R17.5 D1 presentation (session); R17.5 D1 selection (media); R17.5 D1 selection (session)
+    FAIL            R17.5 D1                     selection     selection[1] event 2 of behaviour/fixtures/R17.5/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R17.5/pause.xml:#1 option #1; observed nothing
+baseline R19.3 ['D1']: session 3/4 PASS, media 3/4 PASS
+M12 CAUGHT — R19.3 PLY-69 the slot runs on media time (d/r on screen) [R19.3 ['D1']]: R19.3 D1 presentation (media); R19.3 D1 presentation (session)
+    FAIL            R19.3 D1                     presentation  observed a change at 10013 from overlay-lower-third [primary, ad behaviour/fixtures/R19.3/overlay.xml:#1 option #1] to none [primary], which the vector does not have; presentation[2] expected a change at 6000 to none [primary from 12000]; none observed within 1500 (on screen: overlay-lower-third [primary, ad behaviour/fixtures/R19.3/overla
+baseline R22.1 ['D1']: session 3/4 PASS, media 3/4 PASS
+M13 CAUGHT — R22.1 at most one form on screen (both guards: the previous candidate removed, and only the top form shown) [R22.1 ['D1']]: R22.1 D1 presentation (media); R22.1 D1 presentation (session); R22.1 D1 selection (media); R22.1 D1 selection (session)
+    FAIL            R22.1 D1                     selection     selection[0] event 1 of behaviour/fixtures/R22.1/main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R22.1/overlay.xml:#1 option #1, overlay-corner behaviour/fixtures/R22.1/overlay.xml:#2 option #1; observed overlay-lower-third [ad behaviour/fixtures/R22.1/overlay.xml:#1 option #1], overlay-corner [ad behaviour/fixtures/R
+baseline R31.2 ['D1']: session 3/4 PASS, media 3/4 PASS
+M14 CAUGHT — R31.2 PLY-32 the cap does not bound a pause slot [R31.2 ['D1']]: R31.2 D1 presentation (media); R31.2 D1 presentation (session)
+    FAIL            R31.2 D1                     presentation  observed a change at 3974 from pause-partial [primary (paused), ad behaviour/fixtures/R31.2/pause.xml:#1 option #1] to none [primary (paused)], which the vector does not have; presentation[2] expected a change at 8000 to none [primary from 2000]; none observed within 1500 (on screen: none [primary (paused)] from 3974) [startup 303; observe
+baseline R35.4-1 ['D1']: session 3/4 PASS, media 3/4 PASS
+M15 CAUGHT — R35.4 PLY-75 a dismissal ends the whole overlay slot [R35.4-1 ['D1']]: R35.4-1 D1 presentation (media); R35.4-1 D1 presentation (session); R35.4-1 D1 selection (media); R35.4-1 D1 selection (session)
+    FAIL            R35.4-1 D1                   selection     selection[0] event 1 of behaviour/fixtures/R35.4/main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R35.4/overlay.xml:#1 option #1; observed overlay-lower-third [ad behaviour/fixtures/R35.4/overlay.xml:#1 option #1], overlay-lower-third [ad behaviour/fixtures/R35.4/overlay.xml:#2 option #1]
+baseline R35.4-2 ['D1']: session 2/4 PASS, media 2/4 PASS
+M16 NOT CAUGHT — R35.4 PLY-75 no request-again after a pause dismissal [R35.4-2 ['D1']]
+baseline R35.5 ['D1']: session 4/4 PASS, media 4/4 PASS
+M17 CAUGHT — R35.5 PLY-76 a dismissed takeover does not skip the primary [R35.5 ['D1']]: R35.5 D1 presentation (media); R35.5 D1 presentation (session)
+    FAIL            R35.5 D1                     presentation  presentation[2] primary from expected 2000, observed 8126 [startup 447; observed: 0..1989 none [primary] from 12; 1989..3966 linear [ad behaviour/fixtures/R35.5/overlay.xml:#1 option #1]; 3966..14000 none [primary] from 8126]
+baseline R37.2 ['D1']: session 4/4 PASS, media 4/4 PASS
+M18 CAUGHT — R37.2 PLY-59 resume from the suspended position [R37.2 ['D1']]: R37.2 D1 presentation (media); R37.2 D1 presentation (session)
+    FAIL            R37.2 D1                     presentation  presentation[2] primary from expected 3000, observed 4968 [startup 371; observed: 0..2971 none [primary] from 2; 2971..8044 pause-fullscreen [ad behaviour/fixtures/R37.2/pause.xml:#1 option #1]; 8044..16000 none [primary] from 4968]
+baseline R40.4-1 ['D1']: session 3/4 PASS, media 3/4 PASS
+M19 CAUGHT — R40.4 the default relation suspends and resumes the form (not PLY-49's end) [R40.4-1 ['D1']]: R40.4-1 D1 presentation (media); R40.4-1 D1 presentation (session); R40.4-1 D1 selection (media); R40.4-1 D1 selection (session)
+    FAIL            R40.4-1 D1                   selection     selection[0] event 1 of behaviour/fixtures/R40.4/main.mpd (presented): expected overlay-lower-third behaviour/fixtures/R40.4/overlay.xml:#1 option #1, overlay-lower-third behaviour/fixtures/R40.4/overlay.xml:#2 option #1; observed overlay-lower-third [ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1]
+baseline R40.4-2 ['D1']: session 3/4 PASS, media 3/4 PASS
+M20 CAUGHT — R40.4 a resumption outside the range ends the execution [R40.4-2 ['D1']]: R40.4-2 D1 presentation (media); R40.4-2 D1 presentation (session)
+    FAIL            R40.4-2 D1                   presentation  observed a change at 14305 from overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay-r.xml:#1 option #1] to none [primary], which the vector does not have; presentation[3] 10000..18000 expected none [primary from 10000]; observed overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay-r.xml:#1 option #1] from 10304 t
+baseline R40.5-1 ['D1']: session 2/4 PASS, media 2/4 PASS
+M21 CAUGHT — R40.5 the cap accrues on the alternative's timeline [R40.5-1 ['D1']]: R40.5-1 D1 presentation (media); R40.5-1 D1 presentation (session)
+    FAIL            R40.5-1 D1                   selection     selection[0] event 1 of behaviour/fixtures/R40.5/main-cap.mpd (presented): expected linear behaviour/fixtures/R40.5/list.mpd:ad-1 option null; observed overlay-lower-third [ad behaviour/fixtures/R40.5/list.mpd:ad-1 option null]
+baseline R40.5-2 ['D1']: session 2/4 PASS, media 2/4 PASS
+M22 CAUGHT — R40.5 a form ends with the presentation it is over [R40.5-2 ['D1']]: R40.5-2 D1 presentation (media); R40.5-2 D1 presentation (session)
+    FAIL            R40.5-2 D1                   selection     selection[0] event 1 of behaviour/fixtures/R40.5/main-end.mpd (presented): expected linear behaviour/fixtures/R40.5/list-short.mpd:ad-2 option null; observed overlay-lower-third [ad behaviour/fixtures/R40.5/list-short.mpd:ad-2 option null]
+baseline R40.6 ['D1']: session 0/4 PASS, media 0/4 PASS
+M23 NOT CAUGHT — R40.6 PLY-51 the windows of an alternative's MPD [R40.6 ['D1']]
+M24 CAUGHT — R40.9 a default window presents nothing during a linear ad [R40.4-1 ['D1']]: R40.4-1 D1 presentation (media); R40.4-1 D1 presentation (session); R40.4-1 D1 selection (media); R40.4-1 D1 selection (session)
+    FAIL            R40.4-1 D1                   selection     selection[1] event 2 of behaviour/fixtures/R40.4/main.mpd (presented): expected linear behaviour/fixtures/R40.4/list.mpd:ad-1 option null; observed overlay-lower-third [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]
+baseline R16.1 ['D1']: session 3/4 PASS, media 3/4 PASS
+M25 NOT CAUGHT — R16.1 PLY-57 the pause ad is removed in the resume's task [R16.1 ['D1']]
+baseline R19.1 ['D1']: session 3/4 PASS, media 1/4 PASS
+M26 NOT CAUGHT — R19.1 a video form plays at the content's rate [R19.1 ['D1']]
+baseline R26.3 ['D2']: session 4/4 PASS, media 4/4 PASS
+M27 CAUGHT — R26.3 the background needs an image surface [R26.3 ['D2']]: R26.3 D2 presentation (media); R26.3 D2 presentation (session); R26.3 D2 selection (media); R26.3 D2 selection (session)
+    FAIL            R26.3 D2                     selection     selection[0] event 1 of behaviour/fixtures/R26.3/main.mpd (presented): expected squeezeback-double-box behaviour/fixtures/R26.3/overlay.xml:#1 option #2; observed squeezeback-double-box-background [ad behaviour/fixtures/R26.3/overlay.xml:#1 option #1]

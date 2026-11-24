@@ -1,0 +1,22 @@
+baseline R26.1 ['D1']: session 4/5 PASS, media 3/5 PASS
+M04 CAUGHT — R26.1 double box: content centre-left, ad centre-right [R26.1 ['D1']]: R26.1 D1 geometry new item geometry[0] (media); R26.1 D1 geometry new item geometry[0] (session)
+    FAIL            R26.1 D1                     presentation  presentation[3] expected a change at 10000 to none [primary from 10000]; none observed within 1500 (on screen: none [primary] from 4846); presentation[0] 0..2000 expected none [primary from 0]; observed squeezeback-double-box [primary, ad behaviour/fixtures/R26.1/overlay.xml:#1 option #1] from 0 to 3026; presentation[1] 2000..6000 expected
+baseline R35.4-2 ['D1']: session 2/4 PASS, media 2/4 PASS
+M16 NOT CAUGHT — R35.4 PLY-75 no request-again after a pause dismissal [R35.4-2 ['D1']]
+    baseline (media clock): FAIL            R35.4-2 D1                   presentation  presentation[1] expected a change at 2000 to pause-partial [primary from 2000, ad behaviour/fixtures/R35.4/pause.xml:#1 option #1]; none observed within 1500 (on screen: none [primary (paused)] from 0); presentation[2] expected a change at 3
+    baseline (media clock): FAIL            R35.4-2 D1                   beacons       beacons[0] https://t.example.com/r35-4/pa-imp (@id 1) expected at 2000; observed at never
+baseline R40.6 ['D1']: session 1/4 PASS, media 1/4 PASS
+M23 CAUGHT — R40.6 PLY-51 the windows of an alternative's MPD [R40.6 ['D1']]: R40.6 D1 requests (media); R40.6 D1 requests (session)
+    FAIL            R40.6 D1                     requests      requests[1] https://aps.example.com/beh/r40-6/overlay at 0..4000: not observed
+baseline R19.1 ['D1']: session 3/4 PASS, media 2/4 PASS
+M26 CAUGHT — R19.1 a video form plays at the content's rate [R19.1 ['D1']]: R19.1 D1 requests (media)
+    FAIL            R19.1 D1                     requests      requests[2] https://aps.example.com/beh/r19-1/break expected at 5000..10000, query {}, answered_by behaviour/fixtures/R19.1/list.mpd; observed https://aps.example.com/beh/r19-1/break at 2242, query {}, answered_by behaviour/fixtures/R19.1/list.mpd; requests[3] https://ads-cdn.example.com/beh/r19-1/break-ad.mpd expected at 5000..10000, quer
+baseline R35.4-2 ['D1']: session 2/4 PASS, media 2/4 PASS
+M16 CAUGHT — R35.4 PLY-75 no request-again after a pause dismissal [R35.4-2 ['D1']]: R35.4-2 D1 requests (media); R35.4-2 D1 requests (session); R35.4-2 D1 selection (media); R35.4-2 D1 selection (session)
+    FAIL            R35.4-2 D1                   requests      unexpected request https://aps.example.com/beh/r35-4/pause at 2007 (answered_by behaviour/fixtures/R35.4/pause.xml)
+baseline R19.1 ['D1']: session 3/4 PASS, media 1/4 PASS
+M26 NOT CAUGHT — R19.1 a video form plays at the content's rate [R19.1 ['D1']]
+    baseline (media clock): FAIL            R19.1 D1                     requests      requests[2] https://aps.example.com/beh/r19-1/break expected at 5000..10000, query {}, answered_by behaviour/fixtures/R19.1/list.mpd; observed https://aps.example.com/beh/r19-1/break at 1907, query {}, answered_by behaviour/fixtures/R19.1/li
+    baseline (media clock): FAIL            R19.1 D1                     presentation  observed a change at 3770 from none [primary] to linear [ad behaviour/fixtures/R19.1/list.mpd:ad-1 option null], which the vector does not have; presentation[3] expected a change at 10000 to linear [ad behaviour/fixtures/R19.1/list.mpd:ad-1 
+    baseline (media clock): FAIL            R19.1 D1                     beacons       beacons[0] https://t.example.com/r19-1/ov-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r19-1/ov-mid (@id 2) expected at 4000; observed at never; beacons[2] https://t.example.com/r19-1/ov-complete (@id 3) 
+    mutant (media clock): FAIL            R19.1 D1                     beacons       beacons[0] https://t.example.com/r19-1/ov-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r19-1/ov-mid (@id 2) expected at 4000; observed at never; beacons[2] https://t.example.com/r19-1/ov-complete (@id 3) 

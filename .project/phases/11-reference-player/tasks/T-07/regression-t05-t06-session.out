@@ -1,0 +1,387 @@
+PASS            R1.4 D1                      requests      2 request(s) as expected
+PASS            R1.4 D1                      selection     1 opportunit(y/ies) as expected
+PASS            R1.4 D1                      presentation  3 segment(s) as expected; startup 277 before the first frame
+FAIL            R1.4 D1                      beacons       beacons[0] https://t.example.com/r1-4/imp (@id 1) expected at 2000; observed at never
+PASS            R2.3 D1                      requests      1 request(s) as expected
+PASS            R2.3 D1                      selection     1 opportunit(y/ies) as expected
+PASS            R2.3 D1                      presentation  3 segment(s) as expected; startup 127 before the first frame
+FAIL            R2.3 D1                      beacons       beacons[0] https://t.example.com/imp?cr=232 (@id 1) expected at 5000; observed at never
+PASS            R2.3 D3                      requests      1 request(s) as expected
+PASS            R2.3 D3                      selection     1 opportunit(y/ies) as expected
+PASS            R2.3 D3                      presentation  3 segment(s) as expected; startup 116 before the first frame
+FAIL            R2.3 D3                      beacons       beacons[0] https://t.example.com/imp?cr=232 (@id 1) expected at 5000; observed at never
+PASS            R2.3 D4                      requests      1 request(s) as expected
+PASS            R2.3 D4                      selection     1 opportunit(y/ies) as expected
+PASS            R2.3 D4                      presentation  3 segment(s) as expected; startup 303 before the first frame
+FAIL            R2.3 D4                      beacons       beacons[0] https://t.example.com/imp?cr=232 (@id 1) expected at 5000; observed at never
+PASS            R20.1-1 D4                   requests      2 request(s) as expected
+PASS            R20.1-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R20.1-1 D4                   presentation  3 segment(s) as expected; startup 184 before the first frame
+FAIL            R20.1-1 D4                   beacons       beacons[0] https://t.example.com/r20-1-1/fb-imp (@id 1) expected at 20000; observed at never
+PASS            R20.1-2 D4                   requests      2 request(s) as expected
+PASS            R20.1-2 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R20.1-2 D4                   presentation  3 segment(s) as expected; startup 377 before the first frame
+FAIL            R20.1-2 D4                   beacons       beacons[0] https://t.example.com/r20-1-2/fb-imp (@id 1) expected at 2000; observed at never
+PASS            R20.1-3 D4                   requests      2 request(s) as expected
+PASS            R20.1-3 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R20.1-3 D4                   presentation  3 segment(s) as expected; startup 252 before the first frame
+FAIL            R20.1-3 D4                   beacons       beacons[0] https://t.example.com/r20-1-3/fb-imp (@id 1) expected at 2000; observed at never
+PASS            R20.1-4 D4                   requests      2 request(s) as expected
+PASS            R20.1-4 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R20.1-4 D4                   presentation  3 segment(s) as expected; startup 605 before the first frame
+FAIL            R20.1-4 D4                   beacons       beacons[0] https://t.example.com/r20-1-4/fb-imp (@id 1) expected at 2000; observed at never
+PASS            R20.1-5 D4                   requests      2 request(s) as expected
+PASS            R20.1-5 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R20.1-5 D4                   presentation  3 segment(s) as expected; startup 1695 before the first frame
+FAIL            R20.1-5 D4                   beacons       beacons[0] https://t.example.com/r20-1-5/fb-imp (@id 1) expected at 2000; observed at never
+PASS            R20.1-6 D4                   requests      2 request(s) as expected
+PASS            R20.1-6 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R20.1-6 D4                   presentation  1 segment(s) as expected; startup 186 before the first frame
+PASS            R20.1-6 D4                   beacons       no beacon, as expected
+PASS            R20.1-7 D1                   requests      2 request(s) as expected
+PASS            R20.1-7 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R20.1-7 D1                   presentation  2 segment(s) as expected; startup 172 before the first frame
+PASS            R20.1-7 D1                   beacons       1 beacon(s) as expected
+PASS            R20.3-1 D4                   requests      1 request(s) as expected
+PASS            R20.3-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R20.3-1 D4                   presentation  3 segment(s) as expected; startup 592 before the first frame
+FAIL            R20.3-1 D4                   beacons       beacons[0] https://t.example.com/r20-3-1/first-imp (@id 1) expected at 2000; observed at never
+PASS            R20.3-2 D1                   requests      1 request(s) as expected
+PASS            R20.3-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R20.3-2 D1                   presentation  1 segment(s) as expected; startup 1071 before the first frame
+PASS            R20.3-2 D1                   beacons       1 beacon(s) as expected
+PASS            R20.4 D4                     requests      2 request(s) as expected
+PASS            R20.4 D4                     selection     2 opportunit(y/ies) as expected
+PASS            R20.4 D4                     presentation  3 segment(s) as expected; startup 380 before the first frame
+FAIL            R20.4 D4                     beacons       beacons[0] https://t.example.com/r20-4/fb-imp (@id 1) expected at 2000; observed at never
+PASS            R20.5 D4                     requests      2 request(s) as expected
+PASS            R20.5 D4                     selection     1 opportunit(y/ies) as expected
+PASS            R20.5 D4                     presentation  3 segment(s) as expected; startup 373 before the first frame
+FAIL            R20.5 D4                     beacons       beacons[0] https://t.example.com/r20-5/imp (@id 1) expected at 2000; observed at never
+PASS            R29.2 D1                     requests      3 request(s) as expected
+PASS            R29.2 D1                     selection     3 opportunit(y/ies) as expected
+PASS            R29.2 D1                     presentation  1 segment(s) as expected; startup 137 before the first frame
+PASS            R29.2 D1                     beacons       no beacon, as expected
+PASS            R29.2 D4                     requests      3 request(s) as expected
+PASS            R29.2 D4                     selection     3 opportunit(y/ies) as expected
+PASS            R29.2 D4                     presentation  1 segment(s) as expected; startup 456 before the first frame
+PASS            R29.2 D4                     beacons       no beacon, as expected
+PASS            R29.4 D1                     requests      1 request(s) as expected
+PASS            R29.4 D1                     selection     1 opportunit(y/ies) as expected
+PASS            R29.4 D1                     presentation  1 segment(s) as expected; startup 126 before the first frame
+PASS            R29.4 D1                     beacons       no beacon, as expected
+PASS            R29.4 D4                     requests      1 request(s) as expected
+PASS            R29.4 D4                     selection     1 opportunit(y/ies) as expected
+PASS            R29.4 D4                     presentation  1 segment(s) as expected; startup 504 before the first frame
+PASS            R29.4 D4                     beacons       no beacon, as expected
+PASS            R30.2 D1                     requests      2 request(s) as expected
+PASS            R30.2 D1                     selection     1 opportunit(y/ies) as expected
+PASS            R30.2 D1                     presentation  4 segment(s) as expected; startup 213 before the first frame
+PASS            R30.2 D1                     beacons       1 beacon(s) as expected
+PASS            R32.1-1 D1                   requests      1 request(s) as expected
+FAIL            R32.1-1 D1                   selection     selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1; observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1]
+PASS            R32.1-1 D1                   presentation  5 segment(s) as expected; startup 181 before the first frame
+FAIL            R32.1-1 D1                   beacons       beacons[0] https://t.example.com/imp?cr=3211 (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/imp?cr=3211 (@id 1) expected at 5000; observed at never; beacons[2] https://t.example.com/imp?cr=3211 (@id 1) expected at 8000; observed at never
+PASS            R32.1-1 D3                   requests      1 request(s) as expected
+FAIL            R32.1-1 D3                   selection     selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1; observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1]
+PASS            R32.1-1 D3                   presentation  5 segment(s) as expected; startup 193 before the first frame
+FAIL            R32.1-1 D3                   beacons       beacons[0] https://t.example.com/imp?cr=3211 (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/imp?cr=3211 (@id 1) expected at 5000; observed at never; beacons[2] https://t.example.com/imp?cr=3211 (@id 1) expected at 8000; observed at never
+PASS            R32.1-1 D4                   requests      1 request(s) as expected
+FAIL            R32.1-1 D4                   selection     selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1; observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1]
+PASS            R32.1-1 D4                   presentation  5 segment(s) as expected; startup 158 before the first frame
+FAIL            R32.1-1 D4                   beacons       beacons[0] https://t.example.com/imp?cr=3211 (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/imp?cr=3211 (@id 1) expected at 5000; observed at never; beacons[2] https://t.example.com/imp?cr=3211 (@id 1) expected at 8000; observed at never
+PASS            R32.1-2 D1                   requests      2 request(s) as expected
+PASS            R32.1-2 D1                   selection     1 opportunit(y/ies) as expected
+FAIL            R32.1-2 D1                   presentation  presentation[2] expected a change at 5000 to pause-fullscreen [ad behaviour/fixtures/R32.1/second.xml:#1 option #1]; none observed within 250 (on screen: pause-fullscreen [ad behaviour/fixtures/R32.1/request-again.xml:#1 option #1] from 2039); presentation[2] 5000..8000 expected pause-fullscreen [ad behaviour/fixtures/R32.1/second.xml:#1 option #1]; observed pause-fullscreen [ad behaviour/fixtures/R32.1/request-again.xml:#1 option #1] from 2039 to 8066 [startup 201; observed: 0..2039 none [primary] from 14; 2039..8066 pause-fullscreen [ad behaviour/fixtures/R32.1/request-again.xml:#1 option #1]; 8066..10069 none [primary (paused)] from 2044; 10069..12000 none [primary] from 2093]
+FAIL            R32.1-2 D1                   beacons       beacons[0] https://t.example.com/imp?cr=3212 (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/imp?cr=3213 (@id 1) expected at 5000; observed at never
+PASS            R32.1-2 D3                   requests      2 request(s) as expected
+PASS            R32.1-2 D3                   selection     1 opportunit(y/ies) as expected
+FAIL            R32.1-2 D3                   presentation  presentation[2] expected a change at 5000 to pause-fullscreen [ad behaviour/fixtures/R32.1/second.xml:#1 option #1]; none observed within 250 (on screen: pause-fullscreen [ad behaviour/fixtures/R32.1/request-again.xml:#1 option #1] from 2022); presentation[2] 5000..8000 expected pause-fullscreen [ad behaviour/fixtures/R32.1/second.xml:#1 option #1]; observed pause-fullscreen [ad behaviour/fixtures/R32.1/request-again.xml:#1 option #1] from 2022 to 8052 [startup 153; observed: 0..2022 none [primary] from 15; 2022..8052 pause-fullscreen [ad behaviour/fixtures/R32.1/request-again.xml:#1 option #1]; 8052..10068 none [primary (paused)] from 2031; 10068..12000 none [primary] from 2092]
+FAIL            R32.1-2 D3                   beacons       beacons[0] https://t.example.com/imp?cr=3212 (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/imp?cr=3213 (@id 1) expected at 5000; observed at never
+PASS            R32.1-2 D4                   requests      2 request(s) as expected
+PASS            R32.1-2 D4                   selection     1 opportunit(y/ies) as expected
+FAIL            R32.1-2 D4                   presentation  presentation[2] expected a change at 5000 to pause-fullscreen [ad behaviour/fixtures/R32.1/second.xml:#1 option #1]; none observed within 250 (on screen: pause-fullscreen [ad behaviour/fixtures/R32.1/request-again.xml:#1 option #1] from 2041); presentation[2] 5000..8000 expected pause-fullscreen [ad behaviour/fixtures/R32.1/second.xml:#1 option #1]; observed pause-fullscreen [ad behaviour/fixtures/R32.1/request-again.xml:#1 option #1] from 2041 to 8056 [startup 208; observed: 0..2041 none [primary] from 2; 2041..8056 pause-fullscreen [ad behaviour/fixtures/R32.1/request-again.xml:#1 option #1]; 8056..10074 none [primary (paused)] from 2036; 10074..12000 none [primary] from 2093]
+FAIL            R32.1-2 D4                   beacons       beacons[0] https://t.example.com/imp?cr=3212 (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/imp?cr=3213 (@id 1) expected at 5000; observed at never
+PASS            R32.1-3 D1                   requests      1 request(s) as expected
+PASS            R32.1-3 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-3 D1                   presentation  4 segment(s) as expected; startup 242 before the first frame
+FAIL            R32.1-3 D1                   beacons       beacons[0] https://t.example.com/imp?cr=3214 (@id 1) expected at 2000; observed at never
+PASS            R32.1-3 D3                   requests      1 request(s) as expected
+PASS            R32.1-3 D3                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-3 D3                   presentation  4 segment(s) as expected; startup 117 before the first frame
+FAIL            R32.1-3 D3                   beacons       beacons[0] https://t.example.com/imp?cr=3214 (@id 1) expected at 2000; observed at never
+PASS            R32.1-3 D4                   requests      1 request(s) as expected
+PASS            R32.1-3 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-3 D4                   presentation  4 segment(s) as expected; startup 193 before the first frame
+FAIL            R32.1-3 D4                   beacons       beacons[0] https://t.example.com/imp?cr=3214 (@id 1) expected at 2000; observed at never
+PASS            R32.2 D1                     requests      2 request(s) as expected
+PASS            R32.2 D1                     selection     1 opportunit(y/ies) as expected
+PASS            R32.2 D1                     presentation  4 segment(s) as expected; startup 172 before the first frame
+FAIL            R32.2 D1                     beacons       beacons[0] https://t.example.com/imp?cr=3221 (@id 1) expected at 2000; observed at never
+PASS            R32.2 D3                     requests      2 request(s) as expected
+PASS            R32.2 D3                     selection     1 opportunit(y/ies) as expected
+PASS            R32.2 D3                     presentation  4 segment(s) as expected; startup 198 before the first frame
+FAIL            R32.2 D3                     beacons       beacons[0] https://t.example.com/imp?cr=3221 (@id 1) expected at 2000; observed at never
+PASS            R32.2 D4                     requests      2 request(s) as expected
+PASS            R32.2 D4                     selection     1 opportunit(y/ies) as expected
+PASS            R32.2 D4                     presentation  4 segment(s) as expected; startup 1084 before the first frame
+FAIL            R32.2 D4                     beacons       beacons[0] https://t.example.com/imp?cr=3221 (@id 1) expected at 2000; observed at never
+PASS            R34.1 D1                     requests      1 request(s) as expected
+PASS            R34.1 D1                     selection     1 opportunit(y/ies) as expected
+PASS            R34.1 D1                     presentation  6 segment(s) as expected; startup 609 before the first frame
+FAIL            R34.1 D1                     beacons       beacons[0] https://t.example.com/imp?cr=3411 (@id 1) expected at 2000; observed at never
+PASS            R34.1 D3                     requests      1 request(s) as expected
+PASS            R34.1 D3                     selection     1 opportunit(y/ies) as expected
+PASS            R34.1 D3                     presentation  6 segment(s) as expected; startup 195 before the first frame
+FAIL            R34.1 D3                     beacons       beacons[0] https://t.example.com/imp?cr=3411 (@id 1) expected at 2000; observed at never
+PASS            R34.1 D4                     requests      1 request(s) as expected
+PASS            R34.1 D4                     selection     1 opportunit(y/ies) as expected
+PASS            R34.1 D4                     presentation  6 segment(s) as expected; startup 1312 before the first frame
+FAIL            R34.1 D4                     beacons       beacons[0] https://t.example.com/imp?cr=3411 (@id 1) expected at 2000; observed at never
+PASS            R34.10 D1                    requests      1 request(s) as expected
+PASS            R34.10 D1                    selection     1 opportunit(y/ies) as expected
+PASS            R34.10 D1                    presentation  1 segment(s) as expected; startup 144 before the first frame
+PASS            R34.10 D1                    beacons       no beacon, as expected
+PASS            R34.10 D3                    requests      1 request(s) as expected
+PASS            R34.10 D3                    selection     1 opportunit(y/ies) as expected
+PASS            R34.10 D3                    presentation  1 segment(s) as expected; startup 178 before the first frame
+PASS            R34.10 D3                    beacons       no beacon, as expected
+PASS            R34.10 D4                    requests      1 request(s) as expected
+PASS            R34.10 D4                    selection     1 opportunit(y/ies) as expected
+PASS            R34.10 D4                    presentation  1 segment(s) as expected; startup 292 before the first frame
+PASS            R34.10 D4                    beacons       no beacon, as expected
+PASS            R34.3 D1                     requests      2 request(s) as expected
+PASS            R34.3 D1                     selection     2 opportunit(y/ies) as expected
+PASS            R34.3 D1                     presentation  8 segment(s) as expected; startup 515 before the first frame
+FAIL            R34.3 D1                     beacons       beacons[0] https://t.example.com/imp?cr=3431 (@id 1) expected at 10000; observed at never
+PASS            R34.3 D3                     requests      2 request(s) as expected
+PASS            R34.3 D3                     selection     2 opportunit(y/ies) as expected
+PASS            R34.3 D3                     presentation  8 segment(s) as expected; startup 289 before the first frame
+FAIL            R34.3 D3                     beacons       beacons[0] https://t.example.com/imp?cr=3431 (@id 1) expected at 10000; observed at never
+PASS            R34.3 D4                     requests      2 request(s) as expected
+PASS            R34.3 D4                     selection     2 opportunit(y/ies) as expected
+PASS            R34.3 D4                     presentation  8 segment(s) as expected; startup 293 before the first frame
+FAIL            R34.3 D4                     beacons       beacons[0] https://t.example.com/imp?cr=3431 (@id 1) expected at 10000; observed at never
+PASS            R34.6 D1                     requests      2 request(s) as expected
+PASS            R34.6 D1                     selection     2 opportunit(y/ies) as expected
+PASS            R34.6 D1                     presentation  6 segment(s) as expected; startup 1088 before the first frame
+FAIL            R34.6 D1                     beacons       beacons[0] https://t.example.com/imp?cr=346a (@id 1) expected at 5000; observed at never; beacons[1] https://t.example.com/imp?cr=346b (@id 1) expected at 14000; observed at never
+FAIL            R34.6 D3                     requests      requests[1] https://aps.example.com/behaviour/r34-6?w=1 expected at 14000, query {}, answered_by behaviour/fixtures/R34.6/second.xml; observed https://aps.example.com/behaviour/r34-6?w=1 at 14278, query {}, answered_by behaviour/fixtures/R34.6/second.xml; unexpected request https://aps.example.com/behaviour/r34-6?w=1 at 14278 (answered_by behaviour/fixtures/R34.6/second.xml)
+PASS            R34.6 D3                     selection     2 opportunit(y/ies) as expected
+FAIL            R34.6 D3                     presentation  observed a change at 14357 from none [primary] to overlay-lower-third [primary, ad behaviour/fixtures/R34.6/second.xml:#1 option #1], which the vector does not have; presentation[4] expected a change at 14000 to overlay-lower-third [primary from 5000, ad behaviour/fixtures/R34.6/second.xml:#1 option #1]; none observed within 250 (on screen: none [primary] from 12238); presentation[4] 14000..19000 expected overlay-lower-third [primary from 5000, ad behaviour/fixtures/R34.6/second.xml:#1 option #1]; observed none [primary] from 12238 to 14357 [startup 177; observed: 0..5112 none [primary] from 8; 5112..9980 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/first.xml:#1 option #1] from 5120; 9980..12238 none [primary] from 9988; 12238..14357 none [primary] from 3001; 14357..19242 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/second.xml:#1 option #1] from 5121; 19242..21000 none [primary] from 10005]
+FAIL            R34.6 D3                     beacons       beacons[0] https://t.example.com/imp?cr=346a (@id 1) expected at 5000; observed at never; beacons[1] https://t.example.com/imp?cr=346b (@id 1) expected at 14000; observed at never
+PASS            R34.6 D4                     requests      2 request(s) as expected
+PASS            R34.6 D4                     selection     2 opportunit(y/ies) as expected
+PASS            R34.6 D4                     presentation  6 segment(s) as expected; startup 337 before the first frame
+FAIL            R34.6 D4                     beacons       beacons[0] https://t.example.com/imp?cr=346a (@id 1) expected at 5000; observed at never; beacons[1] https://t.example.com/imp?cr=346b (@id 1) expected at 14000; observed at never
+PASS            R34.9 D1                     requests      1 request(s) as expected
+PASS            R34.9 D1                     selection     1 opportunit(y/ies) as expected
+PASS            R34.9 D1                     presentation  3 segment(s) as expected; startup 371 before the first frame
+FAIL            R34.9 D1                     beacons       beacons[0] https://t.example.com/imp?cr=349a (@id 1) expected at 0; observed at never; beacons[1] https://t.example.com/imp?cr=349b (@id 1) expected at 10000; observed at never
+PASS            R34.9 D3                     requests      1 request(s) as expected
+PASS            R34.9 D3                     selection     1 opportunit(y/ies) as expected
+PASS            R34.9 D3                     presentation  3 segment(s) as expected; startup 980 before the first frame
+FAIL            R34.9 D3                     beacons       beacons[0] https://t.example.com/imp?cr=349a (@id 1) expected at 0; observed at never; beacons[1] https://t.example.com/imp?cr=349b (@id 1) expected at 10000; observed at never
+PASS            R34.9 D4                     requests      1 request(s) as expected
+PASS            R34.9 D4                     selection     1 opportunit(y/ies) as expected
+PASS            R34.9 D4                     presentation  3 segment(s) as expected; startup 221 before the first frame
+FAIL            R34.9 D4                     beacons       beacons[0] https://t.example.com/imp?cr=349a (@id 1) expected at 0; observed at never; beacons[1] https://t.example.com/imp?cr=349b (@id 1) expected at 10000; observed at never
+PASS            R36.1-1 D1                   requests      1 request(s) as expected
+PASS            R36.1-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R36.1-1 D1                   presentation  1 segment(s) as expected; startup 202 before the first frame
+PASS            R36.1-1 D1                   beacons       no beacon, as expected
+PASS            R36.1-1 D4                   requests      1 request(s) as expected
+PASS            R36.1-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R36.1-1 D4                   presentation  1 segment(s) as expected; startup 277 before the first frame
+PASS            R36.1-1 D4                   beacons       no beacon, as expected
+PASS            R36.1-2 D1                   requests      1 request(s) as expected
+PASS            R36.1-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R36.1-2 D1                   presentation  1 segment(s) as expected; startup 1173 before the first frame
+PASS            R36.1-2 D1                   beacons       no beacon, as expected
+PASS            R36.1-2 D4                   requests      1 request(s) as expected
+PASS            R36.1-2 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R36.1-2 D4                   presentation  1 segment(s) as expected; startup 762 before the first frame
+PASS            R36.1-2 D4                   beacons       no beacon, as expected
+PASS            R36.1-3 D1                   requests      1 request(s) as expected
+PASS            R36.1-3 D1                   selection     1 opportunit(y/ies) as expected
+FAIL            R36.1-3 D1                   presentation  observed a change at 2458 from none [nothing] to none [primary], which the vector does not have; presentation[1] 2000..19000 expected none [primary from 50000]; observed none [nothing] from 2053 to 2458 [startup 937; observed: 0..2053 none [primary] from 13; 2053..2458 none [nothing]; 2458..19000 none [primary] from 50002]
+PASS            R36.1-3 D1                   beacons       no beacon, as expected
+PASS            R36.1-3 D4                   requests      1 request(s) as expected
+PASS            R36.1-3 D4                   selection     1 opportunit(y/ies) as expected
+FAIL            R36.1-3 D4                   presentation  observed a change at 2260 from none [nothing] to none [primary], which the vector does not have; presentation[1] 2000..19000 expected none [primary from 50000]; observed none [nothing] from 2006 to 2260 [startup 606; observed: 0..2006 none [primary] from 15; 2006..2260 none [nothing]; 2260..19000 none [primary] from 50002]
+PASS            R36.1-3 D4                   beacons       no beacon, as expected
+PASS            R36.5-1 D1                   requests      2 request(s) as expected
+PASS            R36.5-1 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R36.5-1 D1                   presentation  7 segment(s) as expected; startup 215 before the first frame
+FAIL            R36.5-1 D1                   beacons       beacons[0] https://t.example.com/imp?cr=365a (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/imp?cr=365b (@id 1) expected at 30000; observed at never
+PASS            R36.5-1 D3                   requests      2 request(s) as expected
+PASS            R36.5-1 D3                   selection     2 opportunit(y/ies) as expected
+PASS            R36.5-1 D3                   presentation  7 segment(s) as expected; startup 146 before the first frame
+FAIL            R36.5-1 D3                   beacons       beacons[0] https://t.example.com/imp?cr=365a (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/imp?cr=365b (@id 1) expected at 30000; observed at never
+PASS            R36.5-1 D4                   requests      2 request(s) as expected
+PASS            R36.5-1 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R36.5-1 D4                   presentation  7 segment(s) as expected; startup 142 before the first frame
+FAIL            R36.5-1 D4                   beacons       beacons[0] https://t.example.com/imp?cr=365a (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/imp?cr=365b (@id 1) expected at 30000; observed at never
+PASS            R36.5-2 D1                   requests      2 request(s) as expected
+PASS            R36.5-2 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R36.5-2 D1                   presentation  6 segment(s) as expected; startup 123 before the first frame
+FAIL            R36.5-2 D1                   beacons       beacons[0] https://t.example.com/imp?cr=365a (@id 1) expected at 2000; observed at never
+PASS            R36.5-2 D3                   requests      2 request(s) as expected
+PASS            R36.5-2 D3                   selection     2 opportunit(y/ies) as expected
+PASS            R36.5-2 D3                   presentation  6 segment(s) as expected; startup 140 before the first frame
+FAIL            R36.5-2 D3                   beacons       beacons[0] https://t.example.com/imp?cr=365a (@id 1) expected at 2000; observed at never
+PASS            R36.5-2 D4                   requests      2 request(s) as expected
+PASS            R36.5-2 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R36.5-2 D4                   presentation  6 segment(s) as expected; startup 159 before the first frame
+FAIL            R36.5-2 D4                   beacons       beacons[0] https://t.example.com/imp?cr=365a (@id 1) expected at 2000; observed at never
+PASS            R38.2 D1                     requests      2 request(s) as expected
+PASS            R38.2 D1                     selection     2 opportunit(y/ies) as expected
+PASS            R38.2 D1                     presentation  1 segment(s) as expected; startup 119 before the first frame
+PASS            R38.2 D1                     beacons       no beacon, as expected
+PASS            R38.2 D4                     requests      2 request(s) as expected
+PASS            R38.2 D4                     selection     2 opportunit(y/ies) as expected
+PASS            R38.2 D4                     presentation  1 segment(s) as expected; startup 141 before the first frame
+PASS            R38.2 D4                     beacons       no beacon, as expected
+PASS            R39.3 D1                     requests      1 request(s) as expected
+PASS            R39.3 D1                     selection     1 opportunit(y/ies) as expected
+PASS            R39.3 D1                     presentation  1 segment(s) as expected; startup 142 before the first frame
+PASS            R39.3 D1                     beacons       no beacon, as expected
+PASS            R39.3 D4                     requests      1 request(s) as expected
+PASS            R39.3 D4                     selection     1 opportunit(y/ies) as expected
+PASS            R39.3 D4                     presentation  1 segment(s) as expected; startup 150 before the first frame
+PASS            R39.3 D4                     beacons       no beacon, as expected
+PASS            R39.5-1 D1                   requests      1 request(s) as expected
+PASS            R39.5-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R39.5-1 D1                   presentation  3 segment(s) as expected; startup 118 before the first frame
+FAIL            R39.5-1 D1                   beacons       beacons[0] https://t.example.com/imp?cr=395 (@id 1) expected at 5000; observed at never
+PASS            R39.5-1 D1                   geometry      1 instant(s) as expected
+PASS            R39.5-1 D4                   requests      1 request(s) as expected
+PASS            R39.5-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R39.5-1 D4                   presentation  3 segment(s) as expected; startup 140 before the first frame
+FAIL            R39.5-1 D4                   beacons       beacons[0] https://t.example.com/imp?cr=395 (@id 1) expected at 5000; observed at never
+PASS            R39.5-2 D1                   requests      1 request(s) as expected
+PASS            R39.5-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R39.5-2 D1                   presentation  3 segment(s) as expected; startup 140 before the first frame
+FAIL            R39.5-2 D1                   beacons       beacons[0] https://t.example.com/imp?cr=3952 (@id 1) expected at 5000; observed at never
+PASS            R39.5-2 D1                   geometry      1 instant(s) as expected
+NOT_APPLICABLE  R4.10 D1                     requests      requests not compared: R4.10 forbids presenting ads from the slot, not requesting its resolution document
+PASS            R4.10 D1                     selection     no opportunity, as expected
+PASS            R4.10 D1                     presentation  1 segment(s) as expected; startup 126 before the first frame
+PASS            R4.10 D1                     beacons       no beacon, as expected
+NOT_APPLICABLE  R4.10 D4                     requests      requests not compared: R4.10 forbids presenting ads from the slot, not requesting its resolution document
+PASS            R4.10 D4                     selection     no opportunity, as expected
+PASS            R4.10 D4                     presentation  1 segment(s) as expected; startup 137 before the first frame
+PASS            R4.10 D4                     beacons       no beacon, as expected
+PASS            R4.2-1 D4                    requests      1 request(s) as expected
+PASS            R4.2-1 D4                    selection     1 opportunit(y/ies) as expected
+PASS            R4.2-1 D4                    presentation  4 segment(s) as expected; startup 149 before the first frame
+FAIL            R4.2-1 D4                    beacons       beacons[0] https://t.example.com/r4-2-1/c1-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r4-2-1/c1-complete (@id 2) expected at 7000; observed at never; beacons[2] https://t.example.com/r4-2-1/c2-imp (@id 1) expected at 7000; observed at never
+PASS            R4.2-2 D1                    requests      3 request(s) as expected
+PASS            R4.2-2 D1                    selection     1 opportunit(y/ies) as expected
+PASS            R4.2-2 D1                    presentation  4 segment(s) as expected; startup 126 before the first frame
+PASS            R4.2-2 D1                    beacons       2 beacon(s) as expected
+PASS            R4.7-1 D1                    requests      no document request, as expected
+PASS            R4.7-1 D1                    selection     no opportunity, as expected
+PASS            R4.7-1 D1                    presentation  1 segment(s) as expected; startup 137 before the first frame
+PASS            R4.7-1 D1                    beacons       no beacon, as expected
+PASS            R4.7-2 D4                    requests      no document request, as expected
+PASS            R4.7-2 D4                    selection     no opportunity, as expected
+PASS            R4.7-2 D4                    presentation  1 segment(s) as expected; startup 147 before the first frame
+PASS            R4.7-2 D4                    beacons       no beacon, as expected
+PASS            R4.9 D4                      requests      1 request(s) as expected
+PASS            R4.9 D4                      selection     1 opportunit(y/ies) as expected
+PASS            R4.9 D4                      presentation  3 segment(s) as expected; startup 141 before the first frame
+FAIL            R4.9 D4                      beacons       beacons[0] https://t.example.com/r4-9/c1-imp (@id 1) expected at 2000; observed at never
+PASS            R40.3-1 D1                   requests      2 request(s) as expected
+PASS            R40.3-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R40.3-1 D1                   presentation  3 segment(s) as expected; startup 121 before the first frame
+PASS            R40.3-1 D1                   beacons       1 beacon(s) as expected
+PASS            R40.3-2 D1                   requests      2 request(s) as expected
+PASS            R40.3-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R40.3-2 D1                   presentation  3 segment(s) as expected; startup 141 before the first frame
+PASS            R40.3-2 D1                   beacons       1 beacon(s) as expected
+PASS            R5.3 D3                      requests      1 request(s) as expected
+PASS            R5.3 D3                      selection     1 opportunit(y/ies) as expected
+PASS            R5.3 D3                      presentation  4 segment(s) as expected; startup 121 before the first frame
+FAIL            R5.3 D3                      beacons       beacons[0] https://t.example.com/imp?cr=531 (@id 1) expected at 5000; observed at never; beacons[1] https://t.example.com/imp?cr=532 (@id 1) expected at 10000; observed at never
+PASS            R5.3 D4                      requests      1 request(s) as expected
+PASS            R5.3 D4                      selection     1 opportunit(y/ies) as expected
+PASS            R5.3 D4                      presentation  3 segment(s) as expected; startup 126 before the first frame
+FAIL            R5.3 D4                      beacons       beacons[0] https://t.example.com/imp?cr=532 (@id 1) expected at 5000; observed at never
+PASS            R5.3 D5                      requests      1 request(s) as expected
+PASS            R5.3 D5                      selection     1 opportunit(y/ies) as expected
+PASS            R5.3 D5                      presentation  1 segment(s) as expected; startup 126 before the first frame
+PASS            R5.3 D5                      beacons       no beacon, as expected
+PASS            R5.6-1 D1                    requests      2 request(s) as expected
+PASS            R5.6-1 D1                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-1 D1                    presentation  3 segment(s) as expected; startup 167 before the first frame
+FAIL            R5.6-1 D1                    beacons       beacons[0] https://t.example.com/imp?cr=561 (@id 1) expected at 5000; observed at never
+PASS            R5.6-1 D2                    requests      2 request(s) as expected
+PASS            R5.6-1 D2                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-1 D2                    presentation  3 segment(s) as expected; startup 139 before the first frame
+FAIL            R5.6-1 D2                    beacons       beacons[0] https://t.example.com/imp?cr=561 (@id 1) expected at 5000; observed at never
+PASS            R5.6-1 D3                    requests      1 request(s) as expected
+PASS            R5.6-1 D3                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-1 D3                    presentation  3 segment(s) as expected; startup 138 before the first frame
+FAIL            R5.6-1 D3                    beacons       beacons[0] https://t.example.com/imp?cr=561 (@id 1) expected at 5000; observed at never
+PASS            R5.6-1 D4                    requests      1 request(s) as expected
+PASS            R5.6-1 D4                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-1 D4                    presentation  3 segment(s) as expected; startup 127 before the first frame
+FAIL            R5.6-1 D4                    beacons       beacons[0] https://t.example.com/imp?cr=561 (@id 1) expected at 5000; observed at never
+PASS            R5.6-1 D5                    requests      1 request(s) as expected
+PASS            R5.6-1 D5                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-1 D5                    presentation  1 segment(s) as expected; startup 123 before the first frame
+PASS            R5.6-1 D5                    beacons       no beacon, as expected
+PASS            R5.6-2 D1                    requests      1 request(s) as expected
+PASS            R5.6-2 D1                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-2 D1                    presentation  3 segment(s) as expected; startup 143 before the first frame
+FAIL            R5.6-2 D1                    beacons       beacons[0] https://t.example.com/imp?cr=562 (@id 1) expected at 5000; observed at never
+PASS            R5.6-2 D3                    requests      1 request(s) as expected
+PASS            R5.6-2 D3                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-2 D3                    presentation  3 segment(s) as expected; startup 119 before the first frame
+FAIL            R5.6-2 D3                    beacons       beacons[0] https://t.example.com/imp?cr=562 (@id 1) expected at 5000; observed at never
+PASS            R5.6-2 D4                    requests      1 request(s) as expected
+PASS            R5.6-2 D4                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-2 D4                    presentation  3 segment(s) as expected; startup 150 before the first frame
+FAIL            R5.6-2 D4                    beacons       beacons[0] https://t.example.com/imp?cr=562 (@id 1) expected at 5000; observed at never
+PASS            R5.6-3 D1                    requests      1 request(s) as expected
+PASS            R5.6-3 D1                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-3 D1                    presentation  3 segment(s) as expected; startup 153 before the first frame
+FAIL            R5.6-3 D1                    beacons       beacons[0] https://t.example.com/imp?cr=563 (@id 1) expected at 5000; observed at never
+PASS            R5.6-3 D3                    requests      1 request(s) as expected
+PASS            R5.6-3 D3                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-3 D3                    presentation  3 segment(s) as expected; startup 128 before the first frame
+FAIL            R5.6-3 D3                    beacons       beacons[0] https://t.example.com/imp?cr=563 (@id 1) expected at 5000; observed at never
+PASS            R5.9 D1                      requests      1 request(s) as expected
+PASS            R5.9 D1                      selection     1 opportunit(y/ies) as expected
+PASS            R5.9 D1                      presentation  3 segment(s) as expected; startup 284 before the first frame
+FAIL            R5.9 D1                      beacons       beacons[0] https://t.example.com/imp?cr=591 (@id 1) expected at 5000; observed at never
+PASS            R5.9 D3                      requests      1 request(s) as expected
+PASS            R5.9 D3                      selection     1 opportunit(y/ies) as expected
+PASS            R5.9 D3                      presentation  3 segment(s) as expected; startup 315 before the first frame
+FAIL            R5.9 D3                      beacons       beacons[0] https://t.example.com/imp?cr=591 (@id 1) expected at 5000; observed at never
+PASS            R5.9 D4                      requests      1 request(s) as expected
+PASS            R5.9 D4                      selection     1 opportunit(y/ies) as expected
+PASS            R5.9 D4                      presentation  3 segment(s) as expected; startup 202 before the first frame
+FAIL            R5.9 D4                      beacons       beacons[0] https://t.example.com/imp?cr=591 (@id 1) expected at 5000; observed at never
+PASS            R7.1 D1                      requests      1 request(s) as expected
+PASS            R7.1 D1                      selection     1 opportunit(y/ies) as expected
+PASS            R7.1 D1                      presentation  5 segment(s) as expected; startup 210 before the first frame
+FAIL            R7.1 D1                      beacons       beacons[0] https://t.example.com/r7-1/c1-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r7-1/c2-imp (@id 1) expected at 6000; observed at never; beacons[2] https://t.example.com/r7-1/c3-imp (@id 1) expected at 8000; observed at never
+PASS            R7.1 D4                      requests      1 request(s) as expected
+PASS            R7.1 D4                      selection     1 opportunit(y/ies) as expected
+PASS            R7.1 D4                      presentation  4 segment(s) as expected; startup 202 before the first frame
+FAIL            R7.1 D4                      beacons       beacons[0] https://t.example.com/r7-1/c1-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r7-1/c3-imp (@id 1) expected at 6000; observed at never
+PASS            R4.8 D1                      requests      1 request(s) as expected
+PASS            R4.8 D1                      selection     1 opportunit(y/ies) as expected
+PASS            R4.8 D1                      presentation  3 segment(s) as expected; startup 231 before the first frame
+PASS            R4.8 D1                      beacons       2 beacon(s) as expected
+PASS            R6.5-1 D4                    requests      1 request(s) as expected
+PASS            R6.5-1 D4                    selection     1 opportunit(y/ies) as expected
+PASS            R6.5-1 D4                    presentation  4 segment(s) as expected; startup 245 before the first frame
+FAIL            R6.5-1 D4                    beacons       beacons[0] https://t.example.com/r6-5-1/c1-imp (@id 1) expected at 2000; observed at never; beacons[1] https://t.example.com/r6-5-1/c1-same-url (@id 3) expected at 3000; observed at never; beacons[2] https://t.example.com/r6-5-1/c1-mid (@id 2) expected at 4000; observed at never; beacons[3] https://t.example.com/r6-5-1/c2-imp (@id 1) expected at 6000; observed at never
+PASS            R6.5-2 D1                    requests      3 request(s) as expected
+PASS            R6.5-2 D1                    selection     1 opportunit(y/ies) as expected
+PASS            R6.5-2 D1                    presentation  4 segment(s) as expected; startup 203 before the first frame
+PASS            R6.5-2 D1                    beacons       2 beacon(s) as expected
+exit 1: PASS 310  FAIL 74  NOT_VERIFIABLE 0; wall 1506.3 s; content 0.2 s (0 ffmpeg runs, 4 cuts from the cache), players 1504.2 s

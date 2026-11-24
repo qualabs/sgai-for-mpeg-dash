@@ -1,0 +1,45 @@
+PASS            E1-execute-once-after-success D1 requests      1 request(s) as expected
+PASS            E1-execute-once-after-success D1 selection     1 opportunit(y/ies) as expected
+PASS            E1-execute-once-after-success D1 presentation  4 segment(s) as expected; startup 376 before the first frame
+PASS            E1-execute-once-after-success D1 beacons       2 beacon(s) as expected
+PASS            E10-join-after-eap D1        requests      no document request, as expected
+PASS            E10-join-after-eap D1        selection     no opportunity, as expected
+PASS            E10-join-after-eap D1        presentation  1 segment(s) as expected; startup 377 before the first frame
+PASS            E10-join-after-eap D1        beacons       no beacon, as expected
+PASS            E11-pause-during-linear-ad D1 requests      1 request(s) as expected
+PASS            E11-pause-during-linear-ad D1 selection     1 opportunit(y/ies) as expected
+PASS            E11-pause-during-linear-ad D1 presentation  3 segment(s) as expected; startup 243 before the first frame
+PASS            E11-pause-during-linear-ad D1 beacons       2 beacon(s) as expected
+PASS            E2-insert-reexecuted-after-seek D1 requests      2 request(s) as expected
+FAIL            E2-insert-reexecuted-after-seek D1 selection     selection[0] event 1 of t05/ins-many-main.mpd: 1 presentation(s) more than the vector lists: linear [ad t05/ins.mpd:ins option null]
+PASS            E2-insert-reexecuted-after-seek D1 presentation  6 segment(s) as expected; startup 221 before the first frame
+PASS            E2-insert-reexecuted-after-seek D1 beacons       2 beacon(s) as expected
+PASS            E3-replace-late-clip D1      requests      1 request(s) as expected
+PASS            E3-replace-late-clip D1      selection     1 opportunit(y/ies) as expected
+PASS            E3-replace-late-clip D1      presentation  2 segment(s) as expected; startup 339 before the first frame
+PASS            E3-replace-late-clip D1      beacons       2 beacon(s) as expected
+PASS            E4-replace-late-noclip D1    requests      1 request(s) as expected
+PASS            E4-replace-late-noclip D1    selection     1 opportunit(y/ies) as expected
+PASS            E4-replace-late-noclip D1    presentation  2 segment(s) as expected; startup 359 before the first frame
+PASS            E4-replace-late-noclip D1    beacons       3 beacon(s) as expected
+PASS            E5-replace-start-with-offset D1 requests      1 request(s) as expected
+PASS            E5-replace-start-with-offset D1 selection     1 opportunit(y/ies) as expected
+PASS            E5-replace-start-with-offset D1 presentation  2 segment(s) as expected; startup 399 before the first frame
+PASS            E5-replace-start-with-offset D1 beacons       2 beacon(s) as expected
+PASS            E6-replace-return-offset D1  requests      1 request(s) as expected
+PASS            E6-replace-return-offset D1  selection     1 opportunit(y/ies) as expected
+PASS            E6-replace-return-offset D1  presentation  3 segment(s) as expected; startup 339 before the first frame
+PASS            E6-replace-return-offset D1  beacons       2 beacon(s) as expected
+NOT_APPLICABLE  E7-replace-apda-zero D1      requests      requests not compared: A.14.5 resolves the event before it checks APDA; the base does not bind whether a zero APDA is found before the request
+PASS            E7-replace-apda-zero D1      selection     no opportunity, as expected
+PASS            E7-replace-apda-zero D1      presentation  1 segment(s) as expected; startup 211 before the first frame
+PASS            E7-replace-apda-zero D1      beacons       no beacon, as expected
+PASS            E8-list-linked-period-fails D1 requests      4 request(s) as expected
+PASS            E8-list-linked-period-fails D1 selection     1 opportunit(y/ies) as expected
+PASS            E8-list-linked-period-fails D1 presentation  4 segment(s) as expected; startup 257 before the first frame
+PASS            E8-list-linked-period-fails D1 beacons       2 beacon(s) as expected
+PASS            E9-insert-late-join D1       requests      1 request(s) as expected
+PASS            E9-insert-late-join D1       selection     1 opportunit(y/ies) as expected
+PASS            E9-insert-late-join D1       presentation  2 segment(s) as expected; startup 377 before the first frame
+PASS            E9-insert-late-join D1       beacons       2 beacon(s) as expected
+exit 1: PASS 42  FAIL 1  NOT_VERIFIABLE 0; wall 58.0 s; content 0.0 s (0 ffmpeg runs, 3 cuts from the cache), players 57.0 s
