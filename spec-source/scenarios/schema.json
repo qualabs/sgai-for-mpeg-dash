@@ -1,18 +1,29 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:sgai:scenario-vector:1",
-  "title": "A use case of context/04 as an executable vector (ADR 0064)",
-  "description": "One file per use case, spec-source/scenarios/UC-NN.yaml. Every time is an integer in units of 1/timescale seconds on the session clock: wall-clock time since the Player was told to start playback. README.md beside this file says where each value is read from.",
+  "title": "A use case of context/04, or a criterion of context/03, as an executable vector (ADR 0064, ADR 0077)",
+  "description": "A UC vector is spec-source/scenarios/UC-NN.yaml and carries uc + uc_sha256; a behaviour test is spec-source/behaviour/R<n>.<m>[-<k>].yaml and carries criterion + criterion_sha256 instead, never both. Every time is an integer in units of 1/timescale seconds on the session clock: wall-clock time since the Player was told to start playback. README.md beside this file says where each value is read from.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["format", "uc", "uc_sha256", "timescale", "tolerance", "play_from", "observe_until",
-               "entry", "fixtures", "player_capabilities", "sends_capabilities", "actions",
-               "outcomes", "missing_carrier", "disagreements"],
+  "required": ["format", "timescale", "tolerance", "play_from", "observe_until",
+               "entry", "fixtures", "player_capabilities", "sends_capabilities", "actions", "outcomes"],
+  "oneOf": [
+    {"required": ["uc", "uc_sha256", "missing_carrier", "disagreements"],
+     "not": {"anyOf": [{"required": ["criterion"]}, {"required": ["criterion_sha256"]}]}},
+    {"required": ["criterion", "criterion_sha256"],
+     "not": {"anyOf": [{"required": ["uc"]}, {"required": ["uc_sha256"]},
+                       {"required": ["missing_carrier"]}, {"required": ["disagreements"]}]},
+     "description": "a criterion whose carrier is missing is a NOT_VERIFIABLE entry of behaviour/index.yaml, not a test (ADR 0084)"}
+  ],
   "properties": {
     "format": {"const": "sgai-scenario/1"},
     "uc": {"type": "string", "pattern": "^UC-[0-9]{2}$"},
     "uc_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$",
                   "description": "sha256 of the UC's section of context/04, from its `### UC-NN` line to the next heading of level 1 to 3 (or the end of the file), as UTF-8 bytes"},
+    "criterion": {"type": "string", "pattern": "^R[0-9]+\\.[0-9]+$",
+                  "description": "the criterion of context/03 the test decides"},
+    "criterion_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$",
+                         "description": "sha256 of the criterion's text as bin/conformance/spec/criteria.py defines it (whitespace-normalised); print it with `check-behaviour.py criterion R<n>.<m>`"},
     "timescale": {"type": "integer", "minimum": 1},
     "tolerance": {"type": "integer", "minimum": 0,
                   "description": "how far an executor may observe an exact time from the one written, in timescale units"},
@@ -35,6 +46,27 @@
       "description": "the capability parameters the Player discloses on a resolution request (R29.2); every class of the vector sends the same names"
     },
     "actions": {"$ref": "#/$defs/actions"},
+    "aps": {
+      "type": "array",
+      "description": "how the test APS answers resolution requests. Without it, or for a URL it does not name, a request is answered at once with status 200 and its `answered_by` fixture",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["url"],
+        "oneOf": [{"required": ["status"]}, {"required": ["no_response"]}],
+        "properties": {
+          "url": {"type": "string", "pattern": "^https?://",
+                  "description": "the request URL as the pointing document writes it (a request's `url`), without the query the Player adds"},
+          "nth": {"type": "integer", "minimum": 1,
+                  "description": "which request to that URL this answers, 1-based; absent: every one"},
+          "status": {"type": "integer", "minimum": 100, "maximum": 599},
+          "document": {"$ref": "#/$defs/path", "description": "the body served, a fixture of the vector; absent: an empty body"},
+          "delay": {"$ref": "#/$defs/time", "description": "how long after the request the answer starts"},
+          "no_response": {"const": true, "description": "the APS never answers: the request stays open until observation ends"}
+        },
+        "dependentSchemas": {
+          "no_response": {"not": {"anyOf": [{"required": ["document"]}, {"required": ["delay"]}]}}
+        }
+      }
+    },
     "outcomes": {"$ref": "#/$defs/outcomes"},
     "variants": {
       "type": "array",
@@ -77,7 +109,7 @@
   },
   "$defs": {
     "class": {"enum": ["D1", "D2", "D3", "D4", "D5", "legacy"]},
-    "path": {"type": "string", "pattern": "^(examples|scenarios/fixtures/UC-[0-9]{2})/[A-Za-z0-9._/-]+$"},
+    "path": {"type": "string", "pattern": "^(examples|scenarios/fixtures/UC-[0-9]{2}|behaviour/fixtures)/[A-Za-z0-9._/-]+$"},
     "time": {"type": "integer", "minimum": 0},
     "when": {
       "oneOf": [
@@ -92,7 +124,7 @@
         "path": {"$ref": "#/$defs/path"},
         "url": {"type": "string", "pattern": "^https?://", "description": "where the harness serves it: the URL the Player requests it from"},
         "class": {"enum": ["publisher-mpd", "legacy-view", "list-mpd", "sps-mpd", "overlay-list", "request", "fragment", "vast"],
-                  "description": "required for a fixture under scenarios/fixtures/; for one under examples/ it is read from examples/index.yaml"}
+                  "description": "required for a fixture under scenarios/fixtures/ or behaviour/fixtures/; for one under examples/ it is read from examples/index.yaml"}
       }
     },
     "capabilities": {
@@ -167,13 +199,13 @@
         "requests": {
           "type": "array",
           "items": {
-            "type": "object", "additionalProperties": false, "required": ["at", "url", "answered_by"],
+            "type": "object", "additionalProperties": false, "required": ["at", "url"],
             "properties": {
               "at": {"$ref": "#/$defs/when"},
               "url": {"type": "string", "pattern": "^https?://"},
               "query": {"type": "object", "additionalProperties": {"type": "string"},
                         "description": "query parameters the Player adds to url"},
-              "answered_by": {"$ref": "#/$defs/path"},
+              "answered_by": {"$ref": "#/$defs/path", "description": "the fixture served; absent only when `aps` answers that URL without a document"},
               "matches": {"$ref": "#/$defs/path", "description": "a request fixture (.http) this request equals"}
             }
           }
@@ -229,7 +261,32 @@
               "url": {"type": "string"}
             }
           }
+        },
+        "geometry": {
+          "type": "array",
+          "description": "where the ad layer and the primary content are on screen at an instant",
+          "items": {
+            "type": "object", "additionalProperties": false, "required": ["at", "tolerance"],
+            "anyOf": [{"required": ["primary"]}, {"required": ["ad"]}],
+            "properties": {
+              "at": {"$ref": "#/$defs/time"},
+              "primary": {"$ref": "#/$defs/rect"},
+              "ad": {"$ref": "#/$defs/rect", "description": "the bounding box of the ad layer, every element of the ad included"},
+              "tolerance": {"type": "number", "minimum": 0,
+                            "description": "how far an executor may observe each edge from the written one, in percentage points"}
+            }
+          }
         }
+      }
+    },
+    "rect": {
+      "type": "object", "additionalProperties": false, "required": ["x", "y", "width", "height"],
+      "description": "a rectangle in percent of the Player's viewport, origin top-left (as R39.2)",
+      "properties": {
+        "x": {"type": "number", "minimum": 0, "maximum": 100},
+        "y": {"type": "number", "minimum": 0, "maximum": 100},
+        "width": {"type": "number", "exclusiveMinimum": 0, "maximum": 100},
+        "height": {"type": "number", "exclusiveMinimum": 0, "maximum": 100}
       }
     },
     "outcomes": {

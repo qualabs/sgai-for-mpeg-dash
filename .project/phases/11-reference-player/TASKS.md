@@ -2,8 +2,8 @@
 
 | id   | brief                                                                                         | status  | who   | plan | evidence |
 | ---- | --------------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
-| T-01 | Se sabe si el lineal (insert y replace) sale con el módulo sobre el dash.js fijado             | pending | agent | —    | —        |
-| T-02 | Un test de conducta tiene esquema, población y hash, y un check que lo juzga                   | pending | agent | —    | —        |
+| T-01 | Se sabe si el lineal (insert y replace) sale con el módulo sobre el dash.js fijado             | done | agent | —    | `reference-player/spike/`, `tasks/T-01/`        |
+| T-02 | Un test de conducta tiene esquema, población y hash, y un check que lo juzga                   | done | agent | —    | `bin/check-behaviour.py`, `bin/test_check_behaviour.py`, `spec-source/behaviour/`, `tasks/T-02/`        |
 | T-03 | El harness corre un vector con el adaptador `sgai` y compara lo observado con lo esperado      | pending | agent | —    | —        |
 | T-04 | Los 61 criterios observables tienen su test, escrito del texto y visto fallar                  | pending | agent | —    | —        |
 | T-05 | La referencia ejecuta el lineal de la 6ta que piden los criterios y los vectores               | pending | agent | —    | —        |

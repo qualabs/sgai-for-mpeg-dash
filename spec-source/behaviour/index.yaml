@@ -1,0 +1,52 @@
+# The criteria of the population (bin/check-behaviour.py --help) that have no
+# behaviour test, each NOT_VERIFIABLE with its reason (ADR 0078). The hash is
+# the one `check-behaviour.py criterion R<n>.<m>` prints, never computed by hand.
+format: sgai-behaviour-index/1
+not_verifiable:
+  # No carrier until v13 (ADR 0084; output-analysis/v12.7-context-delta.md, "Not placed").
+  - criterion: R41.4
+    criterion_sha256: 5c535e43d65a4c7bd5c198797ee38f6c985e061e79792be9db8c3eb0f5bba137
+    reason: "no carrier: the option-level declaration of the ad's audio (R41.3) is not placed in the specification (Not placed row 4), so no option's audio can be heard"
+  - criterion: R41.5
+    criterion_sha256: 69f7e0370dbcccd623078798080285a0c0d465eac78881c837e0c04c372d080e
+    reason: "no carrier: the window-level audio allowance (R41.2) and the option-level audio declaration are not placed (Not placed row 4)"
+  - criterion: R41.6
+    criterion_sha256: caeb6d2b6b2f5da3c4eed1cd069e39ada4f4bf4379e8270c71c53f1a38b41b09
+    reason: "no carrier: no option can declare its audio (R41.3, Not placed row 4)"
+  - criterion: R41.7
+    criterion_sha256: a3f5b78fc6a6d68e8218523daa147c7914803ebd782bb3f05cb90bec9f58f1ce
+    reason: "no carrier: the second audio source the criterion bounds is an option that declares its audio (R41.3), which is not placed (Not placed row 4)"
+  - criterion: R42.3
+    criterion_sha256: 89999f12a99f44f67d7a93ff0e827db4660f30a2949df14ea1f3f3ac51d7dc20
+    reason: "no carrier: the occurrence-beacon carrier of R42.1 is not placed (Not placed row 8)"
+  - criterion: R47.2
+    criterion_sha256: 47ed9d8e9cc48c70f2fe92a69206e768dbcc2edcf59e3e7b587e66273cb6e1a7
+    reason: "no carrier: viewability beacons ride the occurrence carrier of R42.1, not placed (Not placed rows 8 and 10)"
+  - criterion: R48.3
+    criterion_sha256: 6f4753f04c4cc2c5a23892a419fab7e8e45b39c183aac205bc585e1ede305252
+    reason: "no carrier: the per-candidate disclosure carrier of R48.1 is not placed (Not placed row 11)"
+  # Not decidable by a black-box test.
+  - criterion: R1.6
+    criterion_sha256: 06d48cb358e1627a19aaa98bb1816f155c0aea8927a786850de6368aa984ce76
+    reason: "how degradation is detected is the Player's own decision, and degradation cannot be induced repeatably from outside the Player; its failure beacon also has no carrier (R42, Not placed row 8)"
+  - criterion: R3.2
+    criterion_sha256: 606af5294bfef1a6cd4b8f6deac73513339e627f0af856dc92c9997820a6bd4d
+    reason: "a defined behaviour for every opportunity type on every class is the sum of the other criteria and the UC vectors; no single test decides it"
+  - criterion: R11.2
+    criterion_sha256: eadf0bca6f6788be3b1b5244f948f747b499f2ac151fdab092d4ddbab3f5c113
+    reason: "a property of the architecture: the Player reads only the APS's resolution document, so no test can present it with an ADS format to fail on"
+  - criterion: R21.1
+    criterion_sha256: 254c1c2d0d91f0c673043e1652fa70c7cc900306f8cf74518a7881fbea2fa5c2
+    reason: "a permission (MAY release resources): every behaviour conforms, so nothing can fail"
+  - criterion: R29.10
+    criterion_sha256: 6780f0f796e78106e3ad1f0d317c11dd7f34e03d66abab07f73803b62811d331
+    reason: "whether a declared capability is the device's real one is a property of the device; the harness emulates classes by profile (ADR 0080) and has no real device to compare against"
+  - criterion: R33.2
+    criterion_sha256: 5a972d7bc7bc67e8dd4bc6eed1ebf45317d47951d18e69dc62e85d16fdcfd23a
+    reason: "binds only a Player that reports metrics, which is optional (DP-4), and the specification defines no channel a test could read the report from"
+  - criterion: R37.1
+    criterion_sha256: d1b3e0d8f5c3b7b97183546d3bbec7913a1322ed037bcf83cdbe55f07bd6882f
+    reason: "a permission (MAY implement a pause by any mechanism): every mechanism conforms, so nothing can fail; where the pause resumes is R37.2's"
+  - criterion: R44.3
+    criterion_sha256: 7b4bf882e4a1f60b5b50aa2d8be7b60df1ed539761b683ed6dfca61aa8dc1398
+    reason: "running a verification SDK is optional, and the verification resources it would be handed have no carrier (R44.1, Not placed row 9)"

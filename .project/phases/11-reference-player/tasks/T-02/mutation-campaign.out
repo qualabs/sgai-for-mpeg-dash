@@ -1,0 +1,29 @@
+M1 population: 'level 3a' counted	RED (caught)	TestPopulation	Ran 4 tests in 0.803s | FAILED (failures=2)
+M2 population: PLAYER prefix ignored	GREEN (survived)	TestPopulation.test_rule	Ran 1 test in 0.000s | OK
+M3 B-HASH never found	RED (caught)	TestHash	Ran 3 tests in 2.128s | FAILED (failures=2)
+M4 B-RETIRED not checked	RED (caught)	TestRetired	Ran 1 test in 0.819s | FAILED (failures=1)
+M5 B-POP outside population not checked	RED (caught)	TestPop	Ran 3 tests in 2.312s | FAILED (failures=2)
+M6 B-POP undefined not checked	RED (caught)	TestPop.test_undefined	Ran 1 test in 1.071s | FAILED (failures=1)
+M7 B-COVER uncovered not found	RED (caught)	TestAsItIs TestCover	Ran 4 tests in 1.077s | FAILED (failures=3)
+M8 B-COVER test+entry not found	RED (caught)	TestCover.test_test_and_entry	Ran 1 test in 1.204s | FAILED (failures=1)
+M9 schema: criterion not required	GREEN (survived)	TestSchema.test_no_criterion	Ran 1 test in 0.721s | OK
+M10 file name vs criterion not checked	RED (caught)	TestSchema.test_file_name	Ran 1 test in 0.904s | FAILED (failures=1)
+M11 index duplicate not checked	RED (caught)	TestSchema.test_index_twice	Ran 1 test in 0.639s | FAILED (failures=1)
+M12 hash exit 1 not 2	RED (caught)	TestHash	Ran 3 tests in 2.488s | FAILED (failures=2)
+M13 empty population accepted	RED (caught)	TestPopulation.test_empty	Ran 1 test in 0.061s | FAILED (failures=1)
+M14 catalogue criterion missing from 03 accepted	RED (caught)	TestPopulation.test_criterion_not_in_03	Ran 1 test in 0.562s | FAILED (failures=1)
+M15 S-GEOM viewport	RED (caught)	TestGeometry	Ran 6 tests in 9.811s | FAILED (failures=1)
+M16 S-GEOM element shown	RED (caught)	TestGeometry	Ran 6 tests in 8.919s | FAILED (failures=1)
+M17 geometry at after observe_until	RED (caught)	TestGeometry.test_after_window	Ran 1 test in 0.952s | FAILED (failures=1)
+M18 request without answered_by accepted	RED (caught)	TestAps	Ran 4 tests in 7.607s | FAILED (failures=1)
+M19 aps document not a fixture accepted	RED (caught)	TestAps	Ran 4 tests in 6.005s | FAILED (failures=1)
+M20 schema: delay with no_response	RED (caught)	TestAps.test_schema	Ran 1 test in 2.454s | FAILED (failures=1)
+M21 schema: zero-width rectangle	RED (caught)	TestGeometry.test_schema	Ran 1 test in 2.392s | FAILED (failures=1)
+M22 schema: geometry tolerance optional	RED (caught)	TestGeometry.test_schema	Ran 1 test in 1.507s | FAILED (failures=1)
+M23 uncovered exit 0	RED (caught)	TestCommandLine.test_uncovered	Ran 1 test in 1.140s | FAILED (failures=1)
+M24 schema: UC vector may also carry criterion	GREEN (survived)	TestScenarioSchema.test_uc_vector_with_criterion	Ran 1 test in 1.192s | OK
+# re-run of the three survivors after strengthening the tests
+M2 population: PLAYER prefix ignored	RED (caught)	TestPopulation.test_rule	Ran 1 test in 0.001s | FAILED (failures=1)
+M9 schema: criterion not required	GREEN (survived)	TestSchema.test_no_criterion	Ran 1 test in 0.686s | OK
+M24 schema: UC vector may also carry criterion	RED (caught)	TestScenarioSchema.test_uc_vector_with_criterion	Ran 1 test in 1.202s | FAILED (failures=1)
+M9 schema: criterion not required	RED (caught)	TestSchema.test_no_criterion TestSchema.test_schema_alone_requires_criterion	Ran 2 tests in 0.772s | FAILED (failures=1)

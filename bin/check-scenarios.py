@@ -43,7 +43,13 @@ Checks, each a finding `<check>  <UC>  <detail>`:
   S-TIME     times lie in [0, observe_until], a range has from <= to, and
              each outcome's presentation tiles [0, observe_until] with no gap
              and no overlap
+  S-GEOM     every `geometry` rectangle lies inside the viewport, and at its
+             instant the presentation shows the element it places
   S-CARRIER  each `missing_carrier` names a requirement context/03 defines
+
+S-SCHEMA also finds a request with no `answered_by` that no `aps` entry
+answers without a document. The schema and every check but S-COVER and
+S-HASH are shared with the behaviour tests (bin/check-behaviour.py).
 
 Then, for every vector and class: `NOT_VERIFIABLE — no executor`. No Player
 runs a vector yet (the executor is the reference Player of the next phase,
@@ -317,6 +323,27 @@ def check_times(v: dict, where: str, o: dict, find) -> None:
         find("S-TIME", f"{where}.presentation ends at {at}, expected observe_until {lim}")
 
 
+def check_geometry(v: dict, where: str, o: dict, find) -> None:
+    """S-GEOM: a rectangle lies inside the viewport, and at its instant the
+    presentation shows the element it places."""
+    for i, g in enumerate(o.get("geometry", [])):
+        if g["at"] > v["observe_until"]:
+            find("S-TIME", f"{where}.geometry[{i}].at: {g['at']} is after observe_until {v['observe_until']}")
+            continue
+        seg = next((s for s in o["presentation"] if s["start"] <= g["at"] < s["end"]), None)
+        if seg is None and o["presentation"] and g["at"] == o["presentation"][-1]["end"]:
+            seg = o["presentation"][-1]
+        shown = {e["element"] for e in seg["shows"]} if seg else set()
+        for el in ("primary", "ad"):
+            if el not in g:
+                continue
+            r = g[el]
+            if r["x"] + r["width"] > 100 or r["y"] + r["height"] > 100:
+                find("S-GEOM", f"{where}.geometry[{i}].{el}: extends past the viewport")
+            if el not in shown:
+                find("S-GEOM", f"{where}.geometry[{i}].{el}: the presentation shows no {el} at {g['at']}")
+
+
 def check_refs(v: dict, where: str, o: dict, docs: dict, find) -> None:
     def doc(path, label):
         if path not in docs:
@@ -339,8 +366,13 @@ def check_refs(v: dict, where: str, o: dict, docs: dict, find) -> None:
         if Doc.option(c, ref) is None:
             find("S-REF", f"{where}.{label}: no option {ref} in that candidate")
 
+    no_doc = {a["url"] for a in v.get("aps", []) if "document" not in a}
     for i, r in enumerate(o["requests"]):
-        doc(r["answered_by"], f"requests[{i}].answered_by")
+        if "answered_by" in r:
+            doc(r["answered_by"], f"requests[{i}].answered_by")
+        elif r["url"] not in no_doc:
+            find("S-SCHEMA", f"{where}.requests[{i}]: no answered_by, and no `aps` entry answers "
+                             f"{r['url']} without a document")
         for k in r.get("query", {}):
             if k not in SLOT_PARAMS and k not in v["sends_capabilities"]:
                 find("S-REF", f"{where}.requests[{i}].query: {k} is neither a slot parameter nor in sends_capabilities")
@@ -405,6 +437,14 @@ def check_vector(path: Path, v: dict, ctx: dict, find) -> None:
         find("S-COVER", f"class {c} has no outcome")
     for c in sorted(have - admitted):
         find("S-COVER", f"outcome for class {c}, which {uc} does not state")
+    check_body(uc, v, ctx, find)
+
+
+def check_body(key: str, v: dict, ctx: dict, find) -> None:
+    """Every check of a vector that does not depend on what it is written
+    from (a UC or a criterion): capabilities, fixtures, references, layouts,
+    times, geometry, the test APS, actions and missing carriers."""
+    have = set(v["outcomes"])
     for c in sorted(have - set(v["player_capabilities"])):
         find("S-CAPS", f"class {c} has an outcome and no player_capabilities")
     for c, caps in v["player_capabilities"].items():
@@ -440,8 +480,11 @@ def check_vector(path: Path, v: dict, ctx: dict, find) -> None:
         docs[p] = Doc(src / p)
     if v["entry"] not in docs:
         find("S-FIXTURE", f"entry {v['entry']} is not a fixture of this vector")
+    for i, a in enumerate(v.get("aps", [])):
+        if "document" in a and a["document"] not in docs:
+            find("S-FIXTURE", f"aps[{i}].document: {a['document']} is not a fixture of this vector")
     ctx["scenario_fixtures"].update(scen)
-    ctx["used_fixtures"].setdefault(uc, []).extend(docs)
+    ctx["used_fixtures"].setdefault(key, []).extend(docs)
 
     runs = [("outcomes", v["outcomes"])]
     runs += [(f"variants[{x['id']}]", x["outcomes"]) for x in v.get("variants", [])]
@@ -449,6 +492,7 @@ def check_vector(path: Path, v: dict, ctx: dict, find) -> None:
         for c, o in outs.items():
             where = f"{label}.{c}"
             check_times(v, where, o, find)
+            check_geometry(v, where, o, find)
             check_refs(v, where, o, docs, find)
             layouts = [s["layout"] for s in o["presentation"]]
             layouts += [p["layout"] for s in o["selection"] for p in s["presented"]]
@@ -461,7 +505,7 @@ def check_vector(path: Path, v: dict, ctx: dict, find) -> None:
     for a in v["actions"] + [a for x in v.get("variants", []) for a in x["actions"]]:
         if a["at"] > v["observe_until"]:
             find("S-TIME", f"action {a['do']} at {a['at']} is after observe_until")
-    for m in v["missing_carrier"]:
+    for m in v.get("missing_carrier", []):
         if m["requirement"] not in ctx["req_ids"]:
             find("S-CARRIER", f"{m['requirement']} is not a requirement or criterion of context/03")
         outs = v["outcomes"]
@@ -490,16 +534,12 @@ def run(source: Path, context_dir: Path) -> dict:
 
     try:
         c04 = (context_dir / "04-use-cases.md").read_text(encoding="utf-8")
-        c03 = (context_dir / "03-requirements.md").read_text(encoding="utf-8")
-        ctx = {"source": source, "sections": uc_sections(c04), "rows": coverage_rows(c04),
-               "r31": r31_table(c03), "tokens": r122_tokens(c03), "req_ids": requirement_ids(c03),
-               "index": srcmod.read_index(source / srcmod.INDEX),
-               "scenario_fixtures": {}, "used_fixtures": {}}
-        schema = json.loads((source / "scenarios" / "schema.json").read_text(encoding="utf-8"))
+        ctx = load_context(source, context_dir)
+        ctx.update(sections=uc_sections(c04), rows=coverage_rows(c04))
     except (OSError, CannotTell, srcmod.IndexError_, json.JSONDecodeError) as e:
         out["cannot"].append(str(e))
         return out
-    validator = jsonschema.Draft202012Validator(schema)
+    validator = jsonschema.Draft202012Validator(ctx["schema"])
 
     files = sorted((source / "scenarios").glob("UC-*.yaml"))
     by_uc = {}
@@ -525,19 +565,40 @@ def run(source: Path, context_dir: Path) -> dict:
             req, _ = required_classes(uc, ctx["sections"][uc], ctx["rows"])
             finder(uc)("S-COVER", f"no vector (classes stated: {', '.join(sorted(req)) or 'none'})")
 
-    used = ctx["used_fixtures"]
-    if used:
-        fails, cannot = fixture_fails(source, context_dir, ctx["scenario_fixtures"])
-        out["cannot"].extend(cannot)
-        if not cannot:
-            for uc, paths in used.items():
-                for p in paths:
-                    subj = p[len("examples/"):] if p.startswith("examples/") else p
-                    if subj not in fails:
-                        finder(uc)("S-FIXTURE", f"{p}: no conformance result names it")
-                    for d in fails.get(subj, []):
-                        finder(uc)("S-FIXTURE", f"{p} is not green: {d}")
+    green_fixtures(ctx, context_dir, out, finder)
     return out
+
+
+def load_context(source: Path, context_dir: Path) -> dict:
+    """What every vector is checked against: context/03 (R3.1 rows, R12.2
+    tokens, requirement ids), examples/index.yaml and the schema. Raises
+    OSError, CannotTell, IndexError_ or JSONDecodeError."""
+    sys.path.insert(0, str(HERE))
+    from conformance import source as srcmod
+    c03 = (context_dir / "03-requirements.md").read_text(encoding="utf-8")
+    return {"source": source, "c03": c03,
+            "r31": r31_table(c03), "tokens": r122_tokens(c03), "req_ids": requirement_ids(c03),
+            "index": srcmod.read_index(source / srcmod.INDEX),
+            "schema": json.loads((source / "scenarios" / "schema.json").read_text(encoding="utf-8")),
+            "scenario_fixtures": {}, "used_fixtures": {}}
+
+
+def green_fixtures(ctx: dict, context_dir: Path, out: dict, finder) -> None:
+    """S-FIXTURE: every fixture the vectors used is green on levels 1 and 2."""
+    used = ctx["used_fixtures"]
+    if not used:
+        return
+    fails, cannot = fixture_fails(ctx["source"], context_dir, ctx["scenario_fixtures"])
+    out["cannot"].extend(cannot)
+    if cannot:
+        return
+    for key, paths in used.items():
+        for p in paths:
+            subj = p[len("examples/"):] if p.startswith("examples/") else p
+            if subj not in fails:
+                finder(key)("S-FIXTURE", f"{p}: no conformance result names it")
+            for d in fails.get(subj, []):
+                finder(key)("S-FIXTURE", f"{p} is not green: {d}")
 
 
 def exit_code(out: dict) -> int:

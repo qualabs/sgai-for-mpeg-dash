@@ -2430,3 +2430,11 @@ El líder del proyecto aprobó abrir la fase de la referencia empezando por un d
 ## 2026-11-23 — `reference-player`: diseño acordado y plan generado
 
 El líder del proyecto aprobó el diseño: *"Ok, construyamos pero que por defecto no se use porque es muy caro en tiempo"*. Eso es el OK a D-1, D-2, D-8 y D-12 como estaban recomendadas, más una decisión nueva, D-13: la batería de conducta es opt-in y sólo corre con `--behaviour`, con un test que lo verifica. La audiencia de la demo no la contestó: se asume el WG de DASH. La generación escribió `PHASE.md`, `TASKS.md` (12 tasks, todas `agent`) y las ADR 0075 a 0087, una por decisión. El proyecto no tiene `docs/arc42/`. La fase arranca ya.
+
+## 2026-11-23 — 11 T-01: el lineal sale con el módulo
+
+El spike ejecutó insert y replace de la 6ta con la API pública del dash.js 5.3.0 fijado, sin fork: 10 corridas, todas con el principal detenido en PRT (o en PRTA en un join) y de vuelta en el RT de la Table 57 dentro de tolerancia (±0,10 s estático, ±0,50 s live); seek atrás re-ejecuta, `@executeOnce` no. ADR 0075 se sostiene. dash.js no entrega el elemento en el evento (se lee de `getManifest()`), dispara el start una sola vez (el módulo corre la cola de §5.16.2.2 él mismo) y no re-despacha un `@status="update"` (leído, no medido). Hallazgo sobre la norma, de lectura y no de medición: §5.16.2.2.5 paso 1a mueve el playhead a RT y resetea QE, lo que leído literalmente re-ejecuta una inserción para siempre; el pseudocódigo de A.14.5 no lo hace, y el spike sigue A.14.5. Va al REPORT.
+
+## 2026-11-23 — 11 T-02: esquema, población y check de los tests de conducta
+
+`bin/check-behaviour.py` lee la población del catálogo del nivel 2: 76 criterios, 15 `NOT_VERIFIABLE` en `spec-source/behaviour/index.yaml`, 61 sin test (exit 1, la lista de T-04). `scenarios/schema.json` suma `criterion`, `aps` y `geometry`; `check-scenarios.py` sigue en 0 con sus 22 vectores. Suite de `bin/` verde (25 archivos); campaña de 24 mutaciones, 3 sobrevivieron y se cerraron con tests nuevos. R41.7 queda en el índice como dice ADR 0084, aunque una parte (overlay de video sin audio) sería observable hoy. Pendiente para el cierre: `scenarios/README.md`, `CLAUDE.md` y `SETUP.md` no nombran lo nuevo.

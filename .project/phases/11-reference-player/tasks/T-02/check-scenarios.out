@@ -1,0 +1,4 @@
+$ python3 bin/check-scenarios.py | tail -2; exit
+exit=0
+22 vectors of 22 use cases; 0 findings; without a vector: none
+A green run says the vectors are well formed, cover every UC x class, rest on green fixtures and match the UCs as they are now; no Player has run them (NOT_VERIFIABLE — no executor).

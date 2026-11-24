@@ -1,0 +1,75 @@
+== bin/test_apply_spec_patch.py
+Ran 35 tests in 1.454s
+OK
+== bin/test_assemble_spec.py
+Ran 15 tests in 4.308s
+OK
+== bin/test_check_behaviour.py
+Ran 43 tests in 45.268s
+OK
+== bin/test_check_context_interfaces.py
+Ran 19 tests in 1.550s
+OK
+== bin/test_check_incremental.py
+Ran 15 tests in 0.103s
+OK
+== bin/test_check_promotable_conformance.py
+Ran 5 tests in 0.670s
+OK
+== bin/test_check_promotable_flags.py
+Ran 1 test in 0.000s
+OK
+== bin/test_check_scenarios.py
+Ran 42 tests in 42.350s
+OK
+== bin/test_check_trace.py
+Ran 38 tests in 0.692s
+OK
+== bin/test_compare_candidates.py
+Ran 11 tests in 0.654s
+OK
+== bin/test_conformance_core.py
+Ran 9 tests in 0.852s
+OK
+== bin/test_conformance_dash.py
+Ran 6 tests in 0.447s
+OK
+== bin/test_conformance_players.py
+Ran 6 tests in 21.784s
+OK
+== bin/test_conformance_source.py
+Ran 32 tests in 6.998s
+OK
+== bin/test_conformance_spec.py
+Ran 59 tests in 1.992s
+OK
+== bin/test_gen_syntax_tables.py
+Ran 37 tests in 4.499s
+OK
+== bin/test_lint_spec.py
+Ran 32 tests in 1.730s
+OK
+== bin/test_measure_run.py
+Ran 4 tests in 0.671s
+OK
+== bin/test_name_candidates.py
+Ran 22 tests in 1.979s
+OK
+== bin/test_promote.py
+Ran 6 tests in 0.033s
+OK
+== bin/test_step_inputs.py
+Ran 7 tests in 0.074s
+OK
+== bin/test_strip_legacy_annotations.py
+Ran 9 tests in 1.580s
+OK
+== bin/test_validate.py
+Ran 34 tests in 11.524s
+OK
+== bin/test_validation_summary.py
+Ran 13 tests in 0.684s
+OK
+== bin/test_walk_batches.py
+Ran 9 tests in 0.009s
+OK

@@ -1,0 +1,80 @@
+$ python3 bin/check-behaviour.py; echo exit=$?
+B-COVER	R1.4	no test and no entry in index.yaml
+B-COVER	R2.3	no test and no entry in index.yaml
+B-COVER	R4.2	no test and no entry in index.yaml
+B-COVER	R4.5	no test and no entry in index.yaml
+B-COVER	R4.7	no test and no entry in index.yaml
+B-COVER	R4.8	no test and no entry in index.yaml
+B-COVER	R4.9	no test and no entry in index.yaml
+B-COVER	R4.10	no test and no entry in index.yaml
+B-COVER	R5.3	no test and no entry in index.yaml
+B-COVER	R5.6	no test and no entry in index.yaml
+B-COVER	R5.9	no test and no entry in index.yaml
+B-COVER	R6.4	no test and no entry in index.yaml
+B-COVER	R6.5	no test and no entry in index.yaml
+B-COVER	R7.1	no test and no entry in index.yaml
+B-COVER	R12.5	no test and no entry in index.yaml
+B-COVER	R13.1	no test and no entry in index.yaml
+B-COVER	R13.3	no test and no entry in index.yaml
+B-COVER	R13.6	no test and no entry in index.yaml
+B-COVER	R15.3	no test and no entry in index.yaml
+B-COVER	R16.1	no test and no entry in index.yaml
+B-COVER	R17.1	no test and no entry in index.yaml
+B-COVER	R17.2	no test and no entry in index.yaml
+B-COVER	R17.5	no test and no entry in index.yaml
+B-COVER	R19.1	no test and no entry in index.yaml
+B-COVER	R19.3	no test and no entry in index.yaml
+B-COVER	R20.1	no test and no entry in index.yaml
+B-COVER	R20.3	no test and no entry in index.yaml
+B-COVER	R20.4	no test and no entry in index.yaml
+B-COVER	R20.5	no test and no entry in index.yaml
+B-COVER	R22.1	no test and no entry in index.yaml
+B-COVER	R25.1	no test and no entry in index.yaml
+B-COVER	R26.1	no test and no entry in index.yaml
+B-COVER	R26.3	no test and no entry in index.yaml
+B-COVER	R27.1	no test and no entry in index.yaml
+B-COVER	R27.3	no test and no entry in index.yaml
+B-COVER	R28.1	no test and no entry in index.yaml
+B-COVER	R28.2	no test and no entry in index.yaml
+B-COVER	R29.2	no test and no entry in index.yaml
+B-COVER	R29.4	no test and no entry in index.yaml
+B-COVER	R30.2	no test and no entry in index.yaml
+B-COVER	R31.2	no test and no entry in index.yaml
+B-COVER	R32.1	no test and no entry in index.yaml
+B-COVER	R32.2	no test and no entry in index.yaml
+B-COVER	R34.1	no test and no entry in index.yaml
+B-COVER	R34.3	no test and no entry in index.yaml
+B-COVER	R34.6	no test and no entry in index.yaml
+B-COVER	R34.9	no test and no entry in index.yaml
+B-COVER	R34.10	no test and no entry in index.yaml
+B-COVER	R35.4	no test and no entry in index.yaml
+B-COVER	R35.5	no test and no entry in index.yaml
+B-COVER	R36.1	no test and no entry in index.yaml
+B-COVER	R36.5	no test and no entry in index.yaml
+B-COVER	R37.2	no test and no entry in index.yaml
+B-COVER	R38.2	no test and no entry in index.yaml
+B-COVER	R39.3	no test and no entry in index.yaml
+B-COVER	R39.5	no test and no entry in index.yaml
+B-COVER	R40.3	no test and no entry in index.yaml
+B-COVER	R40.4	no test and no entry in index.yaml
+B-COVER	R40.5	no test and no entry in index.yaml
+B-COVER	R40.6	no test and no entry in index.yaml
+B-COVER	R40.9	no test and no entry in index.yaml
+R1.6	NOT_VERIFIABLE — how degradation is detected is the Player's own decision, and degradation cannot be induced repeatably from outside the Player; its failure beacon also has no carrier (R42, Not placed row 8)
+R3.2	NOT_VERIFIABLE — a defined behaviour for every opportunity type on every class is the sum of the other criteria and the UC vectors; no single test decides it
+R11.2	NOT_VERIFIABLE — a property of the architecture: the Player reads only the APS's resolution document, so no test can present it with an ADS format to fail on
+R21.1	NOT_VERIFIABLE — a permission (MAY release resources): every behaviour conforms, so nothing can fail
+R29.10	NOT_VERIFIABLE — whether a declared capability is the device's real one is a property of the device; the harness emulates classes by profile (ADR 0080) and has no real device to compare against
+R33.2	NOT_VERIFIABLE — binds only a Player that reports metrics, which is optional (DP-4), and the specification defines no channel a test could read the report from
+R37.1	NOT_VERIFIABLE — a permission (MAY implement a pause by any mechanism): every mechanism conforms, so nothing can fail; where the pause resumes is R37.2's
+R41.4	NOT_VERIFIABLE — no carrier: the option-level declaration of the ad's audio (R41.3) is not placed in the specification (Not placed row 4), so no option's audio can be heard
+R41.5	NOT_VERIFIABLE — no carrier: the window-level audio allowance (R41.2) and the option-level audio declaration are not placed (Not placed row 4)
+R41.6	NOT_VERIFIABLE — no carrier: no option can declare its audio (R41.3, Not placed row 4)
+R41.7	NOT_VERIFIABLE — no carrier: the second audio source the criterion bounds is an option that declares its audio (R41.3), which is not placed (Not placed row 4)
+R42.3	NOT_VERIFIABLE — no carrier: the occurrence-beacon carrier of R42.1 is not placed (Not placed row 8)
+R44.3	NOT_VERIFIABLE — running a verification SDK is optional, and the verification resources it would be handed have no carrier (R44.1, Not placed row 9)
+R47.2	NOT_VERIFIABLE — no carrier: viewability beacons ride the occurrence carrier of R42.1, not placed (Not placed rows 8 and 10)
+R48.3	NOT_VERIFIABLE — no carrier: the per-candidate disclosure carrier of R48.1 is not placed (Not placed row 11)
+population 76 (from the level-2 catalogue): 0 with a test, 15 NOT_VERIFIABLE in index.yaml, 61 uncovered; 61 findings
+A green run says the tests are well formed, rest on green fixtures, cover the population and match the criteria as they are now; no Player has run them (NOT_VERIFIABLE — no executor).
+exit=1

@@ -1,0 +1,20 @@
+$ sed -n 1777,1779p context/03-requirements.md | tr -s " 
+" "  " | sed "s/^ *//; s/ *$//" | tr -d "
+" | sha256sum
+5c535e43d65a4c7bd5c198797ee38f6c985e061e79792be9db8c3eb0f5bba137  -
+$ python3 bin/check-behaviour.py criterion R41.4 | head -1
+criterion_sha256: 5c535e43d65a4c7bd5c198797ee38f6c985e061e79792be9db8c3eb0f5bba137
+$ python3 -c "import json; print(json.load(open(\"bin/conformance/spec/pins.json\"))[\"R41.4\"][\"sha256\"])"
+5c535e43d65a4c7bd5c198797ee38f6c985e061e79792be9db8c3eb0f5bba137
+$ grep R41.4 -A1 spec-source/behaviour/index.yaml | tail -1
+    criterion_sha256: 5c535e43d65a4c7bd5c198797ee38f6c985e061e79792be9db8c3eb0f5bba137
+
+# Population cross-check by grep (independent of the import): player() calls in catalog.py
+$ grep -oE "player\(\"R[0-9]+\.[0-9]+[a-z]?\"" bin/conformance/spec/catalog.py | wc -l ; plus loops
+38
+108:for c in ("R4.2", "R4.5", "R4.9", "R4.10"):
+133:for c in ("R5.3", "R5.6", "R5.9"):
+197:for c in ("R41.4", "R41.6", "R41.7"):
+203:for c in ("R17.1", "R17.2", "R17.5"):
+210:for c in ("R20.1", "R20.3", "R20.5", "R22.1"):
+219:for c in ("R40.3", "R40.4", "R40.5", "R40.6"):
