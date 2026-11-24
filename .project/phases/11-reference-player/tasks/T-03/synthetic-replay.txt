@@ -1,0 +1,23 @@
+$ python3 bin/check-dash-conformance.py --behaviour --replay <W>/uc01-d1.synthetic.raw.json   # (B) the expected observation of UC-01 D1, injected as the browser record
+PASS            UC-01 D1                     requests      3 request(s) as expected
+PASS            UC-01 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D1                     presentation  3 segment(s) as expected; startup 200 before the first frame
+PASS            UC-01 D1                     beacons       9 beacon(s) as expected
+exit 0: PASS 4  FAIL 0  NOT_VERIFIABLE 0; wall 0.0 s
+exit 0
+
+$ python3 bin/check-dash-conformance.py --behaviour --replay <W>/uc01-d1.synthetic-vs-copy.raw.json   # (C) same record, against UC-01-q1-moved.yaml: beacon @id 3 moved 3750 -> 4750 by hand
+PASS            UC-01 (UC-01-q1-moved) D1    requests      3 request(s) as expected
+PASS            UC-01 (UC-01-q1-moved) D1    selection     1 opportunit(y/ies) as expected
+PASS            UC-01 (UC-01-q1-moved) D1    presentation  3 segment(s) as expected; startup 200 before the first frame
+FAIL            UC-01 (UC-01-q1-moved) D1    beacons       beacons[2] https://t.example.com/q1?cr=101 (@id 3) expected at 4750; observed at 3750; unexpected beacon https://t.example.com/q1?cr=101 at 3750
+exit 1: PASS 3  FAIL 1  NOT_VERIFIABLE 0; wall 0.0 s
+exit 1
+
+$ python3 bin/check-dash-conformance.py --behaviour --replay .project/phases/11-reference-player/tasks/T-03/uc01-d1.raw.json   # (A) the real UC-01 D1 record, judged by the final comparator
+FAIL            UC-01 D1                     requests      requests[0] https://aps.example.com/linear/preroll?show=42&ep=7 at 0: not observed; requests[1] https://ads-cdn.example.com/cr/101/cr101.mpd at 0: not observed; requests[2] https://ads-cdn.example.com/cr/102/cr102.mpd at 5000..15000: not observed
+FAIL            UC-01 D1                     selection     selection[0] event 1 of examples/annex-a/A.2-1.mpd (presented): expected linear examples/annex-a/A.3-1.mpd:ad-101 option null, linear examples/annex-a/A.3-1.mpd:ad-102 option null; observed nothing
+FAIL            UC-01 D1                     presentation  presentation[1] expected a change at 15000 to linear [ad examples/annex-a/A.3-1.mpd:ad-102 option null]; none observed within 250 (on screen: none [primary] from 0); presentation[2] expected a change at 25000 to none [primary from 0]; none observed within 250 (on screen: none [primary] from 0); presentation[0] 0..15000 expected linear [ad examples/annex-a/A.3-1.mpd:ad-101 option null]; observed none [primary] from 0 to 35000; presentation[1] 15000..25000 expected linear [ad examples/annex-a/A.3-1.mpd:ad-102 option null]; observed none [primary] from 0 to 35000; presentation[2] primary from expected 0, observed 24286 [startup 565; observed: 0..35000 none [primary] from 1]
+FAIL            UC-01 D1                     beacons       beacons[0] https://t.example.com/imp?cr=101 (@id 1) expected at 0; observed at never; beacons[1] https://t.example.com/start?cr=101 (@id 2) expected at 0; observed at never; beacons[2] https://t.example.com/q1?cr=101 (@id 3) expected at 3750; observed at never; beacons[3] https://t.example.com/mid?cr=101 (@id 4) expected at 7500; observed at never; beacons[4] https://t.example.com/q3?cr=101 (@id 5) expected at 11250; observed at never; beacons[5] https://t.example.com/complete?cr=101 (@id 6) expected at 15000; observed at never (+3 more)
+exit 1: PASS 0  FAIL 4  NOT_VERIFIABLE 0; wall 0.0 s; content 49.9 s, players 37.2 s
+exit 1

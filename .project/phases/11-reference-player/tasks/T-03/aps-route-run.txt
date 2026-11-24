@@ -1,0 +1,38 @@
+$ python3 bin/check-dash-conformance.py --behaviour --vector <W>/UC-01-aps-delay-2000.yaml <W>/UC-01-aps-status-404.yaml <W>/UC-01-aps-no-response.yaml --concurrency 2 --save-raw <W>/aps.raw.json
+PASS            UC-01 (UC-01-aps-delay-2000) D1 requests      no document request, as expected
+PASS            UC-01 (UC-01-aps-delay-2000) D1 selection     no opportunity, as expected
+PASS            UC-01 (UC-01-aps-delay-2000) D1 presentation  1 segment(s) as expected; startup 2260 before the first frame
+PASS            UC-01 (UC-01-aps-delay-2000) D1 beacons       no beacon, as expected
+FAIL            UC-01 (UC-01-aps-status-404) D1 requests      unexpected request https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd at 32 (answered_by None); unexpected request https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd at 540 (answered_by None); unexpected request https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd at 1045 (answered_by None); unexpected request https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd at 1552 (answered_by None)
+PASS            UC-01 (UC-01-aps-status-404) D1 selection     no opportunity, as expected
+FAIL            UC-01 (UC-01-aps-status-404) D1 presentation  presentation: nothing was ever shown on screen
+PASS            UC-01 (UC-01-aps-status-404) D1 beacons       no beacon, as expected
+FAIL            UC-01 (UC-01-aps-no-response) D1 requests      unexpected request https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd at 32 (answered_by None)
+PASS            UC-01 (UC-01-aps-no-response) D1 selection     no opportunity, as expected
+FAIL            UC-01 (UC-01-aps-no-response) D1 presentation  presentation: nothing was ever shown on screen
+PASS            UC-01 (UC-01-aps-no-response) D1 beacons       no beacon, as expected
+note: UC-01 (UC-01-aps-status-404) D1: module log: [{'t': 1555, 'type': 'dashjs:error', 'data': '{"code":25,"message":"https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd is not available","data":{"request":{"action":"download","availabilityEndTime":null,"availabilityStartTime":null,"bandwidth":null,"bytesLoaded":null,"bytesTotal":null,"delayLoadingTime":null,"duration":null,"endDate":"2026-1'}]
+exit 1: PASS 8  FAIL 4  NOT_VERIFIABLE 0; wall 47.4 s; content 32.6 s, players 13.7 s
+exit 1
+shell wall clock: 47.736563827 s
+
+--- the entry request as the route recorded it, per job (session ms = wall - t0):
+{"vector":"UC-01-aps-delay-2000.yaml","entry":[{"kind":"aps","status":200,"fixture":"examples/annex-a/A.2-1.mpd","session_ms":39}]}
+{"vector":"UC-01-aps-status-404.yaml","entry":[{"kind":"aps","status":404,"fixture":null,"session_ms":32},{"kind":"aps","status":404,"fixture":null,"session_ms":540},{"kind":"aps","status":404,"fixture":null,"session_ms":1045},{"kind":"aps","status":404,"fixture":null,"session_ms":1552}]}
+{"vector":"UC-01-aps-no-response.yaml","entry":[{"kind":"aps","status":null,"fixture":null,"session_ms":32}]}
+
+--- after fixing the entry exclusion (by URL, not by fixture served): the same record, replayed
+$ python3 bin/check-dash-conformance.py --behaviour --replay <W>/aps.raw.json
+PASS            UC-01 (UC-01-aps-delay-2000) D1 requests      no document request, as expected
+PASS            UC-01 (UC-01-aps-delay-2000) D1 selection     no opportunity, as expected
+PASS            UC-01 (UC-01-aps-delay-2000) D1 presentation  1 segment(s) as expected; startup 2260 before the first frame
+PASS            UC-01 (UC-01-aps-delay-2000) D1 beacons       no beacon, as expected
+PASS            UC-01 (UC-01-aps-status-404) D1 requests      no document request, as expected
+PASS            UC-01 (UC-01-aps-status-404) D1 selection     no opportunity, as expected
+FAIL            UC-01 (UC-01-aps-status-404) D1 presentation  presentation: nothing was ever shown on screen
+PASS            UC-01 (UC-01-aps-status-404) D1 beacons       no beacon, as expected
+PASS            UC-01 (UC-01-aps-no-response) D1 requests      no document request, as expected
+PASS            UC-01 (UC-01-aps-no-response) D1 selection     no opportunity, as expected
+FAIL            UC-01 (UC-01-aps-no-response) D1 presentation  presentation: nothing was ever shown on screen
+PASS            UC-01 (UC-01-aps-no-response) D1 beacons       no beacon, as expected
+exit 1: PASS 10  FAIL 2  NOT_VERIFIABLE 0; wall 0.0 s; content 32.6 s, players 13.7 s

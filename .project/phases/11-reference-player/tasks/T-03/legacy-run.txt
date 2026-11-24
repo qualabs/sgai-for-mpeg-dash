@@ -1,0 +1,8 @@
+$ python3 bin/check-dash-conformance.py --behaviour --vector <W>/UC-01-skeleton-legacy.yaml --save-raw <W>/legacy.raw.json
+PASS            UC-01 (UC-01-skeleton-legacy) legacy requests      no document request, as expected
+PASS            UC-01 (UC-01-skeleton-legacy) legacy selection     1 opportunit(y/ies) as expected
+PASS            UC-01 (UC-01-skeleton-legacy) legacy presentation  1 segment(s) as expected; startup 444 before the first frame
+PASS            UC-01 (UC-01-skeleton-legacy) legacy beacons       no beacon, as expected
+exit 0: PASS 4  FAIL 0  NOT_VERIFIABLE 0; wall 44.6 s; content 32.1 s, players 11.5 s
+exit 0
+{"mode":"legacy","klass":"legacy","moduleLog":[{"t":116,"type":"legacy:initialize","data":{"url":"https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd","startTime":null}}]}

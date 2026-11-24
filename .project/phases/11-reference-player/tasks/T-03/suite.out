@@ -1,0 +1,33 @@
+bin/test_apply_spec_patch.py: OK
+bin/test_assemble_spec.py: OK
+bin/test_behaviour_compare.py: OK
+bin/test_check_behaviour.py: FAILED (failures=9)
+bin/test_check_context_interfaces.py: OK
+bin/test_check_incremental.py: OK
+bin/test_check_promotable_conformance.py: OK
+bin/test_check_promotable_flags.py: OK
+bin/test_check_scenarios.py: OK
+bin/test_check_trace.py: OK
+bin/test_compare_candidates.py: OK
+bin/test_conformance_core.py: OK
+bin/test_conformance_dash.py: OK
+bin/test_conformance_players.py:   P-INSERT-shaka PASS xml#39 (line 5189) broken: InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none
+bin/test_conformance_source.py: OK
+bin/test_conformance_spec.py: OK
+bin/test_gen_syntax_tables.py: OK
+bin/test_lint_spec.py: OK
+bin/test_measure_run.py: OK
+bin/test_name_candidates.py: OK
+bin/test_promote.py: OK
+bin/test_step_inputs.py: OK
+bin/test_strip_legacy_annotations.py: OK
+bin/test_validate.py: OK
+bin/test_validation_summary.py: OK
+bin/test_walk_batches.py: OK
+suite wall 365 s
+
+$ python3 -B bin/test_conformance_players.py   # its last line above is a print, not the result
+Ran 6 tests in 24.218s
+OK
+
+$ python3 -B bin/test_check_behaviour.py   # FAILED (failures=9): TestAsItIs/TestCommandLine/... read the live spec-source/behaviour/, which the three concurrent T-04 workers are filling (uncovered 3 != 61, index 20 != 76)

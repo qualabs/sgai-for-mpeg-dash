@@ -39,6 +39,10 @@
   const scripts = {
     dashjs: ['/lib/dashjs/dash.all.min.js', '/adapters/dashjs.js'],
     shaka: ['/lib/shaka/shaka-player.compiled.js', '/adapters/shaka.js'],
+    // The reference (phase 11): served only by bin/conformance/behaviour.py,
+    // which adds the /reference/ prefix in its own process.
+    sgai: ['/lib/dashjs/dash.all.min.js', '/reference/profiles.js', '/reference/sgai-reference.js',
+           '/adapters/sgai.js'],
   }[player] || [];
 
   function loadScript(src) {

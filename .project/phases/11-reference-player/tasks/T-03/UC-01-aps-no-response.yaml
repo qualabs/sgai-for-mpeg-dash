@@ -1,0 +1,73 @@
+format: sgai-scenario/1
+uc: UC-01
+uc_sha256: f2038e69eebdf37d5ad230dbc317b7db57a519ce8670264465f9aa027c89477d
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 6000
+entry: examples/annex-a/A.2-1.mpd
+fixtures:
+- path: examples/annex-a/A.2-1.mpd
+- path: examples/annex-a/A.3-1.mpd
+  url: https://aps.example.com/linear/preroll?show=42&ep=7
+- path: examples/annex-a/A.4-1.mpd
+  url: https://ads-cdn.example.com/cr/101/cr101.mpd
+- path: examples/annex-a/A.4-2.mpd
+  url: https://ads-cdn.example.com/cr/102/cr102.mpd
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D2:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D3:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D4:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D5:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: harness check of the aps route
+    requests: []
+    selection: []
+    presentation:
+    - start: 0
+      end: 6000
+      layout: none
+      shows:
+      - element: primary
+        from: 0
+    beacons: []
+missing_carrier: []
+disagreements:
+- context: 'context/04 UC-01 #### D1: "The extra decoder and overlay surfaces are
+    not exercised here because the slot is linear-only."'
+  annex: 'A.6, row D1, D2: "the second decoder may pre-buffer ad 102 during ad 101."'
+  recorded: Not resolved here. Pre-buffering is not observable in this vector's outcome
+    (no media-segment requests are recorded, and the request for cr102.mpd has the
+    same window either way), so the outcomes hold under both readings.
+aps:
+- url: https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd
+  no_response: true

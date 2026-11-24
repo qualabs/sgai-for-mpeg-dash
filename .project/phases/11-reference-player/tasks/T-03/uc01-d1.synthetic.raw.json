@@ -1,0 +1,162 @@
+{
+ "source": "spec-source",
+ "jobs": [
+  {
+   "vector": "spec-source/scenarios/UC-01.yaml",
+   "variant": null,
+   "class": "D1",
+   "raw": {
+    "id": "j1",
+    "ok": true,
+    "t0": 1700000000000,
+    "requests": [
+     {
+      "wall": 1700000000040,
+      "url": "https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd",
+      "kind": "document",
+      "fixture": "examples/annex-a/A.2-1.mpd"
+     },
+     {
+      "wall": 1700000000000.0,
+      "url": "https://aps.example.com/linear/preroll?show=42&ep=7",
+      "kind": "document",
+      "fixture": "examples/annex-a/A.3-1.mpd"
+     },
+     {
+      "wall": 1700000000000.0,
+      "url": "https://ads-cdn.example.com/cr/101/cr101.mpd",
+      "kind": "document",
+      "fixture": "examples/annex-a/A.4-1.mpd"
+     },
+     {
+      "wall": 1700000010000.0,
+      "url": "https://ads-cdn.example.com/cr/102/cr102.mpd",
+      "kind": "document",
+      "fixture": "examples/annex-a/A.4-2.mpd"
+     },
+     {
+      "wall": 1700000000000.0,
+      "url": "https://t.example.com/imp?cr=101",
+      "kind": "other",
+      "resourceType": "fetch"
+     },
+     {
+      "wall": 1700000000000.0,
+      "url": "https://t.example.com/start?cr=101",
+      "kind": "other",
+      "resourceType": "fetch"
+     },
+     {
+      "wall": 1700000003750.0,
+      "url": "https://t.example.com/q1?cr=101",
+      "kind": "other",
+      "resourceType": "fetch"
+     },
+     {
+      "wall": 1700000007500.0,
+      "url": "https://t.example.com/mid?cr=101",
+      "kind": "other",
+      "resourceType": "fetch"
+     },
+     {
+      "wall": 1700000011250.0,
+      "url": "https://t.example.com/q3?cr=101",
+      "kind": "other",
+      "resourceType": "fetch"
+     },
+     {
+      "wall": 1700000015000.0,
+      "url": "https://t.example.com/complete?cr=101",
+      "kind": "other",
+      "resourceType": "fetch"
+     },
+     {
+      "wall": 1700000015000.0,
+      "url": "https://t.example.com/imp?cr=102",
+      "kind": "other",
+      "resourceType": "fetch"
+     },
+     {
+      "wall": 1700000020000.0,
+      "url": "https://t.example.com/mid?cr=102",
+      "kind": "other",
+      "resourceType": "fetch"
+     },
+     {
+      "wall": 1700000025000.0,
+      "url": "https://t.example.com/complete?cr=102",
+      "kind": "other",
+      "resourceType": "fetch"
+     }
+    ],
+    "actions": [],
+    "observation": {
+     "t0": 1700000000000,
+     "samples": [
+      {
+       "t": 30,
+       "layout": "none",
+       "elements": []
+      },
+      {
+       "t": 200,
+       "layout": "linear",
+       "elements": [
+        {
+         "element": "ad",
+         "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 100,
+          "height": 100
+         },
+         "doc": "https://aps.example.com/linear/preroll?show=42&ep=7",
+         "candidateId": "ad-101",
+         "opportunityDoc": "https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd",
+         "opportunityEvent": "1"
+        }
+       ]
+      },
+      {
+       "t": 15000.0,
+       "layout": "linear",
+       "elements": [
+        {
+         "element": "ad",
+         "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 100,
+          "height": 100
+         },
+         "doc": "https://aps.example.com/linear/preroll?show=42&ep=7",
+         "candidateId": "ad-102",
+         "opportunityDoc": "https://sgai-entry.invalid/examples/annex-a/A.2-1.mpd",
+         "opportunityEvent": "1"
+        }
+       ]
+      },
+      {
+       "t": 25000.0,
+       "layout": "none",
+       "elements": [
+        {
+         "element": "primary",
+         "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 100,
+          "height": 100
+         },
+         "time": 0.0,
+         "paused": false,
+         "rate": 1
+        }
+       ]
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

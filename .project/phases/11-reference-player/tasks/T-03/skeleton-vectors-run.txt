@@ -1,0 +1,11 @@
+$ python3 bin/check-dash-conformance.py --behaviour --vector <W>/UC-01-skeleton.yaml <W>/UC-01-skeleton-from-2000.yaml --class D1 --concurrency 2
+PASS            UC-01 (UC-01-skeleton) D1    requests      no document request, as expected
+PASS            UC-01 (UC-01-skeleton) D1    selection     1 opportunit(y/ies) as expected
+PASS            UC-01 (UC-01-skeleton) D1    presentation  1 segment(s) as expected; startup 471 before the first frame
+PASS            UC-01 (UC-01-skeleton) D1    beacons       no beacon, as expected
+PASS            UC-01 (UC-01-skeleton-from-2000) D1 requests      no document request, as expected
+PASS            UC-01 (UC-01-skeleton-from-2000) D1 selection     1 opportunit(y/ies) as expected
+FAIL            UC-01 (UC-01-skeleton-from-2000) D1 presentation  presentation[0] primary from expected 2000, observed 4 [startup 423; observed: 0..35000 none [primary] from 4]
+PASS            UC-01 (UC-01-skeleton-from-2000) D1 beacons       no beacon, as expected
+exit 1: PASS 7  FAIL 1  NOT_VERIFIABLE 0; wall 71.8 s
+exit 1

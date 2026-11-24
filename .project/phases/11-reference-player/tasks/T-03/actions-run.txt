@@ -1,0 +1,12 @@
+$ python3 bin/check-dash-conformance.py --behaviour --vector <W>/UC-01-actions.yaml --save-raw <W>/actions.raw.json
+PASS            UC-01 (UC-01-actions) D3     requests      no document request, as expected
+PASS            UC-01 (UC-01-actions) D3     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 (UC-01-actions) D3     presentation  4 segment(s) as expected; startup 425 before the first frame
+PASS            UC-01 (UC-01-actions) D3     beacons       no beacon, as expected
+PASS            UC-01 (UC-01-actions) D3     geometry      1 instant(s) as expected
+exit 0: PASS 5  FAIL 0  NOT_VERIFIABLE 0; wall 54.8 s; content 37.3 s, players 16.5 s
+exit 0
+{"at":3000,"do":"pause","startedAt":3001,"result":{"done":"primary paused"},"doneAt":3006}
+{"at":5000,"do":"resume","startedAt":5000,"result":{"done":"primary resumed"},"doneAt":5002}
+{"at":7000,"do":"seek","startedAt":7000,"result":{"done":"primary sought to 20 s"},"doneAt":7003}
+{"at":9000,"do":"dismiss","startedAt":9001,"result":{"done":null,"reason":"nothing on screen takes 'dismiss'"},"doneAt":9002}

@@ -4,6 +4,9 @@
     check-dash-conformance.py SPEC.md [--xsd FILE] [--context DIR]
                               [--out-md FILE] [--out-json FILE] [--players] [--dashif] [--demo]
     check-dash-conformance.py --source DIR [--context DIR] [--out-md FILE] [--out-json FILE]
+    check-dash-conformance.py --behaviour [--source DIR] [--only ID ...] [--class C ...]
+                              [--vector FILE ...] [--concurrency N]
+                              [--out-json FILE] [--save-raw FILE] [--replay FILE]
 
 Level 1: the extension schema and the example documents against ISO/IEC
 23009-1:2026 (E-1..E-4, the identity of the XSD file with the spec's block,
@@ -25,6 +28,34 @@ clause index is built at run time from the copy located as
 bin/check-normative-base.py locates it, and nothing of it is stored; without
 the copy the rule is NOT_VERIFIABLE). Its green says nothing about the prose
 beyond those references. --players, --dashif, --demo and --xsd do not apply.
+
+--behaviour (phase 11; ADR 0081, ADR 0087) runs the behaviour battery: the
+reference Player (pinned dash.js 5.3.0 + reference-player/src/, adapter
+`sgai` of bin/players/) in headless Chromium, on the behaviour tests of
+DIR/behaviour/R*.yaml and the UC vectors of DIR/scenarios/UC-*.yaml (DIR
+defaults to spec-source). It is opt-in: nothing else in the project runs it,
+and it takes none of the other modes' options. --only UC-NN or R<n>.<m>
+(every test of that criterion), repeatable or comma-separated; --class D1..D5
+or legacy (legacy: the same dash.js without the module); --vector FILE runs a
+vector file as it is (a copy, a draft); --concurrency N jobs at once (default
+2, or SGAI_BEHAVIOUR_CONCURRENCY). --save-raw FILE keeps what the browser
+recorded; --replay FILE compares a kept record again without a browser. The
+criteria of DIR/behaviour/index.yaml are listed NOT_VERIFIABLE with their
+reason. One job is a vector x variant x class; it yields a verdict per
+expected field (requests, selection, presentation, audio, beacons, geometry):
+PASS, FAIL with the field and what was observed against what was expected,
+or NOT_VERIFIABLE with the reason. bin/conformance/behaviour_compare.py says
+what each field compares; behaviour.py how a run is served.
+
+Its green says: on every job run, what the page showed (read from the DOM
+by the observation contract of reference-player/src/sgai-reference.js), the
+document requests and the beacons on the network matched the vector within
+its tolerance. It does NOT say anything about what is heard (`audio` is
+NOT_VERIFIABLE), about media requests (not recorded), about occlusion (a
+covered surface the module leaves visible counts as shown), about real
+devices (a class is a profile, ADR 0080), nor about a vector being right: that
+is check-behaviour.py's and check-scenarios.py's. Exit 2 when a job could not
+run (prerequisites, harness error, unservable media, unreadable vector).
 
 --xsd defaults to the file beside SPEC.md: v<N>-sgai-extension.xsd for
 v<N>-sgai-spec.md, sgai-extension.xsd for sgai-spec.md.
@@ -56,6 +87,13 @@ def main(argv):
     if not argv or argv[0] in ("-h", "--help"):
         print(__doc__)
         return 0 if argv else 64
+    if "--behaviour" in argv:
+        from conformance.deps import ensure_yaml
+        ensure_yaml(os.path.abspath(__file__), argv)
+        from pathlib import Path
+        from conformance import behaviour
+        rest = [a for a in argv if a != "--behaviour"]
+        return behaviour.main(rest, Path(HERE).parent / "spec-source")
     ensure_lxml(os.path.abspath(__file__), argv)
     from pathlib import Path
     from conformance import runner
