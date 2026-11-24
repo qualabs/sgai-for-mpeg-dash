@@ -1,0 +1,13 @@
+dash.js 5.3.0  chromium 149.0.7827.55
+case                    n    PRT  before    alt   RTexp   after     +1s  verdict
+insert                  1  10.00  10.001   5.99  10.001  10.050  11.010  OK  (insertion: RT = PRTA)
+insert-seekback         2  10.00  10.001   5.98  10.000  10.050  11.011  OK  (insertion: RT = PRTA)
+insert-seekback         2  10.00  10.002   5.99  10.002  10.050  11.013  OK  (insertion: RT = PRTA)
+insert-once             1  10.00  10.005   5.99  10.005  10.050  11.009  OK  (insertion: RT = PRTA)
+replace                 1  10.00  10.003   5.99  16.000  16.001  16.960  OK  (RT = PRT + APDA (APDA=6.000))
+replace-maxduration     1  10.00  10.004   3.98  13.996  13.997  14.957  OK  (RT = PRT + APDA (APDA=3.996))
+replace-returnoffset    1  10.00  10.003   5.99  18.000  18.001  18.965  OK  (RT = PRT + RO)
+replace-join-clip       1  10.00  12.000   3.98  14.000  14.001  14.959  OK  (RT = PRT + APDA (APDA=4.000))
+replace-join-noclip     1  10.00  12.007   5.98  18.007  18.008  18.966  OK  (@clip=false: RT = PRTA + APDA (APDA=6.000))
+replace-live            1  40.00  40.001   5.99  46.000  46.001  46.964  OK  (RT = PRT + APDA (APDA=6.000))
+exit 0

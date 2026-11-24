@@ -1,0 +1,608 @@
+[
+ {
+  "id": "insert",
+  "executions": 1,
+  "errors": [],
+  "pageErrors": [],
+  "external": [],
+  "timedOut": false,
+  "harnessError": null,
+  "received": {
+   "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+   "id": 1,
+   "calculatedPresentationTime": 10,
+   "duration": 5,
+   "eventKeys": [
+    "calculatedPresentationTime",
+    "duration",
+    "eventStream",
+    "id",
+    "messageData",
+    "parsedMessageData",
+    "presentationTime",
+    "presentationTimeDelta",
+    "triggeredReceivedEvent",
+    "triggeredStartEvent",
+    "type"
+   ],
+   "messageData": null,
+   "child": {
+    "nodeName": "InsertPresentation",
+    "nodeValue": null,
+    "attributes": {
+     "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+    },
+    "childNodes": [],
+    "prefix": null,
+    "localName": "InsertPresentation",
+    "tagName": "InsertPresentation",
+    "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+    "__children": []
+   }
+  },
+  "dashjsOnStartAt": [
+   10.001446
+  ],
+  "isDynamic": false,
+  "runs": [
+   {
+    "PRT": 10,
+    "PRTA": 10.001,
+    "mainBefore": 10.001,
+    "beforeOk": true,
+    "altGapMs": 3,
+    "APDA": 6,
+    "altPlayed": 5.986,
+    "expectedRT": 10.001,
+    "rule": "insertion: RT = PRTA",
+    "mainAfter": 10.05,
+    "afterOk": true,
+    "tolerance": 0.1,
+    "returnGapMs": 2,
+    "mainAfter1s": 11.01
+   }
+  ]
+ },
+ {
+  "id": "insert-seekback",
+  "executions": 2,
+  "errors": [],
+  "pageErrors": [],
+  "external": [],
+  "timedOut": false,
+  "harnessError": null,
+  "received": {
+   "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+   "id": 1,
+   "calculatedPresentationTime": 10,
+   "duration": 5,
+   "eventKeys": [
+    "calculatedPresentationTime",
+    "duration",
+    "eventStream",
+    "id",
+    "messageData",
+    "parsedMessageData",
+    "presentationTime",
+    "presentationTimeDelta",
+    "triggeredReceivedEvent",
+    "triggeredStartEvent",
+    "type"
+   ],
+   "messageData": null,
+   "child": {
+    "nodeName": "InsertPresentation",
+    "nodeValue": null,
+    "attributes": {
+     "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+    },
+    "childNodes": [],
+    "prefix": null,
+    "localName": "InsertPresentation",
+    "tagName": "InsertPresentation",
+    "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+    "__children": []
+   }
+  },
+  "dashjsOnStartAt": [
+   10.000769
+  ],
+  "isDynamic": false,
+  "runs": [
+   {
+    "PRT": 10,
+    "PRTA": 10.0,
+    "mainBefore": 10.001,
+    "beforeOk": true,
+    "altGapMs": 4,
+    "APDA": 6,
+    "altPlayed": 5.984,
+    "expectedRT": 10.0,
+    "rule": "insertion: RT = PRTA",
+    "mainAfter": 10.05,
+    "afterOk": true,
+    "tolerance": 0.1,
+    "returnGapMs": 2,
+    "mainAfter1s": 11.011
+   },
+   {
+    "PRT": 10,
+    "PRTA": 10.002,
+    "mainBefore": 10.002,
+    "beforeOk": true,
+    "altGapMs": 2,
+    "APDA": 6,
+    "altPlayed": 5.987,
+    "expectedRT": 10.002,
+    "rule": "insertion: RT = PRTA",
+    "mainAfter": 10.05,
+    "afterOk": true,
+    "tolerance": 0.1,
+    "returnGapMs": 2,
+    "mainAfter1s": 11.013
+   }
+  ]
+ },
+ {
+  "id": "insert-once",
+  "executions": 1,
+  "errors": [],
+  "pageErrors": [],
+  "external": [],
+  "timedOut": false,
+  "harnessError": null,
+  "received": {
+   "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+   "id": 1,
+   "calculatedPresentationTime": 10,
+   "duration": 5,
+   "eventKeys": [
+    "calculatedPresentationTime",
+    "duration",
+    "eventStream",
+    "id",
+    "messageData",
+    "parsedMessageData",
+    "presentationTime",
+    "presentationTimeDelta",
+    "triggeredReceivedEvent",
+    "triggeredStartEvent",
+    "type"
+   ],
+   "messageData": null,
+   "child": {
+    "nodeName": "InsertPresentation",
+    "nodeValue": null,
+    "attributes": {
+     "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+     "executeOnce": "true"
+    },
+    "childNodes": [],
+    "prefix": null,
+    "localName": "InsertPresentation",
+    "tagName": "InsertPresentation",
+    "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+    "executeOnce": "true",
+    "__children": []
+   }
+  },
+  "dashjsOnStartAt": [
+   10.005275
+  ],
+  "isDynamic": false,
+  "runs": [
+   {
+    "PRT": 10,
+    "PRTA": 10.005,
+    "mainBefore": 10.005,
+    "beforeOk": true,
+    "altGapMs": 3,
+    "APDA": 6,
+    "altPlayed": 5.986,
+    "expectedRT": 10.005,
+    "rule": "insertion: RT = PRTA",
+    "mainAfter": 10.05,
+    "afterOk": true,
+    "tolerance": 0.1,
+    "returnGapMs": 3,
+    "mainAfter1s": 11.009
+   }
+  ]
+ },
+ {
+  "id": "replace",
+  "executions": 1,
+  "errors": [],
+  "pageErrors": [],
+  "external": [],
+  "timedOut": false,
+  "harnessError": null,
+  "received": {
+   "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+   "id": 1,
+   "calculatedPresentationTime": 10,
+   "duration": 5,
+   "eventKeys": [
+    "calculatedPresentationTime",
+    "duration",
+    "eventStream",
+    "id",
+    "messageData",
+    "parsedMessageData",
+    "presentationTime",
+    "presentationTimeDelta",
+    "triggeredReceivedEvent",
+    "triggeredStartEvent",
+    "type"
+   ],
+   "messageData": null,
+   "child": {
+    "nodeName": "ReplacePresentation",
+    "nodeValue": null,
+    "attributes": {
+     "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+    },
+    "childNodes": [],
+    "prefix": null,
+    "localName": "ReplacePresentation",
+    "tagName": "ReplacePresentation",
+    "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+    "__children": []
+   }
+  },
+  "dashjsOnStartAt": [
+   10.002802
+  ],
+  "isDynamic": false,
+  "runs": [
+   {
+    "PRT": 10,
+    "PRTA": 10.003,
+    "mainBefore": 10.003,
+    "beforeOk": true,
+    "altGapMs": 3,
+    "APDA": 6,
+    "altPlayed": 5.987,
+    "expectedRT": 16.0,
+    "rule": "RT = PRT + APDA (APDA=6.000)",
+    "mainAfter": 16.001,
+    "afterOk": true,
+    "tolerance": 0.1,
+    "returnGapMs": 14,
+    "mainAfter1s": 16.96
+   }
+  ]
+ },
+ {
+  "id": "replace-maxduration",
+  "executions": 1,
+  "errors": [],
+  "pageErrors": [],
+  "external": [],
+  "timedOut": false,
+  "harnessError": null,
+  "received": {
+   "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+   "id": 1,
+   "calculatedPresentationTime": 10,
+   "duration": 5,
+   "eventKeys": [
+    "calculatedPresentationTime",
+    "duration",
+    "eventStream",
+    "id",
+    "messageData",
+    "parsedMessageData",
+    "presentationTime",
+    "presentationTimeDelta",
+    "triggeredReceivedEvent",
+    "triggeredStartEvent",
+    "type"
+   ],
+   "messageData": null,
+   "child": {
+    "nodeName": "ReplacePresentation",
+    "nodeValue": null,
+    "attributes": {
+     "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+     "maxDuration": "4000"
+    },
+    "childNodes": [],
+    "prefix": null,
+    "localName": "ReplacePresentation",
+    "tagName": "ReplacePresentation",
+    "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+    "maxDuration": 4000,
+    "__children": []
+   }
+  },
+  "dashjsOnStartAt": [
+   10.004281
+  ],
+  "isDynamic": false,
+  "runs": [
+   {
+    "PRT": 10,
+    "PRTA": 10.004,
+    "mainBefore": 10.004,
+    "beforeOk": true,
+    "altGapMs": 3,
+    "APDA": 3.99592,
+    "altPlayed": 3.982,
+    "expectedRT": 13.996,
+    "rule": "RT = PRT + APDA (APDA=3.996)",
+    "mainAfter": 13.997,
+    "afterOk": true,
+    "tolerance": 0.1,
+    "returnGapMs": 24,
+    "mainAfter1s": 14.957
+   }
+  ]
+ },
+ {
+  "id": "replace-returnoffset",
+  "executions": 1,
+  "errors": [],
+  "pageErrors": [],
+  "external": [],
+  "timedOut": false,
+  "harnessError": null,
+  "received": {
+   "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+   "id": 1,
+   "calculatedPresentationTime": 10,
+   "duration": 5,
+   "eventKeys": [
+    "calculatedPresentationTime",
+    "duration",
+    "eventStream",
+    "id",
+    "messageData",
+    "parsedMessageData",
+    "presentationTime",
+    "presentationTimeDelta",
+    "triggeredReceivedEvent",
+    "triggeredStartEvent",
+    "type"
+   ],
+   "messageData": null,
+   "child": {
+    "nodeName": "ReplacePresentation",
+    "nodeValue": null,
+    "attributes": {
+     "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+     "returnOffset": "8000"
+    },
+    "childNodes": [],
+    "prefix": null,
+    "localName": "ReplacePresentation",
+    "tagName": "ReplacePresentation",
+    "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+    "returnOffset": 8000,
+    "__children": []
+   }
+  },
+  "dashjsOnStartAt": [
+   10.003008
+  ],
+  "isDynamic": false,
+  "runs": [
+   {
+    "PRT": 10,
+    "PRTA": 10.002,
+    "mainBefore": 10.003,
+    "beforeOk": true,
+    "altGapMs": 9,
+    "APDA": 6,
+    "altPlayed": 5.989,
+    "expectedRT": 18.0,
+    "rule": "RT = PRT + RO",
+    "mainAfter": 18.001,
+    "afterOk": true,
+    "tolerance": 0.1,
+    "returnGapMs": 18,
+    "mainAfter1s": 18.965
+   }
+  ]
+ },
+ {
+  "id": "replace-join-clip",
+  "executions": 1,
+  "errors": [],
+  "pageErrors": [],
+  "external": [],
+  "timedOut": false,
+  "harnessError": null,
+  "received": {
+   "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+   "id": 1,
+   "calculatedPresentationTime": 10,
+   "duration": 5,
+   "eventKeys": [
+    "calculatedPresentationTime",
+    "duration",
+    "eventStream",
+    "id",
+    "messageData",
+    "parsedMessageData",
+    "presentationTime",
+    "presentationTimeDelta",
+    "triggeredReceivedEvent",
+    "triggeredStartEvent",
+    "type"
+   ],
+   "messageData": null,
+   "child": {
+    "nodeName": "ReplacePresentation",
+    "nodeValue": null,
+    "attributes": {
+     "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+     "maxDuration": "6000"
+    },
+    "childNodes": [],
+    "prefix": null,
+    "localName": "ReplacePresentation",
+    "tagName": "ReplacePresentation",
+    "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+    "maxDuration": 6000,
+    "__children": []
+   }
+  },
+  "dashjsOnStartAt": [
+   12
+  ],
+  "isDynamic": false,
+  "runs": [
+   {
+    "PRT": 10,
+    "PRTA": 12,
+    "mainBefore": 12,
+    "beforeOk": true,
+    "altGapMs": 139,
+    "APDA": 4,
+    "altPlayed": 3.985,
+    "expectedRT": 14.0,
+    "rule": "RT = PRT + APDA (APDA=4.000)",
+    "mainAfter": 14.001,
+    "afterOk": true,
+    "tolerance": 0.1,
+    "returnGapMs": 15,
+    "mainAfter1s": 14.959
+   }
+  ]
+ },
+ {
+  "id": "replace-join-noclip",
+  "executions": 1,
+  "errors": [],
+  "pageErrors": [],
+  "external": [],
+  "timedOut": false,
+  "harnessError": null,
+  "received": {
+   "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+   "id": 1,
+   "calculatedPresentationTime": 10,
+   "duration": 5,
+   "eventKeys": [
+    "calculatedPresentationTime",
+    "duration",
+    "eventStream",
+    "id",
+    "messageData",
+    "parsedMessageData",
+    "presentationTime",
+    "presentationTimeDelta",
+    "triggeredReceivedEvent",
+    "triggeredStartEvent",
+    "type"
+   ],
+   "messageData": null,
+   "child": {
+    "nodeName": "ReplacePresentation",
+    "nodeValue": null,
+    "attributes": {
+     "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+     "maxDuration": "6000",
+     "clip": "false"
+    },
+    "childNodes": [],
+    "prefix": null,
+    "localName": "ReplacePresentation",
+    "tagName": "ReplacePresentation",
+    "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+    "maxDuration": 6000,
+    "clip": "false",
+    "__children": []
+   }
+  },
+  "dashjsOnStartAt": [
+   0
+  ],
+  "isDynamic": false,
+  "runs": [
+   {
+    "PRT": 10,
+    "PRTA": 12.007,
+    "mainBefore": 12.007,
+    "beforeOk": true,
+    "altGapMs": 1,
+    "APDA": 6,
+    "altPlayed": 5.981,
+    "expectedRT": 18.007,
+    "rule": "@clip=false: RT = PRTA + APDA (APDA=6.000)",
+    "mainAfter": 18.008,
+    "afterOk": true,
+    "tolerance": 0.1,
+    "returnGapMs": 17,
+    "mainAfter1s": 18.966
+   }
+  ]
+ },
+ {
+  "id": "replace-live",
+  "executions": 1,
+  "errors": [],
+  "pageErrors": [],
+  "external": [
+   "https://time.akamai.com/?iso&ms"
+  ],
+  "timedOut": false,
+  "harnessError": null,
+  "received": {
+   "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+   "id": 1,
+   "calculatedPresentationTime": 40,
+   "duration": 5,
+   "eventKeys": [
+    "calculatedPresentationTime",
+    "duration",
+    "eventStream",
+    "id",
+    "messageData",
+    "parsedMessageData",
+    "presentationTime",
+    "presentationTimeDelta",
+    "triggeredReceivedEvent",
+    "triggeredStartEvent",
+    "type"
+   ],
+   "messageData": null,
+   "child": {
+    "nodeName": "ReplacePresentation",
+    "nodeValue": null,
+    "attributes": {
+     "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+    },
+    "childNodes": [],
+    "prefix": null,
+    "localName": "ReplacePresentation",
+    "tagName": "ReplacePresentation",
+    "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+    "__children": []
+   }
+  },
+  "dashjsOnStartAt": [
+   40.000847
+  ],
+  "isDynamic": true,
+  "runs": [
+   {
+    "PRT": 40,
+    "PRTA": 40.001,
+    "mainBefore": 40.001,
+    "beforeOk": true,
+    "altGapMs": 3,
+    "APDA": 6,
+    "altPlayed": 5.989,
+    "expectedRT": 46.0,
+    "rule": "RT = PRT + APDA (APDA=6.000)",
+    "mainAfter": 46.001,
+    "afterOk": true,
+    "tolerance": 0.5,
+    "returnGapMs": 20,
+    "mainAfter1s": 46.964
+   }
+  ]
+ }
+]

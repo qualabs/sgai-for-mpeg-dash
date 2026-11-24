@@ -1,0 +1,1443 @@
+{
+ "results": [
+  {
+   "id": "insert",
+   "dashjs": "5.3.0",
+   "state": {
+    "t": 25004,
+    "mainTime": 13.162532,
+    "mainPaused": false,
+    "isDynamic": false,
+    "altActive": false,
+    "log": [
+     {
+      "t": 217,
+      "type": "main:initialize",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "url": "http://127.0.0.1:39807/m/insert.mpd"
+      }
+     },
+     {
+      "t": 319,
+      "type": "dashjs:onReceive",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+       "id": 1,
+       "calculatedPresentationTime": 10,
+       "duration": 5,
+       "eventKeys": [
+        "calculatedPresentationTime",
+        "duration",
+        "eventStream",
+        "id",
+        "messageData",
+        "parsedMessageData",
+        "presentationTime",
+        "presentationTimeDelta",
+        "triggeredReceivedEvent",
+        "triggeredStartEvent",
+        "type"
+       ],
+       "messageData": null,
+       "child": {
+        "nodeName": "InsertPresentation",
+        "nodeValue": null,
+        "attributes": {
+         "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+        },
+        "childNodes": [],
+        "prefix": null,
+        "localName": "InsertPresentation",
+        "tagName": "InsertPresentation",
+        "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+        "__children": []
+       }
+      }
+     },
+     {
+      "t": 350,
+      "type": "module:resolve",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 0,
+       "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+      }
+     },
+     {
+      "t": 15812,
+      "type": "module:execute",
+      "mainTime": 10.001446,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+       "PRT": 10,
+       "PRTA": 10.001208,
+       "pauseAt": 10.001446,
+       "ASO": 0,
+       "APDadj": null
+      }
+     },
+     {
+      "t": 15815,
+      "type": "alt:playing",
+      "mainTime": 10.001446,
+      "altTime": 0.003056,
+      "data": {
+       "id": 1,
+       "altTime": 0.003056,
+       "gapMs": 3
+      }
+     },
+     {
+      "t": 15903,
+      "type": "dashjs:onStart",
+      "mainTime": 10.001446,
+      "altTime": 0.047793,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+       "id": 1,
+       "php": 10.001446
+      }
+     },
+     {
+      "t": 21842,
+      "type": "module:terminate",
+      "mainTime": 10.001446,
+      "altTime": 5.986717,
+      "data": {
+       "id": 1,
+       "APD": 6,
+       "APDA": 6,
+       "altPlayed": 5.986379,
+       "RT": 10.001208
+      }
+     },
+     {
+      "t": 21849,
+      "type": "main:resumed",
+      "mainTime": 10.050172,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 10.050172,
+       "RT": 10.001208,
+       "gapMs": 2
+      }
+     },
+     {
+      "t": 22851,
+      "type": "main:after1s",
+      "mainTime": 11.009839,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 11.009839
+      }
+     }
+    ],
+    "errors": []
+   },
+   "wallMs": 25288,
+   "external": [],
+   "pageErrors": []
+  },
+  {
+   "id": "insert-seekback",
+   "dashjs": "5.3.0",
+   "state": {
+    "t": 29165,
+    "mainTime": 13.11495,
+    "mainPaused": false,
+    "isDynamic": false,
+    "altActive": false,
+    "log": [
+     {
+      "t": 111,
+      "type": "main:initialize",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "url": "http://127.0.0.1:39807/m/insert-seekback.mpd"
+      }
+     },
+     {
+      "t": 142,
+      "type": "dashjs:onReceive",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+       "id": 1,
+       "calculatedPresentationTime": 10,
+       "duration": 5,
+       "eventKeys": [
+        "calculatedPresentationTime",
+        "duration",
+        "eventStream",
+        "id",
+        "messageData",
+        "parsedMessageData",
+        "presentationTime",
+        "presentationTimeDelta",
+        "triggeredReceivedEvent",
+        "triggeredStartEvent",
+        "type"
+       ],
+       "messageData": null,
+       "child": {
+        "nodeName": "InsertPresentation",
+        "nodeValue": null,
+        "attributes": {
+         "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+        },
+        "childNodes": [],
+        "prefix": null,
+        "localName": "InsertPresentation",
+        "tagName": "InsertPresentation",
+        "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+        "__children": []
+       }
+      }
+     },
+     {
+      "t": 162,
+      "type": "module:resolve",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 0,
+       "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+      }
+     },
+     {
+      "t": 10424,
+      "type": "module:execute",
+      "mainTime": 10.000769,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+       "PRT": 10,
+       "PRTA": 10.00045,
+       "pauseAt": 10.000769,
+       "ASO": 0,
+       "APDadj": null
+      }
+     },
+     {
+      "t": 10427,
+      "type": "alt:playing",
+      "mainTime": 10.000769,
+      "altTime": 0.001144,
+      "data": {
+       "id": 1,
+       "altTime": 0.001144,
+       "gapMs": 4
+      }
+     },
+     {
+      "t": 10505,
+      "type": "dashjs:onStart",
+      "mainTime": 10.000769,
+      "altTime": 0.036326,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+       "id": 1,
+       "php": 10.000769
+      }
+     },
+     {
+      "t": 16454,
+      "type": "module:terminate",
+      "mainTime": 10.000769,
+      "altTime": 5.984818,
+      "data": {
+       "id": 1,
+       "APD": 6,
+       "APDA": 6,
+       "altPlayed": 5.984488,
+       "RT": 10.00045
+      }
+     },
+     {
+      "t": 16459,
+      "type": "main:resumed",
+      "mainTime": 10.049971,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 10.049971,
+       "RT": 10.00045,
+       "gapMs": 2
+      }
+     },
+     {
+      "t": 17463,
+      "type": "main:after1s",
+      "mainTime": 11.010655,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 11.010655
+      }
+     },
+     {
+      "t": 17963,
+      "type": "user:seek",
+      "mainTime": 11.511043,
+      "altTime": 0,
+      "data": {
+       "to": 8
+      }
+     },
+     {
+      "t": 17988,
+      "type": "module:resolve",
+      "mainTime": 8.005127,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 8.005127,
+       "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+      }
+     },
+     {
+      "t": 20023,
+      "type": "module:execute",
+      "mainTime": 10.002383,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+       "PRT": 10,
+       "PRTA": 10.002342,
+       "pauseAt": 10.002383,
+       "ASO": 0,
+       "APDadj": null
+      }
+     },
+     {
+      "t": 20026,
+      "type": "alt:playing",
+      "mainTime": 10.002383,
+      "altTime": 0.002124,
+      "data": {
+       "id": 1,
+       "altTime": 0.002124,
+       "gapMs": 2
+      }
+     },
+     {
+      "t": 26053,
+      "type": "module:terminate",
+      "mainTime": 10.002383,
+      "altTime": 5.986852,
+      "data": {
+       "id": 1,
+       "APD": 6,
+       "APDA": 6,
+       "altPlayed": 5.986808,
+       "RT": 10.002342
+      }
+     },
+     {
+      "t": 26057,
+      "type": "main:resumed",
+      "mainTime": 10.049809,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 10.049809,
+       "RT": 10.002342,
+       "gapMs": 2
+      }
+     },
+     {
+      "t": 27063,
+      "type": "main:after1s",
+      "mainTime": 11.012913,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 11.012913
+      }
+     }
+    ],
+    "errors": []
+   },
+   "wallMs": 29378,
+   "external": [],
+   "pageErrors": []
+  },
+  {
+   "id": "insert-once",
+   "dashjs": "5.3.0",
+   "state": {
+    "t": 23246,
+    "mainTime": 13.184342,
+    "mainPaused": false,
+    "isDynamic": false,
+    "altActive": false,
+    "log": [
+     {
+      "t": 143,
+      "type": "main:initialize",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "url": "http://127.0.0.1:39807/m/insert-once.mpd"
+      }
+     },
+     {
+      "t": 176,
+      "type": "dashjs:onReceive",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+       "id": 1,
+       "calculatedPresentationTime": 10,
+       "duration": 5,
+       "eventKeys": [
+        "calculatedPresentationTime",
+        "duration",
+        "eventStream",
+        "id",
+        "messageData",
+        "parsedMessageData",
+        "presentationTime",
+        "presentationTimeDelta",
+        "triggeredReceivedEvent",
+        "triggeredStartEvent",
+        "type"
+       ],
+       "messageData": null,
+       "child": {
+        "nodeName": "InsertPresentation",
+        "nodeValue": null,
+        "attributes": {
+         "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+         "executeOnce": "true"
+        },
+        "childNodes": [],
+        "prefix": null,
+        "localName": "InsertPresentation",
+        "tagName": "InsertPresentation",
+        "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+        "executeOnce": "true",
+        "__children": []
+       }
+      }
+     },
+     {
+      "t": 202,
+      "type": "module:resolve",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 0,
+       "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+      }
+     },
+     {
+      "t": 10462,
+      "type": "module:execute",
+      "mainTime": 10.005275,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+       "PRT": 10,
+       "PRTA": 10.005007,
+       "pauseAt": 10.005275,
+       "ASO": 0,
+       "APDadj": null
+      }
+     },
+     {
+      "t": 10465,
+      "type": "alt:playing",
+      "mainTime": 10.005275,
+      "altTime": 0.002441,
+      "data": {
+       "id": 1,
+       "altTime": 0.002441,
+       "gapMs": 3
+      }
+     },
+     {
+      "t": 10523,
+      "type": "dashjs:onStart",
+      "mainTime": 10.005275,
+      "altTime": 0.019148,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:insert:2025",
+       "id": 1,
+       "php": 10.005275
+      }
+     },
+     {
+      "t": 16492,
+      "type": "module:terminate",
+      "mainTime": 10.005275,
+      "altTime": 5.986723,
+      "data": {
+       "id": 1,
+       "APD": 6,
+       "APDA": 6,
+       "altPlayed": 5.986366,
+       "RT": 10.005007
+      }
+     },
+     {
+      "t": 16500,
+      "type": "main:resumed",
+      "mainTime": 10.050387,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 10.050387,
+       "RT": 10.005007,
+       "gapMs": 3
+      }
+     },
+     {
+      "t": 17502,
+      "type": "main:after1s",
+      "mainTime": 11.009445,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 11.009445
+      }
+     },
+     {
+      "t": 18002,
+      "type": "user:seek",
+      "mainTime": 11.509471,
+      "altTime": 0,
+      "data": {
+       "to": 8
+      }
+     }
+    ],
+    "errors": []
+   },
+   "wallMs": 23606,
+   "external": [],
+   "pageErrors": []
+  },
+  {
+   "id": "replace",
+   "dashjs": "5.3.0",
+   "state": {
+    "t": 19964,
+    "mainTime": 19.195337,
+    "mainPaused": false,
+    "isDynamic": false,
+    "altActive": false,
+    "log": [
+     {
+      "t": 114,
+      "type": "main:initialize",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "url": "http://127.0.0.1:39807/m/replace.mpd"
+      }
+     },
+     {
+      "t": 165,
+      "type": "dashjs:onReceive",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "calculatedPresentationTime": 10,
+       "duration": 5,
+       "eventKeys": [
+        "calculatedPresentationTime",
+        "duration",
+        "eventStream",
+        "id",
+        "messageData",
+        "parsedMessageData",
+        "presentationTime",
+        "presentationTimeDelta",
+        "triggeredReceivedEvent",
+        "triggeredStartEvent",
+        "type"
+       ],
+       "messageData": null,
+       "child": {
+        "nodeName": "ReplacePresentation",
+        "nodeValue": null,
+        "attributes": {
+         "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+        },
+        "childNodes": [],
+        "prefix": null,
+        "localName": "ReplacePresentation",
+        "tagName": "ReplacePresentation",
+        "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+        "__children": []
+       }
+      }
+     },
+     {
+      "t": 183,
+      "type": "module:resolve",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 0,
+       "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+      }
+     },
+     {
+      "t": 10679,
+      "type": "module:execute",
+      "mainTime": 10.002802,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "PRT": 10,
+       "PRTA": 10.002597,
+       "pauseAt": 10.002802,
+       "ASO": 0,
+       "APDadj": null
+      }
+     },
+     {
+      "t": 10682,
+      "type": "alt:playing",
+      "mainTime": 10.002802,
+      "altTime": 0.002661,
+      "data": {
+       "id": 1,
+       "altTime": 0.002661,
+       "gapMs": 3
+      }
+     },
+     {
+      "t": 10709,
+      "type": "dashjs:onStart",
+      "mainTime": 10.002802,
+      "altTime": 0.019414,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "php": 10.002802
+      }
+     },
+     {
+      "t": 16709,
+      "type": "module:terminate",
+      "mainTime": 10.002802,
+      "altTime": 5.986853,
+      "data": {
+       "id": 1,
+       "APD": 6,
+       "APDA": 6,
+       "altPlayed": 5.986556,
+       "RT": 16
+      }
+     },
+     {
+      "t": 16727,
+      "type": "main:resumed",
+      "mainTime": 16.000887,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 16.000887,
+       "RT": 16,
+       "gapMs": 14
+      }
+     },
+     {
+      "t": 17729,
+      "type": "main:after1s",
+      "mainTime": 16.959992,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 16.959992
+      }
+     }
+    ],
+    "errors": []
+   },
+   "wallMs": 20228,
+   "external": [],
+   "pageErrors": []
+  },
+  {
+   "id": "replace-maxduration",
+   "dashjs": "5.3.0",
+   "state": {
+    "t": 17678,
+    "mainTime": 17.150982,
+    "mainPaused": false,
+    "isDynamic": false,
+    "altActive": false,
+    "log": [
+     {
+      "t": 96,
+      "type": "main:initialize",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "url": "http://127.0.0.1:39807/m/replace-maxduration.mpd"
+      }
+     },
+     {
+      "t": 127,
+      "type": "dashjs:onReceive",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "calculatedPresentationTime": 10,
+       "duration": 5,
+       "eventKeys": [
+        "calculatedPresentationTime",
+        "duration",
+        "eventStream",
+        "id",
+        "messageData",
+        "parsedMessageData",
+        "presentationTime",
+        "presentationTimeDelta",
+        "triggeredReceivedEvent",
+        "triggeredStartEvent",
+        "type"
+       ],
+       "messageData": null,
+       "child": {
+        "nodeName": "ReplacePresentation",
+        "nodeValue": null,
+        "attributes": {
+         "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+         "maxDuration": "4000"
+        },
+        "childNodes": [],
+        "prefix": null,
+        "localName": "ReplacePresentation",
+        "tagName": "ReplacePresentation",
+        "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+        "maxDuration": 4000,
+        "__children": []
+       }
+      }
+     },
+     {
+      "t": 145,
+      "type": "module:resolve",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 0,
+       "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+      }
+     },
+     {
+      "t": 10428,
+      "type": "module:execute",
+      "mainTime": 10.004281,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "PRT": 10,
+       "PRTA": 10.00408,
+       "pauseAt": 10.004281,
+       "ASO": 0,
+       "APDadj": 3.99592
+      }
+     },
+     {
+      "t": 10431,
+      "type": "alt:playing",
+      "mainTime": 10.004281,
+      "altTime": 0.002574,
+      "data": {
+       "id": 1,
+       "altTime": 0.002574,
+       "gapMs": 3
+      }
+     },
+     {
+      "t": 10494,
+      "type": "dashjs:onStart",
+      "mainTime": 10.004281,
+      "altTime": 0.022505,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "php": 10.004281
+      }
+     },
+     {
+      "t": 14454,
+      "type": "module:terminate",
+      "mainTime": 10.004281,
+      "altTime": 3.982532,
+      "data": {
+       "id": 1,
+       "APD": 6,
+       "APDA": 3.99592,
+       "altPlayed": 3.982325,
+       "RT": 13.99592
+      }
+     },
+     {
+      "t": 14481,
+      "type": "main:resumed",
+      "mainTime": 13.997187,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 13.997187,
+       "RT": 13.99592,
+       "gapMs": 24
+      }
+     },
+     {
+      "t": 15483,
+      "type": "main:after1s",
+      "mainTime": 14.956881,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 14.956881
+      }
+     }
+    ],
+    "errors": []
+   },
+   "wallMs": 17895,
+   "external": [],
+   "pageErrors": []
+  },
+  {
+   "id": "replace-returnoffset",
+   "dashjs": "5.3.0",
+   "state": {
+    "t": 19618,
+    "mainTime": 21.000984,
+    "mainPaused": false,
+    "isDynamic": false,
+    "altActive": false,
+    "log": [
+     {
+      "t": 110,
+      "type": "main:initialize",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "url": "http://127.0.0.1:39807/m/replace-returnoffset.mpd"
+      }
+     },
+     {
+      "t": 176,
+      "type": "dashjs:onReceive",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "calculatedPresentationTime": 10,
+       "duration": 5,
+       "eventKeys": [
+        "calculatedPresentationTime",
+        "duration",
+        "eventStream",
+        "id",
+        "messageData",
+        "parsedMessageData",
+        "presentationTime",
+        "presentationTimeDelta",
+        "triggeredReceivedEvent",
+        "triggeredStartEvent",
+        "type"
+       ],
+       "messageData": null,
+       "child": {
+        "nodeName": "ReplacePresentation",
+        "nodeValue": null,
+        "attributes": {
+         "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+         "returnOffset": "8000"
+        },
+        "childNodes": [],
+        "prefix": null,
+        "localName": "ReplacePresentation",
+        "tagName": "ReplacePresentation",
+        "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+        "returnOffset": 8000,
+        "__children": []
+       }
+      }
+     },
+     {
+      "t": 215,
+      "type": "module:resolve",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 0,
+       "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+      }
+     },
+     {
+      "t": 10519,
+      "type": "module:execute",
+      "mainTime": 10.003008,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "PRT": 10,
+       "PRTA": 10.002413,
+       "pauseAt": 10.003008,
+       "ASO": 0,
+       "APDadj": null
+      }
+     },
+     {
+      "t": 10528,
+      "type": "alt:playing",
+      "mainTime": 10.003008,
+      "altTime": 0.007843,
+      "data": {
+       "id": 1,
+       "altTime": 0.007843,
+       "gapMs": 9
+      }
+     },
+     {
+      "t": 10603,
+      "type": "dashjs:onStart",
+      "mainTime": 10.003008,
+      "altTime": 0.040491,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "php": 10.003008
+      }
+     },
+     {
+      "t": 16552,
+      "type": "module:terminate",
+      "mainTime": 10.003008,
+      "altTime": 5.98937,
+      "data": {
+       "id": 1,
+       "APD": 6,
+       "APDA": 6,
+       "altPlayed": 5.989013,
+       "RT": 18
+      }
+     },
+     {
+      "t": 16575,
+      "type": "main:resumed",
+      "mainTime": 18.000929,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 18.000929,
+       "RT": 18,
+       "gapMs": 18
+      }
+     },
+     {
+      "t": 17582,
+      "type": "main:after1s",
+      "mainTime": 18.965394,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 18.965394
+      }
+     }
+    ],
+    "errors": []
+   },
+   "wallMs": 19825,
+   "external": [],
+   "pageErrors": []
+  },
+  {
+   "id": "replace-join-clip",
+   "dashjs": "5.3.0",
+   "state": {
+    "t": 7471,
+    "mainTime": 17.080799,
+    "mainPaused": false,
+    "isDynamic": false,
+    "altActive": false,
+    "log": [
+     {
+      "t": 95,
+      "type": "main:initialize",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "url": "http://127.0.0.1:39807/m/replace-join-clip.mpd",
+       "startTime": 12
+      }
+     },
+     {
+      "t": 132,
+      "type": "dashjs:onReceive",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "calculatedPresentationTime": 10,
+       "duration": 5,
+       "eventKeys": [
+        "calculatedPresentationTime",
+        "duration",
+        "eventStream",
+        "id",
+        "messageData",
+        "parsedMessageData",
+        "presentationTime",
+        "presentationTimeDelta",
+        "triggeredReceivedEvent",
+        "triggeredStartEvent",
+        "type"
+       ],
+       "messageData": null,
+       "child": {
+        "nodeName": "ReplacePresentation",
+        "nodeValue": null,
+        "attributes": {
+         "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+         "maxDuration": "6000"
+        },
+        "childNodes": [],
+        "prefix": null,
+        "localName": "ReplacePresentation",
+        "tagName": "ReplacePresentation",
+        "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+        "maxDuration": 6000,
+        "__children": []
+       }
+      }
+     },
+     {
+      "t": 158,
+      "type": "module:resolve",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 0,
+       "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+      }
+     },
+     {
+      "t": 187,
+      "type": "module:execute",
+      "mainTime": 12,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "PRT": 10,
+       "PRTA": 12,
+       "pauseAt": 12,
+       "ASO": 0,
+       "APDadj": 4
+      }
+     },
+     {
+      "t": 201,
+      "type": "dashjs:onStart",
+      "mainTime": 12,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "php": 12
+      }
+     },
+     {
+      "t": 326,
+      "type": "alt:playing",
+      "mainTime": 12,
+      "altTime": 0.008632,
+      "data": {
+       "id": 1,
+       "altTime": 0.008632,
+       "gapMs": 139
+      }
+     },
+     {
+      "t": 4329,
+      "type": "module:terminate",
+      "mainTime": 12,
+      "altTime": 3.985675,
+      "data": {
+       "id": 1,
+       "APD": 6,
+       "APDA": 4,
+       "altPlayed": 3.985385,
+       "RT": 14
+      }
+     },
+     {
+      "t": 4348,
+      "type": "main:resumed",
+      "mainTime": 14.001131,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 14.001131,
+       "RT": 14,
+       "gapMs": 15
+      }
+     },
+     {
+      "t": 5349,
+      "type": "main:after1s",
+      "mainTime": 14.958611,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 14.958611
+      }
+     }
+    ],
+    "errors": []
+   },
+   "wallMs": 7649,
+   "external": [],
+   "pageErrors": []
+  },
+  {
+   "id": "replace-join-noclip",
+   "dashjs": "5.3.0",
+   "state": {
+    "t": 9551,
+    "mainTime": 21.140434,
+    "mainPaused": false,
+    "isDynamic": false,
+    "altActive": false,
+    "log": [
+     {
+      "t": 36,
+      "type": "main:initialize",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "url": "http://127.0.0.1:39807/m/replace-join-noclip.mpd",
+       "startTime": 12
+      }
+     },
+     {
+      "t": 117,
+      "type": "dashjs:onReceive",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "calculatedPresentationTime": 10,
+       "duration": 5,
+       "eventKeys": [
+        "calculatedPresentationTime",
+        "duration",
+        "eventStream",
+        "id",
+        "messageData",
+        "parsedMessageData",
+        "presentationTime",
+        "presentationTimeDelta",
+        "triggeredReceivedEvent",
+        "triggeredStartEvent",
+        "type"
+       ],
+       "messageData": null,
+       "child": {
+        "nodeName": "ReplacePresentation",
+        "nodeValue": null,
+        "attributes": {
+         "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+         "maxDuration": "6000",
+         "clip": "false"
+        },
+        "childNodes": [],
+        "prefix": null,
+        "localName": "ReplacePresentation",
+        "tagName": "ReplacePresentation",
+        "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+        "maxDuration": 6000,
+        "clip": "false",
+        "__children": []
+       }
+      }
+     },
+     {
+      "t": 141,
+      "type": "module:resolve",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 0,
+       "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+      }
+     },
+     {
+      "t": 142,
+      "type": "dashjs:onStart",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "php": 0
+      }
+     },
+     {
+      "t": 317,
+      "type": "module:execute",
+      "mainTime": 12.007176,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "PRT": 10,
+       "PRTA": 12.006956,
+       "pauseAt": 12.007176,
+       "ASO": 0,
+       "APDadj": 6
+      }
+     },
+     {
+      "t": 318,
+      "type": "alt:playing",
+      "mainTime": 12.007176,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "altTime": 0,
+       "gapMs": 1
+      }
+     },
+     {
+      "t": 6355,
+      "type": "module:terminate",
+      "mainTime": 12.007176,
+      "altTime": 5.981239,
+      "data": {
+       "id": 1,
+       "APD": 6,
+       "APDA": 6,
+       "altPlayed": 5.981001,
+       "RT": 18.006956000000002
+      }
+     },
+     {
+      "t": 6376,
+      "type": "main:resumed",
+      "mainTime": 18.008018,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 18.008018,
+       "RT": 18.006956000000002,
+       "gapMs": 17
+      }
+     },
+     {
+      "t": 7376,
+      "type": "main:after1s",
+      "mainTime": 18.965525,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 18.965525
+      }
+     }
+    ],
+    "errors": []
+   },
+   "wallMs": 9732,
+   "external": [],
+   "pageErrors": []
+  },
+  {
+   "id": "replace-live",
+   "dashjs": "5.3.0",
+   "state": {
+    "t": 26434,
+    "mainTime": 49.005672,
+    "mainPaused": false,
+    "isDynamic": true,
+    "altActive": false,
+    "log": [
+     {
+      "t": 65,
+      "type": "main:initialize",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "url": "http://127.0.0.1:39807/m/replace-live.mpd"
+      }
+     },
+     {
+      "t": 101,
+      "type": "dashjs:onReceive",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "calculatedPresentationTime": 40,
+       "duration": 5,
+       "eventKeys": [
+        "calculatedPresentationTime",
+        "duration",
+        "eventStream",
+        "id",
+        "messageData",
+        "parsedMessageData",
+        "presentationTime",
+        "presentationTimeDelta",
+        "triggeredReceivedEvent",
+        "triggeredStartEvent",
+        "type"
+       ],
+       "messageData": null,
+       "child": {
+        "nodeName": "ReplacePresentation",
+        "nodeValue": null,
+        "attributes": {
+         "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+        },
+        "childNodes": [],
+        "prefix": null,
+        "localName": "ReplacePresentation",
+        "tagName": "ReplacePresentation",
+        "uri": "http://127.0.0.1:39807/m/ad6.mpd",
+        "__children": []
+       }
+      }
+     },
+     {
+      "t": 118,
+      "type": "module:resolve",
+      "mainTime": 0,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 0,
+       "uri": "http://127.0.0.1:39807/m/ad6.mpd"
+      }
+     },
+     {
+      "t": 17323,
+      "type": "module:execute",
+      "mainTime": 40.000847,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "PRT": 40,
+       "PRTA": 40.000617,
+       "pauseAt": 40.000847,
+       "ASO": 0,
+       "APDadj": null
+      }
+     },
+     {
+      "t": 17326,
+      "type": "alt:playing",
+      "mainTime": 40.000847,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "altTime": 0,
+       "gapMs": 3
+      }
+     },
+     {
+      "t": 17362,
+      "type": "dashjs:onStart",
+      "mainTime": 40.000847,
+      "altTime": 0.012075,
+      "data": {
+       "scheme": "urn:mpeg:dash:event:alternativeMPD:replace:2025",
+       "id": 1,
+       "php": 40.000847
+      }
+     },
+     {
+      "t": 23363,
+      "type": "module:terminate",
+      "mainTime": 40.000847,
+      "altTime": 5.989692,
+      "data": {
+       "id": 1,
+       "APD": 6,
+       "APDA": 6,
+       "altPlayed": 5.989278,
+       "RT": 46
+      }
+     },
+     {
+      "t": 23387,
+      "type": "main:resumed",
+      "mainTime": 46.000812,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 46.000812,
+       "RT": 46,
+       "gapMs": 20
+      }
+     },
+     {
+      "t": 24392,
+      "type": "main:after1s",
+      "mainTime": 46.963895,
+      "altTime": 0,
+      "data": {
+       "id": 1,
+       "php": 46.963895
+      }
+     }
+    ],
+    "errors": []
+   },
+   "wallMs": 26639,
+   "external": [
+    "https://time.akamai.com/?iso&ms"
+   ],
+   "pageErrors": []
+  }
+ ],
+ "browser": "chromium 149.0.7827.55"
+}
