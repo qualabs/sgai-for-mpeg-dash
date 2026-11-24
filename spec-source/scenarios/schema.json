@@ -295,7 +295,9 @@
         "beacons": {
           "type": "array",
           "items": {
-            "type": "object", "additionalProperties": false, "required": ["at", "fixture", "id"],
+            "type": "object", "additionalProperties": false, "required": ["at", "fixture"],
+            "anyOf": [{"required": ["id"]}, {"required": ["url"]}],
+            "description": "named by its Event's @id, or by its url when the Event has no @id",
             "properties": {
               "at": {"$ref": "#/$defs/when"},
               "tolerance": {"$ref": "#/$defs/tolerance"},

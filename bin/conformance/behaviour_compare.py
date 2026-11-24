@@ -484,7 +484,9 @@ def click_urls(fx: Fixtures) -> tuple[set, set]:
 
 def beacon_urls(fx: Fixtures) -> set:
     """Every URL a fixture declares as a beacon: an Event's text in any
-    EventStream, and each URL of a `trackingUris` attribute."""
+    EventStream or in a non-linear candidate's `svta:Tracking` (an
+    EventStreamType, sgai-extension.xsd), and each URL of a `trackingUris`
+    attribute."""
     out = set()
     for text in fx.texts.values():
         try:
@@ -492,7 +494,7 @@ def beacon_urls(fx: Fixtures) -> set:
         except ET.ParseError:
             continue
         for es in root.iter():
-            if not (isinstance(es.tag, str) and es.tag.endswith("}EventStream")):
+            if _local(es) not in ("EventStream", "Tracking"):
                 continue
             for ev in es:
                 t = (ev.text or "").strip()
@@ -522,6 +524,8 @@ def beacon_url_of(exp: dict, fx: Fixtures) -> str | None:
     if cand:
         c = candidate_of(root, cand)
         scopes = [c] if c is not None else []
+    if exp.get("id") is None:
+        return None
     hits = [((ev.text or "").strip()) for sc in scopes for ev in sc.iter()
             if isinstance(ev.tag, str) and ev.tag.endswith("}Event") and ev.get("id") == exp["id"]]
     hits = [h for h in hits if h]
@@ -543,7 +547,7 @@ def compare_beacons(expected: list, obs: Observed, tol: float, fx: Fixtures,
     for i, e in enumerate(expected):
         url = beacon_url_of(e, fx)
         if url is None:
-            unverifiable.append(f"beacons[{i}] {e['fixture']} @id {e['id']}: no URL, and no single Event "
+            unverifiable.append(f"beacons[{i}] {e['fixture']} @id {e.get('id', '(none)')}: no URL, and no single Event "
                                 "with that @id to read it from")
             continue
         known.add(url)
@@ -553,7 +557,8 @@ def compare_beacons(expected: list, obs: Observed, tol: float, fx: Fixtures,
             used.add(hit)
             continue
         seen = ", ".join(str(_r(o["at"])) for _, o in same) or "never"
-        problems.append(f"beacons[{i}] {url} (@id {e['id']}) expected at {fmt_when(e['at'])}; observed at {seen}")
+        ident = f" (@id {e['id']})" if "id" in e else ""
+        problems.append(f"beacons[{i}] {url}{ident} expected at {fmt_when(e['at'])}; observed at {seen}")
     for j, o in enumerate(obs.others):
         if j not in used and any(same_url(k, o["url"]) for k in known):
             if unverifiable:   # it may be the beacon whose URL could not be read

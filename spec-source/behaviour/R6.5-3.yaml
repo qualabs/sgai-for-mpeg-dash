@@ -1,0 +1,73 @@
+# R6.5 with no @id. Loaded: one overlay window, two 3 s image candidates.
+# Candidate 1 has an empty Tracking; candidate 2's Tracking has four events with
+# no @id: URL a at 0 s and at 1 s, URL b twice at 2 s. Same URL at the same time
+# is one beacon (fires once); same URL at two times is two (fires twice). A
+# Player that de-duplicates by URL alone fires a once; one that does not
+# de-duplicate fires b twice; one that fires something for an empty Tracking
+# shows a request no expected beacon names.
+format: sgai-scenario/1
+criterion: R6.5
+criterion_sha256: 3e3278cc0bd34e55ea410212200efba949f33f99e1d79c726bb84965a6211ece
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 10000
+entry: behaviour/fixtures/R6.5/r6-5-3-main.mpd
+fixtures:
+- {path: behaviour/fixtures/R6.5/r6-5-3-main.mpd, class: publisher-mpd}
+- {path: behaviour/fixtures/R6.5/r6-5-3-list.xml, url: 'https://aps.example.com/b/r6-5-3/w', class: overlay-list}
+player_capabilities:
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: []
+outcomes:
+  D4:
+    summary: 'R6.5: "Within a candidate, beacons sharing an @id, or the same URL at the same presentation time, are one beacon
+      and fire once." With no @id: candidate 1''s empty Tracking fires nothing; candidate 2''s URL a fires at 0 s and at
+      1 s of the ad, URL b, declared twice at 2 s, fires once.'
+    requests:
+    - at: {from: 0, to: 2000}
+      url: https://aps.example.com/b/r6-5-3/w
+      query: {sgai-allowed-layouts: overlay-lower-third}
+      answered_by: behaviour/fixtures/R6.5/r6-5-3-list.xml
+    selection:
+    - opportunity: {fixture: behaviour/fixtures/R6.5/r6-5-3-main.mpd, event_id: '1'}
+      result: presented
+      presented:
+      - candidate: &c1 {fixture: behaviour/fixtures/R6.5/r6-5-3-list.xml, index: 1}
+        option: {index: 1}
+        layout: overlay-lower-third
+      - candidate: &c2 {fixture: behaviour/fixtures/R6.5/r6-5-3-list.xml, index: 2}
+        option: {index: 1}
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - {element: primary, from: 0}
+    - start: 2000
+      end: 5000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 2000}
+      - element: ad
+        candidate: *c1
+        option: {index: 1}
+    - start: 5000
+      end: 8000
+      layout: overlay-lower-third
+      shows:
+      - {element: primary, from: 5000}
+      - element: ad
+        candidate: *c2
+        option: {index: 1}
+    - start: 8000
+      end: 10000
+      layout: none
+      shows:
+      - {element: primary, from: 8000}
+    beacons:
+    - {at: 5000, fixture: behaviour/fixtures/R6.5/r6-5-3-list.xml, candidate: *c2, url: 'https://t.example.com/r6-5-3/a'}
+    - {at: 6000, fixture: behaviour/fixtures/R6.5/r6-5-3-list.xml, candidate: *c2, url: 'https://t.example.com/r6-5-3/a'}
+    - {at: 7000, fixture: behaviour/fixtures/R6.5/r6-5-3-list.xml, candidate: *c2, url: 'https://t.example.com/r6-5-3/b'}

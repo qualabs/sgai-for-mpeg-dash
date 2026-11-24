@@ -453,6 +453,12 @@ def check_refs(v: dict, where: str, o: dict, docs: dict, find) -> None:
             scope = cand(b["candidate"], f"beacons[{i}].candidate")
             if scope is None:
                 continue
+        if "id" not in b:      # named by its url alone (an Event with no @id)
+            root = d.root if scope is None else scope
+            if not any(_local(e) == "Event" and (e.text or "").strip() == b["url"] for e in root.iter()):
+                find("S-REF", f"{where}.beacons[{i}]: no Event with text {b['url']} in {b['fixture']}"
+                              + (" within that candidate" if scope is not None else ""))
+            continue
         ev = d.event(scope, b["id"])
         if ev is None:
             find("S-REF", f"{where}.beacons[{i}]: no Event @id={b['id']} in {b['fixture']}"

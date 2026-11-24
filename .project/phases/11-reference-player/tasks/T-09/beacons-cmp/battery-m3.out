@@ -1,0 +1,5 @@
+26 PASS, 2 FAIL
+FAIL R13.3-1 D4 beacons | expected: (see log) | observed: unexpected beacon https://t.example.com/r13-3-1/at-5s at 6070; unexpected beacon https://t.example.com/r13-3-1/complete at 6070 | log: behaviour-m3.log:4
+FAIL R13.3-4 D4 beacons | expected: (see log) | observed: unexpected beacon https://t.example.com/r13-3-4/past-trim at 6230 | log: behaviour-m3.log:16
+exit 1; wall 140.5 s; full log: behaviour-m3.log
+exit 1

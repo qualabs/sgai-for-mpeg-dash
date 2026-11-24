@@ -316,6 +316,18 @@ class TestRef(Base):
         self.t.put("UC-01", v)
         self.only(self.t.run(), "S-REF", "UC-01", "is not the event's text")
 
+    def test_beacon_by_url_without_id(self):
+        # with no `id`, the beacon is named by its url: an Event in its scope
+        # must carry that text
+        v = self.t.vec("UC-01")
+        b = v["outcomes"]["D1"]["beacons"][2]
+        del b["id"]
+        self.t.put("UC-01", v)
+        self.assertEqual(found(self.t.run(), "S-REF", "UC-01"), [])
+        b["url"] = "https://t.example.com/q2?cr=101"
+        self.t.put("UC-01", v)
+        self.only(self.t.run(), "S-REF", "UC-01", "no Event with text https://t.example.com/q2?cr=101")
+
     def test_opportunity(self):
         v = self.t.vec("UC-03")
         v["outcomes"]["D5"]["selection"][0]["opportunity"]["event_id"] = "2"

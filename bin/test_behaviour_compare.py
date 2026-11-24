@@ -334,6 +334,22 @@ class Beacons(unittest.TestCase):
         self.o["beacons"][1]["id"] = "77"
         self.assertEqual(self.field()[0], Outcome.NOT_VERIFIABLE)
 
+    def test_missing_beacon_without_id(self):
+        # the schema does not require `id` on an expected beacon with a `url`
+        del self.o["beacons"][0]["id"]
+        self.raw["requests"].remove(self.beacon("https://t.example.com/imp?c=1"))
+        out, d = self.field()
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn("beacons[0] https://t.example.com/imp?c=1 expected at 10000; observed at never", d)
+
+    def test_present_beacon_without_id(self):
+        del self.o["beacons"][0]["id"]
+        self.assertEqual(self.field()[0], Outcome.PASS)
+
+    def test_no_url_no_id_is_not_verifiable(self):
+        del self.o["beacons"][1]["id"]
+        self.assertEqual(self.field()[0], Outcome.NOT_VERIFIABLE)
+
     def test_candidate_scope(self):
         self.o["beacons"][1]["candidate"] = {"fixture": "behaviour/fixtures/X/list.mpd", "id": "c1"}
         self.assertEqual(self.field()[0], Outcome.PASS)
@@ -926,6 +942,22 @@ class Clicks(unittest.TestCase):
     def test_destination_too_late(self):
         self.raw["observation"]["destinations"] = [{"t": 7251, "uri": "https://brand.example.com/c2"}]
         self.assertEqual(self.got()["destinations"], Outcome.FAIL)
+
+    def test_tracking_beacon_not_expected(self):
+        # a non-linear candidate's beacon lives in <svta:Tracking>, not in an
+        # EventStream: fired and not expected, it is an unexpected beacon
+        self.add("https://t.example.com/imp?c=2", 9000)
+        g = self.got()
+        self.assertEqual(g["beacons"], Outcome.FAIL)
+        self.assertIn("unexpected beacon https://t.example.com/imp?c=2",
+                      details(run(self.v, self.o, self.fx, self.raw))["beacons"])
+
+    def test_tracking_beacon_with_click_tracking_judged_by_clicks(self):
+        # the Tracking URLs stay beacons when clicks are judged; only the
+        # ClickThrough's trackingUris move to the clicks field
+        self.assertEqual(self.got()["beacons"], Outcome.PASS)
+        self.add("https://t.example.com/imp?c=1", 9500)
+        self.assertEqual(self.got()["beacons"], Outcome.FAIL)
 
     def test_overlay_candidate_scope_of_a_beacon(self):
         # a beacon named by candidate and @id in an OverlayList, with no url
