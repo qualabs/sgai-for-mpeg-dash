@@ -1,0 +1,93 @@
+R4.2-2: startup 1501 ms; primary speed before the ad 0.844
+    session   2328 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.003, 'ASO': 0, 'APDadj': 6, 'APDA': 6}
+    session   8390 ms  linear:terminate     {'key': '2025#1', 'APDA': 6, 'RT': 2.003}
+    ad ad-1 on screen 2351..6375 ms = 4.024 s
+    ad ad-2 on screen 6375..8395 ms = 2.020 s
+R4.7-1: startup 177 ms; primary speed before the ad 0.872
+    session   2769 ms  linear:not-executed  {'key': '2025#1', 'reason': '@maxDuration is zero'}
+R4.8: startup 189 ms; primary speed before the ad 0.531
+    session   3368 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.008, 'ASO': 0, 'APDadj': None, 'APDA': 8}
+    ad alt on screen 3387..12005 ms = 8.618 s (still on screen when observation ended)
+R20.1-7: startup 803 ms; primary speed before the ad 0.71
+    session   2692 ms  linear:failed        {'key': '2025#1', 'reason': 'HTTP 500'}
+    session   2694 ms  linear:execute       {'key': '2025#2', 'PRT': 2, 'PRTA': 2.007, 'ASO': 0, 'APDadj': None, 'APDA': 4}
+    ad alt on screen 2707..5503 ms = 2.796 s (still on screen when observation ended)
+R20.3-2: startup 971 ms; primary speed before the ad None
+    session   -807 ms  linear:execute       {'key': '2025#2', 'PRT': 2, 'PRTA': 6, 'ASO': 0, 'APDadj': 4, 'APDA': 4}
+    ad rep on screen 0..3003 ms = 3.003 s (still on screen when observation ended)
+R30.2: startup 200 ms; primary speed before the ad 0.317
+    session   2513 ms  linear:failed        {'key': '2025#1', 'reason': 'List MPD: no available media'}
+    session   6210 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.015, 'ASO': 0, 'APDadj': None, 'APDA': 4}
+    session  10644 ms  linear:terminate     {'key': '2025#1', 'APDA': 4, 'RT': 2.015}
+    ad alt on screen 6602..10647 ms = 4.045 s
+R40.3-1: startup 168 ms; primary speed before the ad 0.985
+    session   6068 ms  linear:execute       {'key': '2025#2', 'PRT': 6, 'PRTA': 6.001, 'ASO': 0, 'APDadj': None, 'APDA': 4}
+    session  10104 ms  linear:terminate     {'key': '2025#2', 'APDA': 4, 'RT': 6.001}
+    ad alt on screen 6083..10109 ms = 4.026 s
+R40.3-2: startup 201 ms; primary speed before the ad 0.952
+    session   6282 ms  linear:execute       {'key': '2025#2', 'PRT': 6, 'PRTA': 6.005, 'ASO': 0, 'APDadj': None, 'APDA': 4}
+    session  10705 ms  linear:terminate     {'key': '2025#2', 'APDA': 4, 'RT': 6.005}
+    ad alt on screen 6479..10707 ms = 4.228 s
+R17.5: startup 756 ms; primary speed before the ad 0.904
+    session   3270 ms  linear:execute       {'key': '2025#1', 'PRT': 3, 'PRTA': 3.0, 'ASO': 0, 'APDadj': 10, 'APDA': 10}
+    session  16546 ms  linear:terminate     {'key': '2025#1', 'APDA': 10, 'RT': 3.0}
+    ad ad-1 on screen 3274..16548 ms = 13.274 s
+R6.5-2: startup 380 ms; primary speed before the ad 0.661
+    session   2979 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.002, 'ASO': 0, 'APDadj': None, 'APDA': 8}
+    session  11343 ms  linear:terminate     {'key': '2025#1', 'APDA': 8, 'RT': 2.002}
+    ad ad-1 on screen 3000..7324 ms = 4.324 s
+    ad ad-2 on screen 7324..11346 ms = 4.022 s
+UC-01: startup 711 ms; primary speed before the ad None
+    session   -484 ms  linear:execute       {'key': '2025#1', 'PRT': 0, 'PRTA': 0, 'ASO': 0, 'APDadj': 30, 'APDA': 25}
+    session  25636 ms  linear:terminate     {'key': '2025#1', 'APDA': 25, 'RT': 0}
+    ad ad-101 on screen 0..15496 ms = 15.496 s
+    ad ad-102 on screen 15496..25640 ms = 10.144 s
+UC-06: startup 334 ms; primary speed before the ad 0.934
+    session  42819 ms  linear:execute       {'key': '2025#1', 'PRT': 1200, 'PRTA': 1200.008, 'ASO': 0, 'APDadj': 60, 'APDA': 60}
+    session 107311 ms  linear:terminate     {'key': '2025#1', 'APDA': 60, 'RT': 1200.008}
+    ad ad-601 on screen 42822..58318 ms = 15.496 s
+    ad ad-602 on screen 58318..80119 ms = 21.801 s
+    ad ad-603 on screen 80119..96772 ms = 16.653 s
+    ad ad-604 on screen 96772..107313 ms = 10.541 s
+E1-execute-once-after-success: startup 497 ms; primary speed before the ad 0.604
+    session   3145 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.002, 'ASO': 0, 'APDadj': None, 'APDA': 8}
+    session  11509 ms  linear:terminate     {'key': '2025#1', 'APDA': 8, 'RT': 2.002}
+    ad alt on screen 3156..11528 ms = 8.372 s
+E10-join-after-eap: startup 227 ms; primary speed before the ad 0.8
+E11-pause-during-linear-ad: startup 251 ms; primary speed before the ad 0.669
+    session   2955 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.006, 'ASO': 0, 'APDadj': None, 'APDA': 8}
+    session  13821 ms  linear:terminate     {'key': '2025#1', 'APDA': 8, 'RT': 2.006}
+    ad alt on screen 2975..13823 ms = 10.848 s
+E2-insert-reexecuted-after-seek: startup 216 ms; primary speed before the ad 0.586
+    session   3161 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.008, 'ASO': 0, 'APDadj': None, 'APDA': 4}
+    session   7364 ms  linear:terminate     {'key': '2025#1', 'APDA': 4, 'RT': 2.008}
+    session  10401 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.006, 'ASO': 0, 'APDadj': None, 'APDA': 4}
+    session  14543 ms  linear:terminate     {'key': '2025#1', 'APDA': 4, 'RT': 2.006}
+    ad ins on screen 3167..7369 ms = 4.202 s
+    ad ins on screen 10411..14545 ms = 4.134 s
+E3-replace-late-clip: startup 1007 ms; primary speed before the ad None
+    session   -815 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 4, 'ASO': 0, 'APDadj': 4, 'APDA': 4}
+    session   4510 ms  linear:terminate     {'key': '2025#1', 'APDA': 4, 'RT': 6}
+    ad rep on screen 0..4514 ms = 4.514 s
+E4-replace-late-noclip: startup 793 ms; primary speed before the ad None
+    session   -661 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 4, 'ASO': 0, 'APDadj': 6, 'APDA': 6}
+    session   6592 ms  linear:terminate     {'key': '2025#1', 'APDA': 6, 'RT': 10}
+    ad rep on screen 0..6599 ms = 6.599 s
+E5-replace-start-with-offset: startup 1605 ms; primary speed before the ad None
+    session   -524 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 4, 'ASO': 2, 'APDadj': 4, 'APDA': 4}
+    session   4841 ms  linear:terminate     {'key': '2025#1', 'APDA': 4, 'RT': 6}
+    ad rep on screen 0..4843 ms = 4.843 s
+E6-replace-return-offset: startup 672 ms; primary speed before the ad 0.823
+    session   2402 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.009, 'ASO': 0, 'APDadj': 3.991, 'APDA': 3.991}
+    session   6427 ms  linear:terminate     {'key': '2025#1', 'APDA': 3.991, 'RT': 11}
+    ad rep on screen 2406..6430 ms = 4.024 s
+E7-replace-apda-zero: startup 847 ms; primary speed before the ad 0.78
+    session   -584 ms  linear:failed        {'key': '2025#1', 'reason': 'APDA is 0'}
+E8-list-linked-period-fails: startup 1306 ms; primary speed before the ad 0.71
+    session   2792 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.006, 'ASO': 0, 'APDadj': None, 'APDA': 12}
+    ad la on screen 2800..7421 ms = 4.621 s
+    ad lc on screen 7421..11003 ms = 3.582 s (still on screen when observation ended)
+E9-insert-late-join: startup 1802 ms; primary speed before the ad None
+    session   -894 ms  linear:execute       {'key': '2025#1', 'PRT': 2, 'PRTA': 2.5, 'ASO': 0, 'APDadj': None, 'APDA': 8}
+    session   8618 ms  linear:terminate     {'key': '2025#1', 'APDA': 8, 'RT': 2.5}
+    ad alt on screen 0..8622 ms = 8.622 s

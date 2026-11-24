@@ -1,0 +1,66 @@
+# Delayed replacement with @startWithOffset="true". Join at 4 s; PRT 2 s, APDmax 6 s, APD 8 s.
+# Table 57: ASO = PRTA - PRT = 2; APDadj = max(6 - 4 + 2, 0) = 4; APDA = min(8 - 2, 4) = 4;
+# RT = PRT + APDA = 6. The alternative starts at its 2 s: its callback at 0 is not played,
+# the one at 2 s fires at once and the one at 5 s after 3 s.
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 4000
+observe_until: 6000
+entry: t05/rep-swo-main.mpd
+fixtures:
+- path: t05/rep-swo-main.mpd
+- path: t05/rep.mpd
+  url: https://aps.example.com/t05/rep
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: the alternative from its 2nd second for 4 s, then the programme from 6 s
+    requests:
+    - at: 0
+      url: https://aps.example.com/t05/rep
+      answered_by: t05/rep.mpd
+    selection:
+    - opportunity:
+        fixture: t05/rep-swo-main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: t05/rep.mpd
+          id: rep
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 4000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: t05/rep.mpd
+          id: rep
+        option: null
+    - start: 4000
+      end: 6000
+      layout: none
+      shows:
+      - element: primary
+        from: 6000
+    beacons:
+    - at: 0
+      fixture: t05/rep.mpd
+      id: '2'
+      url: https://t.example.com/t05/rep/b2
+    - at: 3000
+      fixture: t05/rep.mpd
+      id: '3'
+      url: https://t.example.com/t05/rep/b5

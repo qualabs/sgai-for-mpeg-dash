@@ -29,7 +29,27 @@
 //
 // `log(type, data)` is the module's own record, for diagnosis: no verdict
 // reads it.
+//
+// FAMILIES. Each family is a file of this directory, named in FAMILY_FILES
+// and loaded by this one (so the harness page lists only this file), that
+// pushes a class onto `SGAI_FAMILIES`. A family is constructed with the
+// SgaiReference once its scripts are in, and may have `attach(player)`
+// (called before the primary is initialised) and `act(action)`. It reads
+// `ref.url` (the main MPD's URL, the `data-sgai-opportunity-doc` of what it
+// presents), `ref.container`, `ref.video`, `ref.profile`, `ref.log`, and
+// may publish itself on `ref` for the others (the linear family is
+// `ref.linear`).
 (function (global) {
+  const FAMILY_FILES = ['sgai-linear.js'];
+  const base = (document.currentScript && document.currentScript.src) || location.href;
+  const loading = FAMILY_FILES.map((f) => new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = new URL(f, base).href;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('cannot load family ' + f));
+    document.head.appendChild(s);
+  }));
+  const familiesReady = Promise.all(loading);
   class SgaiReference {
     // container: the viewport element; video: the primary <video>, inside it;
     // profile: SGAI_PROFILES.profileFor(...); log: (type, data) => void.
@@ -39,18 +59,30 @@
       this.profile = profile;
       this.log = log || (() => {});
       this.player = null;
+      this.url = null;
       container.dataset.sgaiLayout = 'none';
       video.dataset.sgaiElement = 'primary';
-      this.families = (global.SGAI_FAMILIES || []).map((F) => new F(this));
+      this.families = [];
       for (const p of profile.problems || []) this.log('profile:problem', p);
       this.log('profile', { klass: profile.klass, capabilities: profile.capabilities });
     }
 
     // Starts the primary presentation at `startTime` seconds of its timeline
-    // (NaN: dash.js's default start).
+    // (NaN: dash.js's default start). The player exists on return; it is
+    // initialised once the families are in (they are loaded long before a
+    // run starts, so this waits for nothing in practice).
     start(url, startTime) {
       const player = dashjs.MediaPlayer().create();
       this.player = player;
+      this.url = url;
+      return familiesReady.then(() => this._start(player, url, startTime), (e) => {
+        this.log('families:error', String(e && e.message || e));
+        this._start(player, url, startTime);
+      });
+    }
+
+    _start(player, url, startTime) {
+      this.families = (global.SGAI_FAMILIES || []).map((F) => new F(this));
       player.updateSettings({ debug: { logLevel: dashjs.Debug.LOG_LEVEL_NONE } });
       // No request leaves for dash.js's default UTC source; the device clock
       // is the clock the test content is served on.

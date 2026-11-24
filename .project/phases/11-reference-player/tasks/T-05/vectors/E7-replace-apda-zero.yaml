@@ -1,0 +1,37 @@
+# A replacement whose clip-adjusted duration is zero is not executed (§5.16.2.2.1 step 3, "If at
+# time PRTA the duration APDA is determined to be 0, the event is not executed"). Join at 6 s;
+# PRT 2 s, APDmax 3 s: APDadj = max(3 - 6 + 2, 0) = 0.
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 6000
+observe_until: 4000
+entry: t05/rep-zero-main.mpd
+fixtures:
+- path: t05/rep-zero-main.mpd
+- path: t05/rep.mpd
+  url: https://aps.example.com/t05/rep
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: the programme from 6 s, nothing else
+    requests: []
+    selection: []
+    presentation:
+    - start: 0
+      end: 4000
+      layout: none
+      shows:
+      - element: primary
+        from: 6000
+    beacons: []
+    requests_not_compared: A.14.5 resolves the event before it checks APDA; the base does not bind whether a zero APDA is
+      found before the request

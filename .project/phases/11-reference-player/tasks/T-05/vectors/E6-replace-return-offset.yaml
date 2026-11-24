@@ -1,0 +1,72 @@
+# Replacement with @returnOffset 9 s, APDmax 4 s, executed at PRT 2 s. Table 57: APDA =
+# min(8, 4) = 4; RT = PRT + RO = 11.
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 8000
+entry: t05/rep-ro-main.mpd
+fixtures:
+- path: t05/rep-ro-main.mpd
+- path: t05/rep.mpd
+  url: https://aps.example.com/t05/rep
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: the programme, the alternative 2-6 s, then the programme from 11 s
+    requests:
+    - at:
+        from: 0
+        to: 2000
+      url: https://aps.example.com/t05/rep
+      answered_by: t05/rep.mpd
+    selection:
+    - opportunity:
+        fixture: t05/rep-ro-main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: t05/rep.mpd
+          id: rep
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - element: primary
+        from: 0
+    - start: 2000
+      end: 6000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: t05/rep.mpd
+          id: rep
+        option: null
+    - start: 6000
+      end: 8000
+      layout: none
+      shows:
+      - element: primary
+        from: 11000
+    beacons:
+    - at: 2000
+      fixture: t05/rep.mpd
+      id: '1'
+      url: https://t.example.com/t05/rep/b0
+    - at: 4000
+      fixture: t05/rep.mpd
+      id: '2'
+      url: https://t.example.com/t05/rep/b2

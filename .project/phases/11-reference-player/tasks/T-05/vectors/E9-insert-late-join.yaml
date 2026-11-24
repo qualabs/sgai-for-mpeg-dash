@@ -1,0 +1,64 @@
+# Delayed insertion: join at 2.5 s inside the active interval [2, 3] s of R4.8's event. PRTA =
+# 2.5; Table 57, RT of an insertion "is always PRTA" = 2.5 (not PRT).
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 2500
+observe_until: 10000
+entry: behaviour/fixtures/R4.8/main.mpd
+fixtures:
+- path: behaviour/fixtures/R4.8/main.mpd
+- path: behaviour/fixtures/R4.8/alt.mpd
+  url: https://aps.example.com/b/r4-8/break
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: the 8 s alternative from the start, then the programme from 2.5 s
+    requests:
+    - at: 0
+      url: https://aps.example.com/b/r4-8/break
+      answered_by: behaviour/fixtures/R4.8/alt.mpd
+    selection:
+    - opportunity:
+        fixture: behaviour/fixtures/R4.8/main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: behaviour/fixtures/R4.8/alt.mpd
+          id: alt
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 8000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: behaviour/fixtures/R4.8/alt.mpd
+          id: alt
+        option: null
+    - start: 8000
+      end: 10000
+      layout: none
+      shows:
+      - element: primary
+        from: 2500
+    beacons:
+    - at: 0
+      fixture: behaviour/fixtures/R4.8/alt.mpd
+      id: '1'
+      url: https://t.example.com/r4-8/start
+    - at: 8000
+      fixture: behaviour/fixtures/R4.8/alt.mpd
+      id: '2'
+      url: https://t.example.com/r4-8/end

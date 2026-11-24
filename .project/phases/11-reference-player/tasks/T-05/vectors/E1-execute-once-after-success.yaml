@@ -1,0 +1,83 @@
+# @executeOnce="true" after a successful execution (§5.16.5: "the event is executed only the
+# first time this media time is traversed"). R4.8's documents; the viewer seeks back to 0 at
+# 11 s, so PRT (2 s) is traversed again at 13 s and the event must not run again.
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 15000
+entry: behaviour/fixtures/R4.8/main.mpd
+fixtures:
+- path: behaviour/fixtures/R4.8/main.mpd
+- path: behaviour/fixtures/R4.8/alt.mpd
+  url: https://aps.example.com/b/r4-8/break
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions:
+- at: 11000
+  do: seek
+  to: 0
+outcomes:
+  D1:
+    summary: the 8 s alternative once; after the seek back the programme plays through PRT
+    requests:
+    - at:
+        from: 0
+        to: 2000
+      url: https://aps.example.com/b/r4-8/break
+      answered_by: behaviour/fixtures/R4.8/alt.mpd
+    selection:
+    - opportunity:
+        fixture: behaviour/fixtures/R4.8/main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: behaviour/fixtures/R4.8/alt.mpd
+          id: alt
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - element: primary
+        from: 0
+    - start: 2000
+      end: 10000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: behaviour/fixtures/R4.8/alt.mpd
+          id: alt
+        option: null
+    - start: 10000
+      end: 11000
+      layout: none
+      shows:
+      - element: primary
+        from: 2000
+    - start: 11000
+      end: 15000
+      layout: none
+      shows:
+      - element: primary
+        from: 0
+      note: after the seek back to 0
+    beacons:
+    - at: 2000
+      fixture: behaviour/fixtures/R4.8/alt.mpd
+      id: '1'
+      url: https://t.example.com/r4-8/start
+    - at: 10000
+      fixture: behaviour/fixtures/R4.8/alt.mpd
+      id: '2'
+      url: https://t.example.com/r4-8/end

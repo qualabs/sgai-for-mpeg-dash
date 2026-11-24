@@ -1,0 +1,68 @@
+# Delayed replacement with @clip="false". Join at 4 s; PRT 2 s, APDmax 6 s, APD 8 s.
+# Table 57: APDadj = APDmax = 6; APDA = min(8, 6) = 6; RT = PRTA + APDA = 4 + 6 = 10.
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 4000
+observe_until: 8000
+entry: t05/rep-noclip-main.mpd
+fixtures:
+- path: t05/rep-noclip-main.mpd
+- path: t05/rep.mpd
+  url: https://aps.example.com/t05/rep
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: the alternative for 6 s, then the programme from 10 s
+    requests:
+    - at: 0
+      url: https://aps.example.com/t05/rep
+      answered_by: t05/rep.mpd
+    selection:
+    - opportunity:
+        fixture: t05/rep-noclip-main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: t05/rep.mpd
+          id: rep
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 6000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: t05/rep.mpd
+          id: rep
+        option: null
+    - start: 6000
+      end: 8000
+      layout: none
+      shows:
+      - element: primary
+        from: 10000
+    beacons:
+    - at: 0
+      fixture: t05/rep.mpd
+      id: '1'
+      url: https://t.example.com/t05/rep/b0
+    - at: 2000
+      fixture: t05/rep.mpd
+      id: '2'
+      url: https://t.example.com/t05/rep/b2
+    - at: 5000
+      fixture: t05/rep.mpd
+      id: '3'
+      url: https://t.example.com/t05/rep/b5

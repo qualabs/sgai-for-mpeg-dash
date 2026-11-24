@@ -1,0 +1,104 @@
+# An insertion without @executeOnce (default "false") is executed again when a seek moves the
+# playhead before EAP (§5.16.2.2.1), and is not executed again at its own return, RT = PRTA
+# (A.14.5 pops it and does not reset QE; the T-01 reading). PRT 2 s, EAP 3 s, a 4 s
+# alternative; seek to 0 at 8 s.
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 15000
+entry: t05/ins-many-main.mpd
+fixtures:
+- path: t05/ins-many-main.mpd
+- path: t05/ins.mpd
+  url: https://aps.example.com/t05/ins-many
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions:
+- at: 8000
+  do: seek
+  to: 0
+outcomes:
+  D1:
+    summary: the alternative at 2 s, the programme from 2 s, the seek, the alternative again at 10 s
+    requests:
+    - at:
+        from: 0
+        to: 2000
+      url: https://aps.example.com/t05/ins-many
+      answered_by: t05/ins.mpd
+    - at:
+        from: 8000
+        to: 10000
+      url: https://aps.example.com/t05/ins-many
+      answered_by: t05/ins.mpd
+    selection:
+    - opportunity:
+        fixture: t05/ins-many-main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: t05/ins.mpd
+          id: ins
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - element: primary
+        from: 0
+    - start: 2000
+      end: 6000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: t05/ins.mpd
+          id: ins
+        option: null
+    - start: 6000
+      end: 8000
+      layout: none
+      shows:
+      - element: primary
+        from: 2000
+    - start: 8000
+      end: 10000
+      layout: none
+      shows:
+      - element: primary
+        from: 0
+      note: after the seek back to 0
+    - start: 10000
+      end: 14000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: t05/ins.mpd
+          id: ins
+        option: null
+    - start: 14000
+      end: 15000
+      layout: none
+      shows:
+      - element: primary
+        from: 2000
+    beacons:
+    - at: 2000
+      fixture: t05/ins.mpd
+      id: '1'
+      url: https://t.example.com/t05/ins/imp
+    - at: 10000
+      fixture: t05/ins.mpd
+      id: '1'
+      url: https://t.example.com/t05/ins/imp

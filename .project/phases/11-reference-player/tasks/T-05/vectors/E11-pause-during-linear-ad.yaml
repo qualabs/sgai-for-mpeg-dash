@@ -1,0 +1,78 @@
+# The viewer pauses during a linear alternative and resumes 2 s later, with no pause window:
+# the linear ad is suspended and resumed where it was (the linear part of R17.5; the primary
+# is already stopped by the insertion). R4.8's 8 s alternative from 2 s, paused 4-6 s: it
+# ends at 12 s, and its end callback (at 8 s of its own timeline) fires then.
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 14000
+entry: behaviour/fixtures/R4.8/main.mpd
+fixtures:
+- path: behaviour/fixtures/R4.8/main.mpd
+- path: behaviour/fixtures/R4.8/alt.mpd
+  url: https://aps.example.com/b/r4-8/break
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions:
+- at: 4000
+  do: pause
+- at: 6000
+  do: resume
+outcomes:
+  D1:
+    summary: the alternative 2-12 s, paused 4-6 s, then the programme from 2 s
+    requests:
+    - at:
+        from: 0
+        to: 2000
+      url: https://aps.example.com/b/r4-8/break
+      answered_by: behaviour/fixtures/R4.8/alt.mpd
+    selection:
+    - opportunity:
+        fixture: behaviour/fixtures/R4.8/main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: behaviour/fixtures/R4.8/alt.mpd
+          id: alt
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 2000
+      layout: none
+      shows:
+      - element: primary
+        from: 0
+    - start: 2000
+      end: 12000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: behaviour/fixtures/R4.8/alt.mpd
+          id: alt
+        option: null
+    - start: 12000
+      end: 14000
+      layout: none
+      shows:
+      - element: primary
+        from: 2000
+    beacons:
+    - at: 2000
+      fixture: behaviour/fixtures/R4.8/alt.mpd
+      id: '1'
+      url: https://t.example.com/r4-8/start
+    - at: 12000
+      fixture: behaviour/fixtures/R4.8/alt.mpd
+      id: '2'
+      url: https://t.example.com/r4-8/end

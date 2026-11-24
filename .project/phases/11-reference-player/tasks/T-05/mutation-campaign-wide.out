@@ -1,0 +1,63 @@
+M01-executeOnce-ignored: CAUGHT  [§5.16.5 @executeOnce / §5.16.2.2.3 2b]  baseline PASS 2/4, mutant PASS 1/4
+    red: E1-execute-once-after-success D1 requests: unexpected request https://aps.example.com/b/r4-8/break at 11037 (answered_by behaviour/fixtures/R4.8/alt.mpd)
+M02-failure-counts: CAUGHT  [§5.16.2.2.6 NOTE 3 (E.c not incremented on failure)]  baseline PASS 2/4, mutant PASS 0/4
+    red: R30.2 D1 requests: requests[1] https://aps.example.com/b/r30-2/break at 6000: not observed
+    red: R30.2 D1 beacons: beacons[0] https://t.example.com/r30-2/imp (@id 1) expected at 6000; observed at never
+M03-maxDuration-zero-executed: CAUGHT  [§5.16.5 @maxDuration zero: not executed]  baseline PASS 4/4, mutant PASS 3/4
+    red: R4.7-1 D1 requests: unexpected request https://aps.example.com/b/r4-7-1/break at 2131 (answered_by behaviour/fixtures/R4.7/linear-alt.mpd)
+M04-document-order: CAUGHT  [§5.16.2.2.2 QE ordered by PRT]  baseline PASS 4/4, mutant PASS 0/4
+    red: R20.3-2 D1 requests: requests[0] https://aps.example.com/b/r20-3-2/replace at 0: not observed; unexpected request https://aps.example.com/b/r20-3-2/insert at 0 (answered_by behaviour/fixtures/R20.3/r20-3-2-insert-alt.mpd)
+    red: R20.3-2 D1 selection: selection[0] event 2 of behaviour/fixtures/R20.3/r20-3-2-main.mpd (presented): expected linear behaviour/fixtures/R20.3/r20-3-2-replace-alt.mpd:rep option null; observed nothing; ad presented for an opportunity the vecto
+    red: R20.3-2 D1 presentation: presentation[0] 0..3000 expected linear [ad behaviour/fixtures/R20.3/r20-3-2-replace-alt.mpd:rep option null]; observed linear [ad behaviour/fixtures/R20.3/r20-3-2-insert-alt.mpd:ins option null] from 0 to 3000 [startup 
+    red: R20.3-2 D1 beacons: beacons[0] https://t.example.com/r20-3-2/replace-imp (@id 1) expected at 0; observed at never; unexpected beacon https://t.example.com/r20-3-2/insert-imp at 49
+M05-no-next-after-failure: CAUGHT  [§5.16.2.2.5 2d (next events of QE after a failed execution)]  baseline PASS 4/4, mutant PASS 1/4
+    red: R20.1-7 D1 selection: selection[0] event 2 of behaviour/fixtures/R20.1/r20-1-7-main.mpd (presented): expected linear behaviour/fixtures/R20.1/r20-1-7-alt.mpd:alt option null; observed nothing
+    red: R20.1-7 D1 presentation: presentation[1] expected a change at 2000 to linear [ad behaviour/fixtures/R20.1/r20-1-7-alt.mpd:alt option null]; none observed within 750 (on screen: none [primary] from 0); presentation[1] 2000..5500 expected linear [
+    red: R20.1-7 D1 beacons: beacons[0] https://t.example.com/r20-1-7/imp (@id 1) expected at 2000; observed at never
+M06-insert-cap-ignored: CAUGHT  [Table 57 APDA = min(APD, APDmax) for insertion (cumulative over a List)]  baseline PASS 4/4, mutant PASS 3/4
+    red: R4.2-2 D1 presentation: presentation[3] expected a change at 8000 to none [primary from 2000]; none observed within 750 (on screen: linear [ad behaviour/fixtures/R4.2/linear-list.mpd:ad-2 option null] from 6415); presentation[3] 8000..10000 exp
+M07-maxDuration-default-finite: CAUGHT  [§5.16.5 @maxDuration absent = infinity]  baseline PASS 4/4, mutant PASS 2/4
+    red: R4.8 D1 presentation: observed a change at 7844 from linear [ad behaviour/fixtures/R4.8/alt.mpd:alt option null] to none [primary], which the vector does not have; presentation[2] expected a change at 10000 to none [primary from 2000]; none o
+    red: R4.8 D1 beacons: beacons[1] https://t.example.com/r4-8/end (@id 2) expected at 10000; observed at never
+M08-ERT-ignored: CAUGHT  [§5.16.5 @earliestResolutionTimeOffset (not requested before ERT)]  baseline PASS 2/4, mutant PASS 1/4
+    red: R30.2 D1 requests: requests[0] https://aps.example.com/b/r30-2/break expected at 2000, query {}, answered_by examples/chapter-5/5.2.3-1.mpd; observed https://aps.example.com/b/r30-2/break at 0, query {}, answered_by examples/chapter-5/5.2.
+M09-clip-ignored: CAUGHT  [Table 57 APDadj with @clip]  baseline PASS 4/4, mutant PASS 2/4
+    red: E3-replace-late-clip D1 presentation: presentation[1] expected a change at 4000 to none [primary from 6000]; none observed within 750 (on screen: linear [ad t05/rep.mpd:rep option null] from 0); presentation[1] 4000..7000 expected none [primary from 6000]; o
+    red: E3-replace-late-clip D1 beacons: unexpected beacon https://t.example.com/t05/rep/b5 at 5378
+M10-noclip-RT: CAUGHT  [Table 57 RT = PRTA + APDA with @clip=false]  baseline PASS 4/4, mutant PASS 3/4
+    red: E4-replace-late-noclip D1 presentation: presentation[1] primary from expected 10000, observed 8001 [startup 635; observed: 0..6362 linear [ad t05/rep.mpd:rep option null]; 6362..8000 none [primary] from 8001]
+M11-startWithOffset-ignored: CAUGHT  [Table 57 ASO with @startWithOffset]  baseline PASS 4/4, mutant PASS 3/4
+    red: E5-replace-start-with-offset D1 beacons: beacons[0] https://t.example.com/t05/rep/b2 (@id 2) expected at 0; observed at 2454; beacons[1] https://t.example.com/t05/rep/b5 (@id 3) expected at 3000; observed at never; unexpected beacon https://t.example.com/t05/re
+M12-returnOffset-ignored: CAUGHT  [Table 57 RT = PRT + RO]  baseline PASS 4/4, mutant PASS 3/4
+    red: E6-replace-return-offset D1 presentation: presentation[2] primary from expected 11000, observed 5974 [startup 479; observed: 0..2202 none [primary] from 4; 2202..6432 linear [ad t05/rep.mpd:rep option null]; 6432..8000 none [primary] from 5974]
+M13-APDA-zero-executed: CAUGHT  [§5.16.2.2.1 step 3, APDA 0 not executed]  baseline PASS 3/4, mutant PASS 1/4
+    red: E7-replace-apda-zero D1 presentation: presentation[0] primary from expected 6000, observed 2004 [startup 925; observed: 0..4000 none [primary] from 2004]
+    red: E7-replace-apda-zero D1 beacons: unexpected beacon https://t.example.com/t05/rep/b0 at 0
+M14-failed-linked-period-ends-break: CAUGHT  [§5.3.2.6.3 step 2 (a Linked Period that fails is removed)]  baseline PASS 3/4, mutant PASS 0/4
+    red: E8-list-linked-period-fails D1 requests: requests[3] https://ads-cdn.example.com/t05/lc.mpd at 4000..6000: not observed
+    red: E8-list-linked-period-fails D1 selection: selection[0] event 1 of t05/list-hole-main.mpd (presented): expected linear t05/list-hole.mpd:la option null, linear t05/list-hole.mpd:lc option null; observed linear [ad t05/list-hole.mpd:la option null]
+    red: E8-list-linked-period-fails D1 beacons: beacons[1] https://t.example.com/t05/lc/imp (@id 2) expected at 6000; observed at never
+M15-all-linked-resolved-upfront: CAUGHT  [§5.3.2.6.1 not resolved earlier than PeriodStart - @earliestResolutionTimeOffset]  baseline PASS 6/8, mutant PASS 4/8
+    red: R4.2-2 D1 requests: requests[2] https://ads-cdn.example.com/b/r4-2-2/ad2.mpd expected at 2000..6000, query {}, answered_by behaviour/fixtures/R4.2/linear-ad2.mpd; observed https://ads-cdn.example.com/b/r4-2-2/ad2.mpd at 0, query {}, answere
+    red: UC-01 D1 requests: requests[2] https://ads-cdn.example.com/cr/102/cr102.mpd expected at 5000..15000, query {}, answered_by examples/annex-a/A.4-2.mpd; observed https://ads-cdn.example.com/cr/102/cr102.mpd at 0, query {}, answered_by exampl
+M16-callback-dedup-removed: NOT CAUGHT  [§5.10.2.4 a processed (@schemeIdUri, @value, @id) is ignored]  baseline PASS 2/4, mutant PASS 3/4
+M17-callbacks-left-to-dashjs: CAUGHT  [callbacks on start, as the alternative is played (not at preload)]  baseline PASS 4/4, mutant PASS 3/4
+    red: R4.8 D1 beacons: beacons[0] https://t.example.com/r4-8/start (@id 1) expected at 2000; observed at 0; unexpected beacon https://t.example.com/r4-8/start at 0
+M19-seek-no-reset: CAUGHT  [§5.16.2.2.7 return from a seek resets QE]  baseline PASS 2/4, mutant PASS 0/4
+    red: R30.2 D1 requests: requests[1] https://aps.example.com/b/r30-2/break at 6000: not observed
+    red: R30.2 D1 beacons: beacons[0] https://t.example.com/r30-2/imp (@id 1) expected at 6000; observed at never
+M20-pause-not-taken: CAUGHT  [R17.5 linear part: the linear ad is suspended and resumed]  baseline PASS 4/4, mutant PASS 2/4
+    red: E11-pause-during-linear-ad D1 presentation: observed a change at 10344 from linear [ad behaviour/fixtures/R4.8/alt.mpd:alt option null] to none [primary], which the vector does not have; presentation[2] expected a change at 12000 to none [primary from 2000]; none 
+    red: E11-pause-during-linear-ad D1 beacons: beacons[1] https://t.example.com/r4-8/end (@id 2) expected at 12000; observed at 10344; unexpected beacon https://t.example.com/r4-8/end at 10344
+M21-reset-after-termination: CAUGHT  [A.14.5: no reset at termination (the T-01 reading)]  baseline PASS 4/4, mutant PASS 1/4
+    red: E2-insert-reexecuted-after-seek D1 requests: requests[1] https://aps.example.com/t05/ins-many expected at 8000..10000, query {}, answered_by t05/ins.mpd; observed https://aps.example.com/t05/ins-many at 6130, query {}, answered_by t05/ins.mpd; unexpected request ht
+    red: E2-insert-reexecuted-after-seek D1 presentation: observed a change at 10935 from linear [ad t05/ins.mpd:ins option null] to none [primary (paused)], which the vector does not have; observed a change at 11721 from none [primary (paused)] to linear [ad t05/ins.mpd:ins op
+    red: E2-insert-reexecuted-after-seek D1 beacons: beacons[1] https://t.example.com/t05/ins/imp (@id 1) expected at 10000; observed at 6431, 11714; unexpected beacon https://t.example.com/t05/ins/imp at 6431; unexpected beacon https://t.example.com/t05/ins/imp at 11714
+M22-expired-executed: CAUGHT  [§5.16.2.2.5 2a: an event no longer active is not executed]  baseline PASS 4/4, mutant PASS 0/4
+    red: E10-join-after-eap D1 requests: unexpected request https://aps.example.com/b/r4-8/break at 0 (answered_by behaviour/fixtures/R4.8/alt.mpd)
+    red: E10-join-after-eap D1 selection: ad presented for an opportunity the vector does not list: ('behaviour/fixtures/R4.8/main.mpd', '1') (linear [ad behaviour/fixtures/R4.8/alt.mpd:alt option null])
+    red: E10-join-after-eap D1 presentation: presentation[0] 0..4000 expected none [primary from 4000]; observed linear [ad behaviour/fixtures/R4.8/alt.mpd:alt option null] from 0 to 4000 [startup 676; observed: 0..4000 linear [ad behaviour/fixtures/R4.8/alt.mpd:al
+    red: E10-join-after-eap D1 beacons: unexpected beacon https://t.example.com/r4-8/start at 4
+M23-no-preroll-gate: NOT CAUGHT  [a join inside an active interval: the alternative is the first frame]  baseline PASS 4/4, mutant PASS 4/4
+module sha256 after campaign: 3b6de89bbcff22287e2dce0243ee72bac6a0d2f30d26f3bd38529b9f49eeb2b6 (before: 3b6de89bbcff22287e2dce0243ee72bac6a0d2f30d26f3bd38529b9f49eeb2b6)
+exit=0

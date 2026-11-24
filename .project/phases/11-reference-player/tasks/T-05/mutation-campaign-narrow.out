@@ -1,0 +1,9 @@
+M18-insert-RT-is-PRT: CAUGHT  [Table 57 RT of an insertion is PRTA]  baseline PASS 4/4, mutant PASS 3/4
+    red: E9-insert-late-join D1 presentation: presentation[1] primary from expected 2500, observed 2000 [startup 603; observed: 0..8118 linear [ad behaviour/fixtures/R4.8/alt.mpd:alt option null]; 8118..10000 none [primary] from 2000]
+module sha256 after campaign: 3b6de89bbcff22287e2dce0243ee72bac6a0d2f30d26f3bd38529b9f49eeb2b6 (before: 3b6de89bbcff22287e2dce0243ee72bac6a0d2f30d26f3bd38529b9f49eeb2b6)
+exit=0
+M23-no-preroll-gate: CAUGHT  [a join inside an active interval: the alternative is the first frame]  baseline PASS 6/8, mutant PASS 4/8
+    red: E4-replace-late-noclip D1 presentation: observed a change at 6412 from linear [ad t05/rep.mpd:rep option null] to none [primary], which the vector does not have; presentation[1] expected a change at 6000 to none [primary from 10000]; none observed within 250 (
+    red: E4-replace-late-noclip D1 beacons: beacons[1] https://t.example.com/t05/rep/b2 (@id 2) expected at 2000; observed at 2298; beacons[2] https://t.example.com/t05/rep/b5 (@id 3) expected at 5000; observed at 5347; unexpected beacon https://t.example.com/t05/
+M16-callback-dedup-removed: NOT CAUGHT  [§5.10.2.4 a processed (@schemeIdUri, @value, @id) is ignored]  baseline PASS 2/4, mutant PASS 3/4
+module sha256 after campaign: 3b6de89bbcff22287e2dce0243ee72bac6a0d2f30d26f3bd38529b9f49eeb2b6 (before: 3b6de89bbcff22287e2dce0243ee72bac6a0d2f30d26f3bd38529b9f49eeb2b6)
