@@ -9,20 +9,36 @@
 // exhaustion behaviour (§4.5.10, §4.5.11, §5.2.6) and the usable lifetime of a
 // document (§5.2.5).
 //
-// What this file does NOT do: draw. Every ad surface is a minimal element at a
-// placeholder rectangle per layout token (a `custom` option at its @rect,
-// which is the token's own geometry), so that the harness can read which
-// candidate and option are on screen and when; the drawing of each layout
-// (squeezeback scaling, backgrounds, partial pause composition, IAB bounds)
-// is T-07's, and so are the beacons and the click (T-08).
+// With T-07, the presentation: each form is put on screen through the
+// compositor (sgai-compositor.js), which draws every layout token; this file
+// says what is on screen and when — the slot timeline, the suspension and
+// resumption of a form across the families (§4.5.8, §4.5.9: a pause ad over
+// an overlay, R17.1/R17.2; a pause ad over a linear ad, R17.5; a window and
+// the inherited linear events, R40.4, R40.5, R40.9), the windows declared in
+// an alternative presentation's MPD (R40.6), the takeover of a `linear`
+// option (§5.3.6), and the viewer's dismissal (§4.5.14). The beacons and the
+// click are T-08's.
 //
 // Readings this file takes where the specification leaves room (each said
 // where used):
 // - a resolution request with no answer is given up after RESOLVE_TIMEOUT_MS
 //   (PLY-39 fixes no time); a document arriving later is dropped;
-// - the slot timeline of an overlay is the primary's media time from the
-//   execution's start (PLY-31: a pause does not accrue); a pause slot runs on
-//   the wall clock while the viewer is paused;
+// - the slot timeline of an overlay accrues the media time the presentation
+//   that declares its window advances (PLY-31: a pause does not accrue; at
+//   rate r a form of d s is on screen d/r s, PLY-69), plus, for an `on-top`
+//   window composited over an alternative presentation, the time that
+//   presentation advances (R40.5); a `linear` takeover accrues its own
+//   playback; a pause slot runs on the wall clock while the viewer is paused;
+// - the default relation is context/03's R40.9 and R40.4, not the spec's
+//   PLY-49: a form on screen when an alternative presentation begins is
+//   suspended and resumed in the same execution if the presentation that
+//   declares it comes back inside the window's range (the tests follow
+//   context/03; T-04 part C finding 2 records the disagreement);
+// - a `linear` takeover on a static presentation pauses the primary and
+//   resumes it where it stood; on a dynamic one the primary runs on hidden
+//   (§5.3.6);
+// - `@dismissAfter` absent means not dismissible (APS-19); the delay runs on
+//   the slot timeline from the first candidate on screen (PLY-74);
 // - options are validated and their resources fetched when the document
 //   arrives (an image's or HTML's first request, a video's sub-MPD), so that a
 //   first-request failure moves to the next option before the window starts
@@ -37,7 +53,9 @@
 //   primary's decoder, PLY-56 is a permission).
 //
 // For the other families: `ref.nonlinear` is this object; `active` says an
-// overlay or pause ad is on screen.
+// overlay or pause ad is on screen; `attachAlternative({player, video, url,
+// part})` is called by the linear family for each alternative presentation's
+// player before it is initialised.
 (function (global) {
   const OVERLAY = 'urn:svta:dash:sgai-overlay:2026';
   const PAUSE = 'urn:svta:dash:sgai-pause-trigger:2026';
@@ -60,21 +78,7 @@
       'squeezeback-l-shape-upper-right', 'squeezeback-double-box', 'squeezeback-double-box-background'],
     pause: ['pause-fullscreen', 'pause-partial'],
   };
-  // Placeholder rectangles (x, y, w, h in % of the viewport) until T-07 draws
-  // each layout; `custom` uses the option's @rect.
-  const PLACE = {
-    overlay: [10, 70, 80, 20],
-    'overlay-corner': [75, 75, 25, 25],
-    'overlay-lower-third': [0, 70, 100, 30],
-    'squeezeback-l-shape-upper-left': [0, 60, 100, 40],
-    'squeezeback-l-shape-upper-right': [0, 60, 100, 40],
-    'squeezeback-double-box': [50, 25, 50, 50],
-    'squeezeback-double-box-background': [50, 25, 50, 50],
-    linear: [0, 0, 100, 100],
-    'pause-fullscreen': [0, 0, 100, 100],
-    'pause-partial': [25, 25, 50, 50],
-  };
-  const COVERS_PRIMARY = new Set(['linear', 'pause-fullscreen']);
+  const MAX_STEP = 1.0;                // s: a larger advance in one tick is a jump, not playback
 
   const num = (v, d) => (v === undefined || v === null || v === '' ? d : Number(v));
   const str = (v) => (v === undefined || v === null ? null : String(v));
@@ -142,6 +146,14 @@
     return null;
   }
 
+  // @dismissAfter (§5.2.4): seconds before the slot may be dismissed;
+  // absent or "never", not dismissible (APS-19).
+  function dismissDelay(v) {
+    if (v === null || v === undefined || v === 'never') return Infinity;
+    const d = isoDuration(v);
+    return isFinite(d) ? d : Infinity;
+  }
+
   function rectOf(v) {
     const r = String(v || '').trim().split(/\s+/).map(Number);
     return r.length === 4 && r.every((x) => isFinite(x)) ? r : null;
@@ -149,7 +161,7 @@
 
   // One overlay or pause window, from its Event and its child element.
   class Window {
-    constructor(family, e, child, order, mpdUrl) {
+    constructor(family, e, child, order, tl) {
       const es = e.eventStream;
       const ts = es.timescale || 1;
       const period = es.period;
@@ -157,7 +169,8 @@
       this.family = family;                       // 'overlay' | 'pause'
       this.id = String(e.id);
       this.order = order;                         // position inside its EventStream
-      this.opportunityDoc = mpdUrl;
+      this.tl = tl;                               // the presentation that declares it
+      this.opportunityDoc = tl.doc;
       this.ts = ts;
       this.PT = e.calculatedPresentationTime;     // s
       const dur = e.duration;
@@ -194,7 +207,6 @@
     resetEntry() {
       this.failed = false;      // this execution attempt produced no ad
       this.executed = false;    // an execution started in this entry of the span
-      this.cut = false;         // an alternative presentation began in the span (PLY-49)
     }
   }
 
@@ -204,59 +216,79 @@
       this.main = ref.video;
       this.log = ref.log;
       this.windows = new Map();   // key -> Window
-      this.chains = { overlay: [], pause: [] };
+      this.timelines = [];        // the presentations whose windows are read: the main one, then alternatives
       this.execs = [];            // active overlay executions
       this.pauseSlot = null;      // the active pause slot
       ref.nonlinear = this;
     }
 
-    get active() { return this.execs.some((x) => x.shown) || !!(this.pauseSlot && this.pauseSlot.shown); }
+    get active() { return this.execs.some((x) => x.h && !x.h.suspended) || !!(this.pauseSlot && this.pauseSlot.shown); }
 
     get caps() { return this.ref.profile.capabilities || {}; }
 
     attach(player) {
       this.player = player;
-      const ev = dashjs.MediaPlayer.events;
-      // §5.1.3: both window schemes are dispatched on receive.
-      for (const scheme of [OVERLAY, PAUSE]) {
-        player.on(scheme, (e) => this.onReceive(e), null, { mode: ev.EVENT_MODE_ON_RECEIVE });
-      }
-      player.on(ev.STREAM_INITIALIZED, () => { this.streamReady = true; });
-      // Any seek of the primary ends the executions on screen and starts a
-      // new entry of every span (R34.6: a seek back is a new execution).
-      this.main.addEventListener('seeking', () => this.onSeek());
+      this.mainTl = this.timeline({ key: 'main', player, video: this.main, url: this.ref.url, part: null });
+      this.mainTl.ready = () => this.streamReady;
+      this.ref.video.addEventListener('ratechange', () => this.syncRates());
       this.timer = setInterval(() => this.tick(), TICK_MS);
     }
 
-    onReceive(payload) {
+    // A presentation whose MPD may declare windows: the main one, or an
+    // alternative presentation the linear family plays (R40.6, PLY-51).
+    timeline({ key, player, video, url, part }) {
+      const ev = dashjs.MediaPlayer.events;
+      const tl = { key, player, video, doc: url, part, main: !part, seeks: 0, chains: { overlay: [], pause: [] }, init: false };
+      tl.time = () => video.currentTime;
+      tl.live = () => !part || part.video === video;
+      tl.ready = () => tl.init;
+      // §5.1.3: both window schemes are dispatched on receive.
+      for (const scheme of [OVERLAY, PAUSE]) {
+        player.on(scheme, (e) => this.onReceive(e, tl), null, { mode: ev.EVENT_MODE_ON_RECEIVE });
+      }
+      player.on(ev.STREAM_INITIALIZED, () => { tl.init = true; if (tl.main) this.streamReady = true; });
+      // Any seek of this presentation is a jump of its timeline: no slot time
+      // accrues across it. Only the viewer's seek starts a new entry of the
+      // spans (act, R34.6); the seek back to RT after a replacement does not.
+      video.addEventListener('seeking', () => { tl.seeks += 1; });
+      this.timelines.push(tl);
+      return tl;
+    }
+
+    attachAlternative({ player, video, url, part }) {
+      const tl = this.timeline({ key: 'alt' + this.timelines.length, player, video, url, part });
+      this.log('nonlinear:alternative', { key: tl.key, url });
+    }
+
+    onReceive(payload, tl) {
       const e = payload.event;
       const es = e.eventStream;
       const scheme = es.schemeIdUri;
-      const key = scheme + '#' + e.id + '#' + (es.period ? es.period.id : '');
+      const key = tl.key + '#' + scheme + '#' + e.id + '#' + (es.period ? es.period.id : '');
       if (this.windows.has(key)) return;   // dash.js dispatches again after a seek
       const family = scheme === OVERLAY ? 'overlay' : 'pause';
-      const { el, order } = findWindow(this.player.getManifest(), scheme, e.id, es.period && es.period.index);
-      const w = new Window(family, e, el, order, this.ref.url);
+      const { el, order } = findWindow(tl.player.getManifest(), scheme, e.id, es.period && es.period.index);
+      const w = new Window(family, e, el, order, tl);
       w.key = key;
       this.windows.set(key, w);
       this.log('nonlinear:receive', { key, family, PT: w.PT, end: w.end, ERT: w.ERT, capUnits: w.capUnits, ts: w.ts,
         admitted: w.admitted, relation: w.linearRelation, executeOnce: w.executeOnce, fires: w.fires, why: w.why });
       // PLY-48: a superseding window keeps the inherited linear events inside
       // its span from being resolved or executed until it presents no ad.
-      if (w.linearRelation === 'supersede' && this.ref.linear) {
+      if (w.linearRelation === 'supersede' && this.ref.linear && tl.main) {
         if (!w.fires) w.released = true;
         else {
           const off = this.ref.linear.addSuppressor((E) => !w.released && E.PRT >= w.PT - 1e-6 && E.PRT < w.end);
           w.release = () => { if (!w.released) { w.released = true; off(); this.log('nonlinear:supersede-released', { key }); } };
         }
       }
-      if (w.fires) this.rebuildChains(family);
+      if (w.fires) this.rebuildChains(tl, family);
     }
 
     // §4.5.6, PLY-40: windows of one family whose spans overlap are a chain,
     // ordered by presentation time and, for equal ones, by document order.
-    rebuildChains(family) {
-      const ws = [...this.windows.values()].filter((w) => w.family === family && w.fires)
+    rebuildChains(tl, family) {
+      const ws = [...this.windows.values()].filter((w) => w.tl === tl && w.family === family && w.fires)
         .sort((a, b) => (a.PT - b.PT) || (a.order - b.order));
       const chains = [];
       for (const w of ws) {
@@ -264,13 +296,15 @@
         if (last && w.PT < last.end) { last.windows.push(w); last.end = Math.max(last.end, w.end); } else chains.push({ windows: [w], end: w.end });
       }
       for (const c of chains) c.windows.forEach((w) => { w.chain = c; });
-      this.chains[family] = chains;
+      tl.chains[family] = chains;
     }
 
-    onSeek() {
-      for (const x of this.execs.slice()) this.endExec(x, 'seek');
-      for (const w of this.windows.values()) w.resetEntry();
-      this.log('nonlinear:seek', { to: this.main.currentTime });
+    // The viewer's seek of the primary ends the executions of its windows and
+    // starts a new entry of every span (R34.6: a seek back is a new execution).
+    onSeek(to) {
+      for (const x of this.execs.slice()) if (x.w.tl.main) this.endExec(x, 'seek');
+      for (const w of this.windows.values()) if (w.tl.main) w.resetEntry();
+      this.log('nonlinear:seek', { from: this.main.currentTime, to });
     }
 
     // ------------------------------------------------------------------ resolution
@@ -336,6 +370,7 @@
       const out = {
         url, receivedAt: now(), validFor: isFinite(validFor) ? validFor : null,
         onExhausted: root.getAttribute('onExhausted') || 'stop',
+        dismissAfter: dismissDelay(root.getAttribute('dismissAfter')),
         ads: children(root, 'Ad', SVTA), plan: [],
       };
       for (let i = 0; i < out.ads.length; i++) {
@@ -360,8 +395,18 @@
         const src = new URL(o.getAttribute('src'), docUrl).href;
         const loaded = await this.load(f, src, o);
         if (!loaded.ok) { this.log('nonlinear:option-skipped', { key: w.key, option: k + 1, layout, why: loaded.reason }); continue; }
+        let background = null;
+        if (layout === 'squeezeback-double-box-background') {
+          // §5.3.6: the background is always a still image; its first request
+          // failing makes the option unsatisfiable, as the ad's would (R5.9).
+          const b = o.getAttribute('background');
+          const bsrc = b ? new URL(b, docUrl).href : null;
+          const ok = bsrc && await new Promise((r) => { const i = new Image(); i.onload = () => r(true); i.onerror = () => r(false); i.src = bsrc; });
+          if (!ok) { this.log('nonlinear:option-skipped', { key: w.key, option: k + 1, layout, why: bsrc ? `the background's first request failed (R5.9)` : 'no @background' }); continue; }
+          background = bsrc;
+        }
         return { option: { index: k + 1, id: o.getAttribute('id') }, layout, form: f, src, rect: rectOf(o.getAttribute('rect')),
-          duration: loaded.duration, make: loaded.make };
+          duration: loaded.duration, make: loaded.make, background };
       }
       return null;
     }
@@ -458,22 +503,42 @@
 
     tick() {
       if (!this.streamReady || this.main.readyState < 1) return;
-      const php = this.main.currentTime;
-      const linear = this.ref.linear && this.ref.linear.active;
-      for (const chain of this.chains.overlay) this.processChain(chain, php, linear);
-      for (const x of this.execs.slice()) this.advance(x, php, linear);
-      for (const chain of this.chains.pause) this.preResolvePause(chain, php);
+      const linear = this.ref.linear;
+      for (const tl of this.timelines.slice()) {
+        if (!tl.live()) { this.dropTimeline(tl); continue; }
+        // An alternative's windows run while it is on screen (PLY-51).
+        if (!tl.main && !(tl.part && tl.part.shown)) continue;
+        if (!tl.ready() || tl.video.readyState < 1) continue;
+        const php = tl.time();
+        const over = tl.main && !!(linear && linear.active);
+        for (const chain of tl.chains.overlay) this.processChain(chain, tl, php, over);
+      }
+      for (const x of this.execs.slice()) this.advance(x);
+      for (const tl of this.timelines) {
+        if (!tl.main && !(tl.part && tl.part.shown)) continue;
+        for (const chain of tl.chains.pause) this.preResolvePause(chain, tl.time());
+      }
       if (this.pauseSlot) this.advancePause(this.pauseSlot);
+      if (this.ref.compositor) this.ref.compositor.refresh();
+    }
+
+    // An alternative presentation that ended takes its windows with it: a
+    // form on its content ends with it (R40.9: anchored to the presentation
+    // that declares it).
+    dropTimeline(tl) {
+      this.timelines.splice(this.timelines.indexOf(tl), 1);
+      for (const x of this.execs.slice()) if (x.w.tl === tl) this.endExec(x, 'the presentation that declares the window ended');
+      for (const [k, w] of this.windows) if (w.tl === tl) this.windows.delete(k);
+      this.log('nonlinear:alternative-gone', { key: tl.key });
     }
 
     // The current window of a chain is its first that has not failed in this
     // entry (PLY-38); only it is resolved, ahead from PT − offset (PLY-6), and
     // executed when the playhead is in its span.
-    processChain(chain, php, linear) {
+    processChain(chain, tl, php, over) {
       if (chain.windows.some((w) => w.executed)) return;
       const w = chain.windows.find((x) => !x.failed);
       if (!w) return;
-      if (linear && php >= w.PT && php < w.end && w.linearRelation !== 'on-top') w.cut = true;
       if (php >= w.end - EPS) {
         // The span passed without an execution: nothing was presented.
         if (!w.inflight) this.fail(w, 'the span ended without a presentation');
@@ -487,10 +552,13 @@
         this.resolve(w, 'early').then((r) => { if (r.failed) this.fail(w, r.failed); });
         return;
       }
-      if (php < w.PT || w.cut || linear) return;
+      if (php < w.PT) return;
+      // R40.9 default: nothing is presented while an alternative presentation
+      // is output; `on-top` is composited over it (R40.5).
+      if (over && w.linearRelation !== 'on-top') return;
       // Nothing is composited before the primary's first frame is shown (the
       // linear family keeps it hidden until its first processing has run).
-      if (this.ref.linear && this.ref.linear.gated) return;
+      if (tl.main && this.ref.linear && this.ref.linear.gated) return;
       if (w.doc && (this.usable(w, php) || w.doc.fresh)) { this.fire(w); return; }
       // PLY-9: not usable when the opportunity fires: a new request, whose
       // document serves this opportunity whatever its @validFor.
@@ -502,7 +570,7 @@
     fail(w, reason) {
       if (w.failed) return;
       w.failed = true;
-      this.log('nonlinear:failed', { key: w.key, reason, php: this.main.currentTime });
+      this.log('nonlinear:failed', { key: w.key, reason, php: w.tl.time() });
       if (w.release) w.release();
     }
 
@@ -522,7 +590,7 @@
     // timeline, the cap applied to the cumulative duration with each declared
     // duration converted to the cap's timescale and rounded up.
     execute(w, d) {
-      const php = this.main.currentTime;
+      const php = w.tl.time();
       w.executed = true;
       const plan = [];
       let cumUnits = 0;
@@ -537,93 +605,200 @@
         plan.push({ c, start: t, shown });
         t += shown;
       }
-      const x = { w, d, PRTA: php, plan, k: -1, el: null, shown: false, stall: null };
+      const x = { w, d, PRTA: php, plan, k: -1, h: null, el: null, slotT: 0, lastT: php, seeks: w.tl.seeks,
+        lastAlt: null, lastAd: null, lastWall: null, overAlt: null, heldMain: false, stall: null, shownAt: null };
       this.execs.push(x);
       this.log('nonlinear:execute', { key: w.key, PRTA: php, capUnits: w.capUnits, ts: w.ts,
         plan: plan.map((p) => ({ candidate: p.c.index, option: p.c.option.index, layout: p.c.layout,
-          start: p.start, shown: p.shown, until: php + p.start + p.shown })), windowEnd: w.end });
-      this.advance(x, php, false);
+          start: p.start, shown: p.shown })), windowEnd: w.end });
+      this.advance(x);
     }
 
-    advance(x, php, linear) {
+    // The <video> a form of this execution composes with: the presentation
+    // that declares the window or, for an `on-top` window over an alternative
+    // presentation, that presentation (R40.5).
+    contentOf(x) {
+      const lin = this.ref.linear;
+      if (x.w.tl.main && x.w.linearRelation === 'on-top' && lin && lin.video) return lin.video;
+      return x.w.tl.video;
+    }
+
+    // The time the slot timeline advanced since the last tick (s).
+    accrue(x) {
       const w = x.w;
-      const slotT = php - x.PRTA;
-      // PLY-49: a form on screen when an alternative presentation begins ends there.
-      if (linear && w.linearRelation !== 'on-top') { w.cut = true; this.endExec(x, 'an alternative presentation began'); return; }
+      const tl = w.tl;
+      const lin = this.ref.linear;
+      const step = (d) => (d >= 0 && d <= MAX_STEP ? d : 0);
+      let d = 0;
+      const p = x.plan[x.k];
+      if (p && p.c.layout === 'linear') {
+        // A takeover runs on its own playback (a video), or on the wall clock
+        // at the primary's rate (an image or HTML).
+        const v = x.el;
+        if (v && v.tagName === 'VIDEO') {
+          if (x.lastAd !== null && v.readyState >= 2) d += step(v.currentTime - x.lastAd);
+          x.lastAd = v.readyState >= 2 ? v.currentTime : x.lastAd;
+        } else {
+          const t = now();
+          if (x.lastWall !== null && !this.pauseSlot) d += step((t - x.lastWall) / 1000 * (this.main.playbackRate || 1));
+          x.lastWall = t;
+        }
+      } else {
+        const t = tl.time();
+        if (tl.seeks === x.seeks) d += step(t - x.lastT);
+        x.seeks = tl.seeks;
+        x.lastT = t;
+      }
+      // R40.5: while composited over an alternative presentation, the slot
+      // accrues on that presentation's timeline.
+      const a = tl.main && w.linearRelation === 'on-top' && lin ? lin.position : null;
+      if (a !== null && x.lastAlt !== null) d += step(a - x.lastAlt);
+      x.lastAlt = a;
+      return d;
+    }
+
+    advance(x) {
+      const w = x.w;
+      const tl = w.tl;
+      const lin = this.ref.linear;
+      const over = tl.main && !!(lin && lin.active);
+      x.slotT += this.accrue(x);
+      const php = tl.time();
+      // R40.5: a form composited over an alternative presentation ends when
+      // that presentation ends.
+      if (over && w.linearRelation === 'on-top' && lin.onScreen && x.h) x.overAlt = lin.alt;
+      if (x.overAlt && (!lin || lin.alt !== x.overAlt)) { this.endExec(x, 'the alternative presentation it was composited over ended (R40.5)'); return; }
       if (php >= w.end - EPS) { this.endExec(x, 'the span ended'); return; }
-      const k = x.plan.findIndex((p) => slotT >= p.start - 1e-6 && slotT < p.start + p.shown - 1e-6);
+      // R40.9 default: suspended while an alternative presentation is output,
+      // resumed in the same execution when the content comes back inside the
+      // range (R40.4).
+      if (over && w.linearRelation !== 'on-top') {
+        if (x.h && !x.h.suspended) { x.h.suspend(); this.syncAd(x, false); this.log('nonlinear:suspend', { key: w.key, slotT: x.slotT, why: 'an alternative presentation is output (R40.9)' }); }
+        return;
+      }
+      if (x.h && x.h.suspended && !this.pauseShown()) { x.h.resume(); this.log('nonlinear:resume', { key: w.key, slotT: x.slotT }); }
+      const k = x.plan.findIndex((p) => x.slotT >= p.start - 1e-6 && x.slotT < p.start + p.shown - 1e-6);
       if (k < 0) {
-        if (slotT >= (x.plan.length ? x.plan[x.plan.length - 1].start + x.plan[x.plan.length - 1].shown : 0) - 1e-6) this.endExec(x, 'candidates exhausted or the cap reached');
+        const last = x.plan[x.plan.length - 1];
+        if (x.slotT >= (last ? last.start + last.shown : 0) - 1e-6) this.endExec(x, 'candidates exhausted or the cap reached');
         return;
       }
       if (k !== x.k) this.showCandidate(x, k);
+      // PLY-52: during a pause ad, the overlay is suspended (the compositor
+      // keeps the pause ad the only form on screen).
+      this.syncAd(x, this.contentPlaying(x) && !this.pauseShown());
       this.watchStall(x);
-      // PLY-52: during a pause ad, the overlay is not visible.
-      if (x.el) x.el.style.visibility = this.pauseSlot && this.pauseSlot.shown ? 'hidden' : 'visible';
     }
+
+    pauseShown() { return !!(this.pauseSlot && this.pauseSlot.shown); }
+
+    // Whether the content under an execution's form is playing.
+    contentPlaying(x) {
+      const p = x.plan[x.k];
+      if (p && p.c.layout === 'linear') return !this.pauseShown();
+      const v = this.contentOf(x);
+      return !!v && !v.paused;
+    }
+
+    // A video form plays while its slot timeline runs, at the content's rate
+    // (R19.1), and stands still while it does not.
+    syncAd(x, playing) {
+      const v = x.el;
+      if (!v || !v.sgaiPlayer || !x.started) return;
+      const rate = (this.contentOf(x) || this.main).playbackRate || 1;
+      if (v.playbackRate !== rate) v.sgaiPlayer.setPlaybackRate(rate);
+      if (playing && v.paused && !v.ended) v.sgaiPlayer.play();
+      else if (!playing && !v.paused) v.sgaiPlayer.pause();
+    }
+
+    syncRates() { for (const x of this.execs) if (x.el && x.el.sgaiPlayer && x.started) this.syncAd(x, !x.el.paused); }
 
     showCandidate(x, k) {
       this.removeSurface(x);
       x.k = k;
       const p = x.plan[k];
-      const el = this.surface(p.c, x.w);
+      const c = p.c;
+      const el = c.make();
+      this.identify(el, c, x.w, 'ad');
+      let bg = null;
+      if (c.background) {
+        bg = new Image();
+        bg.src = c.background;
+        this.identify(bg, c, x.w, 'background');
+      }
       x.el = el;
       x.stall = null;
+      x.started = false;
+      x.lastAd = null;
+      x.lastWall = null;
+      if (x.shownAt === null) x.shownAt = x.slotT;
+      // §5.3.6: a takeover on a static presentation suspends the primary and
+      // resumes it where it stood; on a dynamic one the primary runs on.
+      if (c.layout === 'linear' && x.w.tl.main && !this.isDynamic() && !this.main.paused) {
+        this.player.pause();
+        x.heldMain = true;
+      } else if (c.layout !== 'linear') this.releaseMain(x);
+      x.h = this.ref.compositor.present(el, c.layout, { kind: 'overlay', rect: c.rect, background: bg, content: () => this.contentOf(x) });
       if (el.sgaiPlayer) {
         const v = el;
-        const start = () => { v.sgaiPlayer.setPlaybackRate(this.main.playbackRate || 1); v.sgaiPlayer.play(); };
+        const start = () => {
+          if (x.el !== v) return;
+          x.started = true;
+          v.sgaiPlayer.setPlaybackRate((this.contentOf(x) || this.main).playbackRate || 1);
+          v.sgaiPlayer.play();
+        };
         v.addEventListener('playing', () => { x.stall = { t: now(), at: v.currentTime, php: this.main.currentTime }; }, { once: true });
         if (v.readyState >= 1) start(); else v.sgaiPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, start);
       }
-      x.shown = true;
-      this.ref.container.dataset.sgaiLayout = p.c.layout;
-      this.log('nonlinear:show', { key: x.w.key, candidate: p.c.index, option: p.c.option.index, layout: p.c.layout,
-        php: this.main.currentTime, slotT: this.main.currentTime - x.PRTA });
+      this.log('nonlinear:show', { key: x.w.key, candidate: c.index, option: c.option.index, layout: c.layout,
+        php: x.w.tl.time(), slotT: x.slotT });
     }
 
-    // PLY-86: a video option that stops advancing while the primary plays, or
-    // that dash.js reports in error, has failed at runtime and is aborted.
+    isDynamic() { try { return this.player.isDynamic(); } catch (e) { return false; } }
+
+    releaseMain(x) {
+      if (!x.heldMain) return;
+      x.heldMain = false;
+      if (!this.pauseSlot) this.player.play();
+    }
+
+    // The identity the harness reads (sgai-reference.js, the observation contract).
+    identify(el, c, w, element) {
+      const d = el.dataset;
+      d.sgaiElement = element;
+      d.sgaiDoc = c.doc;
+      d.sgaiCandidateIndex = String(c.index);
+      d.sgaiOptionIndex = String(c.option.index);
+      d.sgaiOpportunityDoc = w.opportunityDoc;
+      d.sgaiOpportunityEvent = w.id;
+    }
+
+    // PLY-86: a video option that stops advancing while its content plays,
+    // or that dash.js reports in error, has failed at runtime and is aborted.
     watchStall(x) {
       const v = x.el;
       if (!v || !v.sgaiPlayer) return;
       if (v.sgaiError) { this.abort(x, `video error: ${v.sgaiError}`); return; }
       const s = x.stall;
       if (!s || v.ended) return;
-      if (v.currentTime > s.at + 0.001 || this.main.paused) { x.stall = { t: now(), at: v.currentTime, php: this.main.currentTime }; return; }
-      if (now() - s.t > STALL_MS && this.main.currentTime > s.php + 0.5) this.abort(x, `video stalled ${Math.round(now() - s.t)} ms at ${v.currentTime.toFixed(3)} s`);
+      const content = this.contentOf(x) || this.main;
+      if (v.currentTime > s.at + 0.001 || content.paused || v.paused) { x.stall = { t: now(), at: v.currentTime, php: content.currentTime }; return; }
+      if (now() - s.t > STALL_MS && content.currentTime > s.php + 0.5) this.abort(x, `video stalled ${Math.round(now() - s.t)} ms at ${v.currentTime.toFixed(3)} s`);
     }
 
     abort(x, reason) {
-      this.log('nonlinear:abort', { key: x.w.key, reason, php: this.main.currentTime });
+      this.log('nonlinear:abort', { key: x.w.key, reason, php: x.w.tl.time() });
       this.endExec(x, 'aborted (PLY-86)');
-    }
-
-    // The ad surface of a candidate's selected option, with the identity the
-    // harness reads (sgai-reference.js, the observation contract).
-    surface(c, w) {
-      const el = c.make();
-      const r = c.layout === 'custom' && c.rect ? c.rect : PLACE[c.layout] || PLACE.overlay;
-      el.style.cssText = `position:absolute;left:${r[0]}%;top:${r[1]}%;width:${r[2]}%;height:${r[3]}%;`
-        + 'object-fit:fill;z-index:2;visibility:visible;border:0;margin:0;padding:0' + (el.tagName === 'IFRAME' ? ';background:#fff' : '');
-      const d = el.dataset;
-      d.sgaiElement = 'ad';
-      d.sgaiDoc = c.doc;
-      d.sgaiCandidateIndex = String(c.index);
-      d.sgaiOptionIndex = String(c.option.index);
-      d.sgaiOpportunityDoc = w.opportunityDoc;
-      d.sgaiOpportunityEvent = w.id;
-      this.ref.container.appendChild(el);
-      if (COVERS_PRIMARY.has(c.layout)) this.main.style.visibility = 'hidden';
-      return el;
     }
 
     removeSurface(x) {
       const el = x.el;
       if (!el) return;
       if (el.sgaiPlayer) { try { el.sgaiPlayer.reset(); } catch (e) { /* gone */ } el.sgaiPlayer = null; }
-      el.remove();
+      if (x.h) x.h.remove();
+      else el.remove();
+      x.h = null;
       x.el = null;
-      if (!(this.ref.linear && this.ref.linear.active)) this.main.style.visibility = 'visible';
     }
 
     endExec(x, why) {
@@ -631,8 +806,83 @@
       if (i < 0) return;
       this.execs.splice(i, 1);
       this.removeSurface(x);
-      if (x.shown && !this.active && !(this.ref.linear && this.ref.linear.active)) this.ref.container.dataset.sgaiLayout = 'none';
-      this.log('nonlinear:end', { key: x.w.key, why, php: this.main.currentTime, slotT: this.main.currentTime - x.PRTA });
+      this.releaseMain(x);
+      this.log('nonlinear:end', { key: x.w.key, why, php: x.w.tl.time(), slotT: x.slotT });
+    }
+
+    // ------------------------------------------------------------------ the viewer's actions
+
+    act(action) {
+      const lin = this.ref.linear;
+      const linearOn = !!(lin && lin.active);
+      switch (action.do) {
+        case 'pause': return this.pause(linearOn);
+        case 'resume': {
+          const slot = this.pauseSlot;
+          if (!slot) return null;
+          this.closePause('resume');
+          // PLY-60: back to what the pause interrupted, at once.
+          if (slot.overLinear && lin) { lin.resumeAd(); return { done: 'pause ad removed, linear ad resumed' }; }
+          this.player.play();
+          return { done: 'pause ad removed, primary resumed' };
+        }
+        case 'dismiss': return this.dismiss();
+        case 'seek':
+          // The viewer's seek: a new entry of every span (R34.6). The linear
+          // family or the core moves the playhead.
+          if (!linearOn) this.onSeek(action.to);
+          return null;
+        default: return null;
+      }
+    }
+
+    // A pause inside a pause window opens a pause slot (PLY-11). Over a
+    // linear ad, the windows applicable to it are those of its own MPD and
+    // the main presentation's `on-top` ones (PLY-55, R17.5); the linear ad
+    // is suspended, and resumed where it was on resume.
+    pause(linearOn) {
+      const ws = [];
+      for (const tl of this.timelines) {
+        if (linearOn ? (tl.part && !tl.part.shown) : !tl.main) continue;
+        const php = tl.time();
+        for (const chain of tl.chains.pause) {
+          for (const w of chain.windows) {
+            if (linearOn && tl.main && w.linearRelation !== 'on-top') continue;
+            if (php >= w.PT && php < w.end) ws.push(w);
+          }
+        }
+      }
+      if (!ws.length) return null;
+      if (linearOn) this.ref.linear.suspend();
+      else this.player.pause();
+      for (const x of this.execs) this.syncAd(x, false);
+      const slot = { windows: ws, i: 0, plan: null, k: -1, el: null, h: null, shown: false, again: 0,
+        php: ws[0].tl.time(), overLinear: linearOn };
+      this.pauseSlot = slot;
+      this.log('nonlinear:pause', { php: slot.php, overLinear: linearOn, windows: ws.map((w) => w.key) });
+      this.tryPauseWindow(slot);
+      return { done: linearOn ? 'linear ad suspended inside a pause window' : 'primary paused inside a pause window' };
+    }
+
+    // PLY-74, PLY-75: a dismissal ends the whole slot on screen once its
+    // delay has elapsed on the slot timeline.
+    dismiss() {
+      const slot = this.pauseSlot;
+      if (slot && slot.shown) {
+        const t = (now() - slot.firstShown) / 1000;
+        if (!(t >= slot.d.dismissAfter - 1e-6)) return { done: null, reason: `the pause slot is not dismissible (after ${slot.d.dismissAfter} s; ${t.toFixed(3)} s shown)` };
+        this.clearPauseSurface(slot);
+        slot.plan = null;
+        slot.stopped = true;   // no repeat, no request-again (PLY-75)
+        this.log('nonlinear:dismissed', { key: slot.w.key, after: t });
+        return { done: 'pause slot dismissed; the paused frame stays until the resume' };
+      }
+      const x = this.execs.find((e) => e.h && !e.h.suspended);
+      if (!x) return null;
+      const t = x.slotT - (x.shownAt || 0);
+      if (!(t >= x.d.dismissAfter - 1e-6)) return { done: null, reason: `the slot is not dismissible (after ${x.d.dismissAfter} s; ${t.toFixed(3)} s shown)` };
+      this.endExec(x, 'dismissed by the viewer (R35.4)');
+      return { done: 'slot dismissed' };
     }
 
     // ------------------------------------------------------------------ the pause family
@@ -645,30 +895,6 @@
       const w = chain.windows.find((x) => !x.consumed);
       if (!w || w.doc || w.inflight || w.preResolved) return;
       if (php >= w.PT - w.ERT - 1e-6 && php < w.end) { w.preResolved = true; this.resolve(w, 'early'); }
-    }
-
-    // A viewer action. A pause inside a pause window opens a pause slot
-    // (PLY-11); a resume closes it (PLY-57, PLY-60).
-    act(action) {
-      if (this.ref.linear && this.ref.linear.active) return null;   // R17.5 is the linear family's and T-07's
-      if (action.do === 'pause') {
-        const php = this.main.currentTime;
-        const ws = [];
-        for (const chain of this.chains.pause) for (const w of chain.windows) if (php >= w.PT && php < w.end) ws.push(w);
-        if (!ws.length) return null;
-        this.player.pause();
-        const slot = { windows: ws, i: 0, plan: null, k: -1, el: null, shown: false, startedAt: null, again: 0, php };
-        this.pauseSlot = slot;
-        this.log('nonlinear:pause', { php, windows: ws.map((w) => w.key) });
-        this.tryPauseWindow(slot);
-        return { done: 'primary paused inside a pause window' };
-      }
-      if (action.do === 'resume' && this.pauseSlot) {
-        this.closePause('resume');
-        this.player.play();
-        return { done: 'pause ad dismissed, primary resumed' };
-      }
-      return null;
     }
 
     tryPauseWindow(slot) {
@@ -703,6 +929,7 @@
       // PLY-32: the cap bounds nothing on a pause slot.
       for (const c of d.plan) { slot.plan.push({ c, start: t, shown: c.duration }); t += c.duration; }
       this.log('nonlinear:pause-plan', { key: w.key, onExhausted: d.onExhausted, plan: slot.plan.map((p) => [p.c.index, p.c.option.index, p.c.layout, p.shown]) });
+      this.advancePause(slot);
     }
 
     advancePause(slot) {
@@ -722,7 +949,7 @@
       if (how === 'request-again' && !slot.stopped) {
         const w = slot.w;
         this.resolve(w, 'request-again').then((r) => {
-          if (this.pauseSlot !== slot) return;
+          if (this.pauseSlot !== slot || slot.stopped) return;
           // PLY-66: a document carrying no candidates ends the pause's ads.
           if (r.failed || !r.plan.length) { slot.stopped = true; this.log('nonlinear:pause-stop', { key: w.key, reason: r.failed || 'no candidates (PLY-66)' }); return; }
           this.startPausePlan(slot, w, r);
@@ -735,14 +962,18 @@
       this.clearPauseSurface(slot);
       slot.k = k;
       const c = slot.plan[k].c;
-      const el = this.surface(c, slot.w);
+      const el = c.make();
+      this.identify(el, c, slot.w, 'ad');
+      const lin = this.ref.linear;
+      slot.h = this.ref.compositor.present(el, c.layout, { kind: 'pause', rect: c.rect,
+        content: () => (slot.overLinear && lin && lin.video) || this.main });
       if (el.sgaiPlayer) {
         const start = () => el.sgaiPlayer.play();
         if (el.readyState >= 1) start(); else el.sgaiPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, start);
       }
       slot.el = el;
       slot.shown = true;
-      this.ref.container.dataset.sgaiLayout = c.layout;
+      if (slot.firstShown === undefined) slot.firstShown = now();
       // PLY-64: consumed when a pause ad begins rendering.
       if (slot.w.executeOnce && !slot.w.consumed) { slot.w.consumed = true; this.log('nonlinear:consumed', { key: slot.w.key }); }
       this.log('nonlinear:pause-show', { key: slot.w.key, candidate: c.index, option: c.option.index, layout: c.layout });
@@ -751,18 +982,19 @@
     clearPauseSurface(slot) {
       if (!slot.el) return;
       if (slot.el.sgaiPlayer) { try { slot.el.sgaiPlayer.reset(); } catch (e) { /* gone */ } slot.el.sgaiPlayer = null; }
-      slot.el.remove();
-      slot.el = null;
       slot.shown = false;
-      this.main.style.visibility = 'visible';
-      const on = this.execs.find((x) => x.el);
-      this.ref.container.dataset.sgaiLayout = on ? on.plan[on.k].c.layout : 'none';
+      if (slot.h) slot.h.remove(); else slot.el.remove();
+      slot.h = null;
+      slot.el = null;
     }
 
+    // PLY-57: the pause ad leaves the screen in this same task, so the next
+    // frame the compositor produces no longer has it.
     closePause(why) {
       const slot = this.pauseSlot;
-      this.clearPauseSurface(slot);
       this.pauseSlot = null;
+      this.clearPauseSurface(slot);
+      for (const x of this.execs) if (x.h && x.h.suspended && !(x.w.tl.main && this.ref.linear && this.ref.linear.active && x.w.linearRelation !== 'on-top')) x.h.resume();
       this.log('nonlinear:pause-close', { why });
     }
   }

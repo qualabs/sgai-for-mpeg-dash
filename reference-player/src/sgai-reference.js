@@ -31,20 +31,27 @@
 // reads it.
 //
 // FAMILIES. Each family is a file of this directory, named in FAMILY_FILES
-// and loaded by this one (so the harness page lists only this file), that
-// pushes a class onto `SGAI_FAMILIES`. A family is constructed with the
+// and loaded by this one (so the harness page lists only this file), in that
+// order, that pushes a class onto `SGAI_FAMILIES`. A family is constructed with the
 // SgaiReference once its scripts are in, and may have `attach(player)`
 // (called before the primary is initialised) and `act(action)`. It reads
 // `ref.url` (the main MPD's URL, the `data-sgai-opportunity-doc` of what it
 // presents), `ref.container`, `ref.video`, `ref.profile`, `ref.log`, and
 // may publish itself on `ref` for the others (the linear family is
-// `ref.linear`).
+// `ref.linear`). A viewer action goes to the families in the reverse of
+// that order: a later family is layered over an earlier one, so a pause ad
+// takes a pause before the linear ad under it does (R17.5).
+//
+// PRESENTATION. `ref.compositor` (sgai-compositor.js, loaded first and not a
+// family) puts a non-linear form on screen with the content it composes with,
+// per layout token, and keeps the viewport's `data-sgai-layout`.
 (function (global) {
-  const FAMILY_FILES = ['sgai-linear.js', 'sgai-nonlinear.js'];
+  const FAMILY_FILES = ['sgai-compositor.js', 'sgai-linear.js', 'sgai-nonlinear.js'];
   const base = (document.currentScript && document.currentScript.src) || location.href;
   const loading = FAMILY_FILES.map((f) => new Promise((resolve, reject) => {
     const s = document.createElement('script');
     s.src = new URL(f, base).href;
+    s.async = false;   // executed in list order: the order of SGAI_FAMILIES
     s.onload = resolve;
     s.onerror = () => reject(new Error('cannot load family ' + f));
     document.head.appendChild(s);
@@ -82,6 +89,7 @@
     }
 
     _start(player, url, startTime) {
+      this.compositor = global.SgaiCompositor ? new global.SgaiCompositor(this) : null;
       this.families = (global.SGAI_FAMILIES || []).map((F) => new F(this));
       player.updateSettings({ debug: { logLevel: dashjs.Debug.LOG_LEVEL_NONE } });
       // No request leaves for dash.js's default UTC source; the device clock
@@ -98,7 +106,7 @@
     // action takes it first (a pause may bring a pause ad, a dismiss closes
     // one); otherwise the primary content gets it. Returns what was done.
     act(action) {
-      for (const f of this.families) {
+      for (const f of this.families.slice().reverse()) {
         const r = f.act ? f.act(action) : null;
         if (r) return r;
       }

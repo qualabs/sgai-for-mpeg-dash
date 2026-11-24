@@ -37,11 +37,18 @@
 // hidden while it shows, and the viewport's layout is `linear`.
 //
 // For the other families: `ref.linear` is this object. `active` says a linear
-// alternative is on screen (or about to be); `suspend()` / `resumeAd()` pause
+// alternative is on screen (or about to be), `onScreen` that its first frame
+// is, `position` its playhead (s on its own timeline, null when none plays),
+// `video` the <video> showing it;
+// `suspend()` / `resumeAd()` pause
 // and resume it (a pause ad over a linear ad, R17.5); `addSuppressor(fn)`
 // keeps every event for which fn(E) is true from being resolved or executed
 // until fn says otherwise (a window that supersedes linear events, R40.3), and
-// returns the function that removes it.
+// returns the function that removes it. The viewport's layout is the
+// compositor's (sgai-compositor.js): this family tells it when its
+// alternative starts or ends. Each alternative's player is offered to the
+// non-linear family before it is initialised (`ref.nonlinear.attachAlternative`),
+// so that the windows its MPD declares are that presentation's own (R40.6).
 (function (global) {
   const INSERT = 'urn:mpeg:dash:event:alternativeMPD:insert:2025';
   const REPLACE = 'urn:mpeg:dash:event:alternativeMPD:replace:2025';
@@ -214,6 +221,9 @@
         this.error = JSON.stringify((e && e.error) || e).slice(0, 200);
         f.log('linear:part-error', { id: this.id, error: this.error });
       });
+      if (f.ref.nonlinear && f.ref.nonlinear.attachAlternative) {
+        f.ref.nonlinear.attachAlternative({ player: p, video: v, url, part: this });
+      }
       p.initialize(v, this.blobUrl, false);
       this.player = p;
       return true;
@@ -251,6 +261,22 @@
     }
 
     get active() { return !!this.alt; }
+
+    get onScreen() { return !!(this.alt && this.alt.parts.some((p) => p.shown && p.video)); }
+
+    get position() { return this.alt && this.alt.started ? this.altPosition(this.alt) : null; }
+
+    // The <video> of the alternative on screen, or null.
+    get video() {
+      const part = this.alt && this.alt.parts[this.alt.index];
+      return part && part.shown && part.video ? part.video : null;
+    }
+
+    // The viewport's layout follows from what every family has on screen.
+    layoutChanged(layout) {
+      if (this.ref.compositor) this.ref.compositor.refresh();
+      else this.ref.container.dataset.sgaiLayout = layout;
+    }
 
     addSuppressor(fn) {
       this.suppressors.add(fn);
@@ -509,8 +535,8 @@
       part.video.dataset.sgaiOpportunityEvent = alt.E.id;
       part.video.style.visibility = 'visible';
       this.main.style.visibility = 'hidden';
-      this.ref.container.dataset.sgaiLayout = 'linear';
       part.shown = true;
+      this.layoutChanged('linear');
       for (const q of alt.parts) if (q !== part && q.video && q.state === 'done') q.destroy();
       if (!alt.started) {
         alt.started = true;
@@ -534,7 +560,7 @@
         const part = alt.parts[alt.index];
         if (Date.now() - alt.startWall > START_MS || (part && part.error)) {
           this.alt = null;
-          this.ref.container.dataset.sgaiLayout = 'none';
+          this.layoutChanged('none');
           this.failed(alt.E, alt.wasPlaying, part && part.error ? `cannot start: ${part.error}` : 'no first frame', alt.parts);
         }
         return;
@@ -603,9 +629,9 @@
       if (cur && cur.shown) this.fireCallbacks(alt, cur, Math.min(cur.duration, APDA + alt.ASO - cur.start));
       this.alt = null;
       for (const p of alt.parts) p.destroy();
-      this.ref.container.dataset.sgaiLayout = 'none';
       this.gated = false;
       this.main.style.visibility = 'visible';
+      this.layoutChanged('none');
       this.log('linear:terminate', { key: E.key, APDA, RT, played: alt.parts.map((p) => [p.id, p.state]) });
       // Insertion: RT = PRTA, where the primary stands; replacement: a seek,
       // which dash.js clips to the time-shift buffer of a dynamic MPD.
