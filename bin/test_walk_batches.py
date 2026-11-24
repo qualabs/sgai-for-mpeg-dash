@@ -74,6 +74,18 @@ class Walk(unittest.TestCase):
         self.assertEqual(o["verdict"], "gap")
         self.assertIn("Nothing about windows.", self.prompts[1])
 
+    def test_asking_twice_gets_a_third_and_last_call(self):
+        ask = {"unit": "R1.1", "verdict": None, "need_sections": ["7.2"]}
+        o, n = self.run_with(ask, ask, dict(GOOD, verdict="gap", sections=[]))
+        self.assertEqual((o["verdict"], n), ("gap", 3))
+        self.assertIn("last call", self.prompts[2])
+        o, n = self.run_with(ask, ask, ask)
+        self.assertEqual((o["verdict"], n), ("not-verifiable", 3))
+
+    def test_other_failures_get_no_third_call(self):
+        o, n = self.run_with(dict(GOOD, kind="x"), dict(GOOD, kind="x"), GOOD)
+        self.assertEqual((o["verdict"], n), ("not-verifiable", 2))
+
     def test_no_answer_and_garbage(self):
         o, n = self.run_with("I think it is met.", "still prose")
         self.assertEqual(o["verdict"], "not-verifiable")

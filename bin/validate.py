@@ -348,6 +348,19 @@ def keys_of(refs, sections):
 
 # ----------------------------------------------------------- the open search
 
+def section_keys(value):
+    """The section keys of a routing `section` field, as the model writes it:
+    a string ("5.1.3; A.7"), a list (["6.6", "A.7"]), or a list written as a
+    string ("['6.6', 'A.7']")."""
+    items = value if isinstance(value, list) else re.split(r"\s*[;,]\s*", str(value or ""))
+    out = []
+    for k in items:
+        k = str(k).strip().strip("[]").strip().strip("'\"").lstrip("§").strip()
+        if k:
+            out.append(k)
+    return out
+
+
 def check_open(objs, norm, expect_ids, expect_units, expect_flags):
     """(good {key: obj}, errors {key: [msg]}, done). Keys: id:<G-n>, unit:<u>,
     flag:<n>, new:<k>."""
@@ -410,9 +423,8 @@ def check_open(objs, norm, expect_ids, expect_units, expect_flags):
             for f in FIELDS[r]:
                 if not str(o.get(f) if o.get(f) is not None else "").strip():
                     e.append(f"{r} needs `{f}`")
-            if r in ("5.a", "5.b") and str(o.get("section") or "").strip():
-                for k2 in re.split(r"\s*[;,]\s*", str(o["section"]).strip()):
-                    k2 = k2.lstrip("§").strip()
+            if r in ("5.a", "5.b") and section_keys(o.get("section")):
+                for k2 in section_keys(o.get("section")):
                     if k2 and k2 not in norm:
                         e.append(f"`section` {k2!r} is not a section key")
         if e:

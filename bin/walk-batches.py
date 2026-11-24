@@ -21,7 +21,8 @@ every object by code:
   - every verdict but gap and governance carries at least one quotation.
 A walker may ask for sections it was not given (`"need_sections": [keys]`,
 verdict null). Units that fail, or ask, go back in ONE more call with the
-errors and the requested sections. A unit still failing after that is
+errors and the requested sections (a unit that only asks for sections
+again gets one third call). A unit still failing after that is
 written with verdict `not-verifiable` and the reasons — never `met`.
 
 Usage:
@@ -171,8 +172,14 @@ def walk(i, W, sections, model):
         if o.get("unit") in units and o["unit"] not in answers:
             answers[o["unit"]] = o
     problems = {un: (check(answers[un], sections) if un in answers else ["no answer"]) for un in units}
-    redo = [un for un in units if problems[un]]
-    if redo:
+    # One retry for every failing unit; a unit that still only asks for
+    # sections gets them in one more (a third and last) call.
+    for rnd in (2, 3):
+        redo = [un for un in units if problems[un]]
+        if rnd == 3:
+            redo = [un for un in redo if problems[un] == ["asks for sections"]]
+        if not redo:
+            break
         extra = []
         for un in redo:
             o = answers.get(un, {})
@@ -180,9 +187,10 @@ def walk(i, W, sections, model):
             for k in o.get("need_sections") or []:
                 if k in sections:
                     extra.append(f"----- section {k} -----\n{sections[k]}")
-        prompt = ("\n\n".join(parts) + "\n\n===== SECOND ROUND =====\nAnswer again ONLY these units: "
-                  + ", ".join(redo) + ". Problems with your first answer, and the sections you asked for:\n\n"
-                  + "\n".join(extra))
+        final = " This is the last call: give a verdict for each unit now." if rnd == 3 else ""
+        prompt = ("\n\n".join(parts) + "\n\n===== ROUND " + str(rnd) + " =====\nAnswer again ONLY these units: "
+                  + ", ".join(redo) + ". Problems with your previous answer, and the sections you asked for:\n\n"
+                  + "\n".join(extra) + final)
         try:
             text, u = call_model(prompt, model)
             calls.append(u)
@@ -193,7 +201,8 @@ def walk(i, W, sections, model):
                     problems[un] = check(o, sections)
         except ModelError as e:
             for un in redo:
-                problems[un] = problems[un] + [f"second call failed: {e}"]
+                problems[un] = problems[un] + [f"call {rnd} failed: {e}"]
+            break
     out = []
     for un in units:
         if problems[un]:

@@ -597,5 +597,17 @@ class Planning(Fixture):
         self.assertEqual(sorted({k for c in ch for k in c}), sorted(k for k in st.order if k not in self.v.SKIP_KEYS))
 
 
+class SectionKeys(unittest.TestCase):
+    def test_every_shape_the_model_writes(self):
+        spec = importlib.util.spec_from_file_location("validate_sk", os.path.join(BIN, "validate.py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        sk = mod.section_keys
+        self.assertEqual(sk("['6.6', 'A.7']"), ["6.6", "A.7"])
+        self.assertEqual(sk(["6.6", "A.7"]), ["6.6", "A.7"])
+        self.assertEqual(sk("§5.1.3; A.7"), ["5.1.3", "A.7"])
+        self.assertEqual(sk(None), [])
+
+
 if __name__ == "__main__":
     unittest.main()
