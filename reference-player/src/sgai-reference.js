@@ -59,7 +59,9 @@
   const familiesReady = Promise.all(loading);
   class SgaiReference {
     // container: the viewport element; video: the primary <video>, inside it;
-    // profile: SGAI_PROFILES.profileFor(...); log: (type, data) => void.
+    // profile: SGAI_PROFILES.profileFor(...), plus `sendsCapabilities` (the
+    // capability parameters this session discloses on a resolution request,
+    // §5.8.2; none when absent); log: (type, data) => void.
     constructor({ container, video, profile, log }) {
       this.container = container;
       this.video = video;
@@ -71,7 +73,8 @@
       video.dataset.sgaiElement = 'primary';
       this.families = [];
       for (const p of profile.problems || []) this.log('profile:problem', p);
-      this.log('profile', { klass: profile.klass, capabilities: profile.capabilities });
+      this.log('profile', { klass: profile.klass, capabilities: profile.capabilities,
+        sendsCapabilities: profile.sendsCapabilities || [] });
     }
 
     // Starts the primary presentation at `startTime` seconds of its timeline

@@ -147,6 +147,21 @@ class Clock(unittest.TestCase):
         self.assertEqual(run_clock("presentation", at)[1], 350)
         self.assertEqual(run_clock("presentation", past)[1], 0)
 
+    def test_resume_jump_is_not_presentation(self):
+        # Chromium after play(): currentTime 60 ms ahead 2 ms after the
+        # resume (T-09 runs: 40-70 ms in 2-6 ms, at almost every resume)
+        p = lambda t, paused=False: {"viewerPaused": paused, "videos": [vid("primary", t, paused=paused)]}  # noqa: E731
+        ticks = [[0, p(3.0)], [100, p(3.0, True)], [3100, p(3.0, True)], [3102, p(3.0)], [3104, p(3.060)],
+                 [3204, p(3.160)], [3304, p(3.260)]]
+        # the resume tick reads the old time (0); the 60 ms jump counts the 2 ms of wall
+        self.assertEqual(run_clock("presentation", ticks), [0, 100, 3100, 3100, 3102, 3202, 3302])
+
+    def test_settle_window_edge(self):
+        # within SETTLE_MS (100) of the switch the cap holds, past it media counts
+        p = lambda t, paused=False: {"viewerPaused": paused, "videos": [vid("primary", t, paused=paused)]}  # noqa: E731
+        ticks = [[0, p(1.0, True)], [10, p(1.0)], [110, p(1.150)], [111, p(1.170)]]
+        self.assertEqual(run_clock("presentation", ticks), [0, 0, 100, 120])
+
     def test_rate(self):
         ticks = [[0, {"videos": [vid("primary", 0, rate=2)]}], [1000, {"videos": [vid("primary", 2, rate=2)]}]]
         self.assertEqual(run_clock("presentation", ticks), [0, 1000])
@@ -320,6 +335,46 @@ class Sequence(unittest.TestCase):
         exp.reverse()
         self.assertEqual(compare_selection(exp, o, FX, 250)[0], Outcome.FAIL)
 
+    def test_linear_ad_under_an_on_top_overlay_is_one_presentation(self):
+        # R40.5-1's shape: a linear ad (no option) 4..14 s; an on-top overlay
+        # over it 6..10 s turns the viewport's layout to the overlay's. The
+        # linear ad stays one presentation, with layout `linear`.
+        fx = Fixtures({"main.mpd": "https://e.invalid/main.mpd", "list.mpd": "https://aps.example.com/l",
+                       "overlay.xml": URL}, {})
+        lin = {"element": "ad", "doc": "https://aps.example.com/l", "candidateId": "ad-1",
+               "opportunityDoc": "https://e.invalid/main.mpd", "opportunityEvent": "1", "inst": 1}
+        ov = dict(ad(URL, cid=None), opportunityEvent="2", inst=2)
+        smp = []
+        for t in range(0, 16000, 100):
+            els = ([copy.deepcopy(lin)] if 4000 <= t < 14000 else []) + ([copy.deepcopy(ov)] if 6000 <= t < 10000 else [])
+            lay = "overlay-lower-third" if 6000 <= t < 10000 else "linear" if els else "none"
+            smp.append({"t": t, "layout": lay, "elements": els})
+        o = Observed(samples=smp)
+        attribute(o, fx)
+        exp = [{"opportunity": {"fixture": "main.mpd", "event_id": "1"}, "result": "presented",
+                "presented": [{"candidate": {"fixture": "list.mpd", "id": "ad-1"}, "option": None, "layout": "linear"}]},
+               {"opportunity": {"fixture": "main.mpd", "event_id": "2"}, "result": "presented",
+                "presented": [{"candidate": {"fixture": "overlay.xml", "index": 1}, "option": {"index": 1},
+                               "layout": "overlay-lower-third"}]}]
+        out, d = compare_selection(exp, o, fx, 250)
+        self.assertEqual(out, Outcome.PASS, d)
+        # a non-linear surface keeps the layout it appeared with: the same
+        # overlay listed as `overlay` is a FAIL
+        exp[1]["presented"][0]["layout"] = "overlay"
+        self.assertEqual(compare_selection(exp, o, fx, 250)[0], Outcome.FAIL)
+        exp[1]["presented"][0]["layout"] = "overlay-lower-third"
+        # both appear in one sample (R40.5-1: the insertion and the window at
+        # 4 s): the viewport shows the overlay's layout, the linear ad is
+        # still `linear`
+        for s in smp:
+            if 4000 <= s["t"] < 6000:
+                s["elements"].append(copy.deepcopy(ov))
+                s["layout"] = "overlay-lower-third"
+        o = Observed(samples=smp)
+        attribute(o, fx)
+        out, d = compare_selection(exp, o, fx, 250)
+        self.assertEqual(out, Outcome.PASS, d)
+
     def test_empty_both(self):
         self.assertEqual(self.check([sel(result="declined")], samples((0, 1, {"element": "primary"})))[0],
                          Outcome.PASS)
@@ -433,6 +488,83 @@ class FixtureBesideTheVector(unittest.TestCase):
             self.assertEqual(fx.urls["fixtures/main.mpd"], behaviour.ENTRY_HOST + "fixtures/main.mpd")
             self.assertEqual(fx.of(behaviour.ENTRY_HOST + "fixtures/main.mpd"), "fixtures/main.mpd")
             self.assertIn("Second document", fx.texts["behaviour/fixtures/R32.1/second.xml"])
+
+
+class ActionTiming(unittest.TestCase):
+    """R16.1's shape: a boundary an action causes is measured from the frame
+    the action was made in (its `startedAt`), not from its written time: the
+    Player cannot answer a viewer before the viewer acts."""
+    PAUSE_AD = {"element": "ad", "doc": URL, "candidateIndex": "1", "optionIndex": "1",
+                "opportunityDoc": "https://e.invalid/main.mpd", "opportunityEvent": "1", "inst": 1}
+    EXPECTED = [
+        {"start": 0, "end": 3000, "layout": "none", "shows": [{"element": "primary", "from": 0}]},
+        {"start": 3000, "end": 6000, "layout": "pause-fullscreen",
+         "shows": [{"element": "ad", "candidate": {"fixture": "first.xml", "index": 1}, "option": {"index": 1}}]},
+        {"start": 6000, "end": 8000, "tolerance": 17, "layout": "none",
+         "shows": [{"element": "primary", "from": 3000}]},
+    ]
+
+    def obs(self, gone_at, started_at):
+        smp = []
+        for t in list(range(0, 8000, 25)) + [gone_at]:
+            if t < 3000:
+                els = [{"element": "primary", "time": t, "paused": False, "rate": 1}]
+                lay = "none"
+            elif t < gone_at:
+                els, lay = [dict(self.PAUSE_AD)], "pause-fullscreen"
+            else:
+                els = [{"element": "primary", "time": 3000 + (t - gone_at), "paused": False, "rate": 1}]
+                lay = "none"
+            smp.append({"t": t, "layout": lay, "elements": els})
+        smp.sort(key=lambda s: s["t"])
+        o = Observed(samples=smp, startup=0)
+        o.actions = [{"at": 3000, "do": "pause", "startedAt": 3000},
+                     {"at": 6000, "do": "resume", "startedAt": started_at, "timing": "frame"}]
+        attribute(o, FX)
+        return o
+
+    def check(self, gone_at, started_at):
+        return compare_presentation(self.EXPECTED, self.obs(gone_at, started_at), 8000, 250, FX,
+                                    [{"at": 3000, "do": "pause"}, {"at": 6000, "do": "resume"}], 1000)
+
+    def test_gone_at_the_next_frame_after_a_late_action(self):
+        out, d = self.check(6031, 6014)             # the action 14 ms late, the ad gone 17 ms after it
+        self.assertEqual(out, Outcome.PASS, d)
+
+    def test_gone_two_frames_after_the_action(self):
+        self.assertEqual(self.check(6048, 6014)[0], Outcome.FAIL)   # 34 ms after the action
+
+    def test_an_action_on_time_is_not_moved(self):
+        self.assertEqual(self.check(6016, 6000)[0], Outcome.PASS)
+        self.assertEqual(self.check(6018, 6000)[0], Outcome.FAIL)
+
+    def test_an_early_record_does_not_move_the_boundary_back(self):
+        self.assertEqual(self.check(6010, 5980)[0], Outcome.PASS)    # judged from 6000, not from 5980
+
+
+class NoJobSelected(unittest.TestCase):
+    """A selection that matches no job cannot tell: exit 2 with a line that
+    says so, never "0 PASS" and exit 0."""
+
+    def test_zero_jobs_cannot_tell(self):
+        report = behaviour.Report()
+        plans = behaviour.plan_jobs(SOURCE, [SOURCE / "behaviour" / "R1.4.yaml"], ["D5", "legacy"], report)
+        self.assertEqual(plans, [])
+        self.assertEqual(report.exit_code(), 2)
+        lines = behaviour.summary_lines(report, 0.0, None)
+        self.assertTrue(any(x.startswith("cannot tell: no job selected") for x in lines), lines)
+        self.assertTrue(lines[-1].startswith("exit 2"), lines)
+
+    def test_no_file_cannot_tell(self):
+        report = behaviour.Report()
+        self.assertEqual(behaviour.plan_jobs(SOURCE, [], [], report), [])
+        self.assertEqual(report.exit_code(), 2)
+
+    def test_one_job_is_not_flagged(self):
+        report = behaviour.Report()
+        plans = behaviour.plan_jobs(SOURCE, [SOURCE / "behaviour" / "R1.4.yaml"], [], report)
+        self.assertGreaterEqual(len(plans), 1)
+        self.assertEqual(report.cannot, [])
 
 
 # --------------------------------------------------------------------------- the content server

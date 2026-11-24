@@ -163,7 +163,10 @@
       const rect = shownRect(el, box);
       if (rect) elements.push(describe(el, rect));
     }
-    if (primary) lastTime = Math.round(primary.currentTime * 1000);
+    // the seek's origin (`pendingSeek.from`): not taken while the primary is
+    // seeking, or a sample between the seek and its 'seeking' event would
+    // record the target as the origin and the seek as no jump
+    if (primary && !primary.seeking) lastTime = Math.round(primary.currentTime * 1000);
     const s = { t: now(), layout: container.dataset.sgaiLayout || 'none', elements, seeks };
     if (firstFrame === null && elements.some((e) => e.element === 'primary' || e.element === 'ad')) {
       firstFrame = s.t;
@@ -271,6 +274,38 @@
         }
       }
       return ref.act(action);
+    },
+
+    // A viewer action made inside a requestAnimationFrame callback: the first
+    // frame whose session time is at or past `atMs` (R16.1's "within one
+    // rendering frame" is measured from that frame). The page is sampled at
+    // every frame while it waits and at the frame after the action, so a
+    // change the action causes is seen at the frame it is shown in, not at
+    // the next 25 ms sample. Resolves to { result, startedAt, doneAt,
+    // nextFrameAt } (session ms), or to { notYet: true } when the session
+    // clock has not reached `atMs` within `waitMs` of wall time (the runner
+    // asks again).
+    actAtFrame(action, atMs, waitMs) {
+      return new Promise((resolve) => {
+        const until = Date.now() + waitMs;
+        const frame = () => {
+          sample(null);
+          const t = SGAI_ADAPTER.sessionNow();
+          if (t === null || t < atMs) {
+            if (Date.now() > until) { resolve({ notYet: true }); return; }
+            requestAnimationFrame(frame);
+            return;
+          }
+          const startedAt = Math.round(t);
+          const result = SGAI_ADAPTER.act(action);
+          const doneAt = Math.round(SGAI_ADAPTER.sessionNow());
+          requestAnimationFrame(() => {
+            sample('frame-after:' + action.do);
+            resolve({ result, startedAt, doneAt, nextFrameAt: Math.round(SGAI_ADAPTER.sessionNow()) });
+          });
+        };
+        requestAnimationFrame(frame);
+      });
     },
 
     // The centre of the first shown ad surface, in page coordinates, or null.

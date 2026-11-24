@@ -25,7 +25,10 @@
 // STARTUP_LIMIT_MS). Actions are made, and observation ends, at the session
 // times the adapter reports (`sessionNow()`), not at wall times: on a page
 // that plays slower than real time the two part. Each action records the
-// session time it was started and done at.
+// session time it was started and done at. Every action but `activate` (a
+// click made from here) is made in the page inside the requestAnimationFrame
+// callback of the first frame at or past its time, and records the session
+// time of the next frame too (`nextFrameAt`, `timing: 'frame'`).
 //
 // `cpuThrottle` (> 1) slows every page's main thread by that factor (CDP
 // Emulation.setCPUThrottlingRate): how the clock's independence from the
@@ -67,6 +70,7 @@ const STARTUP_LIMIT_MS = 30000;
 const CORS = { 'access-control-allow-origin': '*', 'cache-control': 'no-store' };
 const TIME_HOSTS = ['time.akamai.com'];
 const POLL_MS = 10;
+const FRAME_LEAD_MS = 100;
 
 // The declared URL covers the requested one: same origin and path, and every
 // query parameter of the declared one present with the same value.
@@ -184,7 +188,20 @@ async function runJob(browser, job) {
       const t = await session();
       if (t >= job.observeMs) break;
       if (Date.now() - loaded > job.wallLimitMs) { out.timedOut = true; break; }
-      while (pending.length && pending[0].atMs <= t) {
+      // An action other than `activate` is handed to the page shortly before
+      // it is due and made there, at the first frame at or past its time
+      // (adapter.actAtFrame): a poll from here is late by a round trip.
+      if (pending.length && pending[0].do !== 'activate' && pending[0].atMs <= t + FRAME_LEAD_MS) {
+        const a = pending[0];
+        const r = await page.evaluate(([x, at, wait]) => window.SGAI_ADAPTER.actAtFrame(x, at, wait),
+          [{ do: a.do, to: a.to, rate: a.rate }, a.atMs, FRAME_LEAD_MS * 4]);
+        if (r.notYet) continue;
+        pending.shift();
+        actions.push({ at: a.atMs, do: a.do, startedAt: r.startedAt, result: r.result, doneAt: r.doneAt,
+          nextFrameAt: r.nextFrameAt, timing: 'frame' });
+        continue;
+      }
+      while (pending.length && pending[0].do === 'activate' && pending[0].atMs <= t) {
         const a = pending.shift();
         const rec = { at: a.atMs, do: a.do, startedAt: Math.round(await session()) };
         if (a.do === 'activate') {

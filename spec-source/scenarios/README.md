@@ -60,7 +60,10 @@ outcome for a class the UC does not state is a finding.
   Not the main presentation's timeline, which stands still during a linear
   insertion and a pause; each `primary` element carries `from`, the main
   presentation time it shows at the segment's start, so that timeline can
-  be read back. A viewer action's `at` is on this clock too. Where the source gives a window
+  be read back. A viewer action's `at` is on this clock too: an executor
+  makes it at the first rendered frame at or past `at`, and a boundary
+  written at that `at` is measured from when the action was made (an
+  executor's lateness is not the Player's). Where the source gives a window
   instead of an instant (a request "from 270 s", a fetch "before it plays",
   an abort whose instant is the Player's), write `{from, to}`; that holds
   for a presentation boundary too (the `end` of one segment and the `start`

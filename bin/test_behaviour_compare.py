@@ -618,9 +618,16 @@ class Geometry(unittest.TestCase):
         self.s["elements"].append(dict(ad, rect={"x": 50, "y": 80, "width": 40, "height": 15}))
         self.assertEqual(self.field()[0], Outcome.PASS)
 
-    def test_background_is_not_the_ad(self):
+    def test_background_is_part_of_the_ad_layer(self):
+        # schema.json, geometry.ad: "the bounding box of the ad layer, every
+        # element of the ad included"; the background is the advertiser's
+        # creative (R26), so a full-frame background makes the box the frame.
         ad = next(e for e in self.s["elements"] if e["element"] == "ad")
         self.s["elements"].append(dict(ad, element="background", rect=dict(FULL)))
+        out, d = self.field()
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn("ad {'x': 0", d)
+        self.o["geometry"][0]["ad"] = dict(FULL)
         self.assertEqual(self.field()[0], Outcome.PASS)
 
     def test_no_ad_on_screen(self):

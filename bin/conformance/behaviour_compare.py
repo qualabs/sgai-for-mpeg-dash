@@ -749,6 +749,21 @@ def _silent(prev: dict, nxt: dict, actions: list, timescale: int) -> bool:
     return pb["from"] == pa["from"] + (prev["end"] - prev["start"]) * rate
 
 
+def _made_at(bt, made: list, timescale: int):
+    """A written boundary at the time of a viewer action is measured from when
+    the executor made it (its recorded `startedAt`, session ms) when that is
+    later: the Player cannot answer a viewer before the viewer acts, and the
+    executor's lateness is the instrument's, not the Player's. Never earlier.
+    A boundary written as a window is kept."""
+    if isinstance(bt, dict):
+        return bt
+    k = timescale / 1000.0
+    for a in made:
+        if a.get("startedAt") is not None and abs(a["at"] * k - bt) < 1e-6 and a["startedAt"] * k > bt:
+            return a["startedAt"] * k
+    return bt
+
+
 def compare_presentation(expected: list, obs: Observed, end: float, tol: float, fx: Fixtures,
                          actions: list, timescale: int) -> tuple[Outcome, str]:
     """The written segments against the observed ones. Every change observed
@@ -766,7 +781,8 @@ def compare_presentation(expected: list, obs: Observed, end: float, tol: float, 
     if not segs:
         return Outcome.FAIL, "presentation: nothing was ever shown on screen"
     problems = []
-    eb = [(expected[i]["start"], _silent(expected[i - 1], expected[i], actions, timescale), i,
+    eb = [(_made_at(expected[i]["start"], obs.actions, timescale), _silent(expected[i - 1], expected[i], actions,
+                                                                           timescale), i,
            tol_of(expected[i], tol)) for i in range(1, len(expected))]
     matched: dict[int, int] = {}
     for j in range(1, len(segs)):
@@ -843,7 +859,13 @@ def presentations(obs: Observed, tol: float, fx: Fixtures) -> dict:
     on screen without a gap; the same surface back after a gap shorter than
     the tolerance is the same presentation (a flicker), a new DOM element or
     a video started again is a new one (a second pass of the same candidate).
-    Two surfaces of the same identity in one sample are one."""
+    Two surfaces of the same identity in one sample are one.
+
+    Its layout is the one it was rendered with: `linear` for a linear
+    candidate (a surface with no option, R12.5), else the viewport's layout
+    when it appeared. A change of the viewport's layout while the surface
+    stays (an `on-top` overlay arriving over a linear ad, R40.5) is not a
+    new presentation of it."""
     seen: dict = {}
     ended: dict = {}       # run key -> session time it was last on screen
     live: set = set()
@@ -852,15 +874,15 @@ def presentations(obs: Observed, tol: float, fx: Fixtures) -> dict:
         for e in s["elements"]:
             if e.get("element") != "ad":
                 continue
-            ident = (_ident_el(e), s["layout"])
-            run = (ident, e.get("inst"), e.get("pass"))
+            run = (_ident_el(e), e.get("inst"), e.get("pass"))
             if run in now:
                 continue
             now.add(run)
             if run in live or (run in ended and s["t"] - ended[run] < tol):
                 continue
+            linear = "optionId" not in e and "optionIndex" not in e
             key = (opp_of(e, fx) or e.get("opportunityDoc"), e.get("opportunityEvent"))
-            seen.setdefault(key, []).append((e, s["layout"]))
+            seen.setdefault(key, []).append((e, "linear" if linear else s["layout"]))
         for run in live - now:
             ended[run] = s["t"]
         live = now
@@ -936,13 +958,14 @@ def _edges_ok(want: dict, got: dict | None, tol: float) -> bool:
 
 def _rects(sample: dict) -> tuple:
     p = _primary(sample["elements"])
-    ad = _union([e["rect"] for e in sample["elements"] if e.get("element") == "ad"])
+    ad = _union([e["rect"] for e in sample["elements"] if e.get("element") in ("ad", "background")])
     return (p["rect"] if p else None), ad
 
 
 def compare_geometry(expected: list, obs: Observed, tol_t: float) -> tuple[Outcome, str]:
-    """At each `at`, the primary's rectangle and the bounding box of the shown
-    `ad` surfaces (a `background` is not part of it), each edge within the
+    """At each `at`, the primary's rectangle and the bounding box of the ad
+    layer, every element of the ad included (schema.json: the shown `ad`
+    surfaces and a `background`, the advertiser's creative, R26), each edge within the
     entry's `tolerance` in percentage points. A state in effect anywhere in
     [at - tolerance, at + tolerance] of the session clock may satisfy it, so
     an instant on a transition is judged on either side of it."""

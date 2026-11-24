@@ -1,0 +1,8 @@
+$ python3 reference-player/test/edges/run-edges.py --concurrency 2 --reference <scratch copy> 
+42 PASS, 1 FAIL
+FAIL E2-insert-reexecuted-after-seek D1 selection | expected: (see log) | observed: selection[0] event 1 of fixtures/ins-many-main.mpd: 1 presentation(s) more than the vector lists: linear [ad fixtures/ins.mpd:ins option null] | log: /run/user/1000/cto/sgai11-t09-runs/edges/behaviour.log:6
+exit 1; wall 64.6 s; full log: /run/user/1000/cto/sgai11-t09-runs/edges/behaviour.log
+
+$ (after fixing E2 selection in make_vectors.py) python3 reference-player/test/edges/run-edges.py E2 --reference <scratch copy>
+4
+exit 0

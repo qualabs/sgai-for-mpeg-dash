@@ -479,11 +479,12 @@ def load_vectors(files: list, report: Report) -> list:
     return out
 
 
-def run(source: Path, files: list, classes: list, concurrency: int, report: Report,
-        raw_out: dict | None = None, clear_cache: bool = False, clock: str = "presentation",
-        cpu_throttle: float = 1, reference: Path = REFERENCE_SRC) -> None:
+def plan_jobs(source: Path, files: list, classes: list, report: Report) -> list:
+    """[(job id, path, vector, fx, variant, class, actions, outcome)]. A
+    selection that yields no job is a cannot-tell in `report`: zero results
+    is also what a battery that never ran looks like."""
     vectors = load_vectors(files, report)
-    plans = []   # (job id, path, vector, fx, variant, class, actions, outcome)
+    plans = []
     for path, v in vectors:
         name = vector_name(v, path)
         try:
@@ -493,6 +494,16 @@ def run(source: Path, files: list, classes: list, concurrency: int, report: Repo
             continue
         for variant, cls, actions, outcome in runs_of(v, classes):
             plans.append((f"j{len(plans) + 1}", path, v, fx, variant, cls, actions, outcome))
+    if not plans:
+        report.cannot.append(f"no job selected ({len(files)} vector file(s)"
+                             + (f", class {', '.join(classes)}" if classes else "") + ")")
+    return plans
+
+
+def run(source: Path, files: list, classes: list, concurrency: int, report: Report,
+        raw_out: dict | None = None, clear_cache: bool = False, clock: str = "presentation",
+        cpu_throttle: float = 1, reference: Path = REFERENCE_SRC) -> None:
+    plans = plan_jobs(source, files, classes, report)
     if not plans:
         return
     missing = players.missing_prerequisites()

@@ -86,7 +86,8 @@ alternative; seek to 0 at 8 s.""",
        summary="the alternative at 2 s, the programme from 2 s, the seek, the alternative again at 10 s",
        requests=[{"at": {"from": 0, "to": 2000}, "url": "https://aps.example.com/t05/ins-many", "answered_by": INS},
                  {"at": {"from": 8000, "to": 10000}, "url": "https://aps.example.com/t05/ins-many", "answered_by": INS}],
-       selection=sel(F + "ins-many-main.mpd", [(INS, "ins")]),
+       # two executions of one opportunity: two entries, one presentation each
+       selection=sel(F + "ins-many-main.mpd", [(INS, "ins")]) + sel(F + "ins-many-main.mpd", [(INS, "ins")]),
        presentation=[prim(0, 2000, 0), ad(2000, 6000, INS, "ins"), prim(6000, 8000, 2000),
                      prim(8000, 10000, 0, "after the seek back to 0"), ad(10000, 14000, INS, "ins"), prim(14000, 15000, 2000)],
        beacons=[b(2000, 1, "imp", INS, "ins"), b(10000, 1, "imp", INS, "ins")])

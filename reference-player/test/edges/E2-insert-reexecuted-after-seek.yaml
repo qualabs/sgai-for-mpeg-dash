@@ -49,6 +49,16 @@ outcomes:
           id: ins
         option: null
         layout: linear
+    - opportunity:
+        fixture: fixtures/ins-many-main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: fixtures/ins.mpd
+          id: ins
+        option: null
+        layout: linear
     presentation:
     - start: 0
       end: 2000

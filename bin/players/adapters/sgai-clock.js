@@ -18,7 +18,11 @@
 //
 // A media advance that is negative, or larger than the wall time that passed
 // would allow (a seek, a reload), advances the clock by nothing: a jump is not
-// presentation. A <video> that is shown, not paused, and not advancing (a
+// presentation. For SETTLE_MS of wall time after the source that drives the
+// clock changes (after start), a media advance counts at most the wall time
+// that passed: Chromium's currentTime jumps 40-70 ms ahead within a few ms of
+// a play() after a pause (measured on the battery's runs, T-09), and those
+// milliseconds were never presented. A <video> that is shown, not paused, and not advancing (a
 // stall) stands the clock still. The videos are read from the page by the
 // adapter (their currentTime, paused, playbackRate, whether shown), never from
 // what the module reports.
@@ -28,6 +32,7 @@
 (function (global) {
   const JUMP_SLACK_MS = 200;   // a media advance this much above the wall time is a jump
   const JUMP_FACTOR = 1.5;
+  const SETTLE_MS = 100;       // after a change of driver, media counts at most wall time
 
   // Which source drives the clock now. `state`: { viewerPaused, videos: [{ id,
   // role: 'primary' | 'ad', shown, paused, time (s), rate }] }. Returns
@@ -53,6 +58,7 @@
       this.times = new Map(); // video id -> { time (s), seeks } at the last tick
       this.points = [];       // [wall ms, session ms, why] at each tick
       this.why = null;
+      this.switchedAt = null; // wall ms of the last change of driver after start()
     }
 
     // Starts the clock at the first frame (`wall`), with the videos as they
@@ -77,14 +83,16 @@
       if (this.mode !== 'wall') {
         const d = driverOf(state);
         why = d.why;
+        if (d.why !== (this.why || '').split(':')[0]) this.switchedAt = wall;
         if (d.kind === 'media') {
           const v = state.videos.find((x) => x.id === d.id);
           const prev = this.times.get(d.id);
           step = 0;
           if (prev && v && prev.seeks === (v.seeks || 0)) {
             const dm = ((v.time - prev.time) * 1000) / (v.rate || 1);
-            if (dm >= 0 && dm <= dt * JUMP_FACTOR + JUMP_SLACK_MS) step = dm;
-            else why += ':jump';
+            if (dm >= 0 && dm <= dt * JUMP_FACTOR + JUMP_SLACK_MS) {
+              step = this.switchedAt !== null && wall - this.switchedAt <= SETTLE_MS ? Math.min(dm, dt) : dm;
+            } else why += ':jump';
           }
         }
       }

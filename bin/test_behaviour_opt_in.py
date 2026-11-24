@@ -67,11 +67,13 @@ if __name__ == "__main__":
 EXECUTOR = ("run", "drive", "main")
 FLAG = re.compile(r"(?<![\w-])--behaviour\b")
 RUNNER = "behaviour.mjs"
+EDGES = "run-edges.py"   # reference-player/test/edges/: the battery on the edge vectors
 SCRATCH = os.environ.get("XDG_RUNTIME_DIR") or None  # RAM and private when there is one
 # The battery itself, relative to bin/.
 EXEMPT = {"check-dash-conformance.py", "conformance/behaviour.py", "conformance/behaviour_compare.py",
           "players/behaviour.mjs", "players/adapters/sgai.js", Path(__file__).name}
 PROMPT_TEXT = [(FLAG, "the --behaviour flag"), (re.compile(re.escape(RUNNER)), "the runner behaviour.mjs"),
+               (re.compile(re.escape(EDGES)), "the edge vectors' runner run-edges.py"),
                (re.compile(r"conformance[./]behaviour\b(?!_)"), "the module conformance.behaviour")]
 
 
@@ -287,8 +289,9 @@ def py_findings(src: str) -> list:
         elif isinstance(node, ast.Constant) and isinstance(node.value, str) and id(node) not in docs:
             if FLAG.search(node.value):
                 found.append(f"{node.lineno}: string carries --behaviour")
-            if RUNNER in node.value:
-                found.append(f"{node.lineno}: string carries {RUNNER}")
+            for name in (RUNNER, EDGES):
+                if name in node.value:
+                    found.append(f"{node.lineno}: string carries {name}")
     return sorted(set(found))
 
 
@@ -476,6 +479,7 @@ class Bin(unittest.TestCase):
             "from conformance import behaviour\ngetattr(behaviour, 'run')()": 1,
             "x = ['node', 'behaviour.mjs']": 1,
             "argv = ['--behaviour']": 1,
+            "subprocess.run(['python3', 'reference-player/test/edges/run-edges.py'])": 1,
             '"""Docstring naming behaviour.mjs and --behaviour."""': 0,
             "from conformance import behaviour\nbehaviour.fixtures_of(v, s)": 0,
             "from conformance.behaviour_compare import compare\ncompare()": 0,
