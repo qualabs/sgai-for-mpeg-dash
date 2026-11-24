@@ -18,7 +18,7 @@
 | T-14 | La suite de tests cubre todo lo nuevo de `bin/` y corre verde entera                     | done | agent | —    | `tasks/T-14/`        |
 | T-15 | `CLAUDE.md`, `README.md`, `prompts/README.md` y `SETUP.md` dicen el pipeline nuevo       | done | agent | —    | `CLAUDE.md`, `README.md`, `SETUP.md`, `prompts/README.md`        |
 | T-16 | La medición A/B dice cuánto bajó el costo, medido contra medido                          | done | agent | —    | `tasks/T-16/ab.md`, `fixed-cost-per-call.md`, `bin/validate.py`, `bin/walk-batches.py`        |
-| T-17 | Cierre: REPORT.md (Mode D), LOG y validador                                              | pending | agent | —    | —        |
+| T-17 | Cierre: REPORT.md (Mode D), LOG y validador                                              | done | agent | —    | `REPORT.md`        |
 
 Lo común a todas: las decisiones están en `PHASE.md` y en las ADR 0060 a 0074;
 el código va en `bin/` con exits `0/1/2/64` como los checks existentes, y cada

@@ -1,6 +1,6 @@
 ---
 title: Pipeline código primero
-description: "El pipeline de la spec pasa a código primero: spec-source/ (XSD, tablas, ejemplos como fixtures, vectores de las UC) es la fuente y la juzga código; la prosa se escribe al final, se edita por parches de sección y un script arma el documento; comparación, revisión, lint y promoción son código, y la validación juzga por criterio. Meta medida: ≥70% menos tokens de entrada por incremental y por vuelta de refine."
+description: "La spec sale de spec-source/ (XSD + syntax.yaml, 93 ejemplos con clase, 22 UC como vectores) armada por script y byte a byte igual a dist; la prosa se edita por parches; comparación, lint, traza, validación y promoción son código, con el modelo sólo en llamadas de un turno validadas. Medido: vuelta de refine 9,99M contra >51,1M, incremental 12,2M contra 41,8M; el fijo de ~64k por llamada de agente es lo que queda."
 started: 2026-11-23
 origin: "el líder del proyecto, 2026-11-23, hilo #sgai, al cerrar conformance-tests: «los tests dan confianza PQ es deterministico, un LLM JUZGANDO NO», «tal vez deberíamos hacer más 'código' … y por último se escribe la norma en sí misma», «no quiero dejar cosas 'para después' … antes de la v13», y que el camino baje drásticamente los tokens; diseño acordado el mismo día («Ok a todo»), con la línea de base pagada (P-1)"
 category: feature

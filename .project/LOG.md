@@ -2418,3 +2418,7 @@ Empieza el diseño de la fase que pasa el pipeline de la spec a código primero,
 ## 2026-11-23 — `code-first-pipeline`: diseño acordado y plan generado
 
 El líder del proyecto aprobó el diseño y la P-1 («Ok a todo»): una vuelta de refine con el pipeline viejo se paga para tener la línea de base medida. La generación escribió `PHASE.md`, `TASKS.md` (17 tareas, todas `agent`) y las ADR 0060 a 0074, una por decisión (D-1 a D-15). El proyecto no tiene `docs/arc42/`. La fase arranca ya, como 10.
+
+## 2026-11-23 — Fase 10 cerrada
+
+`code-first-pipeline`, las 17 tasks hechas. La spec sale de `spec-source/` armada por script (byte a byte igual a dist), la prosa se edita por parches, y comparación, lint, traza, validación y promoción son código, con el modelo sólo en llamadas de un turno validadas. Medido contra medido: vuelta de refine 9,99M contra >51,1M (cota inferior del viejo), incremental con el delta del 10-27 12,2M contra 41,8M; la meta de −70% se cumplió. El hallazgo que más pesó: ~64k tokens fijos por llamada de agente dentro del repo (568 sin tools ni CLAUDE.md). Queda sembrado `roadmap/single-turn-agents`. REPORT escrito; `context/` y `dist/` sin tocar.
