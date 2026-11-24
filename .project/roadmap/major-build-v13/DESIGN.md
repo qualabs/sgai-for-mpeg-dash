@@ -1,5 +1,5 @@
 ---
-description: "El build mayor v13: reconstruir la spec desde context/ con todo lo acumulado desde v12.6 (fase 07, document-first y multiview), y decidir los carriers que el incremental no pudo ubicar."
+description: "El build mayor v13: reconstruir la spec desde context/ con todo lo acumulado desde v12.6 (fase 07 y document-first), y decidir los carriers que el incremental no pudo ubicar."
 status: idea
 category: chore
 depends_on: [document-first, conformance-tests, code-first-pipeline, reference-player]
