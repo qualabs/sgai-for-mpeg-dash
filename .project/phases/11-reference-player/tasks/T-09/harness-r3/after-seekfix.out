@@ -1,0 +1,17 @@
+$ check-dash-conformance.py --behaviour --only R34.6,R16.1 --reference <scratch copy> --concurrency 2   # after the seek-origin fix
+PASS            R34.6 D1                     requests      2 request(s) as expected
+PASS            R34.6 D1                     selection     2 opportunit(y/ies) as expected
+PASS            R34.6 D1                     presentation  6 segment(s) as expected; startup 882 before the first frame
+FAIL            R34.6 D1                     beacons       beacons[0] https://t.example.com/imp?cr=346a (@id 1) expected at 5000; observed at never; beacons[1] https://t.example.com/imp?cr=346b (@id 1
+PASS            R34.6 D3                     requests      2 request(s) as expected
+PASS            R34.6 D3                     selection     2 opportunit(y/ies) as expected
+PASS            R34.6 D3                     presentation  6 segment(s) as expected; startup 893 before the first frame
+FAIL            R34.6 D3                     beacons       beacons[0] https://t.example.com/imp?cr=346a (@id 1) expected at 5000; observed at never; beacons[1] https://t.example.com/imp?cr=346b (@id 1
+PASS            R34.6 D4                     requests      2 request(s) as expected
+PASS            R34.6 D4                     selection     2 opportunit(y/ies) as expected
+PASS            R34.6 D4                     presentation  6 segment(s) as expected; startup 283 before the first frame
+FAIL            R34.6 D4                     beacons       beacons[0] https://t.example.com/imp?cr=346a (@id 1) expected at 5000; observed at never; beacons[1] https://t.example.com/imp?cr=346b (@id 1
+PASS            R16.1 D1                     requests      1 request(s) as expected
+PASS            R16.1 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            R16.1 D1                     presentation  presentation[2] primary from expected 3000, observed 3074 [startup 389; observed: 0..3020 none [primary] from 3; 3020..6010 pause-fullscreen 
+PASS            R16.1 D1                     beacons       no beacon, as expected

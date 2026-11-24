@@ -1,0 +1,13 @@
+N01 CAUGHT      a selection with no job cannot tell  -> FAIL: test_no_file_cannot_tell (test_behaviour_harness.NoJobSelected.test_no_file_cannot_tell); FAIL: test_zero_jobs_cannot_tell (test_behaviour_harness.NoJobSelected.test_zero_jobs_cannot_tell)
+N02 CAUGHT      the ad box includes the background  -> FAIL: test_background_is_part_of_the_ad_layer (test_behaviour_compare.Geometry.test_background_is_part_of_the_ad_layer)
+N03 CAUGHT      a linear candidate's presentation has layout linear  -> FAIL: test_linear_ad_under_an_on_top_overlay_is_one_presentation (test_behaviour_harness.Sequence.test_linear_ad_under_an_on_top_overlay_is_one_presentation)
+N04 CAUGHT      a viewport layout change is not a new presentation  -> FAIL: test_linear_ad_under_an_on_top_overlay_is_one_presentation (test_behaviour_harness.Sequence.test_linear_ad_under_an_on_top_overlay_is_one_presentation)
+N05 CAUGHT      a boundary at an action is measured from when it was made  -> FAIL: test_gone_at_the_next_frame_after_a_late_action (test_behaviour_harness.ActionTiming.test_gone_at_the_next_frame_after_a_late_action)
+N06 CAUGHT      an action record never moves a boundary earlier  -> FAIL: test_an_early_record_does_not_move_the_boundary_back (test_behaviour_harness.ActionTiming.test_an_early_record_does_not_move_the_boundary_back)
+N07 CAUGHT      a bin/ string naming the edges runner is a finding  -> FAIL: test_rules (test_behaviour_opt_in.Bin.test_rules) (src="subprocess.run(['python3', 'reference-player/test/edges/run-edges.py'])")
+N08 CAUGHT      a new DOM element is a new presentation (M15 on the reworded line)  -> FAIL: test_three_passes_by_element (test_behaviour_harness.Sequence.test_three_passes_by_element)
+N09 CAUGHT      a video started again is a new presentation (M16 on the reworded line)  -> FAIL: test_passes_by_video_restart (test_behaviour_harness.Sequence.test_passes_by_video_restart)
+N10 CAUGHT      right after a change of driver, media counts at most wall time  -> FAIL: test_resume_jump_is_not_presentation (test_behaviour_harness.Clock.test_resume_jump_is_not_presentation); FAIL: test_settle_window_edge (test_behaviour_harness.Clock.test_settle_window_edge)
+N11 CAUGHT      the settle window is SETTLE_MS inclusive  -> FAIL: test_settle_window_edge (test_behaviour_harness.Clock.test_settle_window_edge)
+N12 CAUGHT      the settle window starts at a change of driver, not at start()  -> FAIL: test_jump_threshold (test_behaviour_harness.Clock.test_jump_threshold); FAIL: test_settle_window_edge (test_behaviour_harness.Clock.test_settle_window_edge); FAIL: test_small_seek_counts_nothing (test_behaviour_harness.Clock.test_small_seek_counts_nothing)
+12 of 12 caught

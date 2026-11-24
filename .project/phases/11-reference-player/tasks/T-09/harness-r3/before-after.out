@@ -1,0 +1,14 @@
+# before = harness/after-criteria.out + harness/after-uc.out (round 2, reference before T-07's WIP commit);
+# after = this round (presentation clock, frame-timed actions, comparator fixes, seek-origin fix; HEAD's reference)
+common subject x field: 172 {('FAIL', 'FAIL'): 41, ('PASS', 'PASS'): 121, ('PASS', 'FAIL'): 3, ('FAIL', 'PASS'): 7}
+only after (not in the earlier run): ['R32.1-3 D1', 'R32.1-3 D3', 'R32.1-3 D4']
+ PASS -> FAIL  R30.2 D1 beacons
+ FAIL -> PASS  R32.1-2 D1 presentation
+ FAIL -> PASS  R32.1-2 D3 presentation
+ FAIL -> PASS  R32.1-2 D4 presentation
+ FAIL -> PASS  UC-02 D3 presentation
+ PASS -> FAIL  UC-02 D3 [trick-play-2x] beacons
+ PASS -> FAIL  UC-02 D4 presentation
+ FAIL -> PASS  UC-02 D4 [trick-play-2x] beacons
+ FAIL -> PASS  UC-02 D5 presentation
+ FAIL -> PASS  UC-02 D5 [trick-play-2x] presentation
