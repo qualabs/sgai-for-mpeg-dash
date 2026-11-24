@@ -532,14 +532,72 @@ def beacon_url_of(exp: dict, fx: Fixtures) -> str | None:
     return hits[0] if len(hits) == 1 else None
 
 
+def _ad_of(seg: dict, e: dict) -> dict | None:
+    """The written `ad` of segment `seg` that beacon `e` belongs to: the one
+    of its candidate, or with no candidate named, one from its fixture."""
+    for x in seg["shows"]:
+        if x["element"] != "ad" or "candidate" not in x:
+            continue
+        if (x["candidate"] == e["candidate"]) if "candidate" in e else x["candidate"].get("fixture") == e["fixture"]:
+            return x
+    return None
+
+
+def _beacon_time(e: dict, obs: Observed, fx: Fixtures, timescale: int, written: list, bounds) -> tuple:
+    """Where an expected beacon is measured, and what moved it there. Its
+    written time is on its ad's own timeline, and that timeline starts where
+    the ad's presentation starts. So:
+
+    - written at a viewer action's time, it is measured from when the action
+      was made, when later (`_made_at`), as the other fields are;
+    - inside a written segment showing its ad, it moves by how late the
+      observed start of that ad's presentation was against its written start:
+      the start of the run of written segments that show that ad without a
+      break (passes of a repeat are one timeline), when that start is a
+      boundary the presentation field paired with an observed change showing
+      what it wrote. Never earlier, and bounded: the pairing only exists
+      within the boundary's own tolerance from when its action was made, so
+      a presentation later than that moves nothing and fails its own field.
+
+    The beacon keeps its own tolerance, now from its own ad: a Player that
+    fires it late relative to the ad it belongs to still fails."""
+    at = e["at"]
+    when = _made_at(at, obs.actions, timescale)
+    kept = when, _made_note(at, when)
+    if isinstance(at, dict) or not written or bounds is None:
+        return kept
+    segs, matched = bounds
+    k = next((k for k, sg in enumerate(written) if not isinstance(sg["start"], dict) and not isinstance(sg["end"], dict)
+              and sg["start"] <= at < sg["end"] and _ad_of(sg, e) is not None), None)
+    if k is None:
+        return kept
+    ad = _ad_of(written[k], e)
+    while k > 0 and any(x == ad for x in written[k - 1]["shows"]):
+        k -= 1
+    b = written[k]["start"]
+    if k == 0 or isinstance(b, dict) or k not in matched:
+        return kept
+    sg = segs[matched[k]]
+    if sg.layout != written[k]["layout"] or not shows_match(written[k]["shows"], sg.elements, fx):
+        return kept
+    moved = at + (sg.start - b)
+    if moved <= when:
+        return kept
+    return moved, f" (its ad observed from {_r(sg.start)}, written {_r(b)})"
+
+
 def compare_beacons(expected: list, obs: Observed, tol: float, fx: Fixtures,
-                    clicks_judged: bool = False) -> tuple[Outcome, str]:
+                    clicks_judged: bool = False, timescale: int = 1000, presentation: list | None = None,
+                    bounds=None) -> tuple[Outcome, str]:
     """Each expected beacon is matched to one observed request to its URL
-    (query order aside) within its time; a beacon URL some fixture declares,
-    or one an expected beacon has, observed and not matched is an unexpected
-    beacon. Other requests (an image, an unknown host) are not beacons. When
-    the outcome judges clicks (`clicks_judged`), a ClickThrough's
-    click-tracking URLs are the clicks field's and not beacons."""
+    (query order aside) within its time, measured where `_beacon_time` puts
+    it (the written presentation and its pairing with the observed one,
+    `bounds`, as the presentation field made it); a beacon URL some fixture
+    declares, or one an expected beacon has, observed and not matched is an
+    unexpected beacon. Other requests (an image, an unknown host) are not
+    beacons. When the outcome judges clicks (`clicks_judged`), a
+    ClickThrough's click-tracking URLs are the clicks field's and not
+    beacons."""
     problems, unverifiable, used = [], [], set()
     known = beacon_urls(fx)
     if clicks_judged:
@@ -551,14 +609,15 @@ def compare_beacons(expected: list, obs: Observed, tol: float, fx: Fixtures,
                                 "with that @id to read it from")
             continue
         known.add(url)
+        when, note = _beacon_time(e, obs, fx, timescale, presentation or [], bounds)
         same = [(j, o) for j, o in enumerate(obs.others) if j not in used and same_url(url, o["url"])]
-        hit = next((j for j, o in same if within(o["at"], e["at"], tol_of(e, tol))), None)
+        hit = next((j for j, o in same if within(o["at"], when, tol_of(e, tol))), None)
         if hit is not None:
             used.add(hit)
             continue
         seen = ", ".join(str(_r(o["at"])) for _, o in same) or "never"
         ident = f" (@id {e['id']})" if "id" in e else ""
-        problems.append(f"beacons[{i}] {url}{ident} expected at {fmt_when(e['at'])}; observed at {seen}")
+        problems.append(f"beacons[{i}] {url}{ident} expected at {fmt_when(e['at'])}{note}; observed at {seen}")
     for j, o in enumerate(obs.others):
         if j not in used and any(same_url(k, o["url"]) for k in known):
             if unverifiable:   # it may be the beacon whose URL could not be read
@@ -785,6 +844,19 @@ def _made_note(bt, when) -> str:
     return "" if when == bt else f" (the action made at {_r(when)})"
 
 
+def _boundaries(expected: list, obs: Observed, end: float, tol: float, actions: list, timescale: int):
+    """The observed segments, the startup, the written boundaries `eb`
+    ((when, silent, index, tolerance), `when` moved by `_made_at`) and their
+    pairing with the observed changes (`_match_in_order`): what the
+    presentation field judges, and what a beacon is anchored to."""
+    segs, startup = observed_segments(obs.samples, end, tol)
+    eb = [(_made_at(expected[i]["start"], obs.actions, timescale), _silent(expected[i - 1], expected[i], actions,
+                                                                           timescale), i,
+           tol_of(expected[i], tol)) for i in range(1, len(expected))]
+    matched = _match_in_order([segs[j].start for j in range(1, len(segs))], eb) if segs else {}
+    return segs, startup, eb, matched
+
+
 def compare_presentation(expected: list, obs: Observed, end: float, tol: float, fx: Fixtures,
                          actions: list, timescale: int) -> tuple[Outcome, str]:
     """The written segments against the observed ones. Every change observed
@@ -798,16 +870,12 @@ def compare_presentation(expected: list, obs: Observed, end: float, tol: float, 
     own `tolerance`, else the segment's, else the vector's (or inside `from`
     when it is a window). `region` and `note` are for a person and not
     compared."""
-    segs, startup = observed_segments(obs.samples, end, tol)
+    segs, startup, eb, matched = _boundaries(expected, obs, end, tol, actions, timescale)
     if obs.startup is not None:
         startup = obs.startup
     if not segs:
         return Outcome.FAIL, "presentation: nothing was ever shown on screen"
     problems = []
-    eb = [(_made_at(expected[i]["start"], obs.actions, timescale), _silent(expected[i - 1], expected[i], actions,
-                                                                           timescale), i,
-           tol_of(expected[i], tol)) for i in range(1, len(expected))]
-    matched = _match_in_order([segs[j].start for j in range(1, len(segs))], eb)
     for j in range(1, len(segs)):
         t = segs[j].start
         if j not in matched.values():
@@ -1088,7 +1156,10 @@ def compare(vector: dict, outcome: dict, raw: dict, fx: Fixtures, subject: str,
         elif f == "audio":
             o, d = Outcome.NOT_VERIFIABLE, "the observation carries no audio state: what is heard is not measured"
         elif f == "beacons":
-            o, d = compare_beacons(outcome["beacons"], obs, tol, fx, "clicks" in outcome)
+            pres = outcome.get("presentation")
+            bounds = _boundaries(pres, obs, vector["observe_until"], tol, actions, ts) if pres else None
+            o, d = compare_beacons(outcome["beacons"], obs, tol, fx, "clicks" in outcome, ts, pres,
+                                   (bounds[0], bounds[3]) if bounds else None)
         elif f == "clicks":
             o, d = compare_clicks(outcome["clicks"], obs, tol, fx, ts)
         elif f == "destinations":

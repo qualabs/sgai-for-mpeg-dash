@@ -1,0 +1,11 @@
+--- /run/user/1000/cto/t09-beacons-1795563780-22102/ref/reference-player/src/sgai-nonlinear.js	2026-11-24 20:39:30.000000000 -0300
++++ /run/user/1000/cto/t09-beacons-1795563780-22102/mut/reference-player/src/sgai-nonlinear.js	2026-11-24 20:48:54.170341557 -0300
+@@ -926,7 +926,7 @@
+         if (keys.some((k) => st.seen.has(k))) { this.log('nonlinear:beacon-ignored', { key, candidate: p.c.index, id: b.id, at: b.at, url: b.url }); continue; }
+         for (const k of keys) st.seen.add(k);
+         this.log('nonlinear:beacon', { key, candidate: p.c.index, option: p.c.option.index, id: b.id, at: b.at, url: b.url });
+-        fetch(b.url, { mode: 'no-cors', credentials: 'omit', cache: 'no-store', keepalive: true }).catch(() => {});
++        setTimeout(() => fetch(b.url, { mode: 'no-cors', credentials: 'omit', cache: 'no-store', keepalive: true }).catch(() => {}), 400);   // MUTATION: 400 ms late
+       }
+     }
+ 

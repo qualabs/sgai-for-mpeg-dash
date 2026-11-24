@@ -1,0 +1,2 @@
+72 PASS
+exit 0; wall 0.1 s; full log: /run/user/1000/cto/t09-beacons-1795563780-22102/log-before/behaviour.log

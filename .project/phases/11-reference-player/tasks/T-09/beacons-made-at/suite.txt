@@ -1,0 +1,29 @@
+test_apply_spec_patch.py: OK
+test_assemble_spec.py: OK
+test_behaviour_compare.py: OK
+test_behaviour_harness.py: OK
+test_behaviour_opt_in.py: OK
+test_behaviour_summary.py: OK
+test_check_behaviour.py: OK
+test_check_context_interfaces.py: OK
+test_check_incremental.py: OK
+test_check_promotable_conformance.py: OK
+test_check_promotable_flags.py: OK
+test_check_scenarios.py: OK
+test_check_trace.py: OK
+test_compare_candidates.py: OK
+test_conformance_core.py: ModuleNotFoundError: No module named 'lxml'
+test_conformance_dash.py: ModuleNotFoundError: No module named 'lxml'
+test_conformance_players.py:   P-INSERT-shaka PASS xml#39 (line 5189) broken: InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none
+test_conformance_source.py: ModuleNotFoundError: No module named 'lxml'
+test_conformance_spec.py: ModuleNotFoundError: No module named 'lxml'
+test_gen_syntax_tables.py: OK
+test_lint_spec.py: OK
+test_measure_run.py: OK
+test_name_candidates.py: OK
+test_promote.py: OK
+test_step_inputs.py: OK
+test_strip_legacy_annotations.py: OK
+test_validate.py: OK
+test_validation_summary.py: OK
+test_walk_batches.py: OK

@@ -1,0 +1,10 @@
+Scoped mutation campaign on bin/conformance/behaviour_compare.py (_beacon_time), each break run only against the test that covers it:
+M1  drop max(0, .) on the shift                      -> test_never_earlier: OK (SURVIVED: redundant with the `moved <= when` guard; max removed)
+M1' drop the `moved <= when` guard                   -> test_never_earlier: FAILED
+M2  no walk back over the ad's run of segments       -> test_r32_1_1_pause_made_late: FAILED
+M3  no check that the paired change shows the ad     -> test_a_different_ad_on_screen_moves_nothing: FAILED
+M4  any ad of the segment, candidate ignored         -> test_a_beacon_of_another_candidate_is_not_moved: FAILED
+M5  no anchor (moved = written)                      -> test_r32_1_1_pause_made_late: FAILED
+M6  anchor on an unpaired boundary (no tolerance bound) -> test_ad_later_than_its_boundary_tolerance_moves_nothing: FAILED (error)
+M7  beacon tolerance unbounded                       -> test_late_relative_to_its_own_ad_fails: FAILED
+New tests on the original comparator: 6 of 10 FAIL, test_r32_1_1_pause_made_late among them (reproduction).

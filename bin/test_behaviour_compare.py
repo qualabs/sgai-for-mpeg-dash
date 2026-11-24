@@ -1026,6 +1026,134 @@ class ClicksFromTheAction(Clicks):
         self.assertEqual(self.got()["beacons"], Outcome.PASS)
 
 
+class BeaconsFromTheirAd(unittest.TestCase):
+    """R32.1-1's shape: a pause at 2000 shows the candidate three times in a
+    row (2-5, 5-8, 8-10 s), its impression at each pass. A beacon's written
+    time is on its ad's own timeline: when the pause is made late and the ad
+    observed late within its boundary's tolerance, the beacons of that ad
+    move with it; a beacon late relative to its own ad still fails."""
+
+    AD = {"fixture": "behaviour/fixtures/X/list.mpd", "id": "c1"}
+    IMP = "https://t.example.com/imp?c=1"
+
+    def setUp(self):
+        self.v, _, self.fx = small_vector()
+        ad = {"element": "ad", "candidate": self.AD, "option": {"index": 1}}
+        self.v["observe_until"] = 12000
+        self.v["actions"] = [{"at": 2000, "do": "pause"}, {"at": 10000, "do": "resume"}]
+        self.o = self.v["outcomes"]["D1"] = {
+            "summary": "s",
+            "requests": [{"at": {"from": 0, "to": 2000}, "url": "https://aps.example.com/ov?a=1",
+                          "answered_by": "behaviour/fixtures/X/list.mpd"}],
+            "selection": [{"opportunity": {"fixture": "behaviour/fixtures/X/main.mpd", "event_id": "1"},
+                           "result": "presented",
+                           "presented": [{"candidate": self.AD, "option": {"index": 1},
+                                          "layout": "pause-fullscreen"}] * 3}],
+            "presentation": [
+                {"start": 0, "end": 2000, "layout": "none", "shows": [{"element": "primary", "from": 0}]},
+                {"start": 2000, "end": 5000, "layout": "pause-fullscreen", "shows": [ad]},
+                {"start": 5000, "end": 8000, "layout": "pause-fullscreen", "shows": [ad]},
+                {"start": 8000, "end": 10000, "layout": "pause-fullscreen", "shows": [ad]},
+                {"start": 10000, "end": 12000, "layout": "none", "shows": [{"element": "primary", "from": 2000}]},
+            ],
+            "beacons": [{"at": t, "fixture": "behaviour/fixtures/X/list.mpd", "candidate": self.AD, "id": "1",
+                         "url": self.IMP} for t in (2000, 5000, 8000)],
+        }
+        self.raw = synthetic_raw(self.v, self.o, self.fx)
+        self.raw["actions"] = [{"at": 2000, "do": "pause", "startedAt": 2000},
+                               {"at": 10000, "do": "resume", "startedAt": 10000}]
+
+    def observe(self, made, ad_at, fired=(0, 3000, 6000)):
+        """The pause made at `made`, the ad on screen from `ad_at`, the
+        impressions at `ad_at` + each of `fired`."""
+        self.raw["actions"][0]["startedAt"] = made
+        for s in self.raw["observation"]["samples"]:
+            if s["layout"] == "pause-fullscreen":
+                s["t"] = ad_at + (s["t"] - 2000) if s["t"] == 2000 else s["t"]
+        imps = [r for r in self.raw["requests"] if r["url"] == self.IMP]
+        for r, off in zip(imps, fired):
+            r["wall"] = T0 + ad_at + off
+
+    def got(self):
+        rs = run(self.v, self.o, self.fx, self.raw, self.v["actions"])
+        return verdicts(rs), details(rs)
+
+    def test_as_written(self):
+        g, _ = self.got()
+        self.assertEqual((g["presentation"], g["beacons"]), (Outcome.PASS, Outcome.PASS))
+
+    def test_r32_1_1_pause_made_late(self):
+        # D1 under load: the pause made at 2074, the ad and its impression at 2255
+        self.observe(2074, 2255)
+        g, _ = self.got()
+        self.assertEqual((g["presentation"], g["beacons"]), (Outcome.PASS, Outcome.PASS))
+
+    def test_late_relative_to_its_own_ad_fails(self):
+        # the impressions 400 ms after the ad they belong to
+        self.observe(2074, 2255, (400, 3400, 6400))
+        g, d = self.got()
+        self.assertEqual((g["presentation"], g["beacons"]), (Outcome.PASS, Outcome.FAIL))
+        self.assertIn("expected at 2000 (its ad observed from 2255, written 2000); observed at 2655", d["beacons"])
+
+    def test_threshold_from_its_ad(self):
+        self.observe(2074, 2255)
+        r = next(r for r in self.raw["requests"] if r["url"] == self.IMP)
+        for at, want in ((2505, Outcome.PASS), (2506, Outcome.FAIL), (2005, Outcome.PASS), (2004, Outcome.FAIL)):
+            r["wall"] = T0 + at
+            self.assertEqual(self.got()[0]["beacons"], want, at)
+
+    def test_a_later_pass_is_on_the_same_timeline(self):
+        # passes 2 and 3 follow the first: a second pass begun 300 ms late fails
+        self.observe(2074, 2255, (0, 3300, 6000))
+        g, d = self.got()
+        self.assertEqual(g["beacons"], Outcome.FAIL)
+        self.assertIn("beacons[1]", d["beacons"])
+
+    def test_ad_later_than_its_boundary_tolerance_moves_nothing(self):
+        # the ad 300 ms after the pause was made: unpaired, the beacons keep
+        # their written times (from when the pause was made) and fail
+        self.observe(2074, 2374)
+        g, d = self.got()
+        self.assertEqual((g["presentation"], g["beacons"]), (Outcome.FAIL, Outcome.FAIL))
+        self.assertIn("expected at 2000 (the action made at 2074); observed at 2374", d["beacons"])
+
+    def test_never_earlier(self):
+        # the ad shown 200 ms early does not pull its beacons in
+        self.observe(2000, 1800, (440, 3200, 6200))
+        self.assertEqual(self.got()[0]["beacons"], Outcome.PASS)     # 2240 vs 2000 +- 250
+        self.observe(2000, 1800, (451, 3200, 6200))
+        self.assertEqual(self.got()[0]["beacons"], Outcome.FAIL)     # 2251
+
+    def test_a_different_ad_on_screen_moves_nothing(self):
+        # the boundary paired with a change that shows another candidate
+        self.observe(2074, 2255)
+        for s in self.raw["observation"]["samples"]:
+            for e in s["elements"]:
+                if e["element"] == "ad":
+                    e["candidateId"] = "c2"
+        g, _ = self.got()
+        self.assertEqual((g["presentation"], g["beacons"]), (Outcome.FAIL, Outcome.FAIL))
+
+    def test_a_beacon_outside_its_ad_is_not_moved(self):
+        # a beacon written in the primary-only segment keeps its time
+        self.o["beacons"].append({"at": 11000, "fixture": "behaviour/fixtures/X/list.mpd", "id": "2"})
+        self.raw["requests"].append({"wall": T0 + 11000, "url": "https://t.example.com/end?c=1", "kind": "other"})
+        self.observe(2074, 2255)
+        self.assertEqual(self.got()[0]["beacons"], Outcome.PASS)
+        self.raw["requests"][-1]["wall"] = T0 + 11251
+        self.assertEqual(self.got()[0]["beacons"], Outcome.FAIL)
+
+    def test_a_beacon_of_another_candidate_is_not_moved(self):
+        # the ad 240 ms late, its impression 60 ms after it: moved, it passes
+        self.observe(2000, 2240, (60, 0, 0))
+        self.assertEqual(self.got()[0]["beacons"], Outcome.FAIL)      # passes 2, 3 at 2240: not theirs
+        self.observe(2000, 2240, (60, 3000, 6000))
+        self.assertEqual(self.got()[0]["beacons"], Outcome.PASS)
+        # named for a candidate that ad is not, it keeps its written 2000
+        self.o["beacons"][0]["candidate"] = {"fixture": "behaviour/fixtures/X/list.mpd", "id": "c2"}
+        self.assertEqual(self.got()[0]["beacons"], Outcome.FAIL)      # 2300 vs 2000 +- 250
+
+
 class Normalise(unittest.TestCase):
     def test_units(self):
         obs = normalise({"t0": 1000, "startupMs": 0,
