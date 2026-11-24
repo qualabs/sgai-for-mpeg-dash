@@ -1,0 +1,6 @@
+33 PASS, 3 FAIL
+FAIL R32.1-1 D1 selection | expected: selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.x... | observed: observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1] | log: <run>/mut-log/behaviour.log:2
+FAIL R32.1-1 D3 selection | expected: selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.x... | observed: observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1] | log: <run>/mut-log/behaviour.log:6
+FAIL R32.1-1 D4 selection | expected: selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.x... | observed: observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1] | log: <run>/mut-log/behaviour.log:10
+exit 1; wall 86.8 s; full log: <run>/mut-log/behaviour.log
+exit 1

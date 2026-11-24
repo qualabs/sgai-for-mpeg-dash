@@ -580,26 +580,31 @@ def _clickthrough_of(exp: dict, fx: Fixtures):
     return cts[0] if len(cts) == 1 else None
 
 
-def compare_clicks(expected: list, obs: Observed, tol: float, fx: Fixtures) -> tuple[Outcome, str]:
+def compare_clicks(expected: list, obs: Observed, tol: float, fx: Fixtures,
+                   timescale: int = 1000) -> tuple[Outcome, str]:
     """Each expected click-tracking fire is matched to one observed request to
     its `url` (query order aside) within its time, the `url` being one of the
-    candidate's ClickThrough@trackingUris. A click-tracking URL some fixture
-    declares, observed and not matched, is an unexpected click."""
+    candidate's ClickThrough@trackingUris. A time written at a viewer action's
+    is measured from when the executor made it, when later (`_made_at`). A
+    click-tracking URL some fixture declares, observed and not matched, is an
+    unexpected click."""
     problems, unverifiable, used = [], [], set()
     known = click_urls(fx)[0]
     for i, e in enumerate(expected):
+        when = _made_at(e["at"], obs.actions, timescale)
         ct = _clickthrough_of(e, fx)
         if ct is None or e["url"] not in (ct.get("trackingUris") or "").split():
             unverifiable.append(f"clicks[{i}] {e['url']}: not a trackingUris URL of a single ClickThrough "
                                 f"of that candidate in {e['fixture']}")
             continue
         same = [(j, o) for j, o in enumerate(obs.others) if j not in used and same_url(e["url"], o["url"])]
-        hit = next((j for j, o in same if within(o["at"], e["at"], tol_of(e, tol))), None)
+        hit = next((j for j, o in same if within(o["at"], when, tol_of(e, tol))), None)
         if hit is not None:
             used.add(hit)
             continue
         seen = ", ".join(str(_r(o["at"])) for _, o in same) or "never"
-        problems.append(f"clicks[{i}] {e['url']} expected at {fmt_when(e['at'])}; observed at {seen}")
+        problems.append(f"clicks[{i}] {e['url']} expected at {fmt_when(e['at'])}{_made_note(e['at'], when)}; "
+                        f"observed at {seen}")
     for j, o in enumerate(obs.others):
         if j not in used and any(same_url(k, o["url"]) for k in known):
             problems.append(f"unexpected click-tracking {o['url']} at {_r(o['at'])}")
@@ -608,14 +613,17 @@ def compare_clicks(expected: list, obs: Observed, tol: float, fx: Fixtures) -> t
                     else "no click-tracking, as expected")
 
 
-def compare_destinations(expected: list, obs: Observed, tol: float, fx: Fixtures) -> tuple[Outcome, str]:
+def compare_destinations(expected: list, obs: Observed, tol: float, fx: Fixtures,
+                         timescale: int = 1000) -> tuple[Outcome, str]:
     """Each expected destination is the candidate's ClickThrough@uri made
     available within its time: a request to that URI (a page opened on it, in
     the Player's page or another one), or a shown node carrying
     `data-sgai-clickthrough` with it (its URL on screen). A ClickThrough URI
     some fixture declares, made available outside the time of every expected
     destination with that URI, is unexpected (the same destination both
-    opened and shown at its time is not)."""
+    opened and shown at its time is not). A time written at a viewer
+    action's is measured from when the executor made it, when later
+    (`_made_at`)."""
     problems, unverifiable, want = [], [], []
     seen = [("opened", o["at"], o["url"]) for o in obs.others] + \
            [("shown", d["at"], d["uri"]) for d in obs.destinations]
@@ -628,14 +636,16 @@ def compare_destinations(expected: list, obs: Observed, tol: float, fx: Fixtures
                                 f"{e['fixture']}")
             continue
         uri = ct.get("uri")
-        want.append((uri, e["at"], tol_of(e, tol)))
+        when = _made_at(e["at"], obs.actions, timescale)
+        want.append((uri, when, tol_of(e, tol)))
         same = [(j, x) for j, x in enumerate(seen) if j not in used and same_url(uri, x[2])]
-        hit = next((j for j, x in same if within(x[1], e["at"], tol_of(e, tol))), None)
+        hit = next((j for j, x in same if within(x[1], when, tol_of(e, tol))), None)
         if hit is not None:
             used.add(hit)
             continue
         got = ", ".join(f"{x[0]} at {_r(x[1])}" for _, x in same) or "never"
-        problems.append(f"destinations[{i}] {uri} expected at {fmt_when(e['at'])}; observed: {got}")
+        problems.append(f"destinations[{i}] {uri} expected at {fmt_when(e['at'])}{_made_note(e['at'], when)}; "
+                        f"observed: {got}")
     for j, x in enumerate(seen):
         if j in used or any(same_url(u, x[2]) and within(x[1], at, t) for u, at, t in want):
             continue
@@ -770,6 +780,11 @@ def _made_at(bt, made: list, timescale: int):
     return bt
 
 
+def _made_note(bt, when) -> str:
+    """What a failure says when its time was moved to when the action was made."""
+    return "" if when == bt else f" (the action made at {_r(when)})"
+
+
 def compare_presentation(expected: list, obs: Observed, end: float, tol: float, fx: Fixtures,
                          actions: list, timescale: int) -> tuple[Outcome, str]:
     """The written segments against the observed ones. Every change observed
@@ -895,10 +910,13 @@ def _seg_at(segs: list, t: float) -> Seg:
 def presentations(obs: Observed, tol: float, fx: Fixtures) -> dict:
     """Per opportunity (fixture, Event@id), the ad presentations observed, in
     order of appearance: [(element, layout)]. One presentation is one surface:
-    its identity, its DOM element (`inst`) and, for a <video>, its pass. The
-    same surface back after any gap is the same presentation (a flicker, or a
-    suspension and its restore: R17, R40.4); a new DOM element or a video
-    started again is a new one (a second pass of the same candidate). Two
+    its identity, its DOM element (`inst`), for a <video> its pass, and the
+    serial the Player stamps on each presentation (`presentation`, its
+    `data-sgai-presentation`; absent, nothing). The same surface back after
+    any gap is the same presentation (a flicker, or a suspension and its
+    restore: R17, R40.4); a new DOM element, a video started again or a new
+    serial is a new one (a second pass of the same candidate, a still image
+    shown again on the element it was on). Two
     surfaces of the same identity in one sample are one. `tol` is not used:
     no gap length tells a restore from a new presentation.
 
@@ -914,7 +932,7 @@ def presentations(obs: Observed, tol: float, fx: Fixtures) -> dict:
         for e in s["elements"]:
             if e.get("element") != "ad":
                 continue
-            run = (_ident_el(e), e.get("inst"), e.get("pass"))
+            run = (_ident_el(e), e.get("inst"), e.get("pass"), e.get("presentation"))
             if run in now:
                 continue
             now.add(run)
@@ -1072,9 +1090,9 @@ def compare(vector: dict, outcome: dict, raw: dict, fx: Fixtures, subject: str,
         elif f == "beacons":
             o, d = compare_beacons(outcome["beacons"], obs, tol, fx, "clicks" in outcome)
         elif f == "clicks":
-            o, d = compare_clicks(outcome["clicks"], obs, tol, fx)
+            o, d = compare_clicks(outcome["clicks"], obs, tol, fx, ts)
         elif f == "destinations":
-            o, d = compare_destinations(outcome.get("destinations") or [], obs, tol, fx)
+            o, d = compare_destinations(outcome.get("destinations") or [], obs, tol, fx, ts)
         else:
             o, d = compare_geometry(outcome["geometry"], obs, tol)
         out.append(Result(f, o, subject, detail=d))

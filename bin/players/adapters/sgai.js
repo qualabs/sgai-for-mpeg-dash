@@ -33,6 +33,8 @@
 // Each surface carries `inst`, a serial of its DOM element, and an `ad`
 // <video> its media `time` and `pass` (how many times it went back to its
 // start): what tells a second pass of the same candidate from the first.
+// A surface's `presentation` (its `data-sgai-presentation`) tells a new
+// presentation on the same element, a still image shown again.
 //
 // A ClickThrough destination shown on screen (R28.1 lets the Player show its
 // URL instead of opening it) is read from any shown node carrying
@@ -68,6 +70,7 @@
   const serials = new WeakMap();
   let nextSerial = 1;
   const passes = new WeakMap();   // ad <video> -> { last (s), pass }
+  let click = null;               // the armed `activate`: { at } once its click arrived
   const serial = (el) => {
     if (!serials.has(el)) serials.set(el, nextSerial++);
     return serials.get(el);
@@ -119,7 +122,7 @@
     const d = el.dataset;
     const e = { element: d.sgaiElement, rect, inst: serial(el) };
     for (const k of ['doc', 'candidateId', 'candidateIndex', 'optionId', 'optionIndex',
-      'opportunityDoc', 'opportunityEvent']) {
+      'opportunityDoc', 'opportunityEvent', 'presentation']) {
       const v = d['sgai' + k[0].toUpperCase() + k.slice(1)];
       if (v !== undefined) e[k] = v;
     }
@@ -258,7 +261,8 @@
       return tick(null);
     },
 
-    // A viewer action; `activate` is a click, made by the runner. A `pause`
+    // A viewer action; `activate` is a click, made by the runner
+    // (clickAtFrame). A `pause`
     // runs the session clock on wall time until the `resume`.
     act(action) {
       sample('action:' + action.do);
@@ -307,6 +311,50 @@
         requestAnimationFrame(frame);
       });
     },
+
+    // The `activate` action, scheduled as the others are: at the first frame
+    // whose session time is at or past `atMs`, the centre of the first shown
+    // ad surface is taken (page coordinates; null: none) and a listener is
+    // armed for the click the runner then makes there with the real mouse.
+    // Resolves to { point, scheduledAt } (session ms), or { notYet: true } as
+    // actAtFrame. `clickArrival()` is the session time the click reached the
+    // page (null until it does): the time the viewer acted, which the
+    // comparison measures from. A trusted click is listened for in the page
+    // and in the same-origin document of an <iframe> under the point (an HTML
+    // creative, which takes its clicks there).
+    clickAtFrame(atMs, waitMs) {
+      return new Promise((resolve) => {
+        const until = Date.now() + waitMs;
+        const frame = () => {
+          sample(null);
+          const t = SGAI_ADAPTER.sessionNow();
+          if (t === null || t < atMs) {
+            if (Date.now() > until) { resolve({ notYet: true }); return; }
+            requestAnimationFrame(frame);
+            return;
+          }
+          const point = SGAI_ADAPTER.adPoint();
+          const armed = { at: null };
+          click = armed;
+          if (point) {
+            const on = (ev) => {
+              if (!ev.isTrusted || click !== armed || armed.at !== null) return;
+              armed.at = Math.round(SGAI_ADAPTER.sessionNow());
+              sample('action:activate');
+            };
+            document.addEventListener('click', on, true);
+            const under = document.elementFromPoint(point.x, point.y);
+            if (under && under.tagName === 'IFRAME') {
+              try { under.contentWindow.addEventListener('click', on, true); } catch (e) { /* not same-origin */ }
+            }
+          }
+          resolve({ point, scheduledAt: Math.round(t) });
+        };
+        requestAnimationFrame(frame);
+      });
+    },
+
+    clickArrival() { return click ? click.at : null; },
 
     // The centre of the first shown ad surface, in page coordinates, or null.
     adPoint() {

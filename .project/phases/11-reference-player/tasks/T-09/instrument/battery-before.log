@@ -1,0 +1,109 @@
+PASS            R32.1-1 D1                   requests      1 request(s) as expected
+FAIL            R32.1-1 D1                   selection     selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1; observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1]
+PASS            R32.1-1 D1                   presentation  5 segment(s) as expected; startup 2899 before the first frame
+PASS            R32.1-1 D1                   beacons       3 beacon(s) as expected
+PASS            R32.1-1 D3                   requests      1 request(s) as expected
+FAIL            R32.1-1 D3                   selection     selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1; observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1]
+PASS            R32.1-1 D3                   presentation  5 segment(s) as expected; startup 3297 before the first frame
+PASS            R32.1-1 D3                   beacons       3 beacon(s) as expected
+PASS            R32.1-1 D4                   requests      1 request(s) as expected
+FAIL            R32.1-1 D4                   selection     selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1; observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1]
+PASS            R32.1-1 D4                   presentation  5 segment(s) as expected; startup 2398 before the first frame
+PASS            R32.1-1 D4                   beacons       3 beacon(s) as expected
+PASS            R32.1-2 D1                   requests      2 request(s) as expected
+PASS            R32.1-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-2 D1                   presentation  5 segment(s) as expected; startup 1796 before the first frame
+PASS            R32.1-2 D1                   beacons       2 beacon(s) as expected
+PASS            R32.1-2 D3                   requests      2 request(s) as expected
+PASS            R32.1-2 D3                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-2 D3                   presentation  5 segment(s) as expected; startup 1094 before the first frame
+PASS            R32.1-2 D3                   beacons       2 beacon(s) as expected
+PASS            R32.1-2 D4                   requests      2 request(s) as expected
+PASS            R32.1-2 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-2 D4                   presentation  5 segment(s) as expected; startup 1501 before the first frame
+PASS            R32.1-2 D4                   beacons       2 beacon(s) as expected
+PASS            R32.1-3 D1                   requests      1 request(s) as expected
+PASS            R32.1-3 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-3 D1                   presentation  4 segment(s) as expected; startup 2092 before the first frame
+FAIL            R32.1-3 D1                   beacons       beacons[0] https://t.example.com/imp?cr=3214 (@id 1) expected at 2000; observed at 2333; unexpected beacon https://t.example.com/imp?cr=3214 at 2333
+PASS            R32.1-3 D3                   requests      1 request(s) as expected
+PASS            R32.1-3 D3                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-3 D3                   presentation  4 segment(s) as expected; startup 2697 before the first frame
+PASS            R32.1-3 D3                   beacons       1 beacon(s) as expected
+PASS            R32.1-3 D4                   requests      1 request(s) as expected
+PASS            R32.1-3 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-3 D4                   presentation  4 segment(s) as expected; startup 1600 before the first frame
+PASS            R32.1-3 D4                   beacons       1 beacon(s) as expected
+PASS            R17.1 D1                     requests      2 request(s) as expected
+PASS            R17.1 D1                     selection     2 opportunit(y/ies) as expected
+PASS            R17.1 D1                     presentation  5 segment(s) as expected; startup 2287 before the first frame
+PASS            R17.1 D1                     beacons       3 beacon(s) as expected
+PASS            R17.5 D1                     requests      3 request(s) as expected
+PASS            R17.5 D1                     selection     2 opportunit(y/ies) as expected
+PASS            R17.5 D1                     presentation  5 segment(s) as expected; startup 2329 before the first frame
+PASS            R17.5 D1                     beacons       3 beacon(s) as expected
+PASS            R40.4-1 D1                   requests      3 request(s) as expected
+PASS            R40.4-1 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-1 D1                   presentation  6 segment(s) as expected; startup 382 before the first frame
+PASS            R40.4-1 D1                   beacons       7 beacon(s) as expected
+PASS            R40.4-1 D4                   requests      3 request(s) as expected
+PASS            R40.4-1 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-1 D4                   presentation  6 segment(s) as expected; startup 1330 before the first frame
+PASS            R40.4-1 D4                   beacons       7 beacon(s) as expected
+PASS            R40.4-2 D1                   requests      3 request(s) as expected
+PASS            R40.4-2 D1                   selection     2 opportunit(y/ies) as expected
+FAIL            R40.4-2 D1                   presentation  observed a change at 10894 from none [nothing] to none [primary], which the vector does not have; presentation[3] 10000..12000 expected none [primary from 10000]; observed none [nothing] from 9995 to 10894 [startup 1729; observed: 0..1994 none [primary] from 18; 1994..3997 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay-r.xml:#1 option #1] from 2012; 3997..9995 linear [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]; 9995..10894 none [nothing]; 10894..12000 none [primary] from 9997]
+PASS            R40.4-2 D1                   beacons       3 beacon(s) as expected
+PASS            R40.4-2 D4                   requests      3 request(s) as expected
+PASS            R40.4-2 D4                   selection     2 opportunit(y/ies) as expected
+FAIL            R40.4-2 D4                   presentation  observed a change at 10457 from none [nothing] to none [primary], which the vector does not have; presentation[3] 10000..12000 expected none [primary from 10000]; observed none [nothing] from 10047 to 10457 [startup 930; observed: 0..2036 none [primary] from 12; 2036..4006 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay-r.xml:#1 option #1] from 2048; 4006..10047 linear [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]; 10047..10457 none [nothing]; 10457..12000 none [primary] from 9999]
+PASS            R40.4-2 D4                   beacons       3 beacon(s) as expected
+PASS            R28.1-1 D1                   requests      1 request(s) as expected
+PASS            R28.1-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D1                   presentation  3 segment(s) as expected; startup 1401 before the first frame
+PASS            R28.1-1 D1                   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D1                   clicks        2 click-tracking fire(s) as expected
+PASS            R28.1-1 D1                   destinations  1 destination(s) as expected
+PASS            R28.1-1 D4                   requests      1 request(s) as expected
+PASS            R28.1-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D4                   presentation  3 segment(s) as expected; startup 1486 before the first frame
+PASS            R28.1-1 D4                   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D4                   clicks        2 click-tracking fire(s) as expected
+PASS            R28.1-1 D4                   destinations  1 destination(s) as expected
+PASS            R28.1-1 D1 [no-activation]   requests      1 request(s) as expected
+PASS            R28.1-1 D1 [no-activation]   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D1 [no-activation]   presentation  3 segment(s) as expected; startup 2191 before the first frame
+PASS            R28.1-1 D1 [no-activation]   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D1 [no-activation]   clicks        no click-tracking, as expected
+PASS            R28.1-1 D1 [no-activation]   destinations  no destination made available, as expected
+PASS            R28.1-1 D4 [no-activation]   requests      1 request(s) as expected
+PASS            R28.1-1 D4 [no-activation]   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D4 [no-activation]   presentation  3 segment(s) as expected; startup 177 before the first frame
+PASS            R28.1-1 D4 [no-activation]   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D4 [no-activation]   clicks        no click-tracking, as expected
+PASS            R28.1-1 D4 [no-activation]   destinations  no destination made available, as expected
+NOT_APPLICABLE  R28.1-2 D1                   requests      requests not compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires
+PASS            R28.1-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-2 D1                   presentation  1 segment(s) as expected; startup 815 before the first frame
+PASS            R28.1-2 D1                   beacons       3 beacon(s) as expected
+FAIL            R28.1-2 D1                   clicks        clicks[0] https://t.example.com/click?cr=101 expected at 5000; observed at never
+FAIL            R28.1-2 D1                   destinations  destinations[0] https://brand-a.example.com/spring expected at 5000; observed: never
+NOT_APPLICABLE  R28.1-2 D5                   requests      requests not compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires
+PASS            R28.1-2 D5                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-2 D5                   presentation  1 segment(s) as expected; startup 1011 before the first frame
+PASS            R28.1-2 D5                   beacons       3 beacon(s) as expected
+FAIL            R28.1-2 D5                   clicks        clicks[0] https://t.example.com/click?cr=101 expected at 5000; observed at never
+FAIL            R28.1-2 D5                   destinations  destinations[0] https://brand-a.example.com/spring expected at 5000; observed: never
+PASS            R28.2 D1                     requests      1 request(s) as expected
+PASS            R28.2 D1                     selection     1 opportunit(y/ies) as expected
+PASS            R28.2 D1                     presentation  4 segment(s) as expected; startup 283 before the first frame
+PASS            R28.2 D1                     beacons       2 beacon(s) as expected
+PASS            R28.2 D1                     clicks        2 click-tracking fire(s) as expected
+PASS            R28.2 D1                     destinations  2 destination(s) as expected
+PASS            R28.2 D4                     requests      1 request(s) as expected
+PASS            R28.2 D4                     selection     1 opportunit(y/ies) as expected
+PASS            R28.2 D4                     presentation  4 segment(s) as expected; startup 1954 before the first frame
+PASS            R28.2 D4                     beacons       2 beacon(s) as expected
+PASS            R28.2 D4                     clicks        2 click-tracking fire(s) as expected
+PASS            R28.2 D4                     destinations  2 destination(s) as expected
+exit 1: PASS 96  FAIL 10  NOT_VERIFIABLE 0; wall 267.6 s; content 0.0 s (0 ffmpeg runs, 9 cuts from the cache), players 266.5 s

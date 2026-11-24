@@ -21,6 +21,11 @@
 //   `data-sgai-option-index` (neither: a linear candidate, option null), and
 //   `data-sgai-opportunity-doc` + `data-sgai-opportunity-event` (the URL of
 //   the MPD carrying the opportunity and its Event@id).
+// - An `ad` or `background` surface also carries `data-sgai-presentation`: a
+//   serial (`ref.nextPresentation()`, unique in the session) stamped each
+//   time the surface starts a new presentation of its candidate and option,
+//   even on the same DOM element (a still image shown again by a repeat).
+//   A suspension and its restore keep it: they are one presentation.
 // - A surface counts as shown when it is displayed, visible, not transparent,
 //   has an area inside the container and, for a <video>, has a frame. The
 //   harness computes no occlusion: a surface that is covered must be hidden.
@@ -72,6 +77,7 @@
       container.dataset.sgaiLayout = 'none';
       video.dataset.sgaiElement = 'primary';
       this.families = [];
+      this.presentationSerial = 0;
       for (const p of profile.problems || []) this.log('profile:problem', p);
       this.log('profile', { klass: profile.klass, capabilities: profile.capabilities,
         sendsCapabilities: profile.sendsCapabilities || [] });
@@ -104,6 +110,9 @@
       player.initialize(this.video, url, true, startTime);
       this.log('primary:initialize', { url, startTime });
     }
+
+    // The `data-sgai-presentation` of a new presentation (the contract above).
+    nextPresentation() { return String(++this.presentationSerial); }
 
     // A viewer action of a vector: {do, to (s), rate}. A family that owns the
     // action takes it first (a pause may bring a pause ad, a dismiss closes

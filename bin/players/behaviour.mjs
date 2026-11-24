@@ -25,10 +25,13 @@
 // STARTUP_LIMIT_MS). Actions are made, and observation ends, at the session
 // times the adapter reports (`sessionNow()`), not at wall times: on a page
 // that plays slower than real time the two part. Each action records the
-// session time it was started and done at. Every action but `activate` (a
-// click made from here) is made in the page inside the requestAnimationFrame
-// callback of the first frame at or past its time, and records the session
-// time of the next frame too (`nextFrameAt`, `timing: 'frame'`).
+// session time it was started and done at. Every action is scheduled in the
+// page at the requestAnimationFrame callback of the first frame at or past
+// its time. All but `activate` are made there, and record the session time
+// of the next frame too (`nextFrameAt`, `timing: 'frame'`); an `activate` is
+// a real mouse click made from here at the ad's centre taken at that frame,
+// and records the frame (`scheduledAt`) and when the click reached the page
+// (`startedAt`, `timing: 'frame-click'`).
 //
 // `cpuThrottle` (> 1) slows every page's main thread by that factor (CDP
 // Emulation.setCPUThrottlingRate): how the clock's independence from the
@@ -188,10 +191,38 @@ async function runJob(browser, job) {
       const t = await session();
       if (t >= job.observeMs) break;
       if (Date.now() - loaded > job.wallLimitMs) { out.timedOut = true; break; }
-      // An action other than `activate` is handed to the page shortly before
-      // it is due and made there, at the first frame at or past its time
+      // An `activate` is scheduled the same way (adapter.clickAtFrame): the
+      // page takes the ad's centre at that frame, and the click is made from
+      // here with the real mouse right after, so it is trusted, hit-tested and
+      // reaches an HTML creative's own document as a viewer's would. The round
+      // trip it still costs is measured, not hidden: `startedAt` is when the
+      // click reached the page (`scheduledAt` the frame), and the comparison
+      // measures from it. A click the page never saw keeps the frame's time.
+      if (pending.length && pending[0].do === 'activate' && pending[0].atMs <= t + FRAME_LEAD_MS) {
+        const a = pending[0];
+        const r = await page.evaluate(([at, wait]) => window.SGAI_ADAPTER.clickAtFrame(at, wait),
+          [a.atMs, FRAME_LEAD_MS * 4]);
+        if (r.notYet) continue;
+        pending.shift();
+        const rec = { at: a.atMs, do: a.do, scheduledAt: r.scheduledAt, timing: 'frame-click' };
+        if (r.point) {
+          await page.mouse.click(r.point.x, r.point.y);
+          const arrived = await page.evaluate(() => window.SGAI_ADAPTER.clickArrival());
+          rec.clickSeen = arrived !== null;
+          rec.startedAt = arrived !== null ? arrived : r.scheduledAt;
+          rec.result = { done: `clicked the ad at ${Math.round(r.point.x)},${Math.round(r.point.y)}` };
+        } else {
+          rec.startedAt = r.scheduledAt;
+          rec.result = { done: null, reason: 'no ad surface on screen to click' };
+        }
+        rec.doneAt = Math.round(await session());
+        actions.push(rec);
+        continue;
+      }
+      // Any other action is handed to the page shortly before it is due and
+      // made there, at the first frame at or past its time
       // (adapter.actAtFrame): a poll from here is late by a round trip.
-      if (pending.length && pending[0].do !== 'activate' && pending[0].atMs <= t + FRAME_LEAD_MS) {
+      if (pending.length && pending[0].atMs <= t + FRAME_LEAD_MS) {
         const a = pending[0];
         const r = await page.evaluate(([x, at, wait]) => window.SGAI_ADAPTER.actAtFrame(x, at, wait),
           [{ do: a.do, to: a.to, rate: a.rate }, a.atMs, FRAME_LEAD_MS * 4]);
@@ -200,24 +231,6 @@ async function runJob(browser, job) {
         actions.push({ at: a.atMs, do: a.do, startedAt: r.startedAt, result: r.result, doneAt: r.doneAt,
           nextFrameAt: r.nextFrameAt, timing: 'frame' });
         continue;
-      }
-      while (pending.length && pending[0].do === 'activate' && pending[0].atMs <= t) {
-        const a = pending.shift();
-        const rec = { at: a.atMs, do: a.do, startedAt: Math.round(await session()) };
-        if (a.do === 'activate') {
-          const p = await page.evaluate(() => window.SGAI_ADAPTER.adPoint());
-          if (p) {
-            await page.mouse.click(p.x, p.y);
-            rec.result = { done: `clicked the ad at ${Math.round(p.x)},${Math.round(p.y)}` };
-          } else {
-            rec.result = { done: null, reason: 'no ad surface on screen to click' };
-          }
-        } else {
-          rec.result = await page.evaluate((x) => window.SGAI_ADAPTER.act(x),
-            { do: a.do, to: a.to, rate: a.rate });
-        }
-        rec.doneAt = Math.round(await session());
-        actions.push(rec);
       }
       await sleep(POLL_MS);
     }

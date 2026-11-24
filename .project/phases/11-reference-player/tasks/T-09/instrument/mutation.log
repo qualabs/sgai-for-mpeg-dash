@@ -1,0 +1,37 @@
+PASS            R32.1-1 D1                   requests      1 request(s) as expected
+FAIL            R32.1-1 D1                   selection     selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1; observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1]
+PASS            R32.1-1 D1                   presentation  5 segment(s) as expected; startup 2306 before the first frame
+PASS            R32.1-1 D1                   beacons       3 beacon(s) as expected
+PASS            R32.1-1 D3                   requests      1 request(s) as expected
+FAIL            R32.1-1 D3                   selection     selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1; observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1]
+PASS            R32.1-1 D3                   presentation  5 segment(s) as expected; startup 2304 before the first frame
+PASS            R32.1-1 D3                   beacons       3 beacon(s) as expected
+PASS            R32.1-1 D4                   requests      1 request(s) as expected
+FAIL            R32.1-1 D4                   selection     selection[0] event 1 of behaviour/fixtures/R32.1/main.mpd (presented): expected pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1, pause-fullscreen behaviour/fixtures/R32.1/repeat.xml:#1 option #1; observed pause-fullscreen [ad behaviour/fixtures/R32.1/repeat.xml:#1 option #1]
+PASS            R32.1-1 D4                   presentation  5 segment(s) as expected; startup 1675 before the first frame
+PASS            R32.1-1 D4                   beacons       3 beacon(s) as expected
+PASS            R32.1-2 D1                   requests      2 request(s) as expected
+PASS            R32.1-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-2 D1                   presentation  5 segment(s) as expected; startup 1401 before the first frame
+PASS            R32.1-2 D1                   beacons       2 beacon(s) as expected
+PASS            R32.1-2 D3                   requests      2 request(s) as expected
+PASS            R32.1-2 D3                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-2 D3                   presentation  5 segment(s) as expected; startup 2213 before the first frame
+PASS            R32.1-2 D3                   beacons       2 beacon(s) as expected
+PASS            R32.1-2 D4                   requests      2 request(s) as expected
+PASS            R32.1-2 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-2 D4                   presentation  5 segment(s) as expected; startup 892 before the first frame
+PASS            R32.1-2 D4                   beacons       2 beacon(s) as expected
+PASS            R32.1-3 D1                   requests      1 request(s) as expected
+PASS            R32.1-3 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-3 D1                   presentation  4 segment(s) as expected; startup 1505 before the first frame
+PASS            R32.1-3 D1                   beacons       1 beacon(s) as expected
+PASS            R32.1-3 D3                   requests      1 request(s) as expected
+PASS            R32.1-3 D3                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-3 D3                   presentation  4 segment(s) as expected; startup 1698 before the first frame
+PASS            R32.1-3 D3                   beacons       1 beacon(s) as expected
+PASS            R32.1-3 D4                   requests      1 request(s) as expected
+PASS            R32.1-3 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-3 D4                   presentation  4 segment(s) as expected; startup 467 before the first frame
+PASS            R32.1-3 D4                   beacons       1 beacon(s) as expected
+exit 1: PASS 33  FAIL 3  NOT_VERIFIABLE 0; wall 86.8 s; content 0.0 s (0 ffmpeg runs, 2 cuts from the cache), players 85.8 s

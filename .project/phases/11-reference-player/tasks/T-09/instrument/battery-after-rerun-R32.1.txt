@@ -1,0 +1,3 @@
+36 PASS
+exit 0; wall 92.3 s; full log: <run>/rerun-log/behaviour.log
+exit 0

@@ -6,8 +6,8 @@
 // contract of sgai-reference.js).
 //
 // Interface. `ref.compositor.present(el, layout, opts)` takes an ad surface
-// the caller built (its identity already in `el.dataset`), appends it to the
-// viewport and returns a handle:
+// the caller built (its identity already in `el.dataset`), stamps its
+// `data-sgai-presentation`, appends it to the viewport and returns a handle:
 //   handle.suspend() / handle.resume()  off and back on screen; a suspended
 //                                       form leaves its content untransformed
 //   handle.remove()                     gone for good
@@ -133,6 +133,10 @@
 
     present(el, layout, opts) {
       const h = new Handle(this, el, layout, opts || {});
+      // One handle is one presentation: a new serial, even for an element
+      // shown before (sgai-reference.js, the observation contract).
+      el.dataset.sgaiPresentation = this.ref.nextPresentation();
+      if (h.background) h.background.dataset.sgaiPresentation = el.dataset.sgaiPresentation;
       el.style.visibility = 'hidden';
       el.style.border = '0';
       el.style.margin = '0';

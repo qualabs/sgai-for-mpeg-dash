@@ -943,6 +943,65 @@ class Clicks(unittest.TestCase):
         self.raw["observation"]["destinations"] = [{"t": 7251, "uri": "https://brand.example.com/c2"}]
         self.assertEqual(self.got()["destinations"], Outcome.FAIL)
 
+
+class ClicksFromTheAction(Clicks):
+    """A click and its destination written at an `activate`'s time are
+    measured from when the executor made it (the action's `startedAt`: when
+    the click reached the page), when later; never from earlier, and only for
+    the action at that written time."""
+
+    def setUp(self):
+        super().setUp()
+        self.raw["actions"] = [{"at": 3000, "do": "activate", "startedAt": 3000},
+                               {"at": 7000, "do": "activate", "startedAt": 7000}]
+
+    def late(self, made):
+        self.raw["actions"][1]["startedAt"] = made
+        for url, at in (("https://t.example.com/clk?c=2", made + 25), ("https://t2.example.com/clk", made + 25)):
+            next(r for r in self.raw["requests"] if r["url"] == url)["wall"] = T0 + at
+        self.raw["observation"]["destinations"] = [{"t": made + 20, "uri": "https://brand.example.com/c2"}]
+
+    def test_a_late_click_is_measured_from_when_it_was_made(self):
+        # R28.1-1 D1 under load: the click reached the page 230 ms late
+        self.late(7230)
+        g = self.got()
+        self.assertEqual((g["clicks"], g["destinations"]), (Outcome.PASS, Outcome.PASS))
+
+    def test_without_startedAt_the_written_time_holds(self):
+        self.late(7240)        # click at 7265, destination at 7260: past 7000 + 250
+        del self.raw["actions"][1]["startedAt"]
+        g = self.got()
+        self.assertEqual((g["clicks"], g["destinations"]), (Outcome.FAIL, Outcome.FAIL))
+
+    def test_threshold_from_when_made(self):
+        self.late(7230)
+        r = next(r for r in self.raw["requests"] if r["url"] == "https://t2.example.com/clk")
+        for at, want in ((7480, Outcome.PASS), (7481, Outcome.FAIL), (6980, Outcome.PASS), (6979, Outcome.FAIL)):
+            r["wall"] = T0 + at
+            self.assertEqual(self.got()["clicks"], want, at)
+        for at, want in ((7480, Outcome.PASS), (7481, Outcome.FAIL)):
+            self.raw["observation"]["destinations"] = [{"t": at, "uri": "https://brand.example.com/c2"}]
+            self.assertEqual(self.got()["destinations"], want, at)
+
+    def test_never_earlier(self):
+        # an action recorded as made before its time does not pull the window in
+        self.raw["actions"][1]["startedAt"] = 6900
+        r = next(r for r in self.raw["requests"] if r["url"] == "https://t2.example.com/clk")
+        for at, want in ((6749, Outcome.FAIL), (6750, Outcome.PASS), (7250, Outcome.PASS)):
+            r["wall"] = T0 + at
+            self.assertEqual(self.got()["clicks"], want, at)
+
+    def test_only_the_action_at_that_time(self):
+        self.late(7230)
+        self.raw["actions"][1]["at"] = 6000      # no action at the written 7000
+        self.assertEqual(self.got()["clicks"], Outcome.FAIL)
+
+    def test_failure_says_when_made(self):
+        self.late(7230)
+        next(r for r in self.raw["requests"] if r["url"] == "https://t2.example.com/clk")["wall"] = T0 + 7600
+        d = details(run(self.v, self.o, self.fx, self.raw))["clicks"]
+        self.assertIn("expected at 7000 (the action made at 7230); observed at 7600", d)
+
     def test_tracking_beacon_not_expected(self):
         # a non-linear candidate's beacon lives in <svta:Tracking>, not in an
         # EventStream: fired and not expected, it is an unexpected beacon
@@ -1090,6 +1149,65 @@ class SuspendedSurface(unittest.TestCase):
         out, d = self.field()
         self.assertEqual(out, Outcome.FAIL)
         self.assertIn("1 presentation(s) more", d)
+
+
+class PresentationSerial(SuspendedSurface):
+    """The serial a Player stamps on each presentation (`presentation`, its
+    `data-sgai-presentation`) is part of a presentation's identity: a new
+    serial on the same element (a still image shown again, R32.1's repeat) is
+    a new presentation, the same serial after a gap (a suspension and its
+    restore) is the same one, and no serial at all leaves the identity as
+    the element and pass say."""
+
+    def setUp(self):
+        super().setUp()
+        for e in (self.ad, self.back_ad):
+            e.pop("pass")                 # a still image has no pass
+            e["presentation"] = "1"
+
+    def test_same_serial_after_a_gap_is_one_presentation(self):
+        self.assertEqual(self.field()[0], Outcome.PASS)
+
+    def test_new_serial_on_the_same_element_is_a_new_presentation(self):
+        self.back_ad["presentation"] = "2"
+        out, d = self.field()
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn("1 presentation(s) more", d)
+
+    def test_new_serial_with_no_gap_is_a_new_presentation(self):
+        # the repeat's case: cleared and shown again in one task, so no
+        # sample without the surface lies between the two
+        self.back_ad["presentation"] = "2"
+        self.back["t"] = 12000.5
+        self.raw["observation"]["samples"] = [s for s in self.raw["observation"]["samples"] if s["t"] != 12000]
+        self.raw["observation"]["samples"].sort(key=lambda x: x["t"])
+        out, d = self.field()
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn("1 presentation(s) more", d)
+
+    def test_serial_absent_on_the_restore_is_another_identity(self):
+        # a Player that stamps a serial stamps it on every sample: one that
+        # disappears is not the same presentation read twice
+        del self.back_ad["presentation"]
+        self.assertEqual(self.field()[0], Outcome.FAIL)
+
+    def test_serial_absent_on_both_is_the_element_alone(self):
+        for e in (self.ad, self.back_ad):
+            del e["presentation"]
+        self.assertEqual(self.field()[0], Outcome.PASS)
+
+    def test_three_serials_are_three_presentations(self):
+        obs_samples = self.raw["observation"]["samples"]
+        third = copy.deepcopy(self.back)
+        third["t"] = 17000
+        third["elements"][0]["time"] = 17000
+        next(e for e in third["elements"] if e["element"] == "ad")["presentation"] = "3"
+        self.back_ad["presentation"] = "2"
+        obs_samples.append(third)
+        obs_samples.sort(key=lambda x: x["t"])
+        out, d = self.field()
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn("2 presentation(s) more", d)
 
 
 class PrimaryFromTolerance(unittest.TestCase):
