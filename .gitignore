@@ -29,3 +29,6 @@ __pycache__/
 .claude/worktrees/
 bin/players/node_modules/
 .worktrees/
+
+# Demo recordings: reproducible with reference-player/demo/demo.py; kept out of git (size)
+.project/phases/*/tasks/*/*.webm

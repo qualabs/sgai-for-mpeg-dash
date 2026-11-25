@@ -1,0 +1,17 @@
+startup 0.0 ms; 258 samples; actions [{'at': 55000, 'do': 'pause', 'startedAt': 55010, 'result': {'done': 'primary paused inside a pause window'}, 'doneAt': 55013, 'nextFrameAt': 55070, 'timing': 'frame'}, {'at': 63000, 'do': 'resume', 'startedAt': 63177, 'result': {'done': 'pause ad removed, primary resumed'}, 'doneAt': 63177, 'nextFrameAt': 63177, 'timing': 'frame'}]
+page errors []; media errors []
+segment 0-20278 layout none paused False from 580005.0 elements [{'element': 'primary', 'docFixture': None, 'candidateId': None, 'candidateIndex': None, 'optionIndex': None, 'rect': {'x': 0, 'y': 0, 'width': 100, 'height': 100}, 'time': 580005.0, 'paused': False}]
+segment 20278-30295 layout overlay-lower-third paused None from None elements [{'element': 'ad', 'docFixture': 'examples/annex-d/D.4-1.mpd', 'candidateId': 'ad-401', 'candidateIndex': None, 'optionIndex': None, 'rect': {'x': 0, 'y': 0, 'width': 100, 'height': 100}, 'time': 10.0, 'paused': None}, {'element': 'ad', 'docFixture': 'examples/annex-d/D.5-1.xml', 'candidateId': None, 'candidateIndex': '1', 'optionIndex': '1', 'rect': {'x': 0, 'y': 70, 'width': 100, 'height': 30}, 'time': 0.0, 'paused': None}]
+segment 30295-50246 layout linear paused None from None elements [{'element': 'ad', 'docFixture': 'examples/annex-d/D.4-1.mpd', 'candidateId': 'ad-401', 'candidateIndex': None, 'optionIndex': None, 'rect': {'x': 0, 'y': 0, 'width': 100, 'height': 100}, 'time': 10027.0, 'paused': None}]
+segment 50246-55015 layout none paused False from 600032.0 elements [{'element': 'primary', 'docFixture': None, 'candidateId': None, 'candidateIndex': None, 'optionIndex': None, 'rect': {'x': 0, 'y': 0, 'width': 100, 'height': 100}, 'time': 600032.0, 'paused': False}]
+segment 55015-63177 layout pause-fullscreen paused None from None elements [{'element': 'ad', 'docFixture': 'examples/annex-h/H.5-1.xml', 'candidateId': None, 'candidateIndex': '1', 'optionIndex': '1', 'rect': {'x': 0, 'y': 0, 'width': 100, 'height': 100}, 'time': 0.0, 'paused': None}]
+segment 63177-68000 layout none paused False from 604797.0 elements [{'element': 'primary', 'docFixture': None, 'candidateId': None, 'candidateIndex': None, 'optionIndex': None, 'rect': {'x': 0, 'y': 0, 'width': 100, 'height': 100}, 'time': 604797.0, 'paused': False}]
+primary advanced 3998 ms over 63500-68000 ms
+PASS primary 0.0-20.3 s
+PASS linear+overlay 20.3-30.3 s box [0, 70, 100, 30]
+PASS linear 30.3-50.2 s
+PASS primary 50.2-55.0 s
+PASS pause 55.0-63.2 s
+PASS primary resumed 63.2-68.0 s
+PASS viewer pause at 55.0 s
+PASS viewer resume at 63.2 s

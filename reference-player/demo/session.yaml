@@ -1,0 +1,79 @@
+# The demo session (ADR 0086): one session of the reference on class D1 with a
+# linear break, an overlay and a pause ad.
+#
+# No vector of spec-source/scenarios/ presents all three in one session:
+# UC-04 has the linear break with a concurrent overlay but no pause window,
+# UC-08 the overlay and the pause ad but no linear break, and UC-07, whose
+# main MPD (G.2-1) declares all three, has its overlay supersede the break and
+# no resolution document for either SGAI window. So this session is UC-04
+# (Annex D, D1) with a pause window added to its main MPD
+# (fixtures/main.mpd = D.2-1 plus the PauseAdPresentation of H.2-1, under a
+# URI of this show) and answered by Annex H's pause document (H.5-1, with its
+# video sub-MPD H.6-2). Every other document is Annex D's, unchanged.
+#
+# Playback starts at 580 s, 20 s before the break. Session time t is
+# programme time 580 s + t until the break at 20 s; the programme resumes at
+# 600 s at session 50 s; the viewer pauses at 55 s (programme 605 s) for 8 s.
+# A shorter lead was tried: joined 5 s before the break, the reference shows
+# nothing for about a second between the end of the linear ad and the
+# programme (reported as a finding of T-11; UC-04 itself joins 40 s before).
+#
+# Read by reference-player/demo/demo.py only. It is in the vector format so
+# that bin/conformance/behaviour.py builds its job, but it is not a UC vector:
+# no battery or build reads this directory (ADR 0087).
+format: sgai-scenario/1
+timescale: 1000
+# 500 ms and not the battery's 250: the recording's encoding shares the CPU
+# with the page, and on a loaded 2-core machine the transitions were measured
+# up to 334 ms late while recording. Timing is judged by the battery; the demo
+# judges what is shown, in which order, and roughly when.
+tolerance: 500
+play_from: 580000
+observe_until: 68000
+entry: fixtures/main.mpd
+fixtures:
+  - path: fixtures/main.mpd
+  - path: examples/annex-d/D.4-1.mpd
+    url: https://aps.example.com/linear/mid?s=3&e=2
+  - path: examples/annex-d/D.5-1.xml
+    url: https://aps.example.com/nl/overlay?s=3&e=2&w=h1
+  - path: examples/annex-d/D.6-1.mpd
+    url: https://ads-cdn.example.com/cr/401/cr401.mpd
+  - path: examples/annex-d/D.6-2.mpd
+    url: https://ads-cdn.example.com/nl/402/cr402v.mpd
+  - path: examples/annex-h/H.5-1.xml
+    url: https://aps.example.com/nl/pause?s=3&e=2
+  - path: examples/annex-h/H.6-2.mpd
+    url: https://ads-cdn.example.com/pz/802/cr802v.mpd
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions: [{at: 55000, do: pause}, {at: 63000, do: resume}]
+
+outcomes:
+  D1:
+    summary: >-
+      The programme; at 600 s the 30 s linear ad with the video lower-third
+      over its first 10 s; the programme from 600 s; the viewer pauses at
+      605 s and the video pause ad plays fullscreen until the resume 8 s
+      later; the programme from 605 s.
+    # What demo.py asserts, in this order. `family` names the phase in its
+    # output. An ad's rectangle (percent of the viewport: x, y, width,
+    # height) must equal `fills` within 1 point, or lie inside `within`.
+    presentation:
+      - {family: primary, start: 0, end: 20000, layout: none, shows: [{element: primary, from: 580000}]}
+      - family: linear+overlay
+        start: 20000
+        end: 30000
+        layout: overlay-lower-third
+        shows:
+          - &lin {element: ad, candidate: {fixture: examples/annex-d/D.4-1.mpd, id: ad-401}, option: null, fills: [0, 0, 100, 100]}
+          - {element: ad, candidate: {fixture: examples/annex-d/D.5-1.xml, index: 1}, option: {index: 1}, within: [0, 66.67, 100, 33.33]}
+      - {family: linear, start: 30000, end: 50000, layout: linear, shows: [*lin]}
+      - {family: primary, start: 50000, end: 55000, layout: none, shows: [{element: primary, from: 600000}]}
+      - family: pause
+        start: 55000
+        end: 63000
+        layout: pause-fullscreen
+        shows: [{element: ad, candidate: {fixture: examples/annex-h/H.5-1.xml, index: 1}, option: {index: 1}, fills: [0, 0, 100, 100]}]
+      - {family: primary resumed, start: 63000, end: 68000, layout: none, shows: [{element: primary, from: 605000}]}
