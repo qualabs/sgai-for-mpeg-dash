@@ -1,0 +1,600 @@
+{
+ "results": [
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 553 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1",
+   "xpath": "",
+   "detail": "1 beacon(s) as expected"
+  },
+  {
+   "rule": "clicks",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1",
+   "xpath": "",
+   "detail": "2 click-tracking fire(s) as expected"
+  },
+  {
+   "rule": "destinations",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1",
+   "xpath": "",
+   "detail": "1 destination(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 402 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4",
+   "xpath": "",
+   "detail": "1 beacon(s) as expected"
+  },
+  {
+   "rule": "clicks",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4",
+   "xpath": "",
+   "detail": "2 click-tracking fire(s) as expected"
+  },
+  {
+   "rule": "destinations",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4",
+   "xpath": "",
+   "detail": "1 destination(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1 [no-activation]",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1 [no-activation]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1 [no-activation]",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 1106 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1 [no-activation]",
+   "xpath": "",
+   "detail": "1 beacon(s) as expected"
+  },
+  {
+   "rule": "clicks",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1 [no-activation]",
+   "xpath": "",
+   "detail": "no click-tracking, as expected"
+  },
+  {
+   "rule": "destinations",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D1 [no-activation]",
+   "xpath": "",
+   "detail": "no destination made available, as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4 [no-activation]",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4 [no-activation]",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4 [no-activation]",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 1263 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4 [no-activation]",
+   "xpath": "",
+   "detail": "1 beacon(s) as expected"
+  },
+  {
+   "rule": "clicks",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4 [no-activation]",
+   "xpath": "",
+   "detail": "no click-tracking, as expected"
+  },
+  {
+   "rule": "destinations",
+   "outcome": "PASS",
+   "subject": "R28.1-1 D4 [no-activation]",
+   "xpath": "",
+   "detail": "no destination made available, as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "NOT_APPLICABLE",
+   "subject": "R28.1-2 D1",
+   "xpath": "",
+   "detail": "requests not compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R28.1-2 D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R28.1-2 D1",
+   "xpath": "",
+   "detail": "1 segment(s) as expected; startup 1587 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R28.1-2 D1",
+   "xpath": "",
+   "detail": "3 beacon(s) as expected"
+  },
+  {
+   "rule": "clicks",
+   "outcome": "PASS",
+   "subject": "R28.1-2 D1",
+   "xpath": "",
+   "detail": "1 click-tracking fire(s) as expected"
+  },
+  {
+   "rule": "destinations",
+   "outcome": "PASS",
+   "subject": "R28.1-2 D1",
+   "xpath": "",
+   "detail": "1 destination(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "NOT_APPLICABLE",
+   "subject": "R28.1-2 D5",
+   "xpath": "",
+   "detail": "requests not compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R28.1-2 D5",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R28.1-2 D5",
+   "xpath": "",
+   "detail": "1 segment(s) as expected; startup 1902 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R28.1-2 D5",
+   "xpath": "",
+   "detail": "3 beacon(s) as expected"
+  },
+  {
+   "rule": "clicks",
+   "outcome": "PASS",
+   "subject": "R28.1-2 D5",
+   "xpath": "",
+   "detail": "1 click-tracking fire(s) as expected"
+  },
+  {
+   "rule": "destinations",
+   "outcome": "PASS",
+   "subject": "R28.1-2 D5",
+   "xpath": "",
+   "detail": "1 destination(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R17.5 D1",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R17.5 D1",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R17.5 D1",
+   "xpath": "",
+   "detail": "5 segment(s) as expected; startup 481 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R17.5 D1",
+   "xpath": "",
+   "detail": "3 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "6 segment(s) as expected; startup 426 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D1",
+   "xpath": "",
+   "detail": "7 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "6 segment(s) as expected; startup 790 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R40.4-1 D4",
+   "xpath": "",
+   "detail": "7 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "4 segment(s) as expected; startup 303 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D1",
+   "xpath": "",
+   "detail": "3 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "4 segment(s) as expected; startup 1114 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R40.4-2 D4",
+   "xpath": "",
+   "detail": "3 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R4.2-1 D4",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R4.2-1 D4",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R4.2-1 D4",
+   "xpath": "",
+   "detail": "4 segment(s) as expected; startup 495 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R4.2-1 D4",
+   "xpath": "",
+   "detail": "3 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "R4.2-2 D1",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "R4.2-2 D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "R4.2-2 D1",
+   "xpath": "",
+   "detail": "4 segment(s) as expected; startup 386 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "R4.2-2 D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-01 D1",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-01 D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-01 D1",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 711 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-01 D1",
+   "xpath": "",
+   "detail": "9 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-01 D2",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-01 D2",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-01 D2",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 1180 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-01 D2",
+   "xpath": "",
+   "detail": "9 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-01 D3",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-01 D3",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-01 D3",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 4491 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "FAIL",
+   "subject": "UC-01 D3",
+   "xpath": "",
+   "detail": "beacons[2] https://t.example.com/q1?cr=101 (@id 3) expected at 3750; observed at 4533; unexpected beacon https://t.example.com/q1?cr=101 at 4533"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-01 D4",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-01 D4",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-01 D4",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 1700 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-01 D4",
+   "xpath": "",
+   "detail": "9 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "UC-01 D5",
+   "xpath": "",
+   "detail": "3 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "UC-01 D5",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "UC-01 D5",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 1011 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "UC-01 D5",
+   "xpath": "",
+   "detail": "9 beacon(s) as expected"
+  }
+ ],
+ "cannot": [],
+ "notes": [],
+ "wall_seconds": 248.8,
+ "timings": {
+  "content_seconds": 0.0,
+  "run_seconds": 246.2,
+  "browser": "chromium 149.0.7827.55"
+ }
+}

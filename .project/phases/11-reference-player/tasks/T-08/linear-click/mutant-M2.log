@@ -1,0 +1,4 @@
+32 PASS, 2 FAIL
+FAIL R28.1-2 D1 destinations | expected: destinations[0] https://brand-a.example.com/spring expected at 5000 (the action made at 5040) | observed: observed: never | log: /run/user/1000/cto/t08-linclick-1795563650-12781/log-M2/behaviour.log:30
+FAIL R28.1-2 D5 destinations | expected: destinations[0] https://brand-a.example.com/spring expected at 5000 (the action made at 5020) | observed: observed: never | log: /run/user/1000/cto/t08-linclick-1795563650-12781/log-M2/behaviour.log:36
+exit 1; wall 37.4 s; full log: /run/user/1000/cto/t08-linclick-1795563650-12781/log-M2/behaviour.log

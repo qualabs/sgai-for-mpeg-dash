@@ -1,0 +1,5 @@
+diff --color -r reference-player/src/sgai-linear.js /run/user/1000/cto/t08-linclick-1795563650-12781/M2/sgai-linear.js
+703c703
+<       SgaiClick.activate(this.ref, part.click);
+---
+>       for (const u of part.click.tracking) fetch(u, { mode: 'no-cors', credentials: 'omit', cache: 'no-store', keepalive: true }).catch(() => {});

@@ -1,0 +1,5 @@
+diff --color -r reference-player/src/sgai-linear.js /run/user/1000/cto/t08-linclick-1795563650-12781/M1/sgai-linear.js
+703c703
+<       SgaiClick.activate(this.ref, part.click);
+---
+>       SgaiClick.activate(this.ref, Object.assign({}, part.click, { tracking: [] }));

@@ -1,0 +1,376 @@
+{
+ "results": [
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E1-execute-once-after-success D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E1-execute-once-after-success D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E1-execute-once-after-success D1",
+   "xpath": "",
+   "detail": "4 segment(s) as expected; startup 1087 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E1-execute-once-after-success D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E2-insert-reexecuted-after-seek D1",
+   "xpath": "",
+   "detail": "2 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E2-insert-reexecuted-after-seek D1",
+   "xpath": "",
+   "detail": "2 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E2-insert-reexecuted-after-seek D1",
+   "xpath": "",
+   "detail": "6 segment(s) as expected; startup 1405 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E2-insert-reexecuted-after-seek D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E3-replace-late-clip D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E3-replace-late-clip D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E3-replace-late-clip D1",
+   "xpath": "",
+   "detail": "2 segment(s) as expected; startup 854 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E3-replace-late-clip D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E4-replace-late-noclip D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E4-replace-late-noclip D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E4-replace-late-noclip D1",
+   "xpath": "",
+   "detail": "2 segment(s) as expected; startup 1203 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E4-replace-late-noclip D1",
+   "xpath": "",
+   "detail": "3 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E5-replace-start-with-offset D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E5-replace-start-with-offset D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E5-replace-start-with-offset D1",
+   "xpath": "",
+   "detail": "2 segment(s) as expected; startup 319 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E5-replace-start-with-offset D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E6-replace-return-offset D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E6-replace-return-offset D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E6-replace-return-offset D1",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 143 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E6-replace-return-offset D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "NOT_APPLICABLE",
+   "subject": "E7-replace-apda-zero D1",
+   "xpath": "",
+   "detail": "requests not compared: A.14.5 resolves the event before it checks APDA; the base does not bind whether a zero APDA is found before the request"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E7-replace-apda-zero D1",
+   "xpath": "",
+   "detail": "no opportunity, as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E7-replace-apda-zero D1",
+   "xpath": "",
+   "detail": "1 segment(s) as expected; startup 166 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E7-replace-apda-zero D1",
+   "xpath": "",
+   "detail": "no beacon, as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E8-list-linked-period-fails D1",
+   "xpath": "",
+   "detail": "4 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E8-list-linked-period-fails D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E8-list-linked-period-fails D1",
+   "xpath": "",
+   "detail": "4 segment(s) as expected; startup 312 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E8-list-linked-period-fails D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E9-insert-late-join D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E9-insert-late-join D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E9-insert-late-join D1",
+   "xpath": "",
+   "detail": "2 segment(s) as expected; startup 1087 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E9-insert-late-join D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E10-join-after-eap D1",
+   "xpath": "",
+   "detail": "no document request, as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E10-join-after-eap D1",
+   "xpath": "",
+   "detail": "no opportunity, as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E10-join-after-eap D1",
+   "xpath": "",
+   "detail": "1 segment(s) as expected; startup 136 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E10-join-after-eap D1",
+   "xpath": "",
+   "detail": "no beacon, as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E11-pause-during-linear-ad D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E11-pause-during-linear-ad D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E11-pause-during-linear-ad D1",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 371 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E11-pause-during-linear-ad D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E12-replace-end-callback-on-time D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E12-replace-end-callback-on-time D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E12-replace-end-callback-on-time D1",
+   "xpath": "",
+   "detail": "3 segment(s) as expected; startup 177 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E12-replace-end-callback-on-time D1",
+   "xpath": "",
+   "detail": "2 beacon(s) as expected"
+  },
+  {
+   "rule": "requests",
+   "outcome": "PASS",
+   "subject": "E13-replace-late-join-no-end-callback D1",
+   "xpath": "",
+   "detail": "1 request(s) as expected"
+  },
+  {
+   "rule": "selection",
+   "outcome": "PASS",
+   "subject": "E13-replace-late-join-no-end-callback D1",
+   "xpath": "",
+   "detail": "1 opportunit(y/ies) as expected"
+  },
+  {
+   "rule": "presentation",
+   "outcome": "PASS",
+   "subject": "E13-replace-late-join-no-end-callback D1",
+   "xpath": "",
+   "detail": "2 segment(s) as expected; startup 210 before the first frame"
+  },
+  {
+   "rule": "beacons",
+   "outcome": "PASS",
+   "subject": "E13-replace-late-join-no-end-callback D1",
+   "xpath": "",
+   "detail": "1 beacon(s) as expected"
+  }
+ ],
+ "cannot": [],
+ "notes": [],
+ "wall_seconds": 75.0,
+ "timings": {
+  "content_seconds": 0.0,
+  "run_seconds": 74.0,
+  "browser": "chromium 149.0.7827.55"
+ }
+}

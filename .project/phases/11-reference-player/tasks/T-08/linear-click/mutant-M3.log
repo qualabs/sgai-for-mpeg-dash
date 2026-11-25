@@ -1,0 +1,3 @@
+3 PASS, 1 FAIL
+FAIL R17.5 D1 selection | expected: (see log) | observed: selection[0] event 1 of behaviour/fixtures/R17.5/main.mpd: 1 presentation(s) more than the vector lists: linear [ad behaviour/fixtures/R17.5/list.mpd:ad-1 option null] | log: /run/user/1000/cto/t08-linclick-1795563650-12781/log-M3/behaviour.log:2
+exit 1; wall 20.6 s; full log: /run/user/1000/cto/t08-linclick-1795563650-12781/log-M3/behaviour.log

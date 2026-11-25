@@ -2457,3 +2457,19 @@ Precisión del líder, el mismo día: verificación 100% por código. No se toma
 ## 2026-11-24 — 11 T-05, T-06 y T-07 cerradas
 
 T-07, en tres familias con el método nuevo y el reloj por presentación: layouts 104 PASS, pausa 48 PASS, relaciones con el lineal 38 PASS. Ningún FAIL es de la referencia, y no hizo falta cambiar el código. Lo que falla queda clasificado: los beacons son de T-08; el harness y el comparador tienen el `background`, la suspensión contada dos veces, el `on-top` contado como otra presentación y la acción que no se dispara por frame; y hay dos defectos de vector (R40.9-3 sin ventana en el borde de 6 s, R40.9-2 sin fixtures que dejen probar el supersede). T-05 y T-06 se dan por hechas con sus FAIL clasificados (la máquina lenta y el harness), y se vuelven a juzgar en la corrida entera de T-09.
+
+## 2026-11-24 — 11 T-08 cerrada, y el instrumento afinado
+
+- **Beacons no lineales:** el Tracking por candidato, el alcance de `@id` y nada después del fin del aviso.
+- **Click:** no lineal y lineal, con un helper compartido (`sgai-click.js`).
+- **Callback de fin del lineal:** ya no se pierde por el atraso de un tick (vectores de borde E12 y E13).
+- **Número de presentación:** cada aviso lleva el suyo, así una imagen que se repite cuenta otra vez.
+- **Harness:**
+  - El comparador lee `svta:Tracking`: un beacon de más da FAIL.
+  - Los beacons se miden desde el inicio observado de su aviso.
+  - El click se dispara en el frame que le toca.
+  - Nueva regla S-DOC: toda URL de documento a la que apunta un fixture está declarada.
+  - Una selección que no elige ningún job da exit 2.
+  - La suspensión y su vuelta cuentan como una sola presentación.
+  - Hay tolerancia propia para el `from`.
+- **Tests nuevos:** R13.3-4 y R6.5-3, que salen de los borradores de T-08a.

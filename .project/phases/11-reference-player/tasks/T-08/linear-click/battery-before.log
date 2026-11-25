@@ -1,0 +1,6 @@
+78 PASS, 4 FAIL
+FAIL R28.1-2 D1 clicks | expected: clicks[0] https://t.example.com/click?cr=101 expected at 5000 (the action made at 5013) | observed: observed at never | log: /run/user/1000/cto/t08-linclick-1795563650-12781/before/behaviour.log:29
+FAIL R28.1-2 D1 destinations | expected: destinations[0] https://brand-a.example.com/spring expected at 5000 (the action made at 5013) | observed: observed: never | log: /run/user/1000/cto/t08-linclick-1795563650-12781/before/behaviour.log:30
+FAIL R28.1-2 D5 clicks | expected: clicks[0] https://t.example.com/click?cr=101 expected at 5000 (the action made at 5012) | observed: observed at never | log: /run/user/1000/cto/t08-linclick-1795563650-12781/before/behaviour.log:35
+FAIL R28.1-2 D5 destinations | expected: destinations[0] https://brand-a.example.com/spring expected at 5000 (the action made at 5012) | observed: observed: never | log: /run/user/1000/cto/t08-linclick-1795563650-12781/before/behaviour.log:36
+exit 1; wall 220.2 s; full log: /run/user/1000/cto/t08-linclick-1795563650-12781/before/behaviour.log

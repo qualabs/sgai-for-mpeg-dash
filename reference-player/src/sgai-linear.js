@@ -3,7 +3,10 @@
 // execution queue by PRT (§5.16.2.2) with @executeOnce, @maxDuration, @clip,
 // @returnOffset, @earliestResolutionTimeOffset and @startWithOffset, and the
 // List MPD (§8.14) with its Linked Periods (§5.3.2.6), and the callback
-// events (§5.10.4.5) of the alternative MPDs. Out: SCTE-35, MPD chaining, xlink, @noJump, event updates
+// events (§5.10.4.5) of the alternative MPDs, and the click on a candidate:
+// the <svta:ClickThrough> of a List MPD's Period (spec §4.7.5, the only
+// place a linear candidate carries one), armed on its <video> (sgai-click.js;
+// R28.1, R28.2). Out: SCTE-35, MPD chaining, xlink, @noJump, event updates
 // (@status="update" is not re-dispatched by dash.js 5.3.0, T-01).
 //
 // Shape (ADR 0075, measured in T-01): the primary MediaPlayer dispatches the
@@ -33,8 +36,10 @@
 // Observation contract (sgai-reference.js): the <video> of the alternative is
 // `data-sgai-element="ad"` with `data-sgai-doc` (the alternative MPD, or the
 // List MPD), `data-sgai-candidate-id` (its Period@id, the Linked Period's for
-// a List) and the opportunity (main MPD URL, Event@id); the primary <video> is
-// hidden while it shows, and the viewport's layout is `linear`.
+// a List), the opportunity (main MPD URL, Event@id) and
+// `data-sgai-presentation`, stamped on the Part's first frame and kept across
+// a suspension (R17.5: a pause and its resume are one presentation); the
+// primary <video> is hidden while it shows, and the viewport's layout is `linear`.
 //
 // For the other families: `ref.linear` is this object. `active` says a linear
 // alternative is on screen (or about to be), `onScreen` that its first frame
@@ -152,8 +157,9 @@
   // Period, or a Linked Period of a List MPD. `start` and `duration` are on
   // the alternative's timeline, in seconds.
   class Part {
-    constructor(family, { id, doc, importedUri, ert, duration }) {
+    constructor(family, { id, doc, importedUri, ert, duration, click }) {
       this.family = family;
+      this.click = click;           // its <svta:ClickThrough> (SgaiClick.parse), or null
       this.id = id;                 // data-sgai-candidate-id
       this.doc = doc;               // data-sgai-doc
       this.importedUri = importedUri;
@@ -213,6 +219,7 @@
       v.dataset.sgaiCandidateId = this.id;
       f.ref.container.appendChild(v);
       this.video = v;
+      SgaiClick.arm(v, this.click && (() => f.activate(this)));
       const p = dashjs.MediaPlayer().create();
       p.updateSettings({ debug: { logLevel: dashjs.Debug.LOG_LEVEL_NONE } });
       p.clearDefaultUTCTimingSources();
@@ -433,7 +440,7 @@
               id: p.getAttribute('id'), doc: E.uri,
               importedUri: new URL(imp.textContent.trim(), listBase).href,
               ert: num(imp.getAttribute('earliestResolutionTimeOffset'), 60),
-              duration,
+              duration, click: SgaiClick.parse(p, E.uri),
             }));
           }
           // Before the alternative plays, its first Linked Period with media
@@ -545,6 +552,9 @@
       if (this.alt !== alt) return;
       part.video.dataset.sgaiOpportunityDoc = this.ref.url;
       part.video.dataset.sgaiOpportunityEvent = alt.E.id;
+      // One serial per Part: the 'playing' of a resume after a suspension
+      // (R17.5) is not a new presentation.
+      if (!part.video.dataset.sgaiPresentation) part.video.dataset.sgaiPresentation = this.ref.nextPresentation();
       part.video.style.visibility = 'visible';
       this.main.style.visibility = 'hidden';
       part.shown = true;
@@ -684,6 +694,12 @@
           return { done: `linear ad and primary rate ${action.rate}` };
         default: return { done: null, reason: `a linear ad does not take '${action.do}'` };
       }
+    }
+
+    // R28.1, R28.2: the viewer activated the <video> of a Part on screen.
+    activate(part) {
+      this.log('linear:click', { id: part.id, uri: part.click.uri, tracking: part.click.tracking });
+      SgaiClick.activate(this.ref, part.click);
     }
 
     suspend() {

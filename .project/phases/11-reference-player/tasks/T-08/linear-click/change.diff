@@ -1,0 +1,256 @@
+diff --git a/reference-player/src/sgai-linear.js b/reference-player/src/sgai-linear.js
+index 632f105..868af99 100644
+--- a/reference-player/src/sgai-linear.js
++++ b/reference-player/src/sgai-linear.js
+@@ -3,7 +3,10 @@
+ // execution queue by PRT (§5.16.2.2) with @executeOnce, @maxDuration, @clip,
+ // @returnOffset, @earliestResolutionTimeOffset and @startWithOffset, and the
+ // List MPD (§8.14) with its Linked Periods (§5.3.2.6), and the callback
+-// events (§5.10.4.5) of the alternative MPDs. Out: SCTE-35, MPD chaining, xlink, @noJump, event updates
++// events (§5.10.4.5) of the alternative MPDs, and the click on a candidate:
++// the <svta:ClickThrough> of a List MPD's Period (spec §4.7.5, the only
++// place a linear candidate carries one), armed on its <video> (sgai-click.js;
++// R28.1, R28.2). Out: SCTE-35, MPD chaining, xlink, @noJump, event updates
+ // (@status="update" is not re-dispatched by dash.js 5.3.0, T-01).
+ //
+ // Shape (ADR 0075, measured in T-01): the primary MediaPlayer dispatches the
+@@ -33,8 +36,10 @@
+ // Observation contract (sgai-reference.js): the <video> of the alternative is
+ // `data-sgai-element="ad"` with `data-sgai-doc` (the alternative MPD, or the
+ // List MPD), `data-sgai-candidate-id` (its Period@id, the Linked Period's for
+-// a List) and the opportunity (main MPD URL, Event@id); the primary <video> is
+-// hidden while it shows, and the viewport's layout is `linear`.
++// a List), the opportunity (main MPD URL, Event@id) and
++// `data-sgai-presentation`, stamped on the Part's first frame and kept across
++// a suspension (R17.5: a pause and its resume are one presentation); the
++// primary <video> is hidden while it shows, and the viewport's layout is `linear`.
+ //
+ // For the other families: `ref.linear` is this object. `active` says a linear
+ // alternative is on screen (or about to be), `onScreen` that its first frame
+@@ -152,8 +157,9 @@
+   // Period, or a Linked Period of a List MPD. `start` and `duration` are on
+   // the alternative's timeline, in seconds.
+   class Part {
+-    constructor(family, { id, doc, importedUri, ert, duration }) {
++    constructor(family, { id, doc, importedUri, ert, duration, click }) {
+       this.family = family;
++      this.click = click;           // its <svta:ClickThrough> (SgaiClick.parse), or null
+       this.id = id;                 // data-sgai-candidate-id
+       this.doc = doc;               // data-sgai-doc
+       this.importedUri = importedUri;
+@@ -213,6 +219,7 @@
+       v.dataset.sgaiCandidateId = this.id;
+       f.ref.container.appendChild(v);
+       this.video = v;
++      SgaiClick.arm(v, this.click && (() => f.activate(this)));
+       const p = dashjs.MediaPlayer().create();
+       p.updateSettings({ debug: { logLevel: dashjs.Debug.LOG_LEVEL_NONE } });
+       p.clearDefaultUTCTimingSources();
+@@ -433,7 +440,7 @@
+               id: p.getAttribute('id'), doc: E.uri,
+               importedUri: new URL(imp.textContent.trim(), listBase).href,
+               ert: num(imp.getAttribute('earliestResolutionTimeOffset'), 60),
+-              duration,
++              duration, click: SgaiClick.parse(p, E.uri),
+             }));
+           }
+           // Before the alternative plays, its first Linked Period with media
+@@ -545,6 +552,9 @@
+       if (this.alt !== alt) return;
+       part.video.dataset.sgaiOpportunityDoc = this.ref.url;
+       part.video.dataset.sgaiOpportunityEvent = alt.E.id;
++      // One serial per Part: the 'playing' of a resume after a suspension
++      // (R17.5) is not a new presentation.
++      if (!part.video.dataset.sgaiPresentation) part.video.dataset.sgaiPresentation = this.ref.nextPresentation();
+       part.video.style.visibility = 'visible';
+       this.main.style.visibility = 'hidden';
+       part.shown = true;
+@@ -686,6 +696,12 @@
+       }
+     }
+ 
++    // R28.1, R28.2: the viewer activated the <video> of a Part on screen.
++    activate(part) {
++      this.log('linear:click', { id: part.id, uri: part.click.uri, tracking: part.click.tracking });
++      SgaiClick.activate(this.ref, part.click);
++    }
++
+     suspend() {
+       const part = this.alt && this.alt.parts[this.alt.index];
+       if (part && part.player) part.player.pause();
+diff --git a/reference-player/src/sgai-nonlinear.js b/reference-player/src/sgai-nonlinear.js
+index a74aecf..5f11857 100644
+--- a/reference-player/src/sgai-nonlinear.js
++++ b/reference-player/src/sgai-nonlinear.js
+@@ -28,8 +28,8 @@
+ // attributes of other namespaces inside the carrier are not read (R6.4).
+ // The click (§4.5.16, §5.6): a candidate's <svta:ClickThrough> is armed on its
+ // ad surface; the viewer's activation of that surface fires each URL of
+-// @trackingUris once and makes @uri available (R28.1, R28.2). Nothing fires
+-// from the timeline or without an activation (PLY-84).
++// @trackingUris once and makes @uri available (R28.1, R28.2; sgai-click.js,
++// shared with the linear family).
+ //
+ // Readings this file takes where the specification leaves room (each said
+ // where used):
+@@ -63,10 +63,6 @@
+ //   fires (PLY-9), never earlier;
+ // - a pause video option needs two decoders (the Player does not release the
+ //   primary's decoder, PLY-56 is a permission);
+-// - the destination is made available by showing its URL on screen (one of
+-//   the means R28.1 admits; a page opened from a test page would take the
+-//   focus) for DESTINATION_MS, a node carrying `data-sgai-clickthrough`; each
+-//   activation fires the click-tracking again (PLY-84 binds per activation).
+ //
+ // For the other families: `ref.nonlinear` is this object; `active` says an
+ // overlay or pause ad is on screen; `attachAlternative({player, video, url,
+@@ -82,7 +78,6 @@
+   const EPS = 0.02;                   // s
+   const RESOLVE_TIMEOUT_MS = 10000;   // the longest a resolution request is waited for
+   const STALL_MS = 1000;              // a video option that does not advance this long has failed
+-  const DESTINATION_MS = 5000;        // how long an activated ClickThrough's URL stays on screen
+   const CAPABILITY_PARAMS = ['sgai-video-decoders', 'sgai-image-over-video', 'sgai-html-over-video', 'sgai-custom-layout'];
+ 
+   // §3.4.3: the tokens each family's window may list, and its default.
+@@ -199,17 +194,6 @@
+     return out.map((b, i) => [b, i]).sort((a, b) => a[0].at - b[0].at || a[1] - b[1]).map((e) => e[0]);
+   }
+ 
+-  // §5.6: a candidate's <svta:ClickThrough>, { uri, tracking: [url] }, both
+-  // resolved against the document's URL; null when the candidate has none.
+-  function clickThroughOf(ad, docUrl) {
+-    const ct = children(ad, 'ClickThrough', SVTA)[0];
+-    const uri = ct && (ct.getAttribute('uri') || '').trim();
+-    if (!uri) return null;
+-    const abs = (u) => { try { return new URL(u, docUrl).href; } catch (e) { return u; } };
+-    const list = (ct.getAttribute('trackingUris') || '').trim();
+-    return { uri: abs(uri), tracking: list ? list.split(/\s+/).map(abs) : [] };
+-  }
+-
+   // One overlay or pause window, from its Event and its child element.
+   class Window {
+     constructor(family, e, child, order, tl) {
+@@ -427,7 +411,7 @@
+       for (let i = 0; i < out.ads.length; i++) {
+         const sel = await this.select(w, out.ads[i], url);
+         if (sel) out.plan.push(Object.assign({ index: i + 1, doc: url, beacons: trackingOf(out.ads[i]),
+-          click: clickThroughOf(out.ads[i], url) }, sel));
++          click: SgaiClick.parse(out.ads[i], url) }, sel));
+         else this.log('nonlinear:candidate-skipped', { key: w.key, index: i + 1, reason: 'no option satisfiable (PLY-20)' });
+       }
+       return out;
+@@ -851,33 +835,16 @@
+       d.sgaiOpportunityEvent = w.id;
+     }
+ 
+-    // PLY-84: the viewer's activation of the surface (a click or a tap on it;
+-    // a hidden surface takes none). An HTML creative is its own document, so
+-    // its clicks are taken there. Assigned, not added: a surface reused by a
+-    // repeat is armed once.
++    // PLY-84: the viewer's activation of the surface (SgaiClick.arm).
+     armClick(el, c, w) {
+-      const on = () => this.activate(c, w);
+-      el.onclick = c.click ? on : null;
+-      if (el.tagName === 'IFRAME') {
+-        el.onload = () => { try { el.contentDocument.onclick = c.click ? on : null; } catch (e) { /* not ours */ } };
+-      }
++      SgaiClick.arm(el, c.click && (() => this.activate(c, w)));
+     }
+ 
+-    // R28.1, R28.2: each click-tracking URL fired once, ignoring the answer
+-    // as for a callback, and the destination made available (DESTINATION_MS).
++    // R28.1, R28.2 (SgaiClick.activate).
+     activate(c, w) {
+       const ct = c.click;
+       this.log('nonlinear:click', { key: w.key, candidate: c.index, option: c.option.index, uri: ct.uri, tracking: ct.tracking });
+-      for (const u of ct.tracking) fetch(u, { mode: 'no-cors', credentials: 'omit', cache: 'no-store', keepalive: true }).catch(() => {});
+-      if (this.destination) { clearTimeout(this.destination.timer); this.destination.el.remove(); }
+-      const d = document.createElement('div');
+-      d.dataset.sgaiClickthrough = ct.uri;
+-      d.textContent = ct.uri;
+-      d.style.cssText = 'position:absolute;left:0;top:0;max-width:100%;padding:4px 8px;font:14px sans-serif;' +
+-        'color:#fff;background:rgba(0,0,0,0.7);z-index:100;pointer-events:none;overflow:hidden;white-space:nowrap';
+-      this.ref.container.appendChild(d);
+-      const dest = { el: d, timer: setTimeout(() => { d.remove(); if (this.destination === dest) this.destination = null; }, DESTINATION_MS) };
+-      this.destination = dest;
++      SgaiClick.activate(this.ref, ct);
+     }
+ 
+     // PLY-86: a video option that stops advancing while its content plays,
+diff --git a/reference-player/src/sgai-reference.js b/reference-player/src/sgai-reference.js
+index 8a10fc7..4bdcf2b 100644
+--- a/reference-player/src/sgai-reference.js
++++ b/reference-player/src/sgai-reference.js
+@@ -50,8 +50,10 @@
+ // PRESENTATION. `ref.compositor` (sgai-compositor.js, loaded first and not a
+ // family) puts a non-linear form on screen with the content it composes with,
+ // per layout token, and keeps the viewport's `data-sgai-layout`.
++// `SgaiClick` (sgai-click.js, not a family either) is the click on a
++// candidate, which both families arm on the surfaces they show.
+ (function (global) {
+-  const FAMILY_FILES = ['sgai-compositor.js', 'sgai-linear.js', 'sgai-nonlinear.js'];
++  const FAMILY_FILES = ['sgai-compositor.js', 'sgai-click.js', 'sgai-linear.js', 'sgai-nonlinear.js'];
+   const base = (document.currentScript && document.currentScript.src) || location.href;
+   const loading = FAMILY_FILES.map((f) => new Promise((resolve, reject) => {
+     const s = document.createElement('script');
+--- /dev/null	2026-11-12 18:04:51.189084673 -0300
++++ reference-player/src/sgai-click.js	2026-11-24 20:45:00.749154410 -0300
+@@ -0,0 +1,58 @@
++// The click on a candidate, shared by the families (§4.5.16, §5.6; R28.1,
++// R28.2): a <svta:ClickThrough> read from the element that carries it (a
++// non-linear Ad, a List MPD's Period, an alternative MPD's Period), armed on
++// the surface that shows the candidate, and the viewer's activation of that
++// surface. Nothing fires from the timeline or without an activation (PLY-84).
++//
++// Reading taken where the specification leaves room: the destination is made
++// available by showing its URL on screen (one of the means R28.1 admits; a
++// page opened from a test page would take the focus) for DESTINATION_MS, a
++// node carrying `data-sgai-clickthrough`; each activation fires the
++// click-tracking again (PLY-84 binds per activation). One destination is on
++// screen at a time, whichever family's surface was activated.
++//
++// Not a family: loaded before them (sgai-reference.js), as `SgaiClick`.
++(function (global) {
++  const SVTA = 'urn:svta:dash:sgai:2026';
++  const DESTINATION_MS = 5000;   // how long an activated ClickThrough's URL stays on screen
++
++  // §5.6: the <svta:ClickThrough> child of `carrier`, { uri, tracking: [url] },
++  // both resolved against the document's URL; null when there is none.
++  function parse(carrier, docUrl) {
++    const ct = carrier && Array.from(carrier.children).find((c) => c.localName === 'ClickThrough' && c.namespaceURI === SVTA);
++    const uri = ct && (ct.getAttribute('uri') || '').trim();
++    if (!uri) return null;
++    const abs = (u) => { try { return new URL(u, docUrl).href; } catch (e) { return u; } };
++    const list = (ct.getAttribute('trackingUris') || '').trim();
++    return { uri: abs(uri), tracking: list ? list.split(/\s+/).map(abs) : [] };
++  }
++
++  // The viewer's activation of `el` (a click or a tap on it; a hidden surface
++  // takes none) calls `on`; null disarms it. An HTML creative is its own
++  // document, so its clicks are taken there. Assigned, not added: a surface
++  // armed again is armed once.
++  function arm(el, on) {
++    el.onclick = on || null;
++    if (el.tagName === 'IFRAME') {
++      el.onload = () => { try { el.contentDocument.onclick = on || null; } catch (e) { /* not ours */ } };
++    }
++  }
++
++  // R28.1, R28.2: each click-tracking URL fired once, ignoring the answer as
++  // for a callback, and the destination made available (DESTINATION_MS).
++  function activate(ref, ct) {
++    for (const u of ct.tracking) fetch(u, { mode: 'no-cors', credentials: 'omit', cache: 'no-store', keepalive: true }).catch(() => {});
++    const prev = ref.clickDestination;
++    if (prev) { clearTimeout(prev.timer); prev.el.remove(); }
++    const d = document.createElement('div');
++    d.dataset.sgaiClickthrough = ct.uri;
++    d.textContent = ct.uri;
++    d.style.cssText = 'position:absolute;left:0;top:0;max-width:100%;padding:4px 8px;font:14px sans-serif;' +
++      'color:#fff;background:rgba(0,0,0,0.7);z-index:100;pointer-events:none;overflow:hidden;white-space:nowrap';
++    ref.container.appendChild(d);
++    const dest = { el: d, timer: setTimeout(() => { d.remove(); if (ref.clickDestination === dest) ref.clickDestination = null; }, DESTINATION_MS) };
++    ref.clickDestination = dest;
++  }
++
++  global.SgaiClick = { parse, arm, activate, DESTINATION_MS };
++})(window);

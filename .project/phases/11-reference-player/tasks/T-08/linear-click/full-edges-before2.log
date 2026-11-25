@@ -1,0 +1,53 @@
+PASS            E1-execute-once-after-success D1 requests      1 request(s) as expected
+PASS            E1-execute-once-after-success D1 selection     1 opportunit(y/ies) as expected
+FAIL            E1-execute-once-after-success D1 presentation  observed a change at 10537 from none [nothing] to none [primary], which the vector does not have; observed a change at 11393 from none [nothing] to none [primary], which the vector does not have; presentation[2] 10000..11000 expected none [primary from 2000]; observed none [nothing] from 10148 to 10537; presentation[3] 11000..15000 expected none [primary from 0]; observed none [nothing] from 11090 to 11393 [startup 2310; observed: 0..2084 none [primary] from 14; 2084..10148 linear [ad behaviour/fixtures/R4.8/alt.mpd:alt option null]; 10148..10537 none [nothing]; 10537..11090 none [primary] from 2009; 11090..11393 none [nothing]; 11393..15000 none [primary] from 3]
+PASS            E1-execute-once-after-success D1 beacons       2 beacon(s) as expected
+PASS            E2-insert-reexecuted-after-seek D1 requests      2 request(s) as expected
+PASS            E2-insert-reexecuted-after-seek D1 selection     2 opportunit(y/ies) as expected
+FAIL            E2-insert-reexecuted-after-seek D1 presentation  observed a change at 6543 from none [nothing] to none [primary], which the vector does not have; observed a change at 8551 from none [nothing] to none [primary], which the vector does not have; observed a change at 10570 from none [primary] to linear [ad fixtures/ins.mpd:ins option null], which the vector does not have; observed a change at 14561 from linear [ad fixtures/ins.mpd:ins option null] to none [primary], which the vector does not have; presentation[4] expected a change at 10000 to linear [ad fixtures/ins.mpd:ins option null]; none observed within 250 (on screen: none [primary] from 8551); presentation[5] expected a change at 14000 to none [primary from 2000]; none observed within 250 (on screen: linear [ad fixtures/ins.mpd:ins option null] from 10570) (+4 more) [startup 2912; observed: 0..2085 none [primary] from 12; 2085..6155 linear [ad fixtures/ins.mpd:ins option null]; 6155..6543 none [nothing]; 6543..8060 none [primary] from 2014; 8060..8551 none [nothing]; 8551..10570 none [primary] from 2; 10570..14561 linear [ad fixtures/ins.mpd:ins option null]; 14561..15000 none [primary] from 2076]
+FAIL            E2-insert-reexecuted-after-seek D1 beacons       beacons[1] https://t.example.com/t05/ins/imp (@id 1) expected at 10000; observed at 10571; unexpected beacon https://t.example.com/t05/ins/imp at 10571
+PASS            E3-replace-late-clip D1      requests      1 request(s) as expected
+PASS            E3-replace-late-clip D1      selection     1 opportunit(y/ies) as expected
+FAIL            E3-replace-late-clip D1      presentation  observed a change at 4451 from none [nothing] to none [primary], which the vector does not have; presentation[1] 4000..7000 expected none [primary from 6000]; observed none [nothing] from 4061 to 4451 [startup 3207; observed: 0..4061 linear [ad fixtures/rep.mpd:rep option null]; 4061..4451 none [nothing]; 4451..7000 none [primary] from 6004]
+PASS            E3-replace-late-clip D1      beacons       2 beacon(s) as expected
+PASS            E4-replace-late-noclip D1    requests      1 request(s) as expected
+PASS            E4-replace-late-noclip D1    selection     1 opportunit(y/ies) as expected
+FAIL            E4-replace-late-noclip D1    presentation  observed a change at 6451 from none [nothing] to none [primary], which the vector does not have; presentation[1] 6000..8000 expected none [primary from 10000]; observed none [nothing] from 6068 to 6451 [startup 3824; observed: 0..6068 linear [ad fixtures/rep.mpd:rep option null]; 6068..6451 none [nothing]; 6451..8000 none [primary] from 10002]
+PASS            E4-replace-late-noclip D1    beacons       3 beacon(s) as expected
+PASS            E5-replace-start-with-offset D1 requests      1 request(s) as expected
+PASS            E5-replace-start-with-offset D1 selection     1 opportunit(y/ies) as expected
+FAIL            E5-replace-start-with-offset D1 presentation  observed a change at 4465 from none [nothing] to none [primary], which the vector does not have; presentation[1] 4000..6000 expected none [primary from 6000]; observed none [nothing] from 4071 to 4465 [startup 1965; observed: 0..4071 linear [ad fixtures/rep.mpd:rep option null]; 4071..4465 none [nothing]; 4465..6000 none [primary] from 6013]
+PASS            E5-replace-start-with-offset D1 beacons       2 beacon(s) as expected
+PASS            E6-replace-return-offset D1  requests      1 request(s) as expected
+PASS            E6-replace-return-offset D1  selection     1 opportunit(y/ies) as expected
+FAIL            E6-replace-return-offset D1  presentation  observed a change at 6520 from none [nothing] to none [primary], which the vector does not have; presentation[2] 6000..8000 expected none [primary from 11000]; observed none [nothing] from 6121 to 6520 [startup 1653; observed: 0..2052 none [primary] from 19; 2052..6121 linear [ad fixtures/rep.mpd:rep option null]; 6121..6520 none [nothing]; 6520..8000 none [primary] from 11004]
+PASS            E6-replace-return-offset D1  beacons       2 beacon(s) as expected
+NOT_APPLICABLE  E7-replace-apda-zero D1      requests      requests not compared: A.14.5 resolves the event before it checks APDA; the base does not bind whether a zero APDA is found before the request
+PASS            E7-replace-apda-zero D1      selection     no opportunity, as expected
+PASS            E7-replace-apda-zero D1      presentation  1 segment(s) as expected; startup 2597 before the first frame
+PASS            E7-replace-apda-zero D1      beacons       no beacon, as expected
+PASS            E8-list-linked-period-fails D1 requests      4 request(s) as expected
+PASS            E8-list-linked-period-fails D1 selection     1 opportunit(y/ies) as expected
+PASS            E8-list-linked-period-fails D1 presentation  4 segment(s) as expected; startup 2277 before the first frame
+PASS            E8-list-linked-period-fails D1 beacons       2 beacon(s) as expected
+PASS            E9-insert-late-join D1       requests      1 request(s) as expected
+PASS            E9-insert-late-join D1       selection     1 opportunit(y/ies) as expected
+PASS            E9-insert-late-join D1       presentation  2 segment(s) as expected; startup 692 before the first frame
+PASS            E9-insert-late-join D1       beacons       2 beacon(s) as expected
+PASS            E10-join-after-eap D1        requests      no document request, as expected
+PASS            E10-join-after-eap D1        selection     no opportunity, as expected
+PASS            E10-join-after-eap D1        presentation  1 segment(s) as expected; startup 227 before the first frame
+PASS            E10-join-after-eap D1        beacons       no beacon, as expected
+PASS            E11-pause-during-linear-ad D1 requests      1 request(s) as expected
+PASS            E11-pause-during-linear-ad D1 selection     1 opportunit(y/ies) as expected
+PASS            E11-pause-during-linear-ad D1 presentation  3 segment(s) as expected; startup 1379 before the first frame
+PASS            E11-pause-during-linear-ad D1 beacons       2 beacon(s) as expected
+PASS            E12-replace-end-callback-on-time D1 requests      1 request(s) as expected
+PASS            E12-replace-end-callback-on-time D1 selection     1 opportunit(y/ies) as expected
+PASS            E12-replace-end-callback-on-time D1 presentation  3 segment(s) as expected; startup 1072 before the first frame
+PASS            E12-replace-end-callback-on-time D1 beacons       2 beacon(s) as expected
+PASS            E13-replace-late-join-no-end-callback D1 requests      1 request(s) as expected
+PASS            E13-replace-late-join-no-end-callback D1 selection     1 opportunit(y/ies) as expected
+PASS            E13-replace-late-join-no-end-callback D1 presentation  2 segment(s) as expected; startup 278 before the first frame
+PASS            E13-replace-late-join-no-end-callback D1 beacons       1 beacon(s) as expected
+exit 1: PASS 44  FAIL 7  NOT_VERIFIABLE 0; wall 129.7 s; content 0.1 s (0 ffmpeg runs, 3 cuts from the cache), players 122.4 s

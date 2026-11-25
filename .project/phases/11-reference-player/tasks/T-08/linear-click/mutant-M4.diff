@@ -1,0 +1,5 @@
+diff --color -r reference-player/src/sgai-linear.js /run/user/1000/cto/t08-linclick-1795563650-12781/M4/sgai-linear.js
+558c558
+<       if (!part.video.dataset.sgaiPresentation) part.video.dataset.sgaiPresentation = this.ref.nextPresentation();
+---
+>       

@@ -9,7 +9,7 @@
 | T-05 | La referencia ejecuta el lineal de la 6ta que piden los criterios y los vectores               | done | agent | —    | `reference-player/src/sgai-linear.js`, `tasks/T-05/`        |
 | T-06 | La referencia resuelve y elige: pedido, validación, opciones, perfil de clase, fallback, cap   | done | agent | —    | `reference-player/src/sgai-nonlinear.js`, `tasks/T-06/`        |
 | T-07 | La referencia presenta el no lineal: overlay, squeezeback con sus tokens, pausa, convivencia   | done | agent | —    | `reference-player/src/sgai-compositor.js`, `tasks/T-07/`        |
-| T-08 | La referencia dispara el tracking: callbacks, beacons de opción, click                         | pending | agent | —    | —        |
+| T-08 | La referencia dispara el tracking: callbacks, beacons de opción, click                         | done | agent | —    | `reference-player/src/sgai-nonlinear.js`, `sgai-click.js`, `sgai-linear.js`, `tasks/T-08/`        |
 | T-09 | La batería corrió entera, con su tiempo medido y cada FAIL clasificado                         | pending | agent | —    | —        |
 | T-10 | La suite de `bin/` cubre lo nuevo y prueba que nada corre la batería por defecto               | in-progress | agent | —    | —        |
 | T-11 | Hay una demo: página local y grabación de una sesión con lineal, overlay y pausa               | pending | agent | —    | —        |

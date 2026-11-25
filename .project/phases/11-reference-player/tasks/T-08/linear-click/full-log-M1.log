@@ -1,0 +1,37 @@
+PASS            R28.1-1 D1                   requests      1 request(s) as expected
+PASS            R28.1-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D1                   presentation  3 segment(s) as expected; startup 792 before the first frame
+PASS            R28.1-1 D1                   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D1                   clicks        2 click-tracking fire(s) as expected
+PASS            R28.1-1 D1                   destinations  1 destination(s) as expected
+PASS            R28.1-1 D4                   requests      1 request(s) as expected
+PASS            R28.1-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D4                   presentation  3 segment(s) as expected; startup 704 before the first frame
+PASS            R28.1-1 D4                   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D4                   clicks        2 click-tracking fire(s) as expected
+PASS            R28.1-1 D4                   destinations  1 destination(s) as expected
+PASS            R28.1-1 D1 [no-activation]   requests      1 request(s) as expected
+PASS            R28.1-1 D1 [no-activation]   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D1 [no-activation]   presentation  3 segment(s) as expected; startup 413 before the first frame
+PASS            R28.1-1 D1 [no-activation]   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D1 [no-activation]   clicks        no click-tracking, as expected
+PASS            R28.1-1 D1 [no-activation]   destinations  no destination made available, as expected
+PASS            R28.1-1 D4 [no-activation]   requests      1 request(s) as expected
+PASS            R28.1-1 D4 [no-activation]   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D4 [no-activation]   presentation  3 segment(s) as expected; startup 304 before the first frame
+PASS            R28.1-1 D4 [no-activation]   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D4 [no-activation]   clicks        no click-tracking, as expected
+PASS            R28.1-1 D4 [no-activation]   destinations  no destination made available, as expected
+NOT_APPLICABLE  R28.1-2 D1                   requests      requests not compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires
+PASS            R28.1-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-2 D1                   presentation  1 segment(s) as expected; startup 996 before the first frame
+PASS            R28.1-2 D1                   beacons       3 beacon(s) as expected
+FAIL            R28.1-2 D1                   clicks        clicks[0] https://t.example.com/click?cr=101 expected at 5000 (the action made at 5028); observed at never
+PASS            R28.1-2 D1                   destinations  1 destination(s) as expected
+NOT_APPLICABLE  R28.1-2 D5                   requests      requests not compared: the resolution requests of this session are UC-01's; R28.1 binds what an activation fires
+PASS            R28.1-2 D5                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-2 D5                   presentation  1 segment(s) as expected; startup 1485 before the first frame
+PASS            R28.1-2 D5                   beacons       3 beacon(s) as expected
+FAIL            R28.1-2 D5                   clicks        clicks[0] https://t.example.com/click?cr=101 expected at 5000 (the action made at 5015); observed at never
+PASS            R28.1-2 D5                   destinations  1 destination(s) as expected
+exit 1: PASS 32  FAIL 2  NOT_VERIFIABLE 0; wall 38.3 s; content 0.0 s (0 ffmpeg runs, 8 cuts from the cache), players 37.3 s

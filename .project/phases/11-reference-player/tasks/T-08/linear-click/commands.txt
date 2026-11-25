@@ -1,0 +1,10 @@
+# Battery (before / after / final; final adds R28.2 for the non-linear refactor)
+python3 bin/check-dash-conformance.py --behaviour --clock presentation --only R28.1,R17.5,R40.4,R4.2,UC-01 --concurrency 2 --log-dir <scratch> --out-json battery-<run>.json
+python3 bin/check-dash-conformance.py --behaviour --clock presentation --only R28.1,R28.2,R17.5,R40.4,R4.2,UC-01 --concurrency 2 ...   # final
+# Edges
+python3 reference-player/test/edges/run-edges.py --log-dir <scratch> --out-json edges-<run>.json
+# Mutants (scratch copies of reference-player/src, diffs in mutant-M*.diff)
+python3 bin/check-dash-conformance.py --behaviour --clock presentation --concurrency 2 --reference <copy> --only R28.1          # M1, M2
+python3 bin/check-dash-conformance.py --behaviour --clock presentation --concurrency 2 --reference <copy> --only R17.5          # M3
+python3 bin/check-dash-conformance.py --behaviour --clock presentation --concurrency 2 --reference <copy> --only R17.5,R28.1,UC-01   # M4
+# Comparator check for the edges-before FAILs: the raw of edges-before3 replayed with HEAD's bin/ (git archive) and the working tree's bin/: same 6 FAIL both.

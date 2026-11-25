@@ -1,0 +1,3 @@
+81 PASS, 1 FAIL
+FAIL UC-01 D3 beacons | expected: beacons[2] https://t.example.com/q1?cr=101 (@id 3) expected at 3750 | observed: observed at 4533; unexpected beacon https://t.example.com/q1?cr=101 at 4533 | log: /run/user/1000/cto/t08-linclick-1795563650-12781/after/behaviour.log:76
+exit 1; wall 248.8 s; full log: /run/user/1000/cto/t08-linclick-1795563650-12781/after/behaviour.log

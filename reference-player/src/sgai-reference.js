@@ -50,8 +50,10 @@
 // PRESENTATION. `ref.compositor` (sgai-compositor.js, loaded first and not a
 // family) puts a non-linear form on screen with the content it composes with,
 // per layout token, and keeps the viewport's `data-sgai-layout`.
+// `SgaiClick` (sgai-click.js, not a family either) is the click on a
+// candidate, which both families arm on the surfaces they show.
 (function (global) {
-  const FAMILY_FILES = ['sgai-compositor.js', 'sgai-linear.js', 'sgai-nonlinear.js'];
+  const FAMILY_FILES = ['sgai-compositor.js', 'sgai-click.js', 'sgai-linear.js', 'sgai-nonlinear.js'];
   const base = (document.currentScript && document.currentScript.src) || location.href;
   const loading = FAMILY_FILES.map((f) => new Promise((resolve, reject) => {
     const s = document.createElement('script');

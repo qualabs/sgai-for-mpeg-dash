@@ -1,0 +1,9 @@
+diff --color -r reference-player/src/sgai-linear.js /run/user/1000/cto/t08-linclick-1795563650-12781/M3/sgai-linear.js
+546c546
+<       part.video.addEventListener('playing', () => this.onPartPlaying(alt, part), { once: true });
+---
+>       part.video.addEventListener('playing', () => this.onPartPlaying(alt, part));
+558c558
+<       if (!part.video.dataset.sgaiPresentation) part.video.dataset.sgaiPresentation = this.ref.nextPresentation();
+---
+>       part.video.dataset.sgaiPresentation = this.ref.nextPresentation();
