@@ -1,0 +1,61 @@
+# R34.6 — "every entry of the playhead into the window's range — ... a seek
+# landing inside it ... — is a new execution of the window. Each execution
+# resolves the opportunity anew", with R36.4 "A resolution document that does
+# not declare it remains usable for the execution it was obtained for". The
+# fixtures of R34.6-2.yaml (window 5-10 s, no offset, documents without
+# @validFor). At session 12 s the viewer seeks back to 7 s, inside the window:
+# the new execution fires at once, so it is resolved at once, and D is
+# presented for what is left of the span, 3 s.
+format: sgai-scenario/1
+criterion: R34.6
+criterion_sha256: 1fd029562252b6590cf8126a7fcb757e243dffba2e482968ef917c8496faad11
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 18000
+entry: behaviour/fixtures/R34.6/main-2.mpd
+fixtures:
+  - path: behaviour/fixtures/R34.6/main-2.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R34.6/first-2.xml
+    url: https://aps.example.com/behaviour/r34-6?w=2
+    class: overlay-list
+  - path: behaviour/fixtures/R34.6/second-2.xml
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+aps:
+  - {url: "https://aps.example.com/behaviour/r34-6?w=2", nth: 1, status: 200, document: behaviour/fixtures/R34.6/first-2.xml}
+  - {url: "https://aps.example.com/behaviour/r34-6?w=2", nth: 2, status: 200, document: behaviour/fixtures/R34.6/second-2.xml}
+actions: [{at: 12000, do: seek, to: 7000}]
+
+outcomes:
+  D1: &o
+    summary: >-
+      Decides "a seek landing inside it ... is a new execution ... resolves
+      the opportunity anew" for a document that declares no validity: C over
+      the film 5-10 s; the seek at 12 s lands at 7 s, inside the window: a
+      second request at once, and D presented 12-15 s (the 3 s left of the
+      span) with its own impression. C is not presented again.
+    requests:
+      - {at: {from: 0, to: 5000}, url: "https://aps.example.com/behaviour/r34-6?w=2", answered_by: behaviour/fixtures/R34.6/first-2.xml}
+      - {at: 12000, url: "https://aps.example.com/behaviour/r34-6?w=2", answered_by: behaviour/fixtures/R34.6/second-2.xml}
+    selection:
+      - opportunity: &opp {fixture: behaviour/fixtures/R34.6/main-2.mpd, event_id: "1"}
+        result: presented
+        presented: [{candidate: &c {fixture: behaviour/fixtures/R34.6/first-2.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}]
+      - opportunity: *opp
+        result: presented
+        presented: [{candidate: &d {fixture: behaviour/fixtures/R34.6/second-2.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}]
+    presentation:
+      - {start: 0, end: 5000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 5000, end: 10000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *c, option: {index: 1}}]}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+      - {start: 12000, end: 15000, layout: overlay-lower-third, shows: [{element: primary, from: 7000}, {element: ad, candidate: *d, option: {index: 1}}]}
+      - {start: 15000, end: 18000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons:
+      - {at: 5000, fixture: behaviour/fixtures/R34.6/first-2.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=346c"}
+      - {at: 12000, fixture: behaviour/fixtures/R34.6/second-2.xml, candidate: *d, id: "1", url: "https://t.example.com/imp?cr=346d"}
+  D4: *o

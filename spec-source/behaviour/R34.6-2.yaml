@@ -1,0 +1,67 @@
+# R34.6 — "a seek back to a point before its end — is a new execution of the
+# window. Each execution resolves the opportunity anew ... A resolution
+# obtained for an earlier execution is presented again only if it is still
+# usable (R36.4)", with R36.4 "A resolution document that does not declare it
+# remains usable for the execution it was obtained for". The edge of R34.6.yaml
+# with no @validFor: an overlay window 5-10 s with no offset declared
+# (fixtures/R34.6/main-2.mpd), both documents without @validFor
+# (fixtures/R34.6/first-2.xml, candidate C; second-2.xml, candidate D). At
+# session 12 s the viewer seeks back to 3 s, before the window: the first
+# document belonged to the first execution, so the second resolves anew, ahead
+# of the window's start (the default 60 s offset reaches back past 3 s).
+format: sgai-scenario/1
+criterion: R34.6
+criterion_sha256: 1fd029562252b6590cf8126a7fcb757e243dffba2e482968ef917c8496faad11
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 21000
+entry: behaviour/fixtures/R34.6/main-2.mpd
+fixtures:
+  - path: behaviour/fixtures/R34.6/main-2.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R34.6/first-2.xml
+    url: https://aps.example.com/behaviour/r34-6?w=2
+    class: overlay-list
+  - path: behaviour/fixtures/R34.6/second-2.xml
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D3: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+  D4: {sgai-video-decoders: 1, sgai-image-over-video: 1, sgai-html-over-video: 0, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+aps:
+  - {url: "https://aps.example.com/behaviour/r34-6?w=2", nth: 1, status: 200, document: behaviour/fixtures/R34.6/first-2.xml}
+  - {url: "https://aps.example.com/behaviour/r34-6?w=2", nth: 2, status: 200, document: behaviour/fixtures/R34.6/second-2.xml}
+actions: [{at: 12000, do: seek, to: 3000}]
+
+outcomes:
+  D1: &o
+    summary: >-
+      Decides "Each execution resolves the opportunity anew" for a document
+      that declares no validity: C over the film 5-10 s; after the seek back
+      to 3 s a second request before the window's start comes again (session
+      12-14 s), and D, its first candidate, is presented 14-19 s with its own
+      impression. C is not presented again.
+    requests:
+      - {at: {from: 0, to: 5000}, url: "https://aps.example.com/behaviour/r34-6?w=2", answered_by: behaviour/fixtures/R34.6/first-2.xml}
+      - {at: {from: 12000, to: 14000}, url: "https://aps.example.com/behaviour/r34-6?w=2", answered_by: behaviour/fixtures/R34.6/second-2.xml}
+    selection:
+      - opportunity: &opp {fixture: behaviour/fixtures/R34.6/main-2.mpd, event_id: "1"}
+        result: presented
+        presented: [{candidate: &c {fixture: behaviour/fixtures/R34.6/first-2.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}]
+      - opportunity: *opp
+        result: presented
+        presented: [{candidate: &d {fixture: behaviour/fixtures/R34.6/second-2.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}]
+    presentation:
+      - {start: 0, end: 5000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 5000, end: 10000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *c, option: {index: 1}}]}
+      - {start: 10000, end: 12000, layout: none, shows: [{element: primary, from: 10000}]}
+      - {start: 12000, end: 14000, layout: none, shows: [{element: primary, from: 3000}]}
+      - {start: 14000, end: 19000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *d, option: {index: 1}}]}
+      - {start: 19000, end: 21000, layout: none, shows: [{element: primary, from: 10000}]}
+    beacons:
+      - {at: 5000, fixture: behaviour/fixtures/R34.6/first-2.xml, candidate: *c, id: "1", url: "https://t.example.com/imp?cr=346c"}
+      - {at: 14000, fixture: behaviour/fixtures/R34.6/second-2.xml, candidate: *d, id: "1", url: "https://t.example.com/imp?cr=346d"}
+  D3: *o
+  D4: *o

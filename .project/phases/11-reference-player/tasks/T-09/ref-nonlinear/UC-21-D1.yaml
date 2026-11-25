@@ -1,0 +1,382 @@
+format: sgai-scenario/1
+uc: UC-21
+uc_sha256: 72480a0c439e2b4cc76556f9e5be423ca8f0442433040d974436197245cfd235
+timescale: 1000
+tolerance: 250
+play_from: 590000
+observe_until: 90000
+entry: scenarios/fixtures/UC-21/main.mpd
+fixtures:
+- path: scenarios/fixtures/UC-21/main.mpd
+  class: publisher-mpd
+- path: scenarios/fixtures/UC-21/overlay-list.xml
+  url: https://aps.example.com/nl/overlay?s=21&e=2&w=1
+  class: overlay-list
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D2:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D3:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D4:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D5:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions:
+- at: 45000
+  do: seek
+  to: 590000
+outcomes:
+  D1:
+    summary: 'A, B and C over the programme from 10:00 to 10:30; after the rewind
+      to 09:50, playback reaching 10:00 again is a new execution: resolved anew, A,
+      B and C again with their beacons again.'
+    requests:
+    - at:
+        from: 0
+        to: 10000
+      url: https://aps.example.com/nl/overlay?s=21&e=2&w=1
+      answered_by: scenarios/fixtures/UC-21/overlay-list.xml
+    - at:
+        from: 45000
+        to: 55000
+      url: https://aps.example.com/nl/overlay?s=21&e=2&w=1
+      answered_by: scenarios/fixtures/UC-21/overlay-list.xml
+    selection:
+    - opportunity:
+        fixture: scenarios/fixtures/UC-21/main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 1
+        option:
+          index: 1
+        layout: overlay-lower-third
+      - candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 2
+        option:
+          index: 1
+        layout: overlay-lower-third
+      - candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 3
+        option:
+          index: 1
+        layout: overlay-lower-third
+    - opportunity:
+        fixture: scenarios/fixtures/UC-21/main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 1
+        option:
+          index: 1
+        layout: overlay-lower-third
+      - candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 2
+        option:
+          index: 1
+        layout: overlay-lower-third
+      - candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 3
+        option:
+          index: 1
+        layout: overlay-lower-third
+    presentation:
+    - start: 0
+      end: 10000
+      layout: none
+      shows:
+      - element: primary
+        from: 590000
+    - start: 10000
+      end: 20000
+      layout: overlay-lower-third
+      shows:
+      - element: primary
+        from: 600000
+      - element: ad
+        candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 1
+        option:
+          index: 1
+      audio: primary
+    - start: 20000
+      end: 30000
+      layout: overlay-lower-third
+      shows:
+      - element: primary
+        from: 610000
+      - element: ad
+        candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 2
+        option:
+          index: 1
+      audio: primary
+    - start: 30000
+      end: 40000
+      layout: overlay-lower-third
+      shows:
+      - element: primary
+        from: 620000
+      - element: ad
+        candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 3
+        option:
+          index: 1
+      audio: primary
+    - start: 40000
+      end: 45000
+      layout: none
+      shows:
+      - element: primary
+        from: 630000
+    - start: 45000
+      end: 55000
+      layout: none
+      shows:
+      - element: primary
+        from: 590000
+    - start: 55000
+      end: 65000
+      layout: overlay-lower-third
+      shows:
+      - element: primary
+        from: 600000
+      - element: ad
+        candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 1
+        option:
+          index: 1
+      audio: primary
+    - start: 65000
+      end: 75000
+      layout: overlay-lower-third
+      shows:
+      - element: primary
+        from: 610000
+      - element: ad
+        candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 2
+        option:
+          index: 1
+      audio: primary
+    - start: 75000
+      end: 85000
+      layout: overlay-lower-third
+      shows:
+      - element: primary
+        from: 620000
+      - element: ad
+        candidate:
+          fixture: scenarios/fixtures/UC-21/overlay-list.xml
+          index: 3
+        option:
+          index: 1
+      audio: primary
+    - start: 85000
+      end: 90000
+      layout: none
+      shows:
+      - element: primary
+        from: 630000
+    beacons:
+    - at: 10000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 1
+      id: '1'
+      url: https://t.example.com/imp?cr=2101
+    - at: 12500
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 1
+      id: '2'
+      url: https://t.example.com/q1?cr=2101
+    - at: 20000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 1
+      id: '3'
+      url: https://t.example.com/complete?cr=2101
+    - at: 20000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 2
+      id: '1'
+      url: https://t.example.com/imp?cr=2102
+    - at: 22500
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 2
+      id: '2'
+      url: https://t.example.com/q1?cr=2102
+    - at: 30000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 2
+      id: '3'
+      url: https://t.example.com/complete?cr=2102
+    - at: 30000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 3
+      id: '1'
+      url: https://t.example.com/imp?cr=2103
+    - at: 32500
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 3
+      id: '2'
+      url: https://t.example.com/q1?cr=2103
+    - at: 40000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 3
+      id: '3'
+      url: https://t.example.com/complete?cr=2103
+    - at: 55000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 1
+      id: '1'
+      url: https://t.example.com/imp?cr=2101
+    - at: 57500
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 1
+      id: '2'
+      url: https://t.example.com/q1?cr=2101
+    - at: 65000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 1
+      id: '3'
+      url: https://t.example.com/complete?cr=2101
+    - at: 65000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 2
+      id: '1'
+      url: https://t.example.com/imp?cr=2102
+    - at: 67500
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 2
+      id: '2'
+      url: https://t.example.com/q1?cr=2102
+    - at: 75000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 2
+      id: '3'
+      url: https://t.example.com/complete?cr=2102
+    - at: 75000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 3
+      id: '1'
+      url: https://t.example.com/imp?cr=2103
+    - at: 77500
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 3
+      id: '2'
+      url: https://t.example.com/q1?cr=2103
+    - at: 85000
+      fixture: scenarios/fixtures/UC-21/overlay-list.xml
+      candidate:
+        fixture: scenarios/fixtures/UC-21/overlay-list.xml
+        index: 3
+      id: '3'
+      url: https://t.example.com/complete?cr=2103
+missing_carrier:
+- requirement: R13.7
+  element: 'UC-21: "the resolution document carries a slot-start and a slot-end beacon".
+    The slot-start beacon fires again in each execution, and in a late execution when
+    A begins. No carrier: the beacons above are the candidates'' own.'
+  classes:
+  - D1
+  - D3
+  - D4
+- requirement: R34.1
+  element: 'UC-21 "Publisher intent" 2: the window declared once-per-session. After
+    the first execution consumed it, the rewind leaves the programme uninterrupted
+    and fires nothing; a seek over the window does not consume it. @executeOnce is
+    defined on the pause window only (PUB-10); an overlay window has no declaration
+    for it, so no variant is written.'
+  classes:
+  - D1
+  - D3
+  - D4
+- requirement: R34.9
+  element: 'UC-21 "Publisher intent" 3: the window declares that a late execution
+    starts with an offset; the seek to 10:15 then presents B from its 5th second,
+    A not at all, and C until 10:30, with the slot-start beacon when B begins. No
+    overlay-window declaration carries it, so no variant is written.'
+  classes:
+  - D1
+  - D3
+  - D4
+disagreements:
+- context: 'context/04 UC-21 "Declaring nothing — the seek to 10:15": "A late execution
+    (R34.9). The Player presents the sequence from A"; context/03 R34.6: every entry
+    of the playhead, "a join or a seek landing inside it", is a new execution that
+    "MUST be presented as the first".'
+  annex: 'No annex walks UC-21. The specification, §5.1.3 "What the span means": "When
+    the playhead enters the span after its start (a join or a seek), the Player MAY
+    resolve the window and present for the remainder of the span."'
+  recorded: The outcomes follow context/04 (variant seek-to-1015 presents A, then
+    B cut at 10:30). A Player that conforms to §5.1.3 by not presenting on a late
+    entry would fail that variant. Not resolved here.

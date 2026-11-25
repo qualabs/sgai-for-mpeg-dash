@@ -1,0 +1,65 @@
+# R17.2 — "On resume from pause, the Player MUST restore the overlay
+# rendering if the overlay slot window is still active". The edge of
+# R17.2.yaml where the pause ad ends before the resume: the same windows
+# (fixtures/R17.2/main-2.mpd), a pause ad of 2 s with onExhausted="stop"
+# (fixtures/R17.2/pause-2.xml). The viewer pauses at 5 s and resumes at 9 s;
+# from 7 s to 9 s playback is still paused, so the overlay is not restored yet
+# (it is restored "on resume", and R17.1 keeps it suspended while paused).
+format: sgai-scenario/1
+criterion: R17.2
+criterion_sha256: b31ea09d14860034a4a0c47e5273f333c6d013f0e904c361b972f3a7e69aa7f5
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 18000
+entry: behaviour/fixtures/R17.2/main-2.mpd
+fixtures:
+  - path: behaviour/fixtures/R17.2/main-2.mpd
+    class: publisher-mpd
+  - path: behaviour/fixtures/R17.2/overlay-2.xml
+    url: https://aps.example.com/beh/r17-2/overlay2
+    class: overlay-list
+  - path: behaviour/fixtures/R17.2/pause-2.xml
+    url: https://aps.example.com/beh/r17-2/pause2
+    class: overlay-list
+player_capabilities:
+  D1: {sgai-video-decoders: 2, sgai-image-over-video: 1, sgai-html-over-video: 1, sgai-custom-layout: 0, sgai-ad-audio: 0}
+sends_capabilities: []
+actions:
+  - {at: 5000, do: pause}
+  - {at: 9000, do: resume}
+
+outcomes:
+  D1:
+    summary: >-
+      Decides "On resume from pause, the Player MUST restore the overlay
+      rendering" when the pause ad ended before the resume: the pause ad 5-7 s,
+      then the paused frame alone until the resume at 9 s, and only then the
+      lower-third with its remaining 7 s, to 16 s.
+    requests:
+      - at: {from: 0, to: 2000}
+        url: https://aps.example.com/beh/r17-2/overlay2
+        answered_by: behaviour/fixtures/R17.2/overlay-2.xml
+      - at: {from: 0, to: 5000}
+        url: https://aps.example.com/beh/r17-2/pause2
+        answered_by: behaviour/fixtures/R17.2/pause-2.xml
+    selection:
+      - opportunity: {fixture: behaviour/fixtures/R17.2/main-2.mpd, event_id: "1"}
+        result: presented
+        presented:
+          - {candidate: &o {fixture: behaviour/fixtures/R17.2/overlay-2.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}
+      - opportunity: {fixture: behaviour/fixtures/R17.2/main-2.mpd, event_id: "2"}
+        result: presented
+        presented:
+          - {candidate: &p {fixture: behaviour/fixtures/R17.2/pause-2.xml, index: 1}, option: {index: 1}, layout: pause-fullscreen}
+    presentation:
+      - {start: 0, end: 2000, layout: none, shows: [{element: primary, from: 0}]}
+      - {start: 2000, end: 5000, layout: overlay-lower-third, shows: [{element: primary, from: 2000}, {element: ad, candidate: *o, option: {index: 1}}]}
+      - {start: 5000, end: 7000, layout: pause-fullscreen, shows: [{element: ad, candidate: *p, option: {index: 1}}]}
+      - {start: 7000, end: 9000, layout: none, shows: [{element: primary, from: 5000}], note: the paused frame; the overlay stays suspended until the resume}
+      - {start: 9000, end: 16000, layout: overlay-lower-third, shows: [{element: primary, from: 5000}, {element: ad, candidate: *o, option: {index: 1}}], note: the lower-third restored on resume with its remaining 7 s}
+      - {start: 16000, end: 18000, layout: none, shows: [{element: primary, from: 12000}]}
+    beacons:
+      - {at: 2000, fixture: behaviour/fixtures/R17.2/overlay-2.xml, candidate: *o, id: "1", url: "https://t.example.com/r17-2/ov2-imp"}
+      - {at: 11000, fixture: behaviour/fixtures/R17.2/overlay-2.xml, candidate: *o, id: "2", url: "https://t.example.com/r17-2/ov2-mid"}
+      - {at: 16000, fixture: behaviour/fixtures/R17.2/overlay-2.xml, candidate: *o, id: "3", url: "https://t.example.com/r17-2/ov2-complete"}

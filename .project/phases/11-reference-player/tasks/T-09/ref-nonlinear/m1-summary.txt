@@ -1,0 +1,5 @@
+1 PASS, 2 FAIL, 1 NOT_VERIFIABLE
+FAIL UC-08 (UC-08-D4) D4 requests | expected: requests[1] https://aps.example.com/nl/pause?t=film20 expected at 30000, query {'sgai-allowed-layouts': 'pause-fullscreen pause-partial'}, answered_by examples/annex-h/H.5-1.xml | observed: observed https://aps.example.com/nl/pause?t=film20&sgai-allowed-layouts=pause-fullscreen%20pause-partial at 0, query {'sgai-allowed-layouts': 'pause-fullscreen pause-partial'}, answered_by examples... | log: /run/user/1000/cto/sgai11-nl-477736/m1-log/behaviour.log:1
+FAIL UC-08 (UC-08-D4) D4 beacons | expected: beacons[3] https://t.example.com/mid?cr=801 (@id 2) expected at 85000 (its ad observed from 70012, written 70000) | observed: observed at 74988; unexpected beacon https://t.example.com/mid?cr=801 at 74988 | log: /run/user/1000/cto/sgai11-nl-477736/m1-log/behaviour.log:4
+exit 1; wall 103.5 s; full log: /run/user/1000/cto/sgai11-nl-477736/m1-log/behaviour.log
+exit=1

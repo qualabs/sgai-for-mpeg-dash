@@ -1,0 +1,193 @@
+format: sgai-scenario/1
+uc: UC-08
+uc_sha256: ff248c83bd49122921de658ac002ceeced20fe51604f60cf884279ef8a5233b3
+timescale: 1000
+tolerance: 250
+play_from: 280000
+observe_until: 100000
+entry: examples/annex-h/H.2-1.mpd
+fixtures:
+- path: examples/annex-h/H.2-1.mpd
+- path: examples/annex-h/H.3-1.http
+- path: examples/annex-h/H.4-1.xml
+  url: https://aps.example.com/nl/overlay?t=film20&w=1
+- path: examples/annex-h/H.5-1.xml
+  url: https://aps.example.com/nl/pause?t=film20
+- path: examples/annex-h/H.6-1.mpd
+  url: https://ads-cdn.example.com/nl/801/cr801v.mpd
+- path: examples/annex-h/H.6-2.mpd
+  url: https://ads-cdn.example.com/pz/802/cr802v.mpd
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D2:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D3:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D4:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D5:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions:
+- at: 30000
+  do: pause
+- at: 70000
+  do: resume
+outcomes:
+  D4:
+    summary: Image lower-third; at the pause it is suspended and the image partial
+      pause ad is shown over the paused frame for 30 s; on resume the lower-third
+      comes back.
+    requests:
+    - at:
+        from: 0
+        to: 20000
+      url: https://aps.example.com/nl/overlay?t=film20&w=1
+      query:
+        sgai-allowed-layouts: overlay-lower-third
+      answered_by: examples/annex-h/H.4-1.xml
+      matches: examples/annex-h/H.3-1.http
+    - at: 30000
+      url: https://aps.example.com/nl/pause?t=film20
+      query:
+        sgai-allowed-layouts: pause-fullscreen pause-partial
+      answered_by: examples/annex-h/H.5-1.xml
+    selection:
+    - opportunity:
+        fixture: examples/annex-h/H.2-1.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: examples/annex-h/H.4-1.xml
+          index: 1
+        option:
+          index: 3
+        layout: overlay-lower-third
+    - opportunity:
+        fixture: examples/annex-h/H.2-1.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: examples/annex-h/H.5-1.xml
+          index: 1
+        option:
+          index: 3
+        layout: pause-partial
+    presentation:
+    - start: 0
+      end: 20000
+      layout: none
+      shows:
+      - element: primary
+        from: 280000
+    - start: 20000
+      end: 30000
+      layout: overlay-lower-third
+      shows:
+      - element: primary
+        from: 300000
+      - element: ad
+        candidate:
+          fixture: examples/annex-h/H.4-1.xml
+          index: 1
+        option:
+          index: 3
+    - start: 30000
+      end: 60000
+      layout: pause-partial
+      shows:
+      - element: primary
+        from: 310000
+        region: paused frame
+      - element: ad
+        candidate:
+          fixture: examples/annex-h/H.5-1.xml
+          index: 1
+        option:
+          index: 3
+    - start: 60000
+      end: 70000
+      layout: none
+      shows:
+      - element: primary
+        from: 310000
+      note: H.7 "onExhausted="stop" leaves the paused frame"; playback still paused
+    - start: 70000
+      end: 90000
+      layout: overlay-lower-third
+      shows:
+      - element: primary
+        from: 310000
+      - element: ad
+        candidate:
+          fixture: examples/annex-h/H.4-1.xml
+          index: 1
+        option:
+          index: 3
+    - start: 90000
+      end: 100000
+      layout: none
+      shows:
+      - element: primary
+        from: 330000
+    beacons:
+    - at: 20000
+      fixture: examples/annex-h/H.4-1.xml
+      candidate:
+        fixture: examples/annex-h/H.4-1.xml
+        index: 1
+      id: '1'
+      url: https://t.example.com/imp?cr=801
+    - at: 30000
+      fixture: examples/annex-h/H.5-1.xml
+      candidate:
+        fixture: examples/annex-h/H.5-1.xml
+        index: 1
+      id: '1'
+      url: https://t.example.com/imp?cr=802
+    - at: 60000
+      fixture: examples/annex-h/H.5-1.xml
+      candidate:
+        fixture: examples/annex-h/H.5-1.xml
+        index: 1
+      id: '2'
+      url: https://t.example.com/complete?cr=802
+    - at: 85000
+      fixture: examples/annex-h/H.4-1.xml
+      candidate:
+        fixture: examples/annex-h/H.4-1.xml
+        index: 1
+      id: '2'
+      url: https://t.example.com/mid?cr=801
+    - at: 90000
+      fixture: examples/annex-h/H.4-1.xml
+      candidate:
+        fixture: examples/annex-h/H.4-1.xml
+        index: 1
+      id: '3'
+      url: https://t.example.com/complete?cr=801
+missing_carrier: []
+disagreements: []

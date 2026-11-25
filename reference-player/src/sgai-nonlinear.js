@@ -61,6 +61,18 @@
 // - a held document serves any execution of its window while it is usable
 //   (§5.2.5); an expired one is replaced by a request when the opportunity
 //   fires (PLY-9), never earlier;
+// - a document that declares no @validFor is usable for the execution it was
+//   obtained for and no other (R36.4): once the playhead has been in the
+//   window's range with it held (an execution, also one that presents
+//   nothing), the viewer's seek drops it, and the new execution resolves anew
+//   (R34.6), ahead by the window's offset like a first one;
+// - a pause window's offset of zero means it is resolved only when it fires,
+//   at the pause (R36.1's last sentence, the reading of Annex H.3), not at the
+//   window's start, which the sentence measuring the offset "from the start of
+//   the window" would give; the two sentences disagree for a pause window;
+// - an overlay suspended by a pause ad stays suspended until the resume
+//   (R17.1, R17.2), also when the pause ad ends first and the paused frame is
+//   left;
 // - a pause video option needs two decoders (the Player does not release the
 //   primary's decoder, PLY-56 is a permission);
 //
@@ -343,7 +355,13 @@
     // starts a new entry of every span (R34.6: a seek back is a new execution).
     onSeek(to) {
       for (const x of this.execs.slice()) if (x.w.tl.main) this.endExec(x, 'seek');
-      for (const w of this.windows.values()) if (w.tl.main) w.resetEntry();
+      for (const w of this.windows.values()) {
+        if (!w.tl.main) continue;
+        w.resetEntry();
+        // R36.4: a document with no @validFor was usable for the execution
+        // that used it only; the next one resolves anew (R34.6).
+        if (w.doc && w.doc.validFor === null && w.doc.served) { w.doc = null; this.log('nonlinear:dropped', { key: w.key, why: 'no @validFor: usable for the execution it served only (R36.4)' }); }
+      }
       this.log('nonlinear:seek', { from: this.main.currentTime, to });
     }
 
@@ -552,6 +570,9 @@
         if (!tl.ready() || tl.video.readyState < 1) continue;
         const php = tl.time();
         const over = tl.main && !!(linear && linear.active);
+        // R34.6: the playhead in a window's range is an execution of it,
+        // also one that presents nothing; the held document has served it.
+        for (const chain of tl.chains.overlay) for (const w of chain.windows) if (w.doc && php >= w.PT - EPS) w.doc.served = true;
         for (const chain of tl.chains.overlay) this.processChain(chain, tl, php, over);
       }
       for (const x of this.execs.slice()) this.advance(x);
@@ -735,7 +756,7 @@
         if (x.h && !x.h.suspended) { x.h.suspend(); this.syncAd(x, false); this.log('nonlinear:suspend', { key: w.key, slotT: x.slotT, why: 'an alternative presentation is output (R40.9)' }); }
         return;
       }
-      if (x.h && x.h.suspended && !this.pauseShown()) { x.h.resume(); this.log('nonlinear:resume', { key: w.key, slotT: x.slotT }); }
+      if (x.h && x.h.suspended && !this.pauseHeld()) { x.h.resume(); this.log('nonlinear:resume', { key: w.key, slotT: x.slotT }); }
       const k = x.plan.findIndex((p) => x.slotT >= p.start - 1e-6 && x.slotT < p.start + p.shown - 1e-6);
       if (k < 0) {
         const last = x.plan[x.plan.length - 1];
@@ -752,11 +773,16 @@
       this.beacons(x.plan[k], x.slotT - x.plan[k].start, w.key);
       // PLY-52: during a pause ad, the overlay is suspended (the compositor
       // keeps the pause ad the only form on screen).
-      this.syncAd(x, this.contentPlaying(x) && !this.pauseShown());
+      this.syncAd(x, this.contentPlaying(x) && !this.pauseHeld());
       this.watchStall(x);
     }
 
     pauseShown() { return !!(this.pauseSlot && this.pauseSlot.shown); }
+
+    // R17.1, R17.2: once a pause ad has been shown, the overlay stays
+    // suspended until the resume closes the slot, also over the paused frame
+    // left when the pause ad ends first.
+    pauseHeld() { return !!(this.pauseSlot && this.pauseSlot.firstShown !== undefined); }
 
     // Whether the content under an execution's form is playing.
     contentPlaying(x) {
@@ -998,6 +1024,9 @@
       if (this.pauseSlot) return;
       const w = chain.windows.find((x) => !x.consumed);
       if (!w || w.doc || w.inflight || w.preResolved) return;
+      // R36.1: an offset of zero is resolved only when the window fires, at
+      // the pause (tryPauseWindow), never ahead of it.
+      if (!(w.ERT > 0)) return;
       if (php >= w.PT - w.ERT - 1e-6 && php < w.end) { w.preResolved = true; this.resolve(w, 'early'); }
     }
 
@@ -1085,6 +1114,9 @@
       slot.el = el;
       slot.shown = true;
       if (slot.firstShown === undefined) slot.firstShown = now();
+      for (const x of this.execs) {
+        if (x.h && !x.h.suspended) { x.h.suspend(); this.log('nonlinear:suspend', { key: x.w.key, slotT: x.slotT, why: 'a pause ad is shown (R17.1)' }); }
+      }
       // PLY-64: consumed when a pause ad begins rendering.
       if (slot.w.executeOnce && !slot.w.consumed) { slot.w.consumed = true; this.log('nonlinear:consumed', { key: slot.w.key }); }
       this.log('nonlinear:pause-show', { key: slot.w.key, candidate: c.index, option: c.option.index, layout: c.layout });
