@@ -1,0 +1,97 @@
+PASS            UC-02 D1                     requests      2 request(s) as expected
+PASS            UC-02 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D1                     presentation  observed a change at 59118 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null], which the vector does not have [startup 471; observed: 0..29997 none [primary] from 570014; 29997..59118 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59118..59978 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59978..70000 none [primary] from 630005]
+PASS            UC-02 D1                     beacons       5 beacon(s) as expected
+PASS            UC-02 D2                     requests      2 request(s) as expected
+PASS            UC-02 D2                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D2                     presentation  observed a change at 59286 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null], which the vector does not have [startup 401; observed: 0..29992 none [primary] from 570012; 29992..59286 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59286..59978 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59978..70000 none [primary] from 630006]
+PASS            UC-02 D2                     beacons       5 beacon(s) as expected
+PASS            UC-02 D3                     requests      2 request(s) as expected
+PASS            UC-02 D3                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D3                     presentation  observed a change at 59225 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null], which the vector does not have [startup 641; observed: 0..30006 none [primary] from 570005; 30006..59225 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59225..59973 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59973..70000 none [primary] from 630002]
+PASS            UC-02 D3                     beacons       5 beacon(s) as expected
+PASS            UC-02 D4                     requests      2 request(s) as expected
+PASS            UC-02 D4                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D4                     presentation  observed a change at 59606 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null], which the vector does not have [startup 295; observed: 0..29988 none [primary] from 570020; 29988..59606 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59606..59966 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59966..70000 none [primary] from 630005]
+PASS            UC-02 D4                     beacons       5 beacon(s) as expected
+PASS            UC-02 D5                     requests      2 request(s) as expected
+PASS            UC-02 D5                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D5                     presentation  observed a change at 59556 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null], which the vector does not have [startup 303; observed: 0..29998 none [primary] from 570005; 29998..59556 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59556..59986 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59986..70000 none [primary] from 630004]
+PASS            UC-02 D5                     beacons       5 beacon(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1 [trick-play-2x]     presentation  3 segment(s) as expected; startup 292 before the first frame
+PASS            UC-02 D1 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D2 [trick-play-2x]     presentation  3 segment(s) as expected; startup 291 before the first frame
+PASS            UC-02 D2 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D3 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D3 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D3 [trick-play-2x]     presentation  3 segment(s) as expected; startup 402 before the first frame
+PASS            UC-02 D3 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D4 [trick-play-2x]     presentation  3 segment(s) as expected; startup 586 before the first frame
+PASS            UC-02 D4 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D5 [trick-play-2x]     presentation  3 segment(s) as expected; startup 1002 before the first frame
+PASS            UC-02 D5 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-20 D1                     requests      2 request(s) as expected
+PASS            UC-20 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-20 D1                     presentation  observed a change at 58979 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null], which the vector does not have [startup 992; observed: 0..29998 none [primary] from 570008; 29998..58979 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 58979..59970 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59970..70000 none [primary] from 630004]
+PASS            UC-20 D1                     beacons       5 beacon(s) as expected
+PASS            UC-20 D3                     requests      2 request(s) as expected
+PASS            UC-20 D3                     selection     1 opportunit(y/ies) as expected
+PASS            UC-20 D3                     presentation  3 segment(s) as expected; startup 149 before the first frame
+PASS            UC-20 D3                     beacons       5 beacon(s) as expected
+PASS            UC-20 D4                     requests      2 request(s) as expected
+PASS            UC-20 D4                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-20 D4                     presentation  observed a change at 59346 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null], which the vector does not have [startup 356; observed: 0..29994 none [primary] from 570020; 29994..59346 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59346..59980 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59980..70000 none [primary] from 630008]
+PASS            UC-20 D4                     beacons       5 beacon(s) as expected
+PASS            UC-20 D5                     requests      2 request(s) as expected
+PASS            UC-20 D5                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-20 D5                     presentation  observed a change at 59234 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null], which the vector does not have [startup 208; observed: 0..29996 none [primary] from 570008; 29996..59234 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59234..59985 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59985..70000 none [primary] from 630002]
+PASS            UC-20 D5                     beacons       5 beacon(s) as expected
+PASS            UC-01 D1                     requests      3 request(s) as expected
+PASS            UC-01 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D1                     presentation  3 segment(s) as expected; startup 691 before the first frame
+PASS            UC-01 D1                     beacons       9 beacon(s) as expected
+PASS            UC-01 D2                     requests      3 request(s) as expected
+PASS            UC-01 D2                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D2                     presentation  3 segment(s) as expected; startup 1665 before the first frame
+PASS            UC-01 D2                     beacons       9 beacon(s) as expected
+PASS            UC-01 D3                     requests      3 request(s) as expected
+PASS            UC-01 D3                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D3                     presentation  3 segment(s) as expected; startup 309 before the first frame
+PASS            UC-01 D3                     beacons       9 beacon(s) as expected
+PASS            UC-01 D4                     requests      3 request(s) as expected
+PASS            UC-01 D4                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D4                     presentation  3 segment(s) as expected; startup 275 before the first frame
+PASS            UC-01 D4                     beacons       9 beacon(s) as expected
+PASS            UC-01 D5                     requests      3 request(s) as expected
+PASS            UC-01 D5                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D5                     presentation  3 segment(s) as expected; startup 277 before the first frame
+PASS            UC-01 D5                     beacons       9 beacon(s) as expected
+PASS            R4.8 D1                      requests      1 request(s) as expected
+PASS            R4.8 D1                      selection     1 opportunit(y/ies) as expected
+PASS            R4.8 D1                      presentation  3 segment(s) as expected; startup 127 before the first frame
+PASS            R4.8 D1                      beacons       2 beacon(s) as expected
+PASS            R40.4-1 D1                   requests      3 request(s) as expected
+PASS            R40.4-1 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-1 D1                   presentation  6 segment(s) as expected; startup 170 before the first frame
+PASS            R40.4-1 D1                   beacons       7 beacon(s) as expected
+PASS            R40.4-1 D4                   requests      3 request(s) as expected
+PASS            R40.4-1 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-1 D4                   presentation  6 segment(s) as expected; startup 210 before the first frame
+PASS            R40.4-1 D4                   beacons       7 beacon(s) as expected
+PASS            R40.4-2 D1                   requests      3 request(s) as expected
+PASS            R40.4-2 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-2 D1                   presentation  4 segment(s) as expected; startup 173 before the first frame
+PASS            R40.4-2 D1                   beacons       3 beacon(s) as expected
+PASS            R40.4-2 D4                   requests      3 request(s) as expected
+PASS            R40.4-2 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-2 D4                   presentation  4 segment(s) as expected; startup 234 before the first frame
+PASS            R40.4-2 D4                   beacons       3 beacon(s) as expected
+exit 1: PASS 88  FAIL 8  NOT_VERIFIABLE 0; wall 648.1 s; content 0.0 s (0 ffmpeg runs, 10 cuts from the cache), players 646.6 s

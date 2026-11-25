@@ -1,0 +1,62 @@
+diff --git a/reference-player/src/sgai-linear.js b/reference-player/src/sgai-linear.js
+index e78c2a5..3bf2aa6 100644
+--- a/reference-player/src/sgai-linear.js
++++ b/reference-player/src/sgai-linear.js
+@@ -745,9 +745,25 @@
+       return E.PRT + APDA;
+     }
+ 
++    // Where the primary would stand if sought to t. dash.js 5.3.0's
++    // seekToPresentationTime clips a dynamic MPD's seek to [start of the
++    // time-shift buffer, its end − the original live delay]
++    // (_adjustSeekTimeBasedOnLiveDelay; getTargetLiveDelay returns that
++    // delay): the window's end alone is not where a seek holds.
++    seekable(t) {
++      if (!(this.player.isDynamic && this.player.isDynamic())) return { holds: true };
++      const w = this.player.getDvrWindow && this.player.getDvrWindow();
++      if (!w || !isFinite(w.end)) return { holds: false, reason: 'no time-shift buffer yet' };
++      const delay = this.player.getTargetLiveDelay ? this.player.getTargetLiveDelay() : 0;
++      const last = w.end - (delay > 0 ? delay : 0);
++      if (t > last + 0.001) return { holds: false, at: last, reason: `past the live edge ${w.end} − live delay ${delay}` };
++      if (t < w.start - 0.001) return { holds: false, at: w.start, reason: `before the time-shift buffer's start ${w.start}` };
++      return { holds: true };
++    }
++
+     // While the alternative plays, the hidden, paused primary is moved to RT
+-    // as soon as RT is known and inside what the primary can seek to (a
+-    // dynamic MPD's window reaches it only as the live edge does), so that it
++    // as soon as RT is known and a position the primary holds when sought to
++    // (a dynamic MPD reaches it only as the live edge does), so that it
+     // has a decoded frame when the alternative ends: a seek made at the end
+     // leaves nothing on screen until the primary's first frame (0.6-2.0 s
+     // measured under load, T-09). RT follows APDA, so a change of APDA (a
+@@ -757,10 +773,7 @@
+       const RT = this.returnTime(alt, APDA);
+       if (!isFinite(RT)) return;     // a live alternative with no end: RT is not known yet
+       if (alt.readyAt !== undefined && Math.abs(alt.readyAt - RT) <= 0.001) return;
+-      if (this.player.isDynamic && this.player.isDynamic()) {
+-        const w = this.player.getDvrWindow && this.player.getDvrWindow();
+-        if (!w || !(w.end >= RT)) return;
+-      }
++      if (!this.seekable(RT).holds) return;
+       alt.readyAt = RT;
+       this.log('linear:ready-ahead', { key: alt.E.key, RT, from: this.main.currentTime, alt: this.altPosition(alt) });
+       if (Math.abs(this.main.currentTime - RT) > 0.001) this.player.seekToPresentationTime(RT);
+@@ -793,9 +806,14 @@
+         played: alt.parts.map((p) => [p.id, p.state]) });
+       // The primary normally stands at RT already (readyAhead); otherwise the
+       // seek is made now: insertion RT = PRTA, where the primary stands;
+-      // replacement a seek, which dash.js clips to the time-shift buffer of a
+-      // dynamic MPD.
+-      if (!ready && Math.abs(this.main.currentTime - RT) > 0.001) this.player.seekToPresentationTime(RT);
++      // replacement a seek. One that dash.js would clip (a dynamic MPD whose
++      // live edge minus its live delay has not reached RT, or RT behind the
++      // time-shift buffer) is said, with where it lands instead.
++      if (!ready && Math.abs(this.main.currentTime - RT) > 0.001) {
++        const s = this.seekable(RT);
++        if (!s.holds) this.log('linear:return-clipped', { key: E.key, RT, at: s.at, reason: s.reason });
++        this.player.seekToPresentationTime(RT);
++      }
+       // The queue is not reset here (A.14.5; §5.16.2.2.5 1a read literally
+       // would put an insertion back, since RT = PRTA lies in its active
+       // interval — the T-01 finding).

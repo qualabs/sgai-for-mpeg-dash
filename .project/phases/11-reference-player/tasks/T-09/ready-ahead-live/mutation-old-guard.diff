@@ -1,0 +1,7 @@
+776c776,779
+<       if (!this.seekable(RT).holds) return;
+---
+>       if (this.player.isDynamic && this.player.isDynamic()) {
+>         const w = this.player.getDvrWindow && this.player.getDvrWindow();
+>         if (!w || !(w.end >= RT)) return;
+>       }

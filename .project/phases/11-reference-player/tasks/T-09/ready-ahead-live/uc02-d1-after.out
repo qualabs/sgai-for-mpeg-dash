@@ -1,0 +1,3 @@
+3 PASS, 1 FAIL
+FAIL UC-02 (UC-02-D1) D1 presentation | expected: observed a change at 59564 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null], which the vector does not have [startup 327 | observed: observed: 0..30000 none [primary] from 570006; 30000..59564 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59564..59982 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59982.... | log: /run/user/1000/cto/sgai11-readyahead-1795626558-7719/after-logs/behaviour.log:3
+exit 1; wall 73.4 s; full log: /run/user/1000/cto/sgai11-readyahead-1795626558-7719/after-logs/behaviour.log
