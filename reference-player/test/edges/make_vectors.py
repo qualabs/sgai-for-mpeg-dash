@@ -246,3 +246,57 @@ ends at 12 s, and its end callback (at 8 s of its own timeline) fires then.""",
        presentation=[prim(0, 2000, 0), ad(2000, 12000, R48 + "alt.mpd", "alt"), prim(12000, 14000, 2000)],
        beacons=[{"at": 2000, "fixture": R48 + "alt.mpd", "id": "1", "url": "https://t.example.com/r4-8/start"},
                 {"at": 12000, "fixture": R48 + "alt.mpd", "id": "2", "url": "https://t.example.com/r4-8/end"}])
+
+LIVE = F + "live.mpd"
+LIVE_URL = "https://aps.example.com/t05/live"
+
+
+def live_fix(main):
+    return [{"path": F + main}, {"path": LIVE, "url": LIVE_URL}]
+
+
+LIVE_RULE = """A live alternative (MPD@type "dynamic") "always starts at the live edge" (§5.16.2.2.6), and
+its APD, the duration its MPD defines, is infinite: the MPD declares no end. Its playhead is
+counted from where it started, not from its availabilityStartTime."""
+
+vector("E15-replace-live-alternative", LIVE_RULE + """
+Replacement at PRT 2 s, APDmax 6 s, @clip absent, executed on time (PRTA = PRT + d): APDadj =
+6 - d, APDA = min(inf - 0, 6 - d) = 6 - d, RT = PRT + APDA = 8 - d. The live alternative ends
+6 s after it started, though its own timeline is months past its start.""",
+       entry=F + "rep-live-max-main.mpd", fixtures=live_fix("rep-live-max-main.mpd"), play_from=0, observe=10000,
+       summary="the programme, the live alternative 2-8 s, then the programme from 8 s",
+       requests=[{"at": {"from": 0, "to": 2000}, "url": LIVE_URL, "answered_by": LIVE}],
+       selection=sel(F + "rep-live-max-main.mpd", [(LIVE, "live")]),
+       presentation=[prim(0, 2000, 0), ad(2000, 8000, LIVE, "live"), prim(8000, 10000, 8000)],
+       beacons=[])
+
+vector("E16-replace-live-start-with-offset", LIVE_RULE + """
+@startWithOffset "does not apply to a live alternative presentation" (§5.16.4), so ASO = 0.
+Join at 4 s; PRT 2 s, APDmax 6 s, @clip absent: APDadj = max(6 - 4 + 2, 0) = 4; APDA =
+min(inf - 0, 4) = 4; RT = PRT + APDA = 6. With ASO = PRTA - PRT = 2 it would end 2 s later.""",
+       entry=F + "rep-live-swo-main.mpd", fixtures=live_fix("rep-live-swo-main.mpd"), play_from=4000, observe=6000,
+       summary="the live alternative for 4 s, then the programme from 6 s",
+       requests=[{"at": 0, "url": LIVE_URL, "answered_by": LIVE}],
+       selection=sel(F + "rep-live-swo-main.mpd", [(LIVE, "live")]),
+       presentation=[ad(0, 4000, LIVE, "live"), prim(4000, 6000, 6000)],
+       beacons=[])
+
+vector("E17-replace-live-no-max-duration", LIVE_RULE + """
+No @maxDuration: APDmax is infinite (§5.16.5, "the current presentation resumes only when the
+alternative presentation terminates"), so APDA = min(inf, inf) = inf and the live alternative
+plays to the end of the observation.""",
+       entry=F + "rep-live-nomax-main.mpd", fixtures=live_fix("rep-live-nomax-main.mpd"), play_from=0, observe=10000,
+       summary="the programme, then the live alternative from 2 s to the end",
+       requests=[{"at": {"from": 0, "to": 2000}, "url": LIVE_URL, "answered_by": LIVE}],
+       selection=sel(F + "rep-live-nomax-main.mpd", [(LIVE, "live")]),
+       presentation=[prim(0, 2000, 0), ad(2000, 10000, LIVE, "live")],
+       beacons=[])
+
+vector("E18-insert-live-alternative", LIVE_RULE + """
+Insertion at PRT 2 s, APDmax 4 s: APDA = min(APD, APDmax) = min(inf, 4) = 4; RT = PRTA = 2.""",
+       entry=F + "ins-live-max-main.mpd", fixtures=live_fix("ins-live-max-main.mpd"), play_from=0, observe=9000,
+       summary="the programme, the live alternative 2-6 s, then the programme from 2 s",
+       requests=[{"at": {"from": 0, "to": 2000}, "url": LIVE_URL, "answered_by": LIVE}],
+       selection=sel(F + "ins-live-max-main.mpd", [(LIVE, "live")]),
+       presentation=[prim(0, 2000, 0), ad(2000, 6000, LIVE, "live"), prim(6000, 9000, 2000)],
+       beacons=[])

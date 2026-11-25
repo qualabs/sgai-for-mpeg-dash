@@ -31,7 +31,11 @@
 //   alternative's own playhead, which exists once it plays;
 // - while a due event's document is still being fetched, the primary is
 //   held at PRT (§5.16.2.2.6 NOTE 2 admits resolving at PRTA) for at most
-//   HOLD_MS; past that the execution fails.
+//   HOLD_MS; past that the execution fails;
+// - an alternative MPD of type "dynamic" (a live alternative) is a single
+//   Period like a static one; with no MPD@mediaPresentationDuration its APD
+//   is infinite (nothing in the MPD ends it), and its playhead is counted
+//   from where it started, its live edge (§5.16.2.2.6).
 //
 // Observation contract (sgai-reference.js): the <video> of the alternative is
 // `data-sgai-element="ad"` with `data-sgai-doc` (the alternative MPD, or the
@@ -144,6 +148,20 @@
     return out.sort((a, b) => a.at - b.at);
   }
 
+  // The longest segment of an MPD (s): MPD@maxSegmentDuration, else the
+  // longest SegmentTemplate@duration of its first Period; NaN when it says
+  // neither (a SegmentTimeline only).
+  function segmentDuration(doc) {
+    const max = isoDuration(doc.documentElement.getAttribute('maxSegmentDuration'));
+    if (max > 0) return max;
+    let out = NaN;
+    for (const t of doc.getElementsByTagNameNS('*', 'SegmentTemplate')) {
+      const d = num(t.getAttribute('duration'), NaN) / num(t.getAttribute('timescale'), 1);
+      if (d > 0 && !(d <= out)) out = d;
+    }
+    return out;
+  }
+
   // GET a document and parse it as an MPD: { ok, doc, reason }.
   async function fetchMpd(url) {
     let res;
@@ -164,8 +182,10 @@
   // Period, or a Linked Period of a List MPD. `start` and `duration` are on
   // the alternative's timeline, in seconds.
   class Part {
-    constructor(family, { id, doc, importedUri, ert, duration, click }) {
+    constructor(family, { id, doc, importedUri, ert, duration, click, live = false }) {
       this.family = family;
+      this.live = live;             // MPD@type "dynamic": played from its live edge
+      this.origin = 0;              // s on its own timeline where it started playing
       this.click = click;           // its <svta:ClickThrough> (SgaiClick.parse), or null
       this.id = id;                 // data-sgai-candidate-id
       this.doc = doc;               // data-sgai-doc
@@ -229,6 +249,14 @@
       SgaiClick.arm(v, this.click && (() => f.activate(this)));
       const p = dashjs.MediaPlayer().create();
       p.updateSettings({ debug: { logLevel: dashjs.Debug.LOG_LEVEL_NONE } });
+      // A live Part starts at "the most recent available segment (i.e. the
+      // live edge)" (§5.16.4, @returnOffset NOTE 1): one segment behind the
+      // end of its availability window, not dash.js's default of four.
+      // (liveDelayFragmentCount does not do it: dash.js has no segment
+      // duration yet when it computes the delay, and falls back to 4 x
+      // @minBufferTime — measured.)
+      const seg = this.live ? segmentDuration(doc) : NaN;
+      if (seg > 0) p.updateSettings({ streaming: { delay: { liveDelay: seg } } });
       p.clearDefaultUTCTimingSources();
       p.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => { this.initialized = true; });
       p.on(dashjs.MediaPlayer.events.ERROR, (e) => {
@@ -240,10 +268,31 @@
       }
       p.initialize(v, this.blobUrl, false);
       this.player = p;
+      this.seg = seg;
+      if (seg > 0) this.trackLiveEdge(seg);
       return true;
     }
 
+    // A preloaded live Part follows its live edge until it plays: each time a
+    // new segment becomes available it is sought to again, so the segment it
+    // will start from is already buffered when the execution comes (one
+    // sought to only then is fetched then: 0.3-0.8 s of the paused primary
+    // on screen, measured on E15/E17).
+    trackLiveEdge(seg) {
+      let at = null;
+      this.tracker = setInterval(() => {
+        if (!this.player || this.playing) { clearInterval(this.tracker); return; }
+        if (!this.initialized) return;
+        const w = this.player.getDvrWindow();
+        const n = w && Math.floor(w.end / seg);
+        if (!(n > 0) || n === at) return;
+        at = n;
+        this.player.seekToOriginalLive();
+      }, 250);
+    }
+
     destroy() {
+      clearInterval(this.tracker);
       if (this.player) { try { this.player.reset(); } catch (e) { /* already gone */ } }
       if (this.video) this.video.remove();
       if (this.blobUrl) URL.revokeObjectURL(this.blobUrl);
@@ -468,13 +517,17 @@
           if (!parts.length) return { ok: false, reason: 'List MPD: no available media' };
           return { ok: true, parts };
         }
-        if (type !== 'static') return { ok: false, reason: `alternative MPD of type ${type} is not played by this reference` };
+        if (type !== 'static' && type !== 'dynamic') return { ok: false, reason: `alternative MPD of type ${type} is not played by this reference` };
         if (periods.length !== 1 || !children(periods[0], 'AdaptationSet').length) {
           return { ok: false, reason: 'not a single Period with content' };
         }
-        const duration = isoDuration(periods[0].getAttribute('duration'))
+        const live = type === 'dynamic';
+        let duration = isoDuration(periods[0].getAttribute('duration'))
           || isoDuration(mpd.getAttribute('mediaPresentationDuration'));
-        const part = new Part(this, { id: periods[0].getAttribute('id'), doc: E.uri, importedUri: null, ert: 0, duration });
+        // Table 57: APD is the duration the alternative MPD defines; a live
+        // one that defines none has no end the MPD knows of.
+        if (live && !isFinite(duration)) duration = Infinity;
+        const part = new Part(this, { id: periods[0].getAttribute('id'), doc: E.uri, importedUri: null, ert: 0, duration, live });
         part.ready(r.doc, E.uri);
         return { ok: true, parts: [part] };
       })().catch((e) => ({ ok: false, reason: String(e && e.message || e) }));
@@ -501,7 +554,11 @@
       const isReplace = E.scheme === REPLACE;
       // Table 57: ASO = PRTA − PRT with @startWithOffset (replacement), else 0;
       // APDadj = max(APDmax − PRTA + PRT, 0) with @clip true or absent, else APDmax.
-      const ASO = isReplace && E.startWithOffset ? PRTA - E.PRT : 0;
+      // A live alternative "always starts at the live edge" (§5.16.2.2.6) and
+      // @startWithOffset "does not apply to a live alternative presentation"
+      // (§5.16.4): its ASO is 0.
+      const live = parts[0].live;
+      const ASO = isReplace && E.startWithOffset && !live ? PRTA - E.PRT : 0;
       const APDadj = isReplace && E.clip ? Math.max(E.APDmax - PRTA + E.PRT, 0) : E.APDmax;
       // An execution on time is still late by the time between PRT and the
       // tick that saw it; @clip's APDadj takes exactly that off the end.
@@ -553,7 +610,20 @@
       const p = part.player;
       const go = () => {
         if (this.alt !== alt) return;
-        if (offset > 0) p.seek(offset);
+        // A live Part goes to its live edge as it is now: the one dash.js
+        // took when the Part was preloaded is as old as the preload.
+        if (part.live) {
+          part.playing = true;
+          clearInterval(part.tracker);
+          // Already in the most recent available segment (the tracker put
+          // it there): it plays from where it is, without a new seek.
+          const w = p.getDvrWindow();
+          const edge = w && w.end;
+          const inLast = part.seg > 0 && edge > 0
+            && part.video.currentTime >= (Math.floor(edge / part.seg) - 1) * part.seg - 0.001;
+          if (!inLast) p.seekToOriginalLive();
+          this.log('linear:live-seek', { id: part.id, edge, from: part.video.currentTime, sought: !inLast });
+        } else if (offset > 0) p.seek(offset);
         p.setPlaybackRate(alt.rate);
         p.play();
       };
@@ -572,7 +642,15 @@
       else delete part.video.dataset.sgaiOpportunityValue;
       // One serial per Part: the 'playing' of a resume after a suspension
       // (R17.5) is not a new presentation.
-      if (!part.video.dataset.sgaiPresentation) part.video.dataset.sgaiPresentation = this.ref.nextPresentation();
+      if (!part.video.dataset.sgaiPresentation) {
+        part.video.dataset.sgaiPresentation = this.ref.nextPresentation();
+        // A live Part's playhead is counted from its live edge; its callbacks
+        // before that point were not reached in course of playback.
+        if (part.live) {
+          part.fromT = part.origin = part.video.currentTime;
+          this.log('linear:live-start', { id: part.id, origin: part.origin });
+        }
+      }
       part.video.style.visibility = 'visible';
       this.main.style.visibility = 'hidden';
       part.shown = true;
@@ -591,7 +669,7 @@
     altPosition(alt) {
       const part = alt.parts[alt.index];
       if (!part || !part.video) return part ? part.start : 0;
-      return part.start + part.video.currentTime;
+      return part.start + part.video.currentTime - part.origin;
     }
 
     tickAlt() {
@@ -677,6 +755,7 @@
     // primary resumes is unchanged: this only does the seek earlier.
     readyAhead(alt, APDA) {
       const RT = this.returnTime(alt, APDA);
+      if (!isFinite(RT)) return;     // a live alternative with no end: RT is not known yet
       if (alt.readyAt !== undefined && Math.abs(alt.readyAt - RT) <= 0.001) return;
       if (this.player.isDynamic && this.player.isDynamic()) {
         const w = this.player.getDvrWindow && this.player.getDvrWindow();
@@ -690,6 +769,9 @@
     // §5.16.2.2.5 1a: terminate, compute RT (Table 57), move the playhead to it.
     terminate(alt, APDA) {
       const E = alt.E;
+      // A live alternative with no APDA that ended on its own: its observed
+      // duration (Table 57's APDE) is what played.
+      if (!isFinite(APDA)) APDA = Math.max(this.altPosition(alt) - alt.ASO, 0);
       const RT = this.returnTime(alt, APDA);
       // The callbacks up to where the alternative stops. A stop within EPS of
       // the Part's end, or within the lag of an execution on time, counts as
@@ -698,7 +780,7 @@
       // event at the Period's end has no media sample of its own either).
       const cur = alt.parts[alt.index];
       if (cur && cur.shown) {
-        const reached = APDA + alt.ASO - cur.start;
+        const reached = cur.origin + APDA + alt.ASO - cur.start;
         this.fireCallbacks(alt, cur, reached >= cur.duration - Math.max(EPS, alt.lag) ? cur.duration : reached);
       }
       this.alt = null;

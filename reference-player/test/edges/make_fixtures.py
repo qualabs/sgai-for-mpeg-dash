@@ -75,6 +75,24 @@ def stream(scheme, eid, pt, dur, child):
     </EventStream>"""
 
 
+def live_mpd(name):
+    """A live alternative (MPD@type "dynamic") with no end: no
+    @mediaPresentationDuration, no Period@duration, no MPD update. Its
+    availabilityStartTime is long past, so its live edge is wherever the
+    machine's clock puts it (a static main gets no utcAtLoad)."""
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="dynamic"
+     profiles="urn:mpeg:dash:profile:isoff-live:2011"
+     availabilityStartTime="2026-01-01T00:00:00Z" publishTime="2026-01-01T00:00:00Z"
+     timeShiftBufferDepth="PT30S" minBufferTime="PT2S">
+  <BaseURL>https://live-cdn.example.com/t05/{name}/</BaseURL>
+  <Period id="{name}" start="PT0S">
+{AS_AD}
+  </Period>
+</MPD>
+"""
+
+
 FILES = {
     # an insertion with no @executeOnce
     "ins-many-main.mpd": main_mpd("ins-many", stream("insert", 1, 2000, 1000,
@@ -117,6 +135,16 @@ FILES = {
     "la.mpd": ad_mpd("la", 4, [(0, "imp")]),
     # @id 2: the Periods of a List are one presentation, where an @id is not repeated (§5.10.2.4)
     "lc.mpd": ad_mpd("lc", 4, [(0, "imp")], first_id=2),
+    # a live alternative (MPD@type "dynamic", no end), replaced or inserted at PRT 2 s
+    "live.mpd": live_mpd("live"),
+    "rep-live-max-main.mpd": main_mpd("rep-live-max", stream("replace", 1, 2000, 10000,
+        'uri="https://aps.example.com/t05/live" earliestResolutionTimeOffset="2000" maxDuration="6000"')),
+    "rep-live-swo-main.mpd": main_mpd("rep-live-swo", stream("replace", 1, 2000, 10000,
+        'uri="https://aps.example.com/t05/live" earliestResolutionTimeOffset="2000" maxDuration="6000" startWithOffset="true"')),
+    "rep-live-nomax-main.mpd": main_mpd("rep-live-nomax", stream("replace", 1, 2000, 10000,
+        'uri="https://aps.example.com/t05/live" earliestResolutionTimeOffset="2000"')),
+    "ins-live-max-main.mpd": main_mpd("ins-live-max", stream("insert", 1, 2000, 1000,
+        'uri="https://aps.example.com/t05/live" earliestResolutionTimeOffset="2000" maxDuration="4000" executeOnce="true"')),
 }
 
 if __name__ == "__main__":

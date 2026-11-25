@@ -1,0 +1,2 @@
+71 PASS
+exit 0; wall 100.5 s; 2 note(s) in the log; full log: /run/user/1000/cto/uc14-dyn-a8f3/logs-ea/behaviour.log

@@ -1,0 +1,60 @@
+# A live alternative (MPD@type "dynamic") "always starts at the live edge" (§5.16.2.2.6), and
+# its APD, the duration its MPD defines, is infinite: the MPD declares no end. Its playhead is
+# counted from where it started, not from its availabilityStartTime.
+# @startWithOffset "does not apply to a live alternative presentation" (§5.16.4), so ASO = 0.
+# Join at 4 s; PRT 2 s, APDmax 6 s, @clip absent: APDadj = max(6 - 4 + 2, 0) = 4; APDA =
+# min(inf - 0, 4) = 4; RT = PRT + APDA = 6. With ASO = PRTA - PRT = 2 it would end 2 s later.
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 4000
+observe_until: 6000
+entry: fixtures/rep-live-swo-main.mpd
+fixtures:
+- path: fixtures/rep-live-swo-main.mpd
+- path: fixtures/live.mpd
+  url: https://aps.example.com/t05/live
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: the live alternative for 4 s, then the programme from 6 s
+    requests:
+    - at: 0
+      url: https://aps.example.com/t05/live
+      answered_by: fixtures/live.mpd
+    selection:
+    - opportunity:
+        fixture: fixtures/rep-live-swo-main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: fixtures/live.mpd
+          id: live
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 4000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: fixtures/live.mpd
+          id: live
+        option: null
+    - start: 4000
+      end: 6000
+      layout: none
+      shows:
+      - element: primary
+        from: 6000
+    beacons: []

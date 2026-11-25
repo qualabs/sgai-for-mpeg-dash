@@ -1,0 +1,40 @@
+== M1-reject-dynamic
+8 PASS, 8 FAIL
+FAIL E15-replace-live-alternative D1 selection | expected: selection[0] event 1 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of fixtures/rep-live-max-main.mpd (presented): expected linear fixtures/live.mpd:live option null | observed: observed nothing | log: /run/user/1000/cto/uc14-dyn-a8f3/log
+FAIL E15-replace-live-alternative D1 presentation | expected: presentation[1] expected a change at 2000 to linear [ad fixtures/live.mpd:live option null] | observed: none observed within 250 (on screen: none [primary] from 0); presentation[2] expected a change at 8000 to none [primary from 8000]; no
+FAIL E16-replace-live-start-with-offset D1 selection | expected: selection[0] event 1 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of fixtures/rep-live-swo-main.mpd (presented): expected linear fixtures/live.mpd:live option null | observed: observed nothing | log: /run/user/1000/cto/uc14-dyn-a8
+FAIL E16-replace-live-start-with-offset D1 presentation | expected: presentation[1] expected a change at 4000 to none [primary from 6000] | observed: none observed within 250 (on screen: none [primary] from 0); presentation[0] 0..4000 expected linear [ad fixtures/live.mpd:live option null]; observed
+FAIL E17-replace-live-no-max-duration D1 selection | expected: selection[0] event 1 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of fixtures/rep-live-nomax-main.mpd (presented): expected linear fixtures/live.mpd:live option null | observed: observed nothing | log: /run/user/1000/cto/uc14-dyn-a8
+FAIL E17-replace-live-no-max-duration D1 presentation | expected: presentation[1] expected a change at 2000 to linear [ad fixtures/live.mpd:live option null] | observed: none observed within 250 (on screen: none [primary] from 0); presentation[1] 2000..10000 expected linear [ad fixtures/live.mpd:liv
+FAIL E18-insert-live-alternative D1 selection | expected: selection[0] event 1 (urn:mpeg:dash:event:alternativeMPD:insert:2025) of fixtures/ins-live-max-main.mpd (presented): expected linear fixtures/live.mpd:live option null | observed: observed nothing | log: /run/user/1000/cto/uc14-dyn-a8f3/logs-
+FAIL E18-insert-live-alternative D1 presentation | expected: presentation[1] expected a change at 2000 to linear [ad fixtures/live.mpd:live option null] | observed: none observed within 250 (on screen: none [primary] from 0); presentation[2] expected a change at 6000 to none [primary from 2000]; non
+exit 1; wall 29.1 s; full log: /run/user/1000/cto/uc14-dyn-a8f3/logs-m/behaviour.log
+== M2-apd-not-infinite
+4 PASS, 4 FAIL
+FAIL E15-replace-live-alternative D1 selection | expected: selection[0] event 1 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of fixtures/rep-live-max-main.mpd (presented): expected linear fixtures/live.mpd:live option null | observed: observed nothing | log: /run/user/1000/cto/uc14-dyn-a8f3/log
+FAIL E15-replace-live-alternative D1 presentation | expected: presentation[1] expected a change at 2000 to linear [ad fixtures/live.mpd:live option null] | observed: none observed within 250 (on screen: none [primary] from 0); presentation[2] expected a change at 8000 to none [primary from 8000]; no
+FAIL E17-replace-live-no-max-duration D1 selection | expected: selection[0] event 1 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of fixtures/rep-live-nomax-main.mpd (presented): expected linear fixtures/live.mpd:live option null | observed: observed nothing | log: /run/user/1000/cto/uc14-dyn-a8
+FAIL E17-replace-live-no-max-duration D1 presentation | expected: presentation[1] expected a change at 2000 to linear [ad fixtures/live.mpd:live option null] | observed: none observed within 250 (on screen: none [primary] from 0); presentation[1] 2000..10000 expected linear [ad fixtures/live.mpd:liv
+exit 1; wall 19.1 s; full log: /run/user/1000/cto/uc14-dyn-a8f3/logs-m/behaviour.log
+== M3-aso-applies-to-live
+3 PASS, 1 FAIL
+FAIL E16-replace-live-start-with-offset D1 presentation | expected: presentation[1] expected a change at 4000 to none [primary from 6000] | observed: none observed within 250 (on screen: linear [ad fixtures/live.mpd:live option null] from 0); presentation[1] 4000..6000 expected none [primary from 60
+exit 1; wall 13.7 s; full log: /run/user/1000/cto/uc14-dyn-a8f3/logs-m/behaviour.log
+== M4-position-not-from-origin
+8 PASS, 4 FAIL
+FAIL E15-replace-live-alternative D1 selection | expected: selection[0] event 1 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of fixtures/rep-live-max-main.mpd (presented): expected linear fixtures/live.mpd:live option null | observed: observed nothing | log: /run/user/1000/cto/uc14-dyn-a8f3/log
+FAIL E15-replace-live-alternative D1 presentation | expected: presentation[2] expected a change at 8000 to none [primary from 8000] | observed: none observed within 250 (on screen: none [primary] from 2010); presentation[1] 2000..8000 expected linear [ad fixtures/live.mpd:live option null]; observed
+FAIL E18-insert-live-alternative D1 selection | expected: selection[0] event 1 (urn:mpeg:dash:event:alternativeMPD:insert:2025) of fixtures/ins-live-max-main.mpd (presented): expected linear fixtures/live.mpd:live option null | observed: observed nothing | log: /run/user/1000/cto/uc14-dyn-a8f3/logs-
+FAIL E18-insert-live-alternative D1 presentation | expected: presentation[1] expected a change at 2000 to linear [ad fixtures/live.mpd:live option null] | observed: none observed within 250 (on screen: none [primary] from 0); presentation[2] expected a change at 6000 to none [primary from 2000]; non
+exit 1; wall 27.6 s; 1 note(s) in the log; full log: /run/user/1000/cto/uc14-dyn-a8f3/logs-m/behaviour.log
+== M5b
+8 PASS
+exit 0; wall 18.0 s; full log: /run/user/1000/cto/uc14-dyn-a8f3/logs-m/behaviour.log
+== M6-default-live-delay
+7 PASS, 1 FAIL
+FAIL E17-replace-live-no-max-duration D1 presentation | expected: observed a change at 2335 from none [primary] to linear [ad fixtures/live.mpd:live option null], which the vector does not have; presentation[1] expected a change at 2000 to linear [ad fixtures/liv... | observed: none observed within 
+exit 1; wall 18.1 s; full log: /run/user/1000/cto/uc14-dyn-a8f3/logs-m/behaviour.log
+== M7-no-infinite-rt-guard
+3 PASS, 1 FAIL
+FAIL E17-replace-live-no-max-duration D1 presentation | expected: presentation[1] expected a change at 2000 to linear [ad fixtures/live.mpd:live option null] | observed: none observed within 250 (on screen: none [primary] from 0); presentation[1] 2000..10000 expected linear [ad fixtures/live.mpd:liv
+exit 1; wall 23.1 s; full log: /run/user/1000/cto/uc14-dyn-a8f3/logs-m/behaviour.log
