@@ -3,7 +3,8 @@
 Chromium: the session clock (bin/players/adapters/sgai-clock.js, run under
 node), its mapping in the comparison, the attribution of a document served
 twice at one URL, the selection as ordered sequences, which `aps` answers are
-document requests, which URLs the runner fetches from the content server, a
+document requests, which fixture answers each document request when several
+share a URL (per class, per variant, the n-th request), which URLs the runner fetches from the content server, a
 fixture kept beside its vector, the UTC time a live entry is joined at, the
 capabilities a job discloses, and the content server's silence when a Player
 drops a connection.
@@ -45,6 +46,7 @@ from conformance.behaviour_compare import (Fixtures, Observed, attribute, compar
 from conformance.model import Outcome  # noqa: E402
 
 CLOCK_JS = BIN / "players" / "adapters" / "sgai-clock.js"
+ROUTING_JS = BIN / "players" / "routing.mjs"
 SOURCE = ROOT / "spec-source"
 T0 = 1_700_000_000_000
 
@@ -559,6 +561,136 @@ class Jobs(unittest.TestCase):
         job, _, _ = job_for([])
         self.assertEqual(job["clock"], "presentation")
         self.assertEqual(job["wallLimitMs"], 10000 * 4 + behaviour.JOB_MARGIN_MS)
+
+
+# --------------------------------------------------------------------------- jobs: which fixture answers a request
+
+PAUSE = "https://aps.example.com/nl/pause?title=film12"
+AD = "https://ads-cdn.example.com/pz/501/cr501v.mpd"
+
+
+def routing_fx():
+    return Fixtures({"main.mpd": "https://sgai-entry.invalid/main.mpd", "first.xml": PAUSE, "ad.mpd": AD,
+                     "empty.xml": PAUSE, "other.xml": "https://aps-b.example.net/ov?f=31"},
+                    {"main.mpd": SUB_MPD, "first.xml": "FIRST", "ad.mpd": SUB_MPD, "empty.xml": "EMPTY",
+                     "other.xml": "OTHER"})
+
+
+def answers(routes):
+    return {r["url"]: [a["path"] for a in r["answers"]] for r in routes}
+
+
+def run_routing_js(routes, urls):
+    """The runner's routing module under node, no browser: the answer path
+    and n per request."""
+    script = (f"import {{ routeAnswer }} from {json.dumps(ROUTING_JS.as_uri())};"
+              "import { readFileSync } from 'fs'; const i = JSON.parse(readFileSync(0, 'utf8')); const served = new Map();"
+              "process.stdout.write(JSON.stringify(i.urls.map((u) => { const a = routeAnswer(i.routes, served, u);"
+              " return a && [a.doc.path, a.n]; })));")
+    p = subprocess.run(["node", "--input-type=module", "-e", script], input=json.dumps({"routes": routes, "urls": urls}),
+                       capture_output=True, text=True, timeout=30)
+    if p.returncode:
+        raise AssertionError(p.stderr)
+    return json.loads(p.stdout)
+
+
+class Routing(unittest.TestCase):
+    def test_second_request_to_one_url_gets_the_second_answer(self):
+        # UC-05's shape: E.4-1 and E.7.1-1 at one URL, the re-request answered by the empty one
+        out = {"requests": [{"url": PAUSE, "answered_by": "first.xml"}, {"url": AD, "answered_by": "ad.mpd"},
+                            {"url": PAUSE, "answered_by": "empty.xml"}]}
+        routes = behaviour.document_routes(out, routing_fx(), SOURCE)
+        self.assertEqual(answers(routes), {PAUSE: ["first.xml", "empty.xml"], AD: ["ad.mpd"]})
+        self.assertEqual([a["body"] for a in routes[0]["answers"]], ["FIRST", "EMPTY"])
+
+    def test_the_class_answer_and_not_the_first_fixture(self):
+        # UC-13 / UC-15's shape: D2's outcome is answered by the second fixture at the URL
+        routes = behaviour.document_routes({"requests": [{"url": PAUSE, "answered_by": "empty.xml"}]},
+                                           routing_fx(), SOURCE)
+        self.assertEqual(answers(routes), {PAUSE: ["empty.xml"]})
+
+    def test_answer_declared_at_another_url(self):
+        # UC-12 path-2's shape: the second APS is answered by a fixture declared at the first one's URL
+        b = "https://aps-b.example.net/ov?f=31"
+        routes = behaviour.document_routes({"requests": [{"url": PAUSE, "answered_by": "first.xml"},
+                                                         {"url": b, "answered_by": "first.xml"}]},
+                                           routing_fx(), SOURCE)
+        self.assertEqual(answers(routes), {PAUSE: ["first.xml"], b: ["first.xml"]})
+
+    def test_same_url_written_differently_is_one_route(self):
+        out = {"requests": [{"url": "https://aps.example.com/nl/pause?title=film12", "answered_by": "first.xml"},
+                            {"url": "https://APS.example.com/nl/pause?title=film12", "answered_by": "empty.xml"}]}
+        self.assertEqual(list(answers(behaviour.document_routes(out, routing_fx(), SOURCE)).values()),
+                         [["first.xml", "empty.xml"]])
+
+    def test_requests_aps_answers_take_no_place(self):
+        out = {"requests": [{"url": PAUSE}, {"url": PAUSE, "answered_by": "empty.xml"}]}
+        self.assertEqual(answers(behaviour.document_routes(out, routing_fx(), SOURCE)), {PAUSE: ["empty.xml"]})
+
+    def test_nothing_declared_is_no_route(self):
+        for out in (None, {}, {"requests": []}, {"requests": [], "requests_not_compared": "x"},
+                    {"requests": [{"url": PAUSE}]}):
+            self.assertEqual(behaviour.document_routes(out, routing_fx(), SOURCE), [], out)
+
+    def test_answer_read_beside_the_vector_when_not_a_fixture(self):
+        routes = behaviour.document_routes({"requests": [{"url": PAUSE,
+                                                          "answered_by": "behaviour/fixtures/R32.1/second.xml"}]},
+                                           routing_fx(), SOURCE)
+        self.assertIn("Second document", routes[0]["answers"][0]["body"])
+        with self.assertRaises(FileNotFoundError):
+            behaviour.document_routes({"requests": [{"url": PAUSE, "answered_by": "nowhere.xml"}]},
+                                      routing_fx(), SOURCE)
+
+    def test_most_specific_first(self):
+        bare = "https://aps.example.com/nl/pause"
+        out = {"requests": [{"url": bare, "answered_by": "ad.mpd"}, {"url": PAUSE, "answered_by": "first.xml"}]}
+        self.assertEqual([r["url"] for r in behaviour.document_routes(out, routing_fx(), SOURCE)], [PAUSE, bare])
+
+    def test_job_carries_the_outcome_routes(self):
+        job, _, _ = job_for([])
+        self.assertEqual(job["routes"], [])                                 # no outcome: the first fixture
+        server = _FakeServer()
+        media = behaviour.Media(server, "http://127.0.0.1:1")
+        v = {"timescale": 1000, "play_from": 0, "observe_until": 1000, "entry": "main.mpd",
+             "player_capabilities": {"D2": {}}, "aps": []}
+        job = behaviour.build_job("j1", v, routing_fx(), [], "D2", [], SOURCE, media,
+                                  outcome={"requests": [{"url": PAUSE, "answered_by": "empty.xml"}]})
+        self.assertEqual(answers(job["routes"]), {PAUSE: ["empty.xml"]})
+
+    def test_real_vectors(self):
+        # checked by hand against the vectors' `requests` (T-09 routing evidence)
+        import yaml
+        cases = [("UC-05", None, "D1", {PAUSE: ["examples/annex-e/E.4-1.xml", "examples/annex-e/E.7.1-1.xml"],
+                                        AD: ["examples/annex-e/E.5-1.mpd"]}),
+                 ("UC-13", None, "D3", {"https://aps.example.com/nl/overlay?s=11&e=4&w=1": ["examples/annex-m/M.5-3.xml"]}),
+                 ("UC-15", "non-conforming-aps", "D2",
+                  {"https://aps.example.com/nl/overlay?c=2&w=1": ["examples/annex-o/O.7-1.xml"]}),
+                 ("UC-12", "path-2-both-empty", "D1",
+                  {"https://aps-a.example.com/nl/overlay?f=31": ["examples/annex-l/L.4-1.xml"],
+                   "https://aps-b.example.net/sgai/ov?f=31": ["examples/annex-l/L.4-1.xml"]})]
+        for uc, variant, cls, want in cases:
+            path = SOURCE / "scenarios" / f"{uc}.yaml"
+            v = yaml.safe_load(path.read_text(encoding="utf-8"))
+            fx = behaviour.fixtures_of(v, SOURCE, path.parent)
+            outcome = next(o for var, c, _, o in behaviour.runs_of(v, [cls]) if var == variant)
+            self.assertEqual(answers(behaviour.document_routes(outcome, fx, SOURCE, path.parent)), want, uc)
+
+    @unittest.skipUnless(shutil.which("node"), "node is not installed")
+    def test_runner_answers_nth_then_last(self):
+        routes = [{"url": PAUSE, "answers": [{"path": "first.xml"}, {"path": "empty.xml"}]},
+                  {"url": AD, "answers": [{"path": "ad.mpd"}]}]
+        got = run_routing_js(routes, [PAUSE + "&sgai-caps=x", AD, PAUSE, PAUSE, "https://aps.example.com/nl/pause",
+                                      "https://aps.example.com/nl/pause?title=other", AD])
+        self.assertEqual(got, [["first.xml", 1], ["ad.mpd", 1], ["empty.xml", 2], ["empty.xml", 3], None, None,
+                               ["ad.mpd", 2]])
+
+    @unittest.skipUnless(shutil.which("node"), "node is not installed")
+    def test_runner_takes_the_first_covering_route(self):
+        bare = "https://aps.example.com/nl/pause"
+        routes = [{"url": PAUSE, "answers": [{"path": "first.xml"}]}, {"url": bare, "answers": [{"path": "ad.mpd"}]}]
+        self.assertEqual(run_routing_js(routes, [PAUSE, bare + "?x=1"]), [["first.xml", 1], ["ad.mpd", 1]])
+        self.assertEqual(run_routing_js([{"url": PAUSE, "answers": []}], [PAUSE]), [None])
+        self.assertEqual(run_routing_js([], [PAUSE]), [None])
 
 
 class FixtureBesideTheVector(unittest.TestCase):

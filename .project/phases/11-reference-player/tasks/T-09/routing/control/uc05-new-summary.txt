@@ -1,0 +1,2 @@
+4 PASS
+exit 0; wall 951.2 s; full log: /run/user/1000/cto/t09-routing-467312/new-log/behaviour.log

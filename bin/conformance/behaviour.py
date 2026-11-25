@@ -65,7 +65,7 @@ import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import parse_qsl, urlsplit
 from xml.etree import ElementTree as ET
 
 from . import players
@@ -301,12 +301,47 @@ def live_utc_at_load(entry_text: str, play_from_s: float, span_s: float) -> floa
     return ast.timestamp() * 1000 + (play_from_s + span_s) * 1000
 
 
+def document_routes(outcome: dict | None, fx: Fixtures, source: Path, base: Path | None = None) -> list:
+    """Which fixture answers each document request of a job, as its outcome's
+    `requests` declare it: per URL (as the pointing document writes it), the
+    `answered_by` of its requests in order, so the runner answers the n-th
+    request to that URL with the n-th of them and every later one with the
+    last. Requests with no `answered_by` (an `aps` entry answers them) take no
+    place in the list. A URL whose fixtures share it with others is thereby
+    answered with the class's, the variant's or the n-th one, which is the one
+    the comparison attributes (served_fixture). URLs the outcome does not list
+    are left to the fixture whose URL it is. The routes are ordered most
+    specific first (more declared query parameters), so the runner, which
+    takes the first that covers a request, never lets a shorter URL take a
+    longer one's request."""
+    order: list = []
+    answers: dict = {}
+    for r in (outcome or {}).get("requests") or []:
+        if not r.get("answered_by"):
+            continue
+        key = next((u for u in order if same_url(u, r["url"])), None)
+        if key is None:
+            key = r["url"]
+            order.append(key)
+            answers[key] = []
+        answers[key].append(r["answered_by"])
+    text = lambda p: fx.texts[p] if p in fx.texts else fixture_file(p, source, base).read_text(encoding="utf-8")  # noqa: E731
+    routes = [{"url": u, "answers": [{"path": p, "body": text(p), "contentType": content_type(p)} for p in answers[u]]}
+              for u in order]
+    routes.sort(key=lambda r: -len(parse_qsl(urlsplit(r["url"]).query, keep_blank_values=True)))
+    return routes
+
+
 def build_job(jid: str, v: dict, fx: Fixtures, media_map: list, cls: str, actions: list, source: Path,
-              media: "Media | None" = None, clock: str = "presentation", base: Path | None = None) -> dict:
+              media: "Media | None" = None, clock: str = "presentation", base: Path | None = None,
+              outcome: dict | None = None) -> dict:
     """One job of bin/players/behaviour.mjs. An `aps` entry whose URL is a
     segment of the vector's media or a creative its fixtures declare, and that
     answers no document, is marked `media`: its requests are not document
-    requests. `base` is the vector file's directory (fixture_file)."""
+    requests. `base` is the vector file's directory (fixture_file). `outcome`
+    is the job's (its class's, in its variant): which fixture answers each
+    document request (document_routes); without it a URL is answered with the
+    first fixture declared at it."""
     ts = v["timescale"]
     ms = lambda t: t * 1000.0 / ts  # noqa: E731
     caps = (v.get("player_capabilities") or {}).get(cls)
@@ -337,6 +372,7 @@ def build_job(jid: str, v: dict, fx: Fixtures, media_map: list, cls: str, action
                      "rate": a.get("rate")} for a in actions],
         "documents": [{"url": u, "path": p, "body": fx.texts[p], "contentType": content_type(p)}
                       for p, u in fx.urls.items()],
+        "routes": document_routes(outcome, fx, source, base),
         "aps": aps,
         "media": [{"prefix": m["prefix"], "local": m["local"],
                    "segments": media.segments(m["key"]) if media is not None else []} for m in media_map],
@@ -543,7 +579,7 @@ def run(source: Path, files: list, classes: list, concurrency: int, report: Repo
                     report.add(_all_nv(v, outcome, subject, why))
                     continue
                 jobs.append(build_job(jid, v, fx, maps[id(v)], cls, actions, source, media, clock,
-                                      path.resolve().parent))
+                                      path.resolve().parent, outcome))
                 runnable.append(plan)
             content_s = time.monotonic() - t_content
             if not jobs:

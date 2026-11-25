@@ -1,0 +1,5 @@
+PASS            UC-05 (UC-05-D2) D2          requests      3 request(s) as expected
+PASS            UC-05 (UC-05-D2) D2          selection     1 opportunit(y/ies) as expected
+PASS            UC-05 (UC-05-D2) D2          presentation  4 segment(s) as expected; startup 427 before the first frame
+PASS            UC-05 (UC-05-D2) D2          beacons       3 beacon(s) as expected
+exit 0: PASS 4  FAIL 0  NOT_VERIFIABLE 0; wall 870.6 s; content 0.0 s (0 ffmpeg runs, 3 cuts from the cache), players 869.5 s

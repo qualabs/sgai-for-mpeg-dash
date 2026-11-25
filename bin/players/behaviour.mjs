@@ -11,6 +11,9 @@
 //   epoch, or null), entryUrl, observeMs, wallLimitMs,
 //   actions:   [{ atMs, do, to (s), rate }],
 //   documents: [{ url, path, body, contentType }],      the vector's fixtures
+//   routes:    [{ url, answers: [{ path, body, contentType }] }],  which
+//              fixture answers the n-th request to a URL (behaviour.py's
+//              document_routes)
 //   aps:       [{ url, nth, status, path, body, contentType, delayMs, noResponse,
 //                 media }],                           media: not a document
 //   media:     [{ prefix, local, segments }] }] }    external prefix -> local,
@@ -50,8 +53,10 @@
 //   1. an `aps` entry for its URL (and request number): its status, document,
 //      delay, or no answer at all — kind 'aps', or 'aps-media' when the URL is
 //      a media segment or a creative and not a document (`media`);
-//   2. a fixture whose URL it is (the fixture's query a subset of the
-//      request's) — kind 'document', 200 with the fixture;
+//   2. a route covering its URL: the route's n-th answer for the n-th request
+//      it takes (the last one from then on) — kind 'document', 200 with that
+//      fixture; else a fixture whose URL it is (the fixture's query a subset
+//      of the request's), the first one declared there — kind 'document';
 //   3. a segment a fixture MPD declares under a media prefix (its local path
 //      matches one of `segments`): fetched from the local content server, not
 //      recorded beyond a count (media requests are not compared). Anything
@@ -61,6 +66,7 @@
 //      among these; which are beacons is decided in Python.
 // This file decides nothing.
 import { chromium } from 'playwright';
+import { covers, routeAnswer } from './routing.mjs';
 
 const input = JSON.parse(await new Promise((resolve) => {
   let s = '';
@@ -75,21 +81,13 @@ const TIME_HOSTS = ['time.akamai.com'];
 const POLL_MS = 10;
 const FRAME_LEAD_MS = 100;
 
-// The declared URL covers the requested one: same origin and path, and every
-// query parameter of the declared one present with the same value.
-function covers(declared, requested) {
-  let d; let r;
-  try { d = new URL(declared); r = new URL(requested); } catch (e) { return false; }
-  if (d.origin !== r.origin || d.pathname !== r.pathname) return false;
-  for (const [k, v] of d.searchParams) if (!r.searchParams.getAll(k).includes(v)) return false;
-  return true;
-}
 
 async function runJob(browser, job) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 720 } });
   const page = await context.newPage();
   const requests = [];
   const counts = new Map();
+  const served = new Map();
   let mediaResponses = 0;
   const mediaErrors = [];
   const media = job.media.slice().sort((a, b) => b.prefix.length - a.prefix.length)
@@ -127,9 +125,10 @@ async function runJob(browser, job) {
             contentType: rule.contentType || 'text/plain', body: rule.body || '' });
         }
       }
-      const doc = job.documents.find((d) => covers(d.url, url));
+      const routed = routeAnswer(job.routes || [], served, url);
+      const doc = routed ? routed.doc : job.documents.find((d) => covers(d.url, url));
       if (doc) {
-        Object.assign(rec, { kind: 'document', fixture: doc.path, status: 200 });
+        Object.assign(rec, { kind: 'document', fixture: doc.path, status: 200 }, routed ? { nth: routed.n } : {});
         requests.push(rec);
         return await route.fulfill({ status: 200, headers: CORS, contentType: doc.contentType, body: doc.body });
       }

@@ -1,0 +1,77 @@
+FAIL            UC-05 (UC-05-routing) D1     requests      requests[2] https://aps.example.com/nl/pause?title=film12 expected at 770000, query {'sgai-video-decoders': '2', 'sgai-image-over-video': '1', 'sgai-html-over-video': '1', 'sgai-allowed-layouts': 'pause-fullscreen pause-partial'}, answered_by examples/annex-e/E.7.1-1.xml, matching examples/annex-e/E.3-1.http; observed https://aps.example.com/nl/pause?title=film12&sgai-allowed-layouts=pause-fullscreen%20pause-partial&sgai-video-decoders=2&sgai-image-over-video=1&sgai-html-over-video=1 at 720108, query {'sgai-allowed-layouts': 'pause-fullscreen pause-partial', 'sgai-html-over-video': '1', 'sgai-image-over-video': '1', 'sgai-video-decoders': '2'}, answered_by examples/annex-e/E.7.1-1.xml; unexpected request https://aps.example.com/nl/pause?title=film12&sgai-allowed-layouts=pause-fullscreen%20pause-partial&sgai-video-decoders=2&sgai-image-over-video=1&sgai-html-over-video=1 at 720108 (answered_by examples/annex-e/E.7.1-1.xml)
+FAIL            UC-05 (UC-05-routing) D1     selection     selection[0] event 1 (urn:svta:dash:sgai-pause-trigger:2026) of examples/annex-e/E.2-1.mpd (presented): expected pause-fullscreen examples/annex-e/E.4-1.xml:#1 option #1, pause-fullscreen examples/annex-e/E.4-1.xml:#2 option #1; observed nothing
+FAIL            UC-05 (UC-05-routing) D1     presentation  presentation[2] expected a change at 740000 to pause-fullscreen [ad examples/annex-e/E.4-1.xml:#2 option #1]; none observed within 250 (on screen: none [primary (paused)] from 720028); presentation[3] expected a change at 770000 to none [primary from 720000]; none observed within 250 (on screen: none [primary (paused)] from 720028); presentation[1] 720000..740000 expected pause-fullscreen [ad examples/annex-e/E.4-1.xml:#1 option #1]; observed none [primary (paused)] from 720028 to 790014; presentation[2] 740000..770000 expected pause-fullscreen [ad examples/annex-e/E.4-1.xml:#2 option #1]; observed none [primary (paused)] from 720028 to 790014 [startup 1226; observed: 0..720028 none [primary] from 12; 720028..790014 none [primary (paused)] from 720021; 790014..800000 none [primary] from 720021]
+FAIL            UC-05 (UC-05-routing) D1     beacons       beacons[0] https://t.example.com/imp?cr=501 (@id 1) expected at 720000 (the action made at 720009); observed at never; beacons[1] https://t.example.com/10s?cr=501 (@id 2) expected at 730000; observed at never; beacons[2] https://t.example.com/20s?cr=501 (@id 3) expected at 740000; observed at never; beacons[3] https://t.example.com/imp?cr=502 (@id 1) expected at 740000; observed at never
+FAIL            UC-05 (UC-05-routing) D2     requests      requests[2] https://aps.example.com/nl/pause?title=film12 expected at 740000, query {'sgai-video-decoders': '2', 'sgai-image-over-video': '0', 'sgai-html-over-video': '0', 'sgai-allowed-layouts': 'pause-fullscreen pause-partial'}, answered_by examples/annex-e/E.7.1-1.xml; observed https://aps.example.com/nl/pause?title=film12&sgai-allowed-layouts=pause-fullscreen%20pause-partial&sgai-video-decoders=2&sgai-image-over-video=0&sgai-html-over-video=0 at 720108, query {'sgai-allowed-layouts': 'pause-fullscreen pause-partial', 'sgai-html-over-video': '0', 'sgai-image-over-video': '0', 'sgai-video-decoders': '2'}, answered_by examples/annex-e/E.7.1-1.xml; unexpected request https://aps.example.com/nl/pause?title=film12&sgai-allowed-layouts=pause-fullscreen%20pause-partial&sgai-video-decoders=2&sgai-image-over-video=0&sgai-html-over-video=0 at 720108 (answered_by examples/annex-e/E.7.1-1.xml)
+FAIL            UC-05 (UC-05-routing) D2     selection     selection[0] event 1 (urn:svta:dash:sgai-pause-trigger:2026) of examples/annex-e/E.2-1.mpd (presented): expected pause-fullscreen examples/annex-e/E.4-1.xml:#1 option #1; observed nothing
+FAIL            UC-05 (UC-05-routing) D2     presentation  presentation[2] expected a change at 740000 to none [primary from 720000]; none observed within 250 (on screen: none [primary (paused)] from 720023); presentation[1] 720000..740000 expected pause-fullscreen [ad examples/annex-e/E.4-1.xml:#1 option #1]; observed none [primary (paused)] from 720023 to 790002 [startup 1367; observed: 0..720023 none [primary] from 10; 720023..790002 none [primary (paused)] from 720021; 790002..800000 none [primary] from 720021]
+FAIL            UC-05 (UC-05-routing) D2     beacons       beacons[0] https://t.example.com/imp?cr=501 (@id 1) expected at 720000 (the action made at 720012); observed at never; beacons[1] https://t.example.com/10s?cr=501 (@id 2) expected at 730000; observed at never; beacons[2] https://t.example.com/20s?cr=501 (@id 3) expected at 740000; observed at never
+PASS            UC-05 (UC-05-routing) D3     requests      2 request(s) as expected
+PASS            UC-05 (UC-05-routing) D3     selection     1 opportunit(y/ies) as expected
+PASS            UC-05 (UC-05-routing) D3     presentation  5 segment(s) as expected; startup 899 before the first frame
+PASS            UC-05 (UC-05-routing) D3     beacons       4 beacon(s) as expected
+PASS            UC-05 (UC-05-routing) D4     requests      2 request(s) as expected
+PASS            UC-05 (UC-05-routing) D4     selection     1 opportunit(y/ies) as expected
+PASS            UC-05 (UC-05-routing) D4     presentation  5 segment(s) as expected; startup 802 before the first frame
+PASS            UC-05 (UC-05-routing) D4     beacons       4 beacon(s) as expected
+PASS            UC-12 (UC-12-routing) D1 [path-2-both-empty] requests      2 request(s) as expected
+PASS            UC-12 (UC-12-routing) D1 [path-2-both-empty] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 (UC-12-routing) D1 [path-2-both-empty] presentation  1 segment(s) as expected; startup 1469 before the first frame
+PASS            UC-12 (UC-12-routing) D1 [path-2-both-empty] beacons       no beacon, as expected
+PASS            UC-12 (UC-12-routing) D2 [path-2-both-empty] requests      2 request(s) as expected
+PASS            UC-12 (UC-12-routing) D2 [path-2-both-empty] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 (UC-12-routing) D2 [path-2-both-empty] presentation  1 segment(s) as expected; startup 1433 before the first frame
+PASS            UC-12 (UC-12-routing) D2 [path-2-both-empty] beacons       no beacon, as expected
+PASS            UC-12 (UC-12-routing) D3 [path-2-both-empty] requests      2 request(s) as expected
+PASS            UC-12 (UC-12-routing) D3 [path-2-both-empty] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 (UC-12-routing) D3 [path-2-both-empty] presentation  1 segment(s) as expected; startup 1308 before the first frame
+PASS            UC-12 (UC-12-routing) D3 [path-2-both-empty] beacons       no beacon, as expected
+PASS            UC-12 (UC-12-routing) D4 [path-2-both-empty] requests      2 request(s) as expected
+PASS            UC-12 (UC-12-routing) D4 [path-2-both-empty] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 (UC-12-routing) D4 [path-2-both-empty] presentation  1 segment(s) as expected; startup 1270 before the first frame
+PASS            UC-12 (UC-12-routing) D4 [path-2-both-empty] beacons       no beacon, as expected
+PASS            UC-12 (UC-12-routing) D5 [path-2-both-empty] requests      2 request(s) as expected
+PASS            UC-12 (UC-12-routing) D5 [path-2-both-empty] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 (UC-12-routing) D5 [path-2-both-empty] presentation  1 segment(s) as expected; startup 881 before the first frame
+PASS            UC-12 (UC-12-routing) D5 [path-2-both-empty] beacons       no beacon, as expected
+PASS            UC-12 (UC-12-routing) D3 [path-4-video-only-first] requests      2 request(s) as expected
+PASS            UC-12 (UC-12-routing) D3 [path-4-video-only-first] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 (UC-12-routing) D3 [path-4-video-only-first] presentation  3 segment(s) as expected; startup 1020 before the first frame
+PASS            UC-12 (UC-12-routing) D3 [path-4-video-only-first] beacons       2 beacon(s) as expected
+PASS            UC-12 (UC-12-routing) D4 [path-4-video-only-first] requests      2 request(s) as expected
+PASS            UC-12 (UC-12-routing) D4 [path-4-video-only-first] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 (UC-12-routing) D4 [path-4-video-only-first] presentation  3 segment(s) as expected; startup 1107 before the first frame
+PASS            UC-12 (UC-12-routing) D4 [path-4-video-only-first] beacons       2 beacon(s) as expected
+PASS            UC-12 (UC-12-routing) D5 [path-4-video-only-first] requests      2 request(s) as expected
+PASS            UC-12 (UC-12-routing) D5 [path-4-video-only-first] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 (UC-12-routing) D5 [path-4-video-only-first] presentation  1 segment(s) as expected; startup 1195 before the first frame
+PASS            UC-12 (UC-12-routing) D5 [path-4-video-only-first] beacons       no beacon, as expected
+PASS            UC-13 (UC-13-routing) D2     requests      2 request(s) as expected
+PASS            UC-13 (UC-13-routing) D2     selection     1 opportunit(y/ies) as expected
+PASS            UC-13 (UC-13-routing) D2     presentation  3 segment(s) as expected; startup 1132 before the first frame
+PASS            UC-13 (UC-13-routing) D2     beacons       3 beacon(s) as expected
+FAIL            UC-13 (UC-13-routing) D3     requests      requests[0] https://aps.example.com/nl/overlay?s=11&e=4&w=1 expected at 0..10000, query {'sgai-video-decoders': '1', 'sgai-image-over-video': '1', 'sgai-allowed-layouts': 'squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear'}, answered_by examples/annex-m/M.5-3.xml; observed https://aps.example.com/nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear&sgai-video-decoders=1&sgai-image-over-video=1&sgai-html-over-video=1 at 0, query {'sgai-allowed-layouts': 'squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear', 'sgai-html-over-video': '1', 'sgai-image-over-video': '1', 'sgai-video-decoders': '1'}, answered_by examples/annex-m/M.5-3.xml; unexpected request https://aps.example.com/nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear&sgai-video-decoders=1&sgai-image-over-video=1&sgai-html-over-video=1 at 0 (answered_by examples/annex-m/M.5-3.xml)
+PASS            UC-13 (UC-13-routing) D3     selection     1 opportunit(y/ies) as expected
+PASS            UC-13 (UC-13-routing) D3     presentation  3 segment(s) as expected; startup 1585 before the first frame
+PASS            UC-13 (UC-13-routing) D3     beacons       3 beacon(s) as expected
+FAIL            UC-13 (UC-13-routing) D4     requests      requests[0] https://aps.example.com/nl/overlay?s=11&e=4&w=1 expected at 0..10000, query {'sgai-allowed-layouts': 'squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear'}, answered_by examples/annex-m/M.5-4.xml; observed https://aps.example.com/nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear&sgai-video-decoders=1&sgai-image-over-video=1&sgai-html-over-video=0 at 0, query {'sgai-allowed-layouts': 'squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear', 'sgai-html-over-video': '0', 'sgai-image-over-video': '1', 'sgai-video-decoders': '1'}, answered_by examples/annex-m/M.5-4.xml; unexpected request https://aps.example.com/nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear&sgai-video-decoders=1&sgai-image-over-video=1&sgai-html-over-video=0 at 0 (answered_by examples/annex-m/M.5-4.xml)
+PASS            UC-13 (UC-13-routing) D4     selection     1 opportunit(y/ies) as expected
+PASS            UC-13 (UC-13-routing) D4     presentation  3 segment(s) as expected; startup 678 before the first frame
+PASS            UC-13 (UC-13-routing) D4     beacons       3 beacon(s) as expected
+PASS            UC-13 (UC-13-routing) D5     requests      2 request(s) as expected
+PASS            UC-13 (UC-13-routing) D5     selection     1 opportunit(y/ies) as expected
+PASS            UC-13 (UC-13-routing) D5     presentation  3 segment(s) as expected; startup 798 before the first frame
+PASS            UC-13 (UC-13-routing) D5     beacons       3 beacon(s) as expected
+PASS            UC-15 (UC-15-routing) D2     requests      1 request(s) as expected
+PASS            UC-15 (UC-15-routing) D2     selection     1 opportunit(y/ies) as expected
+PASS            UC-15 (UC-15-routing) D2     presentation  1 segment(s) as expected; startup 1073 before the first frame
+PASS            UC-15 (UC-15-routing) D2     beacons       no beacon, as expected
+PASS            UC-15 (UC-15-routing) D5     requests      1 request(s) as expected
+PASS            UC-15 (UC-15-routing) D5     selection     1 opportunit(y/ies) as expected
+PASS            UC-15 (UC-15-routing) D5     presentation  1 segment(s) as expected; startup 1116 before the first frame
+PASS            UC-15 (UC-15-routing) D5     beacons       no beacon, as expected
+PASS            UC-15 (UC-15-routing) D2 [non-conforming-aps] requests      1 request(s) as expected
+PASS            UC-15 (UC-15-routing) D2 [non-conforming-aps] selection     1 opportunit(y/ies) as expected
+PASS            UC-15 (UC-15-routing) D2 [non-conforming-aps] presentation  1 segment(s) as expected; startup 1052 before the first frame
+PASS            UC-15 (UC-15-routing) D2 [non-conforming-aps] beacons       no beacon, as expected
+exit 1: PASS 66  FAIL 10  NOT_VERIFIABLE 0; wall 2731.7 s; content 0.1 s (0 ffmpeg runs, 6 cuts from the cache), players 2727.3 s
