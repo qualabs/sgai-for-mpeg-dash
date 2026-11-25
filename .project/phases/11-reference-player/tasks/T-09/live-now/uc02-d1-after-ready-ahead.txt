@@ -1,0 +1,20 @@
+# UC-02 D1 after: time-host answers (wall ms after load) and the reference's linear log (t = ms after load)
+time 64 2026-09-26T18:09:38.064Z
+time 109 2026-09-26T18:09:38.109Z
+time 129 2026-09-26T18:09:38.129Z
+time 30335 2026-09-26T18:10:08.335Z
+35 primary:initialize {"url": "https://sgai-entry.invalid/examples/annex-b/B.2-1.mpd", "startTime": 570}
+114 linear:receive {"key": "urn:mpeg:dash:event:alternativeMPD:replace:2025#7", "PRT": 600, "EAP": 630, "ERT": 580, "APDmax": 30, "executeOnce": false}
+114 linear:queue {"why": "receive", "php": 0, "queue": ["urn:mpeg:dash:event:alternativeMPD:replace:2025#7"]}
+10450 linear:resolve {"key": "urn:mpeg:dash:event:alternativeMPD:replace:2025#7", "uri": "https://aps.example.com/linear/break?ch=sports1&b=7", "php": 580.009481}
+30509 linear:crossing {"key": "urn:mpeg:dash:event:alternativeMPD:replace:2025#7", "php": 600.004483, "crossed": true, "lastPhp": 599.994366, "dphp": 0.010117000000036569, "dwall": 0.010100000143051147, "rate": 1}
+30510 linear:execute {"key": "urn:mpeg:dash:event:alternativeMPD:replace:2025#7", "PRT": 600, "PRTA": 600.004483, "lag": 0.004483000000050197, "ASO": 0, "APDadj": 29.99551699999995, "APD": 30, "APDA": 29.99551699999995, "
+30515 linear:started {"key": "urn:mpeg:dash:event:alternativeMPD:replace:2025#7", "gapMs": 5}
+30515 linear:part {"key": "urn:mpeg:dash:event:alternativeMPD:replace:2025#7", "id": "ad-201", "start": 0, "duration": 30}
+30519 linear:callback {"id": "ad-201", "at": 0, "url": "https://t.example.com/imp?cr=201"}
+38099 linear:callback {"id": "ad-201", "at": 7.5, "url": "https://t.example.com/q1?cr=201"}
+45599 linear:callback {"id": "ad-201", "at": 15, "url": "https://t.example.com/mid?cr=201"}
+52089 linear:ready-ahead {"key": "urn:mpeg:dash:event:alternativeMPD:replace:2025#7", "RT": 630, "from": 600.005346, "alt": 21.497077}
+53099 linear:callback {"id": "ad-201", "at": 22.5, "url": "https://t.example.com/q3?cr=201"}
+60569 linear:callback {"id": "ad-201", "at": 30, "url": "https://t.example.com/complete?cr=201"}
+60574 linear:terminate {"key": "urn:mpeg:dash:event:alternativeMPD:replace:2025#7", "APDA": 29.99551699999995, "RT": 630, "readyAhead": true, "readyState": 4, "played": [["ad-201", "ready"]]}

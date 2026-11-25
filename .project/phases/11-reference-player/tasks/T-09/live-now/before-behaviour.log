@@ -1,0 +1,86 @@
+PASS            UC-02 D1                     requests      2 request(s) as expected
+PASS            UC-02 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1                     presentation  3 segment(s) as expected; startup 624 before the first frame
+PASS            UC-02 D1                     beacons       5 beacon(s) as expected
+PASS            UC-02 D2                     requests      2 request(s) as expected
+PASS            UC-02 D2                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D2                     presentation  3 segment(s) as expected; startup 685 before the first frame
+PASS            UC-02 D2                     beacons       5 beacon(s) as expected
+PASS            UC-02 D3                     requests      2 request(s) as expected
+PASS            UC-02 D3                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D3                     presentation  3 segment(s) as expected; startup 702 before the first frame
+PASS            UC-02 D3                     beacons       5 beacon(s) as expected
+PASS            UC-02 D4                     requests      2 request(s) as expected
+PASS            UC-02 D4                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D4                     presentation  3 segment(s) as expected; startup 1610 before the first frame
+PASS            UC-02 D4                     beacons       5 beacon(s) as expected
+PASS            UC-02 D5                     requests      2 request(s) as expected
+PASS            UC-02 D5                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D5                     presentation  3 segment(s) as expected; startup 1330 before the first frame
+PASS            UC-02 D5                     beacons       5 beacon(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1 [trick-play-2x]     presentation  3 segment(s) as expected; startup 383 before the first frame
+PASS            UC-02 D1 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D2 [trick-play-2x]     presentation  3 segment(s) as expected; startup 1248 before the first frame
+PASS            UC-02 D2 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D3 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D3 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D3 [trick-play-2x]     presentation  3 segment(s) as expected; startup 577 before the first frame
+PASS            UC-02 D3 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D4 [trick-play-2x]     presentation  3 segment(s) as expected; startup 1874 before the first frame
+PASS            UC-02 D4 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D5 [trick-play-2x]     presentation  3 segment(s) as expected; startup 1697 before the first frame
+PASS            UC-02 D5 [trick-play-2x]     beacons       5 beacon(s) as expected
+FAIL            UC-14 D1                     requests      requests[1] https://aps.example.com/nl/overlay?ch=sports2&ctx=blackout at 30000..60000: not observed
+FAIL            UC-14 D1                     selection     selection[0] event 1 (urn:svta:dash:sgai-overlay:2026) of examples/annex-n/N.4-1.mpd (presented): expected overlay-lower-third examples/annex-n/N.3-2.xml:#1 option #1; observed nothing; ad presented for an opportunity the vector does not list: event 31 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of examples/annex-n/N.2-1.mpd (linear [ad examples/annex-n/N.4-1.mpd:slate option null])
+FAIL            UC-14 D1                     presentation  presentation[2] expected a change at 80000 to none [nothing]; none observed within 2000 (on screen: linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60059); presentation[1] 60000..80000 expected overlay-lower-third [ad examples/annex-n/N.3-2.xml:#1 option #1]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60059 to 90000; presentation[2] 80000..90000 expected none [nothing]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60059 to 90000 [startup 1636; observed: 0..60059 none [primary] from 2640012; 60059..90000 linear [ad examples/annex-n/N.4-1.mpd:slate option null]]
+FAIL            UC-14 D1                     beacons       beacons[0] https://t.example.com/imp?cr=1401 (@id 1) expected at 60000; observed at never; beacons[1] https://t.example.com/complete?cr=1401 (@id 2) expected at 80000; observed at never
+FAIL            UC-14 D2                     requests      requests[1] https://aps.example.com/nl/overlay?ch=sports2&ctx=blackout at 30000..60000: not observed
+FAIL            UC-14 D2                     selection     ad presented for an opportunity the vector does not list: event 31 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of examples/annex-n/N.2-1.mpd (linear [ad examples/annex-n/N.4-1.mpd:slate option null])
+FAIL            UC-14 D2                     presentation  presentation[1] 60000..90000 expected none [nothing]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60631 to 90000 [startup 1286; observed: 0..60631 none [primary] from 2640015; 60631..90000 linear [ad examples/annex-n/N.4-1.mpd:slate option null]]
+PASS            UC-14 D2                     beacons       no beacon, as expected
+FAIL            UC-14 D3                     requests      requests[1] https://aps.example.com/nl/overlay?ch=sports2&ctx=blackout at 30000..60000: not observed
+FAIL            UC-14 D3                     selection     selection[0] event 1 (urn:svta:dash:sgai-overlay:2026) of examples/annex-n/N.4-1.mpd (presented): expected overlay-lower-third examples/annex-n/N.3-2.xml:#1 option #1; observed nothing; ad presented for an opportunity the vector does not list: event 31 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of examples/annex-n/N.2-1.mpd (linear [ad examples/annex-n/N.4-1.mpd:slate option null])
+FAIL            UC-14 D3                     presentation  presentation[2] expected a change at 80000 to none [nothing]; none observed within 2000 (on screen: linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60012); presentation[1] 60000..80000 expected overlay-lower-third [ad examples/annex-n/N.3-2.xml:#1 option #1]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60012 to 90000; presentation[2] 80000..90000 expected none [nothing]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60012 to 90000 [startup 514; observed: 0..60012 none [primary] from 2640008; 60012..90000 linear [ad examples/annex-n/N.4-1.mpd:slate option null]]
+FAIL            UC-14 D3                     beacons       beacons[0] https://t.example.com/imp?cr=1401 (@id 1) expected at 60000; observed at never; beacons[1] https://t.example.com/complete?cr=1401 (@id 2) expected at 80000; observed at never
+FAIL            UC-14 D4                     requests      requests[1] https://aps.example.com/nl/overlay?ch=sports2&ctx=blackout at 30000..60000: not observed
+FAIL            UC-14 D4                     selection     selection[0] event 1 (urn:svta:dash:sgai-overlay:2026) of examples/annex-n/N.4-1.mpd (presented): expected overlay-lower-third examples/annex-n/N.3-2.xml:#1 option #2; observed nothing; ad presented for an opportunity the vector does not list: event 31 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of examples/annex-n/N.2-1.mpd (linear [ad examples/annex-n/N.4-1.mpd:slate option null])
+FAIL            UC-14 D4                     presentation  presentation[2] expected a change at 80000 to none [nothing]; none observed within 2000 (on screen: linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60016); presentation[1] 60000..80000 expected overlay-lower-third [ad examples/annex-n/N.3-2.xml:#1 option #2]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60016 to 90000; presentation[2] 80000..90000 expected none [nothing]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60016 to 90000 [startup 727; observed: 0..60016 none [primary] from 2640010; 60016..90000 linear [ad examples/annex-n/N.4-1.mpd:slate option null]]
+FAIL            UC-14 D4                     beacons       beacons[0] https://t.example.com/imp?cr=1401 (@id 1) expected at 60000; observed at never; beacons[1] https://t.example.com/complete?cr=1401 (@id 2) expected at 80000; observed at never
+FAIL            UC-14 D5                     requests      requests[1] https://aps.example.com/nl/overlay?ch=sports2&ctx=blackout at 30000..60000: not observed
+FAIL            UC-14 D5                     selection     ad presented for an opportunity the vector does not list: event 31 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of examples/annex-n/N.2-1.mpd (linear [ad examples/annex-n/N.4-1.mpd:slate option null])
+FAIL            UC-14 D5                     presentation  presentation[1] 60000..90000 expected none [nothing]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60002 to 90000 [startup 499; observed: 0..60002 none [primary] from 2640003; 60002..90000 linear [ad examples/annex-n/N.4-1.mpd:slate option null]]
+PASS            UC-14 D5                     beacons       no beacon, as expected
+FAIL            UC-14 legacy                 requests      requests[0] https://slate.example.com/sports2/blackout-31.mpd at 30000..60000: not observed
+PASS            UC-14 legacy                 selection     1 opportunit(y/ies) as expected
+FAIL            UC-14 legacy                 presentation  presentation[1] expected a change at 60000 to none [nothing]; none observed within 2000 (on screen: none [primary] from 0); presentation[1] 60000..90000 expected none [nothing]; observed none [primary] from 0 to 90000 [startup 675; observed: 0..90000 none [primary] from 2640002]
+PASS            UC-14 legacy                 beacons       no beacon, as expected
+PASS            UC-20 D1                     requests      2 request(s) as expected
+PASS            UC-20 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-20 D1                     presentation  3 segment(s) as expected; startup 965 before the first frame
+PASS            UC-20 D1                     beacons       5 beacon(s) as expected
+PASS            UC-20 D3                     requests      2 request(s) as expected
+PASS            UC-20 D3                     selection     1 opportunit(y/ies) as expected
+PASS            UC-20 D3                     presentation  3 segment(s) as expected; startup 930 before the first frame
+PASS            UC-20 D3                     beacons       5 beacon(s) as expected
+PASS            UC-20 D4                     requests      2 request(s) as expected
+PASS            UC-20 D4                     selection     1 opportunit(y/ies) as expected
+PASS            UC-20 D4                     presentation  3 segment(s) as expected; startup 509 before the first frame
+PASS            UC-20 D4                     beacons       5 beacon(s) as expected
+PASS            UC-20 D5                     requests      2 request(s) as expected
+PASS            UC-20 D5                     selection     1 opportunit(y/ies) as expected
+PASS            UC-20 D5                     presentation  3 segment(s) as expected; startup 701 before the first frame
+PASS            UC-20 D5                     beacons       5 beacon(s) as expected
+PASS            R25.1 D1                     requests      1 request(s) as expected
+PASS            R25.1 D1                     selection     1 opportunit(y/ies) as expected
+PASS            R25.1 D1                     presentation  3 segment(s) as expected; startup 191 before the first frame
+PASS            R25.1 D1                     beacons       no beacon, as expected
+note: UC-02 D3: page errors: ["TypeError: Cannot read properties of null (reading 'absoluteIndex')"]
+exit 1: PASS 64  FAIL 20  NOT_VERIFIABLE 0; wall 988.6 s; content 0.0 s (0 ffmpeg runs, 3 cuts from the cache), players 987.5 s

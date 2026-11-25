@@ -1,0 +1,9 @@
+PASS            UC-02 D1                     requests      2 request(s) as expected
+PASS            UC-02 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D1                     presentation  observed a change at 51503 from linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null] to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null], which the vector does not have; presentation[2] primary from expected 630000, observed 622082 [startup 402; observed: 0..30005 none [primary] from 570004; 30005..51503 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 51503..59977 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59977..70000 none [primary] from 622082]
+PASS            UC-02 D1                     beacons       5 beacon(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1 [trick-play-2x]     presentation  3 segment(s) as expected; startup 401 before the first frame
+PASS            UC-02 D1 [trick-play-2x]     beacons       5 beacon(s) as expected
+exit 1: PASS 7  FAIL 1  NOT_VERIFIABLE 0; wall 74.1 s; content 0.0 s (0 ffmpeg runs, 3 cuts from the cache), players 73.0 s

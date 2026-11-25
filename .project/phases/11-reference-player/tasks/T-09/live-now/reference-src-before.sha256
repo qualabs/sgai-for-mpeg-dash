@@ -1,0 +1,6 @@
+922febfdc2661c2bd5895981cc15af927c08b427acabaf0164474c72585b5c46  reference-player/src/profiles.js
+f2eea18acf2c79084a72152185e59f7439cd57b8c90c283b553bc2d0e42b7ba7  reference-player/src/sgai-click.js
+8f11d2d019c19fd34d00040fbacb771340fdb41b1856a6772ee885ebd48ab627  reference-player/src/sgai-compositor.js
+ca31cc609420f223160e5180116efc0d1602748f7220a841dc1655812872fede  reference-player/src/sgai-linear.js
+cbc4868e398a3947bd05a97ac3159d08fbe78fb79f2a06d593af7fa6cc369d24  reference-player/src/sgai-nonlinear.js
+310a6134dff3b253dfa9a1d3b569974ba0bf36d16f2387849a2ab4a5fe09c72f  reference-player/src/sgai-reference.js

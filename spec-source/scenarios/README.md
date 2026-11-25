@@ -85,10 +85,17 @@ outcome for a class the UC does not state is a finding.
   and the primary's holds the position.
 - **`play_from`, `observe_until`**: where playback starts in the main
   presentation, and when observation ends. For a live entry (`type="dynamic"`)
-  `play_from` is the live edge's position when playback starts: the
-  executor sets the Player's UTC clock to `availabilityStartTime` plus
-  `play_from` (plus the span the observation covers, so that a viewer
-  watching faster than real time stays behind the edge). End a little after the last
+  `play_from` is where a viewer at the live edge starts, and the channel's
+  wall clock follows what is presented: channel time `t` is presented at
+  `availabilityStartTime` + `t`, shifted only by the Player's live delay.
+  So the executor sets the Player's UTC clock, at load, to
+  `availabilityStartTime` + `play_from` + that delay (a Player joins that far
+  behind the edge; for dash.js, 4 segments unless the MPD suggests one),
+  and from then on it runs as a clock. A window another live timeline
+  places at a wall time is therefore where the vector puts it. Only a
+  viewer faster than real time (a `rate` above 1) gets more: what it plays
+  past the edge during the observation, because a Player requests no
+  segment its clock says is not yet available. End a little after the last
   thing the UC is about, not at the end of the content.
 - **`fixtures`**: every document the Player is given or fetches, as paths
   under `spec-source/` (a vector kept outside it, such as the reference's

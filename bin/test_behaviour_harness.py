@@ -549,13 +549,46 @@ class Jobs(unittest.TestCase):
         self.assertEqual(job_for([], sends=["sgai-video-decoders"], cls="legacy")[0]["sendsCapabilities"], [])
 
     def test_live_now(self):
+        # now at load() = AST + play_from + the Player's live delay (dash.js
+        # 5.3.0: 4 segments of 2 s here) + what a viewer faster than real
+        # time plays beyond the edge; never the observation span at 1x.
         live = SUB_MPD.replace('type="static"', 'type="dynamic" availabilityStartTime="2026-09-26T18:00:00Z"')
-        job, _, _ = job_for([], entry_text=live)
-        ast = 1790445600000   # 2026-09-26T18:00:00Z
-        self.assertEqual(job["utcAtLoad"], ast + 2000 + 10000)       # play_from + observation at 1x
+        ast = 1790445600000   # 2026-09-26T18:00:00Z, by hand: 20635 days * 86400 s + 18 h
+        self.assertEqual(job_for([], entry_text=live)[0]["utcAtLoad"], ast + 2000 + 8000)
         job, _, _ = job_for([], entry_text=live, actions=[{"at": 0, "do": "rate", "rate": 2}])
-        self.assertEqual(job["utcAtLoad"], ast + 2000 + 20000)       # at 2x the observation spans 20 s of it
-        self.assertIsNone(job_for([])[0]["utcAtLoad"])               # static: the machine's time
+        self.assertEqual(job["utcAtLoad"], ast + 2000 + 8000 + 10000)   # 10 s at 2x plays 10 s past the edge
+        job, _, _ = job_for([], entry_text=live, actions=[{"at": 0, "do": "rate", "rate": 0.5}])
+        self.assertEqual(job["utcAtLoad"], ast + 2000 + 8000)           # slower than real time: no lead
+        self.assertIsNone(job_for([])[0]["utcAtLoad"])                  # static: the machine's time
+        no_ast = SUB_MPD.replace('type="static"', 'type="dynamic"')
+        self.assertIsNone(job_for([], entry_text=no_ast)[0]["utcAtLoad"])
+
+    def test_live_now_at_play_from_zero(self):
+        live = SUB_MPD.replace('type="static"', 'type="dynamic" availabilityStartTime="2026-09-26T18:00:00Z"')
+        self.assertEqual(behaviour.live_utc_at_load(live, 0, 0), 1790445600000 + 8000)
+
+    def test_live_delay_follows_dash_js_order(self):
+        live = SUB_MPD.replace('type="static"', 'type="dynamic" availabilityStartTime="2026-09-26T18:00:00Z"')
+        ld = behaviour.player_live_delay
+        root = lambda t: behaviour.ET.fromstring(t.encode())  # noqa: E731
+        self.assertEqual(ld(root(live)), 8.0)                                         # 4 x @duration
+        self.assertEqual(ld(root(live.replace('duration="2000"', 'duration="6000"'))), 24.0)
+        # @suggestedPresentationDelay wins over the segment duration
+        spd = live.replace('type="dynamic"', 'type="dynamic" suggestedPresentationDelay="PT3S"')
+        self.assertEqual(ld(root(spd)), 3.0)
+        # a zero @suggestedPresentationDelay is ignored, as dash.js does (> 0)
+        self.assertEqual(ld(root(live.replace('type="dynamic"', 'type="dynamic" suggestedPresentationDelay="PT0S"'))), 8.0)
+        # a SegmentTimeline: its longest S@d
+        bare = ('<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" type="dynamic" minBufferTime="PT1.5S" '
+                'availabilityStartTime="2026-09-26T18:00:00Z"><Period>{}</Period></MPD>')
+        tl = bare.format('<AdaptationSet><SegmentTemplate timescale="1000"><SegmentTimeline>'
+                         '<S t="0" d="2000" r="2"/><S d="3000"/></SegmentTimeline></SegmentTemplate></AdaptationSet>')
+        self.assertEqual(ld(root(tl)), 12.0)
+        # no segment duration at all: 4 x @minBufferTime
+        bare = bare.format("")
+        self.assertEqual(ld(root(bare)), 6.0)
+        # and nothing to go on: no delay
+        self.assertEqual(ld(root(bare.replace(' minBufferTime="PT1.5S"', ''))), 0.0)
 
     def test_clock_and_wall_limit(self):
         job, _, _ = job_for([])

@@ -42,9 +42,11 @@
 //
 // A request to dash.js's default UTC timing source (time.akamai.com) is
 // answered here with the time the job's `utcAtLoad` puts at load() plus the
-// wall time since (kind 'time'): a live entry's `now` is its
-// availabilityStartTime plus `play_from`, so the Player joins where the
-// vector starts. Without `utcAtLoad` it is answered with this machine's time.
+// wall time since (kind 'time'): a live entry's `now` at load() is its
+// availabilityStartTime plus `play_from` plus the Player's live delay
+// (behaviour.py's live_utc_at_load), so the Player joins where the vector
+// starts, and from then on the clock runs at wall speed. Without
+// `utcAtLoad` it is answered with this machine's time.
 //
 // Every request leaving the local origin, from the page or from a page it
 // opens (a ClickThrough destination opened as a popup), is answered here

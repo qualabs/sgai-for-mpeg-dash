@@ -283,12 +283,37 @@ def creatives_of(fx: Fixtures) -> set:
     return out
 
 
-def live_utc_at_load(entry_text: str, play_from_s: float, span_s: float) -> float | None:
+def player_live_delay(root) -> float:
+    """The live delay, in seconds, the Players the harness runs hold behind
+    the live edge of the MPD `root` when nothing configures one: dash.js
+    5.3.0's PlaybackController.computeAndSetLiveDelay, in its order. A
+    @suggestedPresentationDelay over 0; else 4 x the segment duration (the
+    longest SegmentTemplate@duration or S@d); else 4 x @minBufferTime; 0 when
+    the MPD gives none of them. Both classes run dash.js (the reference on
+    it, `legacy` as is), so this is what decides where they join."""
+    spd = players._dur(root.get("suggestedPresentationDelay"))
+    if spd > 0:
+        return spd
+    seg = 0.0
+    for t in root.iter(D + "SegmentTemplate"):
+        ts = float(t.get("timescale") or 1)
+        ds = [float(t.get("duration") or 0)] + [float(s.get("d") or 0) for s in t.iter(D + "S")]
+        seg = max([seg] + [d / ts for d in ds])
+    if seg > 0:
+        return 4 * seg
+    return 4 * players._dur(root.get("minBufferTime"))
+
+
+def live_utc_at_load(entry_text: str, play_from_s: float, lead_s: float) -> float | None:
     """For a live entry (MPD@type dynamic with an availabilityStartTime): the
-    UTC time, in ms since the epoch, the Player is told it is at load(): the
-    availabilityStartTime plus `play_from`, plus `span_s` (the observation
-    at the fastest rate the actions set), so that the live edge stays ahead of
-    where playback is for the whole observation. None for a static one."""
+    UTC time, in ms since the epoch, the Player is told it is at load(), the
+    clock then running at wall speed. It is the availabilityStartTime plus
+    `play_from` plus the Player's live delay (player_live_delay): a Player
+    joins its live delay behind the edge, so this is the one `now` at which
+    it starts at `play_from` and the channel's wall clock follows what it
+    presents. Plus `lead_s`, what a viewer faster than real time plays past
+    the edge during the observation (0 at 1x): dash.js does not request a
+    segment its own clock says is not yet available. None for a static one."""
     try:
         root = ET.fromstring(entry_text.encode("utf-8"))
     except ET.ParseError:
@@ -298,7 +323,7 @@ def live_utc_at_load(entry_text: str, play_from_s: float, span_s: float) -> floa
     ast = datetime.fromisoformat(root.get("availabilityStartTime").replace("Z", "+00:00"))
     if ast.tzinfo is None:
         ast = ast.replace(tzinfo=timezone.utc)
-    return ast.timestamp() * 1000 + (play_from_s + span_s) * 1000
+    return ast.timestamp() * 1000 + (play_from_s + player_live_delay(root) + lead_s) * 1000
 
 
 def document_routes(outcome: dict | None, fx: Fixtures, source: Path, base: Path | None = None) -> list:
@@ -359,7 +384,7 @@ def build_job(jid: str, v: dict, fx: Fixtures, media_map: list, cls: str, action
                     "media": is_media})
     observe = ms(v["observe_until"])
     rate = max([1.0] + [float(a.get("rate") or 1) for a in actions if a.get("do") == "rate"])
-    utc = live_utc_at_load(fx.texts[v["entry"]], v["play_from"] / ts, observe / 1000 * rate)
+    utc = live_utc_at_load(fx.texts[v["entry"]], v["play_from"] / ts, observe / 1000 * (rate - 1))
     return {
         "id": jid, "mode": "legacy" if cls == "legacy" else "sgai", "klass": cls,
         "capabilities": caps if cls != "legacy" else None,
