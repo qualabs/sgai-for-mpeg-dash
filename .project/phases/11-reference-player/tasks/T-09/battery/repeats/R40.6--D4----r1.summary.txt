@@ -1,0 +1,4 @@
+2 PASS, 2 FAIL
+FAIL R40.6--D4--- D4 selection | expected: (see log) | observed: ad presented for an opportunity the vector does not list: event 1 (urn:mpeg:dash:event:alternativeMPD:insert:2025) of behaviour/fixtures/R40.6/main.mpd (linear [ad behaviour/fixtures/R40.6/alt.mpd:... | log: /run/user/1000/cto/t09-1795574104-1452/logs/R40.6--D4----r1/behaviour.log:2
+FAIL R40.6--D4--- D4 presentation | expected: presentation[1] 2000..4000 expected none [nothing] | observed: observed linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null] from 2001 to 3996; presentation[2] 4000..8000 expected overlay-lower-third [ad behaviour/fixtures/R40.6/overlay.xml:#1 option ... | log: /run/user/1000/cto/t09-1795574104-1452/logs/R40.6--D4----r1/behaviour.log:3
+exit 1; wall 19.3 s; full log: /run/user/1000/cto/t09-1795574104-1452/logs/R40.6--D4----r1/behaviour.log

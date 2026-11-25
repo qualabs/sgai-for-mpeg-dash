@@ -1,0 +1,125 @@
+R40.3-2--D1--- r1 exit=0 wall=17s 4 PASS | fails: 
+R40.3-2--D1--- r2 exit=0 wall=17s 4 PASS | fails: 
+R40.6--D1--- r1 exit=1 wall=17s 2 PASS, 2 FAIL | fails: presentation selection 
+R40.6--D1--- r2 exit=1 wall=19s 2 PASS, 2 FAIL | fails: presentation selection 
+R40.6--D4--- r1 exit=1 wall=19s 2 PASS, 2 FAIL | fails: presentation selection 
+R40.6--D4--- r2 exit=1 wall=19s 2 PASS, 2 FAIL | fails: presentation selection 
+UC-13--D2--- r1 exit=1 wall=44s 0 PASS, 4 FAIL | fails: D2 D2 D2 D2 
+UC-13--D2--- r2 exit=1 wall=43s 0 PASS, 4 FAIL | fails: D2 D2 D2 D2 
+UC-13--D3--- r1 exit=1 wall=43s 0 PASS, 4 FAIL | fails: D3 D3 D3 D3 
+UC-13--D3--- r2 exit=1 wall=43s 0 PASS, 4 FAIL | fails: D3 D3 D3 D3 
+UC-13--D4--- r1 exit=1 wall=43s 0 PASS, 4 FAIL | fails: D4 D4 D4 D4 
+UC-13--D4--- r2 exit=1 wall=43s 0 PASS, 4 FAIL | fails: D4 D4 D4 D4 
+UC-13--D5--- r1 exit=1 wall=43s 0 PASS, 4 FAIL | fails: D5 D5 D5 D5 
+UC-13--D5--- r2 exit=1 wall=43s 0 PASS, 4 FAIL | fails: D5 D5 D5 D5 
+UC-15--D2--- r1 exit=1 wall=43s 3 PASS, 1 FAIL | fails: D2 
+UC-15--D2--- r2 exit=1 wall=42s 3 PASS, 1 FAIL | fails: D2 
+UC-15--D2--non-conforming-aps r1 exit=1 wall=43s 3 PASS, 1 FAIL | fails: [non-conforming-aps] 
+UC-15--D2--non-conforming-aps r2 exit=1 wall=43s 3 PASS, 1 FAIL | fails: [non-conforming-aps] 
+UC-15--D5--- r1 exit=1 wall=43s 3 PASS, 1 FAIL | fails: D5 
+UC-15--D5--- r2 exit=1 wall=43s 3 PASS, 1 FAIL | fails: D5 
+UC-19--D1--- r1 exit=1 wall=42s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D1 
+UC-19--D1--- r2 exit=1 wall=43s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D1 
+UC-12--D1--path-2-both-empty r1 exit=1 wall=93s 0 PASS, 4 FAIL | fails: [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] 
+UC-12--D1--path-2-both-empty r2 exit=1 wall=93s 0 PASS, 4 FAIL | fails: [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] 
+UC-12--D2--path-2-both-empty r1 exit=1 wall=94s 0 PASS, 4 FAIL | fails: [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] 
+UC-12--D2--path-2-both-empty r2 exit=1 wall=93s 0 PASS, 4 FAIL | fails: [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] 
+UC-12--D3--path-2-both-empty r1 exit=1 wall=94s 0 PASS, 4 FAIL | fails: [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] 
+UC-12--D3--path-2-both-empty r2 exit=1 wall=93s 0 PASS, 4 FAIL | fails: [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] 
+UC-12--D3--path-4-video-only-first r1 exit=1 wall=94s 3 PASS, 1 FAIL | fails: [path-4-video-only-first] 
+UC-12--D3--path-4-video-only-first r2 exit=1 wall=93s 3 PASS, 1 FAIL | fails: [path-4-video-only-first] 
+UC-12--D4--path-2-both-empty r1 exit=1 wall=93s 0 PASS, 4 FAIL | fails: [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] 
+UC-12--D4--path-2-both-empty r2 exit=1 wall=93s 0 PASS, 4 FAIL | fails: [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] [path-2-both-empty] 
+UC-12--D4--path-4-video-only-first r1 exit=1 wall=94s 3 PASS, 1 FAIL | fails: [path-4-video-only-first] 
+UC-12--D4--path-4-video-only-first r2 exit=1 wall=95s 3 PASS, 1 FAIL | fails: [path-4-video-only-first] 
+UC-12--D5--path-2-both-empty r1 exit=1 wall=93s 3 PASS, 1 FAIL | fails: [path-2-both-empty] 
+UC-12--D5--path-2-both-empty r2 exit=1 wall=95s 3 PASS, 1 FAIL | fails: [path-2-both-empty] 
+UC-12--D5--path-4-video-only-first r1 exit=1 wall=96s 3 PASS, 1 FAIL | fails: [path-4-video-only-first] 
+UC-12--D5--path-4-video-only-first r2 exit=1 wall=93s 3 PASS, 1 FAIL | fails: [path-4-video-only-first] 
+UC-14--D1--- r1 exit=1 wall=93s 0 PASS, 4 FAIL | fails: D1 D1 D1 D1 
+UC-14--D1--- r2 exit=1 wall=93s 0 PASS, 4 FAIL | fails: D1 D1 D1 D1 
+UC-14--D2--- r1 exit=1 wall=94s 2 PASS, 2 FAIL | fails: D2 D2 
+UC-14--D2--- r2 exit=1 wall=94s 2 PASS, 2 FAIL | fails: D2 D2 
+UC-14--D3--- r1 exit=1 wall=93s 0 PASS, 4 FAIL | fails: D3 D3 D3 D3 
+UC-14--D3--- r2 exit=1 wall=93s 0 PASS, 4 FAIL | fails: D3 D3 D3 D3 
+UC-14--D4--- r1 exit=1 wall=93s 0 PASS, 4 FAIL | fails: D4 D4 D4 D4 
+UC-14--D4--- r2 exit=1 wall=94s 0 PASS, 4 FAIL | fails: D4 D4 D4 D4 
+UC-14--D5--- r1 exit=1 wall=93s 2 PASS, 2 FAIL | fails: D5 D5 
+UC-14--D5--- r2 exit=1 wall=94s 2 PASS, 2 FAIL | fails: D5 D5 
+UC-14--legacy--- r1 exit=1 wall=95s 2 PASS, 2 FAIL | fails: legacy legacy 
+UC-14--legacy--- r2 exit=1 wall=94s 2 PASS, 2 FAIL | fails: legacy legacy 
+UC-21--D1--- r1 exit=1 wall=95s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D1 
+UC-21--D1--- r2 exit=1 wall=93s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D1 
+UC-21--D1--dismiss-then-rewind r1 exit=1 wall=94s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [dismiss-then-rewind] 
+UC-21--D1--dismiss-then-rewind r2 exit=1 wall=93s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [dismiss-then-rewind] 
+UC-21--D2--- r1 exit=1 wall=93s 3 PASS, 1 FAIL | fails: D2 
+UC-21--D2--- r2 exit=1 wall=94s 3 PASS, 1 FAIL | fails: D2 
+UC-21--D3--- r1 exit=1 wall=94s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D3 
+UC-21--D3--- r2 exit=1 wall=93s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D3 
+UC-21--D3--dismiss-then-rewind r1 exit=1 wall=93s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [dismiss-then-rewind] 
+UC-21--D3--dismiss-then-rewind r2 exit=1 wall=93s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [dismiss-then-rewind] 
+UC-21--D4--- r1 exit=1 wall=93s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D4 
+UC-21--D4--- r2 exit=1 wall=93s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D4 
+UC-21--D4--dismiss-then-rewind r1 exit=1 wall=93s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [dismiss-then-rewind] 
+UC-21--D4--dismiss-then-rewind r2 exit=1 wall=94s 3 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [dismiss-then-rewind] 
+UC-21--D5--- r1 exit=1 wall=93s 3 PASS, 1 FAIL | fails: D5 
+UC-21--D5--- r2 exit=1 wall=93s 3 PASS, 1 FAIL | fails: D5 
+UC-08--D1--- r1 exit=1 wall=104s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: D1 D1 D1 
+UC-08--D1--- r2 exit=1 wall=104s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: D1 D1 D1 
+UC-08--D2--- r1 exit=1 wall=104s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: D2 D2 D2 
+UC-08--D2--- r2 exit=1 wall=104s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: D2 D2 D2 
+UC-08--D3--- r1 exit=1 wall=104s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: D3 D3 D3 
+UC-08--D3--- r2 exit=1 wall=105s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: D3 D3 D3 
+UC-08--D4--- r1 exit=1 wall=103s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: D4 D4 D4 
+UC-08--D4--- r2 exit=1 wall=104s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: D4 D4 D4 
+UC-08--D5--- r1 exit=1 wall=103s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D5 
+UC-08--D5--- r2 exit=1 wall=104s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D5 
+UC-07--D1--- r1 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D1 
+UC-07--D1--- r2 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D1 
+UC-07--D1--pause-requests-nothing r1 exit=1 wall=115s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] 
+UC-07--D1--pause-requests-nothing r2 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] 
+UC-07--D2--- r1 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D2 
+UC-07--D2--- r2 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D2 
+UC-07--D2--pause-requests-nothing r1 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] 
+UC-07--D2--pause-requests-nothing r2 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] 
+UC-07--D3--- r1 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D3 
+UC-07--D3--- r2 exit=1 wall=113s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D3 
+UC-07--D3--pause-requests-nothing r1 exit=1 wall=113s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] 
+UC-07--D3--pause-requests-nothing r2 exit=1 wall=115s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] 
+UC-07--D4--- r1 exit=1 wall=113s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D4 
+UC-07--D4--- r2 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D4 
+UC-07--D4--pause-requests-nothing r1 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] 
+UC-07--D4--pause-requests-nothing r2 exit=1 wall=113s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] 
+UC-07--D5--- r1 exit=1 wall=113s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D5 
+UC-07--D5--- r2 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D5 
+UC-07--D5--pause-requests-nothing r1 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] 
+UC-07--D5--pause-requests-nothing r2 exit=1 wall=114s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] 
+UC-07--legacy--- r1 exit=1 wall=113s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: legacy legacy legacy 
+UC-07--legacy--- r2 exit=1 wall=114s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: legacy legacy legacy 
+UC-07--legacy--pause-requests-nothing r1 exit=1 wall=113s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] [pause-requests-nothing] [pause-requests-nothing] 
+UC-07--legacy--pause-requests-nothing r2 exit=1 wall=114s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: [pause-requests-nothing] [pause-requests-nothing] [pause-requests-nothing] 
+UC-17--legacy--- r1 exit=1 wall=114s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: legacy legacy legacy 
+UC-17--legacy--- r2 exit=1 wall=113s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: legacy legacy legacy 
+UC-22--legacy--- r1 exit=1 wall=114s 0 PASS, 4 FAIL | fails: legacy legacy legacy legacy 
+UC-22--legacy--- r2 exit=1 wall=113s 0 PASS, 4 FAIL | fails: legacy legacy legacy legacy 
+UC-05--D1--- r1 exit=1 wall=811s 0 PASS, 4 FAIL | fails: D1 D1 D1 D1 
+UC-05--D1--- r2 exit=1 wall=811s 0 PASS, 4 FAIL | fails: D1 D1 D1 D1 
+UC-05--D2--- r1 exit=1 wall=808s 0 PASS, 4 FAIL | fails: D2 D2 D2 D2 
+UC-05--D2--- r2 exit=1 wall=811s 0 PASS, 4 FAIL | fails: D2 D2 D2 D2 
+UC-05--D3--- r1 exit=1 wall=809s 0 PASS, 4 FAIL | fails: D3 D3 D3 D3 
+UC-05--D3--- r2 exit=1 wall=809s 0 PASS, 4 FAIL | fails: D3 D3 D3 D3 
+UC-05--D4--- r1 exit=1 wall=810s 0 PASS, 4 FAIL | fails: D4 D4 D4 D4 
+UC-05--D4--- r2 exit=1 wall=810s 0 PASS, 4 FAIL | fails: D4 D4 D4 D4 
+UC-11--D1--- r1 exit=1 wall=1017s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D1 
+UC-11--D1--- r2 exit=1 wall=1016s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D1 
+UC-11--D2--- r1 exit=1 wall=1022s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D2 
+UC-11--D2--- r2 exit=1 wall=1022s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D2 
+UC-11--D3--- r1 exit=1 wall=1018s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D3 
+UC-11--D3--- r2 exit=1 wall=1018s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D3 
+UC-11--D4--- r1 exit=1 wall=1017s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D4 
+UC-11--D4--- r2 exit=1 wall=1017s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D4 
+UC-11--D5--- r1 exit=1 wall=1018s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D5 
+UC-11--D5--- r2 exit=1 wall=1017s 2 PASS, 1 FAIL, 1 NOT_VERIFIABLE | fails: D5 
+UC-11--legacy--- r1 exit=1 wall=1015s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: legacy legacy legacy 
+UC-11--legacy--- r2 exit=1 wall=1031s 0 PASS, 3 FAIL, 1 NOT_VERIFIABLE | fails: legacy legacy legacy 
+ALLDONE

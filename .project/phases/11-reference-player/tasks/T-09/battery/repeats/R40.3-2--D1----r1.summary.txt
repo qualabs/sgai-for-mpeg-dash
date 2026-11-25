@@ -1,0 +1,2 @@
+4 PASS
+exit 0; wall 16.3 s; full log: /run/user/1000/cto/t09-1795574104-1452/logs/R40.3-2--D1----r1/behaviour.log

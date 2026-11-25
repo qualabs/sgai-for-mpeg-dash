@@ -1,0 +1,4 @@
+2 PASS, 2 FAIL
+FAIL UC-14 (UC-14--D5---) D5 requests | expected: requests[1] https://aps.example.com/nl/overlay?ch=sports2&ctx=blackout at 30000..60000 | observed: not observed | log: /run/user/1000/cto/t09-1795574104-1452/logs/UC-14--D5----r1/behaviour.log:1
+FAIL UC-14 (UC-14--D5---) D5 presentation | expected: presentation[1] expected a change at 60000 to none [nothing] | observed: none observed within 2000 (on screen: none [primary] from 0); presentation[1] 60000..90000 expected none [nothing]; observed none [primary] from 0 to 90000 [startup 273; observed: 0..90000 none [pr... | log: /run/user/1000/cto/t09-1795574104-1452/logs/UC-14--D5----r1/behaviour.log:3
+exit 1; wall 93.5 s; full log: /run/user/1000/cto/t09-1795574104-1452/logs/UC-14--D5----r1/behaviour.log
