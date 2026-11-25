@@ -312,6 +312,7 @@ def shows_match(exp_shows: list, obs_elements: list, fx: Fixtures) -> bool:
 def _ident_el(el: dict) -> tuple:
     return tuple((k, str(el.get(k))) for k in ("element", "doc", "candidateId", "candidateIndex",
                                                 "optionId", "optionIndex", "opportunityDoc",
+                                                "opportunityScheme", "opportunityValue",
                                                 "opportunityEvent") if k in el)
 
 
@@ -975,8 +976,61 @@ def _seg_at(segs: list, t: float) -> Seg:
 
 # ----------------------------------------------------------------- selection
 
+AMBIGUOUS = "<ambiguous>"
+
+
+def _event_streams(fx: Fixtures, path: str | None, event_id: str) -> set:
+    """The (@schemeIdUri, @value) of every EventStream of fixture `path` that
+    carries an Event of @id `event_id` (@value absent: None)."""
+    root = _root(fx, path) if path else None
+    if root is None:
+        return set()
+    return {(es.get("schemeIdUri"), es.get("value")) for es in root.iter() if _local(es) == "EventStream"
+            and any(_local(ev) == "Event" and ev.get("id") == event_id for ev in es)}
+
+
+def opportunity_key(fx: Fixtures, path: str | None, event_id, scheme=None, value=None,
+                    has_value: bool = False) -> tuple:
+    """An opportunity's identity: (fixture, @schemeIdUri, @value, Event@id).
+    ISO/IEC 23009-1 identifies an Event by the combination of @schemeIdUri,
+    @value and @id (5.10.2.4), so two Events of one document with the same
+    @id in EventStreams of different schemes are two opportunities. What the
+    caller names (`scheme`; `value` when `has_value`) filters the
+    EventStreams of the fixture carrying that @id: one left gives the whole
+    identity (the scheme a vector or a Player did not name, read from the
+    document); none, the identity as named; several, the scheme `AMBIGUOUS`
+    (the @id alone does not say which opportunity it is)."""
+    eid = None if event_id is None else str(event_id)
+    found = {sv for sv in _event_streams(fx, path, eid)
+             if (scheme is None or sv[0] == scheme) and (not has_value or sv[1] == value)}
+    if len(found) == 1:
+        return (path, *found.pop(), eid)
+    if found:
+        return (path, AMBIGUOUS, None, eid)
+    return (path, scheme, value if has_value else None, eid)
+
+
+def _obs_key(e: dict, fx: Fixtures) -> tuple:
+    """The opportunity an observed surface is attributed to: its
+    `data-sgai-opportunity-doc` (the fixture it stood for), `-scheme`,
+    `-value` and `-event`."""
+    return opportunity_key(fx, opp_of(e, fx) or e.get("opportunityDoc"), e.get("opportunityEvent"),
+                           e.get("opportunityScheme"), e.get("opportunityValue"), "opportunityValue" in e)
+
+
+def _exp_key(opp: dict, fx: Fixtures) -> tuple:
+    return opportunity_key(fx, opp["fixture"], opp["event_id"], opp.get("scheme"), opp.get("value"),
+                           "value" in opp)
+
+
+def _fmt_key(key: tuple) -> str:
+    path, scheme, value, eid = key
+    sv = "" if scheme is None else f" ({scheme}" + ("" if value is None else f" value {value}") + ")"
+    return f"event {eid}{sv} of {path}"
+
+
 def presentations(obs: Observed, tol: float, fx: Fixtures) -> dict:
-    """Per opportunity (fixture, Event@id), the ad presentations observed, in
+    """Per opportunity (`opportunity_key`), the ad presentations observed, in
     order of appearance: [(element, layout)]. One presentation is one surface:
     its identity, its DOM element (`inst`), for a <video> its pass, and the
     serial the Player stamps on each presentation (`presentation`, its
@@ -1008,7 +1062,7 @@ def presentations(obs: Observed, tol: float, fx: Fixtures) -> dict:
                 continue
             shown.add(run)
             linear = "optionId" not in e and "optionIndex" not in e
-            key = (opp_of(e, fx) or e.get("opportunityDoc"), e.get("opportunityEvent"))
+            key = _obs_key(e, fx)
             seen.setdefault(key, []).append((e, "linear" if linear else s["layout"]))
     return seen
 
@@ -1024,13 +1078,28 @@ def compare_selection(expected: list, obs: Observed, fx: Fixtures, tol: float = 
     compared: which execution of the opportunity a presentation belonged to
     (a declined first pause and a presented second, or the reverse) is the
     presentation field's to tell, by time. An ad surface with no opportunity,
-    or for an opportunity the vector does not list, is a FAIL."""
+    or for an opportunity the vector does not list, is a FAIL.
+
+    An opportunity is its document, scheme, value and Event@id
+    (`opportunity_key`): the overlay window and the linear break of one MPD,
+    both Event@id 1 in EventStreams of different schemes, are two. When the
+    @id names several EventStreams of the document and the scheme is not
+    named — by the vector entry, or by the surface's
+    `data-sgai-opportunity-scheme` — which opportunity it is cannot be told:
+    no entry and no presentation of that document and @id is compared, and
+    the field is NOT_VERIFIABLE unless something else FAILs."""
     seen = presentations(obs, tol, fx)
-    problems = []
+    problems, unverifiable = [], []
     pos: dict = {}
     last: dict = {}
-    for i, sel in enumerate(expected):
-        key = (sel["opportunity"]["fixture"], str(sel["opportunity"]["event_id"]))
+    keys = [_exp_key(sel["opportunity"], fx) for sel in expected]
+    blind = {(k[0], k[3]) for k in list(keys) + list(seen) if k[1] == AMBIGUOUS}
+    for i, (sel, key) in enumerate(zip(expected, keys)):
+        if (key[0], key[3]) in blind:
+            why = "the vector names none" if key[1] == AMBIGUOUS else "a presentation of it names none"
+            unverifiable.append(f"selection[{i}]: {_fmt_key(key)} is in EventStreams of several schemes "
+                                f"and {why}")
+            continue
         last[key] = i
         want = sel["presented"] if sel["result"] == "presented" else []
         p = pos.get(key, 0)
@@ -1043,17 +1112,22 @@ def compare_selection(expected: list, obs: Observed, fx: Fixtures, tol: float = 
             g = ", ".join(describe_obs(lay, [el], fx) for el, lay in got) or "nothing"
             w = ", ".join(f"{x['layout']} {x['candidate']['fixture']}:{x['candidate'].get('id') or '#' + str(x['candidate'].get('index'))}"
                           f" option {_opt(x['option'])}" for x in want) or "nothing"
-            problems.append(f"selection[{i}] event {key[1]} of {key[0]} ({sel['result']}): expected {w}; observed {g}")
+            problems.append(f"selection[{i}] {_fmt_key(key)} ({sel['result']}): expected {w}; observed {g}")
     for key, lst in seen.items():
-        if key not in last:
-            problems.append(f"ad presented for an opportunity the vector does not list: {key} "
+        if key[1] == AMBIGUOUS:
+            unverifiable.append(f"{len(lst)} presentation(s) for {_fmt_key(key)}, in EventStreams of several "
+                                f"schemes: the Player reports no data-sgai-opportunity-scheme")
+        elif (key[0], key[3]) in blind:
+            continue
+        elif key not in last:
+            problems.append(f"ad presented for an opportunity the vector does not list: {_fmt_key(key)} "
                             f"({', '.join(describe_obs(lay, [el], fx) for el, lay in lst)})")
         elif len(lst) > pos[key]:
             extra = lst[pos[key]:]
-            problems.append(f"selection[{last[key]}] event {key[1]} of {key[0]}: {len(extra)} presentation(s) more "
+            problems.append(f"selection[{last[key]}] {_fmt_key(key)}: {len(extra)} presentation(s) more "
                             f"than the vector lists: {', '.join(describe_obs(lay, [el], fx) for el, lay in extra)}")
     n = len(expected)
-    return _verdict(problems, [], f"{n} opportunit(y/ies) as expected" if n else "no opportunity, as expected")
+    return _verdict(problems, unverifiable, f"{n} opportunit(y/ies) as expected" if n else "no opportunity, as expected")
 
 
 # ----------------------------------------------------------------- geometry

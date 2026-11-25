@@ -1,0 +1,21 @@
+Mutation: in opportunity_key, right after `eid = ...`, insert
+    return (path, None, None, eid)  # identity by document and @id only
+Run: python3 bin/test_behaviour_compare.py OpportunityIdentity
+Ran 8 tests -- FAILED (failures=6):
+  test_player_without_scheme_is_not_verifiable
+  test_presentation_under_the_other_scheme_fails
+  test_same_id_different_schemes_are_two_opportunities
+  test_same_scheme_and_id_different_value_are_two_opportunities
+  test_unknown_scheme_is_a_third_opportunity
+  test_vector_without_scheme_is_not_verifiable
+Green under the mutation (expected: they assert what the old key also did):
+  test_unique_id_needs_no_scheme, test_same_scheme_value_and_id_is_one_opportunity
+Restored: Ran 8 tests -- OK
+
+Independent source: ISO/IEC 23009-1 (2026), 5.10.2.4 "Event updates":
+"Whenever an Event with previously processed combination of values of the
+@schemeIdUri, @value, and @id attributes is encountered in course of normal
+playback, and the Event@status attribute is absent, the event will be ignored
+by the DASH client." spec-source/examples/annex-d/D.2-1.mpd lines 10-19: two
+EventStreams (urn:mpeg:dash:event:alternativeMPD:insert:2025 and
+urn:svta:dash:sgai-overlay:2026), each with Event id="1".

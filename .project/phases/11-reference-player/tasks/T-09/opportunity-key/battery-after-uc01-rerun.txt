@@ -1,0 +1,5 @@
+1
+20 PASS
+exit 0; wall 137.9 s; full log: /run/user/1000/cto/behaviour-logs/20261124T221315-44f3a0/behaviour.log
+
+[exited with code 0]

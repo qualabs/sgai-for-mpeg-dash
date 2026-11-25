@@ -123,7 +123,7 @@
     const d = el.dataset;
     const e = { element: d.sgaiElement, rect, inst: serial(el) };
     for (const k of ['doc', 'candidateId', 'candidateIndex', 'optionId', 'optionIndex',
-      'opportunityDoc', 'opportunityEvent', 'presentation']) {
+      'opportunityDoc', 'opportunityScheme', 'opportunityValue', 'opportunityEvent', 'presentation']) {
       const v = d['sgai' + k[0].toUpperCase() + k.slice(1)];
       if (v !== undefined) e[k] = v;
     }

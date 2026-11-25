@@ -19,8 +19,8 @@ BIN = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BIN)
 
 from conformance import behaviour  # noqa: E402
-from conformance.behaviour_compare import (Fixtures, added_query, compare, normalise,  # noqa: E402
-                                           observed_segments)
+from conformance.behaviour_compare import (Fixtures, Observed, added_query, attribute, compare,  # noqa: E402
+                                           compare_selection, normalise, observed_segments)
 from conformance.model import Outcome  # noqa: E402
 
 SOURCE = os.path.join(os.path.dirname(BIN), "spec-source")
@@ -1438,6 +1438,138 @@ class HeldThenWindow(unittest.TestCase):
         # a hold that begins outside the exact boundary's tolerance is a change
         # the vector does not have
         self.assertEqual(self.record(6300, 6976)[0], Outcome.FAIL)
+
+
+class OpportunityIdentity(unittest.TestCase):
+    """An opportunity is (document, @schemeIdUri, @value, Event@id), as
+    ISO/IEC 23009-1 5.10.2.4 identifies an Event: UC-04's shape, a linear
+    break and an overlay window of one MPD, both Event@id 1 in EventStreams of
+    different schemes, are two opportunities."""
+    INS = "urn:mpeg:dash:event:alternativeMPD:insert:2025"
+    OVL = "urn:svta:dash:sgai-overlay:2026"
+    MAIN = "examples/annex-d/D.2-1.mpd"
+    LIN = {"fixture": "examples/annex-d/D.4-1.mpd", "id": "ad-401"}
+    OV = {"fixture": "examples/annex-d/D.5-1.xml", "index": 1}
+
+    def setUp(self):
+        with open(os.path.join(SOURCE, self.MAIN), encoding="utf-8") as f:
+            main = f.read()
+        self.fx = Fixtures({self.MAIN: "https://sgai-entry.invalid/D.2-1.mpd",
+                            self.LIN["fixture"]: "https://aps.example.com/lin",
+                            self.OV["fixture"]: "https://aps.example.com/ov"},
+                           {self.MAIN: main})
+        self.expected = [
+            {"opportunity": {"fixture": self.MAIN, "event_id": "1", "scheme": self.INS}, "result": "presented",
+             "presented": [{"candidate": self.LIN, "option": None, "layout": "linear"}]},
+            {"opportunity": {"fixture": self.MAIN, "event_id": "1", "scheme": self.OVL}, "result": "presented",
+             "presented": [{"candidate": self.OV, "option": {"index": 1}, "layout": "overlay-lower-third"}]},
+        ]
+
+    def surface(self, cand, option, scheme=None, value=None, doc=None, inst=1):
+        el = {"element": "ad", "rect": dict(FULL), "inst": inst, "doc": self.fx.urls[cand["fixture"]],
+              "opportunityDoc": self.fx.urls[doc or self.MAIN], "opportunityEvent": "1"}
+        el["candidateId" if "id" in cand else "candidateIndex"] = cand.get("id") or str(cand["index"])
+        if option is not None:
+            el["optionIndex"] = str(option)
+        if scheme is not None:
+            el["opportunityScheme"] = scheme
+        if value is not None:
+            el["opportunityValue"] = value
+        return el
+
+    def select(self, expected, *timeline):
+        """timeline: (t, layout, [surfaces])."""
+        o = Observed(requests=[], samples=[{"t": t, "layout": lay, "elements": els} for t, lay, els in timeline])
+        attribute(o, self.fx)
+        return compare_selection(expected, o, self.fx, 250)
+
+    def uc04(self, lin_scheme, ov_scheme):
+        # the overlay appears first, the linear ad under it a sample later: the
+        # order the conflated key compared against the vector's order
+        ov = self.surface(self.OV, 1, ov_scheme, inst=2)
+        lin = self.surface(self.LIN, None, lin_scheme, inst=1)
+        return self.select(self.expected, (0, "none", []), (100, "overlay-lower-third", [ov]),
+                           (200, "overlay-lower-third", [ov, lin]))
+
+    def test_same_id_different_schemes_are_two_opportunities(self):
+        out, d = self.uc04(self.INS, self.OVL)
+        self.assertEqual(out, Outcome.PASS, d)
+        self.assertIn("2 opportunit", d)
+
+    def test_presentation_under_the_other_scheme_fails(self):
+        out, d = self.uc04(self.OVL, self.INS)
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn(self.INS, d)
+
+    def test_player_without_scheme_is_not_verifiable(self):
+        # the @id names two EventStreams of D.2-1: no scheme, no opportunity
+        out, d = self.uc04(None, None)
+        self.assertEqual(out, Outcome.NOT_VERIFIABLE, d)
+        self.assertIn("data-sgai-opportunity-scheme", d)
+
+    def test_vector_without_scheme_is_not_verifiable(self):
+        for sel in self.expected:
+            del sel["opportunity"]["scheme"]
+        out, d = self.uc04(self.INS, self.OVL)
+        self.assertEqual(out, Outcome.NOT_VERIFIABLE, d)
+        self.assertIn("the vector names none", d)
+
+    def test_unknown_scheme_is_a_third_opportunity(self):
+        out, d = self.uc04(self.INS, "urn:example:other")
+        self.assertEqual(out, Outcome.FAIL)
+        self.assertIn("does not list", d)
+
+    def test_unique_id_needs_no_scheme(self):
+        # an @id one EventStream carries: neither side has to name the scheme
+        main = """<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"><Period>
+<EventStream schemeIdUri="urn:a" value="v"><Event id="1"/></EventStream>
+<EventStream schemeIdUri="urn:b"><Event id="2"/></EventStream></Period></MPD>"""
+        self.fx.texts[self.MAIN] = main
+        exp = [{"opportunity": {"fixture": self.MAIN, "event_id": "1"}, "result": "presented",
+                "presented": [{"candidate": self.LIN, "option": None, "layout": "linear"}]}]
+        for scheme, value in ((None, None), ("urn:a", None), ("urn:a", "v")):
+            lin = self.surface(self.LIN, None, scheme, value)
+            out, d = self.select(exp, (100, "linear", [lin]))
+            self.assertEqual(out, Outcome.PASS, f"{scheme} {value}: {d}")
+
+    def test_same_scheme_value_and_id_is_one_opportunity(self):
+        # negative: the same combination in two Periods is one opportunity, so
+        # its two presentations are one entry's, in order
+        main = """<MPD xmlns="urn:mpeg:dash:schema:mpd:2011">
+<Period><EventStream schemeIdUri="urn:a" value="v"><Event id="1"/></EventStream></Period>
+<Period><EventStream schemeIdUri="urn:a" value="v"><Event id="1"/></EventStream></Period></MPD>"""
+        self.fx.texts[self.MAIN] = main
+        exp = [{"opportunity": {"fixture": self.MAIN, "event_id": "1"}, "result": "presented",
+                "presented": [{"candidate": self.LIN, "option": None, "layout": "linear"},
+                              {"candidate": self.OV, "option": {"index": 1}, "layout": "overlay-lower-third"}]}]
+        lin = self.surface(self.LIN, None, "urn:a", "v", inst=1)
+        ov = self.surface(self.OV, 1, None, inst=2)
+        timeline = ((100, "linear", [lin]), (200, "none", []), (300, "overlay-lower-third", [ov]))
+        out, d = self.select(exp, *timeline)
+        self.assertEqual(out, Outcome.PASS, d)
+        # and listed as two entries of one opportunity they are consumed in order
+        two = [dict(exp[0], presented=[p]) for p in exp[0]["presented"]]
+        self.assertEqual(self.select(two, *timeline)[0], Outcome.PASS)
+        self.assertEqual(self.select(two[::-1], *timeline)[0], Outcome.FAIL)
+
+    def test_same_scheme_and_id_different_value_are_two_opportunities(self):
+        main = """<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"><Period>
+<EventStream schemeIdUri="urn:a" value="x"><Event id="1"/></EventStream>
+<EventStream schemeIdUri="urn:a" value="y"><Event id="1"/></EventStream></Period></MPD>"""
+        self.fx.texts[self.MAIN] = main
+        exp = [{"opportunity": {"fixture": self.MAIN, "event_id": "1", "scheme": "urn:a", "value": v},
+                "result": "presented", "presented": [p]}
+               for v, p in (("x", {"candidate": self.LIN, "option": None, "layout": "linear"}),
+                            ("y", {"candidate": self.OV, "option": {"index": 1}, "layout": "overlay-lower-third"}))]
+        ov = self.surface(self.OV, 1, "urn:a", "y", inst=2)
+        lin = self.surface(self.LIN, None, "urn:a", "x", inst=1)
+        out, d = self.select(exp, (100, "overlay-lower-third", [ov]), (200, "overlay-lower-third", [ov, lin]))
+        self.assertEqual(out, Outcome.PASS, d)
+        # the scheme alone does not tell them apart
+        lin.pop("opportunityValue")
+        ov.pop("opportunityValue")
+        self.assertEqual(self.select(exp, (100, "overlay-lower-third", [ov]),
+                                     (200, "overlay-lower-third", [ov, lin]))[0], Outcome.NOT_VERIFIABLE)
 
 
 if __name__ == "__main__":
