@@ -1,0 +1,83 @@
+PASS            UC-02 D1                     requests      2 request(s) as expected
+PASS            UC-02 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1                     presentation  3 segment(s) as expected; startup 736 before the first frame
+PASS            UC-02 D1                     beacons       5 beacon(s) as expected
+PASS            UC-02 D2                     requests      2 request(s) as expected
+PASS            UC-02 D2                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D2                     presentation  3 segment(s) as expected; startup 789 before the first frame
+PASS            UC-02 D2                     beacons       5 beacon(s) as expected
+PASS            UC-02 D3                     requests      2 request(s) as expected
+PASS            UC-02 D3                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D3                     presentation  3 segment(s) as expected; startup 327 before the first frame
+PASS            UC-02 D3                     beacons       5 beacon(s) as expected
+PASS            UC-02 D4                     requests      2 request(s) as expected
+PASS            UC-02 D4                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D4                     presentation  3 segment(s) as expected; startup 711 before the first frame
+PASS            UC-02 D4                     beacons       5 beacon(s) as expected
+PASS            UC-02 D5                     requests      2 request(s) as expected
+PASS            UC-02 D5                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D5                     presentation  3 segment(s) as expected; startup 149 before the first frame
+PASS            UC-02 D5                     beacons       5 beacon(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1 [trick-play-2x]     presentation  3 segment(s) as expected; startup 149 before the first frame
+PASS            UC-02 D1 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D2 [trick-play-2x]     presentation  3 segment(s) as expected; startup 518 before the first frame
+PASS            UC-02 D2 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D3 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D3 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D3 [trick-play-2x]     presentation  3 segment(s) as expected; startup 904 before the first frame
+PASS            UC-02 D3 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D4 [trick-play-2x]     presentation  3 segment(s) as expected; startup 679 before the first frame
+PASS            UC-02 D4 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D5 [trick-play-2x]     presentation  3 segment(s) as expected; startup 164 before the first frame
+PASS            UC-02 D5 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-04 D1                     requests      4 request(s) as expected
+PASS            UC-04 D1                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D1                     presentation  4 segment(s) as expected; startup 382 before the first frame
+PASS            UC-04 D1                     beacons       5 beacon(s) as expected
+PASS            UC-04 D2                     requests      4 request(s) as expected
+PASS            UC-04 D2                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D2                     presentation  4 segment(s) as expected; startup 1295 before the first frame
+PASS            UC-04 D2                     beacons       5 beacon(s) as expected
+PASS            UC-04 D3                     requests      3 request(s) as expected
+PASS            UC-04 D3                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D3                     presentation  4 segment(s) as expected; startup 327 before the first frame
+PASS            UC-04 D3                     beacons       5 beacon(s) as expected
+PASS            UC-04 D4                     requests      3 request(s) as expected
+PASS            UC-04 D4                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D4                     presentation  4 segment(s) as expected; startup 268 before the first frame
+PASS            UC-04 D4                     beacons       5 beacon(s) as expected
+PASS            UC-04 D5                     requests      3 request(s) as expected
+PASS            UC-04 D5                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D5                     presentation  3 segment(s) as expected; startup 529 before the first frame
+PASS            UC-04 D5                     beacons       3 beacon(s) as expected
+PASS            R40.4-1 D1                   requests      3 request(s) as expected
+PASS            R40.4-1 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-1 D1                   presentation  6 segment(s) as expected; startup 381 before the first frame
+PASS            R40.4-1 D1                   beacons       7 beacon(s) as expected
+PASS            R40.4-1 D4                   requests      3 request(s) as expected
+PASS            R40.4-1 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-1 D4                   presentation  6 segment(s) as expected; startup 214 before the first frame
+PASS            R40.4-1 D4                   beacons       7 beacon(s) as expected
+PASS            R40.4-2 D1                   requests      3 request(s) as expected
+PASS            R40.4-2 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-2 D1                   presentation  4 segment(s) as expected; startup 200 before the first frame
+PASS            R40.4-2 D1                   beacons       3 beacon(s) as expected
+PASS            R40.4-2 D4                   requests      3 request(s) as expected
+PASS            R40.4-2 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-2 D4                   presentation  4 segment(s) as expected; startup 228 before the first frame
+PASS            R40.4-2 D4                   beacons       3 beacon(s) as expected
+PASS            R4.8 D1                      requests      1 request(s) as expected
+PASS            R4.8 D1                      selection     1 opportunit(y/ies) as expected
+PASS            R4.8 D1                      presentation  3 segment(s) as expected; startup 126 before the first frame
+PASS            R4.8 D1                      beacons       2 beacon(s) as expected
+note: UC-02 D1: page errors: ["TypeError: Cannot read properties of null (reading 'absoluteIndex')"]
+note: UC-02 D4: page errors: ["TypeError: Cannot read properties of null (reading 'absoluteIndex')"]
+exit 0: PASS 80  FAIL 0  NOT_VERIFIABLE 0; wall 628.7 s; content 0.0 s (0 ffmpeg runs, 6 cuts from the cache), players 627.4 s

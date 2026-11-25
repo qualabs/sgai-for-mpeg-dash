@@ -1,0 +1,3 @@
+3 PASS, 1 FAIL
+FAIL E14-replace-end-callback-on-time-2x D1 selection | expected: selection[0] event 1 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of fixtures/rep-end-main.mpd (presented): expected linear fixtures/rep-end.mpd:rep-end option null | observed: observed nothing; ad presented for an opportunity the vector does not list: event 1 (urn:mpeg:dash:event:alternativeMPD:replace:2025 value ) of fixtures/rep-end-main.mpd (linear [ad fixtures/rep-en... | log: /run/user/1000/cto/sgai11-scheme-lag-1795571048-14807/e14-before-1/behaviour.log:2
+exit 1; wall 11.2 s; full log: /run/user/1000/cto/sgai11-scheme-lag-1795571048-14807/e14-before-1/behaviour.log

@@ -259,7 +259,9 @@
             "properties": {
               "opportunity": {
                 "type": "object", "additionalProperties": false, "required": ["fixture", "event_id"],
-                "properties": {"fixture": {"$ref": "#/$defs/path"}, "event_id": {"type": "string"}}
+                "properties": {"fixture": {"$ref": "#/$defs/path"}, "event_id": {"type": "string"},
+                               "scheme": {"type": "string", "description": "the @schemeIdUri of the EventStream carrying the Event"},
+                               "value": {"type": "string", "description": "that EventStream's @value, when it has one"}}
               },
               "result": {"enum": ["presented", "declined", "ignored"],
                          "description": "ignored: the Player does not recognise the opportunity (a legacy Player)"},

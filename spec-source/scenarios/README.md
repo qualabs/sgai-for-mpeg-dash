@@ -113,6 +113,9 @@ outcome for a class the UC does not state is a finding.
   `ignored` (a legacy Player that does not recognise the event).
   Candidates and options by `id` when the document has one, else by
   `index`, 1-based document order. `option: null` for a linear candidate.
+  An opportunity MAY add `scheme` and `value` (its EventStream's
+  `@schemeIdUri` and `@value`); one document with two Events of the same
+  `@id` in different EventStreams needs them to tell the two apart.
 - **`presentation`**: segments that tile `[0, observe_until]` in order, no
   gap, no overlap; each says the `layout` (an R12.2 token, `none` for the
   primary alone) and what `shows`. `region` and `note` are free text for a

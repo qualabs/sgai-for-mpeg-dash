@@ -1,0 +1,81 @@
+# E12 watched at playbackRate 2 from session 0 (the rate action). The rules are E12's: PRT 2 s,
+# APDmax 6 s, @clip absent, executed on time, so PRTA = PRT + d, APDA = 6 - d, RT = 8 - d, and
+# the cut of d is the alternative's end, so its callback at 6 s fires. Only the session clock
+# changes: media time over the rate, so PRT is reached at session 1 s, the alternative's 6 s
+# play at 2x from 1 to 4 s, and the programme resumes from 8 s at session 4 s. At rate 2 the
+# media time a tick sees advance is twice the wall time between ticks; an execution on time
+# stays one whatever the rate.
+format: sgai-scenario/1
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 5000
+entry: fixtures/rep-end-main.mpd
+fixtures:
+- path: fixtures/rep-end-main.mpd
+- path: fixtures/rep-end.mpd
+  url: https://aps.example.com/t05/rep-end
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions:
+- at: 0
+  do: rate
+  rate: 2
+outcomes:
+  D1:
+    summary: 'at 2x: the programme, the 6 s alternative at session 1-4 s with both its callbacks, then the programme from
+      8 s'
+    requests:
+    - at:
+        from: 0
+        to: 1000
+      url: https://aps.example.com/t05/rep-end
+      answered_by: fixtures/rep-end.mpd
+    selection:
+    - opportunity:
+        fixture: fixtures/rep-end-main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate:
+          fixture: fixtures/rep-end.mpd
+          id: rep-end
+        option: null
+        layout: linear
+    presentation:
+    - start: 0
+      end: 1000
+      layout: none
+      shows:
+      - element: primary
+        from: 0
+    - start: 1000
+      end: 4000
+      layout: linear
+      shows:
+      - element: ad
+        candidate:
+          fixture: fixtures/rep-end.mpd
+          id: rep-end
+        option: null
+    - start: 4000
+      end: 5000
+      layout: none
+      shows:
+      - element: primary
+        from: 8000
+    beacons:
+    - at: 1000
+      fixture: fixtures/rep-end.mpd
+      id: '1'
+      url: https://t.example.com/t05/rep-end/start
+    - at: 4000
+      fixture: fixtures/rep-end.mpd
+      id: '2'
+      url: https://t.example.com/t05/rep-end/complete

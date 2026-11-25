@@ -216,6 +216,23 @@ alternative was shown for 4 s of its 6, and its callback at 6 s is not reached."
        presentation=[ad(0, 4000, REP_END, "rep-end"), prim(4000, 7000, 6000)],
        beacons=[b(0, 1, "start", REP_END, "rep-end")])
 
+vector("E14-replace-end-callback-on-time-2x", """
+E12 watched at playbackRate 2 from session 0 (the rate action). The rules are E12's: PRT 2 s,
+APDmax 6 s, @clip absent, executed on time, so PRTA = PRT + d, APDA = 6 - d, RT = 8 - d, and
+the cut of d is the alternative's end, so its callback at 6 s fires. Only the session clock
+changes: media time over the rate, so PRT is reached at session 1 s, the alternative's 6 s
+play at 2x from 1 to 4 s, and the programme resumes from 8 s at session 4 s. At rate 2 the
+media time a tick sees advance is twice the wall time between ticks; an execution on time
+stays one whatever the rate.""",
+       entry=F + "rep-end-main.mpd",
+       fixtures=[{"path": F + "rep-end-main.mpd"}, {"path": REP_END, "url": "https://aps.example.com/t05/rep-end"}],
+       play_from=0, observe=5000, actions=[{"at": 0, "do": "rate", "rate": 2}],
+       summary="at 2x: the programme, the 6 s alternative at session 1-4 s with both its callbacks, then the programme from 8 s",
+       requests=[{"at": {"from": 0, "to": 1000}, "url": "https://aps.example.com/t05/rep-end", "answered_by": REP_END}],
+       selection=sel(F + "rep-end-main.mpd", [(REP_END, "rep-end")]),
+       presentation=[prim(0, 1000, 0), ad(1000, 4000, REP_END, "rep-end"), prim(4000, 5000, 8000)],
+       beacons=[b(1000, 1, "start", REP_END, "rep-end"), b(4000, 2, "complete", REP_END, "rep-end")])
+
 vector("E11-pause-during-linear-ad", """
 The viewer pauses during a linear alternative and resumes 2 s later, with no pause window:
 the linear ad is suspended and resumed where it was (the linear part of R17.5; the primary

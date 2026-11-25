@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """The reference's own regression tests of the 6th edition's linear model: the
-edge vectors E1-E13 beside this file, run on the reference in headless
+edge vectors E1-E14 beside this file, run on the reference in headless
 Chromium through the behaviour battery. They test the base standard's rules
 (Table 57, the queue, @clip, @startWithOffset, @returnOffset, a List MPD's
-Linked Periods, a pause in a linear ad), not criteria of context/03, which is
-why they are here and not in spec-source/behaviour/. Opt-in like the battery
-(ADR 0087): nothing runs them by default.
+Linked Periods, a pause in a linear ad, an execution on time at rate 2), not
+criteria of context/03, which is why they are here and not in
+spec-source/behaviour/. Opt-in like the battery (ADR 0087): nothing runs them
+by default.
 
     python3 reference-player/test/edges/run-edges.py [E3 E5 ...] [battery options]
 

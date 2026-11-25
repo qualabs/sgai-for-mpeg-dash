@@ -8,8 +8,8 @@
 # D.3-1.http holds both requests; the check compares a `matches` with the
 # first request of the file only, so the overlay request carries no `matches`.
 # Both opportunities of D.2-1 carry @id 1 (the insertion and the overlay
-# window, in different EventStreams); an `opportunity` names no scheme, so the
-# first selection entry is the linear one and the second the overlay window.
+# window, in different EventStreams); each `opportunity` names its
+# EventStream's @schemeIdUri to tell them apart (neither has a @value).
 # D.8's last paragraph (the same document with no `linearRelation`) is another
 # document, so it is not written as a variant.
 format: sgai-scenario/1
@@ -69,12 +69,12 @@ outcomes:
         answered_by: examples/annex-d/D.6-2.mpd
     selection:
       - &sel_linear
-        opportunity: {fixture: examples/annex-d/D.2-1.mpd, event_id: "1"}
+        opportunity: {fixture: examples/annex-d/D.2-1.mpd, event_id: "1", scheme: "urn:mpeg:dash:event:alternativeMPD:insert:2025"}
         result: presented
         presented:
           - {candidate: &lin {fixture: examples/annex-d/D.4-1.mpd, id: ad-401}, option: null, layout: linear}
       - &sel_video
-        opportunity: &win {fixture: examples/annex-d/D.2-1.mpd, event_id: "1"}
+        opportunity: &win {fixture: examples/annex-d/D.2-1.mpd, event_id: "1", scheme: "urn:svta:dash:sgai-overlay:2026"}
         result: presented
         presented:
           - {candidate: &ov {fixture: examples/annex-d/D.5-1.xml, index: 1}, option: {index: 1}, layout: overlay-lower-third}

@@ -1,9 +1,9 @@
 # Edge vectors of the linear model
 
-E1-E13: the reference's regression tests of the 6th edition's linear model
+E1-E14: the reference's regression tests of the 6th edition's linear model
 (the execution queue, Table 57's arithmetic, `@executeOnce`, `@clip`,
 `@startWithOffset`, `@returnOffset`, a List MPD whose Linked Period fails, a
-pause during a linear ad). Each expected value is worked from the base
+pause during a linear ad, an execution on time at playback rate 2). Each expected value is worked from the base
 standard in the vector's header, not from the reference. They are not
 criteria of `context/03`, so they are not in `spec-source/behaviour/`.
 

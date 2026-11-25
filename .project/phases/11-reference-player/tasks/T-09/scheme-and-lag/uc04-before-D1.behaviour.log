@@ -1,0 +1,5 @@
+PASS            UC-04 D1                     requests      4 request(s) as expected
+NOT_VERIFIABLE  UC-04 D1                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-d/D.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-d/D.2-1.mpd is in EventStreams of several schemes and the vector names none; 2 presentation(s) for event 1 (<ambiguous>) of examples/annex-d/D.2-1.mpd, in EventStreams of several schemes: the Player reports no data-sgai-opportunity-scheme
+PASS            UC-04 D1                     presentation  4 segment(s) as expected; startup 269 before the first frame
+PASS            UC-04 D1                     beacons       5 beacon(s) as expected
+exit 0: PASS 3  FAIL 0  NOT_VERIFIABLE 1; wall 84.1 s; content 0.0 s (0 ffmpeg runs, 5 cuts from the cache), players 83.2 s

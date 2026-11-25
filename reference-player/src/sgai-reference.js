@@ -20,7 +20,10 @@
 //   (1-based document order), `data-sgai-option-id` or
 //   `data-sgai-option-index` (neither: a linear candidate, option null), and
 //   `data-sgai-opportunity-doc` + `data-sgai-opportunity-event` (the URL of
-//   the MPD carrying the opportunity and its Event@id).
+//   the MPD carrying the opportunity and its Event@id), with
+//   `data-sgai-opportunity-scheme` (the @schemeIdUri of the EventStream that
+//   carries that Event) and `data-sgai-opportunity-value` (its @value; absent
+//   when the EventStream has none).
 // - An `ad` or `background` surface also carries `data-sgai-presentation`: a
 //   serial (`ref.nextPresentation()`, unique in the session) stamped each
 //   time the surface starts a new presentation of its candidate and option,

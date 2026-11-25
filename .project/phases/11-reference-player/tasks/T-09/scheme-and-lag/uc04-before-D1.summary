@@ -1,0 +1,2 @@
+3 PASS, 1 NOT_VERIFIABLE
+exit 0; wall 84.1 s; full log: /run/user/1000/cto/sgai11-scheme-lag-1795571048-14807/uc04-before/behaviour.log

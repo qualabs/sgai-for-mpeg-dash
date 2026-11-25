@@ -108,7 +108,9 @@
   const children = (el, name, ns) => Array.from(el.children).filter((c) => c.localName === name && (!ns || c.namespaceURI === ns));
 
   // The window element of an Event in the manifest dash.js parsed (its Event
-  // object does not carry the child; dash.js strips the prefix).
+  // object does not carry the child; dash.js strips the prefix), with its
+  // EventStream's @value (null when absent: dash.js's EventStream object
+  // reports an absent @value as "").
   function findWindow(manifest, scheme, id, periodIndex) {
     const periods = (manifest && manifest.Period) || [];
     const order = periodIndex !== undefined && periods[periodIndex] ? [periods[periodIndex]] : periods;
@@ -121,11 +123,11 @@
           const ev = events[k];
           if (String(ev.id) !== String(id)) continue;
           const el = Array.isArray(ev[name]) ? ev[name][0] : ev[name];
-          return { el: el || null, order: k };
+          return { el: el || null, order: k, value: es.value === undefined || es.value === null ? null : String(es.value) };
         }
       }
     }
-    return { el: null, order: 0 };
+    return { el: null, order: 0, value: null };
   }
 
   // §5.8.4: each parameter appended as name=value, `?` first when the URI has
@@ -206,6 +208,8 @@
       this.order = order;                         // position inside its EventStream
       this.tl = tl;                               // the presentation that declares it
       this.opportunityDoc = tl.doc;
+      this.scheme = es.schemeIdUri;               // with @value and Event@id, the opportunity
+      this.value = null;                          // EventStream@value, set from findWindow
       this.ts = ts;
       this.PT = e.calculatedPresentationTime;     // s
       const dur = e.duration;
@@ -302,8 +306,9 @@
       const key = tl.key + '#' + scheme + '#' + e.id + '#' + (es.period ? es.period.id : '');
       if (this.windows.has(key)) return;   // dash.js dispatches again after a seek
       const family = scheme === OVERLAY ? 'overlay' : 'pause';
-      const { el, order } = findWindow(tl.player.getManifest(), scheme, e.id, es.period && es.period.index);
+      const { el, order, value } = findWindow(tl.player.getManifest(), scheme, e.id, es.period && es.period.index);
       const w = new Window(family, e, el, order, tl);
+      w.value = value;
       w.key = key;
       this.windows.set(key, w);
       this.log('nonlinear:receive', { key, family, PT: w.PT, end: w.end, ERT: w.ERT, capUnits: w.capUnits, ts: w.ts,
@@ -833,6 +838,9 @@
       d.sgaiOptionIndex = String(c.option.index);
       d.sgaiOpportunityDoc = w.opportunityDoc;
       d.sgaiOpportunityEvent = w.id;
+      d.sgaiOpportunityScheme = w.scheme;
+      if (w.value !== null) d.sgaiOpportunityValue = w.value;
+      else delete d.sgaiOpportunityValue;
     }
 
     // PLY-84: the viewer's activation of the surface (SgaiClick.arm).

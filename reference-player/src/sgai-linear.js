@@ -61,6 +61,11 @@
   const CALLBACK = 'urn:mpeg:dash:event:callback:2015';
   const TICK_MS = 10;
   const EPS = 0.02;          // s: a Period or the alternative counts as ended this close to its end
+  // s of wall time: how far currentTime and performance.now() may be read
+  // apart in one tick. Media time is that times the rate: measured up to
+  // 0.028 s x 2 at 2x under load (T-09 scheme-and-lag), against seconds for
+  // a seek or a start at an offset.
+  const CLOCK_SLACK = 0.1;
   const HOLD_MS = 3000;      // the longest the primary is held at PRT for a document in flight
   const START_MS = 8000;     // the longest an alternative may take to show its first frame
 
@@ -76,7 +81,9 @@
   }
 
   // The InsertPresentation / ReplacePresentation of an Event, from the
-  // manifest dash.js parsed: its Event object does not carry the child (T-01).
+  // manifest dash.js parsed: its Event object does not carry the child (T-01),
+  // with its EventStream's @value (null when absent: dash.js's EventStream
+  // object reports an absent @value as "").
   function findChild(manifest, scheme, id, periodIndex) {
     const periods = (manifest && manifest.Period) || [];
     const order = periodIndex !== undefined && periods[periodIndex] ? [periods[periodIndex]] : periods;
@@ -87,11 +94,11 @@
         for (const ev of es.Event || []) {
           if (String(ev.id) !== String(id)) continue;
           const el = Array.isArray(ev[name]) ? ev[name][0] : ev[name];
-          return el || null;
+          return { el: el || null, value: es.value === undefined || es.value === null ? null : String(es.value) };
         }
       }
     }
-    return null;
+    return { el: null, value: null };
   }
 
   const children = (el, name) => Array.from(el.children).filter((c) => c.localName === name);
@@ -320,7 +327,7 @@
       const e = payload.event;
       const es = e.eventStream;
       const scheme = es.schemeIdUri;
-      const child = findChild(this.player.getManifest(), scheme, e.id, es.period && es.period.index);
+      const { el: child, value } = findChild(this.player.getManifest(), scheme, e.id, es.period && es.period.index);
       if (!child || !child.uri) {
         this.log('linear:ignored', { id: e.id, reason: 'no InsertPresentation/ReplacePresentation@uri' });
         return;
@@ -340,6 +347,9 @@
       if (old) { this.log('linear:receive-repeat', { key }); return; }
       const E = {
         key, scheme, id: String(e.id), uri: child.uri, PRT,
+        // EventStream@value, null when absent: with the scheme and Event@id it
+        // identifies the opportunity (data-sgai-opportunity-*).
+        value,
         // EAP = PRT + Event@duration; with no @duration, the end of the Period.
         EAP: Math.min(e.duration === undefined || e.duration === null || isNaN(e.duration) ? Infinity : PRT + e.duration, periodEnd),
         // ERT: @earliestResolutionTimeOffset in EventStream@timescale units, default 60 s.
@@ -384,14 +394,16 @@
       if (this.holding || this.seeking || !this.streamReady || this.main.readyState < 1) { this.last = null; return; }
       const php = this.main.currentTime;
       // The previous tick's playhead, kept only while playback runs on from
-      // it: no more media time passed than wall time at the rate (a seek, a
-      // start at an offset, a return to RT do not), so PRT was crossed by
-      // playing up to it.
+      // it: no more media time passed than wall time at the rate, with
+      // CLOCK_SLACK for the two clocks being read apart (a seek, a start at
+      // an offset, a return to RT jump further), so PRT was crossed by
+      // playing up to it. The slack is wall time, so it scales with the rate
+      // as the media time does.
       const now = performance.now();
       const last = this.last;
       this.last = { php, now };
       const crossed = (E) => !!last && last.php < E.PRT
-        && php - last.php <= ((now - last.now) / 1000) * (this.main.playbackRate || 1) + EPS;
+        && php - last.php <= ((now - last.now) / 1000 + CLOCK_SLACK) * (this.main.playbackRate || 1);
       // §5.16.2.2.6: resolve when the playhead is between ERT and PRT.
       // @maxDuration zero: the event is not executed (§5.16.5), so it is never resolved.
       for (const E of this.queue) {
@@ -407,6 +419,9 @@
         if (E.EAP <= php) { this.log('linear:expired', { key: E.key, php }); continue; }
         if (E.executeOnce && E.c > 0) continue;
         if (!(E.APDmax > 0)) { this.log('linear:not-executed', { key: E.key, reason: '@maxDuration is zero' }); continue; }
+        // The step the crossing was judged on, for diagnosis.
+        this.log('linear:crossing', { key: E.key, php, crossed: crossed(E), lastPhp: last && last.php,
+          dphp: last && php - last.php, dwall: last && (now - last.now) / 1000, rate: this.main.playbackRate });
         this.execute(E, php, crossed(E));
         return;
       }
@@ -552,6 +567,9 @@
       if (this.alt !== alt) return;
       part.video.dataset.sgaiOpportunityDoc = this.ref.url;
       part.video.dataset.sgaiOpportunityEvent = alt.E.id;
+      part.video.dataset.sgaiOpportunityScheme = alt.E.scheme;
+      if (alt.E.value !== null) part.video.dataset.sgaiOpportunityValue = alt.E.value;
+      else delete part.video.dataset.sgaiOpportunityValue;
       // One serial per Part: the 'playing' of a resume after a suspension
       // (R17.5) is not a new presentation.
       if (!part.video.dataset.sgaiPresentation) part.video.dataset.sgaiPresentation = this.ref.nextPresentation();

@@ -1,0 +1,117 @@
+S-SCHEMA	UC-04	outcomes/D1/selection/0/opportunity: Additional properties are not allowed ('scheme' was unexpected)
+S-SCHEMA	UC-04	outcomes/D1/selection/1/opportunity: Additional properties are not allowed ('scheme' was unexpected)
+S-SCHEMA	UC-04	outcomes/D2/selection/0/opportunity: Additional properties are not allowed ('scheme' was unexpected)
+S-SCHEMA	UC-04	outcomes/D2/selection/1/opportunity: Additional properties are not allowed ('scheme' was unexpected)
+S-SCHEMA	UC-04	outcomes/D3/selection/0/opportunity: Additional properties are not allowed ('scheme' was unexpected)
+S-SCHEMA	UC-04	outcomes/D3/selection/1/opportunity: Additional properties are not allowed ('scheme' was unexpected)
+S-SCHEMA	UC-04	outcomes/D4/selection/0/opportunity: Additional properties are not allowed ('scheme' was unexpected)
+S-SCHEMA	UC-04	outcomes/D4/selection/1/opportunity: Additional properties are not allowed ('scheme' was unexpected)
+S-SCHEMA	UC-04	outcomes/D5/selection/0/opportunity: Additional properties are not allowed ('scheme' was unexpected)
+S-SCHEMA	UC-04	outcomes/D5/selection/1/opportunity: Additional properties are not allowed ('scheme' was unexpected)
+UC-01	D1	NOT_VERIFIABLE — no executor
+UC-01	D2	NOT_VERIFIABLE — no executor
+UC-01	D3	NOT_VERIFIABLE — no executor
+UC-01	D4	NOT_VERIFIABLE — no executor
+UC-01	D5	NOT_VERIFIABLE — no executor
+UC-02	D1	NOT_VERIFIABLE — no executor
+UC-02	D2	NOT_VERIFIABLE — no executor
+UC-02	D3	NOT_VERIFIABLE — no executor
+UC-02	D4	NOT_VERIFIABLE — no executor
+UC-02	D5	NOT_VERIFIABLE — no executor
+UC-03	D1	NOT_VERIFIABLE — no executor
+UC-03	D2	NOT_VERIFIABLE — no executor
+UC-03	D3	NOT_VERIFIABLE — no executor
+UC-03	D4	NOT_VERIFIABLE — no executor
+UC-03	D5	NOT_VERIFIABLE — no executor
+UC-05	D1	NOT_VERIFIABLE — no executor
+UC-05	D2	NOT_VERIFIABLE — no executor
+UC-05	D3	NOT_VERIFIABLE — no executor
+UC-05	D4	NOT_VERIFIABLE — no executor
+UC-05	D5	NOT_VERIFIABLE — no executor
+UC-06	D1	NOT_VERIFIABLE — no executor
+UC-06	D2	NOT_VERIFIABLE — no executor
+UC-06	D3	NOT_VERIFIABLE — no executor
+UC-06	D4	NOT_VERIFIABLE — no executor
+UC-06	D5	NOT_VERIFIABLE — no executor
+UC-07	D1	NOT_VERIFIABLE — no executor
+UC-07	D2	NOT_VERIFIABLE — no executor
+UC-07	D3	NOT_VERIFIABLE — no executor
+UC-07	D4	NOT_VERIFIABLE — no executor
+UC-07	D5	NOT_VERIFIABLE — no executor
+UC-07	legacy	NOT_VERIFIABLE — no executor
+UC-08	D1	NOT_VERIFIABLE — no executor
+UC-08	D2	NOT_VERIFIABLE — no executor
+UC-08	D3	NOT_VERIFIABLE — no executor
+UC-08	D4	NOT_VERIFIABLE — no executor
+UC-08	D5	NOT_VERIFIABLE — no executor
+UC-09	D1	NOT_VERIFIABLE — no executor
+UC-09	D2	NOT_VERIFIABLE — no executor
+UC-09	D3	NOT_VERIFIABLE — no executor
+UC-09	D4	NOT_VERIFIABLE — no executor
+UC-09	D5	NOT_VERIFIABLE — no executor
+UC-10	D1	NOT_VERIFIABLE — no executor
+UC-10	D2	NOT_VERIFIABLE — no executor
+UC-10	D3	NOT_VERIFIABLE — no executor
+UC-10	D4	NOT_VERIFIABLE — no executor
+UC-10	D5	NOT_VERIFIABLE — no executor
+UC-11	D1	NOT_VERIFIABLE — no executor
+UC-11	D2	NOT_VERIFIABLE — no executor
+UC-11	D3	NOT_VERIFIABLE — no executor
+UC-11	D4	NOT_VERIFIABLE — no executor
+UC-11	D5	NOT_VERIFIABLE — no executor
+UC-11	legacy	NOT_VERIFIABLE — no executor
+UC-12	D1	NOT_VERIFIABLE — no executor
+UC-12	D2	NOT_VERIFIABLE — no executor
+UC-12	D3	NOT_VERIFIABLE — no executor
+UC-12	D4	NOT_VERIFIABLE — no executor
+UC-12	D5	NOT_VERIFIABLE — no executor
+UC-13	D1	NOT_VERIFIABLE — no executor
+UC-13	D2	NOT_VERIFIABLE — no executor
+UC-13	D3	NOT_VERIFIABLE — no executor
+UC-13	D4	NOT_VERIFIABLE — no executor
+UC-13	D5	NOT_VERIFIABLE — no executor
+UC-14	D1	NOT_VERIFIABLE — no executor
+UC-14	D2	NOT_VERIFIABLE — no executor
+UC-14	D3	NOT_VERIFIABLE — no executor
+UC-14	D4	NOT_VERIFIABLE — no executor
+UC-14	D5	NOT_VERIFIABLE — no executor
+UC-14	legacy	NOT_VERIFIABLE — no executor
+UC-15	D1	NOT_VERIFIABLE — no executor
+UC-15	D2	NOT_VERIFIABLE — no executor
+UC-15	D3	NOT_VERIFIABLE — no executor
+UC-15	D4	NOT_VERIFIABLE — no executor
+UC-15	D5	NOT_VERIFIABLE — no executor
+UC-16	D1	NOT_VERIFIABLE — no executor
+UC-16	D2	NOT_VERIFIABLE — no executor
+UC-16	D3	NOT_VERIFIABLE — no executor
+UC-16	D4	NOT_VERIFIABLE — no executor
+UC-16	D5	NOT_VERIFIABLE — no executor
+UC-17	D1	NOT_VERIFIABLE — no executor
+UC-17	D2	NOT_VERIFIABLE — no executor
+UC-17	D3	NOT_VERIFIABLE — no executor
+UC-17	D4	NOT_VERIFIABLE — no executor
+UC-17	D5	NOT_VERIFIABLE — no executor
+UC-17	legacy	NOT_VERIFIABLE — no executor
+UC-18	D1	NOT_VERIFIABLE — no executor
+UC-18	D2	NOT_VERIFIABLE — no executor
+UC-18	D3	NOT_VERIFIABLE — no executor
+UC-18	D4	NOT_VERIFIABLE — no executor
+UC-18	D5	NOT_VERIFIABLE — no executor
+UC-19	D1	NOT_VERIFIABLE — no executor
+UC-20	D1	NOT_VERIFIABLE — no executor
+UC-20	D3	NOT_VERIFIABLE — no executor
+UC-20	D4	NOT_VERIFIABLE — no executor
+UC-20	D5	NOT_VERIFIABLE — no executor
+UC-21	D1	NOT_VERIFIABLE — no executor
+UC-21	D2	NOT_VERIFIABLE — no executor
+UC-21	D3	NOT_VERIFIABLE — no executor
+UC-21	D4	NOT_VERIFIABLE — no executor
+UC-21	D5	NOT_VERIFIABLE — no executor
+UC-22	D1	NOT_VERIFIABLE — no executor
+UC-22	D2	NOT_VERIFIABLE — no executor
+UC-22	D3	NOT_VERIFIABLE — no executor
+UC-22	D4	NOT_VERIFIABLE — no executor
+UC-22	D5	NOT_VERIFIABLE — no executor
+UC-22	legacy	NOT_VERIFIABLE — no executor
+21 vectors of 21 use cases; 10 findings; without a vector: none
+A green run says the vectors are well formed, cover every UC x class, rest on green fixtures and match the UCs as they are now; no Player has run them (NOT_VERIFIABLE — no executor).

@@ -1,0 +1,5 @@
+PASS            UC-04 D1                     requests      4 request(s) as expected
+FAIL            UC-04 D1                     selection     selection[0] event 1 (urn:mpeg:dash:event:alternativeMPD:insert:2025) of examples/annex-d/D.2-1.mpd (presented): expected linear examples/annex-d/D.4-1.mpd:ad-401 option null; observed nothing; selection[1] event 1 (urn:svta:dash:sgai-overlay:2026) of examples/annex-d/D.2-1.mpd (presented): expected overlay-lower-third examples/annex-d/D.5-1.xml:#1 option #1; observed linear [ad examples/annex-d/D.4-1.mpd:ad-401 option null]; selection[1] event 1 (urn:svta:dash:sgai-overlay:2026) of examples/annex-d/D.2-1.mpd: 1 presentation(s) more than the vector lists: overlay-lower-third [ad examples/annex-d/D.5-1.xml:#1 option #1]
+PASS            UC-04 D1                     presentation  4 segment(s) as expected; startup 240 before the first frame
+PASS            UC-04 D1                     beacons       5 beacon(s) as expected
+exit 1: PASS 3  FAIL 1  NOT_VERIFIABLE 0; wall 84.6 s; content 0.0 s (0 ffmpeg runs, 5 cuts from the cache), players 83.8 s

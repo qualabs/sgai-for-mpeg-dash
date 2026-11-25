@@ -1,0 +1,21 @@
+PASS            UC-04 D1                     requests      4 request(s) as expected
+PASS            UC-04 D1                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D1                     presentation  4 segment(s) as expected; startup 1475 before the first frame
+PASS            UC-04 D1                     beacons       5 beacon(s) as expected
+PASS            UC-04 D2                     requests      4 request(s) as expected
+PASS            UC-04 D2                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D2                     presentation  4 segment(s) as expected; startup 1484 before the first frame
+PASS            UC-04 D2                     beacons       5 beacon(s) as expected
+PASS            UC-04 D3                     requests      3 request(s) as expected
+PASS            UC-04 D3                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D3                     presentation  4 segment(s) as expected; startup 727 before the first frame
+PASS            UC-04 D3                     beacons       5 beacon(s) as expected
+PASS            UC-04 D4                     requests      3 request(s) as expected
+PASS            UC-04 D4                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D4                     presentation  4 segment(s) as expected; startup 785 before the first frame
+PASS            UC-04 D4                     beacons       5 beacon(s) as expected
+PASS            UC-04 D5                     requests      3 request(s) as expected
+PASS            UC-04 D5                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D5                     presentation  3 segment(s) as expected; startup 230 before the first frame
+PASS            UC-04 D5                     beacons       3 beacon(s) as expected
+exit 0: PASS 20  FAIL 0  NOT_VERIFIABLE 0; wall 259.4 s; content 0.0 s (0 ffmpeg runs, 5 cuts from the cache), players 258.3 s
