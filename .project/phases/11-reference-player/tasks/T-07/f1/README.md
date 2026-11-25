@@ -1,3 +1,5 @@
+> Record of this task as of 2026-11-24: what was run and found then, not the current state. The current state is in the project's live documents (`CLAUDE.md`, `spec-source/behaviour/README.md`) and in the checks themselves.
+
 # T-07 family 1 — layouts
 
 **Conclusion:** every non-beacon field of the family's 11 test files passes

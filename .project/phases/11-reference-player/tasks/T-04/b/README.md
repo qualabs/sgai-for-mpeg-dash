@@ -1,3 +1,5 @@
+> Record of this task as of 2026-11-24: what was run and found then, not the current state. The current state is in the project's live documents (`CLAUDE.md`, `spec-source/behaviour/README.md`) and in the checks themselves.
+
 # T-04, part B — resolution, request and selection, windows
 
 19 criteria: R2.3, R5.3, R5.6, R5.9, R15.3, R29.2, R29.4, R32.1, R32.2,

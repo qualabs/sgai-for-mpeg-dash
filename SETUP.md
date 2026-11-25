@@ -59,6 +59,16 @@ checks its `sha256`; later runs work offline
 
 It uses the Chromium Playwright already has in `~/.cache/ms-playwright`.
 
+`--behaviour` (the reference Player's battery, opt-in), and
+`reference-player/test/edges/run-edges.py` and
+`reference-player/demo/demo.py` on top of it, need the same: `node`,
+`ffmpeg`, `npm ci` in `bin/players`, and the Chromium of the pinned
+Playwright; a `--behaviour` run that lacks one says which and exits `2`. The test
+content ffmpeg generates is kept across runs in
+`~/.cache/cto-tmp/sgai-behaviour-content/` and regenerated when what it
+is generated from changes (`--clear-content-cache` empties it;
+`SGAI_BEHAVIOUR_CONTENT_CACHE=0` generates it per run instead).
+
 `--dashif` needs Docker and the pinned DASH-IF tool image, built once:
 
     bin/dashif/build.sh

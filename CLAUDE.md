@@ -50,7 +50,7 @@ projects/sgai-for-mpeg-dash/
 ├── context/              inputs — canonical, human-authored spec
 ├── prompts/              build scripts — .prompt files for LLM agents
 ├── context-analysis/     pre-spec artefacts — derived from context/ and consumed by the spec build
-├── spec-source/          the source of the spec — prose with directives, XSD + syntax.yaml, example fixtures, UC vectors
+├── spec-source/          the source of the spec — prose with directives, XSD + syntax.yaml, example fixtures, UC vectors, behaviour tests
 ├── dist/                 the published spec + its analyses — unversioned names; arrives by promotion, never by build
 ├── output/               candidate specs and their extension XSD, one per build iteration (vN-sgai-spec.md, vN-sgai-extension.xsd), assembled from spec-source/
 ├── output-analysis/      per-candidate analyses and records (validation + trace, detail-review, conformance tests, audit, patches, comparison) + ad-hoc research / errata
@@ -61,6 +61,7 @@ projects/sgai-for-mpeg-dash/
 │   ├── output-issues/    Stage 5 scratch (gitignored) — per-issue triage / impact / response drafts
 │   └── output-prs/       Stage 6 scratch (gitignored) — per-PR triage / analyze / review drafts
 ├── bin/                  executable checks the build runs; not prompts
+├── reference-player/     the reference Player — a module on pinned dash.js 5.3.0, its edge vectors and the demo
 ├── proposal-drafts/      historical drafts kept for reference
 └── .project/             governance from the create-project skill
 ```
@@ -165,7 +166,11 @@ What does NOT go where:
     0063). Its green says every rule decidable by code passed on the
     instances the source contains; nothing about what is
     `NOT_VERIFIABLE` (listed with its reason) nor about constructs with
-    no example. `--players` (level 3a) and `--demo` are not build steps.
+    no example. `--players` (level 3a), `--demo` and `--behaviour` are
+    not build steps; `--behaviour` runs the behaviour tests and the UC
+    vectors on the reference Player in Chromium, and is opt-in (ADR
+    0087): nothing in the project runs it, and
+    `test_behaviour_opt_in.py` guards that.
     `conformance/` is the code behind it: `dash/` the level-1 rule
     catalogue, `spec/` the level-2 one, each rule with its quoted
     sentence, `fixtures/` the committed negatives — a rule's green is
@@ -181,8 +186,13 @@ What does NOT go where:
     cover every UC × class of `context/04`, are well formed, rest on
     green fixtures, and were written against each UC as it is now (a
     stale hash is a `2`). The apply step runs it in its artefact loop.
-    No Player executes a vector yet, so every vector is
-    `NOT_VERIFIABLE — no executor`.
+    It runs no Player: whether one behaves as a vector says is
+    `--behaviour`'s.
+  - `check-behaviour.py` — every criterion the level-2 catalogue sends
+    to level 3 has a behaviour test in `spec-source/behaviour/` or an
+    `index.yaml` entry with its `NOT_VERIFIABLE` reason, and each test
+    was written against its criterion as it is now. Shares the schema
+    and checks of `check-scenarios.py`; runs no Player either.
   - `check-trace.py` — the validation's trace (`v<N>-trace.json`): every
     unit of the population has an entry, its sections exist, its
     quotations are literal, the rules it names exist and decide.
@@ -243,6 +253,10 @@ What does NOT go where:
     calls), read from its Claude Code transcript, counting each API call
     once (ADR 0074). Run it on the session id **right after the run**:
     transcripts are deleted after 30 days.
+  - `reference-player/test/edges/run-edges.py` and
+    `reference-player/demo/demo.py` — the reference's edge vectors of
+    the linear model (E1–E14) and the recorded demo session; opt-in
+    like `--behaviour`, whose harness they use. Their READMEs say how.
 
   **Dependencies.** Most scripts need only the standard library; which
   ones need `lxml`, PyYAML or `jsonschema`, which re-run themselves
@@ -264,11 +278,19 @@ What does NOT go where:
   — never edited by hand. `examples/` holds the examples as fixtures,
   each with the class `index.yaml` declares. `scenarios/` holds the
   use cases as vectors (`UC-NN.yaml`, `schema.json`, their `fixtures/`;
-  `README.md` says how one is written). **Invariant: `spec-source/` is
+  `README.md` says how one is written). `behaviour/` holds one or more
+  behaviour tests per criterion of `context/03` that needs a Player
+  (`R<n>.<m>[-<k>].yaml`, same schema, `index.yaml` for those with
+  none; its `README.md` says how one is written). **Invariant: `spec-source/` is
   always the source of the newest candidate in `output/`** —
   `bin/assemble-spec.py --check` on it exits 0 —, so every step that
   edits it either assembles a new candidate or undoes its edit. Edits
   are patches (`bin/apply-spec-patch.py`), never free-hand writes.
+- `reference-player/` — the reference Player's code (ADR 0075, 0076):
+  `src/` the module loaded on the unmodified pinned dash.js 5.3.0 of
+  `bin/players/`, `test/edges/` its edge vectors, `demo/` the demo,
+  `spike/` the T-01 spike (ADR 0075). No spec content and no
+  behaviour tests: those are in `spec-source/`.
 - `dist/` — the published spec and its analyses, under names with no
   version: `sgai-spec.md`, `sgai-extension.xsd`,
   `spec-validation.md`, `detail-review.md`, `conformance-tests.md`,

@@ -1,3 +1,5 @@
+> Record of this task as of 2026-11-24: what was run and found then, not the current state. The current state is in the project's live documents (`CLAUDE.md`, `spec-source/behaviour/README.md`) and in the checks themselves.
+
 # T-04 part C — non-linear presentation and coexistence of families
 
 21 criteria, 29 test files, all well formed: `bin/check-behaviour.py` names

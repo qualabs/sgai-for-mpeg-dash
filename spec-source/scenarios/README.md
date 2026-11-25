@@ -4,9 +4,10 @@ One file per use case of `context/04-use-cases.md`: `UC-NN.yaml`, valid
 against `schema.json` (ADR 0064). A vector states what a Player of each
 device class is observed to do on that use case's documents: what it
 requests, what it selects, what is on screen and when, which beacons fire.
-The executor will be the reference Player of the next phase, on the Player
-harness of `bin/players/`; until it exists every outcome is
-`NOT_VERIFIABLE — no executor`.
+The executor is the reference Player (`reference-player/`) on the Player
+harness of `bin/players/`, run by `bin/check-dash-conformance.py
+--behaviour`, which is opt-in (ADR 0087); `check-scenarios.py` runs no
+Player.
 
 `UC-01.yaml` (linear, Annex A) and `UC-03.yaml` (non-linear, with a variant,
 missing carriers and a disagreement, Annex C) are the worked examples. Copy

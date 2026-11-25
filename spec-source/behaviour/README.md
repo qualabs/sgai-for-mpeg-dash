@@ -61,5 +61,6 @@ or an entry in `index.yaml` with its `NOT_VERIFIABLE` reason, never both.
 `check-behaviour.py` exits 1 while criteria are uncovered; the findings that
 name your test must be none, and a stale hash (exit 2) means re-reading the
 criterion before copying its new hash. Run `python3 bin/test_check_behaviour.py`
-if you touch the check. No Player runs a test here: every one is
-`NOT_VERIFIABLE — no executor` until the behaviour executor exists.
+if you touch the check. The check runs no Player: the tests run on the
+reference Player with `bin/check-dash-conformance.py --behaviour --only
+R<n>.<m>`, opt-in (ADR 0087).

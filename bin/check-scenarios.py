@@ -66,13 +66,13 @@ answers without a document, and an `extra_query_pattern` that is not a
 regular expression. The schema and every check but S-COVER and
 S-HASH are shared with the behaviour tests (bin/check-behaviour.py).
 
-Then, for every vector and class: `NOT_VERIFIABLE — no executor`. No Player
-runs a vector yet (the executor is the reference Player of the next phase,
-on the Player harness of bin/players/). A green run says the vectors are
-well formed, cover every UC x class, rest on green fixtures and were
+Then, for every vector and class: `NOT_VERIFIABLE — no executor`. This
+check runs no Player: the reference Player executes the vectors, opt-in,
+with `check-dash-conformance.py --behaviour`. A green run says the vectors
+are well formed, cover every UC x class, rest on green fixtures and were
 written against the UCs as they are now. It does NOT say that any Player
 behaves as a vector says, nor that a vector reads its UC correctly: that is
-for a person, and for the executor once it exists.
+for a person, and for `--behaviour`.
 
 Exit codes:
   0   nothing found

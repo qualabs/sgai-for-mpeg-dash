@@ -22,11 +22,12 @@ projects/sgai-for-mpeg-dash/
 ├── context/              inputs — technical specification of the target spec
 ├── prompts/              build scripts — .prompt files run by an LLM agent
 ├── context-analysis/     pre-spec artefacts — derived from context/ and consumed by the spec build
-├── spec-source/          the source of the spec — prose, schema, examples, use-case vectors
+├── spec-source/          the source of the spec — prose, schema, examples, use-case vectors, behaviour tests
 ├── dist/                 the published spec and its analyses — what the project stands behind
 ├── output/               candidate specs, one per build iteration (vN-sgai-spec.md), assembled from spec-source/
 ├── output-analysis/      per-candidate analyses and records (validation, detail-review, conformance tests, audit, patches) + ad-hoc research / errata (vN- prefix)
 ├── bin/                  the checks and tools the build runs — code, not prompts
+├── reference-player/     the reference Player — a module on pinned dash.js 5.3.0, edge vectors, demo
 ├── .github-ai/           GitHub-feedback pipelines (Stages 5 & 6) — issues/ + prs/ prompts + output-issues/ + output-prs/ scratch (gitignored)
 ├── proposal-drafts/      historical drafts kept for reference
 └── .project/             governance — PROJECT.md, LOG.md, phases/, decisions/
@@ -143,6 +144,23 @@ requirements in `context/03`, is decided by code, not by an LLM:
 `--dashif` the DASH-IF conformance tool as a second auditor. What each
 needs installed is in `SETUP.md`. Every script in `bin/` says in its
 `--help` what its green covers and what it does not.
+
+### The reference Player
+
+`reference-player/` is a reference Player for the spec: a module on the
+unmodified pinned dash.js 5.3.0 that executes the linear and non-linear
+model. It is checked against the behaviour tests of
+`spec-source/behaviour/` (one or more per criterion of `context/03` that
+needs a Player) and the UC vectors of `spec-source/scenarios/`. The
+battery is opt-in — no build step runs it — and plays every test in
+Chromium, so it is slow:
+
+    python3 bin/check-dash-conformance.py --behaviour                # the whole battery, summary on stdout
+    python3 reference-player/test/edges/run-edges.py                 # the linear model's edge vectors
+    python3 reference-player/demo/demo.py                            # one recorded session: linear, overlay, pause
+
+What they need installed is in `SETUP.md`; options are in each `--help`
+and in `reference-player/demo/README.md`.
 
 ## How to regenerate artefacts
 
