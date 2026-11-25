@@ -1,0 +1,7 @@
+M1 bound 1001: KILLED 1 ['test_past_the_bound_runs_on_wall']
+M2 never hold: KILLED 4 ['test_exactly_the_bound_is_held', 'test_past_the_bound_runs_on_wall', 'test_two_transitions_each_have_their_bound', 'test_viewer_pause_in_a_transition_is_wall']
+M3 one budget for all transitions: KILLED 2 ['test_two_transitions_each_have_their_bound', 'test_viewer_pause_in_a_transition_is_wall']
+M4 hold through a viewer pause: KILLED 1 ['test_viewer_pause_in_a_transition_is_wall']
+M5 absent surfaces is a transition: KILLED 2 ['test_image_takeover_is_wall', 'test_no_videos']
+M6 no bound: KILLED 1 ['test_past_the_bound_runs_on_wall']
+M7 longest_hold takes the first hold instead of the longest: KILLED (test_the_longest_hold_is_a_note: 300 ms != 1450 ms)

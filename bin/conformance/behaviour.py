@@ -32,7 +32,9 @@ page that plays slower than real time is judged on what it presented, not on
 how late. `--clock wall` keeps the earlier clock (wall time since the first
 frame), to compare the two; `--cpu-throttle N` slows every page's main thread
 N times (CDP), the check that the presentation clock does not judge the
-machine.
+machine. The clock holds through a transition with nothing on screen, up to
+a bound; the full log notes each job's longest such hold (a note, not a
+verdict).
 
 A vector's fixture is read from the source directory, or, when it is not
 there, relative to the vector's own file: a vector kept outside
@@ -590,8 +592,24 @@ def judge(report, path, v, fx, variant, cls, actions, outcome, r) -> None:
         errs = [e for e in log if e["type"].endswith(":error") or e["type"] == "profile:problem"]
         if errs:
             notes.append(f"module log: {errs[:3]}")
+        hold = longest_hold(r.get("observation"))
+        if hold:
+            notes.append(hold)
         if notes:
             report.notes.append(f"{subject}: " + "; ".join(notes))
+
+
+def longest_hold(observation: dict | None) -> str | None:
+    """The longest transition the session clock held (sgai-clock.js case 4:
+    nothing on screen between one presentation and the next), as a note for
+    the full log, or None when there was none. A note, never a verdict: the
+    bound already turns a long blank into lateness on the clock."""
+    holds = ((observation or {}).get("clock") or {}).get("holds") or []
+    if not holds:
+        return None
+    wall, st, held, length = max(holds, key=lambda h: (h[3], h[2]))
+    return (f"longest transition hold: {round(length)} ms with nothing on screen at session {round(st)} ms, "
+            f"{round(held)} ms held ({len(holds)} transition(s))")
 
 
 def replay(raw: dict, report: Report) -> None:

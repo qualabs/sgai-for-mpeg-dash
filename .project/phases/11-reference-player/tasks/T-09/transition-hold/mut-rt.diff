@@ -1,0 +1,3 @@
+diff --color -r mut-rt/sgai-linear.js /home/nicolas/Develop/ai_workspace/cto-assistant/projects/sgai-for-mpeg-dash/reference-player/src/sgai-linear.js
+668d667
+<       RT += 1; // MUTATION: resume 1 s past RT

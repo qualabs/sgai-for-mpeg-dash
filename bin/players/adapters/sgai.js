@@ -23,7 +23,8 @@
 // starts at that first frame and advances with what is presented: the
 // primary's media time while it plays, a linear ad's while it has taken over
 // the screen, wall time while the viewer has paused and for image or HTML
-// takeovers. It is ticked at every sample from the <video> elements of the
+// takeovers, and not at all (up to a bound) in a transition with nothing on
+// screen; `clock.holds` lists those transitions. It is ticked at every sample from the <video> elements of the
 // viewport, never from the module; `sessionNow()` is what the runner schedules
 // the viewer's actions on and ends the observation by, and `clock.points`
 // ([ms since load(), session ms, what drove it]) is how the comparison maps
@@ -141,7 +142,9 @@
     return e;
   }
 
-  // The <video> elements of the viewport as the session clock reads them.
+  // The <video> elements of the viewport as the session clock reads them, and
+  // how many `primary` or `ad` surfaces of any kind are shown (none: a
+  // transition, sgai-clock.js case 4).
   function clockState(box) {
     const videos = [];
     for (const el of container.querySelectorAll('video')) {
@@ -150,7 +153,11 @@
       videos.push({ id: serial(el), role, shown: !!shownRect(el, box), paused: el.paused,
         time: el.currentTime, rate: el.playbackRate, seeks: el === primary ? seeks : 0 });
     }
-    return { viewerPaused, videos };
+    let surfaces = 0;
+    for (const el of container.querySelectorAll('[data-sgai-element="primary"], [data-sgai-element="ad"]')) {
+      if (shownRect(el, box)) surfaces += 1;
+    }
+    return { viewerPaused, videos, surfaces };
   }
 
   function tick(box) {
@@ -371,7 +378,7 @@
       sample('end');
       if (timer) clearInterval(timer);
       timer = null;
-      const clk = clock ? { mode: clock.mode, points: clock.points } : null;
+      const clk = clock ? { mode: clock.mode, points: clock.points, holds: clock.holds } : null;
       return { t0, firstFrame, viewport: VIEWPORT, mode: cfg.mode, klass: cfg.klass, samples, destinations, moduleLog,
         clock: clk };
     },

@@ -13,8 +13,20 @@
 //      an `ad` <video> is shown and not paused; the first such one);
 //   3. else the media time the primary <video> advanced, divided by its rate,
 //      while it is shown and not paused;
-//   4. else the wall time that passed: an image or HTML takeover, the primary
-//      held paused by the Player, nothing on screen.
+//   4. else, while nothing is on screen in place of the content (no `primary`
+//      and no `ad` surface shown: one presentation has ended and the next
+//      has not shown its first frame), nothing, for at most HOLD_MS of wall
+//      time per such transition, and the wall time that passed beyond it: the
+//      Player's switching latency is not presented time, as start-up is not,
+//      and a Player that shows nothing for longer still runs late;
+//   5. else the wall time that passed: an image or HTML takeover, the primary
+//      held paused by the Player.
+//
+// A transition is a run of consecutive ticks in case 4; a viewer pause, or
+// anything shown, ends it, and the next one has a bound of its own. Each one
+// is kept in `holds` as [wall ms at its start, session ms at its start, ms
+// held, ms long]. A state that does not say whether a surface is shown
+// (`surfaces` absent) is never a transition.
 //
 // A media advance that is negative, or larger than the wall time that passed
 // would allow (a seek, a reload), advances the clock by nothing: a jump is not
@@ -33,10 +45,13 @@
   const JUMP_SLACK_MS = 200;   // a media advance this much above the wall time is a jump
   const JUMP_FACTOR = 1.5;
   const SETTLE_MS = 100;       // after a change of driver, media counts at most wall time
+  const HOLD_MS = 1000;        // a transition with nothing on screen holds the clock this long at most
 
   // Which source drives the clock now. `state`: { viewerPaused, videos: [{ id,
-  // role: 'primary' | 'ad', shown, paused, time (s), rate }] }. Returns
-  // { kind: 'wall', why } or { kind: 'media', id, why }.
+  // role: 'primary' | 'ad', shown, paused, time (s), rate }], surfaces }:
+  // `surfaces`, how many `primary` or `ad` surfaces of any kind are shown.
+  // Returns { kind: 'wall', why }, { kind: 'hold', why } or
+  // { kind: 'media', id, why }.
   function driverOf(state) {
     if (state.viewerPaused) return { kind: 'wall', why: 'viewer-paused' };
     const videos = state.videos || [];
@@ -46,6 +61,7 @@
       if (ad) return { kind: 'media', id: ad.id, why: 'linear-ad' };
     }
     if (primary && primary.shown && !primary.paused) return { kind: 'media', id: primary.id, why: 'primary' };
+    if (state.surfaces === 0) return { kind: 'hold', why: 'transition' };
     return { kind: 'wall', why: 'no-playing-video' };
   }
 
@@ -59,6 +75,8 @@
       this.points = [];       // [wall ms, session ms, why] at each tick
       this.why = null;
       this.switchedAt = null; // wall ms of the last change of driver after start()
+      this.holds = [];        // [wall ms, session ms, ms held, ms long] per transition
+      this.hold = null;       // the transition under way, or null
     }
 
     // Starts the clock at the first frame (`wall`), with the videos as they
@@ -84,6 +102,17 @@
         const d = driverOf(state);
         why = d.why;
         if (d.why !== (this.why || '').split(':')[0]) this.switchedAt = wall;
+        if (d.kind === 'hold' && (this.hold || dt > 0)) {
+          if (!this.hold) {
+            this.hold = [this.last, Math.round(this.session * 10) / 10, 0, 0];
+            this.holds.push(this.hold);
+          }
+          const held = Math.min(dt, HOLD_MS - this.hold[2]);
+          this.hold[2] += held;
+          this.hold[3] += dt;
+          step = dt - held;
+          if (step > 0) why += ':over';
+        } else if (d.kind !== 'hold') this.hold = null;
         if (d.kind === 'media') {
           const v = state.videos.find((x) => x.id === d.id);
           const prev = this.times.get(d.id);
@@ -111,6 +140,6 @@
     }
   }
 
-  const api = { SessionClock, driverOf };
+  const api = { SessionClock, driverOf, HOLD_MS };
   global.SGAI_CLOCK = api;
 })(typeof window !== 'undefined' ? window : globalThis);

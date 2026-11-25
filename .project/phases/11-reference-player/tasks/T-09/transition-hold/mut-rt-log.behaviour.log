@@ -1,0 +1,21 @@
+PASS            UC-02 D1                     requests      2 request(s) as expected
+PASS            UC-02 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D1                     presentation  presentation[2] primary from expected 630000, observed 631001 [startup 1308; observed: 0..29995 none [primary] from 570018; 29995..59971 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59971..70000 none [primary] from 631001]
+PASS            UC-02 D1                     beacons       5 beacon(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D1 [trick-play-2x]     presentation  presentation[2] primary from expected 630000, observed 631004 [startup 1193; observed: 0..15054 none [primary] from 570012; 15054..30032 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30032..70000 none [primary] from 631004]
+PASS            UC-02 D1 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            R40.4-1 D1                   requests      3 request(s) as expected
+PASS            R40.4-1 D1                   selection     2 opportunit(y/ies) as expected
+FAIL            R40.4-1 D1                   presentation  presentation[3] primary from expected 6000, observed 7011; presentation[4] primary from expected 10000, observed 11019; presentation[5] primary from expected 18000, observed 19019 [startup 1667; observed: 0..2073 none [primary] from 15; 2073..6015 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1] from 2088; 6015..12043 linear [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]; 12043..16051 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1] from 7011; 16051..24051 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#2 option #1] from 11019; 24051..26000 none [primary] from 19019]
+PASS            R40.4-1 D1                   beacons       7 beacon(s) as expected
+PASS            R40.4-2 D1                   requests      3 request(s) as expected
+PASS            R40.4-2 D1                   selection     2 opportunit(y/ies) as expected
+FAIL            R40.4-2 D1                   presentation  presentation[3] primary from expected 10000, observed 11001 [startup 2505; observed: 0..2000 none [primary] from 14; 2000..4000 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay-r.xml:#1 option #1] from 2014; 4000..9970 linear [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]; 9970..12000 none [primary] from 11001]
+PASS            R40.4-2 D1                   beacons       3 beacon(s) as expected
+note: UC-02 D1: longest transition hold: 147 ms with nothing on screen at session 59970 ms, 147 ms held (1 transition(s))
+note: UC-02 D1 [trick-play-2x]: longest transition hold: 127 ms with nothing on screen at session 30030 ms, 127 ms held (1 transition(s))
+note: R40.4-1 D1: longest transition hold: 16 ms with nothing on screen at session 11983 ms, 16 ms held (1 transition(s))
+note: R40.4-2 D1: longest transition hold: 113 ms with nothing on screen at session 9969 ms, 113 ms held (1 transition(s))
+exit 1: PASS 12  FAIL 4  NOT_VERIFIABLE 0; wall 116.0 s; content 0.0 s (0 ffmpeg runs, 3 cuts from the cache), players 115.1 s

@@ -1,0 +1,20 @@
+diff --color -r mut-blank/sgai-linear.js /home/nicolas/Develop/ai_workspace/cto-assistant/projects/sgai-for-mpeg-dash/reference-player/src/sgai-linear.js
+663c663
+<       this.main.style.visibility = 'hidden';
+---
+>       this.main.style.visibility = 'visible';
+666,671c666,672
+<       // MUTATION: 2500 ms with nothing on screen before the primary resumes
+<       setTimeout(() => {
+<         this.main.style.visibility = 'visible';
+<         if (Math.abs(this.main.currentTime - RT) > 0.001) this.player.seekToPresentationTime(RT);
+<         this.main.play();
+<       }, 2500);
+---
+>       // Insertion: RT = PRTA, where the primary stands; replacement: a seek,
+>       // which dash.js clips to the time-shift buffer of a dynamic MPD.
+>       if (Math.abs(this.main.currentTime - RT) > 0.001) this.player.seekToPresentationTime(RT);
+>       // The queue is not reset here (A.14.5; §5.16.2.2.5 1a read literally
+>       // would put an insertion back, since RT = PRTA lies in its active
+>       // interval — the T-01 finding).
+>       this.main.play();

@@ -54,6 +54,11 @@ T0 = 1_700_000_000_000
 def run_clock(mode: str, ticks: list) -> list:
     """Feeds `ticks` ([wall ms, state]) to a SessionClock started at the
     first; returns the session time after each."""
+    return run_clock_holds(mode, ticks)[0]
+
+
+def run_clock_holds(mode: str, ticks: list) -> tuple:
+    """run_clock, and the clock's `holds` at the end."""
     # run as the page runs it: a classic script that sets SGAI_CLOCK on the global
     script = (f"require('vm').runInThisContext(require('fs').readFileSync({json.dumps(str(CLOCK_JS))}, 'utf8'));"
               "const C = globalThis.SGAI_CLOCK;"
@@ -62,12 +67,13 @@ def run_clock(mode: str, ticks: list) -> list:
               "c.start(inp.ticks[0][0], inp.ticks[0][1]);"
               "const out = [0];"
               "for (const [w, s] of inp.ticks.slice(1)) out.push(c.tick(w, s));"
-              "process.stdout.write(JSON.stringify(out));")
+              "process.stdout.write(JSON.stringify({out, holds: c.holds}));")
     p = subprocess.run(["node", "-e", script], input=json.dumps({"mode": mode, "ticks": ticks}),
                        capture_output=True, text=True, timeout=30)
     if p.returncode != 0:
         raise AssertionError(p.stderr)
-    return [round(x, 6) for x in json.loads(p.stdout)]
+    res = json.loads(p.stdout)
+    return [round(x, 6) for x in res["out"]], res["holds"]
 
 
 def vid(role, t, shown=True, paused=False, rate=1, id_=None, seeks=0):
@@ -168,6 +174,87 @@ class Clock(unittest.TestCase):
 
     def test_no_videos(self):
         self.assertEqual(run_clock("presentation", [[0, {}], [250, {}]]), [0, 250])
+
+
+# a linear ad (id 2) ends, the primary (id 1) is sought to RT = 20 s and shows
+# its first frame later; `surfaces` counts what is shown in place of the content
+def ad_on(t, nxt=None):
+    vs = [vid("primary", 20, shown=False, seeks=1), vid("ad", t)]
+    return {"videos": vs + ([vid("ad", 0, shown=False, id_=3)] if nxt else []), "surfaces": 1}
+
+
+def blank(paused=False, nxt=False):
+    vs = [vid("primary", 20, shown=False, seeks=1), vid("ad", 1.0, shown=False, paused=True)]
+    return {"viewerPaused": paused, "videos": vs + ([vid("ad", 0, shown=False, id_=3)] if nxt else []),
+            "surfaces": 0}
+
+
+def primary_on(t):
+    return {"videos": [vid("primary", t, seeks=1)], "surfaces": 1}
+
+
+@unittest.skipUnless(shutil.which("node"), "node is not installed")
+class TransitionHold(unittest.TestCase):
+    def test_no_gap_holds_nothing(self):
+        out, holds = run_clock_holds("presentation", [[0, ad_on(0)], [1000, ad_on(1.0)], [1100, primary_on(20.1)],
+                                                      [1200, primary_on(20.2)]])
+        self.assertEqual((out, holds), ([0, 1000, 1100, 1200], []))
+
+    def test_exactly_the_bound_is_held(self):
+        out, holds = run_clock_holds("presentation", [[0, ad_on(0)], [1000, ad_on(1.0)], [1500, blank()],
+                                                      [2000, blank()], [2100, primary_on(20.1)],
+                                                      [2200, primary_on(20.2)]])
+        self.assertEqual(out, [0, 1000, 1000, 1000, 1100, 1200])
+        self.assertEqual(holds, [[1000, 1000, 1000, 1000]])
+
+    def test_past_the_bound_runs_on_wall(self):
+        out, holds = run_clock_holds("presentation", [[0, ad_on(0)], [1000, ad_on(1.0)], [1500, blank()],
+                                                      [2001, blank()], [2101, primary_on(20.1)]])
+        self.assertEqual(out, [0, 1000, 1000, 1001, 1101])
+        self.assertEqual(holds, [[1000, 1000, 1000, 1001]])
+        # a long blank: everything past 1000 ms is late on the clock
+        out, _ = run_clock_holds("presentation", [[0, ad_on(0)], [1000, ad_on(1.0)], [3500, blank()],
+                                                  [3600, primary_on(20.1)]])
+        self.assertEqual(out, [0, 1000, 2500, 2600])
+
+    def test_two_transitions_each_have_their_bound(self):
+        ticks = [[0, ad_on(0, nxt=True)], [1000, ad_on(1.0, nxt=True)], [1800, blank(nxt=True)],
+                 [1900, {"videos": [vid("primary", 20, shown=False, seeks=1), vid("ad", 0.1, id_=3)],
+                         "surfaces": 1}],
+                 [2800, {"videos": [vid("primary", 20, shown=False, seeks=1), vid("ad", 1.0, id_=3)],
+                         "surfaces": 1}],
+                 [3600, {"videos": [vid("primary", 20, shown=False, seeks=1),
+                                    vid("ad", 1.0, shown=False, paused=True, id_=3)], "surfaces": 0}],
+                 [3700, primary_on(20.1)]]
+        out, holds = run_clock_holds("presentation", ticks)
+        self.assertEqual(out, [0, 1000, 1000, 1100, 2000, 2000, 2100])
+        self.assertEqual(holds, [[1000, 1000, 800, 800], [2800, 2000, 800, 800]])
+
+    def test_viewer_pause_in_a_transition_is_wall(self):
+        ticks = [[0, ad_on(0)], [1000, ad_on(1.0)], [1400, blank()], [2400, blank(paused=True)],
+                 [3000, blank()], [3100, primary_on(20.1)]]
+        out, holds = run_clock_holds("presentation", ticks)
+        self.assertEqual(out, [0, 1000, 1000, 2000, 2000, 2100])
+        self.assertEqual(holds, [[1000, 1000, 400, 400], [2400, 2000, 600, 600]])
+
+    def test_something_shown_is_not_a_transition(self):
+        # an image takeover (a surface, no video) and the content held by the Player
+        img = {"videos": [vid("primary", 5, shown=False)], "surfaces": 1}
+        held = {"videos": [vid("primary", 5, paused=True)], "surfaces": 1}
+        for st in (img, held):
+            self.assertEqual(run_clock_holds("presentation", [[0, st], [700, st]]), ([0, 700], []))
+
+    def test_the_longest_hold_is_a_note(self):
+        obs = {"clock": {"holds": [[1000, 900, 300, 300], [5000, 4800, 1000, 1450], [9000, 8700, 50, 50]]}}
+        self.assertEqual(behaviour.longest_hold(obs),
+                         "longest transition hold: 1450 ms with nothing on screen at session 4800 ms, "
+                         "1000 ms held (3 transition(s))")
+        for none in (None, {}, {"clock": None}, {"clock": {"holds": []}}):
+            self.assertIsNone(behaviour.longest_hold(none))
+
+    def test_wall_mode_never_holds(self):
+        out, holds = run_clock_holds("wall", [[0, ad_on(0)], [1000, ad_on(1.0)], [1500, blank()], [2000, blank()]])
+        self.assertEqual((out, holds), ([0, 1000, 1500, 2000], []))
 
 
 # --------------------------------------------------------------------------- the mapping

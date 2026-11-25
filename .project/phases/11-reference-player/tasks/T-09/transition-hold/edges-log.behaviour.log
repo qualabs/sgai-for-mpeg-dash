@@ -1,0 +1,61 @@
+PASS            E1-execute-once-after-success D1 requests      1 request(s) as expected
+PASS            E1-execute-once-after-success D1 selection     1 opportunit(y/ies) as expected
+PASS            E1-execute-once-after-success D1 presentation  4 segment(s) as expected; startup 525 before the first frame
+PASS            E1-execute-once-after-success D1 beacons       2 beacon(s) as expected
+PASS            E2-insert-reexecuted-after-seek D1 requests      2 request(s) as expected
+PASS            E2-insert-reexecuted-after-seek D1 selection     2 opportunit(y/ies) as expected
+PASS            E2-insert-reexecuted-after-seek D1 presentation  6 segment(s) as expected; startup 503 before the first frame
+PASS            E2-insert-reexecuted-after-seek D1 beacons       2 beacon(s) as expected
+PASS            E3-replace-late-clip D1      requests      1 request(s) as expected
+PASS            E3-replace-late-clip D1      selection     1 opportunit(y/ies) as expected
+PASS            E3-replace-late-clip D1      presentation  2 segment(s) as expected; startup 477 before the first frame
+PASS            E3-replace-late-clip D1      beacons       2 beacon(s) as expected
+PASS            E4-replace-late-noclip D1    requests      1 request(s) as expected
+PASS            E4-replace-late-noclip D1    selection     1 opportunit(y/ies) as expected
+PASS            E4-replace-late-noclip D1    presentation  2 segment(s) as expected; startup 671 before the first frame
+PASS            E4-replace-late-noclip D1    beacons       3 beacon(s) as expected
+PASS            E5-replace-start-with-offset D1 requests      1 request(s) as expected
+PASS            E5-replace-start-with-offset D1 selection     1 opportunit(y/ies) as expected
+PASS            E5-replace-start-with-offset D1 presentation  2 segment(s) as expected; startup 329 before the first frame
+PASS            E5-replace-start-with-offset D1 beacons       2 beacon(s) as expected
+PASS            E6-replace-return-offset D1  requests      1 request(s) as expected
+PASS            E6-replace-return-offset D1  selection     1 opportunit(y/ies) as expected
+PASS            E6-replace-return-offset D1  presentation  3 segment(s) as expected; startup 185 before the first frame
+PASS            E6-replace-return-offset D1  beacons       2 beacon(s) as expected
+NOT_APPLICABLE  E7-replace-apda-zero D1      requests      requests not compared: A.14.5 resolves the event before it checks APDA; the base does not bind whether a zero APDA is found before the request
+PASS            E7-replace-apda-zero D1      selection     no opportunity, as expected
+PASS            E7-replace-apda-zero D1      presentation  1 segment(s) as expected; startup 151 before the first frame
+PASS            E7-replace-apda-zero D1      beacons       no beacon, as expected
+PASS            E8-list-linked-period-fails D1 requests      4 request(s) as expected
+PASS            E8-list-linked-period-fails D1 selection     1 opportunit(y/ies) as expected
+PASS            E8-list-linked-period-fails D1 presentation  4 segment(s) as expected; startup 120 before the first frame
+PASS            E8-list-linked-period-fails D1 beacons       2 beacon(s) as expected
+PASS            E9-insert-late-join D1       requests      1 request(s) as expected
+PASS            E9-insert-late-join D1       selection     1 opportunit(y/ies) as expected
+PASS            E9-insert-late-join D1       presentation  2 segment(s) as expected; startup 265 before the first frame
+PASS            E9-insert-late-join D1       beacons       2 beacon(s) as expected
+PASS            E10-join-after-eap D1        requests      no document request, as expected
+PASS            E10-join-after-eap D1        selection     no opportunity, as expected
+PASS            E10-join-after-eap D1        presentation  1 segment(s) as expected; startup 143 before the first frame
+PASS            E10-join-after-eap D1        beacons       no beacon, as expected
+PASS            E11-pause-during-linear-ad D1 requests      1 request(s) as expected
+PASS            E11-pause-during-linear-ad D1 selection     1 opportunit(y/ies) as expected
+PASS            E11-pause-during-linear-ad D1 presentation  3 segment(s) as expected; startup 200 before the first frame
+PASS            E11-pause-during-linear-ad D1 beacons       2 beacon(s) as expected
+PASS            E12-replace-end-callback-on-time D1 requests      1 request(s) as expected
+PASS            E12-replace-end-callback-on-time D1 selection     1 opportunit(y/ies) as expected
+PASS            E12-replace-end-callback-on-time D1 presentation  3 segment(s) as expected; startup 128 before the first frame
+PASS            E12-replace-end-callback-on-time D1 beacons       2 beacon(s) as expected
+PASS            E13-replace-late-join-no-end-callback D1 requests      1 request(s) as expected
+PASS            E13-replace-late-join-no-end-callback D1 selection     1 opportunit(y/ies) as expected
+PASS            E13-replace-late-join-no-end-callback D1 presentation  2 segment(s) as expected; startup 259 before the first frame
+PASS            E13-replace-late-join-no-end-callback D1 beacons       1 beacon(s) as expected
+note: E1-execute-once-after-success D1: longest transition hold: 58 ms with nothing on screen at session 9980 ms, 58 ms held (2 transition(s))
+note: E2-insert-reexecuted-after-seek D1: longest transition hold: 47 ms with nothing on screen at session 8012 ms, 47 ms held (1 transition(s))
+note: E3-replace-late-clip D1: longest transition hold: 58 ms with nothing on screen at session 3958 ms, 58 ms held (1 transition(s))
+note: E4-replace-late-noclip D1: longest transition hold: 35 ms with nothing on screen at session 5974 ms, 35 ms held (1 transition(s))
+note: E5-replace-start-with-offset D1: longest transition hold: 26 ms with nothing on screen at session 3969 ms, 26 ms held (1 transition(s))
+note: E6-replace-return-offset D1: longest transition hold: 27 ms with nothing on screen at session 5972 ms, 27 ms held (1 transition(s))
+note: E12-replace-end-callback-on-time D1: longest transition hold: 58 ms with nothing on screen at session 7962 ms, 58 ms held (1 transition(s))
+note: E13-replace-late-join-no-end-callback D1: longest transition hold: 32 ms with nothing on screen at session 3978 ms, 32 ms held (1 transition(s))
+exit 0: PASS 51  FAIL 0  NOT_VERIFIABLE 0; wall 72.1 s; content 0.0 s (0 ffmpeg runs, 3 cuts from the cache), players 71.2 s

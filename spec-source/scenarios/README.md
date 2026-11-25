@@ -52,8 +52,13 @@ outcome for a class the UC does not state is a finding.
   while it has taken over the screen. It advances with wall-clock time while
   the viewer has paused (a pause has no media time) and while what is shown
   has none (an image or HTML ad in place of the content, the content held
-  by the Player). A stall stands it still, and a seek's jump is not an
-  advance. So a Player on a slow machine is judged by what it presented and
+  by the Player). It stands still in a transition: while the viewer has
+  not paused and nothing is shown in place of the content (one presentation
+  has ended and the next has not shown its first frame), up to 1000 ms per
+  transition, and runs on wall-clock time past that bound, so the time a
+  Player takes to switch is not presented time, as its start-up is not, and
+  a Player that shows nothing for longer is still late. A stall stands it
+  still, and a seek's jump is not an advance. So a Player on a slow machine is judged by what it presented and
   when in that presentation, not by how late the machine ran; a Player that
   shows something at the wrong point of the presentation is still late on
   this clock. With nothing paused and everything at 1x it is wall-clock time.
