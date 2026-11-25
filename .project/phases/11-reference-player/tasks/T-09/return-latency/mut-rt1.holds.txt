@@ -1,0 +1,26 @@
+UC-02.yaml D1 None | longest hold None | n 0 | exec PRT 600 PRTA 600.018; started gap 94; ready@32860 RT 631 from 600.022 alt 0; term@63081 RT 631 ra True rs 4
+UC-02.yaml D2 None | longest hold None | n 0 | exec PRT 600 PRTA 600.009; started gap 5; ready@32399 RT 631 from 600.01 alt 0; term@62717 RT 631 ra True rs 4
+UC-02.yaml D3 None | longest hold None | n 0 | exec PRT 600 PRTA 600.007; started gap 6; ready@33683 RT 631 from 600.008 alt 0; term@65530 RT 631 ra True rs 4
+UC-02.yaml D4 None | longest hold None | n 0 | exec PRT 600 PRTA 600.007; started gap 6; ready@33675 RT 631 from 600.008 alt 0; term@65053 RT 631 ra True rs 4
+UC-02.yaml D5 None | longest hold None | n 0 | exec PRT 600 PRTA 600.003; started gap 6; ready@35496 RT 631 from 600.004 alt 0; term@66884 RT 631 ra True rs 4
+UC-02.yaml D1 trick-play-2x | longest hold None | n 0 | exec PRT 600 PRTA 600.006; started gap 6; ready@18725 RT 631 from 600.008 alt 0.02; term@35696 RT 631 ra True rs 4
+UC-02.yaml D2 trick-play-2x | longest hold None | n 0 | exec PRT 600 PRTA 600.001; started gap 6; ready@19674 RT 631 from 600.003 alt 0.02; term@36677 RT 631 ra True rs 4
+UC-02.yaml D3 trick-play-2x | longest hold None | n 0 | exec PRT 600 PRTA 600.014; started gap 4; ready@18965 RT 631 from 600.015 alt 0.02; term@35177 RT 631 ra True rs 4
+UC-02.yaml D4 trick-play-2x | longest hold None | n 0 | exec PRT 600 PRTA 600.032; started gap 5; ready@20077 RT 631 from 600.034 alt 0.01; term@38761 RT 631 ra True rs 4
+UC-02.yaml D5 trick-play-2x | longest hold None | n 0 | exec PRT 600 PRTA 600.005; started gap 79; ready@18883 RT 631 from 600.011 alt 0.02; term@36108 RT 631 ra True rs 4
+R40.4-1.yaml D1 None | longest hold None | n 0 | exec PRT 6 PRTA 6.01; started gap 76; ready@8679 RT 7.009993 from 6.017 alt 0.02; term@15597 RT 7.009993 ra True rs 4
+R40.4-1.yaml D4 None | longest hold None | n 0 | exec PRT 6 PRTA 6.009; started gap 6; ready@8138 RT 7.008518 from 6.009 alt 0.01; term@14165 RT 7.008518 ra True rs 4
+R40.4-2.yaml D1 None | longest hold None | n 0 | exec PRT 4 PRTA 4.005; started gap 65; ready@7135 RT 10.994772000000001 from 4.006 alt 0.02; term@14062 RT 10.994772000000001 ra True rs 4
+R40.4-2.yaml D4 None | longest hold None | n 0 | exec PRT 4 PRTA 4.001; started gap 6; ready@6001 RT 10.998958 from 4.002 alt 0.01; term@12644 RT 10.998958 ra True rs 4
+R40.9-1.yaml D1 None | longest hold None | n 0 | 
+R40.9-1.yaml D4 None | longest hold None | n 0 | 
+R40.9-2.yaml D1 None | longest hold None | n 0 | 
+R40.9-2.yaml D4 None | longest hold None | n 0 | 
+R40.9-3.yaml D1 None | longest hold None | n 0 | exec PRT 6 PRTA 6.008; started gap 1086; ready@9865 RT 7.008406 from 6.012 alt 0.02; term@17557 RT 7.008406 ra True rs 4
+R40.9-3.yaml D4 None | longest hold None | n 0 | exec PRT 6 PRTA 6.008; started gap 138; ready@9917 RT 7.007841 from 6.009 alt 0.01; term@16285 RT 7.007841 ra True rs 4
+R4.8.yaml D1 None | longest hold None | n 0 | exec PRT 2 PRTA 2.001; started gap 8; ready@2509 RT 3.000983 from 2.002 alt 0.01; term@10875 RT 3.000983 ra True rs 4
+UC-01.yaml D1 None | longest hold None | n 0 | exec PRT 0 PRTA 0; started gap 613; ready@1406 RT 1 from 0 alt 0.02; term@27727 RT 1 ra True rs 4
+UC-01.yaml D2 None | longest hold None | n 0 | exec PRT 0 PRTA 0; started gap 811; ready@1191 RT 1 from 0 alt 0.02; term@27070 RT 1 ra True rs 4
+UC-01.yaml D3 None | longest hold None | n 0 | exec PRT 0 PRTA 0; started gap 804; ready@1473 RT 1 from 0 alt 0.01; term@28214 RT 1 ra True rs 4
+UC-01.yaml D4 None | longest hold None | n 0 | exec PRT 0 PRTA 0; started gap 684; ready@1474 RT 1 from 0 alt 0.03; term@27348 RT 1 ra True rs 4
+UC-01.yaml D5 None | longest hold None | n 0 | exec PRT 0 PRTA 0; started gap 486; ready@923 RT 1 from 0 alt 0.01; term@26682 RT 1 ra True rs 4

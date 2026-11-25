@@ -1,0 +1,105 @@
+PASS            UC-02 D1                     requests      2 request(s) as expected
+PASS            UC-02 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D1                     presentation  presentation[2] primary from expected 630000, observed 631004 [startup 757; observed: 0..30032 none [primary] from 570046; 30032..59992 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59992..70000 none [primary] from 631004]
+PASS            UC-02 D1                     beacons       5 beacon(s) as expected
+PASS            UC-02 D2                     requests      2 request(s) as expected
+PASS            UC-02 D2                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D2                     presentation  presentation[2] primary from expected 630000, observed 631005 [startup 580; observed: 0..29976 none [primary] from 570036; 29976..59956 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59956..70000 none [primary] from 631005]
+PASS            UC-02 D2                     beacons       5 beacon(s) as expected
+PASS            UC-02 D3                     requests      2 request(s) as expected
+PASS            UC-02 D3                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D3                     presentation  presentation[2] primary from expected 630000, observed 631004 [startup 2411; observed: 0..29993 none [primary] from 570019; 29993..59969 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59969..70000 none [primary] from 631004]
+PASS            UC-02 D3                     beacons       5 beacon(s) as expected
+PASS            UC-02 D4                     requests      2 request(s) as expected
+PASS            UC-02 D4                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D4                     presentation  presentation[2] primary from expected 630000, observed 631004 [startup 2015; observed: 0..30002 none [primary] from 570010; 30002..59976 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59976..70000 none [primary] from 631004]
+PASS            UC-02 D4                     beacons       5 beacon(s) as expected
+PASS            UC-02 D5                     requests      2 request(s) as expected
+PASS            UC-02 D5                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D5                     presentation  presentation[2] primary from expected 630000, observed 631004 [startup 1889; observed: 0..29990 none [primary] from 570016; 29990..59974 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 59974..70000 none [primary] from 631004]
+PASS            UC-02 D5                     beacons       5 beacon(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D1 [trick-play-2x]     presentation  presentation[2] primary from expected 630000, observed 631008 [startup 1590; observed: 0..15044 none [primary] from 570016; 15044..30025 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30025..70000 none [primary] from 631008]
+PASS            UC-02 D1 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D2 [trick-play-2x]     presentation  presentation[2] primary from expected 630000, observed 631008 [startup 1260; observed: 0..14994 none [primary] from 570083; 14994..29973 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 29973..70000 none [primary] from 631008]
+PASS            UC-02 D2 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D3 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D3 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D3 [trick-play-2x]     presentation  presentation[2] primary from expected 630000, observed 631008 [startup 783; observed: 0..15027 none [primary] from 570021; 15027..30012 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30012..70000 none [primary] from 631008]
+PASS            UC-02 D3 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D4 [trick-play-2x]     presentation  presentation[2] primary from expected 630000, observed 631011 [startup 2098; observed: 0..15043 none [primary] from 570021; 15043..30012 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30012..70000 none [primary] from 631011]
+PASS            UC-02 D4 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D5 [trick-play-2x]     presentation  presentation[2] primary from expected 630000, observed 631008 [startup 985; observed: 0..15044 none [primary] from 570011; 15044..30004 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30004..70000 none [primary] from 631008]
+PASS            UC-02 D5 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            R40.4-1 D1                   requests      3 request(s) as expected
+PASS            R40.4-1 D1                   selection     2 opportunit(y/ies) as expected
+FAIL            R40.4-1 D1                   presentation  observed a change at 15058 from overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1] to overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#2 option #1], which the vector does not have; observed a change at 23058 from overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#2 option #1] to none [primary], which the vector does not have; presentation[4] expected a change at 16000 to overlay-lower-third [primary from 10000, ad behaviour/fixtures/R40.4/overlay.xml:#2 option #1]; none observed within 250 (on screen: overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#2 option #1] from 15058); presentation[5] expected a change at 24000 to none [primary from 18000]; none observed within 250 (on screen: none [primary] from 23058); presentation[3] primary from expected 6000, observed 7016; presentation[4] primary from expected 10000, observed 10962 (+1 more) [startup 573; observed: 0..2009 none [primary] from 6; 2009..6127 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1] from 2016; 6127..12055 linear [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]; 12055..15058 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1] from 7016; 15058..23058 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#2 option #1] from 10020; 23058..26000 none [primary] from 18020]
+FAIL            R40.4-1 D1                   beacons       beacons[4] https://t.example.com/r40-4/a-complete (@id 3) expected at 16000; observed at 15050; beacons[5] https://t.example.com/r40-4/b-imp (@id 1) expected at 16000; observed at 15051; beacons[6] https://t.example.com/r40-4/b-complete (@id 2) expected at 24000; observed at 23048; unexpected beacon https://t.example.com/r40-4/a-complete at 15050; unexpected beacon https://t.example.com/r40-4/b-imp at 15051; unexpected beacon https://t.example.com/r40-4/b-complete at 23048
+PASS            R40.4-1 D4                   requests      3 request(s) as expected
+PASS            R40.4-1 D4                   selection     2 opportunit(y/ies) as expected
+FAIL            R40.4-1 D4                   presentation  presentation[3] primary from expected 6000, observed 7021; presentation[4] primary from expected 10000, observed 11028; presentation[5] primary from expected 18000, observed 19041 [startup 409; observed: 0..2036 none [primary] from 20; 2036..6002 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1] from 2057; 6002..11982 linear [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]; 11982..15989 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#1 option #1] from 7021; 15989..24001 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay.xml:#2 option #1] from 11028; 24001..26000 none [primary] from 19041]
+PASS            R40.4-1 D4                   beacons       7 beacon(s) as expected
+PASS            R40.4-2 D1                   requests      3 request(s) as expected
+PASS            R40.4-2 D1                   selection     2 opportunit(y/ies) as expected
+FAIL            R40.4-2 D1                   presentation  presentation[3] primary from expected 10000, observed 10999 [startup 1210; observed: 0..1999 none [primary] from 15; 1999..4062 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay-r.xml:#1 option #1] from 2014; 4062..10019 linear [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]; 10019..12000 none [primary] from 10999]
+PASS            R40.4-2 D1                   beacons       3 beacon(s) as expected
+PASS            R40.4-2 D4                   requests      3 request(s) as expected
+PASS            R40.4-2 D4                   selection     2 opportunit(y/ies) as expected
+FAIL            R40.4-2 D4                   presentation  presentation[3] primary from expected 10000, observed 11003 [startup 1887; observed: 0..1998 none [primary] from 16; 1998..4004 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay-r.xml:#1 option #1] from 2014; 4004..9973 linear [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]; 9973..12000 none [primary] from 11003]
+PASS            R40.4-2 D4                   beacons       3 beacon(s) as expected
+PASS            R40.9-1 D1                   requests      2 request(s) as expected
+PASS            R40.9-1 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.9-1 D1                   presentation  7 segment(s) as expected; startup 626 before the first frame
+PASS            R40.9-1 D1                   beacons       2 beacon(s) as expected
+PASS            R40.9-1 D4                   requests      2 request(s) as expected
+PASS            R40.9-1 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.9-1 D4                   presentation  7 segment(s) as expected; startup 1011 before the first frame
+PASS            R40.9-1 D4                   beacons       2 beacon(s) as expected
+PASS            R40.9-2 D1                   requests      1 request(s) as expected
+PASS            R40.9-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R40.9-2 D1                   presentation  3 segment(s) as expected; startup 645 before the first frame
+PASS            R40.9-2 D1                   beacons       2 beacon(s) as expected
+PASS            R40.9-2 D4                   requests      1 request(s) as expected
+PASS            R40.9-2 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R40.9-2 D4                   presentation  3 segment(s) as expected; startup 460 before the first frame
+PASS            R40.9-2 D4                   beacons       2 beacon(s) as expected
+PASS            R40.9-3 D1                   requests      3 request(s) as expected
+PASS            R40.9-3 D1                   selection     1 opportunit(y/ies) as expected
+FAIL            R40.9-3 D1                   presentation  observed a change at 7306 from none [primary (paused)] to linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null], which the vector does not have; observed a change at 13261 from linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null] to none [primary], which the vector does not have; presentation[3] expected a change at 12000..13000 to none [primary from 6000..7000]; none observed within 250 (on screen: linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null] from 7306); presentation[2] 6001..7000..12000..13000 expected linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null]; observed none [primary (paused)] from 6066 to 7306; presentation[3] 12000..13000..14000 expected none [primary from 6000..7000]; observed linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null] from 7306 to 13261 [startup 480; observed: 0..6066 none [primary] from 17; 6066..7306 none [primary (paused)] from 6012; 7306..13261 linear [ad behaviour/fixtures/R40.9/list.mpd:ad-1 option null]; 13261..14000 none [primary] from 7012]
+FAIL            R40.9-3 D1                   beacons       beacons[0] https://t.example.com/r40-9/imp (@id 1) expected at 6000..7000; observed at 7340; beacons[1] https://t.example.com/r40-9/complete (@id 2) expected at 12000..13000; observed at 13261; unexpected beacon https://t.example.com/r40-9/imp at 7340; unexpected beacon https://t.example.com/r40-9/complete at 13261
+PASS            R40.9-3 D4                   requests      3 request(s) as expected
+PASS            R40.9-3 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R40.9-3 D4                   presentation  4 segment(s) as expected; startup 1689 before the first frame
+PASS            R40.9-3 D4                   beacons       2 beacon(s) as expected
+PASS            R4.8 D1                      requests      1 request(s) as expected
+PASS            R4.8 D1                      selection     1 opportunit(y/ies) as expected
+FAIL            R4.8 D1                      presentation  presentation[2] primary from expected 2000, observed 3005 [startup 380; observed: 0..2004 none [primary] from 15; 2004..9961 linear [ad behaviour/fixtures/R4.8/alt.mpd:alt option null]; 9961..12000 none [primary] from 3005]
+PASS            R4.8 D1                      beacons       2 beacon(s) as expected
+PASS            UC-01 D1                     requests      3 request(s) as expected
+PASS            UC-01 D1                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-01 D1                     presentation  presentation[2] primary from expected 0, observed 1006 [startup 1325; observed: 0..14974 linear [ad examples/annex-a/A.3-1.mpd:ad-101 option null]; 14974..24940 linear [ad examples/annex-a/A.3-1.mpd:ad-102 option null]; 24940..35000 none [primary] from 1006]
+PASS            UC-01 D1                     beacons       9 beacon(s) as expected
+PASS            UC-01 D2                     requests      3 request(s) as expected
+PASS            UC-01 D2                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-01 D2                     presentation  presentation[2] primary from expected 0, observed 1006 [startup 1112; observed: 0..14967 linear [ad examples/annex-a/A.3-1.mpd:ad-101 option null]; 14967..24941 linear [ad examples/annex-a/A.3-1.mpd:ad-102 option null]; 24941..35000 none [primary] from 1006]
+PASS            UC-01 D2                     beacons       9 beacon(s) as expected
+PASS            UC-01 D3                     requests      3 request(s) as expected
+PASS            UC-01 D3                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-01 D3                     presentation  presentation[2] primary from expected 0, observed 1004 [startup 1558; observed: 0..14931 linear [ad examples/annex-a/A.3-1.mpd:ad-101 option null]; 14931..24905 linear [ad examples/annex-a/A.3-1.mpd:ad-102 option null]; 24905..35000 none [primary] from 1004]
+PASS            UC-01 D3                     beacons       9 beacon(s) as expected
+PASS            UC-01 D4                     requests      3 request(s) as expected
+PASS            UC-01 D4                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-01 D4                     presentation  presentation[2] primary from expected 0, observed 1004 [startup 1486; observed: 0..14936 linear [ad examples/annex-a/A.3-1.mpd:ad-101 option null]; 14936..24902 linear [ad examples/annex-a/A.3-1.mpd:ad-102 option null]; 24902..35000 none [primary] from 1004]
+PASS            UC-01 D4                     beacons       9 beacon(s) as expected
+PASS            UC-01 D5                     requests      3 request(s) as expected
+PASS            UC-01 D5                     selection     1 opportunit(y/ies) as expected
+FAIL            UC-01 D5                     presentation  presentation[2] primary from expected 0, observed 1003 [startup 974; observed: 0..14987 linear [ad examples/annex-a/A.3-1.mpd:ad-101 option null]; 14987..24954 linear [ad examples/annex-a/A.3-1.mpd:ad-102 option null]; 24954..35000 none [primary] from 1003]
+PASS            UC-01 D5                     beacons       9 beacon(s) as expected
+exit 1: PASS 81  FAIL 23  NOT_VERIFIABLE 0; wall 624.0 s; content 0.0 s (0 ffmpeg runs, 10 cuts from the cache), players 622.6 s

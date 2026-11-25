@@ -1,0 +1,4 @@
+103 PASS, 1 FAIL
+FAIL UC-02 [trick-play-2x] D3 beacons | expected: beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000 | observed: observed at never | log: /run/user/1000/cto/return-latency-1795567912-12537/after1/behaviour.log:32
+exit 1; wall 657.9 s; full log: /run/user/1000/cto/return-latency-1795567912-12537/after1/behaviour.log
+exit 1

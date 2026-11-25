@@ -1,0 +1,121 @@
+PASS            UC-02 D1                     requests      2 request(s) as expected
+PASS            UC-02 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1                     presentation  3 segment(s) as expected; startup 1111 before the first frame
+PASS            UC-02 D1                     beacons       5 beacon(s) as expected
+PASS            UC-02 D2                     requests      2 request(s) as expected
+PASS            UC-02 D2                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D2                     presentation  3 segment(s) as expected; startup 984 before the first frame
+PASS            UC-02 D2                     beacons       5 beacon(s) as expected
+PASS            UC-02 D3                     requests      2 request(s) as expected
+PASS            UC-02 D3                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D3                     presentation  3 segment(s) as expected; startup 960 before the first frame
+PASS            UC-02 D3                     beacons       5 beacon(s) as expected
+PASS            UC-02 D4                     requests      2 request(s) as expected
+PASS            UC-02 D4                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D4                     presentation  3 segment(s) as expected; startup 980 before the first frame
+PASS            UC-02 D4                     beacons       5 beacon(s) as expected
+PASS            UC-02 D5                     requests      2 request(s) as expected
+PASS            UC-02 D5                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D5                     presentation  3 segment(s) as expected; startup 2295 before the first frame
+PASS            UC-02 D5                     beacons       5 beacon(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1 [trick-play-2x]     presentation  3 segment(s) as expected; startup 2602 before the first frame
+PASS            UC-02 D1 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D2 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D2 [trick-play-2x]     presentation  3 segment(s) as expected; startup 1696 before the first frame
+FAIL            UC-02 D2 [trick-play-2x]     beacons       beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 30000; observed at never
+PASS            UC-02 D3 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D3 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D3 [trick-play-2x]     presentation  3 segment(s) as expected; startup 901 before the first frame
+PASS            UC-02 D3 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D4 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D4 [trick-play-2x]     presentation  3 segment(s) as expected; startup 1808 before the first frame
+PASS            UC-02 D4 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D5 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+FAIL            UC-02 D5 [trick-play-2x]     presentation  observed a change at 30892 from none [nothing] to none [primary], which the vector does not have; presentation[2] 30000..70000 expected none [primary from 630000]; observed none [nothing] from 30076 to 30892 [startup 1075; observed: 0..15126 none [primary] from 570013; 15126..30076 linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; 30076..30892 none [nothing]; 30892..70000 none [primary] from 630004]
+PASS            UC-02 D5 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            R40.4-1 D1                   requests      3 request(s) as expected
+PASS            R40.4-1 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-1 D1                   presentation  6 segment(s) as expected; startup 2587 before the first frame
+PASS            R40.4-1 D1                   beacons       7 beacon(s) as expected
+PASS            R40.4-1 D4                   requests      3 request(s) as expected
+PASS            R40.4-1 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-1 D4                   presentation  6 segment(s) as expected; startup 2313 before the first frame
+PASS            R40.4-1 D4                   beacons       7 beacon(s) as expected
+PASS            R40.4-2 D1                   requests      3 request(s) as expected
+PASS            R40.4-2 D1                   selection     2 opportunit(y/ies) as expected
+FAIL            R40.4-2 D1                   presentation  observed a change at 10416 from none [nothing] to none [primary], which the vector does not have; presentation[3] 10000..12000 expected none [primary from 10000]; observed none [nothing] from 10085 to 10416 [startup 1104; observed: 0..2026 none [primary] from 5; 2026..4057 overlay-lower-third [primary, ad behaviour/fixtures/R40.4/overlay-r.xml:#1 option #1] from 2031; 4057..10085 linear [ad behaviour/fixtures/R40.4/list.mpd:ad-1 option null]; 10085..10416 none [nothing]; 10416..12000 none [primary] from 10009]
+PASS            R40.4-2 D1                   beacons       3 beacon(s) as expected
+PASS            R40.4-2 D4                   requests      3 request(s) as expected
+PASS            R40.4-2 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-2 D4                   presentation  4 segment(s) as expected; startup 1383 before the first frame
+PASS            R40.4-2 D4                   beacons       3 beacon(s) as expected
+PASS            R40.9-1 D1                   requests      2 request(s) as expected
+PASS            R40.9-1 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.9-1 D1                   presentation  7 segment(s) as expected; startup 994 before the first frame
+PASS            R40.9-1 D1                   beacons       2 beacon(s) as expected
+PASS            R40.9-1 D4                   requests      2 request(s) as expected
+PASS            R40.9-1 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.9-1 D4                   presentation  7 segment(s) as expected; startup 1407 before the first frame
+PASS            R40.9-1 D4                   beacons       2 beacon(s) as expected
+PASS            R40.9-2 D1                   requests      1 request(s) as expected
+PASS            R40.9-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R40.9-2 D1                   presentation  3 segment(s) as expected; startup 996 before the first frame
+PASS            R40.9-2 D1                   beacons       2 beacon(s) as expected
+PASS            R40.9-2 D4                   requests      1 request(s) as expected
+PASS            R40.9-2 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R40.9-2 D4                   presentation  3 segment(s) as expected; startup 1189 before the first frame
+PASS            R40.9-2 D4                   beacons       2 beacon(s) as expected
+PASS            R40.9-3 D1                   requests      3 request(s) as expected
+PASS            R40.9-3 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R40.9-3 D1                   presentation  4 segment(s) as expected; startup 1212 before the first frame
+PASS            R40.9-3 D1                   beacons       2 beacon(s) as expected
+PASS            R40.9-3 D4                   requests      3 request(s) as expected
+PASS            R40.9-3 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R40.9-3 D4                   presentation  4 segment(s) as expected; startup 1128 before the first frame
+PASS            R40.9-3 D4                   beacons       2 beacon(s) as expected
+PASS            R4.8 D1                      requests      1 request(s) as expected
+PASS            R4.8 D1                      selection     1 opportunit(y/ies) as expected
+PASS            R4.8 D1                      presentation  3 segment(s) as expected; startup 1258 before the first frame
+PASS            R4.8 D1                      beacons       2 beacon(s) as expected
+PASS            UC-01 D1                     requests      3 request(s) as expected
+PASS            UC-01 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D1                     presentation  3 segment(s) as expected; startup 1995 before the first frame
+PASS            UC-01 D1                     beacons       9 beacon(s) as expected
+PASS            UC-01 D2                     requests      3 request(s) as expected
+PASS            UC-01 D2                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D2                     presentation  3 segment(s) as expected; startup 1838 before the first frame
+PASS            UC-01 D2                     beacons       9 beacon(s) as expected
+PASS            UC-01 D3                     requests      3 request(s) as expected
+PASS            UC-01 D3                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D3                     presentation  3 segment(s) as expected; startup 2412 before the first frame
+PASS            UC-01 D3                     beacons       9 beacon(s) as expected
+PASS            UC-01 D4                     requests      3 request(s) as expected
+PASS            UC-01 D4                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D4                     presentation  3 segment(s) as expected; startup 3375 before the first frame
+PASS            UC-01 D4                     beacons       9 beacon(s) as expected
+PASS            UC-01 D5                     requests      3 request(s) as expected
+PASS            UC-01 D5                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D5                     presentation  3 segment(s) as expected; startup 3019 before the first frame
+PASS            UC-01 D5                     beacons       9 beacon(s) as expected
+note: UC-02 D1: longest transition hold: 342 ms with nothing on screen at session 59968 ms, 342 ms held (1 transition(s))
+note: UC-02 D2: longest transition hold: 221 ms with nothing on screen at session 60006 ms, 221 ms held (1 transition(s))
+note: UC-02 D3: longest transition hold: 554 ms with nothing on screen at session 59947 ms, 554 ms held (1 transition(s))
+note: UC-02 D4: longest transition hold: 482 ms with nothing on screen at session 59977 ms, 482 ms held (1 transition(s))
+note: UC-02 D5: longest transition hold: 372 ms with nothing on screen at session 60032 ms, 372 ms held (1 transition(s))
+note: UC-02 D1 [trick-play-2x]: longest transition hold: 999 ms with nothing on screen at session 30073 ms, 999 ms held (1 transition(s))
+note: UC-02 D2 [trick-play-2x]: longest transition hold: 352 ms with nothing on screen at session 29965 ms, 352 ms held (1 transition(s))
+note: UC-02 D3 [trick-play-2x]: longest transition hold: 980 ms with nothing on screen at session 29957 ms, 980 ms held (1 transition(s))
+note: UC-02 D4 [trick-play-2x]: longest transition hold: 282 ms with nothing on screen at session 30024 ms, 282 ms held (1 transition(s))
+note: UC-02 D5 [trick-play-2x]: longest transition hold: 1814 ms with nothing on screen at session 30076 ms, 1000 ms held (1 transition(s))
+note: R40.4-1 D4: longest transition hold: 75 ms with nothing on screen at session 11955 ms, 75 ms held (1 transition(s))
+note: R40.4-2 D1: longest transition hold: 1310 ms with nothing on screen at session 10085 ms, 1000 ms held (1 transition(s))
+note: R40.4-2 D4: longest transition hold: 294 ms with nothing on screen at session 10071 ms, 294 ms held (1 transition(s))
+note: R40.9-3 D1: longest transition hold: 189 ms with nothing on screen at session 12498 ms, 189 ms held (1 transition(s))
+note: R40.9-3 D4: longest transition hold: 322 ms with nothing on screen at session 12775 ms, 322 ms held (1 transition(s))
+note: R4.8 D1: longest transition hold: 215 ms with nothing on screen at session 10126 ms, 215 ms held (1 transition(s))
+exit 1: PASS 101  FAIL 3  NOT_VERIFIABLE 0; wall 840.0 s; content 0.1 s (0 ffmpeg runs, 10 cuts from the cache), players 838.2 s

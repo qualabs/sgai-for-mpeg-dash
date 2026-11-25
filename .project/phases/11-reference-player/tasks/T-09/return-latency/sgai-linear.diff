@@ -1,0 +1,76 @@
+diff --git a/reference-player/src/sgai-linear.js b/reference-player/src/sgai-linear.js
+index 868af99..3c5d43b 100644
+--- a/reference-player/src/sgai-linear.js
++++ b/reference-player/src/sgai-linear.js
+@@ -597,6 +597,7 @@
+       // A.14.5: terminate when PRTA + APDA ≤ the alternative's playhead.
+       const APDA = this.apda(alt);
+       if (pos - alt.ASO >= APDA - EPS) { this.terminate(alt, APDA); return; }
++      this.readyAhead(alt, APDA);
+       const part = alt.parts[alt.index];
+       if (part.state === 'ready' && part.video && (part.video.ended || part.video.currentTime >= part.duration - EPS)) {
+         part.state = 'done';
+@@ -639,14 +640,39 @@
+       }
+     }
+ 
++    // Table 57: RT, the time the primary resumes at.
++    returnTime(alt, APDA) {
++      const E = alt.E;
++      if (E.scheme === INSERT) return alt.PRTA;
++      if (E.returnOffset !== null) return E.PRT + E.returnOffset;
++      if (!E.clip) return alt.PRTA + APDA;
++      return E.PRT + APDA;
++    }
++
++    // While the alternative plays, the hidden, paused primary is moved to RT
++    // as soon as RT is known and inside what the primary can seek to (a
++    // dynamic MPD's window reaches it only as the live edge does), so that it
++    // has a decoded frame when the alternative ends: a seek made at the end
++    // leaves nothing on screen until the primary's first frame (0.6-2.0 s
++    // measured under load, T-09). RT follows APDA, so a change of APDA (a
++    // Linked Period that failed) moves the primary again. When and where the
++    // primary resumes is unchanged: this only does the seek earlier.
++    readyAhead(alt, APDA) {
++      const RT = this.returnTime(alt, APDA);
++      if (alt.readyAt !== undefined && Math.abs(alt.readyAt - RT) <= 0.001) return;
++      if (this.player.isDynamic && this.player.isDynamic()) {
++        const w = this.player.getDvrWindow && this.player.getDvrWindow();
++        if (!w || !(w.end >= RT)) return;
++      }
++      alt.readyAt = RT;
++      this.log('linear:ready-ahead', { key: alt.E.key, RT, from: this.main.currentTime, alt: this.altPosition(alt) });
++      if (Math.abs(this.main.currentTime - RT) > 0.001) this.player.seekToPresentationTime(RT);
++    }
++
+     // §5.16.2.2.5 1a: terminate, compute RT (Table 57), move the playhead to it.
+     terminate(alt, APDA) {
+       const E = alt.E;
+-      let RT;
+-      if (E.scheme === INSERT) RT = alt.PRTA;
+-      else if (E.returnOffset !== null) RT = E.PRT + E.returnOffset;
+-      else if (!E.clip) RT = alt.PRTA + APDA;
+-      else RT = E.PRT + APDA;
++      const RT = this.returnTime(alt, APDA);
+       // The callbacks up to where the alternative stops. A stop within EPS of
+       // the Part's end, or within the lag of an execution on time, counts as
+       // its end, as when it plays to it: otherwise @clip would take an ad's
+@@ -662,10 +688,14 @@
+       this.gated = false;
+       this.main.style.visibility = 'visible';
+       this.layoutChanged('none');
+-      this.log('linear:terminate', { key: E.key, APDA, RT, played: alt.parts.map((p) => [p.id, p.state]) });
+-      // Insertion: RT = PRTA, where the primary stands; replacement: a seek,
+-      // which dash.js clips to the time-shift buffer of a dynamic MPD.
+-      if (Math.abs(this.main.currentTime - RT) > 0.001) this.player.seekToPresentationTime(RT);
++      const ready = alt.readyAt !== undefined && Math.abs(alt.readyAt - RT) <= 0.001;
++      this.log('linear:terminate', { key: E.key, APDA, RT, readyAhead: ready, readyState: this.main.readyState,
++        played: alt.parts.map((p) => [p.id, p.state]) });
++      // The primary normally stands at RT already (readyAhead); otherwise the
++      // seek is made now: insertion RT = PRTA, where the primary stands;
++      // replacement a seek, which dash.js clips to the time-shift buffer of a
++      // dynamic MPD.
++      if (!ready && Math.abs(this.main.currentTime - RT) > 0.001) this.player.seekToPresentationTime(RT);
+       // The queue is not reset here (A.14.5; §5.16.2.2.5 1a read literally
+       // would put an insertion back, since RT = PRTA lies in its active
+       // interval — the T-01 finding).

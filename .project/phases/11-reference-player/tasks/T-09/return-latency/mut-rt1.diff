@@ -1,0 +1,4 @@
+644a645,647
+>       return this.returnTime0(alt, APDA) + 1; // MUTATION: resume at RT + 1 s
+>     }
+>     returnTime0(alt, APDA) {
