@@ -1,0 +1,31 @@
+bin/test_apply_spec_patch.py :: Ran 35 tests in 1.581s  OK 
+bin/test_assemble_spec.py :: Ran 15 tests in 3.927s  OK 
+bin/test_behaviour_compare.py :: Ran 142 tests in 0.203s  OK 
+bin/test_behaviour_harness.py :: Ran 69 tests in 3.024s  OK 
+bin/test_behaviour_opt_in.py :: Ran 11 tests in 4.616s  OK 
+bin/test_behaviour_summary.py :: Ran 12 tests in 0.001s  OK 
+bin/test_check_behaviour.py :: Ran 62 tests in 55.445s  OK 
+bin/test_check_context_interfaces.py :: Ran 19 tests in 1.115s  OK 
+bin/test_check_incremental.py :: Ran 15 tests in 0.075s  OK 
+bin/test_check_promotable_conformance.py :: Ran 5 tests in 0.560s  OK 
+bin/test_check_promotable_flags.py :: Ran 1 test in 0.000s  OK 
+bin/test_check_scenarios.py :: Ran 56 tests in 36.960s  OK 
+bin/test_check_trace.py :: Ran 38 tests in 0.633s  OK 
+bin/test_compare_candidates.py :: Ran 11 tests in 0.695s  OK 
+bin/test_conformance_core.py :: Ran 9 tests in 0.779s  OK 
+bin/test_conformance_dash.py :: Ran 6 tests in 0.336s  OK 
+bin/test_conformance_players.py ::   P-LEGACY-dashjs FAIL xml#39 (line 5189) broken: fatal error dashjs:28: http://127.0.0.1:38301/missing/video/v1080/init.mp4 is not available. 5.3.0 on chromium 149.0.7827.55: start never; advanced 0.0 s in 5029 ms wall; errors 1 (first dashjs:28: http://127.0.0.1:38301/missing/video/v1080/init.mp4 is not available); segment responses 3, local 4xx/5xx 4 (e.g. 404 /missing/video/v1080/init.mp4); requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0   P-LEGACY-shaka FAIL xml#39 (line 5189) broken: fatal error shaka:1001: http://127.0.0.1:38301/missing/video/v1080/init.mp4 404 not found [object Object] 1 http://127.0.0.1:38301/missing/video/v1080/init.mp4. v5.3.6 on chromium 149.0.7827.55: start never; advanced 0.0 s in 5549 ms wall; errors 1 (first shaka:1001: http://127.0.0.1:38301/missing/video/v1080/init.mp4 404 not found [object Object] 1 http://127.0.0.1:38301/missing/video); segment responses 2, local 4xx/5xx 4 (e.g. 404 /missing/video/v1080/init.mp4); requests to our namespace's URIs 0, to 6th-ed. alternative-MPD URIs 0, other external 0   P-INSERT-shaka PASS xml#39 (line 5189) broken: InsertPresentation at 900 s; ad-cue-points-changed cue starts seen [900]; insert-scheme timeline regions 1; ad events none 
+bin/test_conformance_source.py :: Ran 32 tests in 6.792s  OK 
+bin/test_conformance_spec.py :: Ran 59 tests in 2.029s  OK 
+bin/test_gen_syntax_tables.py :: Ran 37 tests in 4.296s  OK 
+bin/test_lint_spec.py :: Ran 32 tests in 1.641s  OK 
+bin/test_measure_run.py :: Ran 4 tests in 0.403s  OK 
+bin/test_name_candidates.py :: Ran 22 tests in 1.368s  OK 
+bin/test_promote.py :: Ran 6 tests in 0.034s  OK 
+bin/test_step_inputs.py :: Ran 7 tests in 0.066s  OK 
+bin/test_strip_legacy_annotations.py :: Ran 9 tests in 2.011s  OK 
+bin/test_validate.py :: Ran 34 tests in 8.672s  OK 
+bin/test_validation_summary.py :: Ran 13 tests in 0.621s  OK 
+bin/test_walk_batches.py :: Ran 9 tests in 0.008s  OK 
+wall 174 s
+note: bin/test_conformance_players.py prints player diagnostics after unittest's summary, so the tail above cut its result; re-run alone: exit 0, Ran 6 tests, OK

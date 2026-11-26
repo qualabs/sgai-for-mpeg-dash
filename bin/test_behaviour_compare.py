@@ -516,6 +516,47 @@ class Presentation(unittest.TestCase):
                                     30000, 250)
         self.assertEqual(len(segs), 1)
 
+    def test_seek_of_a_hidden_primary_is_not_a_change(self):
+        # Under a linear ad the primary is not on screen (not in `elements`);
+        # the reference moves it to RT ahead of the ad's end. That seek is no
+        # boundary: the ad segment runs on, and the next segment's `from` is
+        # the primary's time when it is shown again.
+        ad = {"element": "ad", "rect": FULL, "doc": "ad.mpd", "candidateId": "a", "time": 0}
+        p = lambda t, mt: {"t": t, "layout": "none", "elements": [  # noqa: E731
+            {"element": "primary", "rect": FULL, "time": mt, "paused": False, "rate": 1}]}
+        lin = lambda t, seek=None: dict({"t": t, "layout": "linear", "elements": [dict(ad)]},  # noqa: E731
+                                        **({"seek": seek} if seek else {}))
+        samples = [p(0, 0), lin(10000), lin(25000, {"from": 10000, "to": 40000}), p(40000, 40000)]
+        segs, _ = observed_segments(samples, 60000, 250)
+        self.assertEqual([(s.start, s.layout) for s in segs], [(0, "none"), (10000, "linear"), (40000, "none")])
+        self.assertEqual(segs[2].from_, 40000)
+        self.assertEqual([s.seek for s in segs], [False, False, True])
+        # the seek at the exact tolerance is no change either way; one past it,
+        # with the primary on screen, still splits
+        shown = [p(0, 0), dict(p(25000, 40000), seek={"from": 25000, "to": 40000})]
+        self.assertEqual(len(observed_segments(shown, 60000, 250)[0]), 2)
+        at_tol = [p(0, 0), dict(p(25000, 25250), seek={"from": 25000, "to": 25250})]
+        self.assertEqual(len(observed_segments(at_tol, 60000, 250)[0]), 1)
+        # a hidden seek as the last sample, and with no elements at all
+        segs, _ = observed_segments([p(0, 0), lin(10000), lin(25000, {"from": 10000, "to": 40000})], 30000, 250)
+        self.assertEqual(len(segs), 2)
+        empty = [p(0, 0), {"t": 10000, "layout": "none", "elements": []},
+                 {"t": 12000, "layout": "none", "elements": [], "seek": {"from": 10000, "to": 40000}},
+                 p(14000, 40000)]
+        self.assertEqual([s.start for s in observed_segments(empty, 30000, 250)[0]], [0, 10000, 14000])
+        # a viewer's seek that blanks the primary for less than the tolerance
+        # (R34.6 D1 as recorded: 'seeking' with nothing on screen at 12342,
+        # the primary back at 3000 at 12383) is held, and splits where the
+        # primary is shown again: the blank folds, the seek does not
+        blink = [p(0, 0), p(12339, 12022), {"t": 12342, "layout": "none", "elements": [],
+                                            "seek": {"from": 12022, "to": 3000}},
+                 {"t": 12356, "layout": "none", "elements": []}, p(12383, 3000), p(12902, 3477)]
+        segs, _ = observed_segments(blink, 21000, 250)
+        self.assertEqual([(s.start, s.from_, s.seek) for s in segs], [(0, 0, False), (12383, 3000, True)])
+        # the same blank with no seek folds into one segment
+        blank = [x for x in blink if "seek" not in x]
+        self.assertEqual(len(observed_segments(blank, 21000, 250)[0]), 1)
+
     def background_vector(self, with_candidate):
         """The overlay segment of the small vector with a `background` added,
         written as R12.5-1 writes it (no candidate) or as UC-09 does."""

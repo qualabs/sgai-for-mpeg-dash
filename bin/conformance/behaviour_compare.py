@@ -740,10 +740,15 @@ def observed_segments(samples: list, end: float, tol: float) -> tuple[list, floa
     anything was first shown, or None when nothing ever was). A segment ends
     when what is shown changes (layout, or a surface's identity), when the
     primary is paused or resumed, or when it is sought by more than the
-    tolerance. A segment shorter than the tolerance is a transition, folded
-    into its neighbours. The leading stretch with nothing shown is the
-    Player starting up: the first segment is taken to start at 0."""
+    tolerance. A seek of a primary that is not on screen (under a linear ad,
+    or blanked by the seek itself) splits nothing where it happens: it is held
+    and marks the sample where the primary is shown again, whose time is the
+    next segment's `from`. A segment shorter than the tolerance is a
+    transition, folded into its neighbours. The leading stretch with nothing
+    shown is the Player starting up: the first segment is taken to start at
+    0."""
     segs: list[Seg] = []
+    held = False
     for s in samples:
         if s["t"] > end:
             break
@@ -755,6 +760,11 @@ def observed_segments(samples: list, end: float, tol: float) -> tuple[list, floa
                                            for e in els)))
         paused = p.get("paused") if p else None
         seek = bool(s.get("seek")) and abs(s["seek"]["to"] - s["seek"]["from"]) > tol
+        if p is None:
+            # a hidden primary sought shows nothing yet: held until it is shown
+            held, seek = held or seek, False
+        else:
+            seek, held = seek or held, False
         if not segs or ident != segs[-1].ident or paused != segs[-1].paused or seek:
             if segs:
                 segs[-1].end = s["t"]

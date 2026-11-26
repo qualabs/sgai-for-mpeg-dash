@@ -1,0 +1,482 @@
+PASS            R40.3-2 D1                   requests      2 request(s) as expected
+PASS            R40.3-2 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R40.3-2 D1                   presentation  3 segment(s) as expected; startup 810 before the first frame
+PASS            R40.3-2 D1                   beacons       1 beacon(s) as expected
+PASS            R40.6 D1                     requests      2 request(s) as expected
+FAIL            R40.6 D1                     selection     ad presented for an opportunity the vector does not list: event 1 (urn:mpeg:dash:event:alternativeMPD:insert:2025) of behaviour/fixtures/R40.6/main.mpd (linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null])
+FAIL            R40.6 D1                     presentation  presentation[1] 2000..4000 expected none [nothing]; observed linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null] from 1997 to 4004; presentation[2] 4000..8000 expected overlay-lower-third [ad behaviour/fixtures/R40.6/overlay.xml:#1 option #1]; observed overlay-lower-third [ad behaviour/fixtures/R40.6/alt.mpd:main option null, ad behaviour/fixtures/R40.6/overlay.xml:#1 option #1] from 4004 to 7980; presentation[3] 8000..12000 expected none [nothing]; observed linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null] from 7980 to 11968 [startup 971; observed: 0..1997 none [primary] from 21; 1997..4004 linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null]; 4004..7980 overlay-lower-third [ad behaviour/fixtures/R40.6/alt.mpd:main option null, ad behaviour/fixtures/R40.6/overlay.xml:#1 option #1]; 7980..11968 linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null]; 11968..14000 none [primary] from 2004]
+PASS            R40.6 D1                     beacons       2 beacon(s) as expected
+PASS            R40.6 D4                     requests      2 request(s) as expected
+FAIL            R40.6 D4                     selection     ad presented for an opportunity the vector does not list: event 1 (urn:mpeg:dash:event:alternativeMPD:insert:2025) of behaviour/fixtures/R40.6/main.mpd (linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null])
+FAIL            R40.6 D4                     presentation  presentation[1] 2000..4000 expected none [nothing]; observed linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null] from 2035 to 4051; presentation[2] 4000..8000 expected overlay-lower-third [ad behaviour/fixtures/R40.6/overlay.xml:#1 option #1]; observed overlay-lower-third [ad behaviour/fixtures/R40.6/alt.mpd:main option null, ad behaviour/fixtures/R40.6/overlay.xml:#1 option #1] from 4051 to 8034; presentation[3] 8000..12000 expected none [nothing]; observed linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null] from 8034 to 12007 [startup 163; observed: 0..2035 none [primary] from 7; 2035..4051 linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null]; 4051..8034 overlay-lower-third [ad behaviour/fixtures/R40.6/alt.mpd:main option null, ad behaviour/fixtures/R40.6/overlay.xml:#1 option #1]; 8034..12007 linear [ad behaviour/fixtures/R40.6/alt.mpd:main option null]; 12007..14000 none [primary] from 2006]
+PASS            R40.6 D4                     beacons       2 beacon(s) as expected
+PASS            UC-01 D1                     requests      3 request(s) as expected
+PASS            UC-01 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-01 D1                     presentation  3 segment(s) as expected; startup 1209 before the first frame
+PASS            UC-01 D1                     beacons       9 beacon(s) as expected
+PASS            UC-02 D1                     requests      2 request(s) as expected
+PASS            UC-02 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1                     presentation  3 segment(s) as expected; startup 168 before the first frame
+PASS            UC-02 D1                     beacons       5 beacon(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     requests      2 request(s) as expected
+PASS            UC-02 D1 [trick-play-2x]     selection     1 opportunit(y/ies) as expected
+PASS            UC-02 D1 [trick-play-2x]     presentation  3 segment(s) as expected; startup 139 before the first frame
+PASS            UC-02 D1 [trick-play-2x]     beacons       5 beacon(s) as expected
+PASS            UC-03 D1                     requests      3 request(s) as expected
+PASS            UC-03 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-03 D1                     presentation  4 segment(s) as expected; startup 203 before the first frame
+NOT_VERIFIABLE  UC-03 D1                     audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-03 D1                     beacons       5 beacon(s) as expected
+PASS            UC-04 D1                     requests      4 request(s) as expected
+PASS            UC-04 D1                     selection     2 opportunit(y/ies) as expected
+PASS            UC-04 D1                     presentation  4 segment(s) as expected; startup 180 before the first frame
+PASS            UC-04 D1                     beacons       5 beacon(s) as expected
+PASS            UC-05 D1                     requests      3 request(s) as expected
+PASS            UC-05 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-05 D1                     presentation  5 segment(s) as expected; startup 527 before the first frame
+PASS            UC-05 D1                     beacons       4 beacon(s) as expected
+PASS            UC-05 D2                     requests      3 request(s) as expected
+PASS            UC-05 D2                     selection     1 opportunit(y/ies) as expected
+PASS            UC-05 D2                     presentation  4 segment(s) as expected; startup 169 before the first frame
+PASS            UC-05 D2                     beacons       3 beacon(s) as expected
+PASS            UC-05 D3                     requests      2 request(s) as expected
+PASS            UC-05 D3                     selection     1 opportunit(y/ies) as expected
+PASS            UC-05 D3                     presentation  5 segment(s) as expected; startup 176 before the first frame
+PASS            UC-05 D3                     beacons       4 beacon(s) as expected
+PASS            UC-05 D4                     requests      2 request(s) as expected
+PASS            UC-05 D4                     selection     1 opportunit(y/ies) as expected
+PASS            UC-05 D4                     presentation  5 segment(s) as expected; startup 203 before the first frame
+PASS            UC-05 D4                     beacons       4 beacon(s) as expected
+PASS            UC-05 D1 [resume-at-734]     requests      2 request(s) as expected
+PASS            UC-05 D1 [resume-at-734]     selection     1 opportunit(y/ies) as expected
+PASS            UC-05 D1 [resume-at-734]     presentation  3 segment(s) as expected; startup 321 before the first frame
+PASS            UC-05 D1 [resume-at-734]     beacons       2 beacon(s) as expected
+PASS            UC-06 D1                     requests      5 request(s) as expected
+PASS            UC-06 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-06 D1                     presentation  6 segment(s) as expected; startup 181 before the first frame
+PASS            UC-06 D1                     beacons       9 beacon(s) as expected
+FAIL            UC-07 legacy                 requests      requests[0] https://aps.example.com/linear/mid?show=8&b=1 at 10000..70000: not observed; requests[1] https://ads-cdn.example.com/cr/701/cr701.mpd at 10000..70000: not observed
+NOT_VERIFIABLE  UC-07 legacy                 selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+FAIL            UC-07 legacy                 presentation  presentation[1] expected a change at 70000 to linear [ad examples/annex-g/G.4-1.mpd:ad-701 option null]; none observed within 250 (on screen: none [primary] from 0); presentation[2] expected a change at 100000 to none [primary from 900000]; none observed within 250 (on screen: none [primary] from 0); presentation[1] 70000..100000 expected linear [ad examples/annex-g/G.4-1.mpd:ad-701 option null]; observed none [primary] from 0 to 110000; presentation[2] primary from expected 900000, observed 930001 [startup 159; observed: 0..110000 none [primary] from 830001]
+FAIL            UC-07 legacy                 beacons       beacons[0] https://t.example.com/imp?cr=701 (@id 1) expected at 70000; observed at never; beacons[1] https://t.example.com/complete?cr=701 (@id 2) expected at 100000; observed at never
+FAIL            UC-07 D1                     requests      unexpected request https://aps.example.com/nl/pause?show=8 at 0 (answered_by None); unexpected request https://aps.example.com/nl/overlay?show=8&w=1&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third at 9986 (answered_by None)
+NOT_VERIFIABLE  UC-07 D1                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-07 D1                     presentation  3 segment(s) as expected; startup 202 before the first frame
+PASS            UC-07 D1                     beacons       2 beacon(s) as expected
+FAIL            UC-07 D2                     requests      unexpected request https://aps.example.com/nl/pause?show=8 at 0 (answered_by None); unexpected request https://aps.example.com/nl/overlay?show=8&w=1&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third at 9996 (answered_by None)
+NOT_VERIFIABLE  UC-07 D2                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-07 D2                     presentation  3 segment(s) as expected; startup 201 before the first frame
+PASS            UC-07 D2                     beacons       2 beacon(s) as expected
+FAIL            UC-07 D3                     requests      unexpected request https://aps.example.com/nl/pause?show=8 at 0 (answered_by None); unexpected request https://aps.example.com/nl/overlay?show=8&w=1&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third at 9996 (answered_by None)
+NOT_VERIFIABLE  UC-07 D3                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-07 D3                     presentation  3 segment(s) as expected; startup 201 before the first frame
+PASS            UC-07 D3                     beacons       2 beacon(s) as expected
+FAIL            UC-07 D4                     requests      unexpected request https://aps.example.com/nl/pause?show=8 at 0 (answered_by None); unexpected request https://aps.example.com/nl/overlay?show=8&w=1&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third at 10458 (answered_by None)
+NOT_VERIFIABLE  UC-07 D4                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-07 D4                     presentation  3 segment(s) as expected; startup 203 before the first frame
+PASS            UC-07 D4                     beacons       2 beacon(s) as expected
+FAIL            UC-07 D5                     requests      unexpected request https://aps.example.com/nl/pause?show=8 at 0 (answered_by None); unexpected request https://aps.example.com/nl/overlay?show=8&w=1&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third at 9988 (answered_by None)
+NOT_VERIFIABLE  UC-07 D5                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-07 D5                     presentation  3 segment(s) as expected; startup 931 before the first frame
+PASS            UC-07 D5                     beacons       2 beacon(s) as expected
+FAIL            UC-07 legacy [pause-requests-nothing] requests      requests[0] https://aps.example.com/linear/mid?show=8&b=1 at 13000..73000: not observed; requests[1] https://ads-cdn.example.com/cr/701/cr701.mpd at 13000..73000: not observed
+NOT_VERIFIABLE  UC-07 legacy [pause-requests-nothing] selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+FAIL            UC-07 legacy [pause-requests-nothing] presentation  presentation[3] expected a change at 73000 to linear [ad examples/annex-g/G.4-1.mpd:ad-701 option null]; none observed within 250 (on screen: none [primary] from 8008); presentation[4] expected a change at 103000 to none [primary from 900000]; none observed within 250 (on screen: none [primary] from 8008); presentation[3] 73000..103000 expected linear [ad examples/annex-g/G.4-1.mpd:ad-701 option null]; observed none [primary] from 8008 to 110000; presentation[4] primary from expected 900000, observed 930072 [startup 302; observed: 0..5008 none [primary] from 830008; 5008..8008 none [primary (paused)] from 835015; 8008..110000 none [primary] from 835078]
+FAIL            UC-07 legacy [pause-requests-nothing] beacons       beacons[0] https://t.example.com/imp?cr=701 (@id 1) expected at 73000; observed at never; beacons[1] https://t.example.com/complete?cr=701 (@id 2) expected at 103000; observed at never
+FAIL            UC-07 D1 [pause-requests-nothing] requests      unexpected request https://aps.example.com/nl/pause?show=8 at 0 (answered_by None); unexpected request https://aps.example.com/nl/pause?show=8 at 5014 (answered_by None); unexpected request https://aps.example.com/nl/overlay?show=8&w=1&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third at 12943 (answered_by None)
+NOT_VERIFIABLE  UC-07 D1 [pause-requests-nothing] selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-07 D1 [pause-requests-nothing] presentation  5 segment(s) as expected; startup 177 before the first frame
+PASS            UC-07 D1 [pause-requests-nothing] beacons       2 beacon(s) as expected
+FAIL            UC-07 D2 [pause-requests-nothing] requests      unexpected request https://aps.example.com/nl/pause?show=8 at 0 (answered_by None); unexpected request https://aps.example.com/nl/pause?show=8 at 5010 (answered_by None); unexpected request https://aps.example.com/nl/overlay?show=8&w=1&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third at 12950 (answered_by None)
+NOT_VERIFIABLE  UC-07 D2 [pause-requests-nothing] selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-07 D2 [pause-requests-nothing] presentation  5 segment(s) as expected; startup 190 before the first frame
+PASS            UC-07 D2 [pause-requests-nothing] beacons       2 beacon(s) as expected
+FAIL            UC-07 D3 [pause-requests-nothing] requests      unexpected request https://aps.example.com/nl/pause?show=8 at 0 (answered_by None); unexpected request https://aps.example.com/nl/pause?show=8 at 5020 (answered_by None); unexpected request https://aps.example.com/nl/overlay?show=8&w=1&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third at 12935 (answered_by None)
+NOT_VERIFIABLE  UC-07 D3 [pause-requests-nothing] selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-07 D3 [pause-requests-nothing] presentation  5 segment(s) as expected; startup 227 before the first frame
+PASS            UC-07 D3 [pause-requests-nothing] beacons       2 beacon(s) as expected
+FAIL            UC-07 D4 [pause-requests-nothing] requests      unexpected request https://aps.example.com/nl/pause?show=8 at 0 (answered_by None); unexpected request https://aps.example.com/nl/pause?show=8 at 5010 (answered_by None); unexpected request https://aps.example.com/nl/overlay?show=8&w=1&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third at 12944 (answered_by None)
+NOT_VERIFIABLE  UC-07 D4 [pause-requests-nothing] selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-07 D4 [pause-requests-nothing] presentation  5 segment(s) as expected; startup 229 before the first frame
+PASS            UC-07 D4 [pause-requests-nothing] beacons       2 beacon(s) as expected
+FAIL            UC-07 D5 [pause-requests-nothing] requests      unexpected request https://aps.example.com/nl/pause?show=8 at 0 (answered_by None); unexpected request https://aps.example.com/nl/pause?show=8 at 5009 (answered_by None); unexpected request https://aps.example.com/nl/overlay?show=8&w=1&sgai-allowed-layouts=squeezeback-l-shape-upper-left%20overlay-lower-third at 12942 (answered_by None)
+NOT_VERIFIABLE  UC-07 D5 [pause-requests-nothing] selection     selection[0]: event 1 (<ambiguous>) of examples/annex-g/G.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-07 D5 [pause-requests-nothing] presentation  5 segment(s) as expected; startup 197 before the first frame
+PASS            UC-07 D5 [pause-requests-nothing] beacons       2 beacon(s) as expected
+PASS            UC-08 D1                     requests      4 request(s) as expected
+NOT_VERIFIABLE  UC-08 D1                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-h/H.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-h/H.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-08 D1                     presentation  6 segment(s) as expected; startup 214 before the first frame
+FAIL            UC-08 D1                     beacons       beacons[3] https://t.example.com/mid?cr=801 (@id 2) expected at 85000 (its ad observed from 70006, written 70000); observed at 74982; unexpected beacon https://t.example.com/mid?cr=801 at 74982
+PASS            UC-08 D2                     requests      4 request(s) as expected
+NOT_VERIFIABLE  UC-08 D2                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-h/H.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-h/H.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-08 D2                     presentation  6 segment(s) as expected; startup 222 before the first frame
+FAIL            UC-08 D2                     beacons       beacons[3] https://t.example.com/mid?cr=801 (@id 2) expected at 85000 (its ad observed from 70015, written 70000); observed at 74998; unexpected beacon https://t.example.com/mid?cr=801 at 74998
+PASS            UC-08 D3                     requests      2 request(s) as expected
+NOT_VERIFIABLE  UC-08 D3                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-h/H.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-h/H.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-08 D3                     presentation  6 segment(s) as expected; startup 200 before the first frame
+FAIL            UC-08 D3                     beacons       beacons[3] https://t.example.com/mid?cr=801 (@id 2) expected at 85000 (its ad observed from 70011, written 70000); observed at 74988; unexpected beacon https://t.example.com/mid?cr=801 at 74988
+PASS            UC-08 D4                     requests      2 request(s) as expected
+NOT_VERIFIABLE  UC-08 D4                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-h/H.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-h/H.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-08 D4                     presentation  6 segment(s) as expected; startup 203 before the first frame
+FAIL            UC-08 D4                     beacons       beacons[3] https://t.example.com/mid?cr=801 (@id 2) expected at 85000 (its ad observed from 70007, written 70000); observed at 74987; unexpected beacon https://t.example.com/mid?cr=801 at 74987
+PASS            UC-08 D5                     requests      2 request(s) as expected
+NOT_VERIFIABLE  UC-08 D5                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-h/H.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-h/H.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-08 D5                     presentation  3 segment(s) as expected; startup 177 before the first frame
+PASS            UC-08 D5                     beacons       no beacon, as expected
+PASS            UC-09 D1                     requests      2 request(s) as expected
+PASS            UC-09 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-09 D1                     presentation  3 segment(s) as expected; startup 228 before the first frame
+PASS            UC-09 D1                     beacons       3 beacon(s) as expected
+PASS            UC-10 D1                     requests      2 request(s) as expected
+PASS            UC-10 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-10 D1                     presentation  3 segment(s) as expected; startup 325 before the first frame
+PASS            UC-10 D1                     beacons       2 beacon(s) as expected
+PASS            UC-11 D1                     requests      3 request(s) as expected
+NOT_VERIFIABLE  UC-11 D1                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-11 D1                     presentation  5 segment(s) as expected; startup 558 before the first frame
+FAIL            UC-11 D1                     beacons       unexpected beacon https://t.example.com/click?cr=1101 at 68064; unexpected beacon https://verify.example.net/c?id=1101 at 68064
+PASS            UC-11 D2                     requests      3 request(s) as expected
+NOT_VERIFIABLE  UC-11 D2                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-11 D2                     presentation  3 segment(s) as expected; startup 1401 before the first frame
+FAIL            UC-11 D2                     beacons       unexpected beacon https://t.example.com/click?cr=1101 at 68015; unexpected beacon https://verify.example.net/c?id=1101 at 68016
+PASS            UC-11 D3                     requests      3 request(s) as expected
+NOT_VERIFIABLE  UC-11 D3                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-11 D3                     presentation  5 segment(s) as expected; startup 336 before the first frame
+FAIL            UC-11 D3                     beacons       beacons[1] https://t.example.com/complete?cr=1101 (@id 2) expected at 80000; observed at 81166; unexpected beacon https://t.example.com/click?cr=1101 at 68007; unexpected beacon https://verify.example.net/c?id=1101 at 68008; unexpected beacon https://t.example.com/complete?cr=1101 at 81166
+PASS            UC-11 D4                     requests      3 request(s) as expected
+NOT_VERIFIABLE  UC-11 D4                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-11 D4                     presentation  5 segment(s) as expected; startup 252 before the first frame
+FAIL            UC-11 D4                     beacons       unexpected beacon https://t.example.com/click?cr=1101 at 68018; unexpected beacon https://verify.example.net/c?id=1101 at 68019
+PASS            UC-11 D5                     requests      3 request(s) as expected
+NOT_VERIFIABLE  UC-11 D5                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-11 D5                     presentation  3 segment(s) as expected; startup 252 before the first frame
+FAIL            UC-11 D5                     beacons       beacons[1] https://t.example.com/complete?cr=1101 (@id 2) expected at 80000; observed at 82686; unexpected beacon https://t.example.com/click?cr=1101 at 68024; unexpected beacon https://verify.example.net/c?id=1101 at 68024; unexpected beacon https://t.example.com/complete?cr=1101 at 82686
+FAIL            UC-11 legacy                 requests      requests[0] https://aps.example.com/linear/mid?s=15&e=3 at 0..60000: not observed; requests[1] https://ads-cdn.example.com/cr/1101/cr1101.mpd at 0..60000: not observed
+NOT_VERIFIABLE  UC-11 legacy                 selection     selection[0]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-k/K.2-1.mpd is in EventStreams of several schemes and the vector names none
+FAIL            UC-11 legacy                 presentation  presentation[1] expected a change at 60000 to linear [ad examples/annex-k/K.3-1.mpd:ad-1101 option null]; none observed within 250 (on screen: none [primary] from 0); presentation[2] expected a change at 80000 to none [primary from 600000]; none observed within 250 (on screen: none [primary] from 0); presentation[1] 60000..80000 expected linear [ad examples/annex-k/K.3-1.mpd:ad-1101 option null]; observed none [primary] from 0 to 1005000; presentation[2] primary from expected 600000, observed 620002 [startup 203; observed: 0..1005000 none [primary] from 540002]
+FAIL            UC-11 legacy                 beacons       beacons[0] https://t.example.com/imp?cr=1101 (@id 1) expected at 60000; observed at never; beacons[1] https://t.example.com/complete?cr=1101 (@id 2) expected at 80000; observed at never
+PASS            UC-12 D1                     requests      3 request(s) as expected
+PASS            UC-12 D1                     selection     2 opportunit(y/ies) as expected
+PASS            UC-12 D1                     presentation  3 segment(s) as expected; startup 311 before the first frame
+FAIL            UC-12 D1                     beacons       beacons[1] https://t.example.net/complete?cr=1201 (@id 2) expected at 80000; observed at 82650; unexpected beacon https://t.example.net/complete?cr=1201 at 82650
+PASS            UC-12 D1 [path-2-both-empty] requests      2 request(s) as expected
+PASS            UC-12 D1 [path-2-both-empty] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 D1 [path-2-both-empty] presentation  1 segment(s) as expected; startup 199 before the first frame
+PASS            UC-12 D1 [path-2-both-empty] beacons       no beacon, as expected
+PASS            UC-12 D2 [path-2-both-empty] requests      2 request(s) as expected
+PASS            UC-12 D2 [path-2-both-empty] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 D2 [path-2-both-empty] presentation  1 segment(s) as expected; startup 226 before the first frame
+PASS            UC-12 D2 [path-2-both-empty] beacons       no beacon, as expected
+PASS            UC-12 D3 [path-2-both-empty] requests      2 request(s) as expected
+PASS            UC-12 D3 [path-2-both-empty] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 D3 [path-2-both-empty] presentation  1 segment(s) as expected; startup 252 before the first frame
+PASS            UC-12 D3 [path-2-both-empty] beacons       no beacon, as expected
+PASS            UC-12 D4 [path-2-both-empty] requests      2 request(s) as expected
+PASS            UC-12 D4 [path-2-both-empty] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 D4 [path-2-both-empty] presentation  1 segment(s) as expected; startup 221 before the first frame
+PASS            UC-12 D4 [path-2-both-empty] beacons       no beacon, as expected
+PASS            UC-12 D5 [path-2-both-empty] requests      2 request(s) as expected
+PASS            UC-12 D5 [path-2-both-empty] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 D5 [path-2-both-empty] presentation  1 segment(s) as expected; startup 218 before the first frame
+PASS            UC-12 D5 [path-2-both-empty] beacons       no beacon, as expected
+PASS            UC-12 D3 [path-4-video-only-first] requests      2 request(s) as expected
+PASS            UC-12 D3 [path-4-video-only-first] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 D3 [path-4-video-only-first] presentation  3 segment(s) as expected; startup 252 before the first frame
+PASS            UC-12 D3 [path-4-video-only-first] beacons       2 beacon(s) as expected
+PASS            UC-12 D4 [path-4-video-only-first] requests      2 request(s) as expected
+PASS            UC-12 D4 [path-4-video-only-first] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 D4 [path-4-video-only-first] presentation  3 segment(s) as expected; startup 301 before the first frame
+PASS            UC-12 D4 [path-4-video-only-first] beacons       2 beacon(s) as expected
+PASS            UC-12 D5 [path-4-video-only-first] requests      2 request(s) as expected
+PASS            UC-12 D5 [path-4-video-only-first] selection     2 opportunit(y/ies) as expected
+PASS            UC-12 D5 [path-4-video-only-first] presentation  1 segment(s) as expected; startup 226 before the first frame
+PASS            UC-12 D5 [path-4-video-only-first] beacons       no beacon, as expected
+PASS            UC-13 D1                     requests      2 request(s) as expected
+PASS            UC-13 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-13 D1                     presentation  3 segment(s) as expected; startup 269 before the first frame
+PASS            UC-13 D1                     beacons       3 beacon(s) as expected
+PASS            UC-13 D2                     requests      2 request(s) as expected
+PASS            UC-13 D2                     selection     1 opportunit(y/ies) as expected
+PASS            UC-13 D2                     presentation  3 segment(s) as expected; startup 243 before the first frame
+PASS            UC-13 D2                     beacons       3 beacon(s) as expected
+FAIL            UC-13 D3                     requests      requests[0] https://aps.example.com/nl/overlay?s=11&e=4&w=1 expected at 0..10000, query {'sgai-video-decoders': '1', 'sgai-image-over-video': '1', 'sgai-allowed-layouts': 'squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear'}, answered_by examples/annex-m/M.5-3.xml; observed https://aps.example.com/nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear&sgai-video-decoders=1&sgai-image-over-video=1&sgai-html-over-video=1 at 0, query {'sgai-allowed-layouts': 'squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear', 'sgai-html-over-video': '1', 'sgai-image-over-video': '1', 'sgai-video-decoders': '1'}, answered_by examples/annex-m/M.5-3.xml; unexpected request https://aps.example.com/nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear&sgai-video-decoders=1&sgai-image-over-video=1&sgai-html-over-video=1 at 0 (answered_by examples/annex-m/M.5-3.xml)
+PASS            UC-13 D3                     selection     1 opportunit(y/ies) as expected
+PASS            UC-13 D3                     presentation  3 segment(s) as expected; startup 176 before the first frame
+PASS            UC-13 D3                     beacons       3 beacon(s) as expected
+FAIL            UC-13 D4                     requests      requests[0] https://aps.example.com/nl/overlay?s=11&e=4&w=1 expected at 0..10000, query {'sgai-allowed-layouts': 'squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear'}, answered_by examples/annex-m/M.5-4.xml; observed https://aps.example.com/nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear&sgai-video-decoders=1&sgai-image-over-video=1&sgai-html-over-video=0 at 0, query {'sgai-allowed-layouts': 'squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear', 'sgai-html-over-video': '0', 'sgai-image-over-video': '1', 'sgai-video-decoders': '1'}, answered_by examples/annex-m/M.5-4.xml; unexpected request https://aps.example.com/nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear&sgai-video-decoders=1&sgai-image-over-video=1&sgai-html-over-video=0 at 0 (answered_by examples/annex-m/M.5-4.xml)
+PASS            UC-13 D4                     selection     1 opportunit(y/ies) as expected
+PASS            UC-13 D4                     presentation  3 segment(s) as expected; startup 194 before the first frame
+PASS            UC-13 D4                     beacons       3 beacon(s) as expected
+PASS            UC-13 D5                     requests      2 request(s) as expected
+PASS            UC-13 D5                     selection     1 opportunit(y/ies) as expected
+PASS            UC-13 D5                     presentation  3 segment(s) as expected; startup 208 before the first frame
+PASS            UC-13 D5                     beacons       3 beacon(s) as expected
+PASS            UC-14 D1                     requests      2 request(s) as expected
+FAIL            UC-14 D1                     selection     ad presented for an opportunity the vector does not list: event 31 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of examples/annex-n/N.2-1.mpd (linear [ad examples/annex-n/N.4-1.mpd:slate option null])
+FAIL            UC-14 D1                     presentation  observed a change at 71920 from overlay-lower-third [ad examples/annex-n/N.4-1.mpd:slate option null, ad examples/annex-n/N.3-2.xml:#1 option #1] to linear [ad examples/annex-n/N.4-1.mpd:slate option null], which the vector does not have; presentation[2] expected a change at 80000 to none [nothing]; none observed within 2000 (on screen: linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 71920); presentation[1] 60000..80000 expected overlay-lower-third [ad examples/annex-n/N.3-2.xml:#1 option #1]; observed overlay-lower-third [ad examples/annex-n/N.4-1.mpd:slate option null, ad examples/annex-n/N.3-2.xml:#1 option #1] from 60022 to 71920; presentation[2] 80000..90000 expected none [nothing]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 71920 to 90000 [startup 233; observed: 0..60022 none [primary] from 2640012; 60022..71920 overlay-lower-third [ad examples/annex-n/N.4-1.mpd:slate option null, ad examples/annex-n/N.3-2.xml:#1 option #1]; 71920..90000 linear [ad examples/annex-n/N.4-1.mpd:slate option null]]
+FAIL            UC-14 D1                     beacons       beacons[1] https://t.example.com/complete?cr=1401 (@id 2) expected at 80000; observed at never
+PASS            UC-14 D2                     requests      2 request(s) as expected
+FAIL            UC-14 D2                     selection     ad presented for an opportunity the vector does not list: event 31 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of examples/annex-n/N.2-1.mpd (linear [ad examples/annex-n/N.4-1.mpd:slate option null])
+FAIL            UC-14 D2                     presentation  presentation[1] 60000..90000 expected none [nothing]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60009 to 90000 [startup 233; observed: 0..60009 none [primary] from 2640009; 60009..90000 linear [ad examples/annex-n/N.4-1.mpd:slate option null]]
+PASS            UC-14 D2                     beacons       no beacon, as expected
+PASS            UC-14 D3                     requests      2 request(s) as expected
+FAIL            UC-14 D3                     selection     ad presented for an opportunity the vector does not list: event 31 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of examples/annex-n/N.2-1.mpd (linear [ad examples/annex-n/N.4-1.mpd:slate option null])
+FAIL            UC-14 D3                     presentation  observed a change at 71911 from overlay-lower-third [ad examples/annex-n/N.4-1.mpd:slate option null, ad examples/annex-n/N.3-2.xml:#1 option #1] to linear [ad examples/annex-n/N.4-1.mpd:slate option null], which the vector does not have; presentation[2] expected a change at 80000 to none [nothing]; none observed within 2000 (on screen: linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 71911); presentation[1] 60000..80000 expected overlay-lower-third [ad examples/annex-n/N.3-2.xml:#1 option #1]; observed overlay-lower-third [ad examples/annex-n/N.4-1.mpd:slate option null, ad examples/annex-n/N.3-2.xml:#1 option #1] from 60168 to 71911; presentation[2] 80000..90000 expected none [nothing]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 71911 to 90000 [startup 211; observed: 0..60168 none [primary] from 2640010; 60168..71911 overlay-lower-third [ad examples/annex-n/N.4-1.mpd:slate option null, ad examples/annex-n/N.3-2.xml:#1 option #1]; 71911..90000 linear [ad examples/annex-n/N.4-1.mpd:slate option null]]
+FAIL            UC-14 D3                     beacons       beacons[1] https://t.example.com/complete?cr=1401 (@id 2) expected at 80000; observed at never
+PASS            UC-14 D4                     requests      2 request(s) as expected
+FAIL            UC-14 D4                     selection     ad presented for an opportunity the vector does not list: event 31 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of examples/annex-n/N.2-1.mpd (linear [ad examples/annex-n/N.4-1.mpd:slate option null])
+FAIL            UC-14 D4                     presentation  observed a change at 72031 from overlay-lower-third [ad examples/annex-n/N.4-1.mpd:slate option null, ad examples/annex-n/N.3-2.xml:#1 option #2] to linear [ad examples/annex-n/N.4-1.mpd:slate option null], which the vector does not have; presentation[2] expected a change at 80000 to none [nothing]; none observed within 2000 (on screen: linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 72031); presentation[1] 60000..80000 expected overlay-lower-third [ad examples/annex-n/N.3-2.xml:#1 option #2]; observed overlay-lower-third [ad examples/annex-n/N.4-1.mpd:slate option null, ad examples/annex-n/N.3-2.xml:#1 option #2] from 60146 to 72031; presentation[2] 80000..90000 expected none [nothing]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 72031 to 90000 [startup 232; observed: 0..60146 none [primary] from 2640013; 60146..72031 overlay-lower-third [ad examples/annex-n/N.4-1.mpd:slate option null, ad examples/annex-n/N.3-2.xml:#1 option #2]; 72031..90000 linear [ad examples/annex-n/N.4-1.mpd:slate option null]]
+FAIL            UC-14 D4                     beacons       beacons[1] https://t.example.com/complete?cr=1401 (@id 2) expected at 80000; observed at never
+PASS            UC-14 D5                     requests      2 request(s) as expected
+FAIL            UC-14 D5                     selection     ad presented for an opportunity the vector does not list: event 31 (urn:mpeg:dash:event:alternativeMPD:replace:2025) of examples/annex-n/N.2-1.mpd (linear [ad examples/annex-n/N.4-1.mpd:slate option null])
+FAIL            UC-14 D5                     presentation  presentation[1] 60000..90000 expected none [nothing]; observed linear [ad examples/annex-n/N.4-1.mpd:slate option null] from 60046 to 90000 [startup 269; observed: 0..60046 none [primary] from 2640010; 60046..90000 linear [ad examples/annex-n/N.4-1.mpd:slate option null]]
+PASS            UC-14 D5                     beacons       no beacon, as expected
+FAIL            UC-14 legacy                 requests      requests[0] https://slate.example.com/sports2/blackout-31.mpd at 30000..60000: not observed
+PASS            UC-14 legacy                 selection     1 opportunit(y/ies) as expected
+FAIL            UC-14 legacy                 presentation  presentation[1] expected a change at 60000 to none [nothing]; none observed within 2000 (on screen: none [primary] from 0); presentation[1] 60000..90000 expected none [nothing]; observed none [primary] from 0 to 90000 [startup 207; observed: 0..90000 none [primary] from 2640002]
+PASS            UC-14 legacy                 beacons       no beacon, as expected
+PASS            UC-15 D1                     requests      1 request(s) as expected
+PASS            UC-15 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-15 D1                     presentation  3 segment(s) as expected; startup 195 before the first frame
+FAIL            UC-15 D1                     beacons       beacons[1] https://t.example.com/complete?cr=901&s=c2 (@id 2) expected at 30000; observed at 30289; unexpected beacon https://t.example.com/complete?cr=901&s=c2 at 30289
+PASS            UC-15 D2                     requests      1 request(s) as expected
+PASS            UC-15 D2                     selection     1 opportunit(y/ies) as expected
+PASS            UC-15 D2                     presentation  1 segment(s) as expected; startup 236 before the first frame
+PASS            UC-15 D2                     beacons       no beacon, as expected
+PASS            UC-15 D5                     requests      1 request(s) as expected
+PASS            UC-15 D5                     selection     1 opportunit(y/ies) as expected
+PASS            UC-15 D5                     presentation  1 segment(s) as expected; startup 215 before the first frame
+PASS            UC-15 D5                     beacons       no beacon, as expected
+PASS            UC-15 D2 [non-conforming-aps] requests      1 request(s) as expected
+PASS            UC-15 D2 [non-conforming-aps] selection     1 opportunit(y/ies) as expected
+PASS            UC-15 D2 [non-conforming-aps] presentation  1 segment(s) as expected; startup 202 before the first frame
+PASS            UC-15 D2 [non-conforming-aps] beacons       no beacon, as expected
+PASS            UC-16 D1                     requests      1 request(s) as expected
+PASS            UC-16 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-16 D1                     presentation  3 segment(s) as expected; startup 254 before the first frame
+PASS            UC-16 D1                     beacons       2 beacon(s) as expected
+PASS            UC-17 D1                     requests      1 request(s) as expected
+NOT_VERIFIABLE  UC-17 D1                     selection     selection[0]: event 1 (<ambiguous>) of examples/annex-q/Q.2-1.mpd is in EventStreams of several schemes and the vector names none
+PASS            UC-17 D1                     presentation  3 segment(s) as expected; startup 226 before the first frame
+PASS            UC-17 D1                     beacons       3 beacon(s) as expected
+FAIL            UC-17 legacy                 requests      requests[0] https://aps.example.com/linear/mid?d=6&e=5 at 10000..70000: not observed; requests[1] https://ads-cdn.example.com/cr/1702/cr1702.mpd at 10000..70000: not observed; requests[2] https://ads-cdn.example.com/cr/1703/cr1703.mpd at 70000..85000: not observed
+NOT_VERIFIABLE  UC-17 legacy                 selection     selection[0]: event 1 (<ambiguous>) of examples/annex-q/Q.2-1.mpd is in EventStreams of several schemes and the vector names none; selection[1]: event 1 (<ambiguous>) of examples/annex-q/Q.2-1.mpd is in EventStreams of several schemes and the vector names none
+FAIL            UC-17 legacy                 presentation  presentation[1] expected a change at 70000 to linear [ad examples/annex-q/Q.4-1.mpd:ad-1702 option null]; none observed within 250 (on screen: none [primary] from 0); presentation[2] expected a change at 85000 to linear [ad examples/annex-q/Q.4-1.mpd:ad-1703 option null]; none observed within 250 (on screen: none [primary] from 0); presentation[3] expected a change at 100000 to none [primary from 900000]; none observed within 250 (on screen: none [primary] from 0); presentation[1] 70000..85000 expected linear [ad examples/annex-q/Q.4-1.mpd:ad-1702 option null]; observed none [primary] from 0 to 110000; presentation[2] 85000..100000 expected linear [ad examples/annex-q/Q.4-1.mpd:ad-1703 option null]; observed none [primary] from 0 to 110000; presentation[3] primary from expected 900000, observed 930001 [startup 190; observed: 0..110000 none [primary] from 830002]
+FAIL            UC-17 legacy                 beacons       beacons[0] https://t.example.com/imp?cr=1702 (@id 1) expected at 70000; observed at never; beacons[1] https://t.example.com/complete?cr=1702 (@id 2) expected at 85000; observed at never; beacons[2] https://t.example.com/imp?cr=1703 (@id 11) expected at 85000; observed at never; beacons[3] https://t.example.com/complete?cr=1703 (@id 12) expected at 100000; observed at never
+PASS            UC-18 D1                     requests      2 request(s) as expected
+PASS            UC-18 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-18 D1                     presentation  3 segment(s) as expected; startup 192 before the first frame
+NOT_VERIFIABLE  UC-18 D1                     audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-18 D1                     beacons       3 beacon(s) as expected
+FAIL            UC-19 D1                     requests      requests[0] https://aps.example.com/nl/overlay?s=11&e=4&w=1 expected at 0..10000, query {'sgai-allowed-layouts': 'squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear', 'sgai-video-decoders': '1', 'sgai-image-over-video': '1', 'sgai-html-over-video': '1'}, answered_by examples/annex-i/I.3-2.xml, matching scenarios/fixtures/UC-19/request.http; observed https://aps.example.com/nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear&sgai-video-decoders=2&sgai-image-over-video=1&sgai-html-over-video=1 at 0, query {'sgai-allowed-layouts': 'squeezeback-double-box-background squeezeback-l-shape-upper-left overlay-lower-third linear', 'sgai-html-over-video': '1', 'sgai-image-over-video': '1', 'sgai-video-decoders': '2'}, answered_by examples/annex-i/I.3-2.xml; unexpected request https://aps.example.com/nl/overlay?s=11&e=4&w=1&sgai-allowed-layouts=squeezeback-double-box-background%20squeezeback-l-shape-upper-left%20overlay-lower-third%20linear&sgai-video-decoders=2&sgai-image-over-video=1&sgai-html-over-video=1 at 0 (answered_by examples/annex-i/I.3-2.xml)
+PASS            UC-19 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-19 D1                     presentation  3 segment(s) as expected; startup 150 before the first frame
+NOT_VERIFIABLE  UC-19 D1                     audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-19 D1                     beacons       3 beacon(s) as expected
+PASS            UC-20 D1                     requests      2 request(s) as expected
+PASS            UC-20 D1                     selection     1 opportunit(y/ies) as expected
+PASS            UC-20 D1                     presentation  3 segment(s) as expected; startup 174 before the first frame
+PASS            UC-20 D1                     beacons       5 beacon(s) as expected
+PASS            UC-21 D1                     requests      2 request(s) as expected
+PASS            UC-21 D1                     selection     2 opportunit(y/ies) as expected
+FAIL            UC-21 D1                     presentation  presentation[5] expected a change at 45015.0 to none [primary from 590000]; none observed within 250 (on screen: none [primary] from 39986); presentation[5] primary from expected 590000, observed 635011 [startup 224; observed: 0..10015 none [primary] from 590011; 10015..20013 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600027; 20013..30011 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#2 option #1] from 610025; 30011..39986 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#3 option #1] from 620023; 39986..55034 none [primary] from 629998; 55034..65038 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600020; 65038..75041 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#2 option #1] from 610023; 75041..85020 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#3 option #1] from 620027]
+NOT_VERIFIABLE  UC-21 D1                     audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-21 D1                     beacons       18 beacon(s) as expected
+PASS            UC-21 D3                     requests      2 request(s) as expected
+PASS            UC-21 D3                     selection     2 opportunit(y/ies) as expected
+FAIL            UC-21 D3                     presentation  presentation[5] expected a change at 45006.0 to none [primary from 590000]; none observed within 250 (on screen: none [primary] from 39981); presentation[5] primary from expected 590000, observed 635020 [startup 227; observed: 0..10006 none [primary] from 590021; 10006..19998 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600026; 19998..29995 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#2 option #1] from 610019; 29995..39981 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#3 option #1] from 620016; 39981..55032 none [primary] from 630002; 55032..65019 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600030; 65019..75030 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#2 option #1] from 610017; 75030..85007 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#3 option #1] from 620027]
+NOT_VERIFIABLE  UC-21 D3                     audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-21 D3                     beacons       18 beacon(s) as expected
+PASS            UC-21 D4                     requests      2 request(s) as expected
+PASS            UC-21 D4                     selection     2 opportunit(y/ies) as expected
+FAIL            UC-21 D4                     presentation  presentation[5] expected a change at 45015.0 to none [primary from 590000]; none observed within 250 (on screen: none [primary] from 39982); presentation[5] primary from expected 590000, observed 635012 [startup 225; observed: 0..10000 none [primary] from 590013; 10000..20016 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600013; 20016..30001 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#2 option #1] from 610028; 30001..39982 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#3 option #1] from 620014; 39982..55031 none [primary] from 629994; 55031..65035 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600016; 65035..75039 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#2 option #1] from 610021; 75039..85011 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#3 option #1] from 620024]
+NOT_VERIFIABLE  UC-21 D4                     audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-21 D4                     beacons       18 beacon(s) as expected
+PASS            UC-21 D2                     requests      2 request(s) as expected
+PASS            UC-21 D2                     selection     2 opportunit(y/ies) as expected
+FAIL            UC-21 D2                     presentation  presentation[1] expected a change at 45014.0 to none [primary from 590000]; none observed within 250 (on screen: none [primary] from 0); presentation[1] primary from expected 590000, observed 635006 [startup 227; observed: 0..90000 none [primary] from 590006]
+PASS            UC-21 D2                     beacons       no beacon, as expected
+PASS            UC-21 D5                     requests      2 request(s) as expected
+PASS            UC-21 D5                     selection     2 opportunit(y/ies) as expected
+FAIL            UC-21 D5                     presentation  presentation[1] expected a change at 45046.0 to none [primary from 590000]; none observed within 250 (on screen: none [primary] from 0); presentation[1] primary from expected 590000, observed 635010 [startup 243; observed: 0..90000 none [primary] from 590010]
+PASS            UC-21 D5                     beacons       no beacon, as expected
+PASS            UC-21 D1 [seek-to-1015]      requests      1 request(s) as expected
+PASS            UC-21 D1 [seek-to-1015]      selection     1 opportunit(y/ies) as expected
+PASS            UC-21 D1 [seek-to-1015]      presentation  4 segment(s) as expected; startup 227 before the first frame
+NOT_VERIFIABLE  UC-21 D1 [seek-to-1015]      audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-21 D1 [seek-to-1015]      beacons       5 beacon(s) as expected
+PASS            UC-21 D1 [dismiss-then-rewind] requests      2 request(s) as expected
+PASS            UC-21 D1 [dismiss-then-rewind] selection     2 opportunit(y/ies) as expected
+FAIL            UC-21 D1 [dismiss-then-rewind] presentation  presentation[3] expected a change at 45001.0 to none [primary from 590000]; none observed within 250 (on screen: none [primary] from 17017); presentation[3] primary from expected 590000, observed 635001 [startup 247; observed: 0..10027 none [primary] from 590001; 10027..17017 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600028; 17017..55030 none [primary] from 607018; 55030..65005 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600028; 65005..75006 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#2 option #1] from 610004; 75006..84987 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#3 option #1] from 620005; 84987..90000 none [primary] from 629986]
+NOT_VERIFIABLE  UC-21 D1 [dismiss-then-rewind] audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-21 D1 [dismiss-then-rewind] beacons       11 beacon(s) as expected
+PASS            UC-21 D3 [dismiss-then-rewind] requests      2 request(s) as expected
+PASS            UC-21 D3 [dismiss-then-rewind] selection     2 opportunit(y/ies) as expected
+FAIL            UC-21 D3 [dismiss-then-rewind] presentation  presentation[3] expected a change at 45010.0 to none [primary from 590000]; none observed within 250 (on screen: none [primary] from 17047); presentation[3] primary from expected 590000, observed 635009 [startup 457; observed: 0..10007 none [primary] from 590009; 10007..17047 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600016; 17047..55021 none [primary] from 607055; 55021..65024 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600012; 65024..75018 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#2 option #1] from 610016; 75018..85013 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#3 option #1] from 620010; 85013..90000 none [primary] from 630004]
+NOT_VERIFIABLE  UC-21 D3 [dismiss-then-rewind] audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-21 D3 [dismiss-then-rewind] beacons       11 beacon(s) as expected
+PASS            UC-21 D4 [dismiss-then-rewind] requests      2 request(s) as expected
+PASS            UC-21 D4 [dismiss-then-rewind] selection     2 opportunit(y/ies) as expected
+FAIL            UC-21 D4 [dismiss-then-rewind] presentation  presentation[3] expected a change at 45008.0 to none [primary from 590000]; none observed within 250 (on screen: none [primary] from 17017); presentation[3] primary from expected 590000, observed 635012 [startup 202; observed: 0..10002 none [primary] from 590011; 10002..17017 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600013; 17017..55020 none [primary] from 607028; 55020..65036 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#1 option #1] from 600013; 65036..75030 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#2 option #1] from 610028; 75030..84997 overlay-lower-third [primary, ad scenarios/fixtures/UC-21/overlay-list.xml:#3 option #1] from 620022; 84997..90000 none [primary] from 629989]
+NOT_VERIFIABLE  UC-21 D4 [dismiss-then-rewind] audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-21 D4 [dismiss-then-rewind] beacons       11 beacon(s) as expected
+PASS            UC-22 D1                     requests      3 request(s) as expected
+PASS            UC-22 D1                     selection     2 opportunit(y/ies) as expected
+PASS            UC-22 D1                     presentation  6 segment(s) as expected; startup 201 before the first frame
+NOT_VERIFIABLE  UC-22 D1                     audio         the observation carries no audio state: what is heard is not measured
+PASS            UC-22 D1                     beacons       11 beacon(s) as expected
+FAIL            UC-22 legacy                 requests      requests[0] https://aps.example.com/linear/midroll?s=22&e=5&b=1 at 10000..30000: not observed; requests[1] https://ads-cdn.example.com/cr/201/cr201.mpd at 10000..30000: not observed
+FAIL            UC-22 legacy                 selection     selection[1] event 2 (urn:mpeg:dash:event:alternativeMPD:insert:2025) of scenarios/fixtures/UC-22/main.mpd (presented): expected linear examples/annex-b/B.3-1.mpd:ad-201 option null; observed nothing
+FAIL            UC-22 legacy                 presentation  presentation[1] expected a change at 30000 to linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; none observed within 250 (on screen: none [primary] from 0); presentation[2] expected a change at 60000 to none [primary from 1220000]; none observed within 250 (on screen: none [primary] from 0); presentation[1] 30000..60000 expected linear [ad examples/annex-b/B.3-1.mpd:ad-201 option null]; observed none [primary] from 0 to 110000; presentation[2] primary from expected 1220000, observed 1250002 [startup 192; observed: 0..110000 none [primary] from 1190002]
+FAIL            UC-22 legacy                 beacons       beacons[0] https://t.example.com/imp?cr=201 (@id 1) expected at 30000; observed at never; beacons[1] https://t.example.com/q1?cr=201 (@id 2) expected at 37500; observed at never; beacons[2] https://t.example.com/mid?cr=201 (@id 3) expected at 45000; observed at never; beacons[3] https://t.example.com/q3?cr=201 (@id 4) expected at 52500; observed at never; beacons[4] https://t.example.com/complete?cr=201 (@id 5) expected at 60000; observed at never
+PASS            R13.3-4 D4                   requests      1 request(s) as expected
+PASS            R13.3-4 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R13.3-4 D4                   presentation  3 segment(s) as expected; startup 151 before the first frame
+PASS            R13.3-4 D4                   beacons       2 beacon(s) as expected
+PASS            R6.5-3 D4                    requests      1 request(s) as expected
+PASS            R6.5-3 D4                    selection     1 opportunit(y/ies) as expected
+PASS            R6.5-3 D4                    presentation  4 segment(s) as expected; startup 167 before the first frame
+PASS            R6.5-3 D4                    beacons       3 beacon(s) as expected
+PASS            R34.6-2 D1                   requests      2 request(s) as expected
+PASS            R34.6-2 D1                   selection     2 opportunit(y/ies) as expected
+FAIL            R34.6-2 D1                   presentation  presentation[3] expected a change at 12002.0 to none [primary from 3000]; none observed within 250 (on screen: none [primary] from 9982); presentation[3] primary from expected 3000, observed 12013 [startup 173; observed: 0..5007 none [primary] from 13; 5007..9982 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/first-2.xml:#1 option #1] from 5020; 9982..14019 none [primary] from 9994; 14019..18998 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/second-2.xml:#1 option #1] from 5019; 18998..21000 none [primary] from 9998]
+PASS            R34.6-2 D1                   beacons       2 beacon(s) as expected
+PASS            R34.6-2 D3                   requests      2 request(s) as expected
+PASS            R34.6-2 D3                   selection     2 opportunit(y/ies) as expected
+FAIL            R34.6-2 D3                   presentation  presentation[3] expected a change at 12010.0 to none [primary from 3000]; none observed within 250 (on screen: none [primary] from 9993); presentation[3] primary from expected 3000, observed 12003 [startup 128; observed: 0..5016 none [primary] from 3; 5016..9993 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/first-2.xml:#1 option #1] from 5019; 9993..14022 none [primary] from 9996; 14022..18998 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/second-2.xml:#1 option #1] from 5013; 18998..21000 none [primary] from 9988]
+PASS            R34.6-2 D3                   beacons       2 beacon(s) as expected
+PASS            R34.6-2 D4                   requests      2 request(s) as expected
+PASS            R34.6-2 D4                   selection     2 opportunit(y/ies) as expected
+FAIL            R34.6-2 D4                   presentation  presentation[3] expected a change at 12007.0 to none [primary from 3000]; none observed within 250 (on screen: none [primary] from 9980); presentation[3] primary from expected 3000, observed 12008 [startup 128; observed: 0..5005 none [primary] from 8; 5005..9980 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/first-2.xml:#1 option #1] from 5014; 9980..14026 none [primary] from 9989; 14026..18991 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/second-2.xml:#1 option #1] from 5020; 18991..21000 none [primary] from 9986]
+PASS            R34.6-2 D4                   beacons       2 beacon(s) as expected
+PASS            R34.6-3 D1                   requests      2 request(s) as expected
+PASS            R34.6-3 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R34.6-3 D1                   presentation  5 segment(s) as expected; startup 138 before the first frame
+PASS            R34.6-3 D1                   beacons       2 beacon(s) as expected
+PASS            R34.6-3 D4                   requests      2 request(s) as expected
+PASS            R34.6-3 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R34.6-3 D4                   presentation  5 segment(s) as expected; startup 183 before the first frame
+PASS            R34.6-3 D4                   beacons       2 beacon(s) as expected
+PASS            R17.2-2 D1                   requests      2 request(s) as expected
+PASS            R17.2-2 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R17.2-2 D1                   presentation  6 segment(s) as expected; startup 157 before the first frame
+PASS            R17.2-2 D1                   beacons       3 beacon(s) as expected
+PASS            R4.2-1 D4                    requests      1 request(s) as expected
+PASS            R4.2-1 D4                    selection     1 opportunit(y/ies) as expected
+PASS            R4.2-1 D4                    presentation  4 segment(s) as expected; startup 188 before the first frame
+PASS            R4.2-1 D4                    beacons       3 beacon(s) as expected
+PASS            R5.6-1 D1                    requests      2 request(s) as expected
+PASS            R5.6-1 D1                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-1 D1                    presentation  3 segment(s) as expected; startup 166 before the first frame
+PASS            R5.6-1 D1                    beacons       1 beacon(s) as expected
+PASS            R5.6-1 D2                    requests      2 request(s) as expected
+PASS            R5.6-1 D2                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-1 D2                    presentation  3 segment(s) as expected; startup 224 before the first frame
+PASS            R5.6-1 D2                    beacons       1 beacon(s) as expected
+PASS            R5.6-1 D3                    requests      1 request(s) as expected
+PASS            R5.6-1 D3                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-1 D3                    presentation  3 segment(s) as expected; startup 151 before the first frame
+PASS            R5.6-1 D3                    beacons       1 beacon(s) as expected
+PASS            R5.6-1 D4                    requests      1 request(s) as expected
+PASS            R5.6-1 D4                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-1 D4                    presentation  3 segment(s) as expected; startup 127 before the first frame
+PASS            R5.6-1 D4                    beacons       1 beacon(s) as expected
+PASS            R5.6-1 D5                    requests      1 request(s) as expected
+PASS            R5.6-1 D5                    selection     1 opportunit(y/ies) as expected
+PASS            R5.6-1 D5                    presentation  1 segment(s) as expected; startup 165 before the first frame
+PASS            R5.6-1 D5                    beacons       no beacon, as expected
+PASS            R12.5-1 D1                   requests      1 request(s) as expected
+PASS            R12.5-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R12.5-1 D1                   presentation  7 segment(s) as expected; startup 167 before the first frame
+PASS            R12.5-1 D1                   beacons       no beacon, as expected
+PASS            R12.5-1 D1                   geometry      5 instant(s) as expected
+PASS            R17.2 D1                     requests      2 request(s) as expected
+PASS            R17.2 D1                     selection     2 opportunit(y/ies) as expected
+PASS            R17.2 D1                     presentation  5 segment(s) as expected; startup 181 before the first frame
+PASS            R17.2 D1                     beacons       3 beacon(s) as expected
+PASS            R20.1-1 D4                   requests      2 request(s) as expected
+PASS            R20.1-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R20.1-1 D4                   presentation  3 segment(s) as expected; startup 151 before the first frame
+PASS            R20.1-1 D4                   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D1                   requests      1 request(s) as expected
+PASS            R28.1-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D1                   presentation  3 segment(s) as expected; startup 205 before the first frame
+PASS            R28.1-1 D1                   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D1                   clicks        2 click-tracking fire(s) as expected
+PASS            R28.1-1 D1                   destinations  1 destination(s) as expected
+PASS            R28.1-1 D4                   requests      1 request(s) as expected
+PASS            R28.1-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D4                   presentation  3 segment(s) as expected; startup 149 before the first frame
+PASS            R28.1-1 D4                   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D4                   clicks        2 click-tracking fire(s) as expected
+PASS            R28.1-1 D4                   destinations  1 destination(s) as expected
+PASS            R28.1-1 D1 [no-activation]   requests      1 request(s) as expected
+PASS            R28.1-1 D1 [no-activation]   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D1 [no-activation]   presentation  3 segment(s) as expected; startup 127 before the first frame
+PASS            R28.1-1 D1 [no-activation]   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D1 [no-activation]   clicks        no click-tracking, as expected
+PASS            R28.1-1 D1 [no-activation]   destinations  no destination made available, as expected
+PASS            R28.1-1 D4 [no-activation]   requests      1 request(s) as expected
+PASS            R28.1-1 D4 [no-activation]   selection     1 opportunit(y/ies) as expected
+PASS            R28.1-1 D4 [no-activation]   presentation  3 segment(s) as expected; startup 163 before the first frame
+PASS            R28.1-1 D4 [no-activation]   beacons       1 beacon(s) as expected
+PASS            R28.1-1 D4 [no-activation]   clicks        no click-tracking, as expected
+PASS            R28.1-1 D4 [no-activation]   destinations  no destination made available, as expected
+PASS            R32.1-1 D1                   requests      1 request(s) as expected
+PASS            R32.1-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-1 D1                   presentation  5 segment(s) as expected; startup 139 before the first frame
+PASS            R32.1-1 D1                   beacons       3 beacon(s) as expected
+PASS            R32.1-1 D3                   requests      1 request(s) as expected
+PASS            R32.1-1 D3                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-1 D3                   presentation  5 segment(s) as expected; startup 141 before the first frame
+PASS            R32.1-1 D3                   beacons       3 beacon(s) as expected
+PASS            R32.1-1 D4                   requests      1 request(s) as expected
+PASS            R32.1-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R32.1-1 D4                   presentation  5 segment(s) as expected; startup 183 before the first frame
+PASS            R32.1-1 D4                   beacons       3 beacon(s) as expected
+PASS            R34.6 D1                     requests      2 request(s) as expected
+PASS            R34.6 D1                     selection     2 opportunit(y/ies) as expected
+FAIL            R34.6 D1                     presentation  presentation[3] expected a change at 12013.0 to none [primary from 3000]; none observed within 250 (on screen: none [primary] from 10007); presentation[3] primary from expected 3000, observed 12007 [startup 151; observed: 0..5032 none [primary] from 6; 5032..10007 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/first.xml:#1 option #1] from 5039; 10007..14060 none [primary] from 10014; 14060..19010 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/second.xml:#1 option #1] from 5048; 19010..21000 none [primary] from 9998]
+PASS            R34.6 D1                     beacons       2 beacon(s) as expected
+PASS            R34.6 D3                     requests      2 request(s) as expected
+PASS            R34.6 D3                     selection     2 opportunit(y/ies) as expected
+FAIL            R34.6 D3                     presentation  presentation[3] expected a change at 12007.0 to none [primary from 3000]; none observed within 250 (on screen: none [primary] from 9977); presentation[3] primary from expected 3000, observed 12014 [startup 160; observed: 0..5027 none [primary] from 14; 5027..9977 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/first.xml:#1 option #1] from 5041; 9977..14048 none [primary] from 9991; 14048..18998 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/second.xml:#1 option #1] from 5042; 18998..21000 none [primary] from 9992]
+PASS            R34.6 D3                     beacons       2 beacon(s) as expected
+PASS            R34.6 D4                     requests      2 request(s) as expected
+PASS            R34.6 D4                     selection     2 opportunit(y/ies) as expected
+FAIL            R34.6 D4                     presentation  presentation[3] expected a change at 12015.0 to none [primary from 3000]; none observed within 250 (on screen: none [primary] from 9983); presentation[3] primary from expected 3000, observed 12007 [startup 278; observed: 0..5047 none [primary] from 8; 5047..9983 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/first.xml:#1 option #1] from 5055; 9983..14054 none [primary] from 9991; 14054..19000 overlay-lower-third [primary, ad behaviour/fixtures/R34.6/second.xml:#1 option #1] from 5040; 19000..21000 none [primary] from 9986]
+PASS            R34.6 D4                     beacons       2 beacon(s) as expected
+PASS            R36.1-1 D1                   requests      1 request(s) as expected
+PASS            R36.1-1 D1                   selection     1 opportunit(y/ies) as expected
+PASS            R36.1-1 D1                   presentation  1 segment(s) as expected; startup 172 before the first frame
+PASS            R36.1-1 D1                   beacons       no beacon, as expected
+PASS            R36.1-1 D4                   requests      1 request(s) as expected
+PASS            R36.1-1 D4                   selection     1 opportunit(y/ies) as expected
+PASS            R36.1-1 D4                   presentation  1 segment(s) as expected; startup 168 before the first frame
+PASS            R36.1-1 D4                   beacons       no beacon, as expected
+PASS            R40.4-1 D1                   requests      3 request(s) as expected
+PASS            R40.4-1 D1                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-1 D1                   presentation  6 segment(s) as expected; startup 151 before the first frame
+PASS            R40.4-1 D1                   beacons       7 beacon(s) as expected
+PASS            R40.4-1 D4                   requests      3 request(s) as expected
+PASS            R40.4-1 D4                   selection     2 opportunit(y/ies) as expected
+PASS            R40.4-1 D4                   presentation  6 segment(s) as expected; startup 202 before the first frame
+PASS            R40.4-1 D4                   beacons       7 beacon(s) as expected
+note: UC-21 D1: longest transition hold: 145 ms with nothing on screen at session 45015 ms, 145 ms held (1 transition(s))
+note: UC-21 D3: longest transition hold: 201 ms with nothing on screen at session 45006 ms, 201 ms held (1 transition(s))
+note: UC-21 D4: longest transition hold: 95 ms with nothing on screen at session 45015 ms, 95 ms held (1 transition(s))
+note: UC-21 D2: longest transition hold: 443 ms with nothing on screen at session 45014 ms, 443 ms held (1 transition(s))
+note: UC-21 D5: longest transition hold: 333 ms with nothing on screen at session 45046 ms, 333 ms held (1 transition(s))
+note: UC-21 D1 [seek-to-1015]: longest transition hold: 2 ms with nothing on screen at session 5009 ms, 2 ms held (1 transition(s))
+note: UC-21 D1 [dismiss-then-rewind]: longest transition hold: 815 ms with nothing on screen at session 45001 ms, 815 ms held (1 transition(s))
+note: UC-21 D3 [dismiss-then-rewind]: longest transition hold: 319 ms with nothing on screen at session 45010 ms, 319 ms held (1 transition(s))
+note: UC-21 D4 [dismiss-then-rewind]: longest transition hold: 132 ms with nothing on screen at session 45008 ms, 132 ms held (1 transition(s))
+note: R34.6-2 D1: longest transition hold: 23 ms with nothing on screen at session 12002 ms, 23 ms held (1 transition(s))
+note: R34.6-2 D3: longest transition hold: 24 ms with nothing on screen at session 12010 ms, 24 ms held (1 transition(s))
+note: R34.6-2 D4: longest transition hold: 31 ms with nothing on screen at session 12007 ms, 31 ms held (1 transition(s))
+note: R34.6-3 D1: longest transition hold: 1 ms with nothing on screen at session 12010 ms, 1 ms held (1 transition(s))
+note: R34.6-3 D4: longest transition hold: 45 ms with nothing on screen at session 12011 ms, 45 ms held (1 transition(s))
+note: R34.6 D1: longest transition hold: 24 ms with nothing on screen at session 12013 ms, 24 ms held (1 transition(s))
+note: R34.6 D3: longest transition hold: 29 ms with nothing on screen at session 12007 ms, 29 ms held (1 transition(s))
+note: R34.6 D4: longest transition hold: 101 ms with nothing on screen at session 12015 ms, 101 ms held (1 transition(s))
+exit 1: PASS 355  FAIL 73  NOT_VERIFIABLE 36; wall 8484.2 s; content 0.1 s (0 ffmpeg runs, 14 cuts from the cache), players 8481.6 s

@@ -1,0 +1,375 @@
+format: sgai-scenario/1
+uc: UC-05
+uc_sha256: f27ddb38b4d60e39438f32201640a667a054947c889dafb79e9eb75b26ca7505
+timescale: 1000
+tolerance: 250
+play_from: 0
+observe_until: 800000
+entry: examples/annex-e/E.2-1.mpd
+fixtures:
+- path: examples/annex-e/E.2-1.mpd
+- path: examples/annex-e/E.3-1.http
+- path: examples/annex-e/E.4-1.xml
+  url: https://aps.example.com/nl/pause?title=film12
+- path: examples/annex-e/E.5-1.mpd
+  url: https://ads-cdn.example.com/pz/501/cr501v.mpd
+- path: examples/annex-e/E.7.1-1.xml
+  url: https://aps.example.com/nl/pause?title=film12
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D2:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D3:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D4:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D5:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities:
+- sgai-video-decoders
+- sgai-image-over-video
+- sgai-html-over-video
+actions:
+- at: 720000
+  do: pause
+- at: 790000
+  do: resume
+outcomes:
+  D1:
+    summary: Paused at 12:00, a 20 s fullscreen video, then a 30 s fullscreen image;
+      a second request returns nothing and the paused frame stays until the resume
+      at 13:10; the film continues from 12:00.
+    requests:
+    - &id016
+      at: 0
+      url: https://aps.example.com/nl/pause?title=film12
+      query: &id001
+        sgai-video-decoders: '2'
+        sgai-image-over-video: '1'
+        sgai-html-over-video: '1'
+        sgai-allowed-layouts: pause-fullscreen pause-partial
+      answered_by: examples/annex-e/E.4-1.xml
+      matches: examples/annex-e/E.3-1.http
+    - &id004
+      at:
+        from: 0
+        to: 720000
+      url: https://ads-cdn.example.com/pz/501/cr501v.mpd
+      answered_by: examples/annex-e/E.5-1.mpd
+    - at: 770000
+      url: https://aps.example.com/nl/pause?title=film12
+      query: *id001
+      answered_by: examples/annex-e/E.7.1-1.xml
+      matches: examples/annex-e/E.3-1.http
+    selection:
+    - opportunity: &id006
+        fixture: examples/annex-e/E.2-1.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate: &id002
+          fixture: examples/annex-e/E.4-1.xml
+          index: 1
+        option:
+          index: 1
+        layout: pause-fullscreen
+      - candidate: &id003
+          fixture: examples/annex-e/E.4-1.xml
+          index: 2
+        option:
+          index: 1
+        layout: pause-fullscreen
+    presentation:
+    - &id007
+      start: 0
+      end: 720000
+      layout: none
+      shows:
+      - element: primary
+        from: 0
+    - start: 720000
+      end: 740000
+      layout: pause-fullscreen
+      shows:
+      - element: ad
+        candidate: *id002
+        option:
+          index: 1
+    - &id012
+      start: 740000
+      end: 770000
+      layout: pause-fullscreen
+      shows:
+      - element: ad
+        candidate: *id003
+        option:
+          index: 1
+    - &id013
+      start: 770000
+      end: 790000
+      layout: none
+      shows:
+      - element: primary
+        from: 720000
+      note: the paused frame
+    - &id008
+      start: 790000
+      end: 800000
+      layout: none
+      shows:
+      - element: primary
+        from: 720000
+    beacons: &id014
+    - &id009
+      at: 720000
+      fixture: examples/annex-e/E.4-1.xml
+      candidate: *id002
+      id: '1'
+      url: https://t.example.com/imp?cr=501
+    - &id010
+      at: 730000
+      fixture: examples/annex-e/E.4-1.xml
+      candidate: *id002
+      id: '2'
+      url: https://t.example.com/10s?cr=501
+    - at: 740000
+      fixture: examples/annex-e/E.4-1.xml
+      candidate: *id002
+      id: '3'
+      url: https://t.example.com/20s?cr=501
+    - at: 740000
+      fixture: examples/annex-e/E.4-1.xml
+      candidate: *id003
+      id: '1'
+      url: https://t.example.com/imp?cr=502
+  D2:
+    summary: Paused at 12:00, the 20 s video over the held frame; the image candidate
+      is skipped; a second request returns nothing and the paused frame stays until
+      the resume.
+    requests:
+    - at:
+        from: 0
+        to: 720000
+      url: https://aps.example.com/nl/pause?title=film12
+      query: &id005
+        sgai-video-decoders: '2'
+        sgai-image-over-video: '0'
+        sgai-html-over-video: '0'
+        sgai-allowed-layouts: pause-fullscreen pause-partial
+      answered_by: examples/annex-e/E.4-1.xml
+    - *id004
+    - at: 740000
+      url: https://aps.example.com/nl/pause?title=film12
+      query: *id005
+      answered_by: examples/annex-e/E.7.1-1.xml
+    selection:
+    - opportunity: *id006
+      result: presented
+      presented:
+      - candidate: *id002
+        option:
+          index: 1
+        layout: pause-fullscreen
+    presentation:
+    - *id007
+    - start: 720000
+      end: 740000
+      layout: pause-fullscreen
+      shows:
+      - element: ad
+        candidate: *id002
+        option:
+          index: 1
+    - start: 740000
+      end: 790000
+      layout: none
+      shows:
+      - element: primary
+        from: 720000
+      note: the paused frame
+    - *id008
+    beacons:
+    - *id009
+    - *id010
+    - at: 740000
+      fixture: examples/annex-e/E.4-1.xml
+      candidate: *id002
+      id: '3'
+      url: https://t.example.com/20s?cr=501
+  D3:
+    summary: Paused at 12:00, the HTML panel over the paused frame for 20 s, then
+      the fullscreen image for 30 s; a second request returns nothing and the paused
+      frame stays until the resume.
+    requests:
+    - at:
+        from: 0
+        to: 720000
+      url: https://aps.example.com/nl/pause?title=film12
+      query: &id011
+        sgai-video-decoders: '1'
+        sgai-image-over-video: '1'
+        sgai-html-over-video: '1'
+        sgai-allowed-layouts: pause-fullscreen pause-partial
+      answered_by: examples/annex-e/E.4-1.xml
+    - at: 770000
+      url: https://aps.example.com/nl/pause?title=film12
+      query: *id011
+      answered_by: examples/annex-e/E.7.1-1.xml
+    selection:
+    - opportunity: *id006
+      result: presented
+      presented:
+      - candidate: *id002
+        option:
+          index: 2
+        layout: pause-partial
+      - candidate: *id003
+        option:
+          index: 1
+        layout: pause-fullscreen
+    presentation:
+    - *id007
+    - start: 720000
+      end: 740000
+      layout: pause-partial
+      shows:
+      - element: primary
+        from: 720000
+      - element: ad
+        candidate: *id002
+        option:
+          index: 2
+    - *id012
+    - *id013
+    - *id008
+    beacons: *id014
+  D4:
+    summary: Paused at 12:00, the image panel over the paused frame for 20 s, then
+      the fullscreen image for 30 s; a second request returns nothing and the paused
+      frame stays until the resume.
+    requests:
+    - at:
+        from: 0
+        to: 720000
+      url: https://aps.example.com/nl/pause?title=film12
+      query: &id015
+        sgai-video-decoders: '1'
+        sgai-image-over-video: '1'
+        sgai-html-over-video: '0'
+        sgai-allowed-layouts: pause-fullscreen pause-partial
+      answered_by: examples/annex-e/E.4-1.xml
+    - at: 770000
+      url: https://aps.example.com/nl/pause?title=film12
+      query: *id015
+      answered_by: examples/annex-e/E.7.1-1.xml
+    selection:
+    - opportunity: *id006
+      result: presented
+      presented:
+      - candidate: *id002
+        option:
+          index: 3
+        layout: pause-partial
+      - candidate: *id003
+        option:
+          index: 1
+        layout: pause-fullscreen
+    presentation:
+    - *id007
+    - start: 720000
+      end: 740000
+      layout: pause-partial
+      shows:
+      - element: primary
+        from: 720000
+      - element: ad
+        candidate: *id002
+        option:
+          index: 3
+    - *id012
+    - *id013
+    - *id008
+    beacons: *id014
+variants:
+- id: resume-at-734
+  description: 'E.8: "The viewer resumes 14 s into candidate 1. Within one rendering
+    frame the video is removed (PLY-57), the beacon at 20 s is never fired (PLY-58),
+    and the film continues from the paused position (PLY-59)." D5 presents nothing
+    to remove, so it has no outcome here.'
+  actions:
+  - at: 720000
+    do: pause
+  - at: 734000
+    do: resume
+  outcomes:
+    D1:
+      summary: Candidate 1's video from the pause until the resume 14 s in, then the
+        film from 12:00; candidate 2 is not shown.
+      requests:
+      - *id016
+      - *id004
+      selection:
+      - opportunity: *id006
+        result: presented
+        presented:
+        - candidate: *id002
+          option:
+            index: 1
+          layout: pause-fullscreen
+      presentation:
+      - *id007
+      - start: 720000
+        end: 734000
+        layout: pause-fullscreen
+        shows:
+        - element: ad
+          candidate: *id002
+          option:
+            index: 1
+      - start: 734000
+        end: 800000
+        layout: none
+        shows:
+        - element: primary
+          from: 720000
+      beacons:
+      - *id009
+      - *id010
+missing_carrier: []
+disagreements:
+- context: 'context/04 UC-05 "Publisher intent": "No maximum display duration: a pause
+    slot has no declared duration for a cap to bound, and the viewer ends it by resuming
+    (R4, R31)."'
+  annex: E.2-1.mpd declares `durationCap="60000"` on the `svta:PauseAdPresentation`
+    (E.2).
+  recorded: 'Not observable in these outcomes: one pass lasts 50 s (E.4), under the
+    60 s the fixture declares, and the second document is empty. The outcomes hold
+    under both readings. Not resolved here.'
+- context: 'context/04 UC-05 #### D5: "Per R3, declines the pause-ad opportunity entirely."'
+  annex: 'E.7: "After one pass ... the viewer is still paused. The document declares
+    `request-again`, so the Player requests a new document for the same pause"; E.6
+    gives D5 no pass ("declined | declined").'
+  recorded: 'The outcomes follow context/04: D5 requests the document once and does
+    not request again. Whether a pass in which nothing was presented triggers `request-again`
+    is not said by the annex. Not resolved here.'

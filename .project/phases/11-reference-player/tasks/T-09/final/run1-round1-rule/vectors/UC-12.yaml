@@ -1,0 +1,230 @@
+format: sgai-scenario/1
+uc: UC-12
+uc_sha256: f27d487a9eca608818583f7a447cb895096b3b0f65998061e290f317c8826906
+timescale: 1000
+tolerance: 250
+play_from: 1140000
+observe_until: 90000
+entry: examples/annex-l/L.2-1.mpd
+fixtures:
+- path: examples/annex-l/L.2-1.mpd
+- path: examples/annex-l/L.4-1.xml
+  url: https://aps-a.example.com/nl/overlay?f=31
+- path: examples/annex-l/L.5-1.xml
+  url: https://aps-b.example.net/sgai/ov?f=31
+- path: examples/annex-l/L.5-2.mpd
+  url: https://cdn-b.example.net/cr/1201/corner.mpd
+- path: examples/annex-l/L.7-1.xml
+  url: https://aps-a.example.com/nl/overlay?f=31
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D2:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D3:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D4:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D5:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: Window 1 answers with no candidates; window 2's video corner is shown
+      for 20 s from 20:00.
+    requests:
+    - &id002
+      at:
+        from: 0
+        to: 60000
+      url: https://aps-a.example.com/nl/overlay?f=31
+      query:
+        sgai-allowed-layouts: overlay-lower-third
+      answered_by: examples/annex-l/L.4-1.xml
+    - &id006
+      at:
+        from: 0
+        to: 60000
+      url: https://aps-b.example.net/sgai/ov?f=31
+      query:
+        sgai-allowed-layouts: overlay-corner squeezeback-l-shape-upper-left
+      answered_by: examples/annex-l/L.5-1.xml
+    - at:
+        from: 0
+        to: 60000
+      url: https://cdn-b.example.net/cr/1201/corner.mpd
+      answered_by: examples/annex-l/L.5-2.mpd
+    selection:
+    - &id003
+      opportunity:
+        fixture: examples/annex-l/L.2-1.mpd
+        event_id: '1'
+      result: declined
+      presented: []
+    - opportunity: &id004
+        fixture: examples/annex-l/L.2-1.mpd
+        event_id: '2'
+      result: presented
+      presented:
+      - candidate: &id001
+          fixture: examples/annex-l/L.5-1.xml
+          index: 1
+        option:
+          index: 1
+        layout: overlay-corner
+    presentation:
+    - &id007
+      start: 0
+      end: 60000
+      layout: none
+      shows:
+      - element: primary
+        from: 1140000
+    - start: 60000
+      end: 80000
+      layout: overlay-corner
+      shows:
+      - element: primary
+        from: 1200000
+      - element: ad
+        candidate: *id001
+        option:
+          index: 1
+      note: window 2's cap is 20000 (L.6)
+    - &id008
+      start: 80000
+      end: 90000
+      layout: none
+      shows:
+      - element: primary
+        from: 1220000
+    beacons: &id009
+    - at: 60000
+      fixture: examples/annex-l/L.5-1.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.net/imp?cr=1201
+    - at: 80000
+      fixture: examples/annex-l/L.5-1.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.net/complete?cr=1201
+variants:
+- id: path-2-both-empty
+  description: 'L.4 path 2: "both answer with the empty document. Both attempts failed;
+    the chain is exhausted, and the film continues uninterrupted." Device class plays
+    no part.'
+  actions: []
+  outcomes:
+    D1: &id005
+      summary: Both windows answer with no candidates; the film plays uninterrupted.
+      requests:
+      - *id002
+      - at:
+          from: 0
+          to: 60000
+        url: https://aps-b.example.net/sgai/ov?f=31
+        query:
+          sgai-allowed-layouts: overlay-corner squeezeback-l-shape-upper-left
+        answered_by: examples/annex-l/L.4-1.xml
+      selection:
+      - *id003
+      - &id012
+        opportunity: *id004
+        result: declined
+        presented: []
+      presentation:
+      - &id013
+        start: 0
+        end: 90000
+        layout: none
+        shows:
+        - element: primary
+          from: 1140000
+      beacons: []
+    D2: *id005
+    D3: *id005
+    D4: *id005
+    D5: *id005
+- id: path-4-video-only-first
+  description: 'L.7 path 4: APS A answers a document whose only candidate is a video
+    lower-third. D3 and D4 cannot render it, so the attempt is a failed execution
+    and window 2 is bound as L.6 shows; D5 renders neither. D1 and D2 present window
+    1''s video lower-third, and are not written: its sub-MPD has no fixture in Annex
+    L (see the header).'
+  actions: []
+  outcomes:
+    D3: &id010
+      summary: Window 1's only candidate is a video lower-third D3 / D4 cannot render;
+        window 2's image L-shape is shown for 20 s from 20:00.
+      requests:
+      - &id011
+        at:
+          from: 0
+          to: 60000
+        url: https://aps-a.example.com/nl/overlay?f=31
+        query:
+          sgai-allowed-layouts: overlay-lower-third
+        answered_by: examples/annex-l/L.7-1.xml
+      - *id006
+      selection:
+      - *id003
+      - opportunity: *id004
+        result: presented
+        presented:
+        - candidate: *id001
+          option:
+            index: 2
+          layout: squeezeback-l-shape-upper-left
+      presentation:
+      - *id007
+      - start: 60000
+        end: 80000
+        layout: squeezeback-l-shape-upper-left
+        shows:
+        - element: primary
+          from: 1200000
+          region: upper-left
+        - element: ad
+          candidate: *id001
+          option:
+            index: 2
+          region: full frame
+      - *id008
+      beacons: *id009
+    D4: *id010
+    D5:
+      summary: Neither window's candidate renders on D5; both attempts fail and the
+        film continues.
+      requests:
+      - *id011
+      - *id006
+      selection:
+      - *id003
+      - *id012
+      presentation:
+      - *id013
+      beacons: []
+missing_carrier: []
+disagreements: []

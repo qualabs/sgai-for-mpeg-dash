@@ -1,0 +1,172 @@
+format: sgai-scenario/1
+uc: UC-18
+uc_sha256: ca55b94cc733699d929d752ccca8793c36bd8513198c50e4676fd639139f1273
+timescale: 1000
+tolerance: 250
+play_from: 570000
+observe_until: 70000
+entry: scenarios/fixtures/UC-18/main.mpd
+fixtures:
+- path: scenarios/fixtures/UC-18/main.mpd
+  class: publisher-mpd
+- path: scenarios/fixtures/UC-18/request.http
+  class: request
+- path: scenarios/fixtures/UC-18/overlay-list.xml
+  url: https://aps.example.com/nl/lull?ch=sports2&w=1
+  class: overlay-list
+- path: scenarios/fixtures/UC-18/ad-video.mpd
+  url: https://ads-cdn.example.com/nl/1801/lshape-video.mpd
+  class: sps-mpd
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 1
+  D2:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 1
+  D3:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D4:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D5:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: The video L-shape for 30 s, the programme shrunk upper-left; the ad's
+      audio in place of the programme's while it plays (no carrier, R41); the programme's
+      audio from 60 s.
+    requests:
+    - at:
+        from: 10000
+        to: 30000
+      url: https://aps.example.com/nl/lull?ch=sports2&w=1
+      query:
+        sgai-allowed-layouts: squeezeback-l-shape-upper-left
+      answered_by: scenarios/fixtures/UC-18/overlay-list.xml
+      matches: scenarios/fixtures/UC-18/request.http
+    - at:
+        from: 10000
+        to: 30000
+      url: https://ads-cdn.example.com/nl/1801/lshape-video.mpd
+      answered_by: scenarios/fixtures/UC-18/ad-video.mpd
+    selection:
+    - opportunity:
+        fixture: scenarios/fixtures/UC-18/main.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate: &id001
+          fixture: scenarios/fixtures/UC-18/overlay-list.xml
+          index: 1
+        option:
+          index: 1
+        layout: squeezeback-l-shape-upper-left
+    presentation:
+    - start: 0
+      end: 30000
+      layout: none
+      shows:
+      - element: primary
+        from: 570000
+      audio: primary
+    - start: 30000
+      end: 60000
+      layout: squeezeback-l-shape-upper-left
+      shows:
+      - element: primary
+        from: 600000
+        region: upper-left 60%
+      - element: ad
+        candidate: *id001
+        option:
+          index: 1
+        region: full frame
+      note: UC-18 D1 "the programme plays shrunk and silent, the ad's audio is heard
+        at the viewer's volume"
+    - start: 60000
+      end: 70000
+      layout: none
+      shows:
+      - element: primary
+        from: 630000
+      audio: primary
+    beacons:
+    - at: 30000
+      fixture: scenarios/fixtures/UC-18/overlay-list.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/imp?cr=1801
+    - at: 45000
+      fixture: scenarios/fixtures/UC-18/overlay-list.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.com/mid?cr=1801
+    - at: 60000
+      fixture: scenarios/fixtures/UC-18/overlay-list.xml
+      candidate: *id001
+      id: '3'
+      url: https://t.example.com/complete?cr=1801
+missing_carrier:
+- requirement: R41.2
+  element: 'UC-18 "Publisher intent": the window declares that the ad''s audio is
+    allowed. The overlay window has no attribute for it.'
+  classes:
+  - D1
+  - D2
+  - D3
+  - D4
+  - D5
+- requirement: R41.5
+  element: 'UC-18 "Ad response": the Player sends the allowance on the resolution
+    request. No request parameter carries it, so request.http has none.'
+  classes:
+  - D1
+  - D2
+  - D3
+  - D4
+  - D5
+- requirement: R41.3
+  element: 'UC-18 "Ad response": option 1 declares its audio; option 2 declares none.
+    No attribute of an option declares it, and option 1 in overlay-list.xml is a plain
+    video L-shape. D1 and D2 segments [30 s, 60 s] carry no `audio` field because
+    the ad''s audio has no carrier to be required by.'
+  classes:
+  - D1
+  - D2
+- requirement: R41.6
+  element: 'UC-18 D1, D2 "On a device that cannot switch the audio": option 1 is not
+    satisfiable and D1 renders option 2, D2 presents no ad. With no audio declaration
+    on option 1 nothing makes it unsatisfiable, and the device''s audio-switch capability
+    has no request parameter in the specification (it is `sgai-ad-audio` in context/03
+    R29.1).'
+  classes:
+  - D1
+  - D2
+- requirement: R41.4
+  element: 'UC-18 D1: the programme''s audio returns when option 1 ends, whatever
+    ends it. The outcome records `audio: primary` from 60 s; what it returns from
+    has no carrier.'
+  classes:
+  - D1
+  - D2
+disagreements: []

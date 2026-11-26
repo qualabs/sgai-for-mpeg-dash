@@ -1,0 +1,183 @@
+format: sgai-scenario/1
+uc: UC-13
+uc_sha256: 20082014d5f1b11bdf7ff061f4ba47f679ab9b45cd20d8049b8c0ee7f2dc696f
+timescale: 1000
+tolerance: 250
+play_from: 1490000
+observe_until: 40000
+entry: examples/annex-m/M.2-1.mpd
+fixtures:
+- path: examples/annex-m/M.2-1.mpd
+- path: examples/annex-m/M.5-1.xml
+  url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+- path: examples/annex-m/M.5-2.xml
+  url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+- path: examples/annex-m/M.5-3.xml
+  url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+- path: examples/annex-m/M.5-4.xml
+  url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+- path: examples/annex-m/M.6-1.mpd
+  url: https://ads-cdn.example.com/nl/901/db-video.mpd
+- path: examples/annex-m/M.6-2.mpd
+  url: https://ads-cdn.example.com/nl/901/takeover.mpd
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D2:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D3:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D4:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D5:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities:
+- sgai-video-decoders
+- sgai-image-over-video
+- sgai-html-over-video
+actions: []
+outcomes:
+  D3:
+    summary: The L-shape — the programme in the upper-left 60%, the image creative
+      full frame behind it — for 20 s; the programme plays throughout.
+    requests:
+    - at:
+        from: 0
+        to: 10000
+      url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+      query:
+        sgai-video-decoders: '1'
+        sgai-image-over-video: '1'
+        sgai-allowed-layouts: squeezeback-double-box-background squeezeback-l-shape-upper-left
+          overlay-lower-third linear
+      answered_by: examples/annex-m/M.5-3.xml
+    selection:
+    - opportunity: &id002
+        fixture: examples/annex-m/M.2-1.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate: &id001
+          fixture: examples/annex-m/M.5-3.xml
+          index: 1
+        option:
+          index: 1
+        layout: squeezeback-l-shape-upper-left
+    presentation:
+    - &id003
+      start: 0
+      end: 10000
+      layout: none
+      shows:
+      - element: primary
+        from: 1490000
+    - start: 10000
+      end: 30000
+      layout: squeezeback-l-shape-upper-left
+      shows:
+      - element: primary
+        from: 1500000
+        region: upper-left 60%
+      - element: ad
+        candidate: *id001
+        option:
+          index: 1
+        region: full frame
+    - &id005
+      start: 30000
+      end: 40000
+      layout: none
+      shows:
+      - element: primary
+        from: 1520000
+    beacons:
+    - at: 10000
+      fixture: examples/annex-m/M.5-3.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/imp?cr=901
+    - at: 20000
+      fixture: examples/annex-m/M.5-3.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.com/mid?cr=901
+    - at: 30000
+      fixture: examples/annex-m/M.5-3.xml
+      candidate: *id001
+      id: '3'
+      url: https://t.example.com/complete?cr=901
+  D4:
+    summary: Receives all four options, fails the double box (two decoders) and renders
+      the L-shape, as D3.
+    requests:
+    - at:
+        from: 0
+        to: 10000
+      url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+      query:
+        sgai-allowed-layouts: squeezeback-double-box-background squeezeback-l-shape-upper-left
+          overlay-lower-third linear
+      answered_by: examples/annex-m/M.5-4.xml
+    selection:
+    - opportunity: *id002
+      result: presented
+      presented:
+      - candidate: &id004
+          fixture: examples/annex-m/M.5-4.xml
+          index: 1
+        option:
+          index: 2
+        layout: squeezeback-l-shape-upper-left
+    presentation:
+    - *id003
+    - start: 10000
+      end: 30000
+      layout: squeezeback-l-shape-upper-left
+      shows:
+      - element: primary
+        from: 1500000
+        region: upper-left 60%
+      - element: ad
+        candidate: *id004
+        option:
+          index: 2
+        region: full frame
+    - *id005
+    beacons:
+    - at: 10000
+      fixture: examples/annex-m/M.5-4.xml
+      candidate: *id004
+      id: '1'
+      url: https://t.example.com/imp?cr=901
+    - at: 20000
+      fixture: examples/annex-m/M.5-4.xml
+      candidate: *id004
+      id: '2'
+      url: https://t.example.com/mid?cr=901
+    - at: 30000
+      fixture: examples/annex-m/M.5-4.xml
+      candidate: *id004
+      id: '3'
+      url: https://t.example.com/complete?cr=901
+missing_carrier: []
+disagreements: []

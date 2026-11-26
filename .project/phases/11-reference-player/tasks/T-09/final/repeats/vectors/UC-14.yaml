@@ -1,0 +1,221 @@
+format: sgai-scenario/1
+uc: UC-14
+uc_sha256: f4bcb575e0b91bd3ba1a04e73015f51007ba32f155f80861f7fdbf0a3c52628f
+timescale: 1000
+tolerance: 2000
+play_from: 2640000
+observe_until: 90000
+entry: examples/annex-n/N.2-1.mpd
+fixtures:
+- path: examples/annex-n/N.2-1.mpd
+- path: examples/annex-n/N.4-1.mpd
+  url: https://slate.example.com/sports2/blackout-31.mpd
+- path: examples/annex-n/N.3-1.http
+- path: examples/annex-n/N.3-2.xml
+  url: https://aps.example.com/nl/overlay?ch=sports2&ctx=blackout
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D2:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D3:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D4:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D5:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  legacy:
+    predates_spec: true
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: The channel until 45:00, then the blackout slate; the HTML lower-third
+      over the slate for 20 s, then the slate alone.
+    requests:
+    - &id002
+      at:
+        from: 30000
+        to: 60000
+      url: https://slate.example.com/sports2/blackout-31.mpd
+      answered_by: examples/annex-n/N.4-1.mpd
+    - &id003
+      at:
+        from: 30000
+        to: 60000
+      url: https://aps.example.com/nl/overlay?ch=sports2&ctx=blackout
+      query:
+        sgai-allowed-layouts: overlay-lower-third overlay-corner
+      answered_by: examples/annex-n/N.3-2.xml
+      matches: examples/annex-n/N.3-1.http
+    selection:
+    - opportunity: &id004
+        fixture: examples/annex-n/N.4-1.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate: &id001
+          fixture: examples/annex-n/N.3-2.xml
+          index: 1
+        option:
+          index: 1
+        layout: overlay-lower-third
+    presentation:
+    - &id005
+      start: 0
+      end: 60000
+      layout: none
+      shows:
+      - element: primary
+        from: 2640000
+    - start: 60000
+      end: 80000
+      layout: overlay-lower-third
+      shows:
+      - element: ad
+        candidate: *id001
+        option:
+          index: 1
+      note: the HTML lower-third composited over the blackout slate (N.4-1), not over
+        the channel
+    - &id006
+      start: 80000
+      end: 90000
+      layout: none
+      shows: []
+      note: the blackout slate (N.4-1) alone; the channel is not output
+    beacons: &id007
+    - at: 60000
+      fixture: examples/annex-n/N.3-2.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/imp?cr=1401
+    - at: 80000
+      fixture: examples/annex-n/N.3-2.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.com/complete?cr=1401
+  D2:
+    summary: The channel until 45:00, then the slate alone; both options are non-video
+      surfaces, so the overlay is declined.
+    requests:
+    - *id002
+    - *id003
+    selection:
+    - opportunity: *id004
+      result: declined
+      presented: []
+    presentation: &id008
+    - *id005
+    - start: 60000
+      end: 90000
+      layout: none
+      shows: []
+      note: the blackout slate (N.4-1) alone; the channel is not output
+    beacons: []
+  D3:
+    summary: As D1 — the HTML lower-third over the slate for 20 s.
+    requests:
+    - *id002
+    - *id003
+    selection:
+    - opportunity: *id004
+      result: presented
+      presented:
+      - candidate: *id001
+        option:
+          index: 1
+        layout: overlay-lower-third
+    presentation:
+    - *id005
+    - start: 60000
+      end: 80000
+      layout: overlay-lower-third
+      shows:
+      - element: ad
+        candidate: *id001
+        option:
+          index: 1
+      note: the HTML lower-third composited over the blackout slate (N.4-1)
+    - *id006
+    beacons: *id007
+  D4:
+    summary: The HTML option fails; the image lower-third over the slate for 20 s.
+    requests:
+    - *id002
+    - *id003
+    selection:
+    - opportunity: *id004
+      result: presented
+      presented:
+      - candidate: *id001
+        option:
+          index: 2
+        layout: overlay-lower-third
+    presentation:
+    - *id005
+    - start: 60000
+      end: 80000
+      layout: overlay-lower-third
+      shows:
+      - element: ad
+        candidate: *id001
+        option:
+          index: 2
+      note: the image lower-third composited over the blackout slate (N.4-1)
+    - *id006
+    beacons: *id007
+  D5:
+    summary: The channel until 45:00, then the slate alone; no overlay capability,
+      the overlay is declined.
+    requests:
+    - *id002
+    - *id003
+    selection:
+    - opportunity: *id004
+      result: declined
+      presented: []
+    presentation: *id008
+    beacons: []
+  legacy:
+    summary: Plays the slate and ignores the window it does not recognise; the blackout
+      holds and no ad is shown.
+    requests:
+    - *id002
+    selection:
+    - opportunity: *id004
+      result: ignored
+      presented: []
+    presentation: *id008
+    beacons: []
+missing_carrier: []
+disagreements:
+- context: 'context/04 UC-14 "A window on the primary timeline over the same span",
+    Declaring nothing: "a form already on screen when the slate begins is suspended,
+    and resumes when the slate ends if the window is still open (R40.4)."'
+  annex: 'N.7: "with no relation, a Player of this specification presents it only
+    over the channel; a form on screen at 45:00 ends there, and the window presents
+    nothing over the slate (PLY-49)".'
+  recorded: Not resolved here. The case has no documents in Annex N (no window on
+    the primary timeline in N.2-1), so no outcome or variant is written for it, and
+    the outcomes above hold under both readings.

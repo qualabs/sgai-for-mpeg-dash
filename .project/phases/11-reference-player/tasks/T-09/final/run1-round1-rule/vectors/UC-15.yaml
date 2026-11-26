@@ -1,0 +1,184 @@
+format: sgai-scenario/1
+uc: UC-15
+uc_sha256: 7b716c6835c6e5d3d74de905dc4b82430815fa9d1a5d82edcea9c275a37b0a1b
+timescale: 1000
+tolerance: 250
+play_from: 2390000
+observe_until: 40000
+entry: examples/annex-o/O.2-1.mpd
+fixtures:
+- path: examples/annex-o/O.2-1.mpd
+- path: examples/annex-o/O.5-1.xml
+  url: https://aps.example.com/nl/overlay?c=2&w=1
+- path: examples/annex-o/O.5-2.xml
+  url: https://aps.example.com/nl/overlay?c=2&w=1
+- path: examples/annex-o/O.7-1.xml
+  url: https://aps.example.com/nl/overlay?c=2&w=1
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D2:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D3:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D4:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D5:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities:
+- sgai-video-decoders
+- sgai-image-over-video
+- sgai-html-over-video
+actions: []
+outcomes:
+  D1:
+    summary: The L-shape — the programme in the upper-left 60%, the image creative
+      full frame behind it — for 20 s; the programme plays throughout.
+    requests:
+    - at:
+        from: 0
+        to: 10000
+      url: https://aps.example.com/nl/overlay?c=2&w=1
+      query:
+        sgai-allowed-layouts: overlay-lower-third squeezeback-l-shape-upper-left
+        sgai-video-decoders: '2'
+        sgai-image-over-video: '1'
+        sgai-html-over-video: '1'
+      answered_by: examples/annex-o/O.5-1.xml
+    selection:
+    - opportunity: &id002
+        fixture: examples/annex-o/O.2-1.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate: &id001
+          fixture: examples/annex-o/O.5-1.xml
+          index: 1
+        option:
+          index: 1
+        layout: squeezeback-l-shape-upper-left
+    presentation:
+    - start: 0
+      end: 10000
+      layout: none
+      shows:
+      - element: primary
+        from: 2390000
+    - start: 10000
+      end: 30000
+      layout: squeezeback-l-shape-upper-left
+      shows:
+      - element: primary
+        from: 2400000
+        region: upper-left 60%
+      - element: ad
+        candidate: *id001
+        option:
+          index: 1
+        region: full frame
+    - start: 30000
+      end: 40000
+      layout: none
+      shows:
+      - element: primary
+        from: 2420000
+    beacons:
+    - at: 10000
+      fixture: examples/annex-o/O.5-1.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/imp?cr=901&s=c2
+    - at: 30000
+      fixture: examples/annex-o/O.5-1.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.com/complete?cr=901&s=c2
+  D2:
+    summary: Nothing — the APS returns the empty document (no allowed layout D2 can
+      composite); the concert plays uninterrupted. The takeover it could play is not
+      offered.
+    requests:
+    - at:
+        from: 0
+        to: 10000
+      url: https://aps.example.com/nl/overlay?c=2&w=1
+      query: &id005
+        sgai-allowed-layouts: overlay-lower-third squeezeback-l-shape-upper-left
+        sgai-video-decoders: '2'
+        sgai-image-over-video: '0'
+        sgai-html-over-video: '0'
+      answered_by: examples/annex-o/O.5-2.xml
+    selection: &id003
+    - opportunity: *id002
+      result: declined
+      presented: []
+    presentation: &id004
+    - start: 0
+      end: 40000
+      layout: none
+      shows:
+      - element: primary
+        from: 2390000
+    beacons: []
+  D5:
+    summary: Nothing — the APS returns the empty document; the concert plays uninterrupted.
+    requests:
+    - at:
+        from: 0
+        to: 10000
+      url: https://aps.example.com/nl/overlay?c=2&w=1
+      query:
+        sgai-allowed-layouts: overlay-lower-third squeezeback-l-shape-upper-left
+        sgai-video-decoders: '1'
+        sgai-image-over-video: '0'
+        sgai-html-over-video: '0'
+      answered_by: examples/annex-o/O.5-2.xml
+    selection: *id003
+    presentation: *id004
+    beacons: []
+variants:
+- id: non-conforming-aps
+  description: 'O.7: an APS that ignored the forwarded set returns to D2 the takeover
+    first and the image lower-third second (O.7-1). The Player finds the first option''s
+    layout outside the window''s @allowedLayouts and does not render it (R5.6), cannot
+    composite the second, and skips the candidate; "The takeover''s sub-MPD is never
+    fetched." No viewer action: what differs is the document that answers the request.
+    Written for D2 only, the class O.7 walks.'
+  actions: []
+  outcomes:
+    D2:
+      summary: Nothing — the takeover option is outside the allowed layouts and the
+        lower-third needs an image surface; the candidate is skipped and the concert
+        continues.
+      requests:
+      - at:
+          from: 0
+          to: 10000
+        url: https://aps.example.com/nl/overlay?c=2&w=1
+        query: *id005
+        answered_by: examples/annex-o/O.7-1.xml
+      selection: *id003
+      presentation: *id004
+      beacons: []
+missing_carrier: []
+disagreements: []

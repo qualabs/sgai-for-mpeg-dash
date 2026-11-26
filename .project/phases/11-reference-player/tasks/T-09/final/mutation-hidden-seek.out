@@ -1,0 +1,58 @@
+== baseline
+OK
+== M1: guard removed (seek of a hidden primary splits again)
+1
+FAILED (failures=1)
+== M2: no seek ever splits
+1
+FAILED (failures=2)
+== M3: guard reads the previous segment instead (primary shown before)
+1
+OK
+== restored
+identical
+OK
+== round 2 (an edge added to the test: hidden seek inside a transition)
+== baseline
+OK
+== M1: guard removed
+FAILED (failures=1)
+== M2: no seek ever splits
+FAILED (failures=2)
+== M3: guard reads the previous segment
+FAILED (failures=1)
+== restored
+identical
+OK
+== round 3, the held-seek rule (supersedes rounds 1-2, whose rule dropped a seek that blanks the primary: R34.6 regressed in the battery)
+== baseline
+OK
+== M1: a hidden seek is dropped, never held (the round-1 rule)
+FAILED (failures=1)
+== M2: a hidden seek splits where it happens (HEAD's rule)
+FAILED (failures=1)
+== M3: no seek ever splits
+FAILED (failures=2)
+== M4: the held seek is never released (every later sample splits)
+FAILED (failures=1)
+== M5: a held seek is released by any sample, shown or not
+FAILED (failures=1)
+== restored
+identical
+FAILED (failures=1)
+== round 3 re-run with bytecode caching off (python -B, PYTHONDONTWRITEBYTECODE=1, the module's .pyc removed): the run above restored the file within the same second as a mutant of the same size and imported the mutant's cached .pyc
+== baseline
+OK
+== M1: a hidden seek is dropped, never held (the round-1 rule)
+FAILED (failures=1)
+== M2: a hidden seek splits where it happens (HEAD's rule)
+FAILED (failures=1)
+== M3: no seek ever splits
+FAILED (failures=2)
+== M4: the held seek is never released (every later sample splits)
+FAILED (failures=1)
+== M5: a held seek is released by any sample, shown or not
+FAILED (failures=1)
+== restored
+identical
+OK

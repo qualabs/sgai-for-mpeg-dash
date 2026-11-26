@@ -1,0 +1,140 @@
+format: sgai-scenario/1
+uc: UC-09
+uc_sha256: cdc63f03d59b04ded521838a1cd1b2a2e38ec2b123cb1a05dc9b7c2465a7ddbb
+timescale: 1000
+tolerance: 250
+play_from: 1440000
+observe_until: 90000
+entry: examples/annex-i/I.2-1.mpd
+fixtures:
+- path: examples/annex-i/I.2-1.mpd
+- path: examples/annex-i/I.3-1.http
+- path: examples/annex-i/I.3-2.xml
+  url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+- path: examples/annex-i/I.4-1.mpd
+  url: https://ads-cdn.example.com/nl/901/db-video.mpd
+- path: examples/annex-i/I.4-2.mpd
+  url: https://ads-cdn.example.com/nl/901/takeover.mpd
+player_capabilities:
+  D1:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D2:
+    sgai-video-decoders: 2
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D3:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 1
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D4:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 1
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+  D5:
+    sgai-video-decoders: 1
+    sgai-image-over-video: 0
+    sgai-html-over-video: 0
+    sgai-custom-layout: 0
+    sgai-ad-audio: 0
+sends_capabilities: []
+actions: []
+outcomes:
+  D1:
+    summary: 'Option 1: the programme in one box, the ad video in the other, the advertiser''s
+      background image in the bands, for 20 s.'
+    requests:
+    - at:
+        from: 0
+        to: 60000
+      url: https://aps.example.com/nl/overlay?s=11&e=4&w=1
+      query:
+        sgai-allowed-layouts: squeezeback-double-box-background squeezeback-l-shape-upper-left
+          overlay-lower-third linear
+      answered_by: examples/annex-i/I.3-2.xml
+      matches: examples/annex-i/I.3-1.http
+    - at:
+        from: 0
+        to: 60000
+      url: https://ads-cdn.example.com/nl/901/db-video.mpd
+      answered_by: examples/annex-i/I.4-1.mpd
+    selection:
+    - opportunity:
+        fixture: examples/annex-i/I.2-1.mpd
+        event_id: '1'
+      result: presented
+      presented:
+      - candidate: &id001
+          fixture: examples/annex-i/I.3-2.xml
+          index: 1
+        option:
+          index: 1
+        layout: squeezeback-double-box-background
+    presentation:
+    - start: 0
+      end: 60000
+      layout: none
+      shows:
+      - element: primary
+        from: 1440000
+    - start: 60000
+      end: 80000
+      layout: squeezeback-double-box-background
+      shows:
+      - element: primary
+        from: 1500000
+        region: one box
+      - element: ad
+        candidate: *id001
+        option:
+          index: 1
+        region: the other box
+      - element: background
+        candidate: *id001
+        option:
+          index: 1
+        region: the bands
+      note: I.6 "The programme in one box, the ad video in the other, the advertiser's
+        image in the bands."
+    - start: 80000
+      end: 90000
+      layout: none
+      shows:
+      - element: primary
+        from: 1520000
+    beacons:
+    - at: 60000
+      fixture: examples/annex-i/I.3-2.xml
+      candidate: *id001
+      id: '1'
+      url: https://t.example.com/imp?cr=901
+    - at: 70000
+      fixture: examples/annex-i/I.3-2.xml
+      candidate: *id001
+      id: '2'
+      url: https://t.example.com/mid?cr=901
+    - at: 80000
+      fixture: examples/annex-i/I.3-2.xml
+      candidate: *id001
+      id: '3'
+      url: https://t.example.com/complete?cr=901
+missing_carrier:
+- requirement: R13.6
+  element: 'UC-09 "Ad response": "The L-shape image option (2) carries its own impression
+    beacon, so the ADS learns which format each device showed: D3 and D4 fire it,
+    and D1, D2 and D5 do not." A non-linear option carries no tracking (the spec''s
+    §5.4 table: "tracking belongs to the candidate, whichever option renders"), and
+    I.3-2 has none on option 2. The outcomes record only the candidate''s beacons.'
+  classes:
+  - D3
+  - D4
+disagreements: []

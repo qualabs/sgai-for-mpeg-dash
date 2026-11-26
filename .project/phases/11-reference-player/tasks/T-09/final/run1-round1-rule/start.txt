@@ -1,0 +1,8 @@
+HEAD b1d643c
+nproc 2
+2026-11-25T14:35:22-03:00
+ 14:35:22 up 12 days, 20:30,  0 users,  load average: 1.79, 1.85, 2.39
+ M .project/phases/11-reference-player/TASKS.md
+ M bin/conformance/behaviour_compare.py
+ M bin/test_behaviour_compare.py
+?? .project/phases/11-reference-player/tasks/T-09/final/

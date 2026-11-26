@@ -1,0 +1,9 @@
+HEAD b1d643c + working tree (bin/conformance/behaviour_compare.py, bin/test_behaviour_compare.py: the held-seek rule)
+nproc 2
+2026-11-25T17:00:15-03:00
+ 17:00:15 up 12 days, 22:55,  0 users,  load average: 3.24, 2.74, 2.78
+ M .project/phases/11-reference-player/TASKS.md
+ M bin/conformance/behaviour_compare.py
+ M bin/test_behaviour_compare.py
+?? .project/phases/11-reference-player/tasks/T-09/final/
+ae9bbccdb872f0264a33831c6a88cc91aac809c6927e9ac50f54e3bc82bbe3a0  bin/conformance/behaviour_compare.py
