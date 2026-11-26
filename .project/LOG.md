@@ -2473,3 +2473,13 @@ T-07, en tres familias con el método nuevo y el reloj por presentación: layout
   - La suspensión y su vuelta cuentan como una sola presentación.
   - Hay tolerancia propia para el `from`.
 - **Tests nuevos:** R13.3-4 y R6.5-3, que salen de los borradores de T-08a.
+
+## 2026-11-26 — Fase 11 cerrada
+
+`reference-player`, las 12 tasks hechas. La referencia es el dash.js 5.3.0 fijado, sin tocar, más un módulo nuestro con el lineal de la 6ta, el no lineal, el tracking y el click. La batería opt-in la juzga por código.
+
+- **Medido al final:** 329 jobs, 1249 PASS, 62 FAIL, 70 NOT_VERIFIABLE. Ninguno de los FAIL es de la referencia. De los 62, 34 son de vectores o del instrumento, 23 tienen causa en la norma y 5 son inestables por la carga.
+- **Tiempo:** la batería entera tarda 4 h 37 min con concurrencia 2 (8 h 53 min en serie).
+- **Para el v13:** la lista de norma está en el REPORT, sección 4.
+
+REPORT escrito. `context/` y `dist/` no se tocaron.

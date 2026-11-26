@@ -10,10 +10,10 @@
 | T-06 | La referencia resuelve y elige: pedido, validación, opciones, perfil de clase, fallback, cap   | done | agent | —    | `reference-player/src/sgai-nonlinear.js`, `tasks/T-06/`        |
 | T-07 | La referencia presenta el no lineal: overlay, squeezeback con sus tokens, pausa, convivencia   | done | agent | —    | `reference-player/src/sgai-compositor.js`, `tasks/T-07/`        |
 | T-08 | La referencia dispara el tracking: callbacks, beacons de opción, click                         | done | agent | —    | `reference-player/src/sgai-nonlinear.js`, `sgai-click.js`, `sgai-linear.js`, `tasks/T-08/`        |
-| T-09 | La batería corrió entera, con su tiempo medido y cada FAIL clasificado                         | pending | agent | —    | —        |
-| T-10 | La suite de `bin/` cubre lo nuevo y prueba que nada corre la batería por defecto               | in-progress | agent | —    | —        |
-| T-11 | Hay una demo: página local y grabación de una sesión con lineal, overlay y pausa               | pending | agent | —    | —        |
-| T-12 | Cierre: REPORT.md (Mode D), LOG y validador                                                   | pending | agent | —    | —        |
+| T-09 | La batería corrió entera, con su tiempo medido y cada FAIL clasificado                         | done | agent | —    | `tasks/T-09/battery/battery.md`, `tasks/T-09/final/battery-final.md`        |
+| T-10 | La suite de `bin/` cubre lo nuevo y prueba que nada corre la batería por defecto               | done | agent | —    | `bin/test_behaviour_opt_in.py`, `tasks/T-10/`        |
+| T-11 | Hay una demo: página local y grabación de una sesión con lineal, overlay y pausa               | done | agent | —    | `reference-player/demo/`, `tasks/T-11/`        |
+| T-12 | Cierre: REPORT.md (Mode D), LOG y validador                                                   | done | agent | —    | `REPORT.md`        |
 
 Lo común a todas: las decisiones están en `PHASE.md` y en las ADR 0075 a 0087.
 El código de la referencia va en `reference-player/`; el del ejecutor y los

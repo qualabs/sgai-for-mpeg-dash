@@ -1,6 +1,6 @@
 ---
 title: Player de referencia
-description: "Un Player que implementa la extensión, el dash.js 5.3.0 fijado más un módulo nuestro, y la batería opt-in que lo prueba: los tests de conducta de los 61 criterios observables de context/03 y los 22 vectores de UC."
+description: "Player de referencia sobre el dash.js 5.3.0 fijado sin tocar (lineal de la 6ta, no lineal, tracking y click) y la batería opt-in que lo juzga por código: 59 criterios y 22 UC, 1249 PASS / 62 FAIL, ninguno de la referencia; 4 h 37 min con concurrencia 2. Lo que falla es de los vectores, del Player legacy o de la norma (insumo del v13)."
 started: 2026-11-23
 origin: "el líder del proyecto, 2026-11-23, hilo #sgai: el testing en tres niveles («Me gusta los 3!!!») y «Dash.js tiene que ser la referencia»; diseño aprobado el mismo día: «Ok, construyamos pero que por defecto no se use porque es muy caro en tiempo»"
 category: feature
