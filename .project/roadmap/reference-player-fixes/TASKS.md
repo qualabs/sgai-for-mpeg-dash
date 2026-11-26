@@ -42,8 +42,10 @@ la 6ta no entra al repo: se citan oraciones.
   de ejemplo son ilustrativos y que el Frame de ejemplo mide ≈ 52% contra el
   60% del texto. N-2 es el texto exacto de `DESIGN.md` (R36.1 cambia la
   última frase; R36.8 nuevo, que entra también al catálogo del nivel 2 y a
-  la población de conducta). Depende de T-10 para N-1; el resto, sin
-  dependencias.
+  la población de conducta). N-3 es el texto exacto de `DESIGN.md` (R13.1,
+  R13.3, la frase de R34.6, R13.9 nuevo); las re-descripciones listadas en
+  N-3 no se tocan sin decisión del líder. Depende de T-10 para N-1; el resto,
+  sin dependencias.
 - **Definition of done:** un commit por decisión con el porqué en el mensaje;
   después de cada uno, los gates `check-normative-base`,
   `check-context-coherence`, `check-context-vocabulary`,
@@ -62,7 +64,9 @@ la 6ta no entra al repo: se citan oraciones.
   resuelta después de la pausa deja el cuadro pausado en pantalla, sin nada
   en blanco, y sin resolución a tiempo la pausa sigue sin aviso; UC-08 acepta
   el pedido al inicio de la sesión y sus tiempos de restauración se corrigen
-  contra el texto), N-3 (beacon en el borde, seek interno), N-5 (E2 pasa a
+  contra el texto), N-3 (seek atrás dentro del overlay re-despacha
+  sin pedido nuevo, seek adelante dentro del rango, el negativo del borde;
+  R13.3-4 sin la nota de que su lectura es del test), N-5 (E2 pasa a
   `spec-source/behaviour/`), N-6 (callback en el fin del Period), N-7, N-9
   (UC-14 con la demora del principal), según la opción elegida. Esquema en
   `spec-source/behaviour/README.md`. Depende de T-01.
@@ -81,7 +85,7 @@ la 6ta no entra al repo: se citan oraciones.
   atribuirle a H.3 la otra lectura), N-7 (A:
   PRTA = PRT por cruce, sin el parche de `sgai-linear.js:789`), N-9 (A: el
   slate en su borde menos la demora del principal), N-1 (B: geometría),
-  N-3 (B), N-10 (A: la marca neutra), según lo elegido. Entradas:
+  N-3 (re-despacho en un seek interno, §5.10.2.4, sin re-resolver), N-10 (A: la marca neutra), según lo elegido. Entradas:
   `reference-player/src/`, sus vectores de borde E1–E18. Depende de T-02 (los
   tests se ven fallar antes, ADR 0085).
 - **Definition of done:** los tests de T-02 pasan; E1–E18 pasan; los jobs de

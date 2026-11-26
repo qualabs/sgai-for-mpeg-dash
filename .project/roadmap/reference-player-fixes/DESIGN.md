@@ -47,6 +47,12 @@ Cada una con el texto de hoy, la evidencia, las opciones y la recomendación.
 Las citas de la 6ta están verificadas contra la copia primaria; las de
 nuestro texto, contra su línea.
 
+**Criterio de toda la fase (el líder, 2026-11-26, al decidir N-3):** donde
+DASH tiene un mecanismo nativo, el requisito es **usarlo**, no re-describir
+cómo se comporta. Re-describir cuándo se despacha un beacon es el camino a
+reinventar el callback. Lo que nuestro texto agrega es sólo lo que la base no
+define.
+
 ### N-1. R12.5: ¿60% / 25% es área o lado?
 
 - **Hoy:** 03:842 *"the upper-left 60% of the frame"*; :844 *"the centre-left
@@ -130,25 +136,71 @@ nuestro texto, contra su línea.
   contenido un Player que sólo resuelve en el PRT de un corte lineal (R40.9-3,
   R40.3-2). Queda abierto.
 
-### N-3. R13.3: beacon en el borde del trim, y seek dentro del overlay
+### N-3. R13: el despacho de los beacons es el de DASH
 
-- **Hoy:** 03:2343 *"A beacon whose time falls after the presentation of its
-  ad has ended … MUST NOT be fired."* La spec PLY-80 (src:1385): *"stop firing
-  the remaining beacons at the trim boundary"*. src:2522: *"An `@id` is scoped
-  to one `<svta:Ad>` and one presentation of it"*.
-- **Problema:** "after" excluye el borde y "at the boundary" se puede leer
-  como que lo incluye; R13.3-4 espera que dispare y dice que es lectura del
-  test. "One presentation" no define qué hace un seek de adentro a adentro
-  de la ventana; la referencia no re-dispara y ningún test lo cubre.
-- **Opciones:**
-  - A. En 03: el beacon en el instante del fin dispara; un seek dentro del
-    rango no es una ejecución nueva y el alcance de `@id` sigue. La referencia
-    no cambia; dos tests nuevos.
-  - B. Lo opuesto: borde excluido, seek interno = ejecución nueva. Cambian la
-    referencia y R13.3-4.
-  - C. Sólo el borde; el seek queda como nota.
-- **Recomendación: A.** Es lo que la referencia hace y lo que pide el
-  `complete` en la duración (src:2534).
+- **Hoy:** R13.1 (03:2307) *"Each beacon MUST fire when the presentation of
+  its ad reaches its time"*; R13.3 (03:2343) *"A beacon whose time falls after
+  the presentation of its ad has ended … MUST NOT be fired."*; la spec PLY-80
+  (src:1385) *"stop firing the remaining beacons at the trim boundary"*.
+- **Problema:** las dos frases re-describen el despacho, y por eso quedaron
+  huecos que DASH ya contesta: el beacon justo en el borde, y el seek dentro
+  de un overlay. La 6ta, §5.10.2.4: *"A previously processed event will be
+  dispatched as if it was encountered for the first time in case it is
+  encountered due to a time-shift (seek) operation"* (verificado contra la
+  copia primaria). La referencia hoy no re-despacha en un seek interno.
+- **Decidido (el líder, 2026-11-26): A, usando lo nativo.** Texto exacto para
+  `context/03`:
+  - R13.1: sale *"Each beacon MUST fire when the presentation of its ad
+    reaches its time"*. Entra: *"The Player dispatches them as the base
+    specification dispatches callback events (DASH §5.10, §5.10.4.5), seeks
+    included."*
+  - R13.3 queda en lo que DASH no define: *"A trim, a dismissal or a resume
+    ends the ad's presentation timeline at that instant; its events are
+    dispatched under R13.1 up to and including that instant."* El `complete`
+    en el borde sale de ahí.
+  - R34.6 suma sólo: *"A seek whose origin and destination both lie inside
+    the window's range is not an entry: the execution continues with the ad
+    being presented, and no new resolution is requested."* Nada sobre
+    beacons: eso es R13.1.
+  - R13.9 nuevo (spec document): *"The specification MUST include an
+    informative annex on reading the beacons received: worked examples of what
+    the Player dispatches on a seek back, a seek forward, a trimmed ad and a
+    re-execution, for whoever computes what was viewed. The annex adds no
+    rule."* R13.9 está libre (la tabla de retirados sólo tiene R13.2).
+- **Qué arrastra:**
+  - T-01: el texto; R13.9 al catálogo del nivel 2 (spec document: lo juzga el
+    v13, que escribe el anexo).
+  - T-02: un test de seek atrás dentro del overlay (los callbacks ya
+    despachados se despachan de nuevo, sin pedido nuevo); uno de seek
+    adelante dentro del rango; el negativo del borde (el evento en el instante
+    del corte se despacha, uno después no); R13.3-4 deja de decir que su
+    lectura es del test.
+  - T-03: la referencia re-despacha en un seek interno (§5.10.2.4) sin
+    re-resolver.
+  - El v13: el anexo de R13.9 y PLY-80 alineado.
+- **Para que el líder vea, sin cambiar:** otras re-descripciones del despacho
+  en `context/03`, encontradas buscando `fire`, `firing` y `dispatch` en todo
+  el archivo:
+  1. R13.8 (03:2339) *"The specification defines which beacons the Player
+     fires and when"*: el "cuándo" pasa a ser de DASH.
+  2. R13.7 (03:2333) los beacons de slot *"MUST fire once per execution, when
+     that ad begins"* y el de fin *"MUST fire once, then"*: si van como
+     callbacks, un seek atrás dentro de la ejecución los re-despacha y choca
+     con "once per execution".
+  3. R34.6 (03:1260) lista como entrada *"a seek back to a point before its
+     end"*: la frase nueva lo contradice cuando el origen está adentro; hay
+     que leerla como excepción o acotar la lista.
+  4. R6.5 (03:2261) *"beacons sharing an `@id`, or the same URL at the same
+     presentation time, are one beacon and fire once"*: el `@id` es la regla
+     de DASH (§5.10.2.4, ignorado en reproducción normal); "the same URL at
+     the same presentation time" es nuestro agregado, y "fire once" choca con
+     el re-despacho por seek.
+  5. R40.9 (03:2175) *"or fire the slot-start beacon again"* al retomar tras
+     un corte lineal, y el párrafo de la pausa (03:1119) *"ceases firing
+     further tracking beacons"*: repiten lo que R13.3 nuevo ya dice.
+  - No son re-descripciones, porque DASH no tiene nativo: R13.6 (alcance por
+    opción), R42.1 (beacons de ocurrencia, *"never from the timeline"*), R47.1
+    (viewability), R34.3 (ventana consumida: no se presenta, no hay beacons).
 
 ### N-4. R4.5: ningún documento conforme la ejercita
 
