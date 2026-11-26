@@ -183,7 +183,7 @@ define.
   el archivo:
   1. R13.8 (03:2339) *"The specification defines which beacons the Player
      fires and when"*: el "cuándo" pasa a ser de DASH.
-  2. R13.7 (03:2333) los beacons de slot *"MUST fire once per execution, when
+  2. R13.7 (03:2334) los beacons de slot *"MUST fire once per execution, when
      that ad begins"* y el de fin *"MUST fire once, then"*: si van como
      callbacks, un seek atrás dentro de la ejecución los re-despacha y choca
      con "once per execution".
