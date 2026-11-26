@@ -94,19 +94,41 @@ nuestro texto, contra su línea.
   dice qué ve el viewer hasta que llega el aviso de pausa (UC-08 lo espera en
   30 000 exacto y falló una vez en 30 449), ni cuánto puede retener el
   contenido un Player que sólo resuelve en el PRT (R40.9-3, R40.3-2).
-- **Opciones:**
-  - A. En pausa gana "sólo cuando dispara". La referencia no cambia; UC-08
-    acepta un arranque tardío acotado.
-  - B. Gana "desde el inicio": se borra la última frase o se limita al overlay.
-    Cambian la referencia (`preResolvePause`) y UC-08, y un video de pausa
-    puede arrancar sin espera.
-  - C. El offset sólo pone el piso del pedido, para las dos familias, y
-    "fresco en la pausa" es lo que el Publisher consigue con `@validFor` 0
-    (R36.4). La referencia resuelve antes de la pausa.
-  - En las tres: un criterio de qué se ve mientras tanto (el cuadro pausado)
-    y una cota a la retención.
-- **Recomendación: C.** Una sola regla de offset para las dos familias, y la
-  frescura queda donde ya la modela R36.4.
+- **Decidido (el líder, 2026-11-26): el offset sólo pone el piso del pedido,
+  para las dos familias; la frescura la declara el APS (R36.4).** Descartadas:
+  "sólo cuando dispara" para la pausa (dos reglas de offset, y un video de
+  pausa nunca arranca en el instante de la pausa) y borrar la frase sin decir
+  qué la reemplaza.
+- **Texto exacto para `context/03`:**
+  - R36.1: sale *"An offset of zero means the window is resolved only when it
+    fires."* Entra: *"An offset of zero means the window may be resolved from
+    its start, never before it. The offset bounds only how early a resolution
+    may be requested; how fresh it must be when the opportunity fires is
+    declared by the APS (R36.4): a resolution whose usable lifetime is zero is
+    usable only if it arrives when the opportunity fires."*
+  - R36.8 nuevo (Player): *"When a pause opportunity is resolved after the
+    pause, the Player MUST keep the paused primary frame on screen until an ad
+    begins rendering, and MUST NOT cover it with a blank or loading surface. If
+    no usable resolution arrives within a time the Player chooses, the pause
+    continues with no ad, as for an empty resolution (R30)."* Sin número de
+    timeout, como R6. R36.8 está libre: "Retired identifiers" retira R36.2,
+    R36.3 y R36.6, no R36.8.
+  - R36.4, R36.5 y R36.7 no cambian.
+- **Qué arrastra:**
+  - T-01: el texto de arriba; R36.8 entra al catálogo del nivel 2 y a la
+    población de conducta (un criterio más).
+  - T-02: los tests de R36.1 (R36.1-1 a -3) reescritos contra el texto nuevo;
+    un test nuevo de R36.8 (pausa resuelta después de la pausa: el cuadro
+    pausado sigue en pantalla, nada en blanco, y sin resolución a tiempo la
+    pausa sigue sin aviso). UC-08 acepta el pedido al inicio de la sesión, y
+    sus tiempos de restauración se corrigen contra el texto.
+  - T-03: `preResolvePause` precarga la pausa desde el inicio de la ventana;
+    la cabecera de `sgai-nonlinear.js` (línea 70, que hoy atribuye la otra
+    lectura a H.3) dice la nueva.
+  - El v13: Annex H.3 muestra la precarga.
+- **Lo que esta decisión no cubre:** la cota a cuánto puede retener el
+  contenido un Player que sólo resuelve en el PRT de un corte lineal (R40.9-3,
+  R40.3-2). Queda abierto.
 
 ### N-3. R13.3: beacon en el borde del trim, y seek dentro del overlay
 

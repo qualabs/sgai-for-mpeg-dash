@@ -40,7 +40,10 @@ la 6ta no entra al repo: se citan oraciones.
   `context/05`, que es informativo. N-1 son los rectángulos de `DESIGN.md`
   (N-1), cada valor con su referencia a `v2.0.md` y la nota de que los videos
   de ejemplo son ilustrativos y que el Frame de ejemplo mide ≈ 52% contra el
-  60% del texto. Depende de T-10 para N-1; el resto, sin dependencias.
+  60% del texto. N-2 es el texto exacto de `DESIGN.md` (R36.1 cambia la
+  última frase; R36.8 nuevo, que entra también al catálogo del nivel 2 y a
+  la población de conducta). Depende de T-10 para N-1; el resto, sin
+  dependencias.
 - **Definition of done:** un commit por decisión con el porqué en el mensaje;
   después de cada uno, los gates `check-normative-base`,
   `check-context-coherence`, `check-context-vocabulary`,
@@ -55,8 +58,11 @@ la 6ta no entra al repo: se citan oraciones.
 - **Objective:** cada decisión que obliga a un Player tiene un test de
   conducta o un vector que la juzga, y se lo vio fallar.
 - **What it must cover:** N-1 (rectángulos por token en R12.5-1/R27.1), N-2
-  (pedido de la ventana de pausa, lo que se ve mientras tanto, la cota de
-  retención), N-3 (beacon en el borde, seek interno), N-5 (E2 pasa a
+  (R36.1-1 a -3 reescritos contra el texto nuevo; un test de R36.8: la pausa
+  resuelta después de la pausa deja el cuadro pausado en pantalla, sin nada
+  en blanco, y sin resolución a tiempo la pausa sigue sin aviso; UC-08 acepta
+  el pedido al inicio de la sesión y sus tiempos de restauración se corrigen
+  contra el texto), N-3 (beacon en el borde, seek interno), N-5 (E2 pasa a
   `spec-source/behaviour/`), N-6 (callback en el fin del Period), N-7, N-9
   (UC-14 con la demora del principal), según la opción elegida. Esquema en
   `spec-source/behaviour/README.md`. Depende de T-01.
@@ -70,7 +76,9 @@ la 6ta no entra al repo: se citan oraciones.
 
 - **Objective:** la referencia implementa la lectura elegida en cada punto, y
   su cabecera dice cuál.
-- **What it must cover:** N-2 (si sale B o C, `preResolvePause`), N-7 (A:
+- **What it must cover:** N-2 (`preResolvePause` precarga la pausa desde el
+  inicio de la ventana; la cabecera de `sgai-nonlinear.js:70` deja de
+  atribuirle a H.3 la otra lectura), N-7 (A:
   PRTA = PRT por cruce, sin el parche de `sgai-linear.js:789`), N-9 (A: el
   slate en su borde menos la demora del principal), N-1 (B: geometría),
   N-3 (B), N-10 (A: la marca neutra), según lo elegido. Entradas:
