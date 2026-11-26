@@ -11,10 +11,11 @@
 | T-07 | El formato dice capacidades por clase y, si N-10 sale A, la presentación alternativa       | pending | agent | —    | —        |
 | T-08 | Los 3 jobs inestables dan el mismo veredicto cargados que solos                           | pending | agent | —    | —        |
 | T-09 | La batería entera corrió una vez, con el antes y el después                               | pending | agent | —    | —        |
-| T-10 | Cierre: REPORT.md (Mode D), LOG y validador                                               | pending | agent | —    | —        |
+| T-10 | El proyecto lee la guía IAB de la v2.0 final, fijada a un commit                          | pending | agent | —    | —        |
+| T-11 | Cierre: REPORT.md (Mode D), LOG y validador                                               | pending | agent | —    | —        |
 
 Lo común a todas: las decisiones están en `PHASE.md`, en `DESIGN.md` (N-1 a
-N-11 con la opción que eligió el líder, D-1 a D-6) y en sus ADR. La batería es
+N-11 con la opción que eligió el líder, D-1 a D-7) y en sus ADR. La batería es
 opt-in (ADR 0087) y se verifica 100% por código: sin capturas; el runner
 devuelve un resumen y el detalle va a archivo. Cada subagente toma una familia,
 no una task entera, y lee de este archivo sólo el bloque de su task.
@@ -36,7 +37,10 @@ la 6ta no entra al repo: se citan oraciones.
   `bin/conformance/spec/` y los `criterion_sha256` de los tests y vectores del
   criterio tocado. Las N que no cambian `context/` (N-10 A) no van acá.
   Restricciones: `context/` sigue autocontenido (CLAUDE.md); ninguna regla en
-  `context/05`, que es informativo. Sin dependencias.
+  `context/05`, que es informativo. N-1 son los rectángulos de `DESIGN.md`
+  (N-1), cada valor con su referencia a `v2.0.md` y la nota de que los videos
+  de ejemplo son ilustrativos y que el Frame de ejemplo mide ≈ 52% contra el
+  60% del texto. Depende de T-10 para N-1; el resto, sin dependencias.
 - **Definition of done:** un commit por decisión con el porqué en el mensaje;
   después de cada uno, los gates `check-normative-base`,
   `check-context-coherence`, `check-context-vocabulary`,
@@ -151,16 +155,44 @@ la 6ta no entra al repo: se citan oraciones.
 
 - **Objective:** hay una medición de la batería entera sobre el código final,
   comparable con la de la fase 11.
-- **What it must cover:** D-6: máquina sin carga ajena, concurrencia 2,
+- **What it must cover:** D-7: máquina sin carga ajena, concurrencia 2,
   `uptime` al inicio y al final; cada FAIL clasificado (referencia, test,
   norma, inestable) y lo inestable re-corrido solo dos veces. Depende de T-01
-  a T-08.
+  a T-08 y de T-10.
 - **Definition of done:** `tasks/T-09/battery.md` con los totales antes y
   después y cada FAIL clasificado; cero FAIL de la referencia.
 - **nivel de verificación:** alto. Es la medición que dice si la batería ya
   sirve de juicio.
 
-## T-10 — Cierre
+## T-10 — La guía IAB v2.0 final
+
+- **Objective:** todo lo que el proyecto toma de la guía IAB sale de la
+  versión final, en un commit fijo, y se puede citar por línea.
+- **What it must cover:** D-6. El prompt del paso 5
+  (`prompts/1-pre-spec/analyze-iab-ad-templates.prompt`) lee `v2.0.md` del repo
+  `InteractiveAdvertisingBureau/Ad-Format-Guidelines-for-Digital-Video-CTV` en
+  un commit fijado (no la rama), con su skip por hash de entrada
+  (`bin/step-inputs.py`) y `build-all.prompt` §Step 5 sin el "NEVER skips";
+  `context-analysis/iab-ad-templates.md` regenerado. En `context/`: las citas
+  de 03:789, 03:817, 03:1656, 03:1722 y `99-glossary.md:46` (buscar todas con
+  `grep -rn -i "iab\|docs.google" context/`) pasan a v2.0 con fecha, commit y
+  línea. Las ADR 0001, 0002 y 0004: una nota fechada al pie, sin tocar la
+  prosa; si una decisión dejó de valer con la v2.0, ADR nueva que la
+  supersede. `PROJECT.md` donde nombra el estándar. La guía de signaling de
+  IAB y los códigos `pos` de AdCOM 1.0: buscar el término literal en todo
+  `context/`, `spec-source/`, `context-analysis/` y `prompts/`, y escribir lo
+  que se buscó y qué se encontró; si nuestro texto los toca, migrarlos igual.
+  Sin dependencias; T-01 la necesita para N-1.
+- **Definition of done:** el commit de IAB fijado en el prompt y en las
+  citas; `step-inputs.py` dice que el paso 5 no tiene que correr dos veces
+  seguidas con la misma entrada y sí al cambiar el commit (visto); los gates
+  de `context/` en 0; `grep -rn "Dec 2025\|docs.google.com/document/d/17JX"`
+  sobre `context/` y `prompts/` vacío, probado antes contra un archivo que lo
+  tiene; la búsqueda de signaling y `pos` en `tasks/T-10/`.
+- **nivel de verificación:** alto. Es fuente de requisitos: una cita que no
+  dice lo que la v2.0 dice se construye entera en el v13.
+
+## T-11 — Cierre
 
 - **Objective:** la fase cerrada con su REPORT, y `major-build-v13` sabe lo que
   recibe.

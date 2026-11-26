@@ -54,14 +54,33 @@ nuestro texto, contra su línea.
 - **Problema:** no dice área ni lado, ni dónde va el double box. Sin FAIL: la
   referencia (`sgai-compositor.js:39`, *"read as AREA … sqrt(0.60) = 77.46%"*)
   y R12.5-1/R27.1 leen área, marcado `[inferred]`.
-- **Opciones:**
-  - A. "Área, con el aspecto conservado" en la cabecera de la tabla. Nada
-    cambia salvo quitar el `[inferred]`.
-  - B. Lado (60%×60%). Cambian la referencia, R12.5-1, R27.1, R26.x, y falta
-    fijar la ubicación horizontal del double box.
-  - C. Rectángulos explícitos por token (x, y, ancho, alto en %) con los
-    valores de la lectura por área. Fija también la ubicación.
-- **Recomendación: C.** Cierra las dos dudas y no cambia tests ni referencia.
+- **Decidido (el líder, 2026-11-26): rectángulos explícitos por token**, con
+  los valores de la lectura por área, cada valor con su referencia y de dónde
+  sale. Descartadas: "área" en la cabecera sin coordenadas (deja la
+  ubicación inferida) y "lado" (cambia referencia y tests, y sigue sin fijar
+  la ubicación del double box).
+- **La fuente es la guía IAB final, no el borrador de diciembre de 2025.**
+  *Ad Format Guidelines for Digital Video and CTV* es final desde 2026-07-22:
+  `v2.0.md` del repo `InteractiveAdvertisingBureau/Ad-Format-Guidelines-for-Digital-Video-CTV`.
+  Su línea 121: *"L-Shape - The content will take up 60% of the 1920 x 1080
+  screen…"*, el Frame igual, *"Double Box Video - Each box … 25%"*; la 120, el
+  underlay de 1920×1080 con su recorte; la 125, el placement. No dice área ni
+  lado, ni coordenadas.
+- **Los videos de ejemplo** de la landing (`iabtechlab.com/standards/ctv-ad-portfolio/`,
+  1920×1080), medidos, dan la lectura por área. Son ilustrativos, no
+  normativos, y la referencia lo dice así:
+  - L-Shape ≈ 1473×828 en (0,0), ≈ 59% del área;
+  - Double Box: cajas ≈ 960×535, centradas en vertical, mitad izquierda y
+    mitad derecha, ≈ 24,8% cada una;
+  - Frame ≈ 1390×781 centrado, ≈ 52%. El texto dice 60% y se sigue el texto;
+    la diferencia se anota.
+- **Los rectángulos** (x, y, ancho, alto en % del viewport):
+  - `squeezeback-l-shape-upper-left`: 0, 0, 77,46, 77,46 (√0,60);
+  - double box: 0, 25, 50, 50 y 50, 25, 50, 50 (√0,25 = 50%);
+  - `squeezeback-frame`: 11,27, 11,27, 77,46, 77,46 (centrado, √0,60).
+- **Qué cambia:** la tabla de R12.5 en `context/03` (T-01), citando `v2.0.md`
+  fijado a un commit (T-10); R12.5-1 y R27.1 pierden el `[inferred]` (T-02);
+  la referencia no cambia, salvo sumar el frame cuando exista su token (Y-1).
 
 ### N-2. R36.1: offset 0 en una ventana de pausa
 
@@ -304,7 +323,34 @@ criterio, y el test que lo cubre, visto fallar (ADR 0085). Los gates de
 tocan: el v13 los absorbe. Los `[DISCUSSION]` al WG salen como borradores; los
 publica el líder del proyecto.
 
-### D-6. La batería entera, una vez, al cierre
+### D-6. La guía IAB se lee de la v2.0 final, fijada a un commit
+
+Hoy el proyecto la lee de tres formas, todas del borrador: el paso 5 de
+`build-all` regenera `context-analysis/iab-ad-templates.md` desde un Google
+Doc vivo (`prompts/1-pre-spec/analyze-iab-ad-templates.prompt:5`) y por eso
+"NEVER skips"; `context/03` la cita como *"public comment, Dec 2025"* con
+páginas (R27 en 03:1656 *"pp.12-13"*, 03:1722 *"p.12"*) y el Doc en 03:789 y
+`99-glossary.md:46`; y las ADR 0001, 0002 y 0004 la citan desde el Doc.
+
+Pasa a leerse del `v2.0.md` del repo de IAB **fijado a un commit**, no a la
+rama: una fuente fija es la que deja que el paso 5 se salte por el hash de su
+entrada (`bin/step-inputs.py`, ADR 0072) en lugar de correr siempre, y la que
+hace que una cita por línea siga siendo verdad. Las citas de `context/` pasan a
+v2.0 con fecha, commit y línea; el mirror se regenera; las ADR se anotan con
+una nota fechada, porque son inmutables y lo que cambió es la fuente, no la
+decisión (si una decisión dejó de valer por lo que dice la v2.0, es una ADR
+nueva que la supersede). La guía de signaling de IAB y los códigos `pos` de
+AdCOM 1.0 entran sólo si nuestro texto los toca: hoy el único rastro es
+`iab-ad-templates.md:62`, que remite los *Placement Types* a `plcmt` de
+OpenRTB/AdCOM y no genera filas. La task lo confirma buscando en todo el
+alcance y lo deja escrito.
+
+| Alternativa | Por qué no |
+|---|---|
+| Seguir la rama viva del repo | Una cita por línea deja de valer con el próximo commit de IAB, y el paso 5 no se puede saltar |
+| Copiar `v2.0.md` al repo | Es un documento de terceros; alcanza con el commit y la URL |
+
+### D-7. La batería entera, una vez, al cierre
 
 Opt-in como siempre (ADR 0087), con la máquina sin carga ajena y
 concurrencia igual a los núcleos (2). Mientras tanto cada task corre sólo los
