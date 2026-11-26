@@ -43,8 +43,14 @@ la 6ta no entra al repo: se citan oraciones.
   60% del texto. N-2 es el texto exacto de `DESIGN.md` (R36.1 cambia la
   última frase; R36.8 nuevo, que entra también al catálogo del nivel 2 y a
   la población de conducta). N-3 es el texto exacto de `DESIGN.md` (R13.1,
-  R13.3, la frase de R34.6, R13.9 nuevo); las re-descripciones listadas en
-  N-3 no se tocan sin decisión del líder. Depende de T-10 para N-1; el resto,
+  R13.3, la frase de R34.6, R13.9 nuevo) y las cinco re-descripciones
+  decididas: R13.8 sin "and when"; R13.7 eliminado (a "Retired identifiers",
+  y cada referencia de la lista de N-3 en `context/03`, `04` y `06`
+  corregida); R34.6 acotado a "a seek back from beyond its end"; R6.5 sin la
+  regla del Player y "same URL at the same time" como criterio del APS (el
+  número siguiente libre); R40.9 y la introducción de R16 remiten a R13.3.
+  Las ADR 0023 y 0025 llevan una nota fechada al pie, y
+  `roadmap/major-build-v13` deja de esperar el carrier de R13.7. Depende de T-10 para N-1; el resto,
   sin dependencias.
 - **Definition of done:** un commit por decisión con el porqué en el mensaje;
   después de cada uno, los gates `check-normative-base`,
@@ -66,7 +72,13 @@ la 6ta no entra al repo: se citan oraciones.
   el pedido al inicio de la sesión y sus tiempos de restauración se corrigen
   contra el texto), N-3 (seek atrás dentro del overlay re-despacha
   sin pedido nuevo, seek adelante dentro del rango, el negativo del borde;
-  R13.3-4 sin la nota de que su lectura es del test), N-5 (E2 pasa a
+  R13.3-4 sin la nota de que su lectura es del test). R13.7: fuera de
+  `catalog.py`, `pins.json`, el README de escenarios y los `missing_carrier`
+  de UC-06, UC-21 y UC-22. R6.5: R6.5-3 (same URL, same time) deja de ser un
+  test de conducta y pasa a ser una regla de documento del nivel 2 con su
+  negativo; R6.5-1 y R6.5-2 revisados contra el texto nuevo. R34.6: un test
+  de seek atrás desde más allá del fin (entrada) contra uno desde adentro
+  (no lo es), N-5 (E2 pasa a
   `spec-source/behaviour/`), N-6 (callback en el fin del Period), N-7, N-9
   (UC-14 con la demora del principal), según la opción elegida. Esquema en
   `spec-source/behaviour/README.md`. Depende de T-01.

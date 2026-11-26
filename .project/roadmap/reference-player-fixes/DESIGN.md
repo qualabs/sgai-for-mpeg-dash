@@ -178,29 +178,49 @@ define.
   - T-03: la referencia re-despacha en un seek interno (§5.10.2.4) sin
     re-resolver.
   - El v13: el anexo de R13.9 y PLY-80 alineado.
-- **Para que el líder vea, sin cambiar:** otras re-descripciones del despacho
-  en `context/03`, encontradas buscando `fire`, `firing` y `dispatch` en todo
-  el archivo:
+- **Las otras re-descripciones del despacho**, encontradas buscando `fire`,
+  `firing` y `dispatch` en todo `context/03`. **Decididas (el líder,
+  2026-11-26):**
   1. R13.8 (03:2339) *"The specification defines which beacons the Player
-     fires and when"*: el "cuándo" pasa a ser de DASH.
-  2. R13.7 (03:2334) los beacons de slot *"MUST fire once per execution, when
-     that ad begins"* y el de fin *"MUST fire once, then"*: si van como
-     callbacks, un seek atrás dentro de la ejecución los re-despacha y choca
-     con "once per execution".
-  3. R34.6 (03:1260) lista como entrada *"a seek back to a point before its
-     end"*: la frase nueva lo contradice cuando el origen está adentro; hay
-     que leerla como excepción o acotar la lista.
-  4. R6.5 (03:2261) *"beacons sharing an `@id`, or the same URL at the same
-     presentation time, are one beacon and fire once"*: el `@id` es la regla
-     de DASH (§5.10.2.4, ignorado en reproducción normal); "the same URL at
-     the same presentation time" es nuestro agregado, y "fire once" choca con
-     el re-despacho por seek.
-  5. R40.9 (03:2175) *"or fire the slot-start beacon again"* al retomar tras
-     un corte lineal, y el párrafo de la pausa (03:1119) *"ceases firing
-     further tracking beacons"*: repiten lo que R13.3 nuevo ya dice.
+     fires and when"*: sale "and when"; el cuándo es de DASH.
+  2. R13.7 (03:2330), los beacons de slot: **se eliminan** (less is more).
+     El anexo de R13.9 muestra cómo reconstruir el inicio y el fin de la
+     ventana con los beacons de los avisos, incluido el corte por el tope (un
+     aviso cortado antes de su `complete`). R13.7 va a "Retired identifiers".
+  3. R34.6 (03:1260): la entrada *"a seek back to a point before its end"* se
+     acota a "a seek back from beyond its end", y deja de chocar con la frase
+     del seek interno.
+  4. R6.5 (03:2261): sale la regla del Player (*"are one beacon and fire
+     once"*): DASH ya deduplica por `@id` (§5.10.2.4). "The same URL at the same
+     presentation time" pasa a ser una regla del servidor: el APS no emite
+     duplicados.
+  5. R40.9 (03:2175) *"or fire the slot-start beacon again"* y la
+     introducción de R16 (03:1119) *"ceases firing further tracking beacons"*:
+     la repetición se reemplaza por una referencia a R13.3. R16.1 ya la tiene
+     (03:1134).
   - No son re-descripciones, porque DASH no tiene nativo: R13.6 (alcance por
     opción), R42.1 (beacons de ocurrencia, *"never from the timeline"*), R47.1
     (viewability), R34.3 (ventana consumida: no se presenta, no hay beacons).
+- **Lo que referencia a R13.7** (`grep -rn "R13\.7\|slot-start\|slot-end"` en
+  `context/`, `spec-source/`, `bin/conformance/`, `reference-player/src/`,
+  `.project/`, `output-analysis/`; la spec v12.6 no lo tiene: sin carrier):
+  - `context/03`: :123 (fila del índice de Interfaces), :1267 (R34.6, *"its
+    own beacons (R13, R13.7, R42)"*), :2175 (R40.9), :2330 (el criterio).
+  - `context/04`: UC-06 :783–788 ("Slot beacons"), UC-21 :1973–2008, UC-22
+    :2021–2042.
+  - `context/06`: :326 (la lista de requisitos con carrier nuevo) y :354
+    (el carrier de los beacons de slot).
+  - Vectores: `UC-06.yaml:97`, `UC-21.yaml:11` y `:205`, `UC-22.yaml:11` y
+    `:123` (entradas `missing_carrier`).
+  - Nivel 2: `bin/conformance/spec/catalog.py:235` (regla NOT_VERIFIABLE sin
+    carrier) y `pins.json:122`.
+  - `spec-source/scenarios/README.md:152` (la lista de criterios sin carrier).
+  - Registros, que no se reescriben: ADR 0023 y 0025 (una nota fechada al
+    pie), `output-analysis/v12.7-context-delta.md`. `roadmap/major-build-v13`
+    deja de esperar el carrier de R13.7 (su línea 14).
+  - La referencia no lo implementa: nada que sacar.
+- **Pendiente del OK del líder, no planificado:** la línea de tiempo del slot
+  de un aviso de pausa sin media (una imagen, HTML).
 
 ### N-4. R4.5: ningún documento conforme la ejercita
 
