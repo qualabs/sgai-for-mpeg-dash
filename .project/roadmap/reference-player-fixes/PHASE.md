@@ -1,6 +1,6 @@
 ---
 title: Fixes de lo aprendido en la referencia
-description: "Antes del v13: las 11 decisiones de norma que dejó la fase 11 escritas en context/ con su test, y la batería de conducta sin ruido (legacy como Player de la 6ta, la guía IAB v2.0 final, vectores corregidos, formato por clase, sin inestables), para que sirva de juicio."
+description: "Antes del v13: las 12 decisiones de norma que dejó la fase 11 escritas en context/ con su test, y la batería de conducta sin ruido (legacy como Player de la 6ta, la guía IAB v2.0 final, vectores corregidos, formato por clase, sin inestables), para que sirva de juicio."
 started: 2026-11-26
 origin: "el líder del proyecto, 2026-11-26, vía el coordinador: fase de fixes con lo aprendido en la 11, antes del v13; la parte de norma la decide él"
 category: fix
@@ -11,12 +11,12 @@ depends_on: [reference-player]
 # Fixes de lo aprendido en la referencia
 
 El diseño, con la evidencia de cada punto, está en [`DESIGN.md`](DESIGN.md):
-las decisiones de norma N-1 a N-11, lo ya decidido Y-1 a Y-5 y las de
+las decisiones de norma N-1 a N-12, lo ya decidido Y-1 a Y-5 y las de
 ejecución D-1 a D-7.
 
 ## Alcance
 
-- **Norma** (`context/03`, `context/04`): lo que el líder elija en N-1 a N-11,
+- **Norma** (`context/03`, `context/04`): lo que el líder elija en N-1 a N-12,
   un commit por decisión, cada uno con el test o vector que lo cubre. Los
   `[DISCUSSION]` para el WG, como borradores.
 - **La referencia** (`reference-player/src/`): sigue cada lectura decidida.
@@ -48,4 +48,4 @@ ejecución D-1 a D-7.
 
 ## Stakeholders
 
-El líder del proyecto decide N-1 a N-11 y publica los `[DISCUSSION]`.
+El líder del proyecto decide N-1 a N-12 y publica los `[DISCUSSION]`.

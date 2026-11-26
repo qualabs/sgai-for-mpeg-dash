@@ -2,7 +2,7 @@
 
 | id   | brief                                                                                     | status  | who   | plan | evidence |
 | ---- | ----------------------------------------------------------------------------------------- | ------- | ----- | ---- | -------- |
-| T-01 | `context/` dice lo que el líder decidió en N-1 a N-11, con las citas y hashes al día       | pending | agent | —    | —        |
+| T-01 | `context/` dice lo que el líder decidió en N-1 a N-12, con las citas y hashes al día       | pending | agent | —    | —        |
 | T-02 | Cada decisión tiene el test o vector que la cubre, visto fallar                           | pending | agent | —    | —        |
 | T-03 | La referencia toma la lectura decidida en cada punto                                       | pending | agent | —    | —        |
 | T-04 | Los `[DISCUSSION]` para el WG están escritos, listos para publicar                         | pending | agent | —    | —        |
@@ -28,7 +28,7 @@ la 6ta no entra al repo: se citan oraciones.
 
 ## T-01 — `context/` dice lo decidido
 
-- **Objective:** cada decisión N-1 a N-11 que cambia `context/` está escrita
+- **Objective:** cada decisión N-1 a N-12 que cambia `context/` está escrita
   ahí, y nada de lo que lee `context/` quedó desfasado.
 - **What it must cover:** la opción elegida de cada N (en `DESIGN.md`), en
   `context/03` (lecturas del Player bajo R1.5, filas de "Deliberately open",
@@ -50,7 +50,11 @@ la 6ta no entra al repo: se citan oraciones.
   regla del Player y "same URL at the same time" como criterio del APS (el
   número siguiente libre); R40.9 y la introducción de R16 remiten a R13.3.
   Las ADR 0023 y 0025 llevan una nota fechada al pie, y
-  `roadmap/major-build-v13` deja de esperar el carrier de R13.7. Depende de T-10 para N-1; el resto,
+  `roadmap/major-build-v13` deja de esperar el carrier de R13.7. N-12: la
+  frase de cierre de la introducción de R16, R16.3 nuevo (R16.2 está
+  retirado), la frase de R32.1 `repeat`, la variante `repeat` con imagen de
+  UC-05 en `context/04`, y el texto de §3.1 y PLY-65 anotado en
+  `roadmap/major-build-v13` como texto decidido. Depende de T-10 para N-1; el resto,
   sin dependencias.
 - **Definition of done:** un commit por decisión con el porqué en el mensaje;
   después de cada uno, los gates `check-normative-base`,
@@ -78,7 +82,10 @@ la 6ta no entra al repo: se citan oraciones.
   test de conducta y pasa a ser una regla de documento del nivel 2 con su
   negativo; R6.5-1 y R6.5-2 revisados contra el texto nuevo. R34.6: un test
   de seek atrás desde más allá del fin (entrada) contra uno desde adentro
-  (no lo es), N-5 (E2 pasa a
+  (no lo es). N-12: imagen de pausa con beacon a 2 s y el principal a 2x;
+  `repeat` en dos pasadas o más, la última cortada al reanudar; secuencia de
+  dos imágenes (beacons desde el render de cada aviso, `dismissAfter` desde el
+  del primero); el vector de UC-05 suma su variante, N-5 (E2 pasa a
   `spec-source/behaviour/`), N-6 (callback en el fin del Period), N-7, N-9
   (UC-14 con la demora del principal), según la opción elegida. Esquema en
   `spec-source/behaviour/README.md`. Depende de T-01.
@@ -97,7 +104,10 @@ la 6ta no entra al repo: se citan oraciones.
   atribuirle a H.3 la otra lectura), N-7 (A:
   PRTA = PRT por cruce, sin el parche de `sgai-linear.js:789`), N-9 (A: el
   slate en su borde menos la demora del principal), N-1 (B: geometría),
-  N-3 (re-despacho en un seek interno, §5.10.2.4, sin re-resolver), N-10 (A: la marca neutra), según lo elegido. Entradas:
+  N-3 (re-despacho en un seek interno, §5.10.2.4, sin re-resolver), N-10 (A: la marca neutra), N-12
+  (el slot de pausa no avanza con el `playbackRate` del principal,
+  `sgai-nonlinear.js:717`; `repeat` abre una presentación nueva por pasada,
+  `:1086`), según lo elegido. Entradas:
   `reference-player/src/`, sus vectores de borde E1–E18. Depende de T-02 (los
   tests se ven fallar antes, ADR 0085).
 - **Definition of done:** los tests de T-02 pasan; E1–E18 pasan; los jobs de

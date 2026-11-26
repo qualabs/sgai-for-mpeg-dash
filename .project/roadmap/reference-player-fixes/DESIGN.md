@@ -219,8 +219,73 @@ define.
     pie), `output-analysis/v12.7-context-delta.md`. `roadmap/major-build-v13`
     deja de esperar el carrier de R13.7 (su línea 14).
   - La referencia no lo implementa: nada que sacar.
-- **Pendiente del OK del líder, no planificado:** la línea de tiempo del slot
-  de un aviso de pausa sin media (una imagen, HTML).
+- La línea de tiempo del slot de un aviso de pausa sin media: N-12.
+
+### N-12. La línea de tiempo del slot de pausa, `repeat` y su ejemplo
+
+- **Hoy:** la spec §3.1 (src:366) *"For a pause slot it is the timeline of the
+  pause ad itself, which advances while the pause ad plays … In every case it
+  advances at the playback speed of the primary content (§4.5.12)."* Una imagen
+  o un HTML no tienen línea de tiempo propia, y en pausa el principal está
+  quieto: la regla no dice sobre qué se miden sus beacons ni su
+  `dismissAfter`, y "a la velocidad del principal" no tiene sentido con el
+  principal en pausa. R32.1 (03:1158) `repeat` *"the sequence is presented
+  again from the start"* no dice si los beacons vuelven a dispararse.
+- **Decidido (el líder, 2026-11-26):**
+  1. Spec §3.1, la parte de pausa, pasa a: *"For a pause slot it is the
+     timeline of the pause ad itself, which advances while the pause ad is on
+     screen even though the primary content's presentation time is frozen
+     (§4.5.10). A pause ad with no media timeline of its own (an image, an
+     HTML document) gets one from the Player: it starts at zero when the ad is
+     first rendered and advances at the rate of the wall clock while the ad
+     stays on screen. For a linear or an overlay slot it advances at the
+     playback speed of the primary content (§4.5.12); a pause slot advances at
+     normal speed, since the primary content is paused."* En `context/03`: una
+     frase de cierre en la introducción de R16 y un criterio nuevo del Player:
+     para un aviso de pausa sin línea de tiempo de media, su línea de tiempo
+     del slot empieza en cero al primer render y avanza al ritmo del reloj de
+     pared mientras está en pantalla; sus beacons y su `dismissAfter` se miden
+     sobre ella.
+  2. R32.1 `repeat` suma *"each pass is a new presentation of each candidate,
+     and its beacons fire again"*; en la spec, PLY-65 igual.
+  3. Un ejemplo trabajado en el anexo de pausa: un solo candidato imagen con
+     `@duration` (30 s) y `onExhausted="repeat"`, que cubre toda la pausa, con
+     los beacons por pasada y la pasada cortada al reanudar (R13.3). Encaja en
+     el Annex E: E.7 hoy muestra `request-again` y termina diciendo qué haría
+     `repeat` (src:3976); el ejemplo es una variante de E.7.
+- **El número del criterio nuevo es R16.3, no R16.2.** R16.2 está retirado
+  (03:2922, `| R16.2 | R13.3 |`), y `check-context-interfaces.py` rechaza un
+  identificador retirado citado fuera de su tabla.
+- **Una secuencia de candidatos: elegí una línea de tiempo continua por
+  slot, hecha de un tramo por aviso.** Empieza en cero cuando el primer
+  aviso del slot empieza a renderizarse y sigue a través de la secuencia y de
+  las pasadas de `repeat`. Cada aviso ocupa un tramo de ella, que avanza con su
+  media o, sin media, con el reloj de pared. Los beacons de un aviso se miden
+  desde el inicio de su tramo (R13.1 ya los fecha *"relative to the
+  presentation of the candidate that hosts them"*), así que empiezan en cero
+  en cada aviso y en cada pasada. El `dismissAfter` se mide sobre la línea
+  continua, porque es del slot: la spec lo mide *"from the moment the slot
+  begins rendering"* (PLY-74, src:1349) y una línea por aviso lo reiniciaría
+  en cada aviso. Esto precisa "sus beacons y su `dismissAfter` se miden sobre
+  ella" del texto del líder: los beacons sobre el tramo del aviso, el
+  `dismissAfter` sobre el slot. Una pausa no tiene tope (R31.2), así que el
+  tope no entra.
+- **Dónde cae:** `spec-source/sgai-spec.src.md` no se toca en esta fase (D-5).
+  El criterio de R16 y la frase de R32.1 van a `context/03`; el ejemplo, a
+  UC-05 en `context/04` como variante `repeat` con una imagen, que es de donde
+  el v13 escribe el Annex E. El texto exacto de §3.1 y de PLY-65 queda en
+  `roadmap/major-build-v13` como texto decidido para el build.
+- **Tests:**
+  - un aviso de pausa imagen con un beacon a 2 s lo dispara 2 s después del
+    render, con el principal a 2x;
+  - `repeat` sostenido dos pasadas o más dispara los beacons una vez por
+    pasada, y la última pasada se corta al reanudar según R13.3;
+  - una secuencia de dos imágenes: el beacon del segundo aviso se mide desde
+    su render, y el `dismissAfter` desde el del primero.
+- **La referencia:** `sgai-nonlinear.js:717` avanza el reloj de pared por
+  `playbackRate` del principal; T-03 verifica que en un slot de pausa no lo
+  haga (el test de 2x lo decide) y que `repeat` (`:1086`) abra una presentación
+  nueva por pasada.
 
 ### N-4. R4.5: ningún documento conforme la ejercita
 
