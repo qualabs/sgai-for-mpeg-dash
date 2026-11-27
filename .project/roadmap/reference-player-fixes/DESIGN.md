@@ -287,21 +287,108 @@ define.
   haga (el test de 2x lo decide) y que `repeat` (`:1086`) abra una presentación
   nueva por pasada.
 
-### N-4. R4.5: ningún documento conforme la ejercita
+### N-4. R4.5: media del aviso más larga que lo declarado
 
 - **Hoy:** 03:648 *"When the actual rendered length of an accepted candidate
   exceeds its declared duration, the Player MUST enforce the cap against
-  actual length"*. La spec pide un test (R-PLY-13, src:5180).
-- **Problema:** `behaviour/index.yaml:56` la deja sin test: el video no pasa de
-  `Period@duration`, la List MPD toma el menor, imagen y HTML duran exacto.
-- **Opciones:**
-  - A. Retirarla, absorbida por R4.2 + R4.11 (el tope en la línea de tiempo
-    del slot). Se borra la entrada del índice.
-  - B. Reformularla como robustez ante media defectuosa, con un fixture no
-    conforme. No verificado que el formato lo admita.
-  - C. Dejarla, y que R-PLY-13 diga NOT_VERIFIABLE con el mismo motivo.
-- **Recomendación: A.** Una obligación que nada conforme puede activar no
-  compra nada.
+  actual length"*. Ningún documento conforme la activa, y
+  `behaviour/index.yaml:56` la deja sin test.
+- **Decidido (el líder, 2026-11-27): se queda, como regla defensiva.** La
+  media viene de terceros con defectos (segmentos declarados de 2 s que miden
+  2,1 o 2,3 s), y quien diseña el Player tiene que saber qué se espera. Dejarlo
+  sin decir es un hueco. Imagen y HTML no aplican: duran exacto su
+  `@duration`.
+- **Lo que dicen la base y dash.js** (6ta verificada contra la copia
+  primaria):
+  - §5.3.5.1 *"A Representation starts at the start of the Period PeriodStart
+    and continues to the end of the Period"*; §7.2.1 nombra los segmentos
+    *"longer … than indicated by the Period duration"* y ajusta el playout al
+    borde. El sobrante se recorta en el fin del Period.
+  - Con `SegmentTemplate@duration` la duración es *"constant approximate"*
+    (§5.3.9.2.1) y la deriva admitida es `@tolerance` (default 50%) de
+    `@duration` (§7.2.1). Segmentos de 2,2 s declarados de 2 s son conformes
+    hasta que la deriva pasa 1 s (unos 5 segmentos); con `SegmentTimeline`
+    *"@d … shall represent the accurate presentation duration"* (§5.3.9.6) y no
+    lo son.
+  - La alternativa lineal termina en lo declarado: Table 57 `APD` es la
+    duración *"defined by the MPD"*, y §5.16.2.2 paso 5 presenta *"for
+    duration min(APDE, APDA)"*; el caso "más larga" no existe en el modelo.
+  - dash.js 5.3.0 ya corta en el fin del Period: `appendWindowEnd = sInfo.start
+    + sInfo.duration` (`dash.all.debug.js:37369`, más 10 ms, `:37235`;
+    `useAppendWindow: true`, `:23305`).
+  - La referencia ya corta en lo declarado: lineal por `Part.duration`
+    (`sgai-linear.js:525`, `:698`), no lineal por la línea de tiempo del slot
+    (`sgai-nonlinear.js:760`).
+- **El texto actual pide lo contrario de la base**: "enforce the cap against
+  actual length" contradice Table 57, no es observable y le correría al
+  siguiente candidato y a los beacons. El texto nuevo corta en lo declarado.
+- **Texto para `context/03`:**
+
+  > **R4.5** (Player): When the media of an accepted candidate runs longer
+  > than its declared duration (R19.3) — a third-party encode whose segments
+  > are longer than its MPD states — the Player MUST end the candidate at its
+  > declared duration and MUST NOT present the media past it, as the base
+  > specification ends a Representation at the end of its Period (§5.3.5.1).
+  > The next candidate, or the primary content, starts at that point; the cap
+  > (R4.2, R4.6) and the beacon schedule (R13.1) are computed on declared
+  > durations and are not moved by the excess. A form with no media timeline
+  > (image, HTML) cannot run longer and is outside this criterion.
+
+- **UC-23 para `context/04`** (más su fila en la tabla de cobertura):
+
+  > ### UC-23 — A third-party ad whose media runs longer than declared
+  >
+  > **Scenario:** A VOD programme carries an inherited linear insertion at
+  > 10:00 (`InsertPresentation`, UC-02), maximum duration 30 s (R4), resolved
+  > to a List MPD of two 15 s ads, A and B. A's third-party encode declares
+  > 2 s segments that are 2.2 s long, so its media runs about 1.5 s past its
+  > declared 15 s.
+  >
+  > **Publisher intent:** a 30 s break of two 15 s ads, whatever the ad media
+  > does.
+  >
+  > **Expected behavior:** on every device class (D1–D5):
+  > - **0–15 s of the break.** A is presented; its beacons fire on its
+  >   declared schedule. At 15 s A ends (R4.5); its surplus media is not shown.
+  > - **15–30 s.** B starts at 15 s, from its beginning, and plays whole; the
+  >   cap is not reached early.
+  > - **The programme returns at 10:00** (`RT = PRTA`, Table 57).
+  > - **The same candidate as the video option of an overlay** (D1, D2; D3–D5
+  >   select an image option or skip, as in UC-03): removed at its declared
+  >   duration.
+  > - **Legacy Player** — ignores the break (UC-07).
+  >
+  > **What this demonstrates:** a declared duration is a promise the Player
+  > keeps for the ad, so a defective encode costs its own surplus and nothing
+  > of the ads after it.
+
+  Si N-11 sale B, la línea legacy cambia: un legacy de la 6ta sí ejecuta el
+  corte (D-1) y corta igual, porque su dash.js recorta en el Period.
+- **Tests:**
+  - `R4.5-1` (lineal): inserción a los 2 s con `@maxDuration` 10 000 (el tope
+    no acota), List MPD de ad1 (5 s declarados) y ad2 (4 s). ad1 trae
+    segmentos **reales de 2,2 s declarados de 2 s**. Esperado en D1:
+    0–2000 principal, 2000–7000 ad1, 7000–11000 ad2, 11000– principal desde
+    2000; `imp` de ad2 a los 7000. Un Player que espera el fin real de la
+    media muestra ad1 hasta ~8500 y falla con la tolerancia de 250.
+  - `R4.5-2` (no lineal): ventana overlay, un candidato de video con el mismo
+    ad1, removido a los 5 s declarados, `complete` ahí.
+  - Se sale de `behaviour/index.yaml` la entrada de R4.5.
+  - **Visto fallar:** con la referencia mutada para terminar en el `ended`
+    del video y `useAppendWindow: false`. Sin esa mutación el test no puede
+    fallar en un Player sobre dash.js, porque dash.js ya recorta: el test
+    juzga al Player que no lo tiene, y eso se dice en su cabecera.
+- **Lo que hay que construir:** hoy el harness corta la media exactamente en
+  lo que declara el MPD (`bin/conformance/players.py:316`, `-seg_duration`) y
+  exige una duración entera que divida los 32 s de contenido (`:212`). El
+  fixture de 2,2 s pide un override de la duración real por fixture, y una
+  marca en el vector de "media defectuosa a propósito, documento conforme",
+  porque `expect_red` exige que fallen reglas de documento y acá no falla
+  ninguna (el nivel 1 no mira la media). Va en T-07. Un `Period@duration`
+  que no es múltiplo del segmento (PT5S con segmentos de 2 s) no sirve: es
+  conforme (A.3.3), no es el defecto que se pidió, y dash.js lo resuelve solo.
+- **El v13:** PLY-26, PLY-37 y R-PLY-13 de la spec dicen el texto viejo; los
+  reescribe el build desde `context/`.
 
 ### N-5. La 6ta: "QE is reset" al terminar re-ejecuta una inserción
 

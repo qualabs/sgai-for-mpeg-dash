@@ -32,8 +32,8 @@ la 6ta no entra al repo: se citan oraciones.
   ahí, y nada de lo que lee `context/` quedó desfasado.
 - **What it must cover:** la opción elegida de cada N (en `DESIGN.md`), en
   `context/03` (lecturas del Player bajo R1.5, filas de "Deliberately open",
-  R4.5 a "Retired identifiers" si N-4 sale A) o `context/04` (UC-07 si N-11
-  sale B). En el mismo commit: las oraciones citadas por las reglas de
+  R4.5 reescrito como regla defensiva, N-4) o `context/04` (UC-07 si N-11
+  sale B; UC-23 nuevo con su fila de cobertura, N-4). En el mismo commit: las oraciones citadas por las reglas de
   `bin/conformance/spec/` y los `criterion_sha256` de los tests y vectores del
   criterio tocado. Las N que no cambian `context/` (N-10 A) no van acá.
   Restricciones: `context/` sigue autocontenido (CLAUDE.md); ninguna regla en
@@ -85,7 +85,11 @@ la 6ta no entra al repo: se citan oraciones.
   (no lo es). N-12: imagen de pausa con beacon a 2 s y el principal a 2x;
   `repeat` en dos pasadas o más, la última cortada al reanudar; secuencia de
   dos imágenes (beacons desde el render de cada aviso, `dismissAfter` desde el
-  del primero); el vector de UC-05 suma su variante, N-5 (E2 pasa a
+  del primero); el vector de UC-05 suma su variante. N-4: `R4.5-1` (lineal) y
+  `R4.5-2` (overlay) con media real de 2,2 s declarada de 2 s, vistos fallar
+  con la referencia mutada (fin en el `ended` del video, `useAppendWindow:
+  false`); el vector de UC-23; R4.5 sale de `behaviour/index.yaml`. Depende
+  de T-07 para el fixture, N-5 (E2 pasa a
   `spec-source/behaviour/`), N-6 (callback en el fin del Period), N-7, N-9
   (UC-14 con la demora del principal), según la opción elegida. Esquema en
   `spec-source/behaviour/README.md`. Depende de T-01.
@@ -161,13 +165,19 @@ la 6ta no entra al repo: se citan oraciones.
 
 - **Objective:** el formato puede decir lo que un UC pide por clase, y, si
   N-10 sale A, una presentación alternativa que no es candidato.
-- **What it must cover:** D-2: `sends_capabilities` por clase (UC-13 D3/D4) y
+- **What it must cover:** N-4: un override de la duración real de los
+  segmentos por fixture en la generación de media
+  (`bin/conformance/players.py`, hoy `-seg_duration` igual a lo declarado y
+  duración entera divisora de 32 s), y una marca en el vector de "media
+  defectuosa a propósito, documento conforme", distinta de `expect_red`. D-2:
+  `sends_capabilities` por clase (UC-13 D3/D4) y
   la capacidad de sesión del perfil de clase (UC-19 D1), en
   `spec-source/scenarios/schema.json`, `check-scenarios.py`,
   `bin/conformance/behaviour*.py`. N-10 A: `element: alternative` en esquema,
   adaptador, comparador; UC-14 y R40.6 reescritos. Compatibilidad con los
   vectores que no lo usan. Depende de T-01 para N-10.
-- **Definition of done:** los 3 jobs de D-2 y los 11 de N-10 sin esos FAIL; los
+- **Definition of done:** un fixture con segmentos reales de 2,2 s
+  declarados de 2 s, medido (`ffprobe` de cada segmento); los 3 jobs de D-2 y los 11 de N-10 sin esos FAIL; los
   tests de `bin/` del formato con su negativo; la suite de `bin/` en 0.
 - **nivel de verificación:** alto. Es el instrumento con que se juzga todo.
 
