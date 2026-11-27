@@ -398,16 +398,38 @@ define.
 - **Problema:** leída literal, una inserción con `@executeOnce="false"` se
   re-ejecuta para siempre. Sin FAIL (la referencia toma A.14.5); el mutante
   literal lo caza E2.
-- **Opciones:**
-  - A. Lectura en 03 (R1.5): al terminar, el evento no vuelve a la cola; se
-    re-ejecuta sólo si el playhead *entra* de nuevo. Se apoya en §5.16.2.2.1:
-    *"An event is executed every time the playhead enters the active
-    interval"*. E2 pasa a test de conducta.
-  - B. Sólo `[DISCUSSION]` al WG y una fila en "Deliberately open": un Player
-    en loop sería conforme.
-  - C. A + B.
-- **Recomendación: C.** La lectura tiene ancla en la 6ta; la contradicción
-  interna es de ISO y sólo el WG la corrige.
+- **Decidido (el líder, 2026-11-27): C, lectura en 03 + `[DISCUSSION]`.**
+  Texto exacto para `context/03` (R1.7 está libre: R1 llega a R1.6 y la tabla
+  de retirados no tiene ningún R1):
+
+  > **R1.7** (Player): An insertion does not trigger itself again: resuming
+  > inside the same event's active interval is not entering it (MPEG-DASH 6th
+  > edition §5.16.2.2.1).
+  >
+  > Note: this looks obvious, and it is the intent of MPEG-DASH 6th edition.
+  > It is stated because the letter of that edition says otherwise: when an
+  > insertion ends, §5.16.2.2.5 step 1a resets the event queue, and the reset
+  > re-adds every event still active at the return point, so read literally
+  > an insertion with @executeOnce="false" would run again in a loop. Its
+  > informative Annex A.14.5 does not do this. The contradiction has been
+  > raised with MPEG.
+
+- **"Deliberately open"** suma una fila: la contradicción entre el paso 1a de
+  §5.16.2.2.5 y A.14.5, *Decided by MPEG*, con el issue como "Recorded in". El
+  párrafo de abajo de la tabla dice *"The three rows above are the only
+  questions this edition leaves open"*: pasa a cuatro.
+- **La última frase de la nota es verdad recién cuando el issue existe.** Por
+  eso va en orden: T-04 escribe el `[DISCUSSION]`, el líder lo publica y pasa
+  la URL, y recién entonces T-01 escribe R1.7 y la fila con esa URL. Hasta
+  ahí, el resto de T-01 avanza.
+- **Test** (E2 de los vectores de borde pasa a ser este test de conducta):
+  inserción con intervalo activo 100–130 s, un aviso de 15 s,
+  `@executeOnce="false"`. Se ejecuta una vez y el principal sigue desde los
+  100 s; después de un seek a los 90 s se ejecuta otra vez al llegar a 100.
+  Un Player en loop falla. Visto fallar con el mutante literal (el reset de QE
+  al terminar), que hoy caza E2.
+- **La referencia** ya toma la lectura de A.14.5 (cabecera de
+  `sgai-linear.js:27`): no cambia.
 
 ### N-6. La 6ta: un evento justo en el fin del Period
 
