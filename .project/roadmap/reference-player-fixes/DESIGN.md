@@ -532,16 +532,38 @@ define.
 - **Problema:** nada ata la demora del principal con el arranque del
   alternativo. En UC-14 D1 el slate entra con su tiempo en 66 198, no 60 000;
   la ventana queda 13,8 s de 20 y el `complete` no sale.
-- **Opciones:**
-  - A. Lectura en 03: el borde del alternativo se toma con la misma demora
-    con que se reproduce el principal (el NOW literal es inalcanzable, así que
-    todo Player elige alguna). La referencia arranca el slate en su borde
-    menos esa demora.
-  - B. Del Publisher: el mismo `MPD@suggestedPresentationDelay` en los dos
-    MPD; N.4/N.7 dejan de suponer latencia igual y el vector se ensancha.
-    Ningún Player cambia.
-- **Recomendación: A.** El resultado de UC-14 sólo vale con
-  latencia igual, y hoy nada la garantiza.
+- **Decidido (el líder, 2026-11-27): A, como SHOULD.** Criterio nuevo
+  **R1.9**: va en R1 con las otras lecturas de la 6ta (R1.7, R1.8), y es el
+  siguiente libre. Texto exacto:
+
+  > **R1.9** (Player): When the alternative is a live presentation, the
+  > Player SHOULD start it at its live edge minus the same delay at which it
+  > was playing the primary content, so the viewer sees the alternative with
+  > the same latency as the main presentation. MPEG-DASH 6th edition says a
+  > live alternative "always starts at the live edge" (§5.16.2.2.6), with the
+  > live edge defined as wall-clock time NOW; no Player plays exactly at NOW,
+  > so each one picks a delay, and this criterion says which. Where that is
+  > not possible, the Player starts it as close to that point as it can.
+
+- **Los vectores, con un SHOULD: elegí que afirmen el caso alineado y que un
+  desvío ahí no sea FAIL.** Los campos de UC-14 que dependen de la alineación
+  (los tiempos del overlay sobre el slate y su `complete`, los 6 FAIL de hoy)
+  llevan una marca nueva del formato, `strength: should`. El comparador
+  informa un desvío en esos campos como `SHOULD_NOT_MET`, contado aparte del
+  PASS y del FAIL, con lo esperado y lo observado. Todo lo demás de UC-14
+  (que el slate se presenta, que el overlay se presenta sobre él, los pedidos)
+  sigue siendo MUST y da FAIL.
+  - Descartadas: convertir los 6 en notas sin esperado (se pierde la medición
+    de quién alinea) y que el vector afirme sólo para un Player alineado (un
+    Player que no alinea quedaría sin juzgar en lo demás).
+  - Cuesta un cambio de formato (esquema, `check-scenarios`, comparador), que
+    va en T-06 con su negativo: un desvío en un campo `should` no da FAIL, el
+    mismo desvío en un campo sin la marca sí.
+- **Test de R1.9:** UC-14 alineado da PASS; con la referencia mutada para
+  arrancar el slate en su borde (sin la demora), los campos `should` dan
+  `SHOULD_NOT_MET` y no FAIL.
+- **La referencia** arranca el slate en su borde menos la demora del
+  principal (T-03).
 
 ### N-10. Un reemplazo que no es publicidad (UC-14 7 FAIL, R40.6 4 FAIL)
 

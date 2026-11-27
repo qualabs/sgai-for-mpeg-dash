@@ -37,7 +37,8 @@ la 6ta no entra al repo: se citan oraciones.
   ADR de N-5, sin link al issue) y "three rows" pasa a "four". N-6: R1.8 con
   su nota; `context/05` no cambia. N-7: R4.12 a continuación de R4.6, con su
   "Implementation note". N-8: la "Implementation note" de las
-  transiciones bajo R1.7, después de su nota; sin número ni MUST. En el mismo commit: las oraciones citadas por las reglas de
+  transiciones bajo R1.7, después de su nota; sin número ni MUST. N-9: R1.9
+  (SHOULD). En el mismo commit: las oraciones citadas por las reglas de
   `bin/conformance/spec/` y los `criterion_sha256` de los tests y vectores del
   criterio tocado. Las N que no cambian `context/` (N-10 A) no van acá.
   Restricciones: `context/` sigue autocontenido (CLAUDE.md); ninguna regla en
@@ -102,7 +103,9 @@ la 6ta no entra al repo: se citan oraciones.
   instante estrictamente antes del fin), N-7 (`R4.12-1`: un aviso de 8 s arrancado con la
   latencia del loop dispara `complete` a los 8 s; visto fallar con el mutante
   M1, que lo acorta por esa latencia), N-9
-  (UC-14 con la demora del principal), según la opción elegida. Esquema en
+  (UC-14: los campos que dependen de la alineación con `strength: should`;
+  con la referencia mutada para arrancar el slate en su borde dan
+  `SHOULD_NOT_MET` y no FAIL; depende de T-06), según la opción elegida. Esquema en
   `spec-source/behaviour/README.md`. Depende de T-01.
 - **Definition of done:** cada test nuevo o cambiado falla contra la
   referencia anterior o contra una mutación que viola la lectura, y pasa con
@@ -118,8 +121,8 @@ la 6ta no entra al repo: se citan oraciones.
   inicio de la ventana; la cabecera de `sgai-nonlinear.js:70` deja de
   atribuirle a H.3 la otra lectura), N-7 (PRTA =
   PRT en reproducción normal, sin la tolerancia ad hoc de
-  `sgai-linear.js:789`; R1.8-1 sigue en PASS), N-9 (A: el
-  slate en su borde menos la demora del principal), N-1 (B: geometría),
+  `sgai-linear.js:789`; R1.8-1 sigue en PASS), N-9 (el slate
+  en su borde menos la demora del principal), N-1 (B: geometría),
   N-3 (re-despacho en un seek interno, §5.10.2.4, sin re-resolver), N-10 (A: la marca neutra), N-12
   (el slot de pausa no avanza con el `playbackRate` del principal,
   `sgai-nonlinear.js:717`; `repeat` abre una presentación nueva por pasada,
@@ -169,8 +172,10 @@ la 6ta no entra al repo: se citan oraciones.
   segmentos por fixture en la generación de media
   (`bin/conformance/players.py`, hoy `-seg_duration` igual a lo declarado y
   duración entera divisora de 32 s), y una marca en el vector de "media
-  defectuosa a propósito, documento conforme", distinta de `expect_red`. D-2:
-  `sends_capabilities` por clase (UC-13 D3/D4) y
+  defectuosa a propósito, documento conforme", distinta de `expect_red`. N-9: la
+  marca `strength: should` por campo del vector, y el veredicto
+  `SHOULD_NOT_MET` del comparador, contado aparte, con su negativo (el mismo
+  desvío sin la marca da FAIL). D-2: `sends_capabilities` por clase (UC-13 D3/D4) y
   la capacidad de sesión del perfil de clase (UC-19 D1), en
   `spec-source/scenarios/schema.json`, `check-scenarios.py`,
   `bin/conformance/behaviour*.py`. N-10 A: `element: alternative` en esquema,
