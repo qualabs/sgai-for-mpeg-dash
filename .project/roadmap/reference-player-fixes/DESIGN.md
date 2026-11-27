@@ -41,9 +41,9 @@ después del v13, cuando el carrier exista en `spec-source/`.
 | Y-4 | R40.4/R40.9 retoman, PLY-49 termina | ADR 0025: retomar. R40.9 (03:2170), R40.4 (03:2209), UC-22 (04:2040) |
 | Y-5 | §5.1.3 MAY vs R34.9 MUST | ADR 0028: MUST desde el primer candidato (03:1272) |
 
-## Decisiones de norma (las toma el líder del proyecto)
+## Decisiones de norma (tomadas por el líder del proyecto, 2026-11-26/27)
 
-Cada una con el texto de hoy, la evidencia, las opciones y la recomendación.
+Cada una con el texto de hoy, la evidencia y lo que el líder decidió.
 Las citas de la 6ta están verificadas contra la copia primaria; las de
 nuestro texto, contra su línea.
 
@@ -356,14 +356,18 @@ define.
   > - **The same candidate as the video option of an overlay** (D1, D2; D3–D5
   >   select an image option or skip, as in UC-03): removed at its declared
   >   duration.
-  > - **Legacy Player** — ignores the break (UC-07).
+  > - **Legacy Player** — executes the break with its base semantics (§5.16)
+  >   and ends A at its declared duration, as its Period ends.
   >
   > **What this demonstrates:** a declared duration is a promise the Player
   > keeps for the ad, so a defective encode costs its own surplus and nothing
   > of the ads after it.
 
-  Si N-11 sale B, la línea legacy cambia: un legacy de la 6ta sí ejecuta el
-  corte (D-1) y corta igual, porque su dash.js recorta en el Period.
+  La línea legacy queda: un legacy de la 6ta (D-1) sí ejecuta el corte, y
+  corta en lo declarado igual, porque su dash.js recorta en el Period. T-01 la
+  escribe así: *"**Legacy Player** — executes the break with its base
+  semantics (§5.16) and ends A at its declared duration, as its Period
+  ends."*
 - **Tests:**
   - `R4.5-1` (lineal): inserción a los 2 s con `@maxDuration` 10 000 (el tope
     no acota), List MPD de ad1 (5 s declarados) y ad2 (4 s). ad1 trae
@@ -597,13 +601,21 @@ define.
   resultados legacy y las ventanas contestadas 404.
 - **Problema:** la referencia pide las ventanas y el vector espera que no
   pida nada. No es de la 6ta: es nuestro anexo.
-- **Opciones:**
-  - A. Completar el Annex G: documentos de overlay y pausa, resultado de G.9
-    por clase. Duplica lo que UC-17 / Annex Q ya cubre.
-  - B. UC-07 queda sólo para legacy: en 04 D1–D5 pasan a "—", `check-scenarios`
-    exige sólo `legacy`, G.9 remite a UC-17.
-- **Recomendación: B.** El sujeto de UC-07 es el Player legacy, y el caso
-  Player de esta spec ya está en UC-17.
+- **Decidido (el líder, 2026-11-27): UC-07 es sólo del Player legacy.** Su
+  sujeto es el legacy, y el caso de un Player de esta spec con supersede ya
+  está escrito en UC-17. Descartado completar el Annex G con los documentos de
+  overlay y pausa: duplica UC-17 / Annex Q.
+- **Qué cambia:**
+  - `context/04` (T-01): en UC-07 las columnas D1–D5 de la fila de cobertura
+    pasan a "—", y el *"Expected behavior (uniform across device classes
+    D1..D5)"* (04:821) pasa a ser el del Player legacy; G.9 remite a UC-17.
+  - El vector (T-02): `UC-07.yaml` sólo con `legacy`; salen sus D1–D5 y la
+    variante `[pause-requests-nothing]` de D1–D5. `check-scenarios.py` exige
+    las clases que la fila de cobertura declara, así que con "—" pide sólo
+    `legacy`; si no lo lee así, se corrige ahí (T-06).
+  - El v13: el Annex G.9 remite a UC-17 / Annex Q.
+  - Los 10 FAIL desaparecen porque esos jobs dejan de existir, no porque
+    pasen: el informe de T-08 lo cuenta así.
 
 ## Decisiones de ejecución
 

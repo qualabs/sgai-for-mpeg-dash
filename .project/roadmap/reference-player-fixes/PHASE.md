@@ -16,9 +16,10 @@ ejecución D-1 a D-7.
 
 ## Alcance
 
-- **Norma** (`context/03`, `context/04`): lo que el líder elija en N-1 a N-12,
-  un commit por decisión, cada uno con el test o vector que lo cubre. La fase
-  no abre nada con el WG.
+- **Norma** (`context/03`, `context/04`, `context/06`): lo que el líder
+  decidió en N-1 a N-12, con el texto exacto de `DESIGN.md`, un commit por
+  decisión, cada uno con el test o vector que lo cubre. La fase no abre nada
+  con el WG.
 - **La referencia** (`reference-player/src/`): sigue cada lectura decidida.
 - **El instrumento**: la clase legacy como Player de la 6ta (D-1), el formato
   con capacidades por clase (D-2) y el elemento `alternative` (N-10),
@@ -48,4 +49,5 @@ ejecución D-1 a D-7.
 
 ## Stakeholders
 
-El líder del proyecto decide N-1 a N-12.
+El líder del proyecto decidió N-1 a N-12 (2026-11-26/27) y aprueba el plan; da
+la ventana sin carga de T-08.
