@@ -5,7 +5,7 @@
 | T-01 | `context/` dice lo que el líder decidió en N-1 a N-12, con las citas y hashes al día       | pending | agent | —    | —        |
 | T-02 | Cada decisión tiene el test o vector que la cubre, visto fallar                           | pending | agent | —    | —        |
 | T-03 | La referencia toma la lectura decidida en cada punto                                       | pending | agent | —    | —        |
-| T-04 | Los `[DISCUSSION]` para el WG están escritos, listos para publicar                         | pending | both  | —    | —        |
+| T-04 | Los `[DISCUSSION]` para el WG están escritos, listos para publicar                         | pending | agent | —    | —        |
 | T-05 | La clase legacy es el dash.js fijado con el lineal de la 6ta                               | pending | agent | —    | —        |
 | T-06 | Los vectores mal escritos dicen lo que dicta el texto                                     | pending | agent | —    | —        |
 | T-07 | El formato dice capacidades por clase y, si N-10 sale A, la presentación alternativa       | pending | agent | —    | —        |
@@ -34,10 +34,8 @@ la 6ta no entra al repo: se citan oraciones.
   `context/03` (lecturas del Player bajo R1.5, filas de "Deliberately open",
   R4.5 reescrito como regla defensiva, N-4) o `context/04` (UC-07 si N-11
   sale B; UC-23 nuevo con su fila de cobertura, N-4). N-5: R1.7 con su nota,
-  la fila nueva de "Deliberately open" (*Decided by MPEG*, con la URL del
-  issue en "Recorded in") y "three rows" pasa a "four"; esta parte espera a
-  que T-04 tenga publicado el issue de N-5, porque la nota dice que la
-  contradicción ya se planteó. En el mismo commit: las oraciones citadas por las reglas de
+  la fila nueva de "Deliberately open" (*Decided by MPEG*, "Recorded in" la
+  ADR de N-5, sin link al issue) y "three rows" pasa a "four". En el mismo commit: las oraciones citadas por las reglas de
   `bin/conformance/spec/` y los `criterion_sha256` de los tests y vectores del
   criterio tocado. Las N que no cambian `context/` (N-10 A) no van acá.
   Restricciones: `context/` sigue autocontenido (CLAUDE.md); ninguna regla en
@@ -133,12 +131,9 @@ la 6ta no entra al repo: se citan oraciones.
   vector de borde o el FAIL que lo muestra, y la lectura que toma nuestra
   spec; el marcador `<!-- sgai-issues: ours -->` al final (D15). En inglés.
   Sin datos de la copia primaria fuera de la oración citada. Depende de T-01.
-- **Definition of done:** un archivo por issue en `tasks/T-04/`; el de N-5
-  publicado por el líder, con su URL anotada en `tasks/T-04/`.
+- **Definition of done:** un archivo por issue en `tasks/T-04/`; ninguno
+  publicado. Nada en `context/` los nombra.
 - **nivel de verificación:** mínimo. Lo lee el líder antes de que salga.
-- **Needs from a person:** el líder publica en GitHub el `[DISCUSSION]` de
-  N-5 (el texto queda en `tasks/T-04/`) y pasa la URL. Es lo primero que se
-  escribe en la fase, porque T-01 la necesita para R1.7.
 
 ## T-05 — Legacy es un Player de la 6ta
 

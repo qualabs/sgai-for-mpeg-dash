@@ -411,17 +411,16 @@ define.
   > insertion ends, §5.16.2.2.5 step 1a resets the event queue, and the reset
   > re-adds every event still active at the return point, so read literally
   > an insertion with @executeOnce="false" would run again in a loop. Its
-  > informative Annex A.14.5 does not do this. The contradiction has been
-  > raised with MPEG.
+  > informative Annex A.14.5 does not do this.
 
 - **"Deliberately open"** suma una fila: la contradicción entre el paso 1a de
-  §5.16.2.2.5 y A.14.5, *Decided by MPEG*, con el issue como "Recorded in". El
+  §5.16.2.2.5 y A.14.5, *Decided by MPEG*. "Recorded in" cita la ADR de esta
+  decisión (la que escribe la generación del plan), como las otras filas citan
+  la ADR 0021; ningún link al issue. El
   párrafo de abajo de la tabla dice *"The three rows above are the only
   questions this edition leaves open"*: pasa a cuatro.
-- **La última frase de la nota es verdad recién cuando el issue existe.** Por
-  eso va en orden: T-04 escribe el `[DISCUSSION]`, el líder lo publica y pasa
-  la URL, y recién entonces T-01 escribe R1.7 y la fila con esa URL. Hasta
-  ahí, el resto de T-01 avanza.
+- **El `[DISCUSSION]` es opcional e independiente** (T-04): nada en
+  `context/03` lo nombra, y R1.7 no lo espera.
 - **Test** (E2 de los vectores de borde pasa a ser este test de conducta):
   inserción con intervalo activo 100–130 s, un aviso de 15 s,
   `@executeOnce="false"`. Se ejecuta una vez y el principal sigue desde los
