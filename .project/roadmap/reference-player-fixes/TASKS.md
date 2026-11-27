@@ -7,7 +7,7 @@
 | T-03 | La referencia toma la lectura decidida en cada punto                                       | pending | agent | —    | —        |
 | T-04 | La clase legacy es el dash.js fijado con el lineal de la 6ta                               | pending | agent | —    | —        |
 | T-05 | Los vectores mal escritos dicen lo que dicta el texto                                     | pending | agent | —    | —        |
-| T-06 | El formato dice capacidades por clase y, si N-10 sale A, la presentación alternativa       | pending | agent | —    | —        |
+| T-06 | El formato dice capacidades por clase y la presentación alternativa                         | pending | agent | —    | —        |
 | T-07 | Los 3 jobs inestables dan el mismo veredicto cargados que solos                           | pending | agent | —    | —        |
 | T-08 | La batería entera corrió una vez, con el antes y el después                               | pending | agent | —    | —        |
 | T-09 | El proyecto lee la guía IAB de la v2.0 final, fijada a un commit                          | pending | agent | —    | —        |
@@ -40,7 +40,7 @@ la 6ta no entra al repo: se citan oraciones.
   transiciones bajo R1.7, después de su nota; sin número ni MUST. N-9: R1.9
   (SHOULD). En el mismo commit: las oraciones citadas por las reglas de
   `bin/conformance/spec/` y los `criterion_sha256` de los tests y vectores del
-  criterio tocado. Las N que no cambian `context/` (N-10 A) no van acá.
+  criterio tocado. Las N que no cambian `context/` (N-10) no van acá.
   Restricciones: `context/` sigue autocontenido (CLAUDE.md); ninguna regla en
   `context/05`, que es informativo. N-1 son los rectángulos de `DESIGN.md`
   (N-1), cada valor con su referencia a `v2.0.md` y la nota de que los videos
@@ -123,7 +123,7 @@ la 6ta no entra al repo: se citan oraciones.
   PRT en reproducción normal, sin la tolerancia ad hoc de
   `sgai-linear.js:789`; R1.8-1 sigue en PASS), N-9 (el slate
   en su borde menos la demora del principal), N-1 (B: geometría),
-  N-3 (re-despacho en un seek interno, §5.10.2.4, sin re-resolver), N-10 (A: la marca neutra), N-12
+  N-3 (re-despacho en un seek interno, §5.10.2.4, sin re-resolver), N-10 (la marca neutra, `data-sgai-element="alternative"`), N-12
   (el slot de pausa no avanza con el `playbackRate` del principal,
   `sgai-nonlinear.js:717`; `repeat` abre una presentación nueva por pasada,
   `:1086`), según lo elegido. Entradas:
@@ -166,8 +166,8 @@ la 6ta no entra al repo: se citan oraciones.
 
 ## T-06 — Formato por clase y presentación alternativa
 
-- **Objective:** el formato puede decir lo que un UC pide por clase, y, si
-  N-10 sale A, una presentación alternativa que no es candidato.
+- **Objective:** el formato puede decir lo que un UC pide por clase, y una
+  presentación alternativa que no es candidato (N-10).
 - **What it must cover:** N-4: un override de la duración real de los
   segmentos por fixture en la generación de media
   (`bin/conformance/players.py`, hoy `-seg_duration` igual a lo declarado y
@@ -178,9 +178,9 @@ la 6ta no entra al repo: se citan oraciones.
   desvío sin la marca da FAIL). D-2: `sends_capabilities` por clase (UC-13 D3/D4) y
   la capacidad de sesión del perfil de clase (UC-19 D1), en
   `spec-source/scenarios/schema.json`, `check-scenarios.py`,
-  `bin/conformance/behaviour*.py`. N-10 A: `element: alternative` en esquema,
+  `bin/conformance/behaviour*.py`. N-10: `element: alternative` en esquema,
   adaptador, comparador; UC-14 y R40.6 reescritos. Compatibilidad con los
-  vectores que no lo usan. Depende de T-01 para N-10.
+  vectores que no lo usan. Sin dependencias (N-10 no cambia `context/`).
 - **Definition of done:** un fixture con segmentos reales de 2,2 s
   declarados de 2 s, medido (`ffprobe` de cada segmento); los 3 jobs de D-2 y los 11 de N-10 sin esos FAIL; los
   tests de `bin/` del formato con su negativo; la suite de `bin/` en 0.

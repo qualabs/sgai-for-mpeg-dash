@@ -21,7 +21,7 @@ ejecución D-1 a D-7.
   no abre nada con el WG.
 - **La referencia** (`reference-player/src/`): sigue cada lectura decidida.
 - **El instrumento**: la clase legacy como Player de la 6ta (D-1), el formato
-  con capacidades por clase (D-2) y el elemento `alternative` si N-10 sale A,
+  con capacidades por clase (D-2) y el elemento `alternative` (N-10),
   los vectores mal escritos (D-3), los 3 jobs inestables (D-4).
 - **La guía IAB v2.0 final** (D-6): el paso 5, las citas de `context/`, el
   mirror y una nota en las ADR 0001, 0002 y 0004.

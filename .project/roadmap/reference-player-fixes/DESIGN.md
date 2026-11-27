@@ -574,14 +574,20 @@ define.
 - **Problema:** la spec ya tiene posición; el formato no. El slate y la
   alternativa de R40.6 se escriben `shows: []`, la referencia los marca
   `ad` y el comparador los lee como aviso lineal.
-- **Opciones:**
-  - A. Sólo el formato y la observación: `element: alternative` para todo lo
-    que ejecuta un evento lineal heredado, `selection` lo registra sin
-    llamarlo aviso, la referencia lo marca neutro. Se reescriben UC-14 y R40.6.
-  - B. Un carrier del Publisher que diga "no es publicidad". Contradice R40 y
-    ADR 0012; es un constructo nuevo.
-- **Recomendación: A.** La spec ya dice lo correcto; los 11 FAIL son del
-  instrumento.
+- **Decidido (el líder, 2026-11-27): A, sólo el formato y la observación; la
+  spec no cambia.** La razón, en sus términos: la spec es agnóstica de qué es
+  el contenido. Una alternativa es contenido (video, imagen o HTML), y que sea
+  un aviso, un slate de blackout o un gráfico de estadísticas durante un
+  partido no le importa al Player. Es lo que ya dice 03:2099.
+- **Qué cambia:**
+  - El formato (T-06): todo lo que ejecuta un evento lineal heredado se
+    registra como `element: alternative`, con su documento. `selection` lo
+    registra sin llamarlo aviso. Los vectores que no lo usan no cambian.
+  - La referencia (T-03) marca esas superficies neutras
+    (`data-sgai-element="alternative"`), no `ad`.
+  - Los vectores (T-02): UC-14 y R40.6 reescritos, sin el `shows: []` ni la
+    nota de que el formato no tiene el elemento.
+- **Fuera de alcance:** renombrar "ad" en la spec o en `context/`.
 
 ### N-11. UC-07 / Annex G.9 sin documento de resolución (10 FAIL)
 
