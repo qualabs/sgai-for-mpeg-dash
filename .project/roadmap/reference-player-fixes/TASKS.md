@@ -36,7 +36,8 @@ la 6ta no entra al repo: se citan oraciones.
   la fila nueva de "Deliberately open" (*Decided by MPEG*, "Recorded in" la
   ADR de N-5, sin link al issue) y "three rows" pasa a "four". N-6: R1.8 con
   su nota; `context/05` no cambia. N-7: R4.12 a continuación de R4.6, con su
-  "Implementation note". En el mismo commit: las oraciones citadas por las reglas de
+  "Implementation note". N-8: la "Implementation note" de las
+  transiciones bajo R1.7, después de su nota; sin número ni MUST. En el mismo commit: las oraciones citadas por las reglas de
   `bin/conformance/spec/` y los `criterion_sha256` de los tests y vectores del
   criterio tocado. Las N que no cambian `context/` (N-10 A) no van acá.
   Restricciones: `context/` sigue autocontenido (CLAUDE.md); ninguna regla en

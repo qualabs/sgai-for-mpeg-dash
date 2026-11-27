@@ -503,13 +503,25 @@ define.
   formato congela hasta 1000 ms por transición (`scenarios/README.md:58`).
 - **Problema:** la referencia mide 376–1025 ms sin nada en pantalla; bajo
   1000 ms queda como nota, nunca FAIL.
-- **Opciones:**
-  - A. Criterio con número ("primer frame a ≤ X ms"). Testeable, pero sin base
-    para X, y la referencia hoy lo rompe (1025 ms).
-  - B. Calidad de implementación: fila en "Deliberately open"; los 1000 ms
-    quedan como regla del instrumento.
-  - C. SHOULD sin número. No testeable.
-- **Recomendación: B.** No hay fuente para un número.
+- **Decidido (el líder, 2026-11-27): sólo una "Implementation note"**, sin
+  número, sin MUST, sin fila en "Deliberately open", sin nombrar el harness ni
+  los 1000 ms. Texto exacto:
+
+  > Implementation note: every transition, into an ad and back to the primary
+  > content, is expected to be imperceptible: no black frames, no frozen
+  > frame, no visible gap. A Player achieves it by preparing the next
+  > presentation ahead of time (for example, preloading its first segments
+  > before the transition). MPEG-DASH 6th edition does not quantify this, and
+  > neither does this specification.
+
+- **Dónde va: bajo R1.7** (N-5), después de su nota. Es el único criterio cuyo
+  sujeto es la vuelta de un aviso lineal al principal. Busqué "return",
+  "resum", "back to the primary" y "transition" en todo `context/03`; no hay
+  un criterio general de transiciones. Los otros candidatos son más angostos:
+  R4.6 trata el fin de un reemplazo bajo el tope, R16.1 la salida de la pausa
+  (ya pide *"within one rendering frame"*) y R35.5 el descarte.
+- El instrumento conserva su regla de 1000 ms tal como está (sólo
+  instrumento). Ni test nuevo ni cambio en la referencia.
 
 ### N-9. Alternativa en vivo acoplada a la latencia (UC-14, 6 FAIL)
 
