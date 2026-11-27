@@ -5,14 +5,13 @@
 | T-01 | `context/` dice lo que el líder decidió en N-1 a N-12, con las citas y hashes al día       | pending | agent | —    | —        |
 | T-02 | Cada decisión tiene el test o vector que la cubre, visto fallar                           | pending | agent | —    | —        |
 | T-03 | La referencia toma la lectura decidida en cada punto                                       | pending | agent | —    | —        |
-| T-04 | Los `[DISCUSSION]` para el WG están escritos, listos para publicar                         | pending | agent | —    | —        |
-| T-05 | La clase legacy es el dash.js fijado con el lineal de la 6ta                               | pending | agent | —    | —        |
-| T-06 | Los vectores mal escritos dicen lo que dicta el texto                                     | pending | agent | —    | —        |
-| T-07 | El formato dice capacidades por clase y, si N-10 sale A, la presentación alternativa       | pending | agent | —    | —        |
-| T-08 | Los 3 jobs inestables dan el mismo veredicto cargados que solos                           | pending | agent | —    | —        |
-| T-09 | La batería entera corrió una vez, con el antes y el después                               | pending | agent | —    | —        |
-| T-10 | El proyecto lee la guía IAB de la v2.0 final, fijada a un commit                          | pending | agent | —    | —        |
-| T-11 | Cierre: REPORT.md (Mode D), LOG y validador                                               | pending | agent | —    | —        |
+| T-04 | La clase legacy es el dash.js fijado con el lineal de la 6ta                               | pending | agent | —    | —        |
+| T-05 | Los vectores mal escritos dicen lo que dicta el texto                                     | pending | agent | —    | —        |
+| T-06 | El formato dice capacidades por clase y, si N-10 sale A, la presentación alternativa       | pending | agent | —    | —        |
+| T-07 | Los 3 jobs inestables dan el mismo veredicto cargados que solos                           | pending | agent | —    | —        |
+| T-08 | La batería entera corrió una vez, con el antes y el después                               | pending | agent | —    | —        |
+| T-09 | El proyecto lee la guía IAB de la v2.0 final, fijada a un commit                          | pending | agent | —    | —        |
+| T-10 | Cierre: REPORT.md (Mode D), LOG y validador                                               | pending | agent | —    | —        |
 
 Lo común a todas: las decisiones están en `PHASE.md`, en `DESIGN.md` (N-1 a
 N-11 con la opción que eligió el líder, D-1 a D-7) y en sus ADR. La batería es
@@ -35,7 +34,8 @@ la 6ta no entra al repo: se citan oraciones.
   R4.5 reescrito como regla defensiva, N-4) o `context/04` (UC-07 si N-11
   sale B; UC-23 nuevo con su fila de cobertura, N-4). N-5: R1.7 con su nota,
   la fila nueva de "Deliberately open" (*Decided by MPEG*, "Recorded in" la
-  ADR de N-5, sin link al issue) y "three rows" pasa a "four". En el mismo commit: las oraciones citadas por las reglas de
+  ADR de N-5, sin link al issue) y "three rows" pasa a "four". N-6: R1.8 con
+  su nota; `context/05` no cambia. En el mismo commit: las oraciones citadas por las reglas de
   `bin/conformance/spec/` y los `criterion_sha256` de los tests y vectores del
   criterio tocado. Las N que no cambian `context/` (N-10 A) no van acá.
   Restricciones: `context/` sigue autocontenido (CLAUDE.md); ninguna regla en
@@ -56,7 +56,7 @@ la 6ta no entra al repo: se citan oraciones.
   frase de cierre de la introducción de R16, R16.3 nuevo (R16.2 está
   retirado), la frase de R32.1 `repeat`, la variante `repeat` con imagen de
   UC-05 en `context/04`, y el texto de §3.1 y PLY-65 anotado en
-  `roadmap/major-build-v13` como texto decidido. Depende de T-10 para N-1; el resto,
+  `roadmap/major-build-v13` como texto decidido. Depende de T-09 para N-1; el resto,
   sin dependencias.
 - **Definition of done:** un commit por decisión con el porqué en el mensaje;
   después de cada uno, los gates `check-normative-base`,
@@ -91,11 +91,13 @@ la 6ta no entra al repo: se citan oraciones.
   `R4.5-2` (overlay) con media real de 2,2 s declarada de 2 s, vistos fallar
   con la referencia mutada (fin en el `ended` del video, `useAppendWindow:
   false`); el vector de UC-23; R4.5 sale de `behaviour/index.yaml`. Depende
-  de T-07 para el fixture, N-5 (`R1.7-1`: intervalo activo
+  de T-06 para el fixture. N-5 (`R1.7-1`: intervalo activo
   100–130 s, aviso de 15 s, `@executeOnce="false"`; una sola ejecución y el
   principal sigue desde 100 s; seek a 90 s y se ejecuta otra vez al llegar a
   100; visto fallar con el mutante del reset literal de QE; E2 pasa a este
-  test), N-6 (callback en el fin del Period), N-7, N-9
+  test), N-6 (`R1.8-1`: un aviso de 15 s con `complete` a
+  los 15 s lo dispara; visto fallar con la referencia mutada para exigir el
+  instante estrictamente antes del fin), N-7, N-9
   (UC-14 con la demora del principal), según la opción elegida. Esquema en
   `spec-source/behaviour/README.md`. Depende de T-01.
 - **Definition of done:** cada test nuevo o cambiado falla contra la
@@ -123,19 +125,7 @@ la 6ta no entra al repo: se citan oraciones.
   los criterios que tocó cada cambio dan el mismo veredicto que antes o mejor.
 - **nivel de verificación:** alto. Es el juez de la batería.
 
-## T-04 — Borradores `[DISCUSSION]`
-
-- **Objective:** cada punto de la 6ta que el líder mandó al WG (según N-5,
-  N-6, N-8, N-9, N-10) tiene su issue escrito, listo para que él lo publique.
-- **What it must cover:** la cláusula y la oración citadas, el problema, el
-  vector de borde o el FAIL que lo muestra, y la lectura que toma nuestra
-  spec; el marcador `<!-- sgai-issues: ours -->` al final (D15). En inglés.
-  Sin datos de la copia primaria fuera de la oración citada. Depende de T-01.
-- **Definition of done:** un archivo por issue en `tasks/T-04/`; ninguno
-  publicado. Nada en `context/` los nombra.
-- **nivel de verificación:** mínimo. Lo lee el líder antes de que salga.
-
-## T-05 — Legacy es un Player de la 6ta
+## T-04 — Legacy es un Player de la 6ta
 
 - **Objective:** la clase `legacy` de la batería hace el lineal de la 6ta e
   ignora la extensión, como dice el glosario, y sus 18 FAIL dejan de medir al
@@ -148,11 +138,11 @@ la 6ta no entra al repo: se citan oraciones.
   (`--players`) no cambia. Sin dependencias.
 - **Definition of done:** los 6 jobs legacy en PASS; una mutación que carga la
   familia no lineal en legacy da FAIL en UC-11 legacy; una que quita el lineal
-  da FAIL en los 6; la muestra de regresión del modo `sgai` igual que en T-09.
+  da FAIL en los 6; la muestra de regresión del modo `sgai` igual que en T-08.
   ADR de D-1.
 - **nivel de verificación:** alto. Cambia qué mide toda una clase.
 
-## T-06 — Vectores mal escritos
+## T-05 — Vectores mal escritos
 
 - **Objective:** los vectores dicen lo que dicta el texto, y los 29
   NOT_VERIFIABLE por oportunidad ambigua se pueden juzgar.
@@ -166,7 +156,7 @@ la 6ta no entra al repo: se citan oraciones.
 - **nivel de verificación:** alto. Un vector escrito sobre la conducta de la
   referencia la aprueba por definición.
 
-## T-07 — Formato por clase y presentación alternativa
+## T-06 — Formato por clase y presentación alternativa
 
 - **Objective:** el formato puede decir lo que un UC pide por clase, y, si
   N-10 sale A, una presentación alternativa que no es candidato.
@@ -186,7 +176,7 @@ la 6ta no entra al repo: se citan oraciones.
   tests de `bin/` del formato con su negativo; la suite de `bin/` en 0.
 - **nivel de verificación:** alto. Es el instrumento con que se juzga todo.
 
-## T-08 — Sin inestables
+## T-07 — Sin inestables
 
 - **Objective:** R40.3-2 D1, R28.1-1 D1 [no-activation] y UC-12 D1 dan el mismo
   veredicto con la máquina cargada que solos.
@@ -200,20 +190,20 @@ la 6ta no entra al repo: se citan oraciones.
 - **nivel de verificación:** alto. Un reloj que perdona demasiado esconde
   atrasos reales.
 
-## T-09 — La batería entera
+## T-08 — La batería entera
 
 - **Objective:** hay una medición de la batería entera sobre el código final,
   comparable con la de la fase 11.
 - **What it must cover:** D-7: máquina sin carga ajena, concurrencia 2,
   `uptime` al inicio y al final; cada FAIL clasificado (referencia, test,
   norma, inestable) y lo inestable re-corrido solo dos veces. Depende de T-01
-  a T-08 y de T-10.
-- **Definition of done:** `tasks/T-09/battery.md` con los totales antes y
+  a T-07 y de T-09.
+- **Definition of done:** `tasks/T-08/battery.md` con los totales antes y
   después y cada FAIL clasificado; cero FAIL de la referencia.
 - **nivel de verificación:** alto. Es la medición que dice si la batería ya
   sirve de juicio.
 
-## T-10 — La guía IAB v2.0 final
+## T-09 — La guía IAB v2.0 final
 
 - **Objective:** todo lo que el proyecto toma de la guía IAB sale de la
   versión final, en un commit fijo, y se puede citar por línea.
@@ -237,11 +227,11 @@ la 6ta no entra al repo: se citan oraciones.
   seguidas con la misma entrada y sí al cambiar el commit (visto); los gates
   de `context/` en 0; `grep -rn "Dec 2025\|docs.google.com/document/d/17JX"`
   sobre `context/` y `prompts/` vacío, probado antes contra un archivo que lo
-  tiene; la búsqueda de signaling y `pos` en `tasks/T-10/`.
+  tiene; la búsqueda de signaling y `pos` en `tasks/T-09/`.
 - **nivel de verificación:** alto. Es fuente de requisitos: una cita que no
   dice lo que la v2.0 dice se construye entera en el v13.
 
-## T-11 — Cierre
+## T-10 — Cierre
 
 - **Objective:** la fase cerrada con su REPORT, y `major-build-v13` sabe lo que
   recibe.

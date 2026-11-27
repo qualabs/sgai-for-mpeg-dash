@@ -85,7 +85,7 @@ define.
   - double box: 0, 25, 50, 50 y 50, 25, 50, 50 (√0,25 = 50%);
   - `squeezeback-frame`: 11,27, 11,27, 77,46, 77,46 (centrado, √0,60).
 - **Qué cambia:** la tabla de R12.5 en `context/03` (T-01), citando `v2.0.md`
-  fijado a un commit (T-10); R12.5-1 y R27.1 pierden el `[inferred]` (T-02);
+  fijado a un commit (T-09); R12.5-1 y R27.1 pierden el `[inferred]` (T-02);
   la referencia no cambia, salvo sumar el frame cuando exista su token (Y-1).
 
 ### N-2. R36.1: offset 0 en una ventana de pausa
@@ -384,7 +384,7 @@ define.
   fixture de 2,2 s pide un override de la duración real por fixture, y una
   marca en el vector de "media defectuosa a propósito, documento conforme",
   porque `expect_red` exige que fallen reglas de documento y acá no falla
-  ninguna (el nivel 1 no mira la media). Va en T-07. Un `Period@duration`
+  ninguna (el nivel 1 no mira la media). Va en T-06. Un `Period@duration`
   que no es múltiplo del segmento (PT5S con segmentos de 2 s) no sirve: es
   conforme (A.3.3), no es el defecto que se pidió, y dash.js lo resuelve solo.
 - **El v13:** PLY-26, PLY-37 y R-PLY-13 de la spec dicen el texto viejo; los
@@ -398,7 +398,7 @@ define.
 - **Problema:** leída literal, una inserción con `@executeOnce="false"` se
   re-ejecuta para siempre. Sin FAIL (la referencia toma A.14.5); el mutante
   literal lo caza E2.
-- **Decidido (el líder, 2026-11-27): C, lectura en 03 + `[DISCUSSION]`.**
+- **Decidido (el líder, 2026-11-27): lectura en 03, sin issue al WG.**
   Texto exacto para `context/03` (R1.7 está libre: R1 llega a R1.6 y la tabla
   de retirados no tiene ningún R1):
 
@@ -419,8 +419,6 @@ define.
   la ADR 0021; ningún link al issue. El
   párrafo de abajo de la tabla dice *"The three rows above are the only
   questions this edition leaves open"*: pasa a cuatro.
-- **El `[DISCUSSION]` es opcional e independiente** (T-04): nada en
-  `context/03` lo nombra, y R1.7 no lo espera.
 - **Test** (E2 de los vectores de borde pasa a ser este test de conducta):
   inserción con intervalo activo 100–130 s, un aviso de 15 s,
   `@executeOnce="false"`. Se ejecuta una vez y el principal sigue desde los
@@ -439,13 +437,26 @@ define.
 - **Problema:** el `complete` de todo aviso convertido de VAST cae en ese
   borde; un Player puede no dispararlo nunca. Sin FAIL (la referencia usa
   `≤`).
-- **Opciones:**
-  - A. Lectura en 03 (R1.5): un evento on-start en el fin de su Period se
-    despacha cuando la presentación llega a ese fin. Un test nuevo.
-  - B. Al APS: el callback de fin va estrictamente adentro del Period (un
-    frame antes). Cambian `context/05:346` y la tabla VAST→ListMPD.
-  - C. A + `[DISCUSSION]`.
-- **Recomendación: C.** Coherente con el no lineal y no obliga a los APS.
+- **Decidido (el líder, 2026-11-27): A, con una nota, sin WG.** Texto exacto
+  para `context/03` (R1.8 queda libre después de R1.7):
+
+  > **R1.8** (Player): An event at the end of its Period still fires: an
+  > on-start event whose presentation time equals the end of its Period is
+  > dispatched when the presentation reaches that end.
+  >
+  > Note: this looks obvious. It is stated because MPEG-DASH 6th edition
+  > dispatches an on-start event at the presentation time of its media sample
+  > (Annex A.13.7), and at the very end of a Period there is no sample: the
+  > last frame starts slightly before it. Read literally, a Player could never
+  > fire such an event, and that is where the `complete` beacon of every ad
+  > converted from VAST falls.
+
+- `context/05` queda como está: el beacon sigue en el fin del Period.
+- **Test:** un aviso de 15 s con `complete` a los 15 s lo dispara; un Player
+  que espera un sample a los 15 s falla (visto fallar con la referencia
+  mutada para exigir el instante estrictamente antes del fin, en
+  `fireCallbacks`, `sgai-linear.js:729`).
+- **La referencia** ya lo hace: no cambia.
 
 ### N-7. La 6ta: `@clip` corta la latencia de ejecución
 
@@ -463,8 +474,7 @@ define.
     saca el parche.
   - B. Tolerancia explícita: un corte no mayor que la latencia de ejecución
     cuenta como fin. Un número sin base en la 6ta.
-  - C. A + `[DISCUSSION]`.
-- **Recomendación: A.** Ya está en el texto normativo; no hace falta el WG.
+- **Recomendación: A.** Ya está en el texto normativo.
 
 ### N-8. La 6ta: el blanco al volver a RT
 
@@ -476,8 +486,8 @@ define.
 - **Opciones:**
   - A. Criterio con número ("primer frame a ≤ X ms"). Testeable, pero sin base
     para X, y la referencia hoy lo rompe (1025 ms).
-  - B. Calidad de implementación: fila en "Deliberately open" y
-    `[DISCUSSION]`; los 1000 ms quedan como regla del instrumento.
+  - B. Calidad de implementación: fila en "Deliberately open"; los 1000 ms
+    quedan como regla del instrumento.
   - C. SHOULD sin número. No testeable.
 - **Recomendación: B.** No hay fuente para un número.
 
@@ -498,8 +508,7 @@ define.
   - B. Del Publisher: el mismo `MPD@suggestedPresentationDelay` en los dos
     MPD; N.4/N.7 dejan de suponer latencia igual y el vector se ensancha.
     Ningún Player cambia.
-  - C. A o B, más `[DISCUSSION]` sobre qué demora quiere decir "live edge".
-- **Recomendación: A + `[DISCUSSION]`.** El resultado de UC-14 sólo vale con
+- **Recomendación: A.** El resultado de UC-14 sólo vale con
   latencia igual, y hoy nada la garantiza.
 
 ### N-10. Un reemplazo que no es publicidad (UC-14 7 FAIL, R40.6 4 FAIL)
@@ -517,7 +526,6 @@ define.
     llamarlo aviso, la referencia lo marca neutro. Se reescriben UC-14 y R40.6.
   - B. Un carrier del Publisher que diga "no es publicidad". Contradice R40 y
     ADR 0012; es un constructo nuevo.
-  - C. `[DISCUSSION]` para que MPEG le dé valores a `EventStream@value`.
 - **Recomendación: A.** La spec ya dice lo correcto; los 11 FAIL son del
   instrumento.
 
@@ -587,8 +595,8 @@ pase: las citas de las reglas del nivel 2 (`bin/conformance/spec/`) que
 transcriben la oración cambiada, los hashes de los tests y vectores de ese
 criterio, y el test que lo cubre, visto fallar (ADR 0085). Los gates de
 `context/` (Steps 0–0.7) en verde. `spec-source/` (la prosa) y `dist/` no se
-tocan: el v13 los absorbe. Los `[DISCUSSION]` al WG salen como borradores; los
-publica el líder del proyecto.
+tocan: el v13 los absorbe. La fase no abre nada con el WG (el líder,
+2026-11-27).
 
 ### D-6. La guía IAB se lee de la v2.0 final, fijada a un commit
 
