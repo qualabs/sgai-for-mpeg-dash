@@ -468,13 +468,33 @@ define.
   diferencia y el `complete` no sale (mutante M1 de T-08: *"complete expected
   at 8000 | observed at never"*). La referencia lo tapa con una tolerancia
   (`sgai-linear.js:789`).
-- **Opciones:**
-  - A. Lectura en R4.6: por reproducción normal PRTA = PRT; el atraso que
-    `@clip` descuenta es el de join, seek o alternativo previo. La referencia
-    saca el parche.
-  - B. Tolerancia explícita: un corte no mayor que la latencia de ejecución
-    cuenta como fin. Un número sin base en la 6ta.
-- **Recomendación: A.** Ya está en el texto normativo.
+- **Decidido (el líder, 2026-11-27): A, con una "Implementation note"** (esa
+  etiqueta, literal). Criterio nuevo **R4.12**, escrito a continuación de
+  R4.6. El número: R4 usa R4.1–R4.11 y retira R4.3; la regla 3 de "How
+  requirements are written" deja los ids estables, y no hay sub-numeración
+  `R4.6-x` en el archivo, así que es el siguiente libre. Texto exacto:
+
+  > **R4.12** (Player): In normal playback an event counts as executed at its
+  > scheduled time (PRTA = PRT, MPEG-DASH 6th edition §5.16.2.2.1 step 4). The
+  > delay that @clip subtracts is only the one the base names: a join, a seek,
+  > or a previous alternative still playing.
+  >
+  > Implementation note: a real Player always executes an event slightly
+  > after its scheduled time, by the latency of the loop that detects it (a
+  > few to a few hundred milliseconds). That latency is an implementation
+  > tolerance, not a late start: it MUST NOT shorten the ad. Otherwise an 8 s
+  > ad started 1 ms late is cut at 7.999 s and its complete beacon never
+  > fires.
+
+- **Test:** un aviso de 8 s arrancado con la latencia del loop dispara su
+  `complete` a los 8 s; un Player que lo acorta por esa latencia falla (el
+  mutante M1 de la fase 11, que hoy caza E12).
+- **La referencia** saca su tolerancia ad hoc (`sgai-linear.js:789`, el
+  `Math.max(EPS, alt.lag)`) y aplica la regla: en reproducción normal PRTA =
+  PRT, y `@clip` descuenta sólo join, seek o alternativo previo. Ese mismo
+  parche cubre hoy el evento en el fin del Period: al sacarlo, R1.8 (N-6) se
+  tiene que seguir cumpliendo, y su test lo verifica.
+- Sin WG.
 
 ### N-8. La 6ta: el blanco al volver a RT
 

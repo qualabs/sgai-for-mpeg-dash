@@ -35,7 +35,8 @@ la 6ta no entra al repo: se citan oraciones.
   sale B; UC-23 nuevo con su fila de cobertura, N-4). N-5: R1.7 con su nota,
   la fila nueva de "Deliberately open" (*Decided by MPEG*, "Recorded in" la
   ADR de N-5, sin link al issue) y "three rows" pasa a "four". N-6: R1.8 con
-  su nota; `context/05` no cambia. En el mismo commit: las oraciones citadas por las reglas de
+  su nota; `context/05` no cambia. N-7: R4.12 a continuación de R4.6, con su
+  "Implementation note". En el mismo commit: las oraciones citadas por las reglas de
   `bin/conformance/spec/` y los `criterion_sha256` de los tests y vectores del
   criterio tocado. Las N que no cambian `context/` (N-10 A) no van acá.
   Restricciones: `context/` sigue autocontenido (CLAUDE.md); ninguna regla en
@@ -97,7 +98,9 @@ la 6ta no entra al repo: se citan oraciones.
   100; visto fallar con el mutante del reset literal de QE; E2 pasa a este
   test), N-6 (`R1.8-1`: un aviso de 15 s con `complete` a
   los 15 s lo dispara; visto fallar con la referencia mutada para exigir el
-  instante estrictamente antes del fin), N-7, N-9
+  instante estrictamente antes del fin), N-7 (`R4.12-1`: un aviso de 8 s arrancado con la
+  latencia del loop dispara `complete` a los 8 s; visto fallar con el mutante
+  M1, que lo acorta por esa latencia), N-9
   (UC-14 con la demora del principal), según la opción elegida. Esquema en
   `spec-source/behaviour/README.md`. Depende de T-01.
 - **Definition of done:** cada test nuevo o cambiado falla contra la
@@ -112,8 +115,9 @@ la 6ta no entra al repo: se citan oraciones.
   su cabecera dice cuál.
 - **What it must cover:** N-2 (`preResolvePause` precarga la pausa desde el
   inicio de la ventana; la cabecera de `sgai-nonlinear.js:70` deja de
-  atribuirle a H.3 la otra lectura), N-7 (A:
-  PRTA = PRT por cruce, sin el parche de `sgai-linear.js:789`), N-9 (A: el
+  atribuirle a H.3 la otra lectura), N-7 (PRTA =
+  PRT en reproducción normal, sin la tolerancia ad hoc de
+  `sgai-linear.js:789`; R1.8-1 sigue en PASS), N-9 (A: el
   slate en su borde menos la demora del principal), N-1 (B: geometría),
   N-3 (re-despacho en un seek interno, §5.10.2.4, sin re-resolver), N-10 (A: la marca neutra), N-12
   (el slot de pausa no avanza con el `playbackRate` del principal,
